@@ -71,6 +71,13 @@ You can install the released version of irtQ from
 install.packages("irtQ")
 ```
 
+You can also install the latest development version of **irtQ** from GitHub using the **devtools** package:
+
+```r
+install.packages("devtools")
+devtools::install_github("hwangQ/irtQ")
+```
+
 ## 1. Item Calibration for a Linear Test Form
 
 Item parameter estimation for a linear test form can be performed using the `irtQ::est_irt()` function, which implements marginal maximum likelihood estimation via the expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981). The function returns item parameter estimates along with their standard errors, computed using the cross-product approximation method (Meilijson, 1989).
