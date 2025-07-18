@@ -1,0 +1,23 @@
+# Project documentation sources (excluded from build)
+^README\.Rmd$
+^NEWS\.Rmd$
+^cran-comments\.md$
+^CRAN-RELEASE$
+
+# RStudio-specific files and settings
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.Rhistory$
+^\.Renviron$
+
+# Development-only directories and files
+^data-raw$
+^revdep$
+
+# Git and GitHub configuration files
+^\.gitignore$
+^\.github$
+
+
+
+
