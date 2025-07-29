@@ -51,8 +51,7 @@ Also, model fit assessment includes item fit statistics such as:
 
 In addition, the package offers a variety of utilities for IRT analysis, including:
 
-- Evaluating model-data fit
-- Detecting DIF
+- Detecting DIF (e.g., RDIF, CATSIB)
 - Computing classification accuracy and consistency indices
 - Simulating response data
 - Computing the conditional distribution of observed scores using the Lord-Wingersky recursion
