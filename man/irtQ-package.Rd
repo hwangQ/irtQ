@@ -718,6 +718,14 @@ Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003). BILOG-MG
 (Computer Software). Chicago, IL: Scientific Software International. URL
 http://www.ssicentral.com
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/hwangQ/irtQ}
+  \item Report bugs at \url{https://github.com/hwangQ/irtQ/issues}
+}
+
+}
 \author{
 Hwanggyu Lim \email{hglim83@gmail.com}
 }
