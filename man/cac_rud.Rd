@@ -5,9 +5,14 @@
 \title{Classification Accuracy and Consistency Based on Rudner's (2001, 2005)
 Approach}
 \usage{
-cac_rud(cutscore, theta = NULL, se, weights = NULL)
+cac_rud(x = NULL, cutscore, theta = NULL, se = NULL, weights = NULL,
+  D = 1)
 }
 \arguments{
+\item{x}{A data frame containing item metadata. If provided and \code{se} is
+  \code{NULL}, standard errors are computed from the test information
+  function.}
+
 \item{cutscore}{A numeric vector specifying the cut scores for
 classification. Cut scores are the points that separate different
 performance categories (e.g., pass vs. fail, or different grades).}
@@ -17,13 +22,16 @@ values) are the individual proficiency estimates obtained from the IRT
 model. The theta parameter is optional and can be \code{NULL}.}
 
 \item{se}{A numeric vector of the same length as \code{theta} representing the
-standard errors associated with each ability estimate. See the \strong{Details}
-section for more information}
+standard errors associated with each ability estimate. If omitted, and
+\code{x} is provided, these values are computed using the test information
+function. See the \strong{Details} section for more information}
 
 \item{weights}{An optional two-column data frame or matrix where the first
 column is the quadrature points (nodes) and the second column is the
 corresponding weights. This is typically used in quadrature-based IRT
 analysis.}
+
+\item{D}{A scaling constant used in IRT models. Default is 1.}
 }
 \value{
 A list containing the following elements:
@@ -44,9 +52,10 @@ available, and when individual ability estimates are used.
 \details{
 This function first validates the input arguments. If both \code{theta}
 and \code{weights} are \code{NULL}, the function will stop and return an error message.
-Either \code{theta} or \code{weights} must be specified. In addition, \code{se} must be
-provided and must match the length of \code{theta} or the number of quadrature
-points in \code{weights}.
+Either \code{theta} or \code{weights} must be specified. If \code{se} is
+omitted, it will be computed from the test information using item metadata
+\code{x}. The length of \code{se} must match the length of \code{theta} or the
+number of quadrature points in \code{weights}.
 
 It then computes the probability that an examinee with a given ability is
 classified into each performance level using the normal distribution function
@@ -79,12 +88,8 @@ cutscore <- c(-2, -0.5, 0.8)
 node <- seq(-4, 4, 0.25)
 weights <- gen.weight(dist = "norm", mu = 0, sigma = 1, theta = node)
 
-# Compute conditional standard errors across quadrature points
-tif <- info(x = x, theta = node, D = 1, tif = TRUE)$tif
-se <- 1 / sqrt(tif)
-
 # Compute classification accuracy and consistency
-cac_1 <- cac_rud(cutscore = cutscore, se = se, weights = weights)
+cac_1 <- cac_rud(x = x, cutscore = cutscore, weights = weights, D = 1)
 print(cac_1)
 
 ## -----------------------------------------
@@ -106,8 +111,8 @@ est_theta <- est_score(
 theta_hat <- est_theta$est.theta
 se <- est_theta$se.theta
 
-# Compute classification accuracy and consistency
-cac_2 <- cac_rud(cutscore = cutscore, theta = theta_hat, se = se)
+# Compute classification accuracy and consistency using provided SEs
+cac_2 <- cac_rud(x = x, cutscore = cutscore, theta = theta_hat, se = se)
 print(cac_2)
 }
 

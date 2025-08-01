@@ -8,14 +8,16 @@
 #'
 #' @inheritParams cac_lee
 #' @param se A numeric vector of the same length as `theta` representing the
-#'   standard errors associated with each ability estimate. See the **Details**
-#'   section for more information
+#'   standard errors associated with each ability estimate. If omitted and
+#'   `x` is supplied, standard errors are computed using the test information
+#'   function. See the **Details** section for more information
 #'
 #' @details This function first validates the input arguments. If both `theta`
 #' and `weights` are `NULL`, the function will stop and return an error message.
-#' Either `theta` or `weights` must be specified. In addition, `se` must be
-#' provided and must match the length of `theta` or the number of quadrature
-#' points in `weights`.
+#' Either `theta` or `weights` must be specified. If `se` is not provided, it
+#' will be computed from the test information based on the item metadata `x`.
+#' The length of `se` must match the length of `theta` or the number of
+#' quadrature points in `weights`.
 #'
 #' It then computes the probability that an examinee with a given ability is
 #' classified into each performance level using the normal distribution function
@@ -66,12 +68,8 @@
 #' node <- seq(-4, 4, 0.25)
 #' weights <- gen.weight(dist = "norm", mu = 0, sigma = 1, theta = node)
 #'
-#' # Compute conditional standard errors across quadrature points
-#' tif <- info(x = x, theta = node, D = 1, tif = TRUE)$tif
-#' se <- 1 / sqrt(tif)
-#'
 #' # Compute classification accuracy and consistency
-#' cac_1 <- cac_rud(cutscore = cutscore, se = se, weights = weights)
+#' cac_1 <- cac_rud(x = x, cutscore = cutscore, weights = weights, D = 1)
 #' print(cac_1)
 #'
 #' ## -----------------------------------------
@@ -93,28 +91,37 @@
 #' theta_hat <- est_theta$est.theta
 #' se <- est_theta$se.theta
 #'
-#' # Compute classification accuracy and consistency
-#' cac_2 <- cac_rud(cutscore = cutscore, theta = theta_hat, se = se)
+#' # Compute classification accuracy and consistency using provided SEs
+#' cac_2 <- cac_rud(x = x, cutscore = cutscore, theta = theta_hat, se = se)
 #' print(cac_2)
 #' }
 #'
 #' @import dplyr
 #' @export
-cac_rud <- function(cutscore,
+cac_rud <- function(x = NULL,
+                    cutscore,
                     theta = NULL,
-                    se,
-                    weights = NULL) {
-
-  # check if the provided inputs are correct
-  if (missing(se)) {
-    stop("The standard errors must be provided in `se` argument.", call. = FALSE)
-  }
+                    se = NULL,
+                    weights = NULL,
+                    D = 1) {
 
   # check if the provided inputs are correct
   if (is.null(theta) & is.null(weights)) {
     stop("Eighter of `theta` or `weights` argument must not be NULL; both cannot be NULL",
          call. = FALSE
     )
+  }
+
+  # compute standard errors if not provided
+  if (is.null(se)) {
+    if (is.null(x)) {
+      stop("Either `se` or `x` argument must be supplied.", call. = FALSE)
+    }
+    if (!is.null(weights)) {
+      se <- 1 / sqrt(info(x = x, theta = weights[, 1], D = D, tif = TRUE)$tif)
+    } else {
+      se <- 1 / sqrt(info(x = x, theta = theta, D = D, tif = TRUE)$tif)
+    }
   }
 
   # count the number of levels
