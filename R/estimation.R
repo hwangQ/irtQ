@@ -60,7 +60,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
         aprior = aprior, bprior = bprior, gprior = gprior,
         use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
         gradient = grad_item_drm,
-        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 0.1, step.max = 1), lower = lower, upper = upper
+        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 0.01, step.max = 1), lower = lower, upper = upper
       )
       tmp_est[[2]] <- stats::nlminb(startval,
         objective = loglike_drm, f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
@@ -68,7 +68,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
         aprior = aprior, bprior = bprior, gprior = gprior,
         use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
         gradient = grad_item_drm,
-        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 1, step.max = 2), lower = lower, upper = upper
+        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 0.01, step.max = 2), lower = lower, upper = upper
       )
       tmp_est[[3]] <- stats::nlminb(startval,
         objective = loglike_drm, f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
@@ -76,7 +76,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
         aprior = aprior, bprior = bprior, gprior = gprior,
         use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
         gradient = grad_item_drm,
-        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 2, step.max = 3), lower = lower, upper = upper
+        control = list(eval.max = 100, iter.max = 50, trace = 0, step.min = 0.01, step.max = 3), lower = lower, upper = upper
       )
       tmp_num <- which.min(c(tmp_est[[1]]$objective, tmp_est[[2]]$objective, tmp_est[[3]]$objective))
       startval <- tmp_est[[tmp_num]]$par
@@ -294,7 +294,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           aprior = aprior, bprior = bprior, gprior = gprior,
           use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
           gradient = grad_item_drm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.1, step.max = 1),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 1),
           lower = lower, upper = upper
         )
         tmp_est[[2]] <- stats::nlminb(startval,
@@ -303,7 +303,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           aprior = aprior, bprior = bprior, gprior = gprior,
           use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
           gradient = grad_item_drm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 1, step.max = 2),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 2),
           lower = lower, upper = upper
         )
         tmp_est[[3]] <- stats::nlminb(startval,
@@ -312,7 +312,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           aprior = aprior, bprior = bprior, gprior = gprior,
           use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
           gradient = grad_item_drm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 2, step.max = 3),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 3),
           lower = lower, upper = upper
         )
         tmp_num <- which.min(c(tmp_est[[1]]$objective, tmp_est[[2]]$objective, tmp_est[[3]]$objective))
@@ -357,7 +357,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           nstd = n.quad, fix.a = fix.a.gpcm, a.val = a.val.gpcm,
           aprior = aprior, bprior = bprior, use.aprior = use.aprior, use.bprior = use.bprior,
           gradient = grad_item_prm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.1, step.max = 1, trace = 0),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 1, trace = 0),
           lower = lower, upper = upper
         )
         tmp_est[[2]] <- stats::nlminb(startval,
@@ -365,7 +365,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           nstd = n.quad, fix.a = fix.a.gpcm, a.val = a.val.gpcm,
           aprior = aprior, bprior = bprior, use.aprior = use.aprior, use.bprior = use.bprior,
           gradient = grad_item_prm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 1, step.max = 2, trace = 0),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 2, trace = 0),
           lower = lower, upper = upper
         )
         tmp_est[[3]] <- stats::nlminb(startval,
@@ -373,7 +373,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           nstd = n.quad, fix.a = fix.a.gpcm, a.val = a.val.gpcm,
           aprior = aprior, bprior = bprior, use.aprior = use.aprior, use.bprior = use.bprior,
           gradient = grad_item_prm,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 2, step.max = 3, trace = 0),
+          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 3, trace = 0),
           lower = lower, upper = upper
         )
         tmp_num <- which.min(c(tmp_est[[1]]$objective, tmp_est[[2]]$objective, tmp_est[[3]]$objective))
