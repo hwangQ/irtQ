@@ -115,7 +115,9 @@
 #'   with the item parameters using the approach proposed by Woods (2007).
 #'   Item calibration is then performed relative to the estimated empirical priors.
 #' @param Etol A positive numeric value specifying the convergence criterion for
-#'   the E-step of the EM algorithm. Default is `1e-4`.
+#'   the E-step of the EM algorithm. Default is 1e-3. 
+#'   Specifically, the EM algorithm terminates when the largest absolute difference 
+#'   in item parameter estimates between consecutive iterations is smaller than this value.
 #' @param fipc Logical. If `TRUE`, multiple-group fixed item parameter
 #'   calibration (MG-FIPC) is applied during item parameter estimation.
 #'   When `fipc = TRUE`, the information on which items are fixed
@@ -637,7 +639,7 @@ est_mg <- function(x = NULL,
                    use.startval = FALSE,
                    Etol = 1e-03,
                    MaxE = 500,
-                   control = list(eval.max = 200, iter.max = 200),
+                   control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4),
                    fipc = FALSE,
                    fipc.method = "MEM",
                    fix.loc = NULL,
@@ -709,7 +711,7 @@ est_mg_em <- function(x = NULL,
                       use.startval = FALSE,
                       Etol = 1e-03,
                       MaxE = 500,
-                      control = list(eval.max = 200, iter.max = 200),
+                      control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4),
                       se = TRUE,
                       verbose = TRUE) {
 
@@ -1465,7 +1467,7 @@ est_mg_fipc <- function(x = NULL,
                         use.startval = FALSE,
                         Etol = 1e-04,
                         MaxE = 500,
-                        control = list(eval.max = 200, iter.max = 200),
+                        control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4),
                         fipc = TRUE,
                         fipc.method = "MEM",
                         fix.loc = NULL,
