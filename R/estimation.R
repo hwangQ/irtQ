@@ -159,7 +159,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
         nstd = nstd, fix.a = fix.a.gpcm, a.val = a.val.gpcm,
         aprior = aprior, bprior = bprior, use.aprior = use.aprior, use.bprior = use.bprior,
         gradient = grad_item_prm,
-        control = list(eval.max = 50, iter.max = 30, step.min = 0.1, step.max = 1, trace = 0), lower = lower, upper = upper
+        control = list(eval.max = 50, iter.max = 30, step.min = 0.01, step.max = 1, trace = 0), lower = lower, upper = upper
       )
       startval <- tmp_est$par
 
