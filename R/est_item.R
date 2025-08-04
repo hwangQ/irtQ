@@ -42,10 +42,16 @@
 #'   models specified in the `model` argument are dichotomous (`"1PLM"`,
 #'   `"2PLM"`, `"3PLM"`, or `"DRM"`), the function defaults to 2 categories per
 #'   item. This argument is used only when `x = NULL`. Default is `NULL`.
-#' @param control A list of control parameters to be passed to the optimization
-#'   function [stats::nlminb()]. These parameters define settings for the item
-#'   parameter estimation process, such as the maximum number of iterations.
-#'   See [stats::nlminb()] for additional control options.
+#' @param control A named list of options passed directly to [stats::nlminb()]. 
+#'   These parameters define settings for the item parameter estimation process, 
+#'   such as the maximum number of iterations. By default:
+#'   `control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)`, where  
+#'   - `eval.max` = 500 limits the number of function evaluations  
+#'   - `iter.max` = 200 caps the number of internal optimizer iterations  
+#'   - `x.tol` = 1e‑4 sets the absolute change threshold in parameter values  
+#'     below which [stats::nlminb()] considers the solution to have converged  
+#'   Users may additionally supply other `nlminb()` control options  
+#'   (such as `abs.tol`, `rel.tol`, `trace`, etc.) as needed.
 #' @param verbose Logical. If `FALSE`, all progress messages are suppressed.
 #'   Default is `TRUE`.
 #'
@@ -208,7 +214,7 @@ est_item <- function(x = NULL,
                      gprior = list(dist = "beta", params = c(5, 17)),
                      missing = NA,
                      use.startval = FALSE,
-                     control = list(eval.max = 500, iter.max = 500),
+                     control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4),
                      verbose = TRUE) {
 
   # check start time
