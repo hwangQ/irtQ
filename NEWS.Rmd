@@ -13,6 +13,15 @@ knitr::opts_chunk$set(
 )
 ```
 
+# irtQ 1.0.1
+
+* Resolved an issue in `catsib()` where the function failed when all responses were missing (NA) in either the reference or focal group.
+
+* Updated `cac_rud()` to include the `x` argument, allowing users to pass item metadata data frames directly.  
+
+* Revised default `control` parameters in `est_irt()`, `est_item()`, and `est_mg()`, and updated the documentation accordingly.
+
+
 # irtQ 1.0.0
 
 * The documentation for the `irtQ` package has been revised to reflect updates to function behavior, fix typos, and provide more relevant and detailed information for existing functions.
