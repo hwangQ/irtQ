@@ -21,6 +21,8 @@ knitr::opts_chunk$set(
 
 * Revised default `control` parameters in `est_irt()`, `est_item()`, and `est_mg()`, and updated the documentation accordingly.
 
+* Fixed a minor bug in `est_score()` function in terms of Newton-Raphson method. 
+
 
 # irtQ 1.0.0
 
