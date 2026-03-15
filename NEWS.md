@@ -1,6 +1,20 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# irtQ 1.0.1
+
+- Resolved an issue in `catsib()` where the function failed when all
+  responses were missing (NA) in either the reference or focal group.
+
+- Updated `cac_rud()` to include the `x` argument, allowing users to
+  pass item metadata data frames directly.
+
+- Revised default `control` parameters in `est_irt()`, `est_item()`, and
+  `est_mg()`, and updated the documentation accordingly.
+
+- Fixed a minor bug in `est_score()` function in terms of Newton-Raphson
+  method.
+
 # irtQ 1.0.0
 
 - The documentation for the `irtQ` package has been revised to reflect
@@ -43,8 +57,8 @@
   recursion-based evaluation method introduced by Lim et al. (2020).
 
 - Added a new function, `pcd2()`, which computes the Pseudo-count
-  $`D^{2}`$ statistics (Cappaert et al., 2018; Stone, 2000) to detect
-  item parameter drift.
+  $D^{2}$ statistics (Cappaert et al., 2018; Stone, 2000) to detect item
+  parameter drift.
 
 # irtQ 0.2.0
 
