@@ -873,7 +873,7 @@ est_score_indiv <- function(exam_dat, elm_item, max.col, D = 1, method = "ML",
       finfo <- gr_fi$finfo
 
       # protect the fisher information having value close to 0
-      finfo[finfo < 1e-5] <- 1e-5
+      finfo[finfo < 1e-5 | is.nan(finfo)] <- 1e-5
 
       # compute the theta correction factor (delta)
       delta <- grad / finfo
