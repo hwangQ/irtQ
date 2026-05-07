@@ -6,7 +6,9 @@
 
 # Development notes and submission metadata
 cran-comments.md
+CLAUDE.md
 
 # Local development directories (excluded from Git and build)
 data-raw/
 revdep/
+.positai

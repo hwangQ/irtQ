@@ -47,6 +47,9 @@ Authors@R: c(person("Hwanggyu", "Lim", email="hglim83@gmail.com", role=c("aut", 
     person("Jorge", "González", email="jgonzale@mat.puc.cl", role="ctb"), 
     person("David", "Magis", email="david.magis@uliege.be", role="ctb") 
     ) 
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/hwangQ/irtQ
