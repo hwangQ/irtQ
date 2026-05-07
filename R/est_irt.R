@@ -966,29 +966,12 @@ est_irt_em <- function(x = NULL,
     group.var <- moments.tmp[2]
   }
   
-  # factorize the response values
-  resp <- purrr::map2(
-    .x = data.frame(data, stringsAsFactors = FALSE), .y = cats,
-    .f = function(k, m) factor(k, levels = (seq_len(m) - 1))
-  )
-  
-  # create a contingency table of score categories for each item
-  # and then, transform the table to a matrix format
-  std.id <- 1:nstd
-  freq.cat <-
-    purrr::map(
-      .x = resp,
-      .f = function(k) {
-        stats::xtabs(~ std.id + k,
-                     na.action = stats::na.pass, addNA = FALSE
-        ) %>%
-          # as.numeric() %>%
-          matrix(nrow = length(k))
-      }
-    )
-  
-  # delete 'resp' object
-  rm(resp, envir = environment(), inherits = FALSE)
+  # build the per-item one-hot frequency-category list used by
+  # divide_data() below and by info_xpd() in the SE step.  See
+  # build_freqcat() (R/util.R) for the output structure; it replaces a
+  # data.frame -> factor -> xtabs -> matrix chain that allocated four
+  # separate copies of the response data.
+  freq.cat <- build_freqcat(data, cats)
   
   # break down the item metadata into several elements
   elm_item <- breakdown(x)
@@ -1525,70 +1508,20 @@ est_irt_fipc <- function(x = NULL,
     n.quad <- length(quadpt)
   }
   
-  # factorize the response values
+  # build per-item one-hot frequency-category lists for the new (free),
+  # fixed, and combined response sets used downstream by divide_data()
+  # and info_xpd().  build_freqcat() (R/util.R) replaces the previous
+  # data.frame -> factor -> xtabs -> matrix chain with direct one-hot
+  # construction; output structure (list of nstd x cats[k] integer
+  # matrices) is identical.
   if (!is.null(x_new)) {
-    resp_new <-
-      purrr::map2(
-        .x = data.frame(data_new, stringsAsFactors = FALSE), .y = cats,
-        .f = function(k, m) factor(k, levels = (seq_len(m) - 1))
-      )
-    resp_fix <-
-      purrr::map2(
-        .x = data.frame(data_fix, stringsAsFactors = FALSE), .y = x_fix$cats,
-        .f = function(k, m) factor(k, levels = (seq_len(m) - 1))
-      )
-  } else {
-    resp_new <- NULL
-    resp_fix <- NULL
-  }
-  resp_all <-
-    purrr::map2(
-      .x = data.frame(data_all, stringsAsFactors = FALSE), .y = x_all$cats,
-      .f = function(k, m) factor(k, levels = (seq_len(m) - 1))
-    )
-  
-  # create a contingency table of score categories for each item
-  # and then, transform the table to a matrix format
-  std.id <- 1:nstd
-  if (!is.null(x_new)) {
-    freq_new.cat <- purrr::map(
-      .x = resp_new,
-      .f = function(k) {
-        stats::xtabs(~ std.id + k,
-                     na.action = stats::na.pass, addNA = FALSE
-        ) %>%
-          matrix(nrow = length(k))
-      }
-    )
-    freq_fix.cat <- purrr::map(
-      .x = resp_fix,
-      .f = function(k) {
-        stats::xtabs(~ std.id + k,
-                     na.action = stats::na.pass, addNA = FALSE
-        ) %>%
-          matrix(nrow = length(k))
-      }
-    )
+    freq_new.cat <- build_freqcat(data_new, cats)
+    freq_fix.cat <- build_freqcat(data_fix, x_fix$cats)
   } else {
     freq_new.cat <- NULL
     freq_fix.cat <- NULL
   }
-  freq_all.cat <- purrr::map(
-    .x = resp_all,
-    .f = function(k) {
-      stats::xtabs(~ std.id + k,
-                   na.action = stats::na.pass, addNA = FALSE
-      ) %>%
-        matrix(nrow = length(k))
-    }
-  )
-  
-  # delete 'resp' object
-  if (!is.null(x_new)) {
-    rm(resp_new, envir = environment(), inherits = FALSE)
-    rm(resp_fix, envir = environment(), inherits = FALSE)
-  }
-  rm(resp_all, envir = environment(), inherits = FALSE)
+  freq_all.cat <- build_freqcat(data_all, x_all$cats)
   
   # break down the item metadata into several elements
   if (!is.null(x_new)) {
