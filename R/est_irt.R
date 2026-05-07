@@ -1163,8 +1163,28 @@ est_irt_em <- function(x = NULL,
     # delete 'info.data', 'info.prior', and 'quadpt.vec' objects
     rm(info.data, info.prior, quadpt.vec, envir = environment(), inherits = FALSE)
     
-    # the second-order test: check if the information matrix is positive definite
-    test_2nd <- all(eigen(info.mat, only.values = TRUE)$values > 1e-20)
+    # second-order test + variance-covariance matrix in one Cholesky:
+    # chol(info.mat) succeeds iff info.mat is positive-definite, and the
+    # cached factor R lets chol2inv(R) compute the inverse cheaply (one
+    # Cholesky pass instead of an O(n^3) eigen-decomposition followed by
+    # an O(n^3) LU-based solve).  When chol() fails (rare for converged
+    # solutions), fall back to the original eigen + solve path so that
+    # near-singular cases keep their previous behavior bit-for-bit.
+    chol_R <- suppressWarnings(tryCatch(chol(info.mat), error = function(e) NULL))
+    if (!is.null(chol_R)) {
+      test_2nd <- TRUE
+      cov_mat <- chol2inv(chol_R)
+    } else {
+      test_2nd <- all(eigen(info.mat, only.values = TRUE)$values > 1e-20)
+      cov_mat <- suppressWarnings(tryCatch(
+        {
+          solve(info.mat, tol = 1e-200)
+        },
+        error = function(e) {
+          NULL
+        }
+      ))
+    }
     if (test_2nd) {
       if (test_1st) {
         memo4 <- "Solution is a possible local maximum."
@@ -1175,18 +1195,7 @@ est_irt_em <- function(x = NULL,
       memo4 <- "Information matrix of item parameter estimates is not positive definite; unstable solution."
       warning(paste0(memo4, " \n"), call. = FALSE)
     }
-    
-    # compute the variance-covariance matrix of the item parameter estimates, and
-    # check if the hessian matrix can be inversed
-    cov_mat <- suppressWarnings(tryCatch(
-      {
-        solve(info.mat, tol = 1e-200)
-      },
-      error = function(e) {
-        NULL
-      }
-    ))
-    
+
     # compute the standard errors of item parameter estimates
     if (is.null(cov_mat)) {
       se_par <- rep(99999, length(diag(info.mat)))
@@ -1196,16 +1205,16 @@ est_irt_em <- function(x = NULL,
       se_par <- suppressWarnings(sqrt(diag(cov_mat)))
       memo5 <- "Variance-covariance matrix of item parameter estimates is obtainable."
     }
-    
+
     # prevent showing NaN values of standard errors
     if (any(is.nan(se_par))) {
       se_par[is.nan(se_par)] <- 99999
     }
-    
+
     # set an upper bound of standard error
     se_par <- ifelse(se_par > 99999, 99999, se_par)
     time2 <- Sys.time()
-    
+
     # record the standard error computation time
     est_time2 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
   } else {
@@ -1835,8 +1844,23 @@ est_irt_fipc <- function(x = NULL,
       # sum of two information matrices
       info.mat <- info.data + info.prior
       
-      # the second-order test: check if the information matrix is positive definite
-      test_2nd <- all(eigen(info.mat, only.values = TRUE)$values > 1e-20)
+      # second-order test + variance-covariance matrix in one Cholesky:
+      # see est_irt() linear-form branch above for the full rationale.
+      chol_R <- suppressWarnings(tryCatch(chol(info.mat), error = function(e) NULL))
+      if (!is.null(chol_R)) {
+        test_2nd <- TRUE
+        cov_mat <- chol2inv(chol_R)
+      } else {
+        test_2nd <- all(eigen(info.mat, only.values = TRUE)$values > 1e-20)
+        cov_mat <- suppressWarnings(tryCatch(
+          {
+            solve(info.mat, tol = 1e-200)
+          },
+          error = function(e) {
+            NULL
+          }
+        ))
+      }
       if (test_2nd) {
         if (test_1st) {
           memo4 <- "Solution is a possible local maximum."
@@ -1847,18 +1871,7 @@ est_irt_fipc <- function(x = NULL,
         memo4 <- "Information matrix of item parameter estimates is not positive definite; unstable solution."
         warning(paste0(memo4, " \n"), call. = FALSE)
       }
-      
-      # compute the variance-covariance matrix of the item parameter estimates, and
-      # check if the hessian matrix can be inversed
-      cov_mat <- suppressWarnings(tryCatch(
-        {
-          solve(info.mat, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      
+
       # compute the standard errors of item parameter estimates
       if (is.null(cov_mat)) {
         se_par <- rep(99999, length(diag(info.mat)))
