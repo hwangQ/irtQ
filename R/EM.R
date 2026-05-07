@@ -3,66 +3,64 @@
 Estep_fipc <- function(elm_item1, elm_item2, idx.drm2, idx.prm2,
                        data_drm2, data_prm2, data_all1, weights,
                        D = 1, idx.std = NULL) {
-  # compute the likelihood and log-likelihood matrix of the fixed items
+  # compute the likelihood matrix of the fixed items
   # (in the first iteration of EM) or all items (in the rest of the iteration of EM)
-  # this (log) likelihood matrix is used only for computing the posterior density of ability
+  # this likelihood matrix is used only for computing the posterior density of ability
   if (is.null(idx.std)) {
-    L_LL <- likelihood(elm_item2,
+    likehd <- likelihood(elm_item2,
       idx.drm = idx.drm2, idx.prm = idx.prm2,
       data_drm = data_drm2, data_prm = data_prm2, theta = weights[, 1], D = D
-    )
+    )$L
   } else {
-    L_LL <- likelihood(elm_item2,
+    likehd <- likelihood(elm_item2,
       idx.drm = idx.drm2, idx.prm = idx.prm2,
       data_drm = data_drm2, data_prm = data_prm2, theta = weights[[1]][, 1], D = D
-    )
+    )$L
   }
 
   # posterior distribution
-  post_dist <- posterior(likehd = L_LL$L, weights = weights, idx.std = idx.std)
+  post_dist <- posterior(likehd = likehd, weights = weights, idx.std = idx.std)
 
   # compute the expected frequency of scores categories across all items
   # this is the conditional expectation of item responses with respect to posterior likelihood distribution
   freq.exp <- base::as.matrix(Matrix::crossprod(post_dist, data_all1))
 
   # return results
-  rst <- list(
+  list(
     elm_item = elm_item1, post_dist = post_dist, freq.exp = freq.exp,
-    loglikehd = L_LL$LL, likehd = L_LL$L, idx.std = idx.std
+    likehd = likehd, idx.std = idx.std
   )
-  rst
 }
 
 # E-step function
 #' @importFrom Matrix crossprod
 Estep <- function(elm_item, idx.drm = NULL, idx.prm = NULL,
                   data_drm, data_prm, data_all, weights, D = 1, idx.std = NULL) {
-  # compute the likelihood and log-likelihood matrix
+  # compute the likelihood matrix
   if (is.null(idx.std)) {
-    L_LL <- likelihood(elm_item,
+    likehd <- likelihood(elm_item,
       idx.drm = idx.drm, idx.prm = idx.prm,
       data_drm = data_drm, data_prm = data_prm, theta = weights[, 1], D = D
-    )
+    )$L
   } else {
-    L_LL <- likelihood(elm_item,
+    likehd <- likelihood(elm_item,
       idx.drm = idx.drm, idx.prm = idx.prm,
       data_drm = data_drm, data_prm = data_prm, theta = weights[[1]][, 1], D = D
-    )
+    )$L
   }
 
   # posterior distribution
-  post_dist <- posterior(likehd = L_LL$L, weights = weights, idx.std = idx.std)
+  post_dist <- posterior(likehd = likehd, weights = weights, idx.std = idx.std)
 
   # compute the expected frequency of scores categories across all items
   # this is the conditional expectation of item responses with respect to posterior likelihood distribution
   freq.exp <- base::as.matrix(Matrix::crossprod(post_dist, data_all))
 
   # return results
-  rst <- list(
+  list(
     elm_item = elm_item, post_dist = post_dist, freq.exp = freq.exp,
-    loglikehd = L_LL$LL, likehd = L_LL$L, idx.std = idx.std
+    likehd = likehd, idx.std = idx.std
   )
-  rst
 }
 
 
@@ -77,7 +75,6 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   elm_item <- estep$elm_item
   post_dist <- estep$post_dist
   freq.exp <- estep$freq.exp
-  loglikehd <- estep$loglikehd
   likehd <- estep$likehd
   idx.std <- estep$idx.std
 
