@@ -671,19 +671,25 @@ est_item <- function(x = NULL,
   llike <- -sum(objective)
 
   ## ---------------------------------------------------------------
-  # arrange the estimated item parameters and standard errors
+  # bind the per-item parameter and SE estimates into data.frames.
+  # FIXME: the previous implementation chained dplyr::arrange("loc")
+  # %>% dplyr::select(-"loc") after attaching a loc = c(loc_1p_const,
+  # loc_else) column, intending to permute the rows back into natural
+  # item order.  arrange() with a STRING argument sorts by the
+  # constant literal value "loc" (not the column named loc), so the
+  # arrange step was a no-op and the rows remain in the
+  # [loc_1p_const items, then loc_else items] order produced by the
+  # estimation loops above.  This was equivalent to simply dropping
+  # the loc column we just attached -- which is the simplification
+  # below.  The downstream cbind at line ~717 (data.frame(x[, 1:3],
+  # par_df)) consequently produces mis-paired (id, parameter) rows
+  # whenever loc_1p_const and loc_else are both non-empty (mixed
+  # 1PLM-constrained + other-model bank with fix.a.1pl = FALSE).
+  # That mis-pairing is a pre-existing behavior; correcting it would
+  # be a behavior change and is intentionally left for a separate
+  # commit so this refactor stays equivalence-preserving.
   par_df <- data.frame(bind.fill(est_par, type = "rbind"))
-  par_df$loc <- c(loc_1p_const, loc_else)
-  par_df <-
-    par_df %>%
-    dplyr::arrange("loc") %>%
-    dplyr::select(-"loc")
-  se_df <- data.frame(bind.fill(est_se, type = "rbind"))
-  se_df$loc <- c(loc_1p_const, loc_else)
-  se_df <-
-    se_df %>%
-    dplyr::arrange("loc") %>%
-    dplyr::select(-"loc")
+  se_df  <- data.frame(bind.fill(est_se,  type = "rbind"))
 
   # combine all covariance matrices
   cov_mat <- as.matrix(Matrix::bdiag(cov_list))

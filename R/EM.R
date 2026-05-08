@@ -254,11 +254,18 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
 
   ## ---------------------------------------------------------------
   if (!is.null(elm_item)) {
-    # arrange the estimated item parameters and standard errors
+    # arrange the estimated item parameters into natural item order.
+    # The estimation loop appends results in [loc_1p_const items,
+    # then loc_else items] order, so we permute by the inverse of
+    # that mapping -- which is exactly order(c(loc_1p_const,
+    # loc_else)).  Replaces a 4-step copy chain (cbind a loc column
+    # -> sort by it -> drop the column) that produced the same
+    # final permutation but allocated three intermediate matrix
+    # copies; the new path computes the integer permutation once
+    # on a small length-nitem vector and applies it as a single
+    # row index.
     par_df <- bind.fill(est_par, type = "rbind")
-    par_df <- cbind(loc = c(loc_1p_const, loc_else), par_df)
-    par_df <- par_df[order(par_df[, 1]), , drop = FALSE]
-    par_df <- par_df[, -1, drop = FALSE]
+    par_df <- par_df[order(c(loc_1p_const, loc_else)), , drop = FALSE]
 
     # create a full data.frame for the item parameter estimates
     colnames(par_df) <- paste0("par.", 1:ncol(par_df))
