@@ -1203,14 +1203,13 @@ est_mg_em <- function(x = NULL,
     }
     time1 <- Sys.time()
 
-
-    # create a vector of the quadrature points (length = nstd by n.quad)
-    quadpt.vec <- rep(quadpt, each = nstd)
-
-    # compute the information matrix of item parameters
+    # compute the information matrix of item parameters; info_xpd()
+    # works on the original ntheta-length quadrature grid (no
+    # nstd*ntheta expansion), so the caller no longer needs to
+    # construct quadpt.vec
     info.data <- info_xpd(
       elm_item = elm_item, freq.cat = freq.cat, post_dist = post_dist,
-      quadpt.vec = quadpt.vec, n.quadpt.vec = length(quadpt.vec), nstd = nstd,
+      quadpt = quadpt, nstd = nstd,
       D = D, loc_1p_const = loc_1p_const, loc_else = loc_else, n.1PLM = n.1PLM,
       fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g, a.val.1pl = a.val.1pl,
       a.val.gpcm = a.val.gpcm, g.val = g.val, reloc.par = param_loc$reloc.par
@@ -2069,13 +2068,11 @@ est_mg_fipc <- function(x = NULL,
       }
       time1 <- Sys.time()
 
-      # create a vector of the quadrature points (length = nstd by n.quad)
-      quadpt.vec <- rep(quadpt, each = nstd)
-
-      # compute the information matrix of item parameters
+      # compute the information matrix of item parameters; see linear-
+      # form branch above -- info_xpd() now consumes quadpt directly
       info.data <- info_xpd(
         elm_item = elm_item_new, freq.cat = freq_new.cat, post_dist = post_dist,
-        quadpt.vec = quadpt.vec, n.quadpt.vec = length(quadpt.vec), nstd = nstd,
+        quadpt = quadpt, nstd = nstd,
         D = D, loc_1p_const = loc_1p_const, loc_else = loc_else, n.1PLM = n.1PLM,
         fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g, a.val.1pl = a.val.1pl,
         a.val.gpcm = a.val.gpcm, g.val = g.val, reloc.par = param_loc$reloc.par
