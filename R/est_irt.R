@@ -1213,16 +1213,23 @@ est_irt_em <- function(x = NULL,
     data.frame(x[, 1:3], elm_item$pars) %>%
     confirm_df(g2na = TRUE)
   
-  # deploy the standard errors on the location of matrix as the item parameter estimates
+  # deploy the standard errors into the same row/column layout that
+  # holds the item parameter estimates.  loc.par is a nitem x ncols
+  # matrix where each non-NA cell stores the position into the flat
+  # se_par vector (i.e. the 1-based index of that estimated
+  # parameter), and NA cells correspond to parameter slots that this
+  # item's model does not use.  The replaced for-loop walked one row
+  # at a time, reconstructed the indices via which() + integer
+  # subset, and assigned per row.  The single-pass logical-mask
+  # assignment below produces an identical se_df because R applies
+  # the assignment in the same column-major order and reads se_par
+  # at the indices stored in the corresponding loc.par cells.
   se_df <- loc.par <- param_loc$loc.par
-  for (i in 1:nrow(loc.par)) {
-    num.loc <- which(!is.na(loc.par[i, ]))
-    se.loc <- loc.par[i, ][num.loc]
-    if (se) {
-      se_df[i, num.loc] <- se_par[se.loc]
-    } else {
-      se_df[i, num.loc] <- NA_real_
-    }
+  mask  <- !is.na(loc.par)
+  if (se) {
+    se_df[mask] <- se_par[loc.par[mask]]
+  } else {
+    se_df[mask] <- NA_real_
   }
   
   # create a full data.frame for the standard error estimates
@@ -1848,17 +1855,17 @@ est_irt_fipc <- function(x = NULL,
       data.frame(x_all[, 1:3], elm_item_all$pars) %>%
       confirm_df(g2na = TRUE)
     
-    # deploy the standard errors on the location of matrix as the item parameter estimates
-    # 1) for the only new items
+    # deploy the standard errors into the same row/column layout that
+    # holds the item parameter estimates.
+    # 1) for the only new items.  See the linear-form branch above
+    #    (around line ~1216) for the full rationale of the logical-
+    #    mask assignment that replaces the previous per-row for-loop.
     se_df <- loc.par <- param_loc$loc.par
-    for (i in 1:nrow(loc.par)) {
-      num.loc <- which(!is.na(loc.par[i, ]))
-      se.loc <- loc.par[i, ][num.loc]
-      if (se) {
-        se_df[i, num.loc] <- se_par[se.loc]
-      } else {
-        se_df[i, num.loc] <- NA_real_
-      }
+    mask  <- !is.na(loc.par)
+    if (se) {
+      se_df[mask] <- se_par[loc.par[mask]]
+    } else {
+      se_df[mask] <- NA_real_
     }
     
     # 2) for the a total test form

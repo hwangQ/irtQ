@@ -1295,15 +1295,16 @@ est_mg_em <- function(x = NULL,
     confirm_df(g2na = TRUE)
 
   # deploy the standard errors on the location of matrix as the item parameter estimates
+  # deploy the standard errors into the same row/column layout that
+  # holds the item parameter estimates; see est_irt.R linear-form
+  # branch for the rationale of the logical-mask assignment that
+  # replaces the previous per-row for-loop
   se_df <- loc.par <- param_loc$loc.par
-  for (i in 1:nrow(loc.par)) {
-    num.loc <- which(!is.na(loc.par[i, ]))
-    se.loc <- loc.par[i, ][num.loc]
-    if (se) {
-      se_df[i, num.loc] <- se_par[se.loc]
-    } else {
-      se_df[i, num.loc] <- NA_real_
-    }
+  mask  <- !is.na(loc.par)
+  if (se) {
+    se_df[mask] <- se_par[loc.par[mask]]
+  } else {
+    se_df[mask] <- NA_real_
   }
 
   # create a full data.frame for the standard error estimates
@@ -2165,17 +2166,17 @@ est_mg_fipc <- function(x = NULL,
       confirm_df(g2na = TRUE)
 
 
-    # deploy the standard errors on the location of matrix as the item parameter estimates
-    # 1) for the only new items
+    # deploy the standard errors into the same row/column layout that
+    # holds the item parameter estimates.
+    # 1) for the only new items.  See est_irt.R linear-form branch
+    #    for the rationale of the logical-mask assignment that
+    #    replaces the previous per-row for-loop.
     se_df <- loc.par <- param_loc$loc.par
-    for (i in 1:nrow(loc.par)) {
-      num.loc <- which(!is.na(loc.par[i, ]))
-      se.loc <- loc.par[i, ][num.loc]
-      if (se) {
-        se_df[i, num.loc] <- se_par[se.loc]
-      } else {
-        se_df[i, num.loc] <- NA_real_
-      }
+    mask  <- !is.na(loc.par)
+    if (se) {
+      se_df[mask] <- se_par[loc.par[mask]]
+    } else {
+      se_df[mask] <- NA_real_
     }
 
     # 2) for the a total test form
