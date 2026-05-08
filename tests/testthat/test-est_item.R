@@ -207,6 +207,37 @@ test_that("est_item() mixed DRM + GRM: covariance is finite + symmetric", {
   expect_lt(max(abs(fit$covariance - t(fit$covariance))), 1e-10)
 })
 
+test_that("est_item() handles cats = 3 GRM without diag<- crash", {
+  # cats == 3 GRM was a long-standing bug in hess_item_prm_inner():
+  # the off-diagonal b-block fill via diag(hess[2:m, 3:(m+1)]) <-
+  # hess_b1b2 silently dropped the 1x1 sub-matrix to a scalar when
+  # m == 2 (cats == 3), after which diag<-() raised
+  #   "only matrix diagonals can be replaced".
+  # Fixed by switching to 2-column index-matrix assignment, which
+  # treats the m == 2 single-cell case the same as m >= 3 multi-
+  # cell cases.  This test guards against regression.
+  set.seed(701)
+  x_grm3 <- shape_df(
+    par.prm = list(a = c(1.0, 1.1),
+                   d = list(c(-0.6, 0.5), c(-0.5, 0.4))),
+    item.id = c("P1", "P2"),
+    cats  = c(3L, 3L),
+    model = c("GRM", "GRM")
+  )
+  sim <- sim_with_score(x_grm3, n = 1500L, seed = 701)
+  fit <- run_item(x_grm3, sim, fix.a.1pl = TRUE)
+  expect_s3_class(fit, "est_item")
+  # the SE pipeline only succeeds if hess_item_prm() returned a
+  # full hessian for both cats=3 GRM rows; non-finite entries
+  # would propagate into se.est$par.* values
+  expect_true(all(is.finite(fit$covariance)))
+  expect_lt(max(abs(fit$covariance - t(fit$covariance))), 1e-10)
+  # cats=3 GRM has 1 slope + 2 thresholds = 3 params per item;
+  # 2 items -> 6 params total in the per-item covariance block-
+  # diagonal, then reordered by reloc.par
+  expect_equal(nrow(fit$covariance), 6L)
+})
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 5. Parameter recovery (loose tolerance)
