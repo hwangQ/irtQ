@@ -407,20 +407,13 @@ est_item <- function(x = NULL,
     prm = idx.prm
   )
 
-  # add the rowsum margin to the contingency matrix of the DRM items
-  if (!is.null(idx.drm)) {
-    freq.cat.drm <-
-      purrr::map(
-        .x = freq.cat[idx.drm],
-        ~ {
-          stats::addmargins(A = .x, margin = 2, quiet = TRUE)
-        }
-      )
-    freq.cat[idx.drm] <- freq.cat.drm
-
-    # delete 'freq.cat.drm' object
-    rm(freq.cat.drm, envir = environment(), inherits = FALSE)
-  }
+  # NOTE: previously this point added a per-DRM-item 3rd column equal
+  # to (s + r) via stats::addmargins() so that the 1PLM-constrained
+  # and DRM blocks below could read f_i directly as freq.cat[, 3].
+  # That augmentation is removed: f_i = s_i + r_i is computed at the
+  # point of use (see the loops below), which avoids one purrr::map
+  # over all DRM items, one matrix copy per item, and the integer ->
+  # double promotion that addmargins() silently performs.
 
   # create the lower and upper bounds of the item parameters
   parbd <- lubound(model, cats, n.1PLM, idx4est, fix.a.1pl, fix.g, fix.a.gpcm)
@@ -432,13 +425,21 @@ est_item <- function(x = NULL,
 
   # (1) estimation of DRM items: 1PLM with the constrained slope value
   if (!is.null(loc_1p_const)) {
-    # prepare input files to estimate the 1PLM item parameters
-    f_i <- r_i <- s_i <- array(0, c(nstd, n.1PLM))
-    for (k in 1:n.1PLM) {
-      s_i[, k] <- freq.cat[loc_1p_const][[k]][, 1]
-      r_i[, k] <- freq.cat[loc_1p_const][[k]][, 2]
-      f_i[, k] <- freq.cat[loc_1p_const][[k]][, 3]
+    # prepare input files to estimate the 1PLM item parameters.
+    # extract the per-item (incorrect, correct) columns from freq.cat
+    # via array preallocation (so the resulting matrices have no
+    # dimnames -- preserving the original behavior bit-for-bit) and
+    # compute f_i = s_i + r_i in one elementwise add.  This replaces
+    # the previous pattern that read freq.cat[[k]][, 3] -- a column
+    # added upfront by stats::addmargins() -- and removes the now-
+    # unneeded addmargins() pass entirely.
+    fc1pl <- freq.cat[loc_1p_const]
+    s_i <- r_i <- array(0, c(nstd, n.1PLM))
+    for (k in seq_len(n.1PLM)) {
+      s_i[, k] <- fc1pl[[k]][, 1]
+      r_i[, k] <- fc1pl[[k]][, 2]
     }
+    f_i <- s_i + r_i
 
     # set the starting values
     if (use.startval) {
@@ -505,9 +506,18 @@ est_item <- function(x = NULL,
 
       # in case of a DRM item
       if (score.cat == 2) {
-        s_i <- freq.cat[loc_else][[i]][, 1]
-        r_i <- freq.cat[loc_else][[i]][, 2]
-        f_i <- freq.cat[loc_else][[i]][, 3]
+        # extract (incorrect, correct) columns from the raw freq.cat
+        # matrix for this item; cast to double so f_i has the same
+        # storage.mode that stats::addmargins() previously produced,
+        # preserving downstream estimation1() equivalence
+        fc_i <- freq.cat[loc_else][[i]]
+        s_i <- as.double(fc_i[, 1])
+        r_i <- as.double(fc_i[, 2])
+        # f_i (total response indicator: 1 if examinee answered the
+        # item, 0 otherwise) replaces freq.cat[, 3] which was a margin
+        # column added upfront via stats::addmargins(); the value is
+        # arithmetically identical to s_i + r_i
+        f_i <- s_i + r_i
 
         # set the starting values
         if (use.startval) {

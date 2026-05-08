@@ -91,14 +91,21 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   if (!is.null(elm_item)) {
     # the dichotomous items: 1PLM with constrained slope values
     if (!is.null(loc_1p_const)) {
-      # prepare input files to estimate the 1PLM item parameters
-      f_i <- array(0, c(n.quad, n.1PLM))
-      for (k in 1:n.1PLM) {
-        cols.tmp <- cols.item$cols.all[[loc_1p_const[k]]]
-        f_i[, k] <- Rfast::rowsums(freq.exp[, cols.tmp])
-      }
+      # prepare input files to estimate the 1PLM item parameters.
+      # cols.item$cols.1pl holds 2 * n.1PLM consecutive column indices
+      # into freq.exp (one (incorrect, correct) pair per 1PLM item by
+      # construction in cols4item()), so the odd positions extract the
+      # "wrong" column (s_i) and the even positions extract the
+      # "correct" column (r_i) for every 1PLM item simultaneously.
       s_i <- freq.exp[, cols.item$cols.1pl][, c(TRUE, FALSE), drop = FALSE]
       r_i <- freq.exp[, cols.item$cols.1pl][, c(FALSE, TRUE), drop = FALSE]
+      # f_i (total responses per 1PLM item per quadrature point) is
+      # the elementwise sum of s_i and r_i; this replaces the previous
+      # n.1PLM-iteration for-loop that called Rfast::rowsums on each
+      # 2-column slice of freq.exp -- the loop was redundant because
+      # cats[k] == 2 for every 1PLM item, so the 2-col rowsum is
+      # identical to a single elementwise add of the s_i/r_i matrices
+      f_i <- s_i + r_i
 
       # set the starting values
       startval <-
@@ -143,10 +150,16 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
 
         # in case of a DRM item
         if (score.cat == 2) {
+          # extract the (incorrect, correct) column pair for this item;
+          # cols.item$cols.all[[k]] always has length 2 for cats == 2
           cols.tmp <- cols.item$cols.all[[loc_else[i]]]
-          f_i <- Rfast::rowsums(freq.exp[, cols.tmp])
           s_i <- freq.exp[, cols.tmp[1]]
           r_i <- freq.exp[, cols.tmp[2]]
+          # total responses per quadrature point = s_i + r_i; replaces
+          # the previous Rfast::rowsums(freq.exp[, cols.tmp]) call,
+          # which was a 2-column rowsum and is identical to the direct
+          # add (avoids a function-call indirection per item per Mstep)
+          f_i <- s_i + r_i
 
           # set the starting values
           startval <-
