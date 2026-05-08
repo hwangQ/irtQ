@@ -671,25 +671,36 @@ est_item <- function(x = NULL,
   llike <- -sum(objective)
 
   ## ---------------------------------------------------------------
-  # bind the per-item parameter and SE estimates into data.frames.
-  # FIXME: the previous implementation chained dplyr::arrange("loc")
-  # %>% dplyr::select(-"loc") after attaching a loc = c(loc_1p_const,
-  # loc_else) column, intending to permute the rows back into natural
-  # item order.  arrange() with a STRING argument sorts by the
-  # constant literal value "loc" (not the column named loc), so the
-  # arrange step was a no-op and the rows remain in the
-  # [loc_1p_const items, then loc_else items] order produced by the
-  # estimation loops above.  This was equivalent to simply dropping
-  # the loc column we just attached -- which is the simplification
-  # below.  The downstream cbind at line ~717 (data.frame(x[, 1:3],
-  # par_df)) consequently produces mis-paired (id, parameter) rows
-  # whenever loc_1p_const and loc_else are both non-empty (mixed
-  # 1PLM-constrained + other-model bank with fix.a.1pl = FALSE).
-  # That mis-pairing is a pre-existing behavior; correcting it would
-  # be a behavior change and is intentionally left for a separate
-  # commit so this refactor stays equivalence-preserving.
-  par_df <- data.frame(bind.fill(est_par, type = "rbind"))
-  se_df  <- data.frame(bind.fill(est_se,  type = "rbind"))
+  # bind the per-item parameter and SE estimates into data.frames,
+  # then permute the rows from estimation order back into natural
+  # item order.
+  #
+  # The estimation loops above append rows in the order
+  #   [loc_1p_const items first, then loc_else items],
+  # but the downstream cbind data.frame(x[, 1:3], par_df) attaches
+  # x's natural-order id / cats / model columns row-by-row, so par_df
+  # must be permuted back into natural order or every (id, parameter)
+  # pair is wrong whenever the bank mixes 1PLM-constrained items
+  # with other-model items (fix.a.1pl = FALSE).
+  #
+  # order(c(loc_1p_const, loc_else)) is the inverse of the
+  # construction order: c(loc_1p_const, loc_else) lists the natural-
+  # order item indices in the order they were appended, and the
+  # order() of that vector gives the row positions to pick out so
+  # that natural item k ends up in row k of the result.
+  #
+  # Historical note: the previous implementation attempted the same
+  # permutation via dplyr::arrange("loc") %>% dplyr::select(-"loc")
+  # after attaching a loc column, but arrange() called with a STRING
+  # argument sorts by the literal value "loc" (constant across rows)
+  # rather than by the column named loc -- so the arrange step was a
+  # silent no-op and the (id, parameter) mis-pairing went undetected
+  # because est_item() had no test coverage.  The fix is verified by
+  # data-raw/verify_estitem_alignment.R and by the new bug-regression
+  # case in tests/testthat/test-est_item.R.
+  ord    <- order(c(loc_1p_const, loc_else))
+  par_df <- data.frame(bind.fill(est_par, type = "rbind")[ord, , drop = FALSE])
+  se_df  <- data.frame(bind.fill(est_se,  type = "rbind")[ord, , drop = FALSE])
 
   # combine all covariance matrices
   cov_mat <- as.matrix(Matrix::bdiag(cov_list))
