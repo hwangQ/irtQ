@@ -1787,20 +1787,32 @@ est_mg_fipc <- function(x = NULL,
   weights.gr <- replicate(n = ngroup, expr = weights, simplify = FALSE)
   names(weights.gr) <- group.name
 
-  # build per-item one-hot frequency-category lists for the new (free),
-  # fixed, and combined response sets used downstream by divide_data()
-  # and info_xpd().  build_freqcat() (R/util.R) replaces the previous
-  # data.frame -> factor -> xtabs -> matrix chain with direct one-hot
-  # construction; output structure (list of nstd x cats[k] integer
-  # matrices) is identical.
-  if (!is.null(x_new)) {
-    freq_new.cat <- build_freqcat(data_new, cats)
-    freq_fix.cat <- build_freqcat(data_fix, x_fix$cats)
-  } else {
-    freq_new.cat <- NULL
-    freq_fix.cat <- NULL
-  }
+  # build the per-item one-hot frequency-category list ONCE on the
+  # combined response matrix.  By construction (lines 1644-1730),
+  #   data_fix == data_all[, fix.loc]
+  #   data_new == data_all[, nofix.loc]
+  #   x_all$cats[fix.loc]   == x_fix$cats
+  #   x_all$cats[nofix.loc] == cats   (= x_new$cats)
+  # so the per-item integer matrices freq_all.cat[fix.loc] and
+  # freq_all.cat[nofix.loc] are bit-for-bit identical to what the
+  # previous code produced via separate build_freqcat() calls on
+  # data_fix and data_new.  R lists hold their elements by reference,
+  # so list-subsetting creates view-style aliases without copying any
+  # of the underlying nstd x cats[k] matrices -- saving roughly 50%
+  # of the freq.cat peak memory during the FIPC busy window and
+  # cutting build_freqcat() runtime by ~2x.  All downstream consumers
+  # (divide_data, info_xpd) index freq.cat with integer locations
+  # only, never element names, so the subsetting is observationally
+  # identical to the previous separate-build pattern.  Mirrors the
+  # equivalent rewrite in est_irt.R lines 1517-1531.
   freq_all.cat <- build_freqcat(data_all, x_all$cats)
+  if (!is.null(x_new)) {
+    freq_fix.cat <- freq_all.cat[fix.loc]
+    freq_new.cat <- freq_all.cat[nofix.loc]
+  } else {
+    freq_fix.cat <- NULL
+    freq_new.cat <- NULL
+  }
 
   # break down the item metadata into several elements
   if (!is.null(x_new)) {

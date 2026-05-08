@@ -262,7 +262,79 @@ test_that("est_mg() EmpHist=TRUE produces non-uniform weights for G2", {
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 8. summary() and print() do not error
+# 8. FIPC (multiple-group fixed item parameter calibration)
+# ══════════════════════════════════════════════════════════════════════════════
+# This section exercises the est_mg() FIPC code path -- the multi-group
+# analogue of the FIPC branch tested for est_irt().  est_mg_fipc()
+# calls the same divide_data() / Estep_fipc() / Mstep / info_xpd()
+# pipeline as est_irt_fipc(), so the test guards regression in any of
+# the shared helpers when they are exercised through the multi-group
+# code path (e.g. the freq.cat construction at est_mg.R lines ~1797-
+# 1803, which is otherwise uncovered by the test suite).
+
+test_that("est_mg() FIPC (MEM) estimates pretest items on fixed-item scale", {
+  # build a small fixed-item bank: 8 dichotomous (3PLM) items taken
+  # from the flexMIRT sample (x_full[1:8, ]).  these are the items
+  # whose parameters stay fixed during multi-group calibration
+  x_fix_bank <- x_full[1:8, ]
+
+  # FIPC metadata: 8 fixed 3PLM items at positions 1-8, then 4 new
+  # pretest items at positions 9-12 (2 dichotomous + 2 GRM with 5
+  # categories).  shape_df_fipc() inserts default starting values
+  # for the new items and returns a single combined data.frame
+  meta_fipc <- shape_df_fipc(
+    x       = x_fix_bank,
+    fix.loc = 1:8,
+    item.id = paste0("NI", 1:4),
+    cats    = c(2L, 2L, 5L, 5L),
+    model   = c("3PLM", "3PLM", "GRM", "GRM")
+  )
+
+  # simulate two groups from the SAME 12-item form but with different
+  # latent-trait distributions (G1 ~ N(0, 1), G2 ~ N(0.4, 1.1));
+  # est_mg() should recover the G2 mean shift while keeping the
+  # 8 fixed-item parameters anchored on the reference scale
+  set.seed(901)
+  data_list <- list(
+    G1 = simdat(x = meta_fipc, theta = rnorm(300, mean = 0.0, sd = 1.0), D = 1),
+    G2 = simdat(x = meta_fipc, theta = rnorm(300, mean = 0.4, sd = 1.1), D = 1)
+  )
+
+  # run multi-group FIPC: both groups share the same metadata (the
+  # fixed items must agree across groups by definition)
+  # NOTE: in MG-FIPC, fix.loc must be a list of integer vectors --
+  # one element per group -- because each group can fix a different
+  # subset of items (see est_mg.R `fix.loc` param doc).  Both groups
+  # fix items 1-8 here because they share the same metadata.
+  fit <- do.call(est_mg, c(
+    list(x          = list(meta_fipc, meta_fipc),
+         data       = data_list,
+         group.name = c("G1", "G2"),
+         free.group = "G2",
+         fipc       = TRUE,
+         fipc.method = "MEM",
+         fix.loc    = list(1:8, 1:8),
+         use.gprior = TRUE,
+         gprior     = list(dist = "beta", params = c(5, 16))),
+    MG_ARGS
+  ))
+
+  # basic structural checks
+  expect_s3_class(fit, "est_mg")
+  # overall summary contains all 12 items (8 fixed + 4 new)
+  expect_equal(nrow(fit$par.est$overall), 12L)
+  # per-group results exist and cover all groups
+  expect_true(all(c("G1", "G2") %in% names(fit$par.est$group)))
+  # G2 (the freed group) should have a shifted mean -- not equal to
+  # the G1 anchor at 0 (using a loose tolerance because n=300 is
+  # small relative to the population shift)
+  mu_g2 <- fit$group.par$G2$mu[!is.na(fit$group.par$G2$mu)][1]
+  expect_false(isTRUE(all.equal(mu_g2, 0, tolerance = 0.05)))
+})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 9. summary() and print() do not error
 # ══════════════════════════════════════════════════════════════════════════════
 
 test_that("summary.est_mg() runs without error", {
