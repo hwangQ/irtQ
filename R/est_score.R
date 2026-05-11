@@ -902,6 +902,9 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
     # set the iteration number to 0
     i <- 0
     abs_delta <- 1
+    # B5: preserve the last protected finfo for SE reuse on clean convergence;
+    # initialised to 1e-5 (the floor) in case the loop body never executes
+    finfo_last <- 1e-5
     while (abs_delta >= tol) {
       # update the iteration number
       i <- i + 1
@@ -920,6 +923,9 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
       # protect the fisher information having value close to 0
       finfo[finfo < 1e-5 | is.nan(finfo)] <- 1e-5
 
+      # B5: save protected finfo at current theta before the theta update
+      finfo_last <- finfo
+
       # compute the theta correction factor (delta)
       delta <- grad / finfo
 
@@ -932,6 +938,9 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
 
       if (i == max.iter) break
     }
+    # B5: flag whether the loop exited via convergence (abs_delta < tol) or
+    # hit the iteration ceiling; finfo_last is only safe to reuse when converged
+    nr_converged <- (abs_delta < tol)
 
     # assign boundary score when the theta estimate is beyond the boundary
     theta[theta <= range[1]] <- range[1]
@@ -942,14 +951,20 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
     if (se) {
       if (est.theta %in% range) {
         se.theta <- 99.9999
+      } else if (nr_converged) {
+        # B5: reuse finfo_last (at theta_prev = est.theta + delta where |delta| < tol);
+        # avoids a second info_score() call; approximation error is O(tol)
+        se.theta <- 1 / sqrt(finfo_last)
       } else {
-        finfo <-
+        # max.iter reached without convergence: the last delta may be large, so
+        # finfo_last could be far from finfo(est.theta) — compute it accurately
+        finfo_se <-
           info_score(
             theta = est.theta, elm_item = elm_item, freq.cat = freq.cat,
             idx.drm = idx.drm, idx.prm = idx.prm, method = method, D = D,
             norm.prior = norm.prior, grad = FALSE, ji = FALSE
           )$finfo
-        se.theta <- 1 / sqrt(finfo)
+        se.theta <- 1 / sqrt(finfo_se)
       }
     } else {
       se.theta <- NA
