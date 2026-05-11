@@ -839,7 +839,6 @@ est_score_1core <- function(elm_item,
 
 
 # This function computes an ability estimate for a single examinee (ML, WL, MLF, MAP, EAP)
-#' @importFrom stats xtabs na.pass
 est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
                             D = 1, method = "ML",
                             range = c(-4, 4), norm.prior = c(0, 1), nquad = 41,
@@ -850,16 +849,11 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
   # idx.drm/idx.prm are pre-computed by the caller (B3: moved outside the loop)
   n.resp <- nrow(elm_item$pars)
 
-  # build the n.resp x max.cats one-hot freq.cat from resp_vec (B2: will replace xtabs)
-  resp_fac <- factor(resp_vec, levels = seq_len(max.cats) - 1)
-  tmp.id   <- seq_len(n.resp)
-  freq.cat <-
-    matrix(
-      stats::xtabs(~ tmp.id + resp_fac,
-        na.action = stats::na.pass, addNA = FALSE
-      ),
-      nrow = n.resp
-    )
+  # B2: build the n.resp x max.cats one-hot freq.cat via direct matrix indexing
+  # (replaces the per-examinee stats::xtabs() call which had high formula overhead)
+  freq.cat <- matrix(0L, nrow = n.resp, ncol = max.cats)
+  resp_int  <- as.integer(resp_vec)          # 0-based integer responses (no NAs: caller subsets)
+  freq.cat[cbind(seq_len(n.resp), resp_int + 1L)] <- 1L
 
   ## ----------------------------------------------------
   ## ML, MLF and MAP
