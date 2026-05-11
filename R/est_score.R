@@ -359,6 +359,11 @@ est_score.default <- function(x,
     # pre-populate elm_item with pars, model, cats, id from item metadata
     elm_item <- breakdown(x)
 
+    # B3: classify DRM/PRM items once for the full item set, outside the loop
+    idx_full     <- idxfinder(elm_item)
+    idx_drm_full <- idx_full$idx.drm
+    idx_prm_full <- idx_full$idx.prm
+
     # check the number of CPU cores
     if (ncore < 1) {
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
@@ -391,10 +396,28 @@ est_score.default <- function(x,
         # observed sum score for stval.opt==2 starting value (computed once here)
         obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
+        # B3: map pre-computed full-item DRM/PRM indices to the non-NA subset
+        if (all(na_mask)) {
+          # no missing items: pre-computed indices apply directly
+          idx_drm_i <- idx_drm_full
+          idx_prm_i <- idx_prm_full
+        } else {
+          # some missing items: remap to local positions in the observed subset
+          na_pos    <- which(na_mask)
+          idx_drm_i <- if (!is.null(idx_drm_full)) {
+            x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
+          } else NULL
+          idx_prm_i <- if (!is.null(idx_prm_full)) {
+            x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
+          } else NULL
+        }
+
         est_score_indiv(
           resp_vec = resp_sub,
           elm_item = elm_sub,
           max.cats = max.cats,
+          idx.drm  = idx_drm_i,
+          idx.prm  = idx_prm_i,
           D = D, method = method,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
@@ -562,6 +585,11 @@ est_score.est_irt <- function(x,
     # pre-populate elm_item with pars, model, cats, id from item metadata
     elm_item <- breakdown(x)
 
+    # B3: classify DRM/PRM items once for the full item set, outside the loop
+    idx_full     <- idxfinder(elm_item)
+    idx_drm_full <- idx_full$idx.drm
+    idx_prm_full <- idx_full$idx.prm
+
     # check the number of CPU cores
     if (ncore < 1) {
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
@@ -594,10 +622,28 @@ est_score.est_irt <- function(x,
         # observed sum score for stval.opt==2 starting value (computed once here)
         obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
+        # B3: map pre-computed full-item DRM/PRM indices to the non-NA subset
+        if (all(na_mask)) {
+          # no missing items: pre-computed indices apply directly
+          idx_drm_i <- idx_drm_full
+          idx_prm_i <- idx_prm_full
+        } else {
+          # some missing items: remap to local positions in the observed subset
+          na_pos    <- which(na_mask)
+          idx_drm_i <- if (!is.null(idx_drm_full)) {
+            x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
+          } else NULL
+          idx_prm_i <- if (!is.null(idx_prm_full)) {
+            x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
+          } else NULL
+        }
+
         est_score_indiv(
           resp_vec = resp_sub,
           elm_item = elm_sub,
           max.cats = max.cats,
+          idx.drm  = idx_drm_i,
+          idx.prm  = idx_prm_i,
           D = D, method = method,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
@@ -709,6 +755,11 @@ est_score_1core <- function(elm_item,
   # check the number of examinees in this chunk
   nstd <- nrow(data)
 
+  # B3: classify DRM/PRM items once for this chunk (called once per worker, not per examinee)
+  idx_full     <- idxfinder(elm_item)
+  idx_drm_full <- idx_full$idx.drm
+  idx_prm_full <- idx_full$idx.prm
+
   # score each examinee directly from the raw response row
   est <- lapply(seq_len(nstd), function(i) {
     resp_vec_i <- data[i, ]
@@ -730,10 +781,26 @@ est_score_1core <- function(elm_item,
     resp_sub  <- as.numeric(resp_vec_i[na_mask])
     obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
+    # B3: map pre-computed full-item indices to the non-NA subset
+    if (all(na_mask)) {
+      idx_drm_i <- idx_drm_full
+      idx_prm_i <- idx_prm_full
+    } else {
+      na_pos    <- which(na_mask)
+      idx_drm_i <- if (!is.null(idx_drm_full)) {
+        x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
+      } else NULL
+      idx_prm_i <- if (!is.null(idx_prm_full)) {
+        x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
+      } else NULL
+    }
+
     est_score_indiv(
       resp_vec = resp_sub,
       elm_item = elm_sub,
       max.cats = max.cats,
+      idx.drm  = idx_drm_i,
+      idx.prm  = idx_prm_i,
       D = D, method = method,
       range = range, norm.prior = norm.prior, nquad = nquad,
       weights = weights, tol = tol, max.iter = max.iter, se = se,
@@ -749,17 +816,14 @@ est_score_1core <- function(elm_item,
 
 # This function computes an ability estimate for a single examinee (ML, WL, MLF, MAP, EAP)
 #' @importFrom stats xtabs na.pass
-est_score_indiv <- function(resp_vec, elm_item, max.cats, D = 1, method = "ML",
+est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
+                            D = 1, method = "ML",
                             range = c(-4, 4), norm.prior = c(0, 1), nquad = 41,
                             weights = NULL, tol = 1e-4, max.iter = 30, se = TRUE,
                             stval.opt = 1, ji = FALSE, obs.sum = NULL) {
-  # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only
+  # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only;
+  # idx.drm/idx.prm are pre-computed by the caller (B3: moved outside the loop)
   n.resp <- nrow(elm_item$pars)
-
-  # classify the items into DRM and PRM groups (B3: will move to caller)
-  idx.item <- idxfinder(elm_item)
-  idx.drm <- idx.item$idx.drm
-  idx.prm <- idx.item$idx.prm
 
   # build the n.resp x max.cats one-hot freq.cat from resp_vec (B2: will replace xtabs)
   resp_fac <- factor(resp_vec, levels = seq_len(max.cats) - 1)
