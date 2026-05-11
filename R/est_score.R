@@ -364,6 +364,15 @@ est_score.default <- function(x,
     idx_drm_full <- idx_full$idx.drm
     idx_prm_full <- idx_full$idx.prm
 
+    # B4: pre-compute quadrature points once for EAP method (not per examinee)
+    popdist <- if (method == "EAP") {
+      if (is.null(weights)) {
+        gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
+      } else {
+        data.frame(weights)
+      }
+    } else NULL
+
     # check the number of CPU cores
     if (ncore < 1) {
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
@@ -422,7 +431,8 @@ est_score.default <- function(x,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
           stval.opt = stval.opt, ji = ji,
-          obs.sum = obs_sum_i
+          obs.sum = obs_sum_i,
+          popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
         )
       })
 
@@ -447,10 +457,10 @@ est_score.default <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # export pre-populated elm_item and required functions to workers;
+      # export pre-populated elm_item, pre-computed popdist, and required functions;
       # x and max.col are no longer needed after B1 (melt removed)
       parallel::clusterExport(cl, c(
-        "elm_item", "D", "method",
+        "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
         "weights", "tol", "max.iter", "se", "stval.opt", "ji",
         "est_score_1core", "est_score_indiv", "idxfinder",
@@ -470,7 +480,8 @@ est_score.default <- function(x,
           method = method, max.cats = max.cats,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
-          se = se, stval.opt = stval.opt, ji = ji
+          se = se, stval.opt = stval.opt, ji = ji,
+          popdist = popdist        # B4: pre-computed quadrature passed to workers
         )
       }
 
@@ -590,6 +601,15 @@ est_score.est_irt <- function(x,
     idx_drm_full <- idx_full$idx.drm
     idx_prm_full <- idx_full$idx.prm
 
+    # B4: pre-compute quadrature points once for EAP method (not per examinee)
+    popdist <- if (method == "EAP") {
+      if (is.null(weights)) {
+        gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
+      } else {
+        data.frame(weights)
+      }
+    } else NULL
+
     # check the number of CPU cores
     if (ncore < 1) {
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
@@ -648,7 +668,8 @@ est_score.est_irt <- function(x,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
           stval.opt = stval.opt, ji = ji,
-          obs.sum = obs_sum_i
+          obs.sum = obs_sum_i,
+          popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
         )
       })
 
@@ -673,10 +694,10 @@ est_score.est_irt <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # export pre-populated elm_item and required functions to workers;
+      # export pre-populated elm_item, pre-computed popdist, and required functions;
       # x and max.col are no longer needed after B1 (melt removed)
       parallel::clusterExport(cl, c(
-        "elm_item", "D", "method",
+        "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
         "weights", "tol", "max.iter", "se", "stval.opt", "ji",
         "est_score_1core", "est_score_indiv", "idxfinder",
@@ -696,7 +717,8 @@ est_score.est_irt <- function(x,
           method = method, max.cats = max.cats,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
-          se = se, stval.opt = stval.opt, ji = ji
+          se = se, stval.opt = stval.opt, ji = ji,
+          popdist = popdist        # B4: pre-computed quadrature passed to workers
         )
       }
 
@@ -751,7 +773,8 @@ est_score_1core <- function(elm_item,
                             max.iter = 30,
                             se = TRUE,
                             stval.opt = 1,
-                            ji = FALSE) {
+                            ji = FALSE,
+                            popdist = NULL) {
   # check the number of examinees in this chunk
   nstd <- nrow(data)
 
@@ -805,7 +828,8 @@ est_score_1core <- function(elm_item,
       range = range, norm.prior = norm.prior, nquad = nquad,
       weights = weights, tol = tol, max.iter = max.iter, se = se,
       stval.opt = stval.opt, ji = ji,
-      obs.sum = obs_sum_i
+      obs.sum = obs_sum_i,
+      popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
     )
   })
 
@@ -820,7 +844,8 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
                             D = 1, method = "ML",
                             range = c(-4, 4), norm.prior = c(0, 1), nquad = 41,
                             weights = NULL, tol = 1e-4, max.iter = 30, se = TRUE,
-                            stval.opt = 1, ji = FALSE, obs.sum = NULL) {
+                            stval.opt = 1, ji = FALSE, obs.sum = NULL,
+                            popdist = NULL) {
   # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only;
   # idx.drm/idx.prm are pre-computed by the caller (B3: moved outside the loop)
   n.resp <- nrow(elm_item$pars)
@@ -940,12 +965,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
   ## ----------------------------------------------------
   ## EAP scoring
   if (method == "EAP") {
-    # generate quadrature points and weights
-    if (is.null(weights)) {
-      popdist <- gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
-    } else {
-      popdist <- data.frame(weights)
-    }
+    # B4: popdist is pre-computed by the caller (gen.weight() no longer called per examinee)
 
     # compute the posterior distribution
     posterior <-
