@@ -1,4 +1,4 @@
-#' Estimate examinees' ability (proficiency) parameters
+﻿#' Estimate examinees' ability (proficiency) parameters
 #'
 #' This function estimates examinees' latent ability parameters. Available
 #' scoring methods include maximum likelihood estimation (ML), maximum
@@ -378,6 +378,16 @@ est_score.default <- function(x,
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
     }
 
+    # warn when parallel overhead likely exceeds computation gain
+    if (ncore > 1 && nstd < 5000) {
+      warning(
+        "ncore > 1 is not recommended for N < 5,000 ",
+        "as parallel overhead exceeds computation time. ",
+        "Consider using ncore = 1.",
+        call. = FALSE
+      )
+    }
+
     # estimation
     if (ncore == 1L) {
       # score each examinee directly from the raw response row;
@@ -613,6 +623,16 @@ est_score.est_irt <- function(x,
     # check the number of CPU cores
     if (ncore < 1) {
       stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
+    }
+
+    # warn when parallel overhead likely exceeds computation gain
+    if (ncore > 1 && nstd < 5000) {
+      warning(
+        "ncore > 1 is not recommended for N < 5,000 ",
+        "as parallel overhead exceeds computation time. ",
+        "Consider using ncore = 1.",
+        call. = FALSE
+      )
     }
 
     # estimation
