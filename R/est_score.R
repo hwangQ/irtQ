@@ -289,8 +289,7 @@ est_score <- function(x, ...) UseMethod("est_score")
 
 #' @describeIn est_score Default method to estimate examinees' latent ability
 #'  parameters using a data frame `x` containing the item metadata.
-#' @importFrom reshape2 melt
-#' @import dplyr
+#' @importFrom dplyr bind_rows
 #' @export
 est_score.default <- function(x,
                               data,
@@ -357,11 +356,8 @@ est_score.default <- function(x,
     # check the maximum score category across all items
     max.cats <- max(x$cats)
 
-    # count the number of columns of the item metadata
-    max.col <- ncol(x)
-
-    # create an empty elm_item object
-    elm_item <- list(pars = NULL, model = NULL, cats = NULL)
+    # pre-populate elm_item with pars, model, cats, id from item metadata
+    elm_item <- breakdown(x)
 
     # check the number of CPU cores
     if (ncore < 1) {
@@ -370,57 +366,50 @@ est_score.default <- function(x,
 
     # estimation
     if (ncore == 1L) {
-      # reshape the data
-      if (stval.opt == 2) {
-        data <-
-          data.frame(x, t(data), check.names = FALSE) %>%
-          reshape2::melt(
-            id.vars = 1:max.col,
-            variable.name = "std",
-            value.name = "resp.num",
-            na.rm = TRUE,
-            factorsAsStrings = FALSE
-          )
-        data$resp <- factor(data$resp.num, levels = (seq_len(max.cats) - 1))
-      } else {
-        data <-
-          data.frame(x, t(data), check.names = FALSE) %>%
-          reshape2::melt(
-            id.vars = 1:max.col,
-            variable.name = "std",
-            value.name = "resp",
-            na.rm = TRUE,
-            factorsAsStrings = FALSE
-          )
-        data$resp <- factor(data$resp, levels = (seq_len(max.cats) - 1))
-      }
-      data$std <- as.numeric(data$std)
+      # score each examinee directly from the raw response row;
+      # no wide-to-long transformation needed
+      est <- lapply(seq_len(nstd), function(i) {
+        resp_vec_i <- data[i, ]
 
-      # create a score table to contain the scoring results
-      rst <- data.frame(std = 1:nstd)
+        # subset to non-NA items, mirroring the original na.rm=TRUE melt behavior
+        na_mask <- !is.na(resp_vec_i)
 
-      # scoring
-      est <-
-        dplyr::group_by(data, .data$std) %>%
-        dplyr::summarise(
-          est_score_indiv(
-            exam_dat = dplyr::pick(dplyr::everything()), elm_item = elm_item,
-            max.col = max.col, D = D, method = method,
-            range = range, norm.prior = norm.prior, nquad = nquad,
-            weights = weights, tol = tol, max.iter = max.iter, se = se,
-            stval.opt = stval.opt, ji = ji
-          )
+        # return NA immediately for examinees with all missing responses
+        if (!any(na_mask)) {
+          return(data.frame(est.theta = NA_real_, se.theta = NA_real_))
+        }
+
+        # subset elm_item to observed (non-NA) items only
+        elm_sub       <- elm_item
+        elm_sub$pars  <- elm_item$pars[na_mask, , drop = FALSE]
+        elm_sub$model <- elm_item$model[na_mask]
+        elm_sub$cats  <- elm_item$cats[na_mask]
+
+        # numeric response vector for the observed items
+        resp_sub <- as.numeric(resp_vec_i[na_mask])
+
+        # observed sum score for stval.opt==2 starting value (computed once here)
+        obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
+
+        est_score_indiv(
+          resp_vec = resp_sub,
+          elm_item = elm_sub,
+          max.cats = max.cats,
+          D = D, method = method,
+          range = range, norm.prior = norm.prior, nquad = nquad,
+          weights = weights, tol = tol, max.iter = max.iter, se = se,
+          stval.opt = stval.opt, ji = ji,
+          obs.sum = obs_sum_i
         )
+      })
 
-      # merge the scoring results
-      rst <- merge(x = rst, y = est, by = "std")
-      rst <- rst[, -1]
+      # combine per-examinee results into a single data frame
+      rst <- do.call(rbind, est)
     } else {
       # create a parallel processing cluster
-      # cl <- parallel::makeCluster(ncore)
       cl <- parallel::makeCluster(ncore, ...)
 
-      # divide data into
+      # divide response data into ncore equal chunks
       quotient <- nstd %/% ncore
       remain <- nstd %% ncore
       data_list <- vector("list", ncore)
@@ -435,10 +424,11 @@ est_score.default <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # load some specific variable names into processing cluster
+      # export pre-populated elm_item and required functions to workers;
+      # x and max.col are no longer needed after B1 (melt removed)
       parallel::clusterExport(cl, c(
-        "x", "elm_item", "D", "method",
-        "max.cats", "max.col", "range", "norm.prior", "nquad",
+        "elm_item", "D", "method",
+        "max.cats", "range", "norm.prior", "nquad",
         "weights", "tol", "max.iter", "se", "stval.opt", "ji",
         "est_score_1core", "est_score_indiv", "idxfinder",
         "ll_score", "drm", "prm", "gpcm", "grm",
@@ -446,16 +436,15 @@ est_score.default <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      parallel::clusterEvalQ(cl, library(dplyr))
-      # parallel::clusterEvalQ(cl, library(reshape2))
-      # parallel::clusterEvalQ(cl, library(Rfast))
-
+      # B9: pre-load Rfast on workers (used in ll_score, info_drm, etc.);
+      # reshape2 removed since melt is no longer used in est_score_1core
+      parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
       fsm <- function(subdat) {
         est_score_1core(
-          x = x, elm_item = elm_item, data = subdat, D = D,
-          method = method, max.cats = max.cats, max.col = max.col,
+          elm_item = elm_item, data = subdat, D = D,
+          method = method, max.cats = max.cats,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
           se = se, stval.opt = stval.opt, ji = ji
@@ -500,7 +489,7 @@ est_score.default <- function(x,
 
 
 #' @describeIn est_score An object created by the function [irtQ::est_irt()].
-#' @import dplyr
+#' @importFrom dplyr bind_rows
 #' @export
 est_score.est_irt <- function(x,
                               method = "ML",
@@ -570,11 +559,8 @@ est_score.est_irt <- function(x,
     # check the maximum score category across all items
     max.cats <- max(x$cats)
 
-    # count the number of columns of the item metadata
-    max.col <- ncol(x)
-
-    # create an empty elm_item object
-    elm_item <- list(pars = NULL, model = NULL, cats = NULL)
+    # pre-populate elm_item with pars, model, cats, id from item metadata
+    elm_item <- breakdown(x)
 
     # check the number of CPU cores
     if (ncore < 1) {
@@ -583,56 +569,50 @@ est_score.est_irt <- function(x,
 
     # estimation
     if (ncore == 1L) {
-      # reshape the data
-      if (stval.opt == 2) {
-        data <-
-          data.frame(x, t(data), check.names = FALSE) %>%
-          reshape2::melt(
-            id.vars = 1:max.col,
-            variable.name = "std",
-            value.name = "resp.num",
-            na.rm = TRUE,
-            factorsAsStrings = FALSE
-          )
-        data$resp <- factor(data$resp.num, levels = (seq_len(max.cats) - 1))
-      } else {
-        data <-
-          data.frame(x, t(data), check.names = FALSE) %>%
-          reshape2::melt(
-            id.vars = 1:max.col,
-            variable.name = "std",
-            value.name = "resp",
-            na.rm = TRUE,
-            factorsAsStrings = FALSE
-          )
-        data$resp <- factor(data$resp, levels = (seq_len(max.cats) - 1))
-      }
-      data$std <- as.numeric(data$std)
+      # score each examinee directly from the raw response row;
+      # no wide-to-long transformation needed
+      est <- lapply(seq_len(nstd), function(i) {
+        resp_vec_i <- data[i, ]
 
-      # create a score table to contain the scoring results
-      rst <- data.frame(std = 1:nstd)
+        # subset to non-NA items, mirroring the original na.rm=TRUE melt behavior
+        na_mask <- !is.na(resp_vec_i)
 
-      # scoring
-      est <-
-        dplyr::group_by(data, .data$std) %>%
-        dplyr::summarise(
-          est_score_indiv(
-            exam_dat = dplyr::pick(dplyr::everything()), elm_item = elm_item,
-            max.col = max.col, D = D, method = method,
-            range = range, norm.prior = norm.prior, nquad = nquad,
-            weights = weights, tol = tol, max.iter = max.iter, se = se,
-            stval.opt = stval.opt, ji = ji
-          )
+        # return NA immediately for examinees with all missing responses
+        if (!any(na_mask)) {
+          return(data.frame(est.theta = NA_real_, se.theta = NA_real_))
+        }
+
+        # subset elm_item to observed (non-NA) items only
+        elm_sub       <- elm_item
+        elm_sub$pars  <- elm_item$pars[na_mask, , drop = FALSE]
+        elm_sub$model <- elm_item$model[na_mask]
+        elm_sub$cats  <- elm_item$cats[na_mask]
+
+        # numeric response vector for the observed items
+        resp_sub <- as.numeric(resp_vec_i[na_mask])
+
+        # observed sum score for stval.opt==2 starting value (computed once here)
+        obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
+
+        est_score_indiv(
+          resp_vec = resp_sub,
+          elm_item = elm_sub,
+          max.cats = max.cats,
+          D = D, method = method,
+          range = range, norm.prior = norm.prior, nquad = nquad,
+          weights = weights, tol = tol, max.iter = max.iter, se = se,
+          stval.opt = stval.opt, ji = ji,
+          obs.sum = obs_sum_i
         )
+      })
 
-      # merge the scoring results
-      rst <- merge(x = rst, y = est, by = "std")
-      rst <- rst[, -1]
+      # combine per-examinee results into a single data frame
+      rst <- do.call(rbind, est)
     } else {
       # create a parallel processing cluster
       cl <- parallel::makeCluster(ncore, ...)
 
-      # divide data into
+      # divide response data into ncore equal chunks
       quotient <- nstd %/% ncore
       remain <- nstd %% ncore
       data_list <- vector("list", ncore)
@@ -647,10 +627,11 @@ est_score.est_irt <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # load some specific variable names into processing cluster
+      # export pre-populated elm_item and required functions to workers;
+      # x and max.col are no longer needed after B1 (melt removed)
       parallel::clusterExport(cl, c(
-        "x", "elm_item", "D", "method",
-        "max.cats", "max.col", "range", "norm.prior", "nquad",
+        "elm_item", "D", "method",
+        "max.cats", "range", "norm.prior", "nquad",
         "weights", "tol", "max.iter", "se", "stval.opt", "ji",
         "est_score_1core", "est_score_indiv", "idxfinder",
         "ll_score", "drm", "prm", "gpcm", "grm",
@@ -658,16 +639,15 @@ est_score.est_irt <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      parallel::clusterEvalQ(cl, library(dplyr))
-      # parallel::clusterEvalQ(cl, library(reshape2))
-      # parallel::clusterEvalQ(cl, library(Rfast))
-
+      # B9: pre-load Rfast on workers (used in ll_score, info_drm, etc.);
+      # reshape2 removed since melt is no longer used in est_score_1core
+      parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
       fsm <- function(subdat) {
         est_score_1core(
-          x = x, elm_item = elm_item, data = subdat, D = D,
-          method = method, max.cats = max.cats, max.col = max.col,
+          elm_item = elm_item, data = subdat, D = D,
+          method = method, max.cats = max.cats,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
           se = se, stval.opt = stval.opt, ji = ji
@@ -711,15 +691,12 @@ est_score.est_irt <- function(x,
 }
 
 
-# This function is used for each single core computation
-#' @import dplyr
-est_score_1core <- function(x,
-                            elm_item,
+# This function is used for each single core computation in the parallel path
+est_score_1core <- function(elm_item,
                             data,
                             D = 1,
                             method = "ML",
                             max.cats,
-                            max.col,
                             range = c(-4, 4),
                             norm.prior = c(0, 1),
                             nquad = 41,
@@ -729,81 +706,67 @@ est_score_1core <- function(x,
                             se = TRUE,
                             stval.opt = 1,
                             ji = FALSE) {
-  # check the number of examinees
+  # check the number of examinees in this chunk
   nstd <- nrow(data)
 
-  # reshape the data
-  if (stval.opt == 2) {
-    data <-
-      data.frame(x, t(data), check.names = FALSE) %>%
-      reshape2::melt(
-        id.vars = 1:max.col,
-        variable.name = "std",
-        value.name = "resp.num",
-        na.rm = TRUE,
-        factorsAsStrings = FALSE
-      )
-    data$resp <- factor(data$resp.num, levels = (seq_len(max.cats) - 1))
-  } else {
-    data <-
-      data.frame(x, t(data), check.names = FALSE) %>%
-      reshape2::melt(
-        id.vars = 1:max.col,
-        variable.name = "std",
-        value.name = "resp",
-        na.rm = TRUE,
-        factorsAsStrings = FALSE
-      )
-    data$resp <- factor(data$resp, levels = (seq_len(max.cats) - 1))
-  }
-  data$std <- as.numeric(data$std)
+  # score each examinee directly from the raw response row
+  est <- lapply(seq_len(nstd), function(i) {
+    resp_vec_i <- data[i, ]
 
-  # create a score table to contain the scoring results
-  rst <- data.frame(std = 1:nstd)
+    # subset to non-NA items only
+    na_mask <- !is.na(resp_vec_i)
 
-  # scoring
-  est <-
-    dplyr::group_by(data, .data$std) %>%
-    dplyr::summarise(
-      est_score_indiv(
-        exam_dat = dplyr::pick(dplyr::everything()), elm_item = elm_item,
-        max.col = max.col, D = D, method = method,
-        range = range, norm.prior = norm.prior, nquad = nquad,
-        weights = weights, tol = tol, max.iter = max.iter, se = se,
-        stval.opt = stval.opt, ji = ji
-      )
+    # return NA for examinees with all missing responses
+    if (!any(na_mask)) {
+      return(data.frame(est.theta = NA_real_, se.theta = NA_real_))
+    }
+
+    # subset elm_item to observed items
+    elm_sub       <- elm_item
+    elm_sub$pars  <- elm_item$pars[na_mask, , drop = FALSE]
+    elm_sub$model <- elm_item$model[na_mask]
+    elm_sub$cats  <- elm_item$cats[na_mask]
+
+    resp_sub  <- as.numeric(resp_vec_i[na_mask])
+    obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
+
+    est_score_indiv(
+      resp_vec = resp_sub,
+      elm_item = elm_sub,
+      max.cats = max.cats,
+      D = D, method = method,
+      range = range, norm.prior = norm.prior, nquad = nquad,
+      weights = weights, tol = tol, max.iter = max.iter, se = se,
+      stval.opt = stval.opt, ji = ji,
+      obs.sum = obs_sum_i
     )
+  })
 
-  # merge the scoring results
-  rst <- merge(x = rst, y = est, by = "std")
-  rst <- rst[, -1]
-
-  # return results
-  rst
+  # combine per-examinee results and return
+  do.call(rbind, est)
 }
 
-# This function computes an ability estimate for an examinee (ML, MLF, MAP, EAP)
-#' @importFrom stats xtabs na.pass
-est_score_indiv <- function(exam_dat, elm_item, max.col, D = 1, method = "ML",
-                            range = c(-4, 4), norm.prior = c(0, 1), nquad = 41, weights = NULL,
-                            tol = 1e-4, max.iter = 30, se = TRUE, stval.opt = 1, ji = FALSE) {
-  # extract the required objects from the individual exam data
-  elm_item$pars <- data.matrix(exam_dat[, 4:max.col])
-  elm_item$model <- exam_dat$model
-  elm_item$cats <- exam_dat$cats
-  resp <- exam_dat$resp
-  n.resp <- length(resp)
 
-  # classify the items into DRM and PRM item groups
+# This function computes an ability estimate for a single examinee (ML, WL, MLF, MAP, EAP)
+#' @importFrom stats xtabs na.pass
+est_score_indiv <- function(resp_vec, elm_item, max.cats, D = 1, method = "ML",
+                            range = c(-4, 4), norm.prior = c(0, 1), nquad = 41,
+                            weights = NULL, tol = 1e-4, max.iter = 30, se = TRUE,
+                            stval.opt = 1, ji = FALSE, obs.sum = NULL) {
+  # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only
+  n.resp <- nrow(elm_item$pars)
+
+  # classify the items into DRM and PRM groups (B3: will move to caller)
   idx.item <- idxfinder(elm_item)
   idx.drm <- idx.item$idx.drm
   idx.prm <- idx.item$idx.prm
 
-  # calculate the score categories
-  tmp.id <- 1:n.resp
+  # build the n.resp x max.cats one-hot freq.cat from resp_vec (B2: will replace xtabs)
+  resp_fac <- factor(resp_vec, levels = seq_len(max.cats) - 1)
+  tmp.id   <- seq_len(n.resp)
   freq.cat <-
     matrix(
-      stats::xtabs(~ tmp.id + resp,
+      stats::xtabs(~ tmp.id + resp_fac,
         na.action = stats::na.pass, addNA = FALSE
       ),
       nrow = n.resp
@@ -839,8 +802,7 @@ est_score_indiv <- function(exam_dat, elm_item, max.col, D = 1, method = "ML",
       # compute a perfect NC score
       total.nc <- sum(elm_item$cats - 1)
 
-      # compute a starting value based on the observed sum score
-      obs.sum <- sum(exam_dat$resp.num)
+      # obs.sum is passed in by the caller (sum of non-NA responses)
       if (obs.sum == 0) {
         theta <- log(1 / total.nc)
       } else if (obs.sum == total.nc) {
