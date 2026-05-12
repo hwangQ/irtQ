@@ -200,14 +200,8 @@ sx2_fit.default <- function(x,
   # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
-  # estimate likelihoods of getting raw sum scores except the examined item using lord-wingersky algorithm
-  lkhd_noitem <-
-    purrr::map(
-      .x = 1:nitem,
-      .f = function(i) {
-        t(lwRecurive(prob.cats = prob.cats[-i], cats = cats[-i], n.theta = nquad))
-      }
-    )
+  # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
+  lkhd_noitem <- lwrc_noitem(prob.cats = prob.cats, cats = cats, n.theta = nquad)
   
   ## ------------------------------------------------------------------
   ## 3. prepare the contingency tables
@@ -450,14 +444,8 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
   # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
-  # estimate likelihoods of getting raw sum scores except the examined item using lord-wingersky algorithm
-  lkhd_noitem <-
-    purrr::map(
-      .x = 1:nitem,
-      .f = function(i) {
-        t(lwRecurive(prob.cats = prob.cats[-i], cats = cats[-i], n.theta = nquad))
-      }
-    )
+  # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
+  lkhd_noitem <- lwrc_noitem(prob.cats = prob.cats, cats = cats, n.theta = nquad)
   
   ## ------------------------------------------------------------------
   ## 3. prepare the contingency tables
@@ -698,14 +686,8 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
   # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
-  # estimate likelihoods of getting raw sum scores except the examined item using lord-wingersky algorithm
-  lkhd_noitem <-
-    purrr::map(
-      .x = 1:nitem,
-      .f = function(i) {
-        t(lwRecurive(prob.cats = prob.cats[-i], cats = cats[-i], n.theta = nquad))
-      }
-    )
+  # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
+  lkhd_noitem <- lwrc_noitem(prob.cats = prob.cats, cats = cats, n.theta = nquad)
   
   ## ------------------------------------------------------------------
   ## 3. prepare the contingency tables
