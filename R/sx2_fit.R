@@ -290,17 +290,11 @@ sx2_fit.default <- function(x,
       # Extract column names before collapsing the frequency tablesact
       col.name <- colnames(exp_tmp)
       
-      # create two empty list to contain the collapsed results
-      exp_table <- vector("list", nrow(exp_tmp))
-      obs_table <- vector("list", nrow(obs_tmp))
-      
-      # collapsing cells of each frequency table
-      for (j in 1:nrow(exp_tmp)) {
-        x <- data.frame(exp = as.numeric(exp_tmp[j, ]), obs = as.numeric(obs_tmp[j, ]))
-        tmp <- collapse_ftable(x = x, col = 1, min.collapse = min.collapse)
-        exp_table[[j]] <- tmp$exp
-        obs_table[[j]] <- tmp$obs
-      }
+      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
+                                        min.collapse = min.collapse)
+      exp_table <- out_tables$exp_table
+      obs_table <- out_tables$obs_table
       
       ftable_info_plm[i, ][[1]] <-
         data.frame(bind.fill(exp_table, type = "rbind")) %>%
@@ -533,17 +527,11 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
       # Extract column names before collapsing the frequency tablesact
       col.name <- colnames(exp_tmp)
       
-      # create two empty list to contain the collapsed results
-      exp_table <- vector("list", nrow(exp_tmp))
-      obs_table <- vector("list", nrow(obs_tmp))
-      
-      # collapsing cells of each frequency table
-      for (j in 1:nrow(exp_tmp)) {
-        x <- data.frame(exp = as.numeric(exp_tmp[j, ]), obs = as.numeric(obs_tmp[j, ]))
-        tmp <- collapse_ftable(x = x, col = 1, min.collapse = min.collapse)
-        exp_table[[j]] <- tmp$exp
-        obs_table[[j]] <- tmp$obs
-      }
+      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
+                                        min.collapse = min.collapse)
+      exp_table <- out_tables$exp_table
+      obs_table <- out_tables$obs_table
       
       ftable_info_plm[i, ][[1]] <-
         data.frame(bind.fill(exp_table, type = "rbind")) %>%
@@ -775,17 +763,11 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
       # Extract column names before collapsing the frequency tablesact
       col.name <- colnames(exp_tmp)
       
-      # create two empty list to contain the collapsed results
-      exp_table <- vector("list", nrow(exp_tmp))
-      obs_table <- vector("list", nrow(obs_tmp))
-      
-      # collapsing cells of each frequency table
-      for (j in 1:nrow(exp_tmp)) {
-        x <- data.frame(exp = as.numeric(exp_tmp[j, ]), obs = as.numeric(obs_tmp[j, ]))
-        tmp <- collapse_ftable(x = x, col = 1, min.collapse = min.collapse)
-        exp_table[[j]] <- tmp$exp
-        obs_table[[j]] <- tmp$obs
-      }
+      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
+                                        min.collapse = min.collapse)
+      exp_table <- out_tables$exp_table
+      obs_table <- out_tables$obs_table
       
       ftable_info_plm[i, ][[1]] <-
         data.frame(bind.fill(exp_table, type = "rbind")) %>%
