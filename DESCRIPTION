@@ -1,7 +1,7 @@
 Package: irtQ
 Type: Package
 Title: Unidimensional Item Response Theory Modeling
-Version: 1.0.1
+Version: 1.1.0
 Description: Fit unidimensional item response theory (IRT) models to test
     data, which includes both dichotomous and polytomous items, calibrate 
     pretest item parameters, estimate examinees' abilities, and examine 
@@ -18,7 +18,7 @@ Description: Fit unidimensional item response theory (IRT) models to test
     (González (2014) <doi:10.18637/jss.v059.i07>). In est_score() function, the code of weighted 
     likelihood estimation method was written by referring to the Pi(), Ji(), and Ii() functions
     of the catR package (Magis & Barrada (2017) <doi:10.18637/jss.v076.c01>).
-Depends: R (>= 4.3)
+Depends: R (>= 4.4)
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -40,7 +40,7 @@ Imports:
     Rfast,
     mirt
 Authors@R: c(person("Hwanggyu", "Lim", email="hglim83@gmail.com", role=c("aut", "cre")), 
-    person("Craig S.", "Wells", email="cswells@educ.umass.edu ", role="ctb"), 
+    person("Craig S.", "Wells", email="cswells@educ.umass.edu", role="ctb"), 
     person("James", "Howard", email="jh@jameshoward.us", role="ctb"),
     person("Joshua", "Pritikin", email="jpritikin@pobox.com", role="ctb"), 
     person("Jonathan P", "Weeks", email="weeksjp@gmail.com", role="ctb"), 

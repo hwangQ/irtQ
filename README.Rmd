@@ -22,7 +22,7 @@ The goal of `irtQ` is to fit unidimensional item response theory (IRT) models to
 - Typical item parameters estimation 
 - Pretest item calibration
 - Multiple-group item calibration
-- Estimation of examinees' latent abilities,
+- Estimation of examinees' latent abilities
 - Evaluation of model-data fit at the item level
 
 Item parameter estimation is conducted using marginal maximum likelihood estimation via the expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981).  
@@ -45,9 +45,9 @@ Also, model fit assessment includes item fit statistics such as:
 
 - Chi-square (X²; Bock, 1960; Yen, 1981),
 - Likelihood ratio chi-square (G²; McKinley & Mills, 1985),
-- Infit and outfit statistics (Ames et al., 2015),
-- Graphical residual diagnostics (Hambleton et al., 1991).
-- S-X² (Orlando & Thissen, 2000, 2003),  
+- Infit and outfit statistics (Ames et al., 2015)
+- Graphical residual diagnostics (Hambleton et al., 1991)
+- S-X² (Orlando & Thissen, 2000, 2003)  
 
 In addition, the package offers a variety of utilities for IRT analysis, including:
 
@@ -155,8 +155,8 @@ In the `irtQ` package, FIPC is implemented through the following three steps:
      To facilitate creation of the metadata for FIPC, the helper function
      `irtQ::shape_df_fipc()` can be used.
 
- 2. Prepare the response data set from examinees who answered both the operational
- and pretest items.
+2. Prepare the response data set from examinees who answered both the operational
+   and pretest items.
 
      To implement FIPC using the `irtQ::est_irt()` function, examinees' response
      data for the test form must be provided, including both operational and
@@ -165,7 +165,7 @@ In the `irtQ` package, FIPC is implemented through the following three steps:
      Note that the column order of the response data must exactly match
      the row order of the item metadata.
 
- 3. Perform FIPC using the `irtQ::est_irt()` function to calibrate the pretest items.
+3. Perform FIPC using the `irtQ::est_irt()` function to calibrate the pretest items.
 
      When FIPC is performed using the `irtQ::est_irt()` function,
      the parameters of pretest items are estimated while the parameters
@@ -455,7 +455,7 @@ theta_est <- score_ml$est.theta
 # cats       = c(rep(2, 12), rep(5, 3))                # Score categories
 # item.id    = paste0("New_I", 1:15)                   # Item IDs
 # use.gprior = TRUE                                    # Use prior for guessing parameter
-# gprior     = list(dist = "beta", params = c(5, 16)   # Prior: Beta(5,16) for g
+# gprior     = list(dist = "beta", params = c(5, 16))   # Prior: Beta(5,16) for g
 mod_fapc <- irtQ::est_item(
   data       = data_new[, 41:55],                     
   score      = theta_est,                            
@@ -475,7 +475,7 @@ est_new_fapc <- mod_fapc$par.est
 print(est_new_fapc)
 
 ## ----------------------------------------------------------------------------
-# 4. IRT model-data fit evaluation using `irtQ::irtfit()`
+## 4. IRT model-data fit evaluation using `irtQ::irtfit()`
 ## ----------------------------------------------------------------------------
 
 ## Step 1: Prepare the data set for IRT model fit analysis
