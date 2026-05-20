@@ -12,3 +12,6 @@ CLAUDE.md
 data-raw/
 revdep/
 .positai
+
+# Claude Code
+.claude/
