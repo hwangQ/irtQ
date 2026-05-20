@@ -18,9 +18,5 @@
 # Git and GitHub configuration files
 ^\.gitignore$
 ^\.github$
-
-
-
-
 ^\.positai$
-^\.claude$
+^\.claude($|/)     
