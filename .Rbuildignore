@@ -20,3 +20,4 @@
 ^\.github$
 ^\.positai$
 ^\.claude($|/)     
+^\.claude$
