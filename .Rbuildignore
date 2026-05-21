@@ -19,5 +19,7 @@
 ^\.gitignore$
 ^\.github$
 ^\.positai$
-^\.claude($|/)     
+^\.claude($|/)
 ^\.claude$
+^TODO\.md$
+^check_result\.log$

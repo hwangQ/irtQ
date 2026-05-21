@@ -681,3 +681,6 @@
 #' @aliases irtQ
 #' @keywords internal
 NULL
+
+# Suppress R CMD CHECK note for the magrittr dot pronoun used in sx2_fit pipe chains
+utils::globalVariables(".")

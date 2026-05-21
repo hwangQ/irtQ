@@ -15,3 +15,5 @@ revdep/
 
 # Claude Code
 .claude/
+TODO.md
+check_result.log
