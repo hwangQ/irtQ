@@ -116,10 +116,10 @@
 #' \eqn{\hat{\beta} = 0} and \eqn{\text{SE}(\hat{\beta}) = 0} for every item,
 #' which causes the purification loop to terminate early with invalid
 #' statistics. To prevent this correction collapse, [irtQ::catsib()] enforces
-#' a floor of 0.1 on \eqn{\hat{\rho}^2} — i.e.,
-#' \eqn{\hat{\rho}^2 = \max(0.1, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
+#' a floor of 0.05 on \eqn{\hat{\rho}^2} — i.e.,
+#' \eqn{\hat{\rho}^2 = \max(0.05, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
 #' — so that a minimum degree of score spread is always preserved. When the
-#' unclamped \eqn{\hat{\rho}^2} falls below 0.1 for either group, a warning is
+#' unclamped \eqn{\hat{\rho}^2} falls below 0.05 for either group, a warning is
 #' issued and DIF results from that iteration should be interpreted with
 #' caution. This situation typically arises during purification when too few
 #' items remain to yield reliable ability estimates. Users should also be aware
@@ -652,20 +652,20 @@ catsib_one <- function(data,
   rho_ref2_raw <- suppressWarnings(1 - errvar_ref / sigma2_ref)
   rho_foc2_raw <- suppressWarnings(1 - errvar_foc / sigma2_foc)
 
-  # clamp rho2 to [0.1, 1]: floor of 0.1 prevents corrected scores from
+  # clamp rho2 to [0.05, 1]: floor of 0.05 prevents corrected scores from
   # collapsing so tightly around each group's mean that the two groups'
   # distributions no longer overlap (which produces n.ref=0, n.foc=0 for all
   # items and prematurely terminates the purification loop with invalid results).
-  rho_ref2 <- max(0.1, min(1, rho_ref2_raw))
-  rho_foc2 <- max(0.1, min(1, rho_foc2_raw))
+  rho_ref2 <- max(0.05, min(1, rho_ref2_raw))
+  rho_foc2 <- max(0.05, min(1, rho_foc2_raw))
 
-  # warn when either raw rho2 fell below the 0.1 floor
-  if (rho_ref2_raw < 0.1 || rho_foc2_raw < 0.1) {
+  # warn when either raw rho2 fell below the 0.05 floor
+  if (rho_ref2_raw < 0.05 || rho_foc2_raw < 0.05) {
     warning(
-      "The estimated reliability (rho^2) of ability estimates fell below 0.1 ",
+      "The estimated reliability (rho^2) of ability estimates fell below 0.05 ",
       "for one or more groups (rho^2_ref = ",
       round(rho_ref2_raw, 3), ", rho^2_foc = ",
-      round(rho_foc2_raw, 3), ") and was floored at 0.1. ",
+      round(rho_foc2_raw, 3), ") and was floored at 0.05. ",
       "This typically occurs when too few items remain after purification, ",
       "leading to large standard errors. Interpret DIF results with caution.",
       call. = FALSE

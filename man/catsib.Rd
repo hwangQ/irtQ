@@ -276,10 +276,10 @@ containing examinees from both groups, resulting in
 \eqn{\hat{\beta} = 0} and \eqn{\text{SE}(\hat{\beta}) = 0} for every item,
 which causes the purification loop to terminate early with invalid
 statistics. To prevent this correction collapse, \code{\link[=catsib]{catsib()}} enforces
-a floor of 0.1 on \eqn{\hat{\rho}^2} — i.e.,
-\eqn{\hat{\rho}^2 = \max(0.1, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
+a floor of 0.05 on \eqn{\hat{\rho}^2} — i.e.,
+\eqn{\hat{\rho}^2 = \max(0.05, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
 — so that a minimum degree of score spread is always preserved. When the
-unclamped \eqn{\hat{\rho}^2} falls below 0.1 for either group, a warning is
+unclamped \eqn{\hat{\rho}^2} falls below 0.05 for either group, a warning is
 issued and DIF results from that iteration should be interpreted with
 caution. This situation typically arises during purification when too few
 items remain to yield reliable ability estimates. Users should also be aware
