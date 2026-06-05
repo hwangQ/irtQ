@@ -760,7 +760,9 @@ catsib_item <- function(crscore_ref, crscore_foc, resp.ref, resp.foc,
     n.ref <- n.foc <- weight <- NULL
     item_df <-
       merge(x = ref.df, y = foc.df, by = "bin", all = TRUE, sort = FALSE) %>%
-      subset(n.ref >= 3 & n.foc >= 3) %>%
+      # keep only bins with at least 'min.binsize' examinees in BOTH groups,
+      # consistent with the bin-count selection loop above
+      subset(n.ref >= min.binsize & n.foc >= min.binsize) %>%
       transform(n.total = n.ref + n.foc) %>%
       dplyr::mutate(
         weight = dplyr::case_when(
