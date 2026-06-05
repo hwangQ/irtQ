@@ -270,3 +270,52 @@ test_that("catsib() internal scoring (score=NULL) works without error", {
     )
   )
 })
+
+test_that("catsib() min.binsize=5 retains no more examinees than min.binsize=3", {
+  res3 <- catsib(
+    x          = NULL,
+    data       = resp_all,
+    score      = score_all$est.theta,
+    se         = score_all$se.theta,
+    group      = group_vec,
+    focal.name = 1L,
+    D          = 1,
+    min.binsize = 3
+  )
+  res5 <- catsib(
+    x          = NULL,
+    data       = resp_all,
+    score      = score_all$est.theta,
+    se         = score_all$se.theta,
+    group      = group_vec,
+    focal.name = 1L,
+    D          = 1,
+    min.binsize = 5
+  )
+  # A stricter threshold can only exclude bins, never admit new ones
+  n3 <- res3$no_purify$dif_stat$n.total
+  n5 <- res5$no_purify$dif_stat$n.total
+  expect_true(all(n5 <= n3, na.rm = TRUE))
+})
+
+test_that("catsib() min.binsize is enforced in the final bin filter, not just the bin-count loop", {
+  res5 <- catsib(
+    x          = NULL,
+    data       = resp_all,
+    score      = score_all$est.theta,
+    se         = score_all$se.theta,
+    group      = group_vec,
+    focal.name = 1L,
+    D          = 1,
+    min.binsize = 5
+  )
+  # Every retained per-bin row across all contingency tables must satisfy
+  # n.ref >= 5 AND n.foc >= 5.  The last row of each contingency table is the
+  # adorn_totals summary row and is excluded via head(-1).
+  all_ok <- vapply(res5$no_purify$contingency, function(ct) {
+    bins <- head(ct, -1)
+    if (nrow(bins) == 0L) return(TRUE)
+    all(bins$n.ref >= 5L & bins$n.foc >= 5L)
+  }, logical(1L))
+  expect_true(all(all_ok))
+})
