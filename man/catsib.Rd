@@ -268,16 +268,26 @@ the number of items is very small, (b) a purification procedure removes many
 items, or (c) items exhibiting nonuniform DIF inflate the standard errors of
 focal group examinees. A negative \eqn{\hat{\rho}^2} causes the regression
 correction to amplify rather than attenuate group differences, leading to
-inflated Type I error rates. Although Nandakumar and Roussos (2004) did not
-explicitly address this case, \code{\link[=catsib]{catsib()}} clamps \eqn{\hat{\rho}^2} to
-\eqn{[0, 1]} — i.e.,
-\eqn{\hat{\rho}^2 = \max(0, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
-— to prevent correction reversal. Users should also be aware that CATSIB,
-like its predecessor SIBTEST (Shealy & Stout, 1993), was originally designed
-and validated for detecting uniform DIF. Its statistical behavior under
-nonuniform or mixed DIF conditions has not been formally evaluated, and
-caution is warranted when interpreting results for items suspected of
-nonuniform DIF.
+inflated Type I error rates. Even a small positive \eqn{\hat{\rho}^2} (e.g.,
+0.03) can collapse the corrected ability scores so tightly around each
+group's mean that, when ability impact exists between groups, the two groups'
+corrected score distributions no longer overlap. This leaves no bins
+containing examinees from both groups, resulting in
+\eqn{\hat{\beta} = 0} and \eqn{\text{SE}(\hat{\beta}) = 0} for every item,
+which causes the purification loop to terminate early with invalid
+statistics. To prevent this correction collapse, \code{\link[=catsib]{catsib()}} enforces
+a floor of 0.1 on \eqn{\hat{\rho}^2} — i.e.,
+\eqn{\hat{\rho}^2 = \max(0.1, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
+— so that a minimum degree of score spread is always preserved. When the
+unclamped \eqn{\hat{\rho}^2} falls below 0.1 for either group, a warning is
+issued and DIF results from that iteration should be interpreted with
+caution. This situation typically arises during purification when too few
+items remain to yield reliable ability estimates. Users should also be aware
+that CATSIB, like its predecessor SIBTEST (Shealy & Stout, 1993), was
+originally designed and validated for detecting uniform DIF. Its statistical
+behavior under nonuniform or mixed DIF conditions has not been formally
+evaluated, and caution is warranted when interpreting results for items
+suspected of nonuniform DIF.
 }
 \examples{
 \donttest{

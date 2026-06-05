@@ -271,8 +271,8 @@ test_that("catsib() internal scoring (score=NULL) works without error", {
   )
 })
 
-test_that("catsib() min.binsize=5 retains no more examinees than min.binsize=3", {
-  res3 <- catsib(
+test_that("catsib() retained bins satisfy min.binsize threshold for both groups", {
+  res3 <- suppressWarnings(catsib(
     x          = NULL,
     data       = resp_all,
     score      = score_all$est.theta,
@@ -281,8 +281,8 @@ test_that("catsib() min.binsize=5 retains no more examinees than min.binsize=3",
     focal.name = 1L,
     D          = 1,
     min.binsize = 3
-  )
-  res5 <- catsib(
+  ))
+  res5 <- suppressWarnings(catsib(
     x          = NULL,
     data       = resp_all,
     score      = score_all$est.theta,
@@ -291,11 +291,20 @@ test_that("catsib() min.binsize=5 retains no more examinees than min.binsize=3",
     focal.name = 1L,
     D          = 1,
     min.binsize = 5
-  )
-  # A stricter threshold can only exclude bins, never admit new ones
-  n3 <- res3$no_purify$dif_stat$n.total
-  n5 <- res5$no_purify$dif_stat$n.total
-  expect_true(all(n5 <= n3, na.rm = TRUE))
+  ))
+  # Every retained bin in the contingency table must satisfy the min.binsize
+  # threshold for BOTH groups.  Note: n.total is NOT monotone in min.binsize
+  # because the bin-count selection loop also changes num.bin, which can yield
+  # fewer but larger bins that include more examinees in total.
+  check_bins <- function(contingency, thresh) {
+    vapply(contingency, function(ct) {
+      bins <- head(ct, -1)   # drop adorn_totals summary row
+      if (nrow(bins) == 0L) return(TRUE)
+      all(bins$n.ref >= thresh & bins$n.foc >= thresh)
+    }, logical(1L))
+  }
+  expect_true(all(check_bins(res3$no_purify$contingency, 3L)))
+  expect_true(all(check_bins(res5$no_purify$contingency, 5L)))
 })
 
 test_that("catsib() min.binsize is enforced in the final bin filter, not just the bin-count loop", {
