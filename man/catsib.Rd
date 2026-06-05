@@ -258,6 +258,26 @@ specified threshold are treated as missing (i.e., NA). As a result, their
 ability estimates are also treated as missing and are excluded from the
 CATSIB statistic computation. If \code{min.resp = NULL}, a score will be computed
 for any examinee with at least one valid item response.
+
+Note that the regression correction (Eq. 7 in Nandakumar & Roussos, 2004)
+assumes \eqn{\hat{\rho}^2} (the estimated reliability of ability estimates)
+lies in \eqn{[0, 1]}. In practice, however, \eqn{\hat{\rho}^2} can become
+negative when the mean squared standard error of ability estimates exceeds the
+observed variance of ability estimates — a situation that can arise when (a)
+the number of items is very small, (b) a purification procedure removes many
+items, or (c) items exhibiting nonuniform DIF inflate the standard errors of
+focal group examinees. A negative \eqn{\hat{\rho}^2} causes the regression
+correction to amplify rather than attenuate group differences, leading to
+inflated Type I error rates. Although Nandakumar and Roussos (2004) did not
+explicitly address this case, \code{\link[=catsib]{catsib()}} clamps \eqn{\hat{\rho}^2} to
+\eqn{[0, 1]} — i.e.,
+\eqn{\hat{\rho}^2 = \max(0, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
+— to prevent correction reversal. Users should also be aware that CATSIB,
+like its predecessor SIBTEST (Shealy & Stout, 1993), was originally designed
+and validated for detecting uniform DIF. Its statistical behavior under
+nonuniform or mixed DIF conditions has not been formally evaluated, and
+caution is warranted when interpreting results for items suspected of
+nonuniform DIF.
 }
 \examples{
 \donttest{
