@@ -34,7 +34,7 @@ After Stage 1, they are routed to one of three Stage 2 modules (2E, 2M,
 one of three Stage 3 modules (3E, 3M, 3H).
 
 A test taker’s *pathway* through the MST is the sequence of modules they
-take, such as M1 → M2 → M5 (for a low-ability examinee) or M1 → M4 → M7
+take, such as 1M → 2E → 3E (for a low-ability examinee) or 1M → 2H → 3H
 (for a high-ability examinee). In a 1-3-3 panel, there are typically 6
 such pathways.
 
@@ -43,10 +43,9 @@ such pathways.
 | Feature | Linear | CAT | MST |
 |----|----|----|----|
 | Adaptivity | None | Item-by-item | Stage-by-stage |
-| Content review | Full review allowed | Not allowed | Allowed within module |
+| Content review | Full review allowed | (Generally) Not allowed | Allowed within module |
 | Item exposure control | Easy | Difficult | Moderate |
-| Test assembly | Pre-assembled | On-the-fly | Pre-assembled modules |
-| Routing precision | N/A | High | Moderate |
+| Test assembly | Pre-assembled | On-the-fly | (Generally) Pre-assembled modules |
 | Operational cost | Low | High | Moderate |
 
 MST is especially popular in high-stakes certification and licensure

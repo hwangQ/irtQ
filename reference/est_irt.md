@@ -832,7 +832,7 @@ summary(mod.1pl.f)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 0.390402 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.05 seconds. 
+#> Estimation is finished in 0.06 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
@@ -870,7 +870,7 @@ summary(mod.2pl)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.04
 #>  Standard error computation: 0
-#>  Total computation: 0.05
+#>  Total computation: 0.06
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1716,7 +1716,7 @@ plot(trace.2pl, item.loc = 1)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.0286, Max-Change: 0.390402 EM iteration: 2, Loglike: -2561.3283, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.05 seconds. 
+#> Estimation is finished in 0.07 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2, EmpHist = TRUE, 
@@ -1866,7 +1866,7 @@ summary(mod.3pl)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -2938.6296, Max-Change: 0.646515 EM iteration: 2, Loglike: -2493.2423, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.07 seconds. 
+#> Estimation is finished in 0.05 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "3PLM", cats = 2, fix.g = TRUE, 
@@ -1904,9 +1904,9 @@ summary(mod.3pl.f)
 #>  Maximum parameter change: 0
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.05
+#>  EM algorithm: 0.04
 #>  Standard error computation: 0
-#>  Total computation: 0.07
+#>  Total computation: 0.05
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2047,7 +2047,7 @@ item.meta <- shape_df(item.id = x$id, cats = x$cats, model = x$model,
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39032.8987, Max-Change: 2.339566 EM iteration: 2, Loglike: -33980.7119, Max-Change: 0.316376 EM iteration: 3, Loglike: -33966.2963, Max-Change: 0.085202 EM iteration: 4, Loglike: -33965.3783, Max-Change: 0.021805 EM iteration: 5, Loglike: -33965.3380, Max-Change: 0.005862 EM iteration: 6, Loglike: -33965.3884, Max-Change: 0.001885 EM iteration: 7, Loglike: -33965.4397, Max-Change: 0.001181 EM iteration: 8, Loglike: -33965.4817, Max-Change: 0.000808 EM iteration: 9, Loglike: -33965.5149, Max-Change: 0.000585 EM iteration: 10, Loglike: -33965.5412, Max-Change: 0.000437 EM iteration: 11, Loglike: -33965.5620, Max-Change: 0.000333 EM iteration: 12, Loglike: -33965.5784, Max-Change: 0.000256 EM iteration: 13, Loglike: -33965.5915, Max-Change: 0.000198 EM iteration: 14, Loglike: -33965.6019, Max-Change: 0.000153 EM iteration: 15, Loglike: -33965.6102, Max-Change: 0.000117 EM iteration: 16, Loglike: -33965.6168, Max-Change: 9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.32 seconds. 
+#> Estimation is finished in 2.37 seconds. 
 #> 
 #> Call:
 #> est_irt(x = item.meta, data = sim.dat1, D = 1, use.aprior = TRUE, 
@@ -2089,9 +2089,9 @@ summary(mod.mix1)
 #>  Maximum parameter change: 9.002151e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.21
+#>  EM algorithm: 2.26
 #>  Standard error computation: 0.06
-#>  Total computation: 2.32
+#>  Total computation: 2.37
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3415,7 +3415,7 @@ plot(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39015.7262, Max-Change: 2.725763 EM iteration: 2, Loglike: -34112.9883, Max-Change: 0.495202 EM iteration: 3, Loglike: -34092.3716, Max-Change: 0.072635 EM iteration: 4, Loglike: -34085.1295, Max-Change: 0.014744 EM iteration: 5, Loglike: -34079.2149, Max-Change: 0.005709 EM iteration: 6, Loglike: -34073.9510, Max-Change: 0.003016 EM iteration: 7, Loglike: -34069.2334, Max-Change: 0.001559 EM iteration: 8, Loglike: -34065.0073, Max-Change: 0.000534 EM iteration: 9, Loglike: -34061.2267, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.82 seconds. 
+#> Estimation is finished in 0.88 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3455,9 +3455,9 @@ summary(mod.mix2)
 #>  Maximum parameter change: 0
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.75
+#>  EM algorithm: 0.81
 #>  Standard error computation: 0.04
-#>  Total computation: 0.82
+#>  Total computation: 0.88
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3601,7 +3601,7 @@ summary(mod.mix2)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39020.4583, Max-Change: 2.725763 EM iteration: 2, Loglike: -34115.0550, Max-Change: 0.511114 EM iteration: 3, Loglike: -34091.1908, Max-Change: 0.101242 EM iteration: 4, Loglike: -34081.4188, Max-Change: 0.041264 EM iteration: 5, Loglike: -34072.9699, Max-Change: 0.025581 EM iteration: 6, Loglike: -34065.3505, Max-Change: 0.016284 EM iteration: 7, Loglike: -34058.5666, Max-Change: 0.00916 EM iteration: 8, Loglike: -34052.6086, Max-Change: 0.00352 EM iteration: 9, Loglike: -34047.6502, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.87 seconds. 
+#> Estimation is finished in 0.88 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3684,7 +3684,7 @@ plot(emphist$weight ~ emphist$theta, type = "h")
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39015.7262, Max-Change: 2.725763 EM iteration: 2, Loglike: -34173.8698, Max-Change: 0.522828 EM iteration: 3, Loglike: -34149.9420, Max-Change: 0.117157 EM iteration: 4, Loglike: -34137.5850, Max-Change: 0.05399 EM iteration: 5, Loglike: -34127.7660, Max-Change: 0.037309 EM iteration: 6, Loglike: -34119.6424, Max-Change: 0.027508 EM iteration: 7, Loglike: -34112.8425, Max-Change: 0.020042 EM iteration: 8, Loglike: -34107.1103, Max-Change: 0.014162 EM iteration: 9, Loglike: -34102.2556, Max-Change: 0.009562 EM iteration: 10, Loglike: -34098.1318, Max-Change: 0.006011 EM iteration: 11, Loglike: -34094.6229, Max-Change: 0.00331 EM iteration: 12, Loglike: -34091.6349, Max-Change: 0.001289 EM iteration: 13, Loglike: -34089.0901, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.1 seconds. 
+#> Estimation is finished in 1.07 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3725,8 +3725,8 @@ summary(mod.mix4)
 #> 
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.99
-#>  Standard error computation: 0.05
-#>  Total computation: 1.1
+#>  Standard error computation: 0.04
+#>  Total computation: 1.07
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3888,7 +3888,7 @@ fix.loc <- c(1:5, 53:55)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6799.7353, Max-Change: 3.222649 EM iteration: 2, Loglike: -31337.6995, Max-Change: 0.867069 EM iteration: 3, Loglike: -31073.9672, Max-Change: 0.237885 EM iteration: 4, Loglike: -31063.5310, Max-Change: 0.099662 EM iteration: 5, Loglike: -31059.2570, Max-Change: 0.07400 EM iteration: 6, Loglike: -31056.5795, Max-Change: 0.054547 EM iteration: 7, Loglike: -31054.7969, Max-Change: 0.040231 EM iteration: 8, Loglike: -31053.5770, Max-Change: 0.02986 EM iteration: 9, Loglike: -31052.7248, Max-Change: 0.022385 EM iteration: 10, Loglike: -31052.1188, Max-Change: 0.016975 EM iteration: 11, Loglike: -31051.6809, Max-Change: 0.013019 EM iteration: 12, Loglike: -31051.3592, Max-Change: 0.010476 EM iteration: 13, Loglike: -31051.1191, Max-Change: 0.008984 EM iteration: 14, Loglike: -31050.9366, Max-Change: 0.008296 EM iteration: 15, Loglike: -31050.7953, Max-Change: 0.007586 EM iteration: 16, Loglike: -31050.6836, Max-Change: 0.00689 EM iteration: 17, Loglike: -31050.5935, Max-Change: 0.006231 EM iteration: 18, Loglike: -31050.5191, Max-Change: 0.005619 EM iteration: 19, Loglike: -31050.4563, Max-Change: 0.005059 EM iteration: 20, Loglike: -31050.4021, Max-Change: 0.004551 EM iteration: 21, Loglike: -31050.3545, Max-Change: 0.004095 EM iteration: 22, Loglike: -31050.3118, Max-Change: 0.003686 EM iteration: 23, Loglike: -31050.2729, Max-Change: 0.00332 EM iteration: 24, Loglike: -31050.2371, Max-Change: 0.002993 EM iteration: 25, Loglike: -31050.2037, Max-Change: 0.002701 EM iteration: 26, Loglike: -31050.1723, Max-Change: 0.00244 EM iteration: 27, Loglike: -31050.1425, Max-Change: 0.002207 EM iteration: 28, Loglike: -31050.1142, Max-Change: 0.001997 EM iteration: 29, Loglike: -31050.0870, Max-Change: 0.00181 EM iteration: 30, Loglike: -31050.0609, Max-Change: 0.001641 EM iteration: 31, Loglike: -31050.0358, Max-Change: 0.001488 EM iteration: 32, Loglike: -31050.0115, Max-Change: 0.001351 EM iteration: 33, Loglike: -31049.9881, Max-Change: 0.001227 EM iteration: 34, Loglike: -31049.9654, Max-Change: 0.001115 EM iteration: 35, Loglike: -31049.9433, Max-Change: 0.001013 EM iteration: 36, Loglike: -31049.9220, Max-Change: 0.00092 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.6 seconds. 
+#> Estimation is finished in 2.81 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -3989,9 +3989,9 @@ summary(mod.fix1)
 #>  Maximum parameter change: 0.000920385
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.5
+#>  EM algorithm: 2.7
 #>  Standard error computation: 0.04
-#>  Total computation: 2.6
+#>  Total computation: 2.81
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4135,7 +4135,7 @@ fix.id <- c(x$id[1:5], x$id[53:55])
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6799.7353, Max-Change: 3.222649 EM iteration: 2, Loglike: -31337.6995, Max-Change: 0.867069 EM iteration: 3, Loglike: -31073.9672, Max-Change: 0.237885 EM iteration: 4, Loglike: -31063.5310, Max-Change: 0.099662 EM iteration: 5, Loglike: -31059.2570, Max-Change: 0.07400 EM iteration: 6, Loglike: -31056.5795, Max-Change: 0.054547 EM iteration: 7, Loglike: -31054.7969, Max-Change: 0.040231 EM iteration: 8, Loglike: -31053.5770, Max-Change: 0.02986 EM iteration: 9, Loglike: -31052.7248, Max-Change: 0.022385 EM iteration: 10, Loglike: -31052.1188, Max-Change: 0.016975 EM iteration: 11, Loglike: -31051.6809, Max-Change: 0.013019 EM iteration: 12, Loglike: -31051.3592, Max-Change: 0.010476 EM iteration: 13, Loglike: -31051.1191, Max-Change: 0.008984 EM iteration: 14, Loglike: -31050.9366, Max-Change: 0.008296 EM iteration: 15, Loglike: -31050.7953, Max-Change: 0.007586 EM iteration: 16, Loglike: -31050.6836, Max-Change: 0.00689 EM iteration: 17, Loglike: -31050.5935, Max-Change: 0.006231 EM iteration: 18, Loglike: -31050.5191, Max-Change: 0.005619 EM iteration: 19, Loglike: -31050.4563, Max-Change: 0.005059 EM iteration: 20, Loglike: -31050.4021, Max-Change: 0.004551 EM iteration: 21, Loglike: -31050.3545, Max-Change: 0.004095 EM iteration: 22, Loglike: -31050.3118, Max-Change: 0.003686 EM iteration: 23, Loglike: -31050.2729, Max-Change: 0.00332 EM iteration: 24, Loglike: -31050.2371, Max-Change: 0.002993 EM iteration: 25, Loglike: -31050.2037, Max-Change: 0.002701 EM iteration: 26, Loglike: -31050.1723, Max-Change: 0.00244 EM iteration: 27, Loglike: -31050.1425, Max-Change: 0.002207 EM iteration: 28, Loglike: -31050.1142, Max-Change: 0.001997 EM iteration: 29, Loglike: -31050.0870, Max-Change: 0.00181 EM iteration: 30, Loglike: -31050.0609, Max-Change: 0.001641 EM iteration: 31, Loglike: -31050.0358, Max-Change: 0.001488 EM iteration: 32, Loglike: -31050.0115, Max-Change: 0.001351 EM iteration: 33, Loglike: -31049.9881, Max-Change: 0.001227 EM iteration: 34, Loglike: -31049.9654, Max-Change: 0.001115 EM iteration: 35, Loglike: -31049.9433, Max-Change: 0.001013 EM iteration: 36, Loglike: -31049.9220, Max-Change: 0.00092 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.84 seconds. 
+#> Estimation is finished in 2.47 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4175,9 +4175,9 @@ summary(mod.fix1)
 #>  Maximum parameter change: 0.000920385
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.73
-#>  Standard error computation: 0.06
-#>  Total computation: 2.84
+#>  EM algorithm: 2.36
+#>  Standard error computation: 0.05
+#>  Total computation: 2.47
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4323,7 +4323,7 @@ fix.loc <- c(1:5, 53:55)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6800.6017, Max-Change: 3.222649 EM iteration: 2, Loglike: -31330.2705, Max-Change: 0.799829 EM iteration: 3, Loglike: -31073.8931, Max-Change: 0.197432 EM iteration: 4, Loglike: -31063.4621, Max-Change: 0.083067 EM iteration: 5, Loglike: -31059.7618, Max-Change: 0.048836 EM iteration: 6, Loglike: -31057.5133, Max-Change: 0.033394 EM iteration: 7, Loglike: -31056.0049, Max-Change: 0.026974 EM iteration: 8, Loglike: -31054.9624, Max-Change: 0.022481 EM iteration: 9, Loglike: -31054.2321, Max-Change: 0.018797 EM iteration: 10, Loglike: -31053.7165, Max-Change: 0.015766 EM iteration: 11, Loglike: -31053.3505, Max-Change: 0.013259 EM iteration: 12, Loglike: -31053.0897, Max-Change: 0.011177 EM iteration: 13, Loglike: -31052.9032, Max-Change: 0.009441 EM iteration: 14, Loglike: -31052.7695, Max-Change: 0.007988 EM iteration: 15, Loglike: -31052.6735, Max-Change: 0.006769 EM iteration: 16, Loglike: -31052.6045, Max-Change: 0.005743 EM iteration: 17, Loglike: -31052.5547, Max-Change: 0.004878 EM iteration: 18, Loglike: -31052.5187, Max-Change: 0.004148 EM iteration: 19, Loglike: -31052.4928, Max-Change: 0.003556 EM iteration: 20, Loglike: -31052.4740, Max-Change: 0.003059 EM iteration: 21, Loglike: -31052.4604, Max-Change: 0.002633 EM iteration: 22, Loglike: -31052.4506, Max-Change: 0.002267 EM iteration: 23, Loglike: -31052.4435, Max-Change: 0.001953 EM iteration: 24, Loglike: -31052.4383, Max-Change: 0.001683 EM iteration: 25, Loglike: -31052.4346, Max-Change: 0.001451 EM iteration: 26, Loglike: -31052.4319, Max-Change: 0.001252 EM iteration: 27, Loglike: -31052.4300, Max-Change: 0.00108 EM iteration: 28, Loglike: -31052.4286, Max-Change: 0.000933 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.1 seconds. 
+#> Estimation is finished in 2.09 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4415,7 +4415,7 @@ fix.loc <- c(1:5)
 #>  EM iteration: 1, Loglike: -2966.5364, Max-Change: 4.112978 
 #> Warning: Convergence criteria are not satisfied. 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.41 seconds. 
+#> Estimation is finished in 0.44 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4516,9 +4516,9 @@ summary(mod.fix3)
 #>  Maximum parameter change: 4.112978
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.3
+#>  EM algorithm: 0.32
 #>  Standard error computation: 0.06
-#>  Total computation: 0.41
+#>  Total computation: 0.44
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are not satisfied.
@@ -4759,7 +4759,7 @@ summary(mod.fix4)
 #>  Maximum parameter change: 0.000993239
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.35
+#>  EM algorithm: 0.34
 #>  Standard error computation: 
 #>  Total computation: 0.38
 #> 
@@ -4903,7 +4903,7 @@ fix.id <- x$id
 #> Parsing input... 
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -31130.3586, Max-Change: 0.528058 EM iteration: 2, Loglike: -31125.5269, Max-Change: 0.14546 EM iteration: 3, Loglike: -31124.6717, Max-Change: 0.040942 EM iteration: 4, Loglike: -31124.3171, Max-Change: 0.015804 EM iteration: 5, Loglike: -31124.1190, Max-Change: 0.008253 EM iteration: 6, Loglike: -31123.9854, Max-Change: 0.00518 EM iteration: 7, Loglike: -31123.8815, Max-Change: 0.00365 EM iteration: 8, Loglike: -31123.7927, Max-Change: 0.002811 EM iteration: 9, Loglike: -31123.7123, Max-Change: 0.002331 EM iteration: 10, Loglike: -31123.6373, Max-Change: 0.002051 EM iteration: 11, Loglike: -31123.5659, Max-Change: 0.001887 EM iteration: 12, Loglike: -31123.4976, Max-Change: 0.001791 EM iteration: 13, Loglike: -31123.4317, Max-Change: 0.001732 EM iteration: 14, Loglike: -31123.3682, Max-Change: 0.001695 EM iteration: 15, Loglike: -31123.3067, Max-Change: 0.001669 EM iteration: 16, Loglike: -31123.2472, Max-Change: 0.001648 EM iteration: 17, Loglike: -31123.1897, Max-Change: 0.001628 EM iteration: 18, Loglike: -31123.1340, Max-Change: 0.001606 EM iteration: 19, Loglike: -31123.0800, Max-Change: 0.001583 EM iteration: 20, Loglike: -31123.0278, Max-Change: 0.001558 EM iteration: 21, Loglike: -31122.9773, Max-Change: 0.001531 EM iteration: 22, Loglike: -31122.9284, Max-Change: 0.001503 EM iteration: 23, Loglike: -31122.8810, Max-Change: 0.001474 EM iteration: 24, Loglike: -31122.8352, Max-Change: 0.001444 EM iteration: 25, Loglike: -31122.7908, Max-Change: 0.001414 EM iteration: 26, Loglike: -31122.7478, Max-Change: 0.001383 EM iteration: 27, Loglike: -31122.7061, Max-Change: 0.001353 EM iteration: 28, Loglike: -31122.6658, Max-Change: 0.001323 EM iteration: 29, Loglike: -31122.6267, Max-Change: 0.001294 EM iteration: 30, Loglike: -31122.5889, Max-Change: 0.001265 EM iteration: 31, Loglike: -31122.5522, Max-Change: 0.001237 EM iteration: 32, Loglike: -31122.5167, Max-Change: 0.001209 EM iteration: 33, Loglike: -31122.4822, Max-Change: 0.001183 EM iteration: 34, Loglike: -31122.4489, Max-Change: 0.001157 EM iteration: 35, Loglike: -31122.4165, Max-Change: 0.001131 EM iteration: 36, Loglike: -31122.3851, Max-Change: 0.001107 EM iteration: 37, Loglike: -31122.3547, Max-Change: 0.001083 EM iteration: 38, Loglike: -31122.3252, Max-Change: 0.00106 EM iteration: 39, Loglike: -31122.2966, Max-Change: 0.001037 EM iteration: 40, Loglike: -31122.2688, Max-Change: 0.001015 EM iteration: 41, Loglike: -31122.2419, Max-Change: 0.000993 
-#> Estimation is finished in 0.38 seconds. 
+#> Estimation is finished in 0.37 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, EmpHist = TRUE, Etol = 0.001, 
@@ -4943,7 +4943,7 @@ summary(mod.fix4)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.34
 #>  Standard error computation: 
-#>  Total computation: 0.38
+#>  Total computation: 0.37
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
