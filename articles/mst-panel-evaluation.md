@@ -17,7 +17,8 @@ For example, a **1-3-3 panel** has:
 - **Stage 1**: 1 routing module — everyone starts with the same items
 - **Stage 2**: 3 modules of varying difficulty (e.g., easy, medium,
   hard)
-- **Stage 3**: 3 modules of varying difficulty (easy, medium, hard)
+- **Stage 3**: 3 modules of varying difficulty (e.g., easy, medium,
+  hard)
 
 The diagram below illustrates the flow of test takers through a 1-3-3
 panel (E = Easy, M = Medium, H = Hard):

@@ -821,9 +821,9 @@ summary(mod)
 #>  Maximum parameter change: 0.000805268
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.47
+#>  EM algorithm: 0.41
 #>  Standard error computation: 0.02
-#>  Total computation: 0.53
+#>  Total computation: 0.47
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
