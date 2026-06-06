@@ -47,8 +47,10 @@
 
 ### New Articles
 
-- Added a pkgdown website with the following vignettes covering the full
-  irtQ workflow:
+- Launched the irtQ documentation website at
+  <https://hwangQ.github.io/irtQ/>, built with **pkgdown**. The site
+  includes a full function reference index and the following vignettes
+  covering the complete irtQ workflow:
   - *Getting Started with irtQ*: an end-to-end overview of the package
     workflow.
   - *Item Parameter Estimation*: detailed guidance on

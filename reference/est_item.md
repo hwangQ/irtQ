@@ -729,7 +729,7 @@ summary(mod2)
 #> 55   AFR3  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.42
+#>  Total computation: 0.43
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
