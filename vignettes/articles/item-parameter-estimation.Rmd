@@ -1552,6 +1552,7 @@ The built-in `simMG` dataset provides a ready-to-use CINEG example with three gr
     * Shares 10 anchor items (**C2**) with Group 2, located at positions **1–10**.
 
 **True ability distributions:**
+
 * Group 1: $\theta \sim N(0.0, 1.0^2)$
 * Group 2: $\theta \sim N(0.5, 0.8^2)$
 * Group 3: $\theta \sim N(-0.3, 1.3^2)$
@@ -1685,11 +1686,13 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 This approach is known as **MG-FIPC**: Multiple-Group Fixed Item Parameter Calibration [@kim_kolen2016].
 
 **When is MG-FIPC useful?**
+
 * An operational item bank already exists (calibrated on a reference scale).
 * New test forms are field-tested across different examinee groups.
 * You want to seamlessly add new items to the bank without re-calibrating or shifting the existing anchors.
 
 The anchor item positions specified in the `fix.loc` argument must accurately reflect each group's unique test form layout:
+
 * **Group 1**: C1 anchor items located at positions **1–10 and 49–50**.
 * **Group 2**: Contains both **C1** anchor items (at positions **1–12**) and **C2** anchor items (at positions **41–50**).
 * **Group 3**: C2 anchor items located at positions **1–10**.
