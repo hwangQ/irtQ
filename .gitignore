@@ -17,3 +17,9 @@ revdep/
 .claude/
 TODO.md
 check_result.log
+
+CRAN-SUBMISSION
+inst/doc
+/doc/
+/Meta/
+docs/

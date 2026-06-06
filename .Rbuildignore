@@ -20,6 +20,13 @@
 ^\.github$
 ^\.positai$
 ^\.claude($|/)
-^\.claude$
 ^TODO\.md$
 ^check_result\.log$
+^CRAN-SUBMISSION$
+^doc$
+^Meta$
+
+# pkgdown configuration and build output (rendered by pkgdown::build_site(), not devtools::build_vignettes())
+^_pkgdown\.yml$
+^docs$
+^vignettes/articles$
