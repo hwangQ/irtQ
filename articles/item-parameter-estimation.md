@@ -307,9 +307,9 @@ summary(mod_1pl_fixed)
 #>  Maximum parameter change: 6.362554e-06
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.15
+#>  EM algorithm: 0.17
 #>  Standard error computation: 0.02
-#>  Total computation: 0.21
+#>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -397,9 +397,9 @@ summary(mod_1pl_constrained)
 #>  Maximum parameter change: 0.0007782085
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.14
-#>  Standard error computation: 0.1
-#>  Total computation: 0.25
+#>  EM algorithm: 0.13
+#>  Standard error computation: 0.07
+#>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -537,9 +537,9 @@ summary(mod_bin)
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.73
+#>  EM algorithm: 0.81
 #>  Standard error computation: 0.02
-#>  Total computation: 0.77
+#>  Total computation: 0.85
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -863,9 +863,9 @@ summary(mod_3pl_gprior)
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.51
-#>  Standard error computation: 0.02
-#>  Total computation: 1.55
+#>  EM algorithm: 1.71
+#>  Standard error computation: 0.03
+#>  Total computation: 1.76
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -983,9 +983,9 @@ summary(mod_3pl_fixg)
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1
+#>  EM algorithm: 1.12
 #>  Standard error computation: 0.02
-#>  Total computation: 1.05
+#>  Total computation: 1.17
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1102,9 +1102,9 @@ summary(mod_3pl_allprior)
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.14
-#>  Standard error computation: 0.02
-#>  Total computation: 2.18
+#>  EM algorithm: 2.37
+#>  Standard error computation: 0.03
+#>  Total computation: 2.43
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1385,9 +1385,9 @@ summary(mod_mix)
 #>  Maximum parameter change: 0.0009697275
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.7
+#>  EM algorithm: 0.81
 #>  Standard error computation: 0.02
-#>  Total computation: 0.74
+#>  Total computation: 0.85
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1799,9 +1799,9 @@ summary(mod_fipc)
 #>  Maximum parameter change: 0.0008186949
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.1
+#>  EM algorithm: 0.12
 #>  Standard error computation: 0
-#>  Total computation: 0.13
+#>  Total computation: 0.14
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2066,8 +2066,8 @@ summary(mod_fipc_mix)
 #> 
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.19
-#>  Standard error computation: 0.02
-#>  Total computation: 0.23
+#>  Standard error computation: 0.01
+#>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2577,9 +2577,11 @@ and polytomous items.
   - Shares 10 anchor items (**C2**) with Group 2, located at positions
     **1–10**.
 
-**True ability distributions:** \* Group 1:
-$`\theta \sim N(0.0, 1.0^2)`$ \* Group 2: $`\theta \sim N(0.5, 0.8^2)`$
-\* Group 3: $`\theta \sim N(-0.3, 1.3^2)`$
+**True ability distributions:**
+
+- Group 1: $`\theta \sim N(0.0, 1.0^2)`$
+- Group 2: $`\theta \sim N(0.5, 0.8^2)`$
+- Group 3: $`\theta \sim N(-0.3, 1.3^2)`$
 
 > ⚠️ **Note on Scaling:** `simMG` was generated using a logistic metric
 > ($`D = 1`$). Therefore, we must set `D = 1` throughout the
@@ -2671,9 +2673,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 13.77
-#>  Standard error computation: 0.19
-#>  Total computation: 14.67
+#>  EM algorithm: 15.06
+#>  Standard error computation: 0.2
+#>  Total computation: 15.84
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3311,18 +3313,21 @@ scale. We want to:
 This approach is known as **MG-FIPC**: Multiple-Group Fixed Item
 Parameter Calibration (Kim & Kolen, 2016).
 
-**When is MG-FIPC useful?** \* An operational item bank already exists
-(calibrated on a reference scale). \* New test forms are field-tested
-across different examinee groups. \* You want to seamlessly add new
-items to the bank without re-calibrating or shifting the existing
-anchors.
+**When is MG-FIPC useful?**
+
+- An operational item bank already exists (calibrated on a reference
+  scale).
+- New test forms are field-tested across different examinee groups.
+- You want to seamlessly add new items to the bank without
+  re-calibrating or shifting the existing anchors.
 
 The anchor item positions specified in the `fix.loc` argument must
-accurately reflect each group’s unique test form layout: \* **Group 1**:
-C1 anchor items located at positions **1–10 and 49–50**. \* **Group 2**:
-Contains both **C1** anchor items (at positions **1–12**) and **C2**
-anchor items (at positions **41–50**). \* **Group 3**: C2 anchor items
-located at positions **1–10**.
+accurately reflect each group’s unique test form layout:
+
+- **Group 1**: C1 anchor items located at positions **1–10 and 49–50**.
+- **Group 2**: Contains both **C1** anchor items (at positions **1–12**)
+  and **C2** anchor items (at positions **41–50**).
+- **Group 3**: C2 anchor items located at positions **1–10**.
 
 ``` r
 
@@ -3380,9 +3385,9 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.35
-#>  Standard error computation: 0.14
-#>  Total computation: 8.32
+#>  EM algorithm: 8.08
+#>  Standard error computation: 0.15
+#>  Total computation: 8.91
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.

@@ -232,17 +232,21 @@ If cut scores are specified on the **theta scale** (i.e.,
 summed-score scale using the Test Characteristic Curve (TCC):
 $`E(X \mid \theta^*) = \sum_i \sum_j j \, \Pr(U_i = j \mid \theta^*)`$.
 
-where: - $`X`$ is the total observed summed score across the entire
-test. - $`\theta^*`$ is a specific cut score specified on the latent
-ability scale. - $`i`$ is the index for items ($`i = 1, 2, \dots, N`$,
-where $`N`$ is the total number of items). - $`j`$ is the index for the
-item score categories ($`j = 0, 1, \dots, K_i - 1`$, where $`K_i`$ is
-the number of response categories for item $`i`$). For dichotomous
-items, $`j \in \{0, 1\}`$. - $`U_i`$ is the item response random
-variable for item $`i`$. - $`\Pr(U_i = j \mid \theta^*)`$ is the
-probability of obtaining a score category $`j`$ on item $`i`$ given the
-ability level $`\theta^*`$, which is modeled by a specific IRT item
-response function (e.g., 3PLM or GRM).
+where:
+
+- $`X`$ is the total observed summed score across the entire test.
+- $`\theta^*`$ is a specific cut score specified on the latent ability
+  scale.
+- $`i`$ is the index for items ($`i = 1, 2, \dots, N`$, where $`N`$ is
+  the total number of items).
+- $`j`$ is the index for the item score categories
+  ($`j = 0, 1, \dots, K_i - 1`$, where $`K_i`$ is the number of response
+  categories for item $`i`$). For dichotomous items, $`j \in \{0, 1\}`$.
+- $`U_i`$ is the item response random variable for item $`i`$.
+- $`\Pr(U_i = j \mid \theta^*)`$ is the probability of obtaining a score
+  category $`j`$ on item $`i`$ given the ability level $`\theta^*`$,
+  which is modeled by a specific IRT item response function (e.g., 3PLM
+  or GRM).
 
 ### Key arguments in `cac_lee()`
 
