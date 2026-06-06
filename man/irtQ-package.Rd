@@ -616,7 +616,7 @@ Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
 differential item functioning among multiple groups using IRT residual DIF
 framework. \emph{Journal of Educational Measurement, 61}(4), 656-681.
 
-Lim, H., Davey, T., & Wells, C. S. (2020). A recursion-based analytical
+Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST.
 \emph{Journal of Educational Measurement, 58}(2), 154-178.
 
