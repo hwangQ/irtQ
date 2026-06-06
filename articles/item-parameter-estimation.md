@@ -399,7 +399,7 @@ summary(mod_1pl_constrained)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.13
 #>  Standard error computation: 0.09
-#>  Total computation: 0.23
+#>  Total computation: 0.24
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -537,9 +537,9 @@ summary(mod_bin)
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.7
+#>  EM algorithm: 0.71
 #>  Standard error computation: 0.02
-#>  Total computation: 0.73
+#>  Total computation: 0.74
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -863,9 +863,9 @@ summary(mod_3pl_gprior)
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.44
+#>  EM algorithm: 1.45
 #>  Standard error computation: 0.02
-#>  Total computation: 1.49
+#>  Total computation: 1.5
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -983,9 +983,9 @@ summary(mod_3pl_fixg)
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.98
+#>  EM algorithm: 0.99
 #>  Standard error computation: 0.02
-#>  Total computation: 1.03
+#>  Total computation: 1.04
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1102,9 +1102,9 @@ summary(mod_3pl_allprior)
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.07
-#>  Standard error computation: 0.02
-#>  Total computation: 2.12
+#>  EM algorithm: 2.08
+#>  Standard error computation: 0.03
+#>  Total computation: 2.13
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1387,7 +1387,7 @@ summary(mod_mix)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.69
 #>  Standard error computation: 0.02
-#>  Total computation: 0.72
+#>  Total computation: 0.73
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2067,7 +2067,7 @@ summary(mod_fipc_mix)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.16
 #>  Standard error computation: 0.01
-#>  Total computation: 0.19
+#>  Total computation: 0.2
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2673,9 +2673,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 13.48
+#>  EM algorithm: 13.54
 #>  Standard error computation: 0.19
-#>  Total computation: 14.37
+#>  Total computation: 14.41
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3385,7 +3385,7 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.19
+#>  EM algorithm: 7.26
 #>  Standard error computation: 0.14
 #>  Total computation: 8.19
 #> 

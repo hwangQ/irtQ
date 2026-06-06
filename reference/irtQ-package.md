@@ -62,7 +62,7 @@ including:
 |----------|-------------|
 | Package: | irtQ        |
 | Version: | 1.1.0       |
-| Date:    | 2026-05-20  |
+| Date:    | 2026-06-06  |
 | Depends: | R (\>= 4.4) |
 | License: | GPL (\>= 2) |
 
