@@ -65,6 +65,7 @@ reference:
     desc: "Estimate examinee ability scores from item response data."
     contents:
       - est_score
+      - llike_score
 
   - title: "Model-Data Fit Evaluation"
     desc: "Assess how well the fitted IRT model describes the observed data."
@@ -77,8 +78,11 @@ reference:
     desc: "Detect item bias across examinee groups using residual-based and CATSIB methods."
     contents:
       - rdif
+      - crdif
       - grdif
       - catsib
+      - ripd
+      - pcd2
 
   - title: "Classification Accuracy & Consistency"
     desc: "Evaluate the reliability of cut-score-based pass/fail classifications."
@@ -101,6 +105,8 @@ reference:
       - lwrc
       - gen.weight
       - covirt
+      - bind.fill
+      - bisection
       - reval_mst
       - summary
 
@@ -110,7 +116,9 @@ reference:
       - bring.flexmirt
       - bring.bilog
       - bring.parscale
+      - bring.mirt
       - run_flexmirt
+      - write.flexmirt
 
   - title: "IRT Model Probability Functions"
     desc: "Core IRT model functions for computing item response probabilities."
@@ -121,6 +129,9 @@ reference:
   - title: "Datasets"
     desc: "Example datasets bundled with the package."
     contents:
+      - LSAT6
+      - simCAT_DC
+      - simCAT_MX
       - simMG
       - simMST
 
