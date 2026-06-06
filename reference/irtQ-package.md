@@ -1,0 +1,781 @@
+# irtQ: Unidimensional Item Response Theory Modeling
+
+The irtQ package provides tools for fitting unidimensional item response
+theory (IRT) models to test data that include both dichotomous and
+polytomous items. It enables the calibration of pretest item parameters,
+estimation of examinees' abilities, and offers a comprehensive suite of
+utilities for unidimensional IRT analysis, including model-data fit
+evaluation, differential item functioning (DIF) detection, and more.
+
+For item parameter estimation, the package employs marginal maximum
+likelihood estimation via the expectation-maximization (MMLE-EM)
+algorithm (Bock & Aitkin, 1981). To calibrate pretest (newly developed)
+items, it supports both fixed item parameter calibration (FIPC; Kim,
+2006) and fixed ability parameter calibration (FAPC; Ban et al., 2001;
+Stocking, 1988), also known as Stocking’s Method A. In addition, the
+package offers multiple-group item calibration via the MMLE-EM
+algorithm.
+
+For ability estimation, several widely used scoring methods are
+available, including:
+
+- Maximum likelihood estimation (ML)
+
+- Maximum likelihood estimation with fences (MLF; Han, 2016)
+
+- Weighted likelihood estimation (WL; Warm, 1989)
+
+- Maximum a posteriori estimation (MAP; Hambleton et al., 1991)
+
+- Expected a posteriori estimation (EAP; Bock & Mislevy, 1982)
+
+- EAP summed scoring (Thissen et al., 1995; Thissen & Orlando, 2001)
+
+- Inverse test characteristic curve (TCC) scoring (e.g., Kolen &
+  Brennan, 2004; Kolen & Tong, 2010; Stocking, 1996)
+
+In addition, the package offers a variety of utilities for IRT analysis,
+including:
+
+- Evaluating model-data fit
+
+- Detecting DIF
+
+- Computing classification accuracy and consistency indices
+
+- Importing item or ability parameters from popular IRT software
+
+- Running flexMIRT (Cai, 2017) directly from R
+
+- Simulating response data
+
+- Computing the conditional distribution of observed scores using the
+  Lord-Wingersky recursion
+
+- Calculating item and test information and characteristic functions
+
+- Visualizing item and test characteristic and information curves
+
+- Supporting additional tools for flexible and practical IRT analyses
+
+|          |             |
+|----------|-------------|
+| Package: | irtQ        |
+| Version: | 1.1.0       |
+| Date:    | 2026-05-20  |
+| Depends: | R (\>= 4.4) |
+| License: | GPL (\>= 2) |
+
+## Details
+
+The following five sections provide an overview of:
+
+1.  The IRT models implemented in the irtQ package
+
+2.  How to estimate item parameters for a linear test form
+
+3.  How to perform pretest item calibration using the fixed item
+    parameter calibration (FIPC) method
+
+4.  How to perform pretest item calibration using the fixed ability
+    parameter calibration (FAPC) method
+
+5.  Illustrative examples of item calibration for a linear test form and
+    for pretest items
+
+## IRT Models
+
+The irtQ package supports both dichotomous and polytomous item response
+theory (IRT) models. For dichotomous items, the one-, two-, and
+three-parameter logistic models (1PLM, 2PLM, and 3PLM) are available.
+For polytomous items, the graded response model (GRM) and the
+(generalized) partial credit model (GPCM) are implemented. When fitting
+the partial credit model (PCM), note that item discrimination (or slope)
+parameters should be fixed to 1.
+
+In the following, let \\Y\\ be the response of an examinee with latent
+ability \\\theta\\ on an item, and suppose that each polytomous item has
+\\K\\ unique score categories.
+
+- IRT 1–3PL models:
+
+  For the IRT 1PLM, 2PLM, and 3PLM models, the probability that an
+  examinee with ability \\\theta\\ responds correctly to an item is
+  given by: \$\$P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 +
+  \exp(-Da(\theta - b))},\$\$ where \\a\\ is the item discrimination
+  (slope) parameter, \\b\\ is the item difficulty parameter, and \\g\\
+  is the guessing parameter. The constant \\D\\ is a scaling factor used
+  to make the logistic function approximate the normal ogive function,
+  typically set to \\D = 1.702\\. When the 1PLM is used, the
+  discrimination parameter \\a\\ is either fixed to a constant value
+  (e.g., \\a = 1\\) or constrained to be equal across all items. For
+  1PLM and 2PLM models, the guessing parameter is fixed at \\g = 0\\.
+
+- GRM:
+
+  For the graded response model (GRM), the probability that an examinee
+  with latent ability \\\theta\\ responds in score category \\k\\ (\\k =
+  0, 1, \ldots, K - 1\\) is given by: \$\$P(Y = k \mid \theta) =
+  P^{\*}(Y \ge k \mid \theta) - P^{\*}(Y \ge k + 1 \mid \theta),\$\$
+  \$\$P^{\*}(Y \ge k \mid \theta) = \frac{1}{1 + \exp(-Da(\theta -
+  b\_{k}))},\$\$ \$\$P^{\*}(Y \ge k + 1 \mid \theta) = \frac{1}{1 +
+  \exp(-Da(\theta - b\_{k+1}))},\$\$ where \\P^{\*}(Y \ge k \mid
+  \theta)\\ is the cumulative probability (or category boundary
+  function) for score category \\k\\, with a functional form similar to
+  the 2PL model. The parameter \\b\_{k}\\ represents the difficulty
+  (threshold) parameter associated with the boundary between categories
+  \\k - 1\\ and \\k\\. Note that the probability of responding in the
+  lowest or highest score category can be written as: \$\$P(Y = 0 \mid
+  \theta) = 1 - P^{\*}(Y \ge 1 \mid \theta),\$\$ \$\$P(Y = K - 1 \mid
+  \theta) = P^{\*}(Y \ge K - 1 \mid \theta).\$\$
+
+- GPCM:
+
+  For the generalized partial credit model (GPCM), the probability that
+  an examinee with latent ability \\\theta\\ responds in score category
+  \\k\\ (\\k = 0, 1, \ldots, K - 1\\) is given by: \$\$ P(Y = k \mid
+  \theta) = \frac{\exp\left(\sum\_{v = 0}^{k} Da(\theta - b_v)\right)}
+  {\sum\_{h = 0}^{K - 1} \exp\left(\sum\_{v = 0}^{h} Da(\theta -
+  b_v)\right)}, \$\$ where \\b_v\\ is the threshold (or step) parameter
+  associated with category boundary \\v\\ of the item. In alternative
+  parameterizations, \\b_v\\ can be expressed as \\b_v = \beta -
+  \tau_v\\, where \\\beta\\ is the overall location (difficulty)
+  parameter of the item, and \\\tau_v\\ is the threshold for score
+  category \\v\\. In the irtQ package, an item with \\K\\ unique score
+  categories requires \\K - 1\\ threshold parameters, as \\b_0 = 0\\ is
+  fixed by convention and thus \\\sum\_{v=0}^{0} Da(\theta - b_v) = 0\\
+  for the lowest category. When fitting the partial credit model, the
+  item discrimination parameter \\a\\ is fixed to 1.
+
+## Item Calibration for a Linear Test Form
+
+Item parameter estimation for a linear test form can be performed using
+the [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+function, which implements marginal maximum likelihood estimation via
+the expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981).
+The function returns item parameter estimates along with their standard
+errors, computed using the cross-product approximation method
+(Meilijson, 1989).
+
+The irtQ package supports calibration for mixed-format tests containing
+both dichotomous and polytomous items. It also provides a flexible set
+of options to address various practical calibration needs. For example,
+users can:
+
+- Specify prior distributions for item parameters
+
+- Fix specific parameters (e.g., the guessing parameter in the 3PL
+  model)
+
+- Estimate the latent ability distribution using a nonparametric
+  histogram method (Woods, 2007)
+
+In the irtQ package, item calibration for a linear test form typically
+involves two main steps:
+
+1.  Prepare the examinees' response data set for the linear test form
+
+    To estimate item parameters using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function, a response data set for the linear test form must first be
+    prepared. The data should be provided in either a matrix or data
+    frame format, where rows represent examinees and columns represent
+    items. If there are missing responses, they should be properly coded
+    (e.g., `NA`).
+
+2.  Estimate item parameters using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function
+
+    To estimate item parameters, several key input arguments must be
+    specified in the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function:
+
+    - `data`: A matrix or data frame containing examinees' item
+      responses.
+
+    - `model`: A character vector specifying the IRT model for each item
+      (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
+
+    - `cats`: A numeric vector indicating the number of score categories
+      for each item. For dichotomous items, use 2.
+
+    - `D`: A scaling constant (typically 1.702) to align the logistic
+      function with the normal ogive model.
+
+    Optionally, you may incorporate prior distributions for item
+    parameters:
+
+    - `use.aprior`, `use.bprior`, `use.gprior`: Logical indicators
+      specifying whether to apply prior distributions to the
+      discrimination (`a`), difficulty (`b`), and guessing (`g`)
+      parameters, respectively.
+
+    - `aprior`, `bprior`, `gprior`: Lists specifying the distributional
+      form and corresponding parameters for each prior. Supported
+      distributions include Beta, Log-normal, and Normal.
+
+    If the response data contain missing values, you must specify the
+    missing value code via the `missing` argument.
+
+    By default, the latent ability distribution is assumed to follow a
+    standard normal distribution (i.e., N(0, 1)). However, users can
+    estimate the empirical histogram of the latent distribution by
+    setting `EmpHist = TRUE`, based on the nonparametric method proposed
+    by Woods (2007).
+
+## Pretest Item Calibration with the Fixed Item Parameter Calibration (FIPC) Method (e.g., Kim, 2006)
+
+The fixed item parameter calibration (FIPC) method is a widely used
+approach for calibrating pretest items in computerized adaptive testing
+(CAT). It enables the placement of parameter estimates for newly
+developed items onto the same scale as the operational item parameters
+(i.e., the scale of the item bank), without the need for post hoc
+linking or rescaling procedures (Ban et al., 2001; Chen & Wang, 2016).
+
+In FIPC, the parameters of the operational items are fixed, and the
+prior distribution of the latent ability variable is estimated during
+the calibration process. This estimated prior is used to place the
+pretest item parameters on the same scale as the fixed operational items
+(Kim, 2006).
+
+In the irtQ package, FIPC is implemented through the following three
+steps:
+
+1.  Prepare the item metadata, including both the operational items (to
+    be fixed) and the pretest items.
+
+    To perform FIPC using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function, the item metadata must first be prepared. The item
+    metadata is a structured data frame that includes essential
+    information for each item, such as the number of score categories
+    and the IRT model type. For more details, refer to the **Details**
+    section of the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    documentation.
+
+    In the FIPC procedure, the metadata must contain both:
+
+    - Operational items (whose parameters will be fixed), and
+
+    - Pretest items (whose parameters will be freely estimated).
+
+    For the pretest items, the `cats` (number of score categories) and
+    `model` (IRT model type) must be accurately specified. However, the
+    item parameter values (e.g., `par.1`, `par.2`, `par.3`) in the
+    metadata serve only as placeholders and can be arbitrary, since the
+    actual parameter estimates will be obtained during calibration.
+
+    To facilitate creation of the metadata for FIPC, the helper function
+    [`shape_df_fipc()`](https://hwangQ.github.io/irtQ/reference/shape_df_fipc.md)
+    can be used.
+
+2.  Prepare the response data set from examinees who answered both the
+    operational and pretest items.
+
+    To implement FIPC using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function, examinees' response data for the test form must be
+    provided, including both operational and pretest items. The response
+    data should be in a matrix or data frame format, where rows
+    represent examinees and columns represent items. Note that the
+    column order of the response data must exactly match the row order
+    of the item metadata.
+
+3.  Perform FIPC using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function to calibrate the pretest items.
+
+    When FIPC is performed using the
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+    function, the parameters of pretest items are estimated while the
+    parameters of operational items are fixed.
+
+    To implement FIPC, you must provide the following arguments to
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md):
+
+    - `x`: The item metadata, including both operational and pretest
+      items.
+
+    - `data`: The examinee response data corresponding to the item
+      metadata.
+
+    - `fipc = TRUE`: Enables fixed item parameter calibration.
+
+    - `fipc.method`: Specifies the FIPC method to be used (e.g.,
+      `"MEM"`).
+
+    - `fix.loc`: A vector indicating the positions of the operational
+      items to be fixed.
+
+    Optionally, you may estimate the empirical histogram and scale of
+    the latent ability distribution by setting `EmpHist = TRUE`. If
+    `EmpHist = FALSE`, a normal prior is assumed and its scale is
+    updated iteratively during the EM algorithm.
+
+    For additional details on implementing FIPC, refer to the
+    documentation for
+    [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
+
+## Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)
+
+In computerized adaptive testing (CAT), the fixed ability parameter
+calibration (FAPC) method—also known as Stocking’s Method A (Stocking,
+1988)—is one of the simplest and most straightforward approaches for
+calibrating pretest items. It involves estimating item parameters using
+maximum likelihood estimation, conditional on known or estimated
+proficiency values.
+
+FAPC is primarily used to place the parameter estimates of pretest items
+onto the same scale as the operational item parameters. It can also be
+used to recalibrate operational items when evaluating potential item
+parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is
+known to produce accurate and unbiased item parameter estimates when
+items are randomly administered to examinees, rather than adaptively,
+which is often the case for pretest items (Ban et al., 2001; Chen &
+Wang, 2016).
+
+In the irtQ package, FAPC can be conducted in two main steps:
+
+1.  Prepare a data set containing both the item response data and the
+    corresponding ability (proficiency) estimates.
+
+    To use the
+    [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)
+    function, two input data sets are required:
+
+    - Ability estimates: A numeric vector containing examinees' ability
+      (or proficiency) estimates.
+
+    - Item response data: A matrix or data frame containing item
+      responses, where rows represent examinees and columns represent
+      items. The order of examinees in the response data must exactly
+      match the order of the ability estimates.
+
+2.  Estimate the item parameters using the
+    [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)
+    function.
+
+    The
+    [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)
+    function estimates pretest item parameters based on provided ability
+    estimates. To use this function, you must specify the following
+    arguments:
+
+    - `data`: A matrix or data frame containing examinees' item
+      responses.
+
+    - `score`: A numeric vector of examinees' ability (proficiency)
+      estimates.
+
+    - `model`: A character vector specifying the IRT model for each item
+      (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
+
+    - `cats`: A numeric vector indicating the number of score categories
+      for each item. For dichotomous items, use 2.
+
+    - `D`: A scaling constant (typically 1.702) to align the logistic
+      function with the normal ogive model.
+
+    For additional details on implementing FAPC, refer to the
+    documentation for
+    [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
+
+## Three examples of R scripts
+
+The examples below demonstrate how to estimate item parameters for a
+linear test form, and how to calibrate pretest items using the FIPC and
+FAPC methods. All examples use simulated data sets, where examinees'
+response data are generated based on true item parameters and true
+ability values using the
+[`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md)
+function.
+
+The examples utilize item parameter estimates imported from a flexMIRT
+output file sample, which includes a mixed-format test of 55 items: 50
+dichotomous items modeled with the 3PLM and 5 polytomous items modeled
+with the GRM. These item parameters are treated as the "true" values for
+data generation. Specifically:
+
+- Items 1–38: 3PLM items
+
+- Items 39–40: GRM items
+
+- Items 41–52: 3PLM items
+
+- Items 53–55: GRM items (all with 5 score categories)
+
+**Example 1 – Estimating item parameters for a linear test form** This
+example uses the first 40 items (38 3PLM and 2 GRM) to form a linear
+test. The test is assumed to be administered to a reference group of
+2,000 examinees whose latent ability follows a standard normal
+distribution, N(0, 1).
+
+**Examples 2 and 3 – Calibrating pretest items using FIPC and FAPC**
+These examples assume a new test form consisting of all 55 items
+described above. The first 40 items are treated as the fixed operational
+items (i.e., the same as in Example 1), while the remaining 15 items are
+newly developed pretest items to be calibrated.
+
+The new test form is administered to a separate group of 2,000
+examinees, whose ability distribution is assumed to follow N(0.5, 1.3²).
+The calibration of the pretest items is then conducted on the scale of
+the old form by using FIPC and FAPC procedures, respectively.
+
+
+    # Attach the packages
+    library(irtQ)
+
+    ##---------------------------------------------------------------------------
+    ## 1. Item parameter estimation for a linear test form
+    ##---------------------------------------------------------------------------
+
+    ## Step 1: Prepare response data for the reference group
+    ## Import the "-prm.txt" output file from flexMIRT
+    meta_true <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
+
+    # Extract item metadata using `irtQ::bring.flexmirt()`
+    # This will serve as the base test form for later pretest item examples
+    x_new <- irtQ::bring.flexmirt(file = meta_true, "par")$Group1$full_df
+
+    # Extract items 1 to 40 to define the linear test form used in this illustration
+    x_ref <- x_new[1:40, ]
+
+    # Generate true ability values (N = 2,000) from N(0, 1) for the reference group
+    set.seed(20)
+    theta_ref <- rnorm(2000, mean = 0, sd = 1)
+
+    # Simulate response data for the linear test form
+    # Scaling factor D = 1 assumes a logistic IRT model
+    data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
+
+    ## Step 2: Estimate item parameters for the linear test form
+    mod_ref <- irtQ::est_irt(
+      data       = data_ref,                              # Response data
+      D          = 1,                                     # Scaling factor
+      model      = c(rep("3PLM", 38), rep("GRM", 2)),     # Item models
+      cats       = c(rep(2, 38), rep(5, 2)),              # Score categories per item
+      item.id    = paste0("Ref_I", 1:40),                 # Item IDs
+      use.gprior = TRUE,                                  # Use prior for guessing parameter
+      gprior     = list(dist = "beta", params = c(5, 16)),# Prior: Beta(5,16) for g
+      Quadrature = c(49, 6),                              # 49 quadrature points from -6 to 6
+      group.mean = 0,
+      group.var  = 1,                                     # Fixed latent ability: N(0,1)
+      EmpHist    = TRUE,                                  # Estimate empirical ability distribution
+      Etol       = 1e-3,                                  # E-step convergence tolerance
+      MaxE       = 500)                                   # Max EM iterations
+
+    # Summarize estimation results
+    irtQ::summary(mod_ref)
+
+    # Extract item parameter estimates
+    est_ref <- mod_ref$par.est
+    print(est_ref)
+
+    ##------------------------------------------------------------------------------
+    ## 2. Pretest item calibration using Fixed Item Parameter Calibration (FIPC)
+    ##------------------------------------------------------------------------------
+
+    ## Step 1: Prepare item metadata for both fixed operational items and pretest items
+    # Define anchor item positions (items to be fixed)
+    fixed_pos <- c(1:40)
+
+    # Specify IDs, models, and categories for 15 pretest items
+    # Includes 12 3PLM and 3 GRM items (each GRM has 5 categories)
+    new_ids <- paste0("New_I", 1:15)
+    new_models <- c(rep("3PLM", 12), rep("GRM", 3))
+    new_cats <- c(rep(2, 12), rep(5, 3))
+
+    # Construct item metadata using `shape_df_fipc()`. See Details of `shape_df_fipc()`
+    # for more information
+    # First 40 items are anchor items (fixed); last 15 are pretest (freely estimated)
+    meta_fipc <- irtQ::shape_df_fipc(x = est_ref, fix.loc = fixed_pos, item.id = new_ids,
+                                     cats = new_cats, model = new_models)
+
+    ## Step 2: Prepare response data for the new test form
+    # Generate latent abilities for 2,000 new examinees from N(0.5, 1.3²)
+    set.seed(21)
+    theta_new <- rnorm(2000, mean = 0.5, sd = 1.3)
+
+    # Simulate response data using true item parameters and true abilities
+    data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
+
+    ## Step 3: Calibrate pretest items using FIPC
+    # Fit 3PLM to dichotomous and GRM to polytomous items
+    # Fix first 40 items and freely estimate the remaining 15 pretest items
+    mod_fipc <- irtQ::est_irt(
+      x           = meta_fipc,                     # Combined item metadata
+      data        = data_new,                      # Response data
+      D           = 1,                             # Scaling constant
+      use.gprior  = TRUE,                          # Use prior for guessing parameter
+      gprior      = list(dist = "beta", params = c(5, 16)),  # Prior: Beta(5,16) for g
+      Quadrature  = c(49, 6),                      # 49 quadrature points from -6 to 6
+      EmpHist     = TRUE,                          # Estimate empirical ability distribution
+      Etol        = 1e-3,                          # E-step convergence tolerance
+      MaxE        = 500,                           # Max EM iterations
+      fipc        = TRUE,                          # Enable FIPC
+      fipc.method = "MEM",                         # Use Multiple EM cycles
+      fix.loc     = c(1:40))                       # Anchor item positions to fix
+
+    # Summarize estimation results
+    irtQ::summary(mod_fipc)
+
+    # Extract item parameter estimates
+    est_new_fipc <- mod_fipc$par.est
+    print(est_new_fipc)
+
+    # Plot estimated empirical distribution of ability
+    emphist <- irtQ::getirt(mod_fipc, what="weights")
+    plot(emphist$weight ~ emphist$theta, xlab="Theta", ylab="Density", type = "h")
+
+
+    ##------------------------------------------------------------------------------
+    ## 3. Pretest item calibration using Fixed Ability Parameter Calibration (FAPC)
+    ##------------------------------------------------------------------------------
+
+    ## Step 1: Prepare response data and ability estimates
+    # In FAPC, ability estimates are assumed known and fixed.
+    # Estimate abilities for new examinees using the first 40 fixed operational (anchor) items only.
+    # Pretest items are not used for scoring, as their parameters are not yet calibrated.
+
+    # Estimate abilities using ML method via `irtQ::est_score()`
+    # Based on fixed anchor item parameters and corresponding responses
+    score_ml <- irtQ::est_score(
+      x      = est_ref,            # Metadata with operational item parameters
+      data   = data_new[, 1:40],   # Responses to anchor items
+      D      = 1,                  # Scaling constant
+      method = "ML",               # Scoring method: Maximum Likelihood
+      range  = c(-5, 5))           # Scoring bounds
+
+    # Extract estimated abilities
+    theta_est <- score_ml$est.theta
+
+    ## Step 2: Calibrate pretest items using FAPC
+    # Only the 15 pretest items are included in the calibration
+    mod_fapc <- irtQ::est_item(
+      data       = data_new[, 41:55],                      # Responses to pretest items
+      score      = theta_est,                              # Fixed ability estimates
+      D          = 1,                                       # Scaling constant
+      model      = c(rep("3PLM", 12), rep("GRM", 3)),       # Item models
+      cats       = c(rep(2, 12), rep(5, 3)),                # Score categories
+      item.id    = paste0("New_I", 1:15),                   # Item IDs
+      use.gprior = TRUE,                                    # Use prior for guessing parameter
+      gprior     = list(dist = "beta", params = c(5, 16))   # Prior: Beta(5,16) for g
+    )
+
+    # Summarize estimation results
+    irtQ::summary(mod_fapc)
+
+    # Extract item parameter estimates
+    est_new_fapc <- mod_fapc$par.est
+    print(est_new_fapc)
+
+## References
+
+Ames, A. J., & Penfield, R. D. (2015). An NCME Instructional Module on
+Item-Fit Statistics for Item Response Theory Models. *Educational
+Measurement: Issues and Practice, 34*(3), 39-48.
+
+Baker, F. B., & Kim, S. H. (2004). *Item response theory: Parameter
+estimation techniques.* CRC Press.
+
+Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001) A
+comparative study of on-line pretest item calibration/scaling methods in
+computerized adaptive testing. *Journal of Educational Measurement,
+38*(3), 191-212.
+
+Birnbaum, A. (1968). Some latent trait models and their use in inferring
+an examinee's ability. In F. M. Lord & M. R. Novick (Eds.), *Statistical
+theories of mental test scores* (pp. 397-479). Reading, MA:
+Addison-Wesley.
+
+Bock, R.D. (1960), *Methods and applications of optimal scaling*. Chapel
+Hill, NC: L.L. Thurstone Psychometric Laboratory.
+
+Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation
+of item parameters: Application of an EM algorithm. *Psychometrika, 46*,
+443-459.
+
+Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability
+in a microcomputer environment. *Psychometrika, 47*(4), 179-198.
+
+Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional item
+analysis and test scoring (Computer Software). Chapel Hill, NC: Vector
+Psychometric Group.
+
+Cappaert, K. J., Wen, Y., & Chang, Y. F. (2018). Evaluating CAT-adjusted
+approaches for suspected item parameter drift detection. *Measurement:
+Interdisciplinary Research and Perspectives, 16*(4), 226-238.
+
+Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+package for the R environment. *Journal of Statistical Software, 48*(6),
+1-29.
+
+Chen, P., & Wang, C. (2016). A new online calibration method for
+multidimensional computerized adaptive testing. *Psychometrika, 81*(3),
+674-701.
+
+González, J. (2014). SNSequate: Standard and nonstandard statistical
+models and methods for test equating. *Journal of Statistical Software,
+59*, 1-30.
+
+Hambleton, R. K., & Swaminathan, H. (1985) *Item response theory:
+Principles and applications*. Boston, MA: Kluwer.
+
+Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991) *Fundamentals
+of item response theory*. Newbury Park, CA: Sage.
+
+Han, K. T. (2016). Maximum likelihood score estimation method with
+fences for short-length tests and computerized adaptive tests. *Applied
+psychological measurement, 40*(4), 289-301.
+
+Howard, J. P. (2017). *Computational methods for numerical analysis with
+R*. New York: Chapman and Hall/CRC.
+
+Kang, T., & Chen, T. T. (2008). Performance of the generalized S-X2 item
+fit index for polytomous IRT models. *Journal of Educational
+Measurement, 45*(4), 391-406.
+
+Kim, S. (2006). A comparative study of IRT fixed parameter calibration
+methods. *Journal of Educational Measurement, 43*(4), 355-381.
+
+Kim, S., & Kolen, M. J. (2016). Multiple group IRT fixed-parameter
+estimation for maintaining an established ability scale. *Center for
+Advanced Studies in Measurement and Assessment Report, 49.*
+
+Kolen, M. J. & Brennan, R. L. (2004) *Test Equating, Scaling, and
+Linking* (2nd ed.). New York: Springer.
+
+Kolen, M. J. & Tong, Y. (2010). Psychometric properties of IRT
+proficiency estimates. *Educational Measurement: Issues and Practice,
+29*(3), 8-14.
+
+Laplace, P. S. (1820). *Theorie analytique des probabilites* (in
+French). Courcier.
+
+Li, Y. & Lissitz, R. (2004). Applications of the analytically derived
+asymptotic standard errors of item response theory item parameter
+estimates. *Journal of educational measurement, 41*(2), 85-117.
+
+Lim, H., & Choe, E. M. (2023). Detecting differential item functioning
+in CAT using IRT residual DIF approach. *Journal of Educational
+Measurement, 60*(4), 626-650.
+[doi:10.1111/jedm.12366](https://doi.org/10.1111/jedm.12366) .
+
+Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
+item functioning detection framework in item response theory. *Journal
+of Educational Measurement, 59*(1), 80-104.
+[doi:10.1111/jedm.12313](https://doi.org/10.1111/jedm.12313) .
+
+Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
+differential item functioning among multiple groups using IRT residual
+DIF framework. *Journal of Educational Measurement, 61*(4), 656-681.
+
+Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
+approach to evaluate the performance of MST. *Journal of Educational
+Measurement, 58*(2), 154-178.
+
+Lord, F. & Wingersky, M. (1984). Comparison of IRT true score and
+equipercentile observed score equatings. *Applied Psychological
+Measurement, 8*(4), 453-461.
+
+Magis, D., & Barrada, J. R. (2017). Computerized adaptive testing with
+R: Recent updates of the package catR. *Journal of Statistical Software,
+76*, 1-19.
+
+Magis, D., Yan, D., & Von Davier, A. A. (2017). *Computerized adaptive
+and multistage testing with R: Using packages catR and mstR*. Springer.
+
+McKinley, R., & Mills, C. (1985). A comparison of several
+goodness-of-fit statistics. *Applied Psychological Measurement, 9*,
+49-57.
+
+Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
+terms. *Journal of the Royal Statistical Society: Series B
+(Methodological), 51*, 127-138.
+
+Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
+scoring for rating scale data (Computer Software). Chicago, IL:
+Scientific Software International. URL http://www.ssicentral.com
+
+Newcombe, R. G. (1998). Two-sided confidence intervals for the single
+proportion: comparison of seven methods. *Statistics in medicine,
+17*(8), 857-872.
+
+Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for
+dichotomous item response theory models. *Applied Psychological
+Measurement, 24*(1), 50-64.
+
+Orlando, M., & Thissen, D. (2003). Further investigation of the
+performance of S-X2: An item fit index for use with dichotomous item
+response theory models. *Applied Psychological Measurement, 27*(4),
+289-298.
+
+Pritikin, J. (2018). *rpf: Response Probability Functions*. R package
+version 0.59. https://CRAN.R-project.org/package=rpf.
+
+Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
+environment for item response theory method development. Applied
+Psychological Measurement, 44(7-8), 561-562.
+
+Stocking, M. L. (1996). An alternative method for scoring adaptive
+tests. *Journal of Educational and Behavioral Statistics, 21*(4),
+365-389.
+
+Stocking, M. L. (1988). *Scale drift in on-line calibration* (Research
+Rep. 88-28). Princeton, NJ: ETS.
+
+Stone, C. A. (2000). Monte Carlo based null distribution for an
+alternative goodness-of-fit test statistic in IRT models. *Journal of
+educational measurement, 37*(1), 58-75.
+
+Thissen, D. (1982). Marginal maximum likelihood estimation for the
+one-parameter logistic model. *Psychometrika, 47*, 175-186.
+
+Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. (1995). Item
+Response Theory for Scores on Tests Including Polytomous Items with
+Ordered Responses. *Applied Psychological Measurement, 19*(1), 39-49.
+
+Thissen, D. & Orlando, M. (2001). Item response theory for items scored
+in two categories. In D. Thissen & H. Wainer (Eds.), *Test scoring*
+(pp.73-140). Mahwah, NJ: Lawrence Erlbaum.
+
+Thissen, D. & Wainer, H. (1982). Some standard errors in item response
+theory. *Psychometrika, 47*, 397-412.
+
+Wainer, H., & Mislevy, R. J. (1990). Item response theory, item
+calibration, and proficiency estimation. In H. Wainer (Ed.), *Computer
+adaptive testing: A primer* (Chap. 4, pp.65-102). Hillsdale, NJ:
+Lawrence Erlbaum.
+
+Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+response theory. *Psychometrika, 54*(3), 427-450.
+
+Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests
+Using IRT-Based Methods. *Journal of Statistical Software, 35*(12),
+1-33. URL http://www.jstatsoft.org/v35/i12/.
+
+Wells, C. S., & Bolt, D. M. (2008). Investigation of a nonparametric
+procedure for assessing goodness-of-fit in item response theory.
+*Applied Measurement in Education, 21*(1), 22-40.
+
+Wilson, E. B. (1927). Probable inference, the law of succession, and
+statistical inference. *Journal of the American Statistical Association,
+22*(158), 209-212.
+
+Woods, C. M. (2007). Empirical histograms in item response theory with
+ordinal data. *Educational and Psychological Measurement, 67*(1), 73-87.
+
+Yen, W. M. (1981). Using simulation results to choose a latent trait
+model. *Applied Psychological Measurement, 5*, 245-262.
+
+Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003).
+BILOG-MG 3: Multiple-group IRT analysis and test maintenance for binary
+items (Computer Software). Chicago, IL: Scientific Software
+International. URL http://www.ssicentral.com
+
+## Author
+
+Hwanggyu Lim <hglim83@gmail.com>
