@@ -564,8 +564,7 @@
 #'
 #'   Li, Y. & Lissitz, R. (2004). Applications of the analytically derived
 #'   asymptotic standard errors of item response theory item parameter
-#'   estimates.
-#' *Journal of educational measurement, 41*(2), 85-117.
+#'   estimates. *Journal of educational measurement, 41*(2), 85-117.
 #'
 #'   Lim, H., & Choe, E. M. (2023). Detecting differential item
 #'   functioning in CAT using IRT residual DIF approach.
@@ -646,6 +645,9 @@
 #'   Thissen, D. & Orlando, M. (2001). Item response theory for items scored in
 #'   two categories. In D. Thissen & H. Wainer (Eds.),
 #' *Test scoring* (pp.73-140). Mahwah, NJ: Lawrence Erlbaum.
+#'
+#'   Thissen, D. & Wainer, H. (1982). Some standard errors in item response theory. 
+#'   *Psychometrika, 47*, 397-412.
 #'
 #'   Wainer, H., & Mislevy, R. J. (1990). Item response theory, item
 #'   calibration, and proficiency estimation. In H. Wainer (Ed.),
