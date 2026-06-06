@@ -1,0 +1,130 @@
+url: https://hwangQ.github.io/irtQ/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: "irtQ: Unidimensional Item Response Theory Modeling"
+  description: >
+    Fit unidimensional IRT models to mixed-format test data, calibrate pretest
+    items, estimate examinee abilities, evaluate model-data fit, and detect
+    differential item functioning.
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    intro:
+      text: "Get Started"
+      href: articles/getting-started.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/hwangQ/irtQ
+      aria-label: GitHub
+    articles:
+      text: Articles
+      menu:
+        - text: "--- Core Vignettes ---"
+        - text: "Getting Started"
+          href: articles/getting-started.html
+        - text: "Item Parameter Estimation"
+          href: articles/item-parameter-estimation.html
+        - text: "Ability Estimation"
+          href: articles/ability-estimation.html
+        - text: "Model-Data Fit Evaluation"
+          href: articles/model-fit-evaluation.html
+        - text: "DIF Detection"
+          href: articles/dif-detection.html
+        - text: "Classification Accuracy & Consistency"
+          href: articles/classification-analysis.html
+        - text: "--- Extra Articles ---"
+        - text: "Utilities"
+          href: articles/utilities.html
+        - text: "Evaluating MST Panels"
+          href: articles/mst-panel-evaluation.html
+
+reference:
+  - title: "Getting Started"
+    desc: "New to irtQ? Start here with core data structures."
+    contents:
+      - irtQ-package
+      - shape_df
+      - shape_df_fipc
+
+  - title: "Item Parameter Estimation"
+    desc: "Calibrate item parameters using marginal maximum likelihood (MMLE-EM) and fixed ability methods."
+    contents:
+      - est_irt
+      - est_mg
+      - est_item
+      - getirt
+
+  - title: "Ability Estimation & Scoring"
+    desc: "Estimate examinee ability scores from item response data."
+    contents:
+      - est_score
+
+  - title: "Model-Data Fit Evaluation"
+    desc: "Assess how well the fitted IRT model describes the observed data."
+    contents:
+      - irtfit
+      - sx2_fit
+      - plot.irtfit
+
+  - title: "Differential Item Functioning (DIF)"
+    desc: "Detect item bias across examinee groups using residual-based and CATSIB methods."
+    contents:
+      - rdif
+      - grdif
+      - catsib
+
+  - title: "Classification Accuracy & Consistency"
+    desc: "Evaluate the reliability of cut-score-based pass/fail classifications."
+    contents:
+      - cac_lee
+      - cac_rud
+
+  - title: "Information & Characteristic Functions"
+    desc: "Compute and visualize item/test information functions and characteristic curves."
+    contents:
+      - info
+      - traceline
+      - plot.info
+      - plot.traceline
+
+  - title: "Data Simulation & Utilities"
+    desc: "Simulate item response data and compute supporting quantities."
+    contents:
+      - simdat
+      - lwrc
+      - gen.weight
+      - covirt
+      - reval_mst
+      - summary
+
+  - title: "Importing External Software Output"
+    desc: "Read item parameter estimates from IRT software output files."
+    contents:
+      - bring.flexmirt
+      - bring.bilog
+      - bring.parscale
+      - run_flexmirt
+
+  - title: "IRT Model Probability Functions"
+    desc: "Core IRT model functions for computing item response probabilities."
+    contents:
+      - drm
+      - prm
+
+  - title: "Datasets"
+    desc: "Example datasets bundled with the package."
+    contents:
+      - simMG
+      - simMST
+
+news:
+  releases:
+    - text: "v1.1.0"
+      href: https://github.com/hwangQ/irtQ/blob/main/NEWS.md
