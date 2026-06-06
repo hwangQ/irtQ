@@ -1,0 +1,1821 @@
+---
+title: "Item Parameter Estimation"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Item Parameter Estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Overview
+
+**irtQ** provides three functions for item parameter estimation, each suited to
+different testing scenarios:
+
+### Estimation Methods at a Glance
+
+| Function | Method | Use Case | Typical Scenario |
+|----------|--------|----------|------------------|
+| `est_irt()` | MMLE-EM | Fixed-form (i.e., linear test form) calibration | Calibrate a linear test form from scratch |
+| `est_irt()` + `fipc=TRUE` | MMLE-EM | Pretest calibration (Fixed item parameter calibration, FIPC) | Pre-equate new items using anchor items |
+| `est_item()` | MLE | Pretest calibration (Fixed ability parameter calibration, FAPC) | Calibrate items using known examinee abilities |
+| `est_mg()` | MMLE-EM | Multiple-group calibration | Link different forms across groups/grades |
+
+All functions support **mixed-format tests** with dichotomous and polytomous items.
+After estimation, use `getirt()` to extract results, and `summary()` for a compact
+overview.
+
+```{r load-pkg}
+library(irtQ)
+set.seed(2026)
+```
+
+---
+
+## Part 1: Fixed-Form Calibration with `est_irt()`
+
+### What is Fixed-Form Calibration?
+
+**Fixed-form calibration** refers to estimating item parameters for a fixed test form (i.e., linear test form) administered to a single group of examinees. This is the foundation
+of IRT-based test development.
+
+**Key characteristics:**
+
+- All items are **simultaneously calibrated** using the same examinee sample
+- The latent ability distribution ($\theta$) is estimated from the data
+- Results in a **single, unified measurement scale** for all items
+- Used for developing new test forms or establishing an initial item bank
+
+**When to use fixed-form calibration:**
+
+✅ Developing a new test from scratch  
+✅ Establishing the initial item bank for a testing program  
+✅ Calibrating a complete operational test form  
+✅ Validating a newly developed assessment  
+
+---
+
+### How `est_irt()` Works: MMLE-EM Algorithm
+
+The `est_irt()` function implements the **Marginal Maximum Likelihood Estimation via the Expectation-Maximization (MMLE-EM)** algorithm [@bock_aitkin1981].
+
+To avoid the incidental parameter problem (where estimating individual ability $\theta$ leads to inconsistent item parameter estimates as the sample size grows), the algorithm treats $\theta$ as a random variable following a specific prior distribution, typically $g(\theta) \sim N(0, 1)$.
+
+> Note on Item Types: For clarity and simplicity, the mathematical formulation and explanations below are presented using dichotomous (binary) items, although the underlying logic seamlessly extends to polytomous item response models.
+
+By integrating the latent variable $\theta$ out of the joint likelihood, we obtain the **marginal log-likelihood** of the observed data, where the item parameters ($\boldsymbol{\Delta}$) are the only parameters to be estimated:
+
+$$
+\log L(\boldsymbol{\Delta} \mid \mathbf{U}) = \sum_{i=1}^{N} \log \int_{-\infty}^{\infty} L(\mathbf{u}_i \mid \theta)\, g(\theta) d\theta
+$$
+
+where $L(\mathbf{u}_i \mid \theta)$ is the likelihood of observing examinee $i$'s response pattern $\mathbf{u}_i$ given ability $\theta$, and $g(\theta)$ is the prior density function of the latent ability.
+
+Using $K$-point quadrature, this continuous integral is approximated by a discrete summation over $K$ quadrature points $\theta_k$ with prior weights $w_k$ (such as weights from a standard normal distribution):
+
+$$
+\log L_{marginal}(\boldsymbol{\Delta} \mid \mathbf{U}) \approx \sum_{i=1}^{N} \log \sum_{k=1}^{K} L(\mathbf{u}_i \mid \theta_k)\, w_k
+$$
+
+To maximize this marginal log-likelihood, which is analytically intractable due to the summation inside the logarithm, `est_irt()` iteratively executes the following E-step and M-step until convergence:
+
+**E-step (Expectation): Computing Artificial Sufficient Statistics**
+
+For each examinee response pattern $\mathbf{u}_i$, the algorithm first computes the **posterior probability** of $\theta$ at each quadrature point $\theta_k$:
+
+$$
+P(\theta_k \mid \mathbf{u}_i) = \frac{L(\mathbf{u}_i \mid \theta_k)\, w_k}{\sum_{m=1}^{K} L(\mathbf{u}_i \mid \theta_m)\, w_m}
+$$
+
+Using these individual posteriors, the algorithm aggregates data across all $N$ examinees to construct the **artificial sufficient statistics** for each quadrature point:
+
+* **Expected number of examinees ($n_k$)** at $\theta_k$:
+  $$
+  n_k = \sum_{i=1}^{N} P(\theta_k \mid \mathbf{u}_i)
+  $$
+
+* **Expected number of correct responses ($r_{jk}$)** for item $j$ at $\theta_k$:
+  $$
+  r_{jk} = \sum_{i=1}^{N} u_{ij} P(\theta_k \mid \mathbf{u}_i)
+  $$
+
+**M-step (Maximization): Item-by-Item Parameter Optimization**
+
+In the M-step, the algorithm treats $n_k$ and $r_{jk}$ as fixed constants. By decoupling the joint likelihood, the parameters of each item $j$ can be updated **independently (item-by-item)** by maximizing the expected complete-data log-likelihood (the $Q$-function):
+
+$$
+\ell_j(\boldsymbol{\delta}_j) = \sum_{k=1}^{K} \left[ r_{jk} \ln P_j(\theta_k) + (n_k - r_{jk}) \ln (1 - P_j(\theta_k)) \right]
+$$
+
+where $\boldsymbol{\delta}_j$ denotes the item parameter vector (e.g., slope $a_j$ and difficulty $b_j$ for the 2PL model) and $P_j(\theta_k)$ is the item response function. `est_irt()` numerically optimizes this function for each item using Newton-Raphson or other root-finding techniques.
+
+> Extension to Polytomous Items: While the formulation above uses dichotomous items for ease of illustration, the same underlying MMLE-EM framework generalizes to polytomous item response models (e.g., Graded Response Model, Generalized Partial Credit Model). For polytomous items, the expected complete-data log-likelihood incorporates multinomial category response probabilities $P_{jv}(\theta_k)$ and corresponding expected category frequencies $r_{jvk}$ for each category $v$, maintaining the identical decoupling optimization structure.
+
+**Convergence**
+
+This two-step cycle (E and M) repeats. The algorithm terminates when the maximum absolute change in item parameter estimates between consecutive iterations is smaller than the convergence threshold specified by the `Etol` argument.
+
+**Key advantages of MMLE-EM:**
+
+* Does not require individual ability estimates ($\theta$ is "integrated out")
+* Handles missing data naturally
+* Allows prior distributions on item parameters for numerical stability
+
+---
+
+### Essential `est_irt()` Arguments
+
+**Data and Model Specification:**
+
+| Argument | Description |
+|----------|-------------|
+| `data` | Response matrix (examinees × items); rows = examinees, columns = items |
+| `model` | IRT model per item: `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"` |
+| `cats` | Number of response categories per item (2 for dichotomous) |
+| `D` | Scaling constant (`1` for logistic metric; `1.702` to approximate normal-ogive) |
+| `item.id` | Optional character vector of item identifiers |
+
+**Prior Distribution for Ability (θ):**
+
+| Argument | Description |
+|----------|-------------|
+| `group.mean` | Mean of the prior distribution (default = `0`) |
+| `group.var` | Variance of the prior distribution (default = `1`) |
+| `EmpHist` | If `TRUE`, estimate the empirical histogram of θ (non-parametric prior) |
+| `Quadrature` | Number and range of quadrature points: e.g., `c(49, 6)` = 49 points from −6 to 6 |
+
+**Model Constraints:**
+
+| Argument | Description |
+|----------|-------------|
+| `fix.a.1pl` | If `TRUE`, fix 1PLM discrimination to `a.val.1pl`; if `FALSE` (default), constrain equal across items but estimate |
+| `a.val.1pl` | Fixed value for 1PLM discrimination (default = `1`) |
+| `fix.g` | If `TRUE`, fix guessing parameter to `g.val` for all 3PLM items |
+| `g.val` | Fixed guessing value (default = `0.2`) |
+| `fix.a.gpcm` | If `TRUE`, GPCM becomes PCM (discrimination fixed to `a.val.gpcm`) |
+| `a.val.gpcm` | Fixed discrimination for PCM (default = `1`) |
+
+**Priors on Item Parameters:**
+
+| Argument | Description |
+|----------|-------------|
+| `use.aprior` | Apply log-normal prior to discrimination parameters |
+| `use.bprior` | Apply normal prior to difficulty parameters |
+| `use.gprior` | Apply beta prior to guessing parameters (recommended for 3PLM) |
+| `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
+| `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
+| `gprior` | e.g., `list(dist = "beta", params = c(4, 16))` — mean = 4/(4+16) = 0.2 |
+
+**Convergence Settings:**
+
+| Argument | Description |
+|----------|-------------|
+| `Etol` | Convergence threshold (default = `1e-4`). Use `0.001` for faster, slightly looser convergence |
+| `MaxE` | Maximum number of EM iterations (default = `500`) |
+| `se` | If `TRUE`, compute item parameter standard errors |
+
+---
+
+### Example 1: Rasch Model (1PLM) Calibration
+
+The **1-parameter logistic model (1PLM)**, also known as the **Rasch model**,
+is the simplest IRT model for dichotomous items. It assumes:
+
+- All items have **equal discrimination** (slopes)
+- Items differ only in **difficulty** (location)
+- **No guessing** (lower asymptote = 0)
+
+**Mathematical form:**
+
+$$
+P(Y = 1 \mid \theta) = \frac{1}{1 + \exp(-D \cdot a \cdot (\theta - b))}
+$$
+
+where $a$ is constrained to be equal across all items (or fixed to 1).
+
+**Two ways to fit the Rasch model in irtQ:**
+
+1. **`fix.a.1pl = TRUE`**: Fix $a = 1$ for all 1PLM items (strict Rasch)
+2. **`fix.a.1pl = FALSE`** (default): Constrain $a$ to be equal across 1PLM items
+   but estimate the common value from the data
+
+We demonstrate both approaches:
+
+```{r estirt-1plm, cache=FALSE}
+# ---- Step 1: Define item metadata for 20-item 1PLM test ----
+# Difficulty parameters range from easy (−2) to hard (2)
+meta_1pl <- shape_df(
+  par.drm = list(
+    a = rep(1, 20),               # Discriminations set to 1 (for simulation)
+    b = seq(-2, 2, length.out = 20),  # Difficulty from −2 to 2
+    g = rep(NA, 20)               # No guessing (1PLM / 2PLM)
+  ),
+  item.id = paste0("I", 1:20),
+  cats    = 2,
+  model   = "1PLM"
+)
+
+# ---- Step 2: Simulate 500 examinees from N(0, 1) ----
+theta_1pl <- rnorm(500, mean = 0, sd = 1)
+resp_1pl  <- simdat(x = meta_1pl, theta = theta_1pl, D = 1.702)
+
+# ---- Step 3a: Estimate with FIXED discrimination (a = 1) ----
+# Strict Rasch: D×a×(θ−b) = 1.702×1×(θ−b)
+mod_1pl_fixed <- est_irt(
+  data       = resp_1pl,
+  D          = 1.702,
+  model      = "1PLM",
+  cats       = 2,
+  item.id    = paste0("I", 1:20),
+  fix.a.1pl  = TRUE,       # ← Fix discrimination to a.val.1pl (= 1)
+  a.val.1pl  = 1,          # ← a = 1 (strict Rasch parameterization)
+  EmpHist    = FALSE,      # Use fixed N(0,1) prior
+  Etol       = 0.001,
+  MaxE       = 200,
+  se         = TRUE,
+  verbose    = FALSE
+)
+
+summary(mod_1pl_fixed)
+
+# Extract difficulty estimates
+par_fixed <- getirt(mod_1pl_fixed, what = "par.est")
+head(par_fixed)
+
+# ---- Step 3b: Estimate with CONSTRAINED discrimination ----
+# Discrimination is constrained equal across items but freely estimated
+mod_1pl_constrained <- est_irt(
+  data       = resp_1pl,
+  D          = 1.702,
+  model      = "1PLM",
+  cats       = 2,
+  item.id    = paste0("I", 1:20),
+  fix.a.1pl  = FALSE,      # ← Equal constraint, but a is estimated
+  EmpHist    = FALSE,
+  Etol       = 0.001,
+  MaxE       = 200,
+  se         = TRUE,
+  verbose    = FALSE
+)
+
+summary(mod_1pl_constrained)
+
+par_constrained <- getirt(mod_1pl_constrained, what = "par.est")
+head(par_constrained)
+
+# Note: par.1 (discrimination) is the same for all items, but its value
+# is estimated from the data and may differ from 1
+cat("Common discrimination estimate:", unique(par_constrained$par.1), "\n")
+
+# ---- Compare difficulty recovery ----
+par(mfrow = c(1, 2))
+
+plot(meta_1pl$par.2, par_fixed$par.2,
+     xlab = "True b", ylab = "Estimated b",
+     main = "Rasch: Fixed a = 1",
+     pch = 19, col = "steelblue")
+abline(0, 1, col = "red", lty = 2, lwd = 2)
+
+plot(meta_1pl$par.2, par_constrained$par.2,
+     xlab = "True b", ylab = "Estimated b",
+     main = "Rasch: Constrained a",
+     pch = 19, col = "coral")
+abline(0, 1, col = "red", lty = 2, lwd = 2)
+```
+
+---
+
+### Example 2: 2PLM Calibration with Parameter Recovery Analysis
+
+We simulate a 25-item 2PLM test and examine how well `est_irt()` recovers the
+true item parameters.
+
+```{r estirt-binary, cache=FALSE}
+# ---- Step 1: Define item metadata ----
+meta_bin <- shape_df(
+  par.drm = list(
+    a = c(0.8, 1.0, 1.2, 0.9, 1.4, 1.1, 0.7, 1.3, 1.0, 0.9,
+          1.2, 0.8, 1.5, 1.1, 0.9, 1.3, 0.7, 1.0, 1.2, 0.85,
+          1.0, 1.3, 0.9, 1.1, 1.4),
+    b = c(-2.0, -1.5, -1.0, -0.8, -0.5, -0.3, -0.1,  0.0,  0.2,  0.5,
+           0.8,  1.0,  1.2,  1.5,  2.0, -1.8, -0.6,  0.3,  0.9,  1.3,
+          -0.4,  0.1,  0.7, -1.2,  1.7),
+    g = rep(NA, 25)   # No guessing (2PLM)
+  ),
+  item.id = paste0("ITEM", 1:25),
+  cats    = 2,
+  model   = "2PLM"
+)
+
+# ---- Step 2: Simulate 600 examinees from N(0, 1) ----
+theta_true <- rnorm(600, mean = 0, sd = 1)
+resp_bin   <- simdat(x = meta_bin, theta = theta_true, D = 1.702)
+
+# ---- Step 3: Estimate item parameters ----
+mod_bin <- est_irt(
+  data    = resp_bin,
+  D       = 1.702,
+  model   = "2PLM",
+  cats    = 2,
+  item.id = paste0("ITEM", 1:25),
+  EmpHist = FALSE,    # Fix prior to N(0,1)
+  Etol    = 0.001,
+  MaxE    = 200,
+  se      = TRUE,
+  verbose = FALSE
+)
+
+summary(mod_bin)
+```
+
+**Extract estimated parameters and standard errors:**
+
+```{r estirt-binary-extract}
+# Parameter estimates
+est_par <- getirt(mod_bin, what = "par.est")
+head(est_par)
+
+# Standard errors
+est_se <- getirt(mod_bin, what = "se.est")
+head(est_se)
+
+# Estimated latent distribution parameters (mean and variance)
+getirt(mod_bin, what = "group.par")
+```
+
+**Parameter Recovery Analysis:**
+
+```{r estirt-recovery, fig.width=8, fig.height=4}
+par(mfrow = c(1, 2))
+
+# Discrimination recovery
+plot(meta_bin$par.1, est_par$par.1,
+     xlab = "True a", ylab = "Estimated a",
+     main = "2PLM: Discrimination Recovery",
+     pch = 19, col = "steelblue", cex = 1.2)
+abline(0, 1, col = "red", lty = 2, lwd = 2)
+grid()
+
+# Difficulty recovery
+plot(meta_bin$par.2, est_par$par.2,
+     xlab = "True b", ylab = "Estimated b",
+     main = "2PLM: Difficulty Recovery",
+     pch = 19, col = "coral", cex = 1.2)
+abline(0, 1, col = "red", lty = 2, lwd = 2)
+grid()
+
+cat("\n=== Parameter Recovery Statistics ===\n")
+cat("Discrimination RMSE:",
+    round(sqrt(mean((meta_bin$par.1 - est_par$par.1)^2)), 4), "\n")
+cat("Difficulty RMSE:",
+    round(sqrt(mean((meta_bin$par.2 - est_par$par.2)^2)), 4), "\n")
+cat("Discrimination r:", round(cor(meta_bin$par.1, est_par$par.1), 4), "\n")
+cat("Difficulty r:",     round(cor(meta_bin$par.2, est_par$par.2), 4), "\n")
+```
+
+---
+
+### Example 3: Empirical Histogram Estimation
+
+**What does `EmpHist = TRUE` do?**
+
+Instead of assuming θ ~ N(μ, σ²), the EM algorithm estimates the **empirical
+density** at each quadrature point using the @woods2007 method. The mean and
+variance are still constrained to `group.mean` and `group.var` for scale
+identification, but the **shape** of the distribution is estimated freely from the data.
+
+**When to use `EmpHist = TRUE`:**
+
+✅ Sample size is sufficiently **large** 
+✅ You suspect the ability distribution is **non-normal** (e.g., bimodal, skewed)  
+✅ You want to **avoid strong distributional assumptions** `
+
+
+```{r estirt-emphist, cache=FALSE, fig.width=7, fig.height=5}
+# Estimate with empirical histogram
+mod_bin_emp <- est_irt(
+  data       = resp_bin,
+  D          = 1.702,
+  model      = "2PLM",
+  cats       = 2,
+  item.id    = paste0("ITEM", 1:25),
+  EmpHist    = TRUE,     # ← Estimate empirical distribution
+  group.mean = 0,        # ← Mean constrained to 0 for identification
+  group.var  = 1,        # ← Variance constrained to 1 for identification
+  Etol       = 0.001,
+  MaxE       = 200,
+  se         = TRUE,
+  verbose    = FALSE
+)
+
+# Extract the estimated empirical distribution
+emp_hist <- mod_bin_emp$weights
+
+# Compare empirical estimate with the N(0,1) reference curve
+theta_seq  <- emp_hist$theta
+norm_dens  <- dnorm(theta_seq, mean = 0, sd = 1)
+norm_dens  <- norm_dens / sum(norm_dens)   # Rescale to match histogram units
+
+plot(emp_hist$theta, emp_hist$weight,
+     type = "h", lwd = 3, col = "steelblue",
+     xlab = expression(theta),
+     ylab = "Density",
+     main = "Empirical Ability Distribution vs. Normal Prior",
+     ylim = c(0, max(emp_hist$weight) * 1.2))
+lines(theta_seq, norm_dens, col = "red", lty = 2, lwd = 2)
+legend("topright",
+       legend = c("Empirical Histogram", "Normal(0,1)"),
+       col = c("steelblue", "red"),
+       lty = c(1, 2), lwd = c(3, 2))
+```
+
+**Interpretation:**
+
+- A **close match** to the normal curve suggests the normality assumption is
+  reasonable; `EmpHist = FALSE` is sufficient.
+- **Notable deviations** (e.g., skewness, multimodality) suggest that the
+  empirical histogram captures real population structure and `EmpHist = TRUE`
+  is preferred.
+
+In this example, because the data were generated from N(0, 1), the empirical
+estimate closely follows the normal overlay.
+
+---
+
+### Example 4: 3PLM Calibration — Priors and Guessing Parameter Options
+
+The **3-parameter logistic model (3PLM)** adds a lower-asymptote (guessing)
+parameter $g$ to the 2PLM:
+
+$$
+P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 + \exp(-D \cdot a \cdot (\theta - b))}
+$$
+
+where $g \in [0, 1)$ is the **pseudo-guessing parameter**, the probability of a
+correct response even at very low ability levels. Because $g$ can be poorly 
+identified with small samples (sometimes even with large samples), there are two 
+primary options for handling $g$ in `est_irt()`:
+
+1. **Estimate $g$ with a Beta prior** (`use.gprior = TRUE`) — regularizes $g$
+   toward a plausible range (e.g., $1/K$ for a $K$-option MC item), or
+2. **Fix $g$ at a constant value** (`fix.g = TRUE`, `g.val = ...`) — appropriate when the
+   number of response options is known and guessing is assumed uniform.
+
+In addition, **priors on discrimination ($a$) and difficulty ($b$)** can be
+applied via `use.aprior` and `use.bprior`. These are especially useful when:
+
+- The item discrimination estimates may be unstable
+- Items with extreme difficulty values ($|b| > 3$) pull $b$ toward unreasonable
+  values
+- You want to incorporate substantive prior knowledge (e.g., discriminations
+  typically follow a log-normal distribution with certain parameters)
+
+#### Priors for the item parameters of the 3PLM 
+
+| Parameter | Argument | Default Prior |
+|:---|:---|:---|
+| Discrimination $a$ | `aprior` | `lnorm(0, 0.5)` | 
+| Difficulty $b$ | `bprior` | `norm(0, 1)` | 
+| Guessing $g$ | `gprior` | `beta(5, 16)` | 
+
+We demonstrate three estimation strategies using the same simulated dataset:
+
+- **Strategy A**: Estimate $g$ with `use.gprior = TRUE` (standard approach)
+- **Strategy B**: Fix $g$ at a constant with `fix.g = TRUE` and `g.val = 0.2`
+- **Strategy C**: Estimate $g$ with full priors on $a$, $b$, and $g$ via
+  `use.aprior`, `use.bprior`, and `use.gprior`
+
+```{r estirt-3plm-setup, cache=FALSE}
+# ---- Define 30-item 3PLM metadata ----
+# Discriminations in [0.7, 1.8], difficulties in [-2, 2], guessing in [0.10, 0.25]
+set.seed(2026)
+meta_3pl <- shape_df(
+  par.drm = list(
+    a = c(1.2, 0.9, 1.5, 1.1, 0.8, 1.4, 1.0, 1.3, 0.7, 1.2,
+          1.1, 1.6, 0.9, 1.3, 1.0, 1.8, 0.8, 1.2, 1.1, 0.9,
+          1.4, 1.0, 1.3, 0.8, 1.5, 1.1, 0.9, 1.2, 1.3, 1.0),
+    b = c(-2.0, -1.5, -1.2, -1.0, -0.8, -0.5, -0.3, -0.1,  0.0,  0.2,
+           0.4,  0.6,  0.8,  1.0,  1.2,  1.5,  1.8,  2.0, -1.7, -0.6,
+           0.1,  0.5,  0.9,  1.3, -1.3, -0.4,  0.3,  0.7,  1.1, -0.9),
+    g = c(0.15, 0.20, 0.10, 0.18, 0.22, 0.12, 0.25, 0.17, 0.20, 0.14,
+          0.19, 0.11, 0.23, 0.16, 0.21, 0.13, 0.24, 0.18, 0.15, 0.20,
+          0.10, 0.22, 0.17, 0.19, 0.12, 0.23, 0.16, 0.21, 0.14, 0.18)
+  ),
+  item.id = paste0("ITEM", 1:30),
+  cats    = 2,
+  model   = "3PLM"
+)
+
+# Simulate 1000 examinees from N(0, 1)
+theta_3pl <- rnorm(1000, mean = 0, sd = 1)
+resp_3pl  <- simdat(x = meta_3pl, theta = theta_3pl, D = 1.702)
+```
+
+
+#### Strategy A: Estimate $g$ with Beta Prior (`use.gprior = TRUE`)
+
+This is the **standard approach** for 3PLM calibration in operational testing.
+The Beta(4, 16) prior assumes items have 5 response options (mean guessing = 0.2)
+and gently pulls extreme $g$ estimates back toward plausible values.
+
+```{r estirt-3plm-gprior, cache=FALSE}
+# Standard 3PLM calibration with Beta prior on guessing
+# - Ability distribution fixed to N(0, 1)
+# - Guessing parameter estimated with Beta(4, 16) prior
+#   (mean = 4/(4+16) = 0.2, appropriate for 5-option MC items)
+mod_3pl_gprior <- est_irt(
+  data       = resp_3pl,
+  D          = 1.702,
+  model      = "3PLM",
+  cats       = 2,
+  item.id    = paste0("ITEM", 1:30),
+  use.gprior = TRUE,                               # ← Apply prior to g
+  gprior     = list(dist = "beta",
+                    params = c(4, 16)),            # ← Beta(4, 16): mean = 0.2
+  EmpHist    = FALSE,
+  Etol       = 0.001,
+  MaxE       = 500,
+  se         = TRUE,
+  verbose    = FALSE
+)
+
+summary(mod_3pl_gprior)
+
+# Extract estimates
+par_gprior <- getirt(mod_3pl_gprior, what = "par.est")
+head(par_gprior)
+
+# Guessing parameter estimates
+cat("\nGuessing parameter range: [",
+    round(min(par_gprior$par.3), 3), ",",
+    round(max(par_gprior$par.3), 3), "]\n")
+cat("Guessing parameter mean:", round(mean(par_gprior$par.3), 3), "\n")
+```
+
+#### Strategy B: Fix $g$ at a Constant (`fix.g = TRUE`)
+
+When the number of response options is fixed and uniform guessing is assumed,
+fixing $g$ simplifies the model and can improve the stability of $a$ and $b$
+estimates, especially with smaller samples.
+
+```{r estirt-3plm-fixg, cache=FALSE}
+# 3PLM with fixed guessing parameters
+# - All items have g fixed at 0.20 (appropriate for 5-option MC items)
+# - No guessing parameter is estimated: saves computation and avoids instability
+mod_3pl_fixg <- est_irt(
+  data      = resp_3pl,
+  D         = 1.702,
+  model     = "3PLM",
+  cats      = 2,
+  item.id   = paste0("ITEM", 1:30),
+  fix.g     = TRUE,                  # ← Fix all guessing parameters
+  g.val     = 0.20,                  # ← Fixed at 0.20 (1/5 for 5-option MC)
+  EmpHist   = FALSE,
+  Etol      = 0.001,
+  MaxE      = 500,
+  se        = TRUE,
+  verbose   = FALSE
+)
+
+summary(mod_3pl_fixg)
+
+par_fixg <- getirt(mod_3pl_fixg, what = "par.est")
+
+# Confirm: all guessing parameters are exactly 0.20
+cat("\nAll g values fixed at:", unique(par_fixg$par.3), "\n")
+```
+
+#### Strategy C: Full Item Parameter Priors (`use.aprior` + `use.bprior` + `use.gprior`)
+
+For **moderate sample sizes** or when item parameters are expected to be
+extreme, applying priors on all three parameters simultaneously can improve
+estimation stability.
+
+```{r estirt-3plm-allprior, cache=FALSE}
+# 3PLM with priors on all three parameters
+# Priors used:
+#   a ~ LogNormal(0, 0.5): median = exp(0) = 1, ~95% of mass in [0.37, 2.72]
+#   b ~ Normal(0, 1): centers difficulties near 0 ± 2
+#   g ~ Beta(4, 16): mean = 0.20, for 5-option MC items
+mod_3pl_allprior <- est_irt(
+  data        = resp_3pl,
+  D           = 1.702,
+  model       = "3PLM",
+  cats        = 2,
+  item.id     = paste0("ITEM", 1:30),
+  use.aprior  = TRUE,                          # ← Apply prior to a
+  aprior      = list(dist = "lnorm",
+                     params = c(0, 0.5)),      # ← LogNormal(0, 0.5)
+  use.bprior  = TRUE,                          # ← Apply prior to b
+  bprior      = list(dist = "norm",
+                     params = c(0, 1)),        # ← Normal(0, 1)
+  use.gprior  = TRUE,                          # ← Apply prior to g
+  gprior      = list(dist = "beta",
+                     params = c(4, 16)),       # ← Beta(4, 16)
+  EmpHist     = FALSE,
+  Etol        = 0.001,
+  MaxE        = 500,
+  se          = TRUE,
+  verbose     = FALSE
+)
+
+summary(mod_3pl_allprior)
+
+par_allprior <- getirt(mod_3pl_allprior, what = "par.est")
+head(par_allprior)
+```
+
+#### Comparing the Three Strategies
+
+```{r estirt-3plm-compare, fig.width=10, fig.height=4}
+# Compare parameter recovery across the three strategies
+par(mfrow = c(1, 3))
+
+# --- Discrimination (a) ---
+plot(meta_3pl$par.1, par_gprior$par.1,
+     xlab = "True a", ylab = "Estimated a",
+     main = "Discrimination (a)",
+     pch = 19, col = "steelblue", cex = 0.9, ylim = c(0, 3))
+points(meta_3pl$par.1, par_fixg$par.1,
+       pch = 17, col = "coral", cex = 0.9)
+points(meta_3pl$par.1, par_allprior$par.1,
+       pch = 15, col = "seagreen", cex = 0.9)
+abline(0, 1, col = "black", lty = 2, lwd = 1.5)
+legend("topleft", cex = 0.75,
+       legend = c("g-prior only", "g fixed", "All priors"),
+       col = c("steelblue", "coral", "seagreen"),
+       pch = c(19, 17, 15))
+
+# --- Difficulty (b) ---
+plot(meta_3pl$par.2, par_gprior$par.2,
+     xlab = "True b", ylab = "Estimated b",
+     main = "Difficulty (b)",
+     pch = 19, col = "steelblue", cex = 0.9)
+points(meta_3pl$par.2, par_fixg$par.2,
+       pch = 17, col = "coral", cex = 0.9)
+points(meta_3pl$par.2, par_allprior$par.2,
+       pch = 15, col = "seagreen", cex = 0.9)
+abline(0, 1, col = "black", lty = 2, lwd = 1.5)
+
+# --- Guessing (g) ---
+plot(meta_3pl$par.3, par_gprior$par.3,
+     xlab = "True g", ylab = "Estimated g",
+     main = "Guessing (g)",
+     pch = 19, col = "steelblue", cex = 0.9,
+     xlim = c(0, 0.35), ylim = c(0, 0.45))
+abline(0, 1, col = "black", lty = 2, lwd = 1.5)
+abline(h = 0.20, col = "coral", lty = 3, lwd = 1.5)
+legend("topleft", cex = 0.75,
+       legend = c("g-prior (estimated)", "g fixed at 0.20"),
+       col = c("steelblue", "coral"),
+       pch = c(19, NA), lty = c(NA, 3), lwd = c(NA, 1.5))
+
+# Recovery statistics
+cat("\n=== 3PLM Recovery Statistics ===\n")
+cat(sprintf("%-25s %8s %8s %8s\n", "Strategy", "RMSE(a)", "RMSE(b)", "RMSE(g)"))
+cat(sprintf("%-25s %8.4f %8.4f %8.4f\n", "A: g-prior only",
+    sqrt(mean((meta_3pl$par.1 - par_gprior$par.1)^2)),
+    sqrt(mean((meta_3pl$par.2 - par_gprior$par.2)^2)),
+    sqrt(mean((meta_3pl$par.3 - par_gprior$par.3)^2))))
+cat(sprintf("%-25s %8.4f %8.4f %8s\n", "B: g fixed",
+    sqrt(mean((meta_3pl$par.1 - par_fixg$par.1)^2)),
+    sqrt(mean((meta_3pl$par.2 - par_fixg$par.2)^2)), "(fixed)"))
+cat(sprintf("%-25s %8.4f %8.4f %8.4f\n", "C: All priors",
+    sqrt(mean((meta_3pl$par.1 - par_allprior$par.1)^2)),
+    sqrt(mean((meta_3pl$par.2 - par_allprior$par.2)^2)),
+    sqrt(mean((meta_3pl$par.3 - par_allprior$par.3)^2))))
+```
+
+**Interpretation:**
+
+- **Strategy A** (`use.gprior = TRUE`): The Beta prior on $g$ prevents
+  implausibly large guessing estimates while allowing item-level variation in
+  $g$. This is the **recommended default** for 5-option multiple-choice tests.
+- **Strategy B** (`fix.g = TRUE`): Fixing $g$ reduces the number of free
+  parameters by 30 (one per item), which can improve $a$ and $b$ recovery when
+  samples are moderate. Use when you are confident all items have the same
+  guessing probability.
+- **Strategy C** (all priors): Providing priors on $a$ and $b$ as well adds
+  additional regularization. This is most beneficial when item parameters are
+  expected to be extreme (e.g., very easy or very hard items, or unusually high
+  discrimination). For most operational settings with $N \ge 1000$, the
+  differences from Strategy A are small.
+
+> **Practical guideline:** For multiple-choice tests, start with
+> `use.gprior = TRUE` with an appropriate Beta prior. 
+> Add `use.aprior` and `use.bprior` only if estimates are unstable or extreme.
+> Use `fix.g = TRUE` when the test design mandates a known guessing level.
+
+---
+
+### Example 5: Mixed-Format Test (3PLM + GRM)
+
+We now calibrate a **mixed-format test** containing:
+
+- **15 dichotomous items** modeled with 3PLM
+- **5 polytomous items** modeled with GRM (4 categories each, scored 0–3)
+
+#### Understanding GRM Parameters
+
+For a GRM item with **K = 4 score categories** (0, 1, 2, 3), the model uses:
+
+- **a**: Discrimination parameter — shared across all category boundaries
+- **b₁, b₂, b₃**: Boundary threshold parameters for category boundaries 1, 2, 3,
+  respectively
+
+Specifically, $b_k$ is the point on the θ-scale where the **cumulative response
+function** reaches 0.5 for category $k$ or higher:
+
+$$
+P^*(Y \ge k \mid \theta) = \frac{1}{1 + \exp(-Da(\theta - b_k))}
+$$
+
+**Critical requirement:** Thresholds must be **strictly ordered**: b₁ < b₂ < b₃
+
+In `shape_df()`, GRM thresholds are specified as a **list of numeric vectors**:
+
+```r
+par.prm = list(
+  a = c(1.5, 1.2, ...),  # Discrimination for each GRM item
+  d = list(
+    c(-1.5, -0.3,  0.8),  # Item 1: b₁, b₂, b₃
+    c(-1.2,  0.0,  1.1),  # Item 2
+    ...
+  )
+)
+```
+
+> **Note on GPCM parameterization:** For GPCM items, the threshold parameters
+> stored in `par.2`, `par.3`, ... represent $b_v = \beta - \tau_v$, where $\beta$
+> is the item location and $\tau_v$ is the step difficulty for category boundary
+> $v$. This parameterization differs from the GRM.
+
+#### Full Example
+
+```{r estirt-mixed, cache=FALSE}
+# ---- Step 1: Define mixed-format metadata ----
+meta_mix <- shape_df(
+  # 15 dichotomous 3PLM items
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 1.1, 0.9, 1.3, 1.0, 0.7, 1.2,
+          0.85, 1.1, 1.3, 0.9, 1.0),
+    b = c(-1.5, -1.0, -0.5, -0.2,  0.0,  0.3,  0.6,  0.9,  1.2,  1.5,
+          -0.8,  0.1,  0.5,  1.0, -1.2),
+    g = rep(0.15, 15)   # Guessing parameter for 3PLM
+  ),
+  # 5 polytomous GRM items (4 categories each)
+  par.prm = list(
+    a = c(1.5, 1.2, 0.9, 1.3, 1.0),
+    d = list(
+      c(-1.5, -0.3,  0.8),   # Item 16: b₁ < b₂ < b₃
+      c(-1.2,  0.0,  1.1),   # Item 17
+      c(-0.8,  0.5,  1.4),   # Item 18
+      c(-1.0, -0.2,  0.9),   # Item 19
+      c(-1.3,  0.2,  1.2)    # Item 20
+    )
+  ),
+  item.id = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  cats    = c(rep(2, 15), rep(4, 5)),
+  model   = c(rep("3PLM", 15), rep("GRM", 5))
+)
+
+# ---- Step 2: Simulate 1000 examinees ----
+theta_mix <- rnorm(1000, mean = 0, sd = 1)
+resp_mix  <- simdat(x = meta_mix, theta = theta_mix, D = 1.702)
+
+# ---- Step 3: Estimate parameters ----
+mod_mix <- est_irt(
+  data       = resp_mix,
+  D          = 1.702,
+  model      = c(rep("3PLM", 15), rep("GRM", 5)),
+  cats       = c(rep(2, 15), rep(4, 5)),
+  item.id    = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  Etol       = 0.001,
+  MaxE       = 200,
+  se         = TRUE,
+  verbose    = FALSE
+)
+
+summary(mod_mix)
+```
+
+**Extract and verify GRM estimates:**
+
+```{r estirt-mixed-grm}
+est_mix <- getirt(mod_mix, what = "par.est")
+
+# GRM items are rows 16–20
+grm_items <- est_mix[16:20, ]
+print(grm_items)
+
+# For GRM items:
+# - par.1: discrimination (a)
+# - par.2, par.3, par.4: boundary thresholds (b₁, b₂, b₃)
+```
+
+---
+
+### Practical Tips for Fixed-Form Calibration
+
+**Q: How many examinees do I need?**
+
+| Model | Minimum N | Recommended N | Notes |
+|-------|-----------|---------------|-------|
+| 1PLM  | 100       | 200+          | Only estimating difficulties |
+| 2PLM  | 250       | 500+          | Estimating both a and b |
+| 3PLM  | 500       | 1000+         | Guessing parameter is hard to estimate with small N |
+| GRM, GPCM | 300  | 500+          | Depends on number of categories |
+
+**Q: My EM algorithm isn't converging. What should I do?**
+
+1. **Increase `MaxE`**: Try `MaxE = 1000`
+2. **Relax `Etol`**: Try `Etol = 0.005`
+3. **Check your data**: Are there items with extreme proportions ($p < 0.05$ or $p > 0.95$)? Very easy or very hard items may cause instability.
+4. **Use priors**: Enable `use.aprior = TRUE`, `use.bprior = TRUE`, or `use.gprior = TRUE`
+
+**Q: Should I use `EmpHist = TRUE` or `FALSE`?**
+
+| Option | Typical Use | Pros | Cons |
+|--------|-------------|------|------|
+| `EmpHist = FALSE` | Small samples, normal population | Faster, stable | Assumes normality of θ |
+| `EmpHist = TRUE` | Large samples, non-normal population | Flexible, data-driven | Slower, unstable with small N |
+
+---
+
+## Part 2: Pretest Calibration — FIPC
+
+### Why Fixed Item Parameter Calibration (FIPC)?
+
+In operational testing, introducing **new items** (pretest items) into an existing, calibrated item bank is a continuous necessity. However, doing so without disrupting the established measurement scale poses a challenge. Traditional concurrent calibration requires re-estimating all operational and pretest items together. For large-scale item banks, this concurrent approach is not only computationally expensive but also risks causing **scale drift**—unwanted shifts in the parameters of already established operational items.
+
+**FIPC** effectively resolves this dilemma by:
+
+1.  **Fixing** the parameters of operational (anchor) items at their bank values during calibration.
+2.  **Estimating** only the parameters of the new pretest items.
+3.  Automatically **placing** the new items directly onto the existing measurement scale of the item bank.
+
+This approach is highly essential for:
+
+* **Pre-equating** new test forms to predict form characteristics before operational administration.
+* **Continuous Item Banking**—systematically updating and expanding a measurement pool.
+* **Eliminating Post-hoc Linking**—obviating the need for separate, labor-intensive equating studies.
+* **Online Pretest Calibration in CAT**—calibrating new items interspersed within a Computerized Adaptive Testing (CAT) environment without taking the operational pool offline or altering its scale.
+
+---
+
+### How FIPC Places Items on the Existing Scale
+
+FIPC utilizes the response data from the **fixed operational items to estimate the latent trait ($\theta$) distribution** of the new examinee group, thereby establishing the link to the existing scale.
+
+#### Scenario A: Linear Test Forms (Group-level Linking)
+
+* **Group X (Old Form)**: Takes 20 operational items $\rightarrow$ Calibrated $\rightarrow$ Scale established at $N(0, 1)$.
+* **Group Y (New Form)**: Takes a combination of fixed anchor items and new pretest items.
+    * **Anchor Items** (e.g., 12 items carried over from the old form): Parameters are **fixed** at the values calibrated from Group X.
+    * **Pretest Items** (e.g., 8 new items): Parameters are **estimated**.
+    * **Scale Alignment**: Group Y’s ability distribution (mean and variance) is estimated based on the fixed anchor items. Consequently, the new pretest items are automatically calibrated directly onto Group X's scale (the item bank scale).
+
+#### Scenario B: Computerized Adaptive Testing (Individual-level Anchoring)
+
+In a CAT environment, FIPC functions as a powerful **online calibration** method. Because each examinee receives a unique, adapted set of operational items, there is no single fixed "form." Instead:
+
+* The unique set of operational items encountered by each examinee serves as their **personalized anchor set**.
+* While the examinee population distribution is estimated via the EM algorithm using these fixed operational items, the interspersed pretest items (which are administered randomly and do not affect the examinee's score) accumulate responses.
+* FIPC then calibrates these pretest items directly onto the operational item bank scale, ensuring that the CAT pool can expand continuously without scale drift.
+
+**Key Insight:** Whether through a fixed linear anchor form or a personalized CAT path, the operational items "tell" the calibration system exactly how the new examinee sample compares to the original population. This allows pretest items to inherit the item bank scale immediately. 
+
+> Note: While FIPC preserves the scale rigorously by integrating out the latent trait distribution through EM iterations, it can be computationally intensive in real-time CAT settings. A computationally streamlined alternative is **FAPC**, which fixes individual ability estimates instead of item parameters, as detailed in Part 3.
+
+### Two FIPC Methods in irtQ
+
+@kim2006 proposed and evaluated several variants of FIPC within the MMLE-EM
+framework. Among these, two methods are implemented in `est_irt()`:
+
+| Method | Description | Notes |
+|--------|-------------|-------|
+| **OEM** | One EM cycle: one E-step using anchor items only, then one M-step for pretest items | Fast; one-pass approach |
+| **MEM** | Multiple EM cycles: iterate between E-step and M-step until convergence | More stable; **recommended** |
+
+**Recommendation:** Use `fipc.method = "MEM"` unless there is any specific reason 
+to prefer the one-pass OEM method. @ban_etal2001 showed that MEM tends to produce the
+smallest item-parameter estimation errors across all sample-size conditions.
+
+### FIPC Workflow in irtQ
+
+**Step 1: Calibrate the old (operational) form**
+
+```r
+mod_old <- est_irt(
+  data  = old_responses,
+  model = "2PLM",
+  cats  = 2,
+  D     = 1.702,
+  ...
+)
+# Extract calibrated parameters — these become the anchors
+meta_anchor <- getirt(mod_old, what = "par.est")
+```
+
+**Step 2: Build new form metadata with `shape_df_fipc()`**
+
+`shape_df_fipc()` takes the anchor item metadata and combines it with placeholder
+rows for the pretest items:
+
+```r
+# New form: 12 anchor items (fixed) + 8 pretest items (to estimate) = 20 items
+# Anchor items will be placed at positions 1:12 in the new form
+meta_fipc <- shape_df_fipc(
+  x       = meta_anchor,    # Anchor item metadata (full parameter specification)
+  fix.loc = 1:12,           # Row positions of anchor items in the new form
+  item.id = paste0("NI", 1:8),  # IDs for 8 pretest items
+  cats    = 2,
+  model   = "2PLM"
+)
+```
+
+**Step 3: Administer new form to Group Y and run FIPC**
+
+```r
+mod_fipc <- est_irt(
+  x           = meta_fipc,
+  data        = new_responses,
+  D           = 1.702,
+  fipc        = TRUE,          # ← Enable FIPC
+  fipc.method = "MEM",         # ← Multiple EM cycles
+  fix.loc     = 1:12,          # ← Positions of anchor items
+  EmpHist     = TRUE,          # ← Estimate Group Y's ability distribution
+  verbose     = FALSE
+)
+```
+
+**Result:**
+
+- Pretest items are calibrated on Group X's scale
+- Group Y's ability distribution is estimated: e.g., N(0.3, 1.1)
+- No post-hoc linking needed
+
+---
+
+### Example 1: Dichotomous Test FIPC
+
+We demonstrate FIPC with a dichotomous test in a realistic pre-equating scenario:
+
+- **Old form (Group X)**: 20 items, $N(0, 1)$ examinees
+- **New form (Group Y)**: Items 1–15 are anchor items (fixed) + Items 16–20 are
+  pretest items (to estimate); $N(0.3, 1)$ examinees
+
+```{r fipc-step1, cache=FALSE}
+# ---- Step 1: Calibrate old form (20 items, 2PLM) ----
+meta_old <- shape_df(
+  par.drm = list(
+    a = c(0.9, 1.1, 1.3, 0.8, 1.2, 1.0, 1.4, 0.85, 1.1, 0.9,
+          1.2, 0.7, 1.0, 1.3, 0.9, 1.1, 0.8, 1.5, 1.0, 1.2),
+    b = c(-1.8, -1.2, -0.7, -0.3,  0.0,  0.3,  0.7,  1.0,  1.3,  1.8,
+          -1.5, -0.5,  0.2,  0.6,  1.0, -1.0,  0.4,  0.9, -0.2,  1.5),
+    g = rep(NA, 20)
+  ),
+  item.id = paste0("OI", 1:20),   # "OI" = Old Item
+  cats    = 2,
+  model   = "2PLM"
+)
+
+# Simulate Group X (old form takers): N(0, 1)
+theta_old <- rnorm(600, mean = 0, sd = 1)
+resp_old  <- simdat(x = meta_old, theta = theta_old, D = 1.702)
+
+# Calibrate old form
+mod_old <- est_irt(
+  data    = resp_old,
+  D       = 1.702,
+  model   = "2PLM",
+  cats    = 2,
+  item.id = paste0("OI", 1:20),
+  EmpHist = TRUE,
+  Etol    = 0.001,
+  MaxE    = 150,
+  se      = FALSE,
+  verbose = FALSE
+)
+
+# Extract calibrated parameters — these serve as anchors
+meta_anchor_full <- getirt(mod_old, what = "par.est")
+head(meta_anchor_full)
+```
+
+```{r fipc-step2, cache=FALSE}
+# ---- Step 2: Build new form metadata ----
+# Select 15 anchor items: positions 1–15 in the old form
+fixed_pos   <- 1:15
+meta_anchor <- meta_anchor_full[fixed_pos, ]
+
+# New form layout:
+#   Positions 1–15: anchor items (fixed at old-form estimates)
+#   Positions 16–20: pretest items (to be estimated)
+# Total: 15 anchor + 5 pretest = 20 items
+meta_fipc <- shape_df_fipc(
+  x       = meta_anchor,            # Fixed anchor item metadata
+  fix.loc = fixed_pos,              # Anchor positions in new form
+  item.id = paste0("NI", 1:5),      # IDs for 5 pretest items
+  cats    = 2,
+  model   = "2PLM"
+)
+
+# Preview the combined metadata
+print(meta_fipc)
+```
+
+```{r fipc-step3, cache=FALSE}
+# ---- Step 3: Simulate Group Y and run FIPC ----
+# Group Y has slightly higher ability: N(0.3, 1)
+theta_new <- rnorm(500, mean = 0.3, sd = 1)
+
+# True parameters for pretest items (for simulation only — unknown in practice)
+meta_new_true <- shape_df(
+  par.drm = list(
+    a = c(1.1, 0.9, 1.2, 0.8, 1.3),
+    b = c(-0.5, 0.2, 0.8, -1.0, 1.1),
+    g = rep(NA, 5)
+  ),
+  cats  = 2,
+  model = "2PLM"
+)
+
+# Simulate full new form responses:
+# Columns 1–15: anchor item responses
+# Columns 16–20: pretest item responses
+resp_anch <- simdat(x = meta_anchor, theta = theta_new, D = 1.702)
+resp_pre  <- simdat(x = meta_new_true, theta = theta_new, D = 1.702)
+resp_new  <- cbind(resp_anch, resp_pre)   # 500 × 20 matrix
+
+# Calibrate pretest items via FIPC
+mod_fipc <- est_irt(
+  x           = meta_fipc,
+  data        = resp_new,
+  D           = 1.702,
+  EmpHist     = TRUE,         # Estimate Group Y's ability distribution
+  Etol        = 0.001,
+  MaxE        = 150,
+  fipc        = TRUE,         # ← Enable FIPC
+  fipc.method = "MEM",        # ← Multiple EM cycles
+  fix.loc     = fixed_pos,    # ← Fix anchor item positions
+  verbose     = FALSE
+)
+
+summary(mod_fipc)
+```
+
+**Extract and verify results:**
+
+```{r fipc-results}
+# Estimated parameters — pretest items are the last 5 rows
+all_par     <- getirt(mod_fipc, what = "par.est")
+pretest_par <- tail(all_par, 5)
+print(pretest_par)
+
+# Estimated Group Y ability distribution
+group_par <- getirt(mod_fipc, what = "group.par")
+print(group_par)
+
+cat("\nTrue Group Y mean: 0.3  | Estimated:",
+    round(group_par[1, "mu"], 3), "\n")
+cat("True Group Y SD:   1.0  | Estimated:",
+    round(sqrt(group_par[1, "sigma2"]), 3), "\n")
+
+# Compare pretest estimates to true values
+cat("\n=== Pretest Item Recovery ===\n")
+cat("Discrimination RMSE:",
+    round(sqrt(mean((meta_new_true$par.1 - pretest_par$par.1)^2)), 4), "\n")
+cat("Difficulty RMSE:",
+    round(sqrt(mean((meta_new_true$par.2 - pretest_par$par.2)^2)), 4), "\n")
+```
+
+**Interpretation:**
+
+- Pretest items are successfully calibrated on the **old form scale** (Group X)
+  because the anchor items constrain the θ-metric.
+- Group Y's ability distribution is accurately recovered (mean ≈ 0.3, SD ≈ 1.0).
+- Anchor items (positions 1–15) retain their fixed values from `meta_anchor`.
+- Pretest items can now be added to the operational item bank.
+
+---
+
+### Example 2: Mixed-Format FIPC
+
+We now extend FIPC to a **mixed-format test** that includes both dichotomous and
+polytomous items.
+
+**Scenario:**
+
+- **Old form**: 25 dichotomous (3PLM) + 3 polytomous (GRM, 5 categories) = 28 items
+- **Anchor items** (to be fixed): Items 1–20 (3PLM) + Items 26–27 (GRM) = 22 items
+- **Pretest items** (to be estimated): Items 21–25 (3PLM) + Item 28 (GRM) = 6 items
+
+This mirrors a realistic scenario where new items of both types are simultaneously
+field-tested.
+
+```{r fipc-mixed-step1, cache=FALSE}
+# ---- Step 1: Define and calibrate old form ----
+meta_old_mix <- shape_df(
+  # 25 dichotomous 3PLM items
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 1.1, 0.9, 1.3, 1.0, 0.7, 1.2,
+          0.9, 1.1, 1.3, 0.8, 1.0, 1.2, 0.7, 0.9, 1.1, 1.3,
+          0.9, 1.1, 1.0, 1.3, 0.8),
+    b = seq(-2, 2, length.out = 25),
+    g = rep(0.15, 25)
+  ),
+  # 3 polytomous GRM items (5 categories)
+  par.prm = list(
+    a = c(1.3, 1.1, 0.9),
+    d = list(
+      c(-1.5, -0.5,  0.3,  1.2),
+      c(-1.2, -0.3,  0.5,  1.4),
+      c(-1.0,  0.0,  0.8,  1.6)
+    )
+  ),
+  item.id = c(paste0("D", 1:25), paste0("P", 1:3)),
+  cats    = c(rep(2, 25), rep(5, 3)),
+  model   = c(rep("3PLM", 25), rep("GRM", 3))
+)
+
+# Simulate Group X: 1000 examinees, N(0, 1)
+theta_old_mix <- rnorm(1000, mean = 0, sd = 1)
+resp_old_mix  <- simdat(x = meta_old_mix, theta = theta_old_mix, D = 1.702)
+
+# Calibrate old form
+mod_old_mix <- est_irt(
+  data       = resp_old_mix,
+  D          = 1.702,
+  model      = c(rep("3PLM", 25), rep("GRM", 3)),
+  cats       = c(rep(2, 25), rep(5, 3)),
+  item.id    = c(paste0("D", 1:25), paste0("P", 1:3)),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = TRUE,
+  Etol       = 0.001,
+  MaxE       = 200,
+  verbose    = FALSE
+)
+
+# Extract calibrated parameters and select anchor items
+meta_anchor_mix <- getirt(mod_old_mix, what = "par.est")
+
+# Anchor: items 1–20 (3PLM) + items 26–27 (GRM)
+fixed_pos_mix   <- c(1:20, 26:27)
+meta_anchor_mix <- meta_anchor_mix[fixed_pos_mix, ]
+
+cat("Anchor item types:\n")
+print(table(meta_anchor_mix$model))
+```
+
+```{r fipc-mixed-step2, cache=FALSE}
+# ---- Step 2: Build new form metadata ----
+# Pretest: 5 dichotomous (3PLM) + 1 polytomous (GRM)
+# New form positions: anchor at 1–20, 26–27; pretest at 21–25, 28
+meta_fipc_mix <- shape_df_fipc(
+  x       = meta_anchor_mix,
+  fix.loc = fixed_pos_mix,
+  item.id = paste0("NEW", 1:6),
+  cats    = c(rep(2, 5), 5),
+  model   = c(rep("3PLM", 5), "GRM")
+)
+
+cat("New form structure:\n")
+print(table(meta_fipc_mix$model))
+```
+
+```{r fipc-mixed-step3, cache=FALSE}
+# ---- Step 3: Simulate Group Y and run FIPC ----
+# Group Y: 1000 examinees, N(0.2, 1.1²)
+theta_new_mix <- rnorm(1000, mean = 0.2, sd = 1.1)
+
+# True pretest parameters (for simulation only)
+meta_pre_true_mix <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.9, 1.1, 0.8),
+    b = c(-0.5, 0.0, 0.6, -0.8, 1.0),
+    g = rep(0.15, 5)
+  ),
+  par.prm = list(
+    a = 1.1,
+    d = list(c(-1.2, -0.4,  0.4,  1.1))
+  ),
+  cats  = c(rep(2, 5), 5),
+  model = c(rep("3PLM", 5), "GRM")
+)
+
+# Simulate anchor and pretest responses separately
+resp_anch_mix <- simdat(x = meta_anchor_mix, theta = theta_new_mix, D = 1.702)
+resp_pre_mix  <- simdat(x = meta_pre_true_mix, theta = theta_new_mix, D = 1.702)
+
+# Combine responses to match new form column order (anchors first, pretest after)
+# Since shape_df_fipc() places fixed items at fix.loc positions and new items
+# at remaining positions, we need to assemble the response matrix accordingly.
+# Here, fixed_pos_mix = c(1:20, 26:27); remaining positions = 21:25, 28.
+resp_new_mix <- matrix(NA, nrow = 1000, ncol = 28)
+resp_new_mix[, fixed_pos_mix] <- resp_anch_mix
+resp_new_mix[, setdiff(1:28, fixed_pos_mix)] <- resp_pre_mix
+
+# Run FIPC
+mod_fipc_mix <- est_irt(
+  x           = meta_fipc_mix,
+  data        = resp_new_mix,
+  D           = 1.702,
+  use.gprior  = TRUE,
+  gprior      = list(dist = "beta", params = c(4, 16)),
+  EmpHist     = TRUE,
+  Etol        = 0.001,
+  MaxE        = 200,
+  fipc        = TRUE,
+  fipc.method = "MEM",
+  fix.loc     = fixed_pos_mix,
+  verbose     = FALSE
+)
+
+summary(mod_fipc_mix)
+```
+
+**Verify mixed-format results:**
+
+```{r fipc-mixed-results}
+all_par_mix <- getirt(mod_fipc_mix, what = "par.est")
+
+# Pretest items: the 6 newly estimated items
+free_pos_mix <- setdiff(1:28, fixed_pos_mix)
+pretest_par_mix <- all_par_mix[free_pos_mix, ]
+print(pretest_par_mix)
+
+cat("Pretest item types:\n")
+print(table(pretest_par_mix$model))
+
+# Group Y distribution
+group_par_mix <- getirt(mod_fipc_mix, what = "group.par")
+cat("\nTrue Group Y: mean=0.2, SD=1.1\n")
+cat("Estimated:    mean=", round(group_par_mix[1, "mu"], 3),
+    ", SD=", round(sqrt(group_par_mix[1, "sigma2"]), 3), "\n")
+```
+
+**Interpretation:**
+
+- Mixed-format FIPC calibrates both dichotomous and polytomous pretest items
+  simultaneously on the existing scale.
+- Group Y's ability distribution is accurately recovered.
+- Both item types are placed on the same scale as the old form.
+
+---
+
+### Key FIPC Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `x` | Item metadata including both fixed and free items (from `shape_df_fipc()`) |
+| `fipc` | Set to `TRUE` to enable FIPC |
+| `fipc.method` | `"OEM"` (one EM cycle) or `"MEM"` (multiple EM cycles; recommended) |
+| `fix.loc` | Integer vector of anchor item row positions in `x` |
+| `fix.id` | Character vector of anchor item IDs (alternative to `fix.loc`) |
+| `EmpHist` | If `TRUE`, estimate Group Y's ability distribution (recommended) |
+
+> **Note:** Use either `fix.loc` (positions) or `fix.id` (item IDs) to specify
+> anchor items, but not both simultaneously. If `fix.id` is non-`NULL`, `fix.loc`
+> is ignored.
+
+---
+
+## Part 3: Pretest Calibration — FAPC with `est_item()`
+
+### Why Fixed Ability Parameter Calibration (FAPC)?
+
+**FAPC (Fixed Ability Parameter Calibration)** treats examinee ability estimates 
+as **known (fixed) constants** and estimates item parameters by maximizing 
+the item-level likelihood conditional on those fixed abilities. This approach 
+is widely used for pretest item calibration, particularly when a stable group 
+of examinees has already taken an operational test (e.g., within a CAT environment) 
+and their proficiency estimates are readily available.
+
+For instance, in a CAT system, each examinee encounters a personalized sequence of items:
+
+* **Operational items** (scored): Used to estimate and update the examinees' 
+    abilities ($\theta$).
+* **Pretest items** (interspersed but unscored): Embedded within the test to 
+    accumulate response data; their parameters are unknown and need to be calibrated.
+
+FAPC leverages the individual $\hat{\theta}$ values obtained from the operational items 
+to calibrate each pretest item independently. 
+
+Compared to FIPC, FAPC is computationally much simpler. Because it eliminates 
+the need for EM iterations, each item's parameters can be estimated through a 
+single, straightforward optimization process. Consequently, calibration can 
+begin immediately as soon as a sufficient number of responses accumulate for 
+a specific pretest item.
+
+---
+
+### How FAPC Works
+
+Given the response $u_{ij}$ of examinee $i$ to pretest item $j$ and their fixed 
+ability estimate $\hat{\theta}_i$, the item-level log-likelihood is defined as:
+
+$$
+\ell(a_j, b_j) = \sum_{i=1}^{N} \log P(u_{ij} \mid \hat{\theta}_i,\, a_j,\, b_j)
+$$
+
+The item parameters are estimated by directly maximizing this log-likelihood 
+expression via numerical optimization (e.g., using `nlminb()`). Unlike standard 
+marginal maximum likelihood (MML) estimation or FIPC, there is no EM cycle 
+involved because the $\theta$ values are treated as fixed, observed data rather 
+than a latent distribution to be integrated out.
+
+**Important Limitation:** FAPC inherently treats the estimated abilities 
+$\hat{\theta}_i$ as if they were the true, error-free parameters ($\theta_i$), 
+thereby ignoring ability estimation error (measurement error). This omission can 
+lead to a slight downward bias in item discrimination estimates ($a$-parameters), 
+especially when the operational test is relatively short and the $\hat{\theta}$ 
+estimates are less precise. Additionally, to prevent selection bias from 
+confounding the calibration, a random (non-adaptive) pretest administration 
+design is strongly preferred over an adaptive administration for pretest items.
+
+### Illustrative Example: FAPC for Dichotomously Scored Items
+
+> 📌 **A Note on Simulation Simplification:**
+> In a real operational CAT, examinees take a customized set of operational items, 
+and their abilities ($\hat{\theta}$) are estimated with measurement error. Furthermore, 
+pretest items are randomly interspersed, resulting in a highly **sparse response matrix** (i.e., many missing values, as not every examinee sees every pretest item). 
+> 
+> For clarity and simplicity, this example uses a complete response matrix generated 
+from simulated true $\theta$ values. However, `irtQ::est_item()` is fully capable of 
+handling sparse data matrices containing `NA` values, which is typical for real-world CAT 
+pretest data.
+
+The calibration process follows three main steps:
+1. **Obtain ability estimates** $\hat{\theta}$ (here, simulated from a standard normal distribution).
+2. **Collect responses** to the pretest items.
+3. **Calibrate** the pretest items using `est_item()` by fixing the ability estimates.
+
+```{r fapc, cache=FALSE}
+# ---- Step 1: Simulate known ability estimates ----
+# In practice, these would be the final theta estimates (e.g., EAP or MLE) 
+# obtained from the operational CAT items via est_score().
+set.seed(123) # For reproducibility
+theta_fapc <- rnorm(500, mean = 0, sd = 1)
+
+# ---- Step 2: Define pretest items to calibrate (10 items, 2PLM) ----
+meta_pre <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.3, 0.9, 1.1, 0.7, 1.4, 1.0, 0.9),
+    b = c(-1.2, -0.5,  0.0,  0.4,  0.9, -0.8,  0.2,  1.1, -0.3,  1.5),
+    g = rep(NA, 10)
+  ),
+  item.id = paste0("PRE", 1:10),
+  cats    = 2,
+  model   = "2PLM"
+)
+
+# Simulate complete pretest responses based on the abilities
+# (Note: est_item() also works perfectly if this matrix contains NA values)
+resp_pre10 <- simdat(x = meta_pre, theta = theta_fapc, D = 1.702)
+
+# ---- Step 3: Calibrate via FAPC ----
+mod_fapc <- est_item(
+  x       = meta_pre,
+  data    = resp_pre10,
+  score   = theta_fapc,    # ← Fixed ability estimates
+  D       = 1.702,
+  verbose = FALSE
+)
+
+summary(mod_fapc)
+```
+
+**Extract and verify results:**
+
+```{r fapc-extract}
+# Estimated parameters
+est_fapc <- getirt(mod_fapc, what = "par.est")
+print(est_fapc)
+
+# Standard errors
+se_fapc <- getirt(mod_fapc, what = "se.est")
+print(se_fapc)
+
+# Parameter recovery
+cat("\n=== FAPC Recovery Statistics ===\n")
+cat("Discrimination RMSE:",
+    round(sqrt(mean((meta_pre$par.1 - est_fapc$par.1)^2)), 4), "\n")
+cat("Difficulty RMSE:",
+    round(sqrt(mean((meta_pre$par.2 - est_fapc$par.2)^2)), 4), "\n")
+cat("Discrimination r:", round(cor(meta_pre$par.1, est_fapc$par.1), 4), "\n")
+cat("Difficulty r:",     round(cor(meta_pre$par.2, est_fapc$par.2), 4), "\n")
+```
+
+### Key Advantages and Limitations of FAPC
+
+✅ **Simple**: Direct MLE conditional on $\hat{\theta}$, requiring no complex latent distribution assumptions. 
+✅ **Fast**: No EM iterations needed, making it computationally trivial.
+✅ **Scalable**: Each item is calibrated independently; ideal for large-scale item pools or real-time distributed computing.
+✅ **Flexible**: Compatible with any ability estimation method (MLE, EAP, MAP) derived from the operational test.
+
+⚠️ **Assumes $\theta$ is known without error**: Treating $\hat{\theta}$ as a fixed constant ignores measurement error. This measurement error propagates into calibration, causing a slight downward bias (attenuation) in item discrimination estimates, especially if the operational form is short.  
+⚠️ **No population distribution estimation**: Unlike FIPC, FAPC cannot estimate or recover the group-level latent trait distribution ($\mu_{\theta}, \sigma_{\theta}$) because abilities are treated as fixed data rather than a random effect.
+
+---
+
+## Part 4: Multiple-Group Calibration with `est_mg()`
+
+### Why Multiple-Group Calibration?
+
+In many testing programs, **different groups** of examinees take **different test
+forms** that share some common (anchor) items. Common scenarios include:
+
+- **Vertical scaling**: Grades 3, 4, and 5 each take a different form; common
+  items link adjacent grades onto a single developmental scale.
+- **Test form equating**: Two alternate forms (Form A and Form B) share anchor
+  items; the goal is to place both forms on a common score scale.
+- **International assessments**: Different countries take translated/adapted
+  forms; common items enable cross-national comparisons.
+- **Longitudinal studies**: Different cohorts take evolving forms over time;
+  common items maintain scale continuity.
+
+**Challenge:** Each group may have a **different ability distribution** (e.g.,
+Grade 3 examinees are systematically less able than Grade 5 examinees), so
+simply pooling data across groups and calibrating together would confound item
+difficulty with group ability.
+
+**Solution:** `est_mg()` simultaneously:
+
+1. Estimates all item parameters
+2. **Constrains** anchor item parameters to be **identical** across groups
+3. Estimates **group-specific** ability distributions
+4. Places everything on a **common scale**
+
+---
+
+### CINEG Design: Common-Item Non-Equivalent Groups
+
+`est_mg()` implements the **CINEG (Common-Item Non-Equivalent Groups)** design. The key features are:
+
+* Groups need **not** take the same number of items or the same items overall.
+* Common items can be **any subset** of each group's form (not just the first or last sections).
+* Common item parameters are **automatically constrained** to be equal across the groups where they appear, mapped accurately by matching item IDs.
+* Group ability distributions are **freely estimated** to account for population heterogeneity, unless one group is fixed as a reference.
+
+For example, consider three groups sharing items as follows:
+
+```
+Group 1:  [Item A1 ... Common items (C1) ... Item A2 ...]
+Group 2:  [Item B1 ... Common items (C1, C2) ... Item B2 ...]
+Group 3:  [Item C1 ... Common items (C2) ... Item C2 ...]
+```
+
+`est_mg()` automatically constrains the parameters of C1 items to be identical 
+across Groups 1 and 2, and C2 items to be identical across Groups 2 and 3. 
+This chain of statistical constraints links all three groups onto a single, unified scale.
+
+---
+
+### Scale Identification: Reference Group and `free.group`
+
+IRT has no inherent scale $\rightarrow$ either a reference group population or 
+a set of pre-calibrated anchor items must define the metric.
+
+#### Approach 1: Fixed Reference Group (Standard MG Calibration)
+
+Fix one group's ability distribution to a standard normal distribution, $N(0, 1)$,
+and estimate the other groups freely:
+
+```r
+est_mg(
+  ...,
+  free.group = c(2, 3),  # Groups 2 & 3: freely estimated
+  group.mean = 0,        # Group 1 mean fixed to 0
+  group.var  = 1         # Group 1 variance fixed to 1
+)
+```
+
+**Resulting Scale Properties:**
+
+* **Group 1**: $\mu = 0$, $\sigma^2 = 1$ (Fixed as the reference anchor).
+* **Groups 2 & 3**: $\mu$ and $\sigma^2$ are freely estimated relative to Group 1, 
+directly capturing population impact.
+
+#### Approach 2: All Groups Free (MG-FIPC)
+
+When pre-calibrated anchor items from an existing item bank define the scale, 
+the population distributions of all groups can be freed and estimated simultaneously:
+
+```r
+est_mg(
+  x          = list(meta_g1, meta_g2, meta_g3),  # Pre-calibrated metadata
+  ...,
+  free.group = 1:3,      # All groups: freely estimated
+  fipc       = TRUE,     # Enable MG-FIPC
+  fix.loc    = list(...) # Anchor positions per group
+)
+```
+
+**Resulting Scale Properties:** All group distributions are estimated dynamically; 
+the parameters of the fixed anchor items (held at known values) tie the groups 
+directly to the established scale.
+
+---
+
+### Example 1: Three-Group Calibration with `simMG`
+
+The built-in `simMG` dataset provides a ready-to-use CINEG example with three groups and a mixed-format structure containing both dichotomous and polytomous items.
+
+#### Test Structure of `simMG`:
+
+* **Group 1**: 50 items (47 3PLM + 3 GRM with 5 categories)
+    * Shares 12 anchor items (**C1**: items `C1I1`–`C1I12`) with Group 2.
+    * In Group 1's test form, these **C1** items are located at positions **1–10 and 49–50**.
+* **Group 2**: 50 items (47 3PLM + 3 GRM)
+    * Shares 12 anchor items (**C1**) with Group 1, located at positions **1–12**.
+    * Shares 10 anchor items (**C2**: items `C2I1`–`C2I10`) with Group 3, located at positions **41–50**.
+* **Group 3**: 38 items (37 3PLM + 1 GRM)
+    * Shares 10 anchor items (**C2**) with Group 2, located at positions **1–10**.
+
+**True ability distributions:**
+* Group 1: $\theta \sim N(0.0, 1.0^2)$
+* Group 2: $\theta \sim N(0.5, 0.8^2)$
+* Group 3: $\theta \sim N(-0.3, 1.3^2)$
+
+> ⚠️ **Note on Scaling:** `simMG` was generated using a logistic metric ($D = 1$). Therefore, we must set `D = 1` throughout the multiple-group estimation functions to maintain scale integrity.
+
+```{r estmg-setup}
+# Inspect simMG structure
+str(simMG, max.level = 2)
+
+# Extract metadata and response data
+x          <- simMG$item.prm
+data_mg    <- simMG$res.dat
+group.name <- simMG$group.name
+
+# Extract model, category, and ID information as lists (one element per group)
+model_mg <- list(x$Group1$model, x$Group2$model, x$Group3$model)
+cats_mg  <- list(x$Group1$cats,  x$Group2$cats,  x$Group3$cats)
+id_mg    <- list(x$Group1$id,    x$Group2$id,    x$Group3$id)
+```
+
+#### Calibration: Standard MG (No FIPC)
+
+We fix Group 1 as the reference scale ($\mu = 0, \sigma^2 = 1$) and freely estimate the latent trait distributions of Groups 2 and 3. Items with matching IDs across groups are automatically constrained to share identical parameters, linking all groups onto a single metric scale.
+
+```{r estmg-nofipc, cache=FALSE}
+mod_mg <- est_mg(
+  data       = data_mg,
+  group.name = group.name,
+  model      = model_mg,
+  cats       = cats_mg,
+  item.id    = id_mg,
+  D          = 1,                               # simMG was generated with D = 1
+  free.group = c(2, 3),                         # ← Groups 2 & 3: free distribution
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  group.mean = 0,                               # ← Group 1 mean fixed to 0
+  group.var  = 1,                               # ← Group 1 variance fixed to 1
+  EmpHist    = TRUE,                            # ← Estimate distribution shapes
+  Etol       = 0.001,
+  MaxE       = 200,
+  verbose    = FALSE
+)
+
+summary(mod_mg)
+```
+
+**Extract results:**
+
+```{r estmg-extract}
+# Group-specific ability distribution parameters
+group_par_mg <- getirt(mod_mg, what = "group.par")
+print(group_par_mg)
+
+cat("\n=== Comparison to True Values ===\n")
+cat("Group 1: True μ=0.0, σ=1.00  | Est. μ=",
+    round(group_par_mg$Group1[1, "mu"], 3), ", σ=",
+    round(group_par_mg$Group1[1, "sigma"], 3), "\n")
+cat("Group 2: True μ=0.5, σ=0.8  | Est. μ=",
+    round(group_par_mg$Group2[1, "mu"], 3), ", σ=",
+    round(group_par_mg$Group2[1, "sigma"], 3), "\n")
+cat("Group 3: True μ=-0.3, σ=1.3 | Est. μ=",
+    round(group_par_mg$Group3[1, "mu"], 3), ", σ=",
+    round(group_par_mg$Group3[1, "sigma"], 3), "\n")
+
+# Item parameter estimates for all items across groups ((first 6 items))
+par_mg <- getirt(mod_mg, what = "par.est")
+head(par_mg)
+```
+
+---
+
+### Visualizing Group Ability Distributions
+
+Plotting the estimated empirical distributions makes it easy to see how the
+three groups compare on the common ability scale.
+
+```{r estmg-plot, fig.width=10, fig.height=3.5, message=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+emp_hist_mg <- mod_mg$weights
+
+df1 <- data.frame(theta  = emp_hist_mg$Group1$theta,
+                  weight = emp_hist_mg$Group1$weight,
+                  group  = "Group 1 (Reference)")
+df2 <- data.frame(theta  = emp_hist_mg$Group2$theta,
+                  weight = emp_hist_mg$Group2$weight,
+                  group  = "Group 2 (Higher Ability)")
+df3 <- data.frame(theta  = emp_hist_mg$Group3$theta,
+                  weight = emp_hist_mg$Group3$weight,
+                  group  = "Group 3 (Lower Ability)")
+
+p1 <- ggplot(df1, aes(x = theta, y = weight)) +
+  geom_col(width = 0.15, fill = "steelblue") +
+  labs(title = "Group 1 (Reference)",
+       x = expression(theta), y = "Density") +
+  theme_minimal() + theme(plot.title = element_text(size = 10))
+
+p2 <- ggplot(df2, aes(x = theta, y = weight)) +
+  geom_col(width = 0.15, fill = "coral") +
+  labs(title = "Group 2 (Higher Ability)",
+       x = expression(theta), y = "Density") +
+  theme_minimal() + theme(plot.title = element_text(size = 10))
+
+p3 <- ggplot(df3, aes(x = theta, y = weight)) +
+  geom_col(width = 0.15, fill = "seagreen") +
+  labs(title = "Group 3 (Lower Ability)",
+       x = expression(theta), y = "Density") +
+  theme_minimal() + theme(plot.title = element_text(size = 10))
+
+gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
+```
+
+**Interpretation:**
+
+- Group 1 is centered at 0 (reference group).
+- Group 2's distribution is shifted **right** (higher ability).
+- Group 3's distribution is shifted **left** (lower ability).
+
+---
+
+### Example 2: MG-FIPC (Fixed Anchor Items)
+
+**Scenario:** Anchor items are **already calibrated** on the operational scale. We want to:
+
+1. **Fix** anchor item parameters at their known (pre-calibrated) values.
+2. **Estimate** only the unique (new) items for each group.
+3. **Estimate** all three group distributions freely (the fixed anchor items define the baseline scale).
+
+This approach is known as **MG-FIPC**: Multiple-Group Fixed Item Parameter Calibration [@kim_kolen2016].
+
+**When is MG-FIPC useful?**
+* An operational item bank already exists (calibrated on a reference scale).
+* New test forms are field-tested across different examinee groups.
+* You want to seamlessly add new items to the bank without re-calibrating or shifting the existing anchors.
+
+The anchor item positions specified in the `fix.loc` argument must accurately reflect each group's unique test form layout:
+* **Group 1**: C1 anchor items located at positions **1–10 and 49–50**.
+* **Group 2**: Contains both **C1** anchor items (at positions **1–12**) and **C2** anchor items (at positions **41–50**).
+* **Group 3**: C2 anchor items located at positions **1–10**.
+
+```{r estmg-fipc, cache=FALSE}
+# Define anchor positions per group
+# Note: x$Group1, x$Group2, x$Group3 contain pre-calibrated metadata
+fix.loc_mg <- list(
+  c(1:10, 49:50),    # Group 1: C1 anchor positions
+  c(1:12, 41:50),    # Group 2: Combined C1 and C2 anchor positions
+  c(1:10)            # Group 3: C2 anchor positions
+)
+
+mod_mg_fipc <- est_mg(
+  x          = x,               # ← Pre-calibrated metadata list (one per group)
+  data       = data_mg,
+  group.name = group.name,
+  D          = 1,
+  free.group = 1:3,             # ← All groups free (scale defined by anchors)
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = TRUE,
+  Etol       = 0.001,
+  MaxE       = 200,
+  fipc       = TRUE,            # ← Enable MG-FIPC
+  fipc.method = "MEM",
+  fix.loc    = fix.loc_mg,      # ← Anchor positions per group (list)
+  verbose    = FALSE
+)
+
+summary(mod_mg_fipc)
+```
+
+**Extract and compare:**
+
+```{r estmg-fipc-results}
+# Group distributions under MG-FIPC
+group_par_fipc <- getirt(mod_mg_fipc, what = "group.par")
+print(group_par_fipc)
+```
+
+**Key differences between Standard MG and MG-FIPC:**
+
+| Aspect | Standard MG | MG-FIPC |
+|:---|:---|:---|
+| **Scale Reference** | Reference Group (typically Group 1 with $\mu=0, \sigma^2=1$) | Pre-calibrated anchor items |
+| `free.group` | `c(2, 3)` (Reference group is fixed) | `1:3` (All groups are freely estimated) |
+| `fipc` | `FALSE` | `TRUE` |
+| **Anchor Treatment** | Estimated simultaneously (constrained equal across groups) | Fixed constants held at their known bank values |
+| **When to Use** | No prior scale or calibration exists for the anchor items | The parameters of the anchor items are pre-calibrated and known |
+
+---
+
+### Key `est_mg()` Arguments
+
+| Argument | Description |
+|:---|:---|
+| `x` | **List** of item metadata data frames (one per group); strictly required for MG-FIPC to supply pre-calibrated values. |
+| `data` | **List** of response matrices or data frames (one per group). |
+| `group.name` | Character vector of unique group names (defines the longitudinal or cross-sectional list order). |
+| `model` / `cats` / `item.id` | **Lists** specifying the IRT models, category counts, and unique item IDs for each group. |
+| `free.group` | Integer vector indicating which groups have freely estimated latent trait ($\theta$) distributions. |
+| `fipc` | Logical indicator to enable Multiple-Group Fixed Item Parameter Calibration (`TRUE` or `FALSE`). |
+| `fix.loc` / `fix.id` | **List** (one per group) specifying the exact row positions or item IDs of the anchor items to be fixed. |
+| `EmpHist` | Logical; if `TRUE`, estimates empirical histogram shapes for the latent distributions instead of assuming normality. |
+| `group.mean` / `group.var` | Numeric values setting the latent trait mean and variance for the fixed reference group. |
+
+---
+
+### Common Pitfalls
+
+❌ **Pitfall 1: Mismatch between `group.name` and list order**
+
+The order of elements within `data`, `model`, `cats`, `item.id`, `x`, and `fix.loc` must **exactly match** the character order defined in `group.name`. A mismatch will cross-contaminate group data and models.
+
+```r
+# WRONG
+group.name = c("A", "B", "C")
+data       = list(groupC_data, groupA_data, groupB_data)  # Order mismatch!
+
+# CORRECT
+group.name = c("A", "B", "C")
+data       = list(groupA_data, groupB_data, groupC_data)
+```
+
+❌ **Pitfall 2: Using `fix.loc` as a single vector (not a list) for MG-FIPC**
+
+Because each group represents a distinct test form with potentially different structures, `fix.loc` or `fix.id` must always be supplied as a **list**, containing one element per group.
+
+```r
+# WRONG — fix.loc must be a list for est_mg(), even if only fixing items in one group
+est_mg(..., fipc = TRUE, fix.loc = c(1:10))
+
+# CORRECT
+est_mg(..., fipc = TRUE, fix.loc = list(c(1:10), c(1:12), c(1:10)))
+```
+
+❌ **Pitfall 3: Assuming anchor items share identical positions across all groups**
+
+Common items map across groups via their unique `item.id`. Depending on the test assembly layout, they may occupy **different row positions** in each group's response matrix. Always verify and locate positions dynamically if needed:
+
+```r
+# Check and extract anchor positions dynamically in each group's metadata
+which(x$Group1$id %in% anchor_ids)  # Group 1 positions
+which(x$Group2$id %in% anchor_ids)  # Group 2 positions (often differs!)
+```
+
+❌ **Pitfall 4: Common items with inconsistent psychometric model specifications**
+
+`est_mg()` automatically links groups by matching string-identical item IDs. For the baseline measurement invariance constraint to hold, a common item must share the **exact same model type** (e.g., `3PLM`) and the **same number of score categories** across all groups where it appears.
+
+---
+
+### Summary
+
+The `est_mg()` function provides a powerful framework that enables:
+
+* ✅ **Simultaneous Calibration** across multiple independent or non-equivalent examinee samples.
+* ✅ **Automatic Anchor Constraints** to establish robust scale linking via unique item ID matching.
+* ✅ **Group-Specific Population Estimation** featuring flexible empirical histogram (`EmpHist`) support to track population drifts accurately.
+* ✅ **MG-FIPC Execution** for seamlessly appending field-tested items onto an active, pre-scaled item bank.
+* ✅ **Mixed-Format Support** that handles combinations of dichotomous and polytomous parameters concurrently.
+
+These functionalities serve as the computational backbone for vertical scaling, concurrent form equating, international large-scale assessments, and longitudinal growth studies. The theoretical foundation for multiple-group IRT was established by @bock_zimowski1997.
+
+---
+
+## References
+

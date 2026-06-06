@@ -1,0 +1,661 @@
+---
+title: "Getting Started with irtQ"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Getting Started with irtQ}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## What is irtQ?
+
+**irtQ** is an R package for unidimensional **Item Response Theory (IRT)** analyses.
+It supports mixed-format tests containing both dichotomous and polytomous items, and
+provides a unified interface for the most common psychometric tasks in educational
+and psychological measurement.
+
+### Why IRT? A Brief Motivation
+
+Before using **irtQ**, it helps to understand *why* IRT is preferred over Classical
+Test Theory (CTT) for many measurement tasks.
+
+**Classical Test Theory (CTT)** summarizes examinees by their total (or proportion)
+correct score and items by their observed difficulty (p-value) and point-biserial
+correlation. While straightforward, CTT has well-known limitations:
+
+- **Sample dependence**: item statistics (difficulty, discrimination) change with
+  the examinee group, and person scores change with the item set
+- **No item-level probability model**: CTT does not tell us the *probability* that
+  a specific person answers a specific item correctly
+- **Limited equating**: comparing scores across different test forms requires
+  strong assumptions
+
+**Item Response Theory (IRT)** addresses these limitations by modeling the probability
+of each response as a function of a latent trait $\theta$ (ability, proficiency, or
+attitude) and item parameters. Key advantages are:
+
+- **Invariance**: item parameters do not depend on the ability distribution of the
+  calibration sample; person parameters do not depend on which particular items were
+  administered
+- **Item-level modeling**: each item has its own characteristic curve describing
+  how response probability changes with $\theta$
+- **Common scale**: items and persons are placed on the *same* $\theta$ continuum,
+  enabling equating, adaptive testing, and longitudinal measurement
+
+### Core Capabilities of irtQ
+
+**irtQ** covers the full IRT workflow:
+
+**Primary functions:**
+
+- Estimating item parameters — fixed-form calibration, pretest calibration using
+  Fixed Item Parameter Calibration (FIPC) and Fixed Ability Parameter Calibration
+  (FAPC) approaches, and multiple-group calibration
+  (`est_irt()`, `est_mg()`, `est_item()`)
+- Estimating examinee abilities — maximum likelihood (ML), weighted likelihood (WLE),
+  maximum a posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
+  inverse test characteristic curve (TCC) scoring (`est_score()`)
+- Evaluating item-level model–data fit — $\chi^2$, $G^2$, infit/outfit, $S$-$X^2$
+  (`irtfit()`, `sx2_fit()`)
+- Detecting differential item functioning (DIF) — residual-based DIF (RDIF),
+  generalized residual-based DIF (GRDIF), and simultaneous item bias test 
+  modified for CAT (CATSIB) (`rdif()`, `grdif()`, `catsib()`)
+- Computing classification accuracy and consistency indices
+  (`cac_lee()`, `cac_rud()`)
+
+**Utilities:**
+
+| Function | Purpose |
+|----------|---------|
+| `simdat()` | Simulate IRT item response data |
+| `info()` | Item and test information functions |
+| `traceline()` | Item and test characteristic curves |
+| `lwrc()` | Lord–Wingersky recursion (summed-score distributions) |
+| `gen.weight()` | Generate quadrature weights from a distribution |
+| `covirt()` | IRT-based covariance between items |
+| `run_flexmirt()` | Run flexMIRT directly from R |
+
+This vignette introduces the **IRT models** supported by **irtQ** and the **item
+metadata** data structure that connects all functions. At the end, a minimal
+end-to-end workflow ties everything together.
+
+---
+
+## Installation
+
+Install the released version from CRAN:
+
+```r
+install.packages("irtQ")
+```
+
+Install the development version from GitHub:
+
+```r
+# install.packages("devtools")
+devtools::install_github("hwangQ/irtQ")
+```
+
+Load the package:
+
+```{r load-pkg}
+library(irtQ)
+```
+
+---
+
+## Supported IRT Models
+
+**irtQ** supports the following unidimensional IRT models for dichotomous and
+polytomous items.
+
+### Dichotomous Models: 1PLM, 2PLM, and 3PLM
+
+For a binary response $Y \in \{0, 1\}$ from an examinee with latent ability $\theta$,
+the probability of a correct response ($Y = 1$) under the three-parameter logistic
+model (3PLM) is:
+
+$$P(Y = 1 \mid \theta) = g + \frac{1 - g}{1 + \exp(-D\,a\,(\theta - b))}$$
+
+The four quantities in this equation each have a concrete interpretation:
+
+**$\theta$ — Latent ability (person parameter)**  
+The unobserved trait being measured. The $\theta$ scale is typically standardized so
+that $\theta \sim N(0, 1)$ in the reference population: $\theta = 0$ is average
+ability, $\theta = 1$ is one standard deviation above average, and so on.
+
+**$a$ — Discrimination (item parameter)**  
+Controls how steeply the item characteristic curve (ICC) rises. A highly
+discriminating item (large $a$) sharply separates examinees just below and just above
+the item's difficulty; a weakly discriminating item (small $a$) produces a nearly
+flat ICC and provides little information about $\theta$. In practice, $a$ typically
+ranges from about 0.5 to 2.5.
+
+**$b$ — Difficulty (item parameter)**  
+The point on the $\theta$ scale where the probability of a correct response is
+halfway between $g$ and 1, i.e. $P = g + (1-g)/2$. For the 2PLM (where $g = 0$),
+this simplifies to the $\theta$ value where $P = 0.5$. Items with $b < 0$ are easy
+(most examinees answer correctly); items with $b > 0$ are hard. Values typically
+range from about $-3$ to $+3$.
+
+**$g$ — Pseudo-guessing (item parameter)**  
+The lower asymptote of the ICC — the probability of a correct response as
+$\theta \to -\infty$. For a 5-option multiple-choice item with pure random guessing,
+$g = 0.2$. When $g = 0$ the ICC passes through the origin and the model reduces to
+the 2PLM or 1PLM.
+
+**$D$ — Scaling constant**  
+$D = 1.702$ is a constant that makes the logistic function closely approximate the
+normal ogive used in the original IRT formulation. Using $D = 1.702$ is conventional
+when working with logistic models; set $D = 1$ to work on the purely logistic scale.
+All irtQ functions accept `D` as an argument with default `1.702`.
+
+#### Special cases: 1PLM and 2PLM
+
+| Model | Discrimination | Guessing | Free parameters |
+|-------|---------------|----------|-----------------|
+| **1PLM** | Fixed to 1 *or* constrained equal across items | $g = 0$ | $b$ only |
+| **2PLM** | Freely estimated, varies across items | $g = 0$ | $a$, $b$ |
+| **3PLM** | Freely estimated, varies across items | Freely estimated | $a$, $b$, $g$ |
+
+> **Note on 1PLM in irtQ.** When `fix.a.1pl = TRUE` (in `est_irt()`), the
+> discrimination is *fixed* to the value `a.val.1pl` (default 1) — this is the
+> strict **Rasch model**. When `fix.a.1pl = FALSE` (the default), the common
+> discrimination is *estimated* from the data but constrained to be equal across all
+> 1PLM items. Both specifications produce only $b$ as the item-differentiating
+> parameter, but the second is more flexible when the Rasch assumption of $a = 1$
+> does not exactly hold.
+
+---
+
+### Polytomous Models: GRM and GPCM
+
+For items with $K$ **ordered** response categories scored $0, 1, \ldots, K-1$
+(e.g., a 4-point rating scale scored 0–3), irtQ supports two models.
+
+#### Graded Response Model (GRM)
+
+The GRM [@samejima1969] models $K - 1$ **cumulative boundary response functions**,
+one for each adjacent pair of categories. The cumulative probability of responding
+in category $k$ *or higher* is:
+
+$$P^*(Y \ge k \mid \theta) = \frac{1}{1 + \exp(-D\,a\,(\theta - b_k))}, \quad k = 1, \ldots, K-1$$
+
+with the conventions $P^*(Y \ge 0) = 1$ and $P^*(Y \ge K) = 0$.
+
+The probability of responding in exactly category $k$ is then:
+
+$$P(Y = k \mid \theta) = P^*(Y \ge k \mid \theta) - P^*(Y \ge k+1 \mid \theta)$$
+
+**Parameters:**
+
+- $a$: a single discrimination parameter shared across all category boundaries
+- $b_1 < b_2 < \cdots < b_{K-1}$: ordered threshold parameters, where $b_k$ is the
+  $\theta$ value at which the probability of responding above category $k-1$
+  equals 0.5. The ordering constraint ensures that the response probabilities
+  are non-negative for all $\theta$.
+
+**Intuition:** Think of the GRM as applying a 2PLM-like curve to each of the $K-1$
+adjacent-category boundaries. $b_1$ marks the easy end of the scale (where most
+examinees move from category 0 to category 1), and $b_{K-1}$ marks the hard end
+(where examinees move into the top category).
+
+**Example (4-category GRM item, $K = 4$):**
+
+- $b_1 = -1.5$: Examinees with $\theta \approx -1.5$ have a 50% chance of scoring
+  1 or higher
+- $b_2 = 0.0$: Examinees with $\theta \approx 0$ have a 50% chance of scoring
+  2 or higher
+- $b_3 = 1.2$: Examinees with $\theta \approx 1.2$ have a 50% chance of scoring
+  3 (the top category)
+
+---
+
+#### Generalized Partial Credit Model (GPCM)
+
+The GPCM [@muraki1992] generalizes the Partial Credit Model [PCM; @masters1982]
+by allowing items to have different discrimination parameters. The probability of
+responding in category $k$ is:
+
+$$P(Y = k \mid \theta) =
+\frac{\exp\!\left(\displaystyle\sum_{v=0}^{k} D\,a\,(\theta - b_v)\right)}
+     {\displaystyle\sum_{h=0}^{K-1} \exp\!\left(\displaystyle\sum_{v=0}^{h} D\,a\,(\theta - b_v)\right)}$$
+
+where the convention $b_0 = 0$ is used so that the numerator for $k = 0$
+simplifies to $\exp(0) = 1$.
+
+**Parameters:**
+
+- $a$: a single discrimination parameter for the item
+- $b_1, b_2, \ldots, b_{K-1}$: **step parameters** (also called threshold parameters),
+  where $b_v$ governs the transition from category $v-1$ to category $v$.
+  Unlike GRM thresholds, GPCM step parameters need *not* be ordered.
+
+**Relationship to other models:**
+
+- Setting $a = 1$ for all items gives the **Partial Credit Model (PCM)** [@masters1982]
+- The GPCM is therefore a generalization of the PCM that allows item-varying
+  discrimination
+
+**How to specify in irtQ:** For an item with $K$ categories, provide a vector of
+$K - 1$ step parameters as the `d` argument in `shape_df()`. The convention
+$b_0 = 0$ is handled internally; you do not supply $b_0$.
+
+---
+
+### Summary: All Supported Models
+
+| Model | Item type | Parameters | Notes |
+|-------|-----------|------------|-------|
+| **1PLM** | Dichotomous | $b$ | $a$ fixed or equal-constrained; $g = 0$ |
+| **2PLM** | Dichotomous | $a,\, b$ | $g = 0$ |
+| **3PLM** | Dichotomous | $a,\, b,\, g$ | All three parameters free |
+| **GRM**  | Polytomous  | $a,\, b_1, \ldots, b_{K-1}$ | Thresholds must be ordered |
+| **GPCM** | Polytomous  | $a,\, b_1, \ldots, b_{K-1}$ | Step params need not be ordered |
+| **PCM**  | Polytomous  | $b_1, \ldots, b_{K-1}$ | GPCM with $a = 1$ |
+
+> **Alias:** `"DRM"` is accepted as a model string for any dichotomous item
+> (1PLM, 2PLM, or 3PLM) in contexts where the model is already encoded in the
+> metadata.
+
+---
+
+## Item Metadata: The Central Data Structure
+
+Nearly every **irtQ** function accepts a data frame `x` as its first argument.
+This **item metadata** frame is a standardized, row-per-item table that encodes
+the IRT model and parameter values for each item in a test form. It serves as the
+single input format shared across all analyses — calibration, scoring, fit
+evaluation, DIF detection, and more — so you only need to build it once.
+
+### Column Structure
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | character | Unique item identifier |
+| `cats` | integer | Number of response categories (2 for dichotomous) |
+| `model` | character | IRT model: `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"` |
+| `par.1` | numeric | Discrimination parameter ($a$) |
+| `par.2` | numeric | Difficulty ($b$) for dichotomous; first threshold ($b_1$) for polytomous |
+| `par.3` | numeric | Guessing ($g$) for 3PLM; second threshold ($b_2$) for polytomous; `NA` otherwise |
+| `par.4`, ... | numeric | Additional thresholds for polytomous items; `NA` for dichotomous |
+
+The number of `par.*` columns grows with the maximum number of categories across
+items. For example, a test containing a GRM item with 5 categories will have columns
+`par.1` through `par.5`, with `NA` filling unused slots for dichotomous items.
+
+### A Concrete Example
+
+```{r show-metadata-structure}
+# 3 dichotomous items (2PLM) + 2 polytomous items (GRM, 4 categories)
+meta_demo <- shape_df(
+  par.drm = list(
+    a = c(1.2, 0.9, 1.5),
+    b = c(-0.5, 0.0, 1.0),
+    g = c(NA, NA, NA)         # NA: no guessing for 2PLM
+  ),
+  par.prm = list(
+    a = c(1.8, 1.3),
+    d = list(
+      c(-1.2, 0.0, 1.2),      # 3 thresholds for item 4 (4 categories)
+      c(-0.8, 0.3, 1.5)       # 3 thresholds for item 5 (4 categories)
+    )
+  ),
+  item.id = paste0("I", 1:5),
+  cats    = c(2, 2, 2, 4, 4),
+  model   = c("2PLM", "2PLM", "2PLM", "GRM", "GRM")
+)
+meta_demo
+```
+
+Reading across the columns:
+
+- Items I1–I3 are 2PLM: `par.1` = $a$, `par.2` = $b$, `par.3` = `NA` (no guessing),
+  `par.4` = `NA` (no third threshold)
+- Items I4–I5 are GRM with 4 categories: `par.1` = $a$, `par.2`–`par.4` =
+  $b_1, b_2, b_3$
+
+---
+
+## Creating Item Metadata with `shape_df()`
+
+`shape_df()` is the primary tool for building item metadata from scratch.
+It takes parameter values as named lists and returns a correctly formatted
+metadata data frame.
+
+### Example 1: Six dichotomous items (1PLM, 2PLM, 3PLM mixed)
+
+```{r shape-df-ex1}
+meta_ex1 <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.0, 0.9, 1.2, 0.8, 2.1),     # discrimination
+    b = c(0.2, 2.3, -0.4, -2.5, 0.9, 1.2),   # difficulty
+    g = c(NA,  NA,   NA,   NA,  0.2, 0.1)     # guessing: NA for 1PLM/2PLM
+  ),
+  item.id = paste0("ITEM", 1:6),
+  cats  = 2,
+  model = c("1PLM", "1PLM", "2PLM", "2PLM", "3PLM", "3PLM")
+)
+meta_ex1
+```
+
+**Key points:**
+
+- `par.drm` takes a named list with three vectors: `a` (discrimination), `b`
+  (difficulty), and `g` (guessing). Set `g = NA` for 1PLM and 2PLM items.
+- Items 1 and 2 are 1PLM: their `a` values are provided in `par.drm` but will be
+  handled according to the `fix.a.1pl` argument in estimation functions. The `par.3`
+  column in the output is `NA` because there is no guessing for 1PLM items.
+- Items 5 and 6 are 3PLM: their guessing parameters are `0.2` and `0.1` respectively.
+
+### Example 2: Mixed-format test (dichotomous + polytomous)
+
+```{r shape-df-ex2}
+meta_ex2 <- shape_df(
+  par.drm = list(
+    a = c(0.8, 2.1),
+    b = c(0.9, 1.2),
+    g = c(0.2, 0.1)
+  ),
+  par.prm = list(
+    a = c(1.9, 1.3, 0.7),
+    d = list(
+      c(-1.20, -0.52,  0.25),       # GRM  item: 4 categories → 3 thresholds
+      c(-2.20, -1.50, -0.55),       # GPCM item: 4 categories → 3 step params
+      c(-0.92, -0.43,  0.49, 1.11)  # GPCM item: 5 categories → 4 step params
+    )
+  ),
+  item.id = paste0("ITEM", 1:5),
+  cats  = c(2, 2, 4, 4, 5),
+  model = c("3PLM", "3PLM", "GRM", "GPCM", "GPCM")
+)
+meta_ex2
+```
+
+**Key points:**
+
+- `par.prm` takes a named list with `a` (discrimination for polytomous items)
+  and `d` (a *list* of threshold/step parameter vectors, one per polytomous item).
+- Each vector in `d` must have length $K - 1$ where $K$ is `cats` for that item:
+  4-category items need 3 values; 5-category items need 4 values.
+- For a **GRM** item, the values in `d` are thresholds $b_1, \ldots, b_{K-1}$,
+  which must be in increasing order.
+- For a **GPCM** item, the values in `d` are step parameters $b_1, \ldots, b_{K-1}$,
+  which need *not* be ordered.
+- The `d` vectors for GRM and GPCM items can be mixed within the same `par.prm`
+  list — the `model` argument determines which model applies to each item.
+
+### Example 3: Uniform model, auto-assigned IDs
+
+When all items share the same model, a single model string is recycled.
+If `item.id` is omitted, IDs are auto-assigned as `V1`, `V2`, …
+
+```{r shape-df-ex3}
+meta_ex3 <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.0, 0.9, 1.2, 0.8, 2.1),
+    b = c(0.2, 2.3, -0.4, -2.5, 0.9, 1.2),
+    g = c(0.1, 0.3, 0.1, 0.2, 0.2, 0.1)
+  ),
+  cats  = 2,
+  model = "3PLM"   # recycled for all six items
+)
+meta_ex3
+```
+
+### Example 4: Default parameters (`default.par = TRUE`)
+
+Set `default.par = TRUE` to create a metadata frame with placeholder parameters
+without specifying values explicitly. This is useful when you want to calibrate
+items from scratch and only need the structure, or as a starting point for
+editing. Default values are $a = 1$, $b = 0$, $g = 0.2$ for 3PLM and `NA` for
+1PLM/2PLM; polytomous thresholds default to all zeros.
+
+```{r shape-df-ex4}
+meta_ex4 <- shape_df(
+  cats        = 2,
+  model       = c("1PLM", "2PLM", "2PLM", "3PLM", "3PLM"),
+  default.par = TRUE
+)
+meta_ex4
+```
+
+### `shape_df()` Argument Summary
+
+| Argument | Description |
+|----------|-------------|
+| `par.drm` | Named list with `a`, `b`, `g` vectors for dichotomous items |
+| `par.prm` | Named list with `a` and `d` (list of threshold vectors) for polytomous items |
+| `item.id` | Character vector of item IDs; auto-assigned as `V1`, `V2`, … if omitted |
+| `cats` | Integer vector of category counts per item (scalar if all equal) |
+| `model` | Character vector of model strings (scalar if all equal) |
+| `default.par` | If `TRUE`, fill parameters with built-in defaults (default `FALSE`) |
+
+---
+
+## Importing Item Metadata from External IRT Software
+
+The `bring.*()` family of functions converts output files from external IRT programs
+into **irtQ**'s item metadata format. This makes it easy to use parameters calibrated
+in another program as the starting point for downstream **irtQ** analyses.
+
+Each function returns a list; the `$full_df` component contains the complete
+standardized metadata data frame.
+
+### Importing from flexMIRT
+
+```{r bring-flexmirt}
+# Locate the sample flexMIRT -prm.txt file bundled with irtQ
+flex_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
+
+# Import: returns a list keyed by group (e.g., Group1, Group2, ...)
+meta_flex <- bring.flexmirt(file = flex_file, type = "par")$Group1$full_df
+meta_flex
+```
+
+`bring.flexmirt()` returns a **nested list** keyed by group name. Use
+`$Group1$full_df`, `$Group2$full_df`, etc. to access each group's metadata.
+
+### Importing from PARSCALE
+
+```{r bring-parscale}
+# Locate the sample PARSCALE .PAR file bundled with irtQ
+pscale_file <- system.file("extdata", "parscale_sample.PAR", package = "irtQ")
+
+# Import item parameters
+meta_pscale <- bring.parscale(file = pscale_file, type = "par")$full_df
+meta_pscale
+```
+
+### Importing from BILOG-MG
+
+```r
+# Import from a BILOG-MG .PAR output file (not run — replace with your path)
+meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
+```
+
+### Importing from the mirt package
+
+```r
+# Fit a model with mirt (not run)
+# mirt_mod <- mirt::mirt(data = my_data, model = 1, itemtype = "2PL")
+
+# Convert to irtQ metadata
+# meta_mirt <- bring.mirt(x = mirt_mod)$full_df
+```
+
+### Common Arguments for `bring.*()` Functions
+
+All `bring.*()` functions share two main arguments:
+
+| Argument | Description |
+|----------|-------------|
+| `file` | Path to the external software output file |
+| `type` | `"par"` for item parameter estimates; `"sco"` for ability score estimates |
+
+In practice, replace `system.file(...)` with the actual path to your file:
+
+```r
+meta <- bring.flexmirt(file = "output/my_calibration-prm.txt",
+                       type = "par")$Group1$full_df
+```
+
+---
+
+## Reading Item Metadata from a CSV File
+
+You can also prepare item metadata in a spreadsheet and read it into R as a CSV
+file, as long as the column structure matches the **irtQ** specification.
+
+```r
+# Read item metadata from a CSV file (not run — replace with your path)
+meta_csv <- read.csv("my_item_parameters.csv", stringsAsFactors = FALSE)
+
+# Verify the structure
+str(meta_csv)
+head(meta_csv)
+```
+
+Ensure that:
+
+- Column names are exactly `id`, `cats`, `model`, `par.1`, `par.2`, `par.3`, …
+- `id` is character, `cats` is integer, `model` is character, `par.*` are numeric
+- Missing threshold or guessing parameters are coded as `NA`
+- GRM threshold columns (`par.2`, `par.3`, …) are in increasing order within each row
+
+---
+
+## A Complete End-to-End Workflow
+
+This vignette has focused on **item metadata** — the central data structure that
+connects all **irtQ** functions. To show how metadata fits into the broader analysis
+pipeline, the example below walks through a minimal end-to-end workflow: define item
+metadata → simulate responses → estimate item parameters → estimate abilities →
+check recovery. Each step beyond metadata creation is covered in depth in its own
+dedicated vignette (see **What's Next?** at the end of this page).
+
+The following example walks through the core **irtQ** workflow from start to finish:
+define item metadata → simulate responses → **estimate item parameters** → estimate
+abilities → check recovery.
+
+```{r workflow-demo}
+set.seed(2026)
+
+# ---- Step 1: Define item metadata (20-item mixed test) ----
+# 15 dichotomous 2PLM items + 5 polytomous GRM items (4 categories)
+meta_wf <- shape_df(
+  par.drm = list(
+    a = c(0.8, 1.2, 1.5, 0.9, 1.1, 1.3, 0.7, 1.0, 1.4, 0.85,
+          1.1, 0.9, 1.2, 1.0, 1.3),
+    b = c(-1.5, -1.0, -0.5, -0.2, 0.0, 0.2, 0.5, 0.8, 1.0, 1.5,
+          -1.2, -0.8, -0.3, 0.1, 0.4),
+    g = rep(NA, 15)
+  ),
+  par.prm = list(
+    a = c(1.4, 1.1, 0.9, 1.2, 1.0),
+    d = list(
+      c(-1.5, -0.2,  0.9),
+      c(-1.2,  0.1,  1.2),
+      c(-0.9,  0.4,  1.5),
+      c(-1.1, -0.1,  1.0),
+      c(-1.3,  0.3,  1.3)
+    )
+  ),
+  item.id = c(paste0("D", 1:15), paste0("P", 1:5)),
+  cats    = c(rep(2, 15), rep(4, 5)),
+  model   = c(rep("2PLM", 15), rep("GRM", 5))
+)
+
+# ---- Step 2: Simulate response data (500 examinees, N(0,1)) ----
+theta_true <- rnorm(500, mean = 0, sd = 1)
+resp <- simdat(x = meta_wf, theta = theta_true, D = 1.702)
+
+cat("Response matrix dimensions:", dim(resp), "\n")  # 500 examinees × 20 items
+```
+
+```{r workflow-calibrate}
+# ---- Step 3: Estimate item parameters with est_irt() ----
+mod <- est_irt(
+  data    = resp,
+  D       = 1.702,
+  model   = c(rep("2PLM", 15), rep("GRM", 5)),
+  cats    = c(rep(2, 15), rep(4, 5)),
+  item.id = c(paste0("D", 1:15), paste0("P", 1:5)),
+  EmpHist = FALSE,
+  Etol    = 0.001,
+  MaxE    = 300,
+  se      = TRUE,
+  verbose = FALSE
+)
+
+# Summarize calibration results
+summary(mod)
+
+# Extract estimated item parameters
+est_par <- getirt(mod, what = "par.est")
+head(est_par)
+```
+
+```{r workflow-score}
+# ---- Step 4: Estimate examinee abilities with EAP ----
+scores <- est_score(
+  x      = est_par,      # use calibrated parameters
+  data   = resp,
+  D      = 1.702,
+  method = "EAP"
+)
+
+head(scores$est.theta)   # EAP point estimates
+head(scores$se.theta)    # posterior standard deviations
+```
+
+```{r workflow-recovery, fig.width=7, fig.height=4}
+# ---- Step 5: Evaluate ability recovery ----
+r <- cor(scores$est.theta, theta_true)
+
+plot(theta_true, scores$est.theta,
+     xlab  = expression("True ability (" * theta * ")"),
+     ylab  = "EAP estimate",
+     main  = paste0("Ability Recovery  (r = ", round(r, 3), ")"),
+     pch   = 16, col = rgb(0, 0, 0, 0.25), cex = 0.8)
+abline(0, 1, col = "red", lwd = 2, lty = 2)
+grid()
+```
+
+High correlation ($r > 0.9$) between EAP estimates and the true simulated abilities
+confirms that the item calibration and scoring steps are working correctly.
+
+---
+
+## What's Next?
+
+Now that you understand irtQ's item metadata structure and the supported IRT models,
+you are ready to explore each analysis in depth:
+
+| Topic | Vignette | Key Functions |
+|-------|----------|---------------|
+| Item parameter estimation | `vignette("item-parameter-estimation")` | `est_irt()`, `est_mg()`, `est_item()` |
+| Ability estimation | `vignette("ability-estimation")` | `est_score()` |
+| Model–data fit | `vignette("model-fit-evaluation")` | `irtfit()`, `sx2_fit()` |
+| DIF detection | `vignette("dif-detection")` | `rdif()`, `grdif()`, `catsib()` |
+| Classification accuracy | `vignette("classification-analysis")` | `cac_lee()`, `cac_rud()` |
+| Utilities | `vignette("utilities")` | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()` |
+| MST panel evaluation | `vignette("mst-panel-evaluation")` | `reval_mst()` |
+
+---
+
+## References

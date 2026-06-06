@@ -1,0 +1,551 @@
+---
+title: "Classification Accuracy and Consistency"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Classification Accuracy and Consistency}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Overview
+
+In many testing contexts, test scores are used to assign examinees to performance
+categories — for example, pass/fail decisions or placement into proficiency levels.
+Two indices quantify the quality of such classification decisions:
+
+- **Classification Accuracy (CA)**: the probability that an examinee is correctly
+  classified based on their *true* latent ability.
+- **Classification Consistency (CC)**: the probability that the same classification
+  would result from two independent administrations of the same test.
+
+Both indices are essential for supporting valid score interpretations in high-stakes
+settings. Because data from repeated test administrations are rarely available,
+single-administration estimation procedures based on IRT models are commonly used.
+
+**irtQ** implements two IRT-based estimation methods:
+
+| Function    | Method                                              | Cut-score scale          |
+|-------------|-----------------------------------------------------|--------------------------|
+| `cac_lee()` | @lee2010 — conditional summed-score distribution    | Observed score or theta  |
+| `cac_rud()` | @rudner2001; @rudner2005 — normal approximation via test information function (TIF) | Theta scale only     |
+
+Both functions support two estimation approaches:
+
+- **D-method (distribution-based)**: integrates conditional indices over a
+  population ability distribution specified by quadrature points and weights.
+  This approach is appropriate when the empirical ability distribution (e.g.,
+  posterior quadrature weights from IRT calibration) is available.
+- **P-method (person-based)**: averages conditional indices over individual
+  ability estimates from a sample of examinees.
+
+Both functions return a list with five elements:
+
+- `$confusion`: a confusion matrix (rows = true level, columns = expected level),
+- `$marginal`: a data frame of marginal CA and CC indices per performance level
+  plus an overall marginal row,
+- `$conditional`: a data frame of conditional CA and CC for each theta (or node),
+- `$prob.level`: a data frame of the probability of being assigned to each level
+  for each theta (or node),
+- `$cutscore`: the cut scores used in the analysis (on the observed score scale).
+
+```{r load-pkg}
+library(irtQ)
+set.seed(2026)
+```
+
+---
+
+## Setup: Common Item Metadata and Response Data
+
+We use two test forms throughout this vignette.
+
+### Binary test (20 items, 3PLM)
+
+A 20-item dichotomous test calibrated under the three-parameter logistic model (3PLM).
+
+```{r setup-binary}
+meta_bin <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 0.9, 1.1, 1.3, 0.7, 1.0, 1.2,
+          0.9, 1.1, 1.4, 0.85, 1.0, 1.2, 0.8, 1.1, 1.3, 0.9),
+    b = c(-2.0, -1.5, -1.0, -0.6, -0.2, 0.0, 0.4, 0.8, 1.1, 1.5,
+          -1.3, -0.4,  0.5,  1.0,  1.8, -0.8, 0.2, 0.7, -1.1, 1.3),
+    g = rep(0.15, 20)
+  ),
+  item.id = paste0("ITEM", 1:20),
+  cats    = 2,
+  model   = "3PLM"
+)
+
+theta_bin <- rnorm(1000, mean = 0, sd = 1)
+resp_bin  <- simdat(x = meta_bin, theta = theta_bin, D = 1.702)
+```
+
+```{r calibrate-binary, cache=FALSE}
+mod_bin <- est_irt(
+  data       = resp_bin,
+  D          = 1.702,
+  model      = "3PLM",
+  cats       = 2,
+  item.id    = paste0("ITEM", 1:20),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  verbose    = FALSE
+)
+meta_cal_bin <- mod_bin$par.est
+
+# ML ability estimates (needed for the P-method)
+score_bin <- est_score(
+  x      = meta_cal_bin,
+  data   = resp_bin,
+  D      = 1.702,
+  method = "ML",
+  range  = c(-5, 5),
+  se     = TRUE
+)
+```
+
+### Mixed-format test (15 × 3PLM + 5 × GRM, 4 categories)
+
+A mixed-format test combining 15 dichotomous (3PLM) and 5 polytomous items
+(Graded Response Model, GRM; 4 ordered categories). The maximum possible
+observed summed score is $15 \times 1 + 5 \times 3 = 30$.
+
+```{r setup-mixed}
+meta_mix <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.9, 1.1, 0.8, 1.3, 1.0, 0.9, 1.1, 1.2,
+          0.85, 1.1, 1.3, 0.9, 1.0),
+    b = c(-1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 0.8, 1.1, 1.4, -1.2,
+          -0.4,  0.1,  0.6,  1.0, -0.8),
+    g = rep(0.15, 15)
+  ),
+  par.prm = list(
+    a = c(1.5, 1.2, 1.0, 1.3, 0.9),
+    d = list(
+      c(-1.5, -0.3,  0.9),
+      c(-1.2,  0.0,  1.1),
+      c(-0.9,  0.4,  1.4),
+      c(-1.1, -0.1,  1.0),
+      c(-1.3,  0.3,  1.2)
+    )
+  ),
+  item.id = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  cats    = c(rep(2, 15), rep(4, 5)),
+  model   = c(rep("3PLM", 15), rep("GRM", 5))
+)
+
+theta_mix <- rnorm(1000, mean = 0, sd = 1)
+resp_mix  <- simdat(x = meta_mix, theta = theta_mix, D = 1.702)
+```
+
+```{r calibrate-mixed, cache=FALSE}
+mod_mix <- est_irt(
+  data       = resp_mix,
+  D          = 1.702,
+  model      = c(rep("3PLM", 15), rep("GRM", 5)),
+  cats       = c(rep(2, 15), rep(4, 5)),
+  item.id    = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  verbose    = FALSE
+)
+meta_cal_mix <- mod_mix$par.est
+
+# ML ability estimates
+score_mix <- est_score(
+  x      = meta_cal_mix,
+  data   = resp_mix,
+  D      = 1.702,
+  method = "ML",
+  range  = c(-5, 5),
+  se     = TRUE
+)
+```
+
+### Shared quadrature grid
+
+Both methods use the same quadrature grid for D-method examples.
+
+```{r quad-grid}
+quad_nodes   <- seq(-4, 4, by = 0.25)
+quad_weights <- gen.weight(dist = "norm", mu = 0, sigma = 1, theta = quad_nodes)
+```
+
+---
+
+## Part 1: Lee's Method — `cac_lee()`
+
+### Method overview
+
+@lee2010 proposed a general IRT framework for estimating CA and CC indices from
+a single test administration. The method can be applied to tests consisting of
+dichotomous items, polytomous items, or a mixture of both.
+
+The key quantity is the **conditional summed-score distribution**, $\Pr(X = x \mid \theta)$,
+computed using the Lord–Wingersky recursive algorithm [@lord_wingersky1984; @kolen_brennan2004].
+This distribution gives the probability that an examinee with ability $\theta$ obtains
+each possible observed summed score $x$.
+
+**Cut scores** partition the range of observed summed scores into $K$ performance
+levels. The probability that an examinee at ability $\theta$ is assigned to level $k$
+is:
+$$
+p_\theta(k) = \sum_{x \in \text{level } k} \Pr(X = x \mid \theta).
+$$
+
+The **conditional CA index** is defined as the probability that the examinee is
+correctly classified, that is, assigned to the level that matches their true performance
+level $\eta(\theta)$:
+$$
+\gamma_\theta = p_\theta(\eta(\theta)).
+$$
+The true performance level $\eta(\theta)$ is determined by comparing the expected
+summed score at $\theta$ to the true cut scores.
+
+The **conditional CC index** is defined as the probability that two independent
+test administrations yield the same classification decision:
+$$
+\phi_\theta = \sum_{k=1}^{K} p_\theta(k)^2.
+$$
+
+**Marginal** CA and CC indices are obtained by integrating the conditional indices
+over the ability distribution $g(\theta)$:
+$$
+\gamma = \int_{-\infty}^{\infty} \gamma_\theta \, g(\theta) \, d\theta, \qquad
+\phi   = \int_{-\infty}^{\infty} \phi_\theta   \, g(\theta) \, d\theta.
+$$
+
+If cut scores are specified on the **theta scale** (i.e., `cut.obs = FALSE`), they
+are internally converted to the observed summed-score scale using the Test
+Characteristic Curve (TCC): $E(X \mid \theta^*) = \sum_i \sum_j j \, \Pr(U_i = j \mid \theta^*)$.
+
+where:
+- $X$ is the total observed summed score across the entire test.
+- $\theta^*$ is a specific cut score specified on the latent ability scale.
+- $i$ is the index for items ($i = 1, 2, \dots, N$, where $N$ is the total number of items).
+- $j$ is the index for the item score categories ($j = 0, 1, \dots, K_i - 1$, where $K_i$ is the number of response categories for item $i$). For dichotomous items, $j \in \{0, 1\}$.
+- $U_i$ is the item response random variable for item $i$.
+- $\Pr(U_i = j \mid \theta^*)$ is the probability of obtaining a score category $j$ on item $i$ given the ability level $\theta^*$, which is modeled by a specific IRT item response function (e.g., 3PLM or GRM).
+
+### Key arguments in `cac_lee()`
+
+| Argument   | Description |
+|------------|-------------|
+| `x`        | Item metadata data frame |
+| `cutscore` | Numeric vector of cut scores; defines $K + 1$ performance levels |
+| `weights`  | Two-column matrix of quadrature nodes and weights for D-method (use `gen.weight()`) |
+| `theta`    | Numeric vector of individual ability estimates for P-method |
+| `D`        | Scaling constant — must match the value used during calibration |
+| `cut.obs`  | `TRUE` (default): cut scores on the observed summed-score scale; `FALSE`: on the theta scale (converted internally via TCC) |
+
+Either `theta` or `weights` must be provided (but not both. If both are supplied, 
+`weights` takes priority and the D-method is applied).
+
+---
+
+### Example 1: Binary test with `cac_lee()`
+
+#### (1) D-method: integrate over the population ability distribution
+
+Provide a quadrature grid via `weights`. Use `gen.weight()` to construct weights
+from a parametric distribution.
+
+```{r cac-lee-binary-d}
+# Two cut scores on the observed summed-score scale (range: 0–20)
+# Defines three performance levels: [0,8), [8,14), [14,20]
+cutscore_obs <- c(8, 14)
+
+# D-method: integrate over the N(0,1) quadrature grid
+cac_l_d <- cac_lee(
+  x        = meta_cal_bin,
+  cutscore = cutscore_obs,
+  weights  = quad_weights,     # quadrature grid (D-method)
+  D        = 1.702,
+  cut.obs  = TRUE              # cut scores on observed scale (default)
+)
+
+cac_l_d
+```
+
+The output contains:
+
+- `$confusion`: confusion matrix (rows = true performance level, columns = expected
+  level under CA). The diagonal entries correspond to correct classifications.
+- `$marginal`: marginal CA and CC per level, plus an overall row labelled `"marginal"`.
+- `$cutscore`: the cut scores used (always on the observed summed-score scale).
+
+#### (2) P-method: average over individual ability estimates
+
+Provide individual ML ability estimates via the `theta` argument.
+
+```{r cac-lee-binary-p}
+# P-method: average over individual ML ability estimates
+cac_l_p <- cac_lee(
+  x        = meta_cal_bin,
+  cutscore = cutscore_obs,
+  theta    = score_bin$est.theta,   # individual estimates
+  D        = 1.702,
+  cut.obs  = TRUE
+)
+
+# Confusion matrix (rows = true level, columns = expected level)
+cac_l_p$confusion
+
+# Marginal CA and CC indices
+cac_l_p$marginal
+```
+
+#### (3) Theta-scale cut scores
+
+When cut scores are naturally expressed on the IRT theta scale (e.g., standard-setting
+results), set `cut.obs = FALSE`. The function converts them internally to the
+observed summed-score scale using the TCC before computing CA and CC.
+
+```{r cac-lee-binary-theta}
+# Cut scores on the theta scale
+cutscore_theta <- c(-0.5, 0.8)
+
+cac_l_theta <- cac_lee(
+  x        = meta_cal_bin,
+  cutscore = cutscore_theta,
+  theta    = score_bin$est.theta,
+  D        = 1.702,
+  cut.obs  = FALSE         # cut scores on the theta scale → converted via TCC
+)
+
+# Converted cut scores (now on the observed summed-score scale)
+cac_l_theta$cutscore
+
+# Marginal CA and CC indices
+cac_l_theta$marginal
+```
+
+---
+
+### Example 2: Mixed-format test with `cac_lee()`
+
+For a mixed-format test (dichotomous + polytomous items), the maximum possible
+observed summed score is $\sum_j (K_j - 1)$, where $K_j$ is the number of
+score categories for item $j$. In our test: 15 binary items (max 15) + 5 four-category
+items (max $3 \times 5 = 15$) → max = 30.
+
+```{r cac-lee-mixed}
+# Cut scores on the observed summed-score scale (range: 0–30)
+cutscore_mix <- c(10, 22)
+
+# D-method
+cac_l_mix_d <- cac_lee(
+  x        = meta_cal_mix,
+  cutscore = cutscore_mix,
+  weights  = quad_weights,
+  D        = 1.702,
+  cut.obs  = TRUE
+)
+cac_l_mix_d
+
+# P-method
+cac_l_mix_p <- cac_lee(
+  x        = meta_cal_mix,
+  cutscore = cutscore_mix,
+  theta    = score_mix$est.theta,
+  D        = 1.702,
+  cut.obs  = TRUE
+)
+cac_l_mix_p$marginal
+```
+
+---
+
+## Part 2: Rudner's Method — `cac_rud()`
+
+### Method overview
+
+@rudner2001 and @rudner2005 proposed a simpler approach based on the assumption
+that IRT ability estimates are normally distributed around the true ability:
+$$
+\hat{\theta} \mid \theta \sim N\!\left(\theta,\; \mathrm{SE}^2(\theta)\right),
+$$
+where $\mathrm{SE}(\theta) = 1 / \sqrt{I(\theta)}$ is the standard error of estimation
+derived from the TIF.
+
+Under this assumption, the probability that an examinee with true ability $\theta$
+obtains an ability estimate falling in the cut-score interval $[c_{k-1}, c_k)$ is:
+$$
+p_\theta(k) = \Phi\!\left(\frac{c_k - \theta}{\mathrm{SE}(\theta)}\right)
+            - \Phi\!\left(\frac{c_{k-1} - \theta}{\mathrm{SE}(\theta)}\right),
+$$
+where $\Phi(\cdot)$ is the standard normal cumulative distribution function, and
+the boundary cut scores are $c_0 = -\infty$ and $c_K = +\infty$.
+
+Conditional CA and CC are then computed in the same way as in Lee's method:
+$$
+\gamma_\theta = p_\theta(\eta(\theta)), \qquad
+\phi_\theta = \sum_{k=1}^{K} p_\theta(k)^2,
+$$
+and marginal indices are obtained by averaging over the ability distribution.
+
+> **Important**: Unlike `cac_lee()`, cut scores for `cac_rud()` must **always** be
+> specified on the **IRT theta scale** (not the observed summed-score scale).
+
+Standard errors can be supplied in two ways:
+
+1. Pass item metadata via `x` — the function computes SE from the TIF internally.
+2. Pass a pre-computed SE vector via `se` (same length as `theta` for P-method,
+   or same length as the number of quadrature nodes for D-method).
+
+Either `x` or `se` must be provided.
+
+### Key arguments in `cac_rud()`
+
+| Argument   | Description |
+|------------|-------------|
+| `x`        | Item metadata data frame (optional if `se` is provided; used to compute SE from TIF) |
+| `cutscore` | Numeric vector of cut scores on the **theta scale** |
+| `theta`    | Numeric vector of individual ability estimates (P-method) |
+| `se`       | Numeric vector of standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
+| `weights`  | Two-column matrix of quadrature nodes and weights (D-method) |
+| `D`        | Scaling constant |
+
+---
+
+### Example 3: Binary test with `cac_rud()`
+
+#### (1) D-method: SE computed from item metadata
+
+```{r cac-rud-binary-d}
+# Cut scores on the theta scale (matching the metric used in cac_lee theta examples)
+cutscore_th <- c(-0.5, 0.8)
+
+# D-method: SE computed internally from the TIF using item metadata
+cac_r_d <- cac_rud(
+  x        = meta_cal_bin,     # item metadata → SE via TIF
+  cutscore = cutscore_th,
+  weights  = quad_weights,
+  D        = 1.702
+)
+
+cac_r_d
+```
+
+#### (2) P-method: individual ability estimates + SE from item metadata
+
+When individual ability estimates are available, the P-method averages conditional
+indices over the sample of examinees.
+
+```{r cac-rud-binary-p}
+# P-method: SE computed internally from item metadata
+cac_r_p <- cac_rud(
+  x        = meta_cal_bin,          # SE computed from TIF
+  cutscore = cutscore_th,
+  theta    = score_bin$est.theta,   # individual ML estimates
+  D        = 1.702
+)
+
+# Alternatively, supply ML-based standard errors directly:
+cac_r_p2 <- cac_rud(
+  cutscore = cutscore_th,
+  theta    = score_bin$est.theta,
+  se       = score_bin$se.theta     # individual SEs from ML scoring
+)
+
+# Confusion matrix
+cac_r_p$confusion
+cac_r_p2$confusion
+
+# Marginal CA and CC indices
+cac_r_p$marginal
+cac_r_p2$marginal
+```
+
+Note that `cac_r_p` and `cac_r_p2` yield **nearly** identical results because ML-based SEs 
+are theoretically equivalent to $1/\sqrt{I(\hat\theta)}$. **However, slight discrepancies 
+may occur in practice due to how extreme boundary values are handled.** When using `est_score()` 
+with ML estimation, the SEs for extreme ability estimates (e.g., artificially bounded 
+at -5 or 5 for all-correct or all-incorrect responses)are internally capped at an arbitrary 
+large value (e.g., 99.99999) to prevent computational errors. In contrast, computing 
+the SE internally from the test information function (TIF) using `cac_rud()` calculates 
+the exact analytical value at those bounded thetas. Therefore, if the sample includes 
+examinees with extreme scores, minor differences in the final marginal indices might be observed.
+
+---
+
+### Example 4: Mixed-format test with `cac_rud()`
+
+```{r cac-rud-mixed}
+# Cut scores on the theta scale
+cutscore_th_mix <- c(-0.5, 0.7)
+
+# D-method
+cac_r_mix_d <- cac_rud(
+  x        = meta_cal_mix,
+  cutscore = cutscore_th_mix,
+  weights  = quad_weights,
+  D        = 1.702
+)
+cac_r_mix_d
+
+# P-method
+cac_r_mix_p <- cac_rud(
+  x        = meta_cal_mix,
+  cutscore = cutscore_th_mix,
+  theta    = score_mix$est.theta,
+  D        = 1.702
+)
+cac_r_mix_p$marginal
+```
+
+---
+
+## Comparing Lee's and Rudner's Methods
+
+```{r method-compare}
+# Side-by-side comparison of marginal CA and CC (binary test, P-method)
+cat("=== Lee's method (P-method) ===\n")
+print(cac_l_p$marginal)
+
+cat("\n=== Rudner's method (P-method, SE from TIF) ===\n")
+print(cac_r_p$marginal)
+```
+
+The two methods share the same conceptual framework — both estimate CA and CC
+by computing, for each ability level, the probabilities of being assigned to each
+performance category — but differ in how they model the conditional score distribution
+and what metric the cut scores operate on:
+
+| Aspect | Lee (2010) | Rudner (2001, 2005) |
+|--------|-----------|---------------------|
+| Cut-score metric | Observed summed score (or theta, converted via TCC) | Theta scale only |
+| Conditional distribution | Exact conditional summed-score distribution via Lord–Wingersky recursion | Normal approximation: $\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)$ |
+| SE source | Implicit (via IRT-based score distribution) | Explicit: $\text{SE}(\theta) = 1/\sqrt{I(\theta)}$ |
+| Typical CA/CC values | Generally similar to Rudner's method when IRT fits well | Generally similar to Lee's method when IRT fits well |
+
+**Practical guidance:**
+
+- Use **`cac_lee()`** when cut scores are defined on the observed summed-score scale
+  (e.g., raw scores such as 70 out of 100), or when the exact conditional score
+  distribution is desired. This method is the more rigorous of the two and is
+  applicable to mixed-format assessments with any combination of IRT models.
+- Use **`cac_rud()`** when cut scores are expressed on the theta (ability) scale,
+  or when standard errors from ability estimation are already available. This method
+  is simpler to implement and produces results very similar to Lee's method when
+  the normality assumption for ability estimates is reasonable.
+
+---
+
+## References

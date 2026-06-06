@@ -1,0 +1,569 @@
+---
+title: "Ability Estimation"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Ability Estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Overview
+
+After item calibration, `est_score()` estimates examinee latent ability ($\theta$)
+from item response data. The **irtQ** package supports two broad categories of
+IRT scoring method, which differ in the information they use from the response data.
+
+### IRT Pattern-Based Scoring
+
+Pattern-based scoring uses each examinee's *full item-response pattern* — the
+complete vector of correct/incorrect (or polytomous) responses across all items —
+to estimate $\theta$. Because it conditions on the individual responses rather than
+only their sum, pattern-based scoring can distinguish examinees who have the same
+total score but answered different items correctly. In principle, this makes better
+use of the available measurement information [@kolen_tong_2010].
+
+Under the assumption of local independence, the likelihood of an observed response
+pattern $\mathbf{U} = (u_1, u_2, \ldots, u_n)$ given ability $\theta$ is
+
+$$L(\theta \mid \mathbf{U}) = \prod_{i=1}^{n} P(U_i = u_i \mid \theta),$$
+
+where $P(U_i = u_i \mid \theta)$ is the category characteristic function for item $i$.
+The different pattern-based methods use this likelihood in different ways:
+
+| Method | Key | Description |
+|--------|-----|-------------|
+| Maximum Likelihood (ML) | `"ML"` | Finds the $\theta$ maximising $L(\theta \mid \mathbf{U})$. Unbiased in large samples but undefined for all-correct or all-incorrect response patterns [@kolen_tong_2010]. |
+| ML with Fences (MLF) | `"MLF"` | Augments the likelihood with imaginary "fence" items (a lower fence with a fixed correct response and an upper fence with a fixed incorrect response) to resolve the boundary-score problem while avoiding the shrinkage of Bayesian methods [@han2016]. |
+| Weighted Likelihood (WL) | `"WL"` | Multiplies the likelihood by a weighting function derived from the square root of test information before maximizing, yielding estimates that are nearly unbiased to order $O(n^{-1})$ — substantially less biased than both ML and Bayesian modal estimation over the full $\theta$ scale [@warm1989]. |
+| Maximum A Posteriori (MAP) | `"MAP"` | Returns the mode of the posterior $p(\theta \mid \mathbf{U}) \propto L(\theta \mid \mathbf{U})\,g(\theta)$, where $g(\theta)$ is a normal prior. Handles boundary scores but shrinks estimates toward the prior mean. |
+| Expected A Posteriori (EAP) | `"EAP"` | Returns the mean of the posterior distribution via Gaussian quadrature integration over $\theta$. Also handles boundary scores; has the smallest conditional error variance among pattern-based methods but introduces the most shrinkage [@kolen_tong_2010]. |
+
+A key practical limitation of plain ML is that it yields no finite solution when
+all responses to the scored items are correct or all are incorrect (perfect and
+zero scores). MLF, WL, MAP, and EAP all handle these boundary patterns, each
+through a different mechanism [@han2016].
+
+### IRT Summed-Score Scoring
+
+Summed-score methods map each possible *raw total score*
+$X_s = \sum_{i=1}^{n} U_i$ to a $\theta$ estimate rather than using the
+full response pattern. Because all examinees with the same total score receive
+the same $\theta$ estimate, these methods are transparent and easy for test
+users to understand [@kolen_tong_2010]. In particular, Kolen and Tong [-@kolen_tong_2010]
+note that the statistical difference between summed-score and pattern-score
+estimators is typically smaller in practice than the difference between Bayesian
+and non-Bayesian estimators — so the choice between summed-score and
+pattern-score scoring need not be driven primarily by accuracy concerns.
+
+An important practical consideration when using these methods is the treatment of missing data. While pattern-based scoring methods handle missing responses (`NA`) flexibly by conditioning only on the observed items, summed-score methods (`"EAP.SUM"` and `"INV.TCC"`) automatically treat any missing responses as incorrect (recoded as 0s) to calculate the total raw score.
+
+| Method | Key | Description |
+|--------|-----|-------------|
+| EAP for Summed Scores | `"EAP.SUM"` | Computes the Bayesian EAP estimate $\hat{\theta}_{sEAP} = E(\theta \mid X_s)$ for each possible summed-score value using the Lord–Wingersky recursive algorithm [@thissen1995; @thissen_orlando_2001]. Returns a score table mapping every feasible raw score to a $\theta$ estimate and its SE. |
+| Inverse TCC | `"INV.TCC"` | Solves $\hat{\theta}_{TCF}$ from the test characteristic function (TCF) equation $\tau_s(\theta) = X_s$ numerically. A non-Bayesian estimator that is monotonically related to $X_s$ and does not depend on the prior distribution [@stocking1996; @kolen_tong_2010]. Standard errors are computed using a recursion-based analytical approach [@lim2020]. Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
+
+```{r load-pkg}
+library(irtQ)
+set.seed(2026)
+```
+
+---
+
+## Key `est_score()` Arguments
+
+Before working through the examples, it is helpful to understand the most
+important arguments of `est_score()`:
+
+| Argument | Description |
+|----------|-------------|
+| `x` | An `est_irt` object (from `irtQ::est_irt()`), or a data frame of item metadata. When an `est_irt` object is provided, the response data embedded in it are used automatically. |
+| `data` | Response matrix (rows = examinees, columns = items). **Required** when `x` is a metadata data frame rather than an `est_irt` object. |
+| `D` | IRT scaling constant. Use `1` for the logistic metric or `1.702` to approximate the normal-ogive metric. |
+| `method` | Scoring method: `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`. |
+| `range` | `c(lower, upper)` bounding the ability scale for iterative methods (`"ML"`, `"MLF"`, `"WL"`, `"MAP"`). Default `c(-5, 5)`. |
+| `norm.prior` | `c(mean, sd)` of the normal prior distribution used by `"MAP"`, `"EAP"`, and `"EAP.SUM"`. Default `c(0, 1)`. |
+| `nquad` | Number of Gaussian quadrature points for numerical integration (used by `"EAP"` and `"EAP.SUM"`). Default `41`. |
+| `fence.a` | Discrimination parameter of the virtual fence items added in `"MLF"`. Default `3`. |
+| `fence.b` | Location of the fence items on the $\theta$ scale in `"MLF"`. Defaults to the `range` bounds when `NULL`. |
+| `tol` | Convergence tolerance for iterative methods. Default `1e-4`. |
+| `max.iter` | Maximum Newton–Raphson iterations. Default `100`. |
+| `se` | Logical; compute standard errors? Always returned for `"EAP.SUM"` and `"INV.TCC"`. Default `TRUE`. |
+| `intpol` | Logical; apply linear interpolation in `"INV.TCC"` for extreme scores? Default `TRUE`. |
+| `range.tcc` | Ability range used for the `"INV.TCC"` interpolation grid. Default `c(-7, 7)`. |
+
+**Return values** differ by method:
+
+- `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, `"EAP"`: a two-column data frame with columns `est.theta` and `se.theta` (one row per examinee).
+- `"EAP.SUM"`, `"INV.TCC"`: a list with two elements — `$est.par` (examinee-level estimates including observed sum scores) and `$score.table` (the complete raw-score-to-$\theta$ mapping table).
+
+---
+
+## Setup: Shared Data for All Examples
+
+### Mixed-Format Test (15 Dichotomous + 10 Polytomous Items)
+
+We define a 25-item test (15 dichotomous 3PLM items + 10 polytomous GRM items
+with 4 categories) and simulate responses from 800 examinees. This dataset is
+used in the **Part 1** and **Part 2** examples for the mixed-format test.
+
+```{r setup-mixed}
+# --- Item metadata: 15 3PLM + 10 GRM items ---
+meta_mixed <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 0.9, 1.1, 1.3, 0.7, 1.0, 1.2,
+          0.9, 1.1, 1.4, 0.85, 1.0),
+    b = c(-2.0, -1.5, -1.0, -0.6, -0.2, 0.0, 0.4, 0.8, 1.1, 1.5,
+          -1.3, -0.4,  0.5, 1.0,  1.8),
+    g = rep(0.15, 15)
+  ),
+  par.prm = list(
+    a = c(1.5, 1.2, 1.0, 1.3, 0.9, 1.1, 0.8, 1.4, 1.2, 1.0),
+    d = list(
+      c(-1.5, -0.3,  0.9),
+      c(-1.2,  0.0,  1.1),
+      c(-0.9,  0.4,  1.4),
+      c(-1.1, -0.1,  1.0),
+      c(-1.3,  0.3,  1.2),
+      c(-0.8,  0.5,  1.5),
+      c(-1.0,  0.1,  0.9),
+      c(-1.4, -0.2,  1.1),
+      c(-0.7,  0.6,  1.3),
+      c(-1.2,  0.0,  1.0)
+    )
+  ),
+  item.id = c(paste0("BI", 1:15), paste0("PI", 1:10)),
+  cats    = c(rep(2, 15), rep(4, 10)),
+  model   = c(rep("3PLM", 15), rep("GRM", 10))
+)
+
+# --- Simulate 800 examinees from N(0, 1) ---
+theta_mixed <- rnorm(800, mean = 0, sd = 1)
+resp_mixed  <- simdat(x = meta_mixed, theta = theta_mixed, D = 1.702)
+
+dim(resp_mixed)   # 800 examinees × 25 items
+```
+
+### Dichotomous-Only Test (30 Items, 3PLM)
+
+For examples where a simpler, purely dichotomous test is informative — particularly
+for summed-score scoring methods where the score table is easiest to interpret —
+we additionally prepare a 30-item test with 3PLM items.
+
+```{r setup-dich}
+# --- Item metadata: 30 3PLM items ---
+meta_dich <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 0.9, 1.1, 1.3, 0.7, 1.0, 1.2,
+          0.9, 1.1, 1.4, 0.85, 1.0, 1.2, 0.8, 1.3, 1.0, 0.9,
+          1.1, 1.3, 0.8, 1.0, 1.2, 0.9, 1.4, 1.1, 0.7, 1.0),
+    b = c(-2.0, -1.5, -1.0, -0.6, -0.2,  0.0,  0.4,  0.8,  1.1,  1.5,
+          -1.3, -0.4,  0.5,  1.0,  1.8, -0.8,  0.2,  0.7, -1.1,  1.3,
+          -1.8, -0.9,  0.3,  1.2, -0.5,  0.6, -1.4,  0.1,  0.9, -0.3),
+    g = rep(0.15, 30)
+  ),
+  cats  = rep(2, 30),
+  model = rep("3PLM", 30)
+)
+
+# --- Simulate 500 examinees from N(0, 1) ---
+theta_dich <- rnorm(500, mean = 0, sd = 1)
+resp_dich  <- simdat(x = meta_dich, theta = theta_dich, D = 1.702)
+
+dim(resp_dich)   # 500 examinees × 30 items
+```
+
+---
+
+## Part 1: IRT Pattern-Based Scoring
+
+This section demonstrates all five pattern-based methods. For each method,
+examples are shown for both the **mixed-format test** and the
+**dichotomous-only test**.
+
+### ML — Maximum Likelihood
+
+ML estimation finds the $\theta$ that maximizes the log-likelihood of the observed
+response pattern. It does not use a prior distribution, making it purely
+data-driven. A `range` bound is required to prevent $|\hat{\theta}| \to \infty$
+for all-correct or all-incorrect response patterns [@kolen_tong_2010].
+
+```{r score-ml-mixed}
+# --- Mixed-format test (3PLM + GRM) ---
+score_ml_mixed <- est_score(
+  x        = meta_mixed,
+  data     = resp_mixed,
+  D        = 1.702,
+  method   = "ML",
+  range    = c(-5, 5),
+  tol      = 0.0001,
+  max.iter = 100,
+  se       = TRUE
+)
+
+head(score_ml_mixed)
+```
+
+```{r score-ml-dich}
+# --- Dichotomous-only test (30 3PLM items) ---
+score_ml_dich <- est_score(
+  x        = meta_dich,
+  data     = resp_dich,
+  D        = 1.702,
+  method   = "ML",
+  range    = c(-5, 5),
+  tol      = 0.0001,
+  max.iter = 100,
+  se       = TRUE
+)
+
+head(score_ml_dich)
+```
+
+### MLF — ML with Fences (Han, 2016)
+
+MLF adds imaginary "fence" items with fixed responses at both ends of the
+$\theta$ scale. This makes the log-likelihood unimodal, eliminating the
+boundary-score problem of plain ML while producing estimates that are not
+shrunk toward a prior mean — unlike MAP or EAP [@han2016].
+
+```{r score-mlf-mixed}
+# --- Mixed-format test ---
+score_mlf_mixed <- est_score(
+  x        = meta_mixed,
+  data     = resp_mixed,
+  D        = 1.702,
+  method   = "MLF",
+  range    = c(-5, 5),
+  fence.a  = 3.0,    # discrimination of fence items
+  fence.b  = NULL,   # fence locations default to range bounds
+  se       = TRUE
+)
+
+head(score_mlf_mixed)
+```
+
+```{r score-mlf-dich}
+# --- Dichotomous-only test ---
+score_mlf_dich <- est_score(
+  x        = meta_dich,
+  data     = resp_dich,
+  D        = 1.702,
+  method   = "MLF",
+  range    = c(-5, 5),
+  fence.a  = 3.0,
+  fence.b  = NULL,
+  se       = TRUE
+)
+
+head(score_mlf_dich)
+```
+
+### WL — Weighted Likelihood (Warm, 1989)
+
+WL multiplies the likelihood by a weighting function $w(\theta)$ derived from the
+square root of test information before maximizing. The resulting estimates are
+nearly unbiased to order $O(n^{-1})$ — substantially less biased than both plain
+ML ($O(n^{-1})$ bias with a positive correlation with $\theta$) and Bayesian estimators 
+(also $O(n^{-1})$ but with negative correlation) — across the entire $\theta$
+scale, making WL generally preferable to plain ML when an unbiased non-Bayesian
+estimate is desired [@warm1989].
+
+```{r score-wl-mixed}
+# --- Mixed-format test ---
+score_wl_mixed <- est_score(
+  x        = meta_mixed,
+  data     = resp_mixed,
+  D        = 1.702,
+  method   = "WL",
+  range    = c(-5, 5),
+  se       = TRUE
+)
+
+head(score_wl_mixed)
+```
+
+```{r score-wl-dich}
+# --- Dichotomous-only test ---
+score_wl_dich <- est_score(
+  x        = meta_dich,
+  data     = resp_dich,
+  D        = 1.702,
+  method   = "WL",
+  range    = c(-5, 5),
+  se       = TRUE
+)
+
+head(score_wl_dich)
+```
+
+### MAP — Maximum A Posteriori
+
+MAP incorporates a normal prior $g(\theta)$ and returns the **mode** of the
+posterior distribution. Compared with EAP, MAP shrinks estimates less strongly
+toward the prior mean, and it can still produce estimates outside the bulk of the
+prior when the data are informative enough.
+
+```{r score-map-mixed}
+# --- Mixed-format test ---
+score_map_mixed <- est_score(
+  x          = meta_mixed,
+  data       = resp_mixed,
+  D          = 1.702,
+  method     = "MAP",
+  range      = c(-5, 5),
+  norm.prior = c(0, 1),
+  se         = TRUE
+)
+
+head(score_map_mixed)
+```
+
+```{r score-map-dich}
+# --- Dichotomous-only test ---
+score_map_dich <- est_score(
+  x          = meta_dich,
+  data       = resp_dich,
+  D          = 1.702,
+  method     = "MAP",
+  range      = c(-5, 5),
+  norm.prior = c(0, 1),
+  se         = TRUE
+)
+
+head(score_map_dich)
+```
+
+### EAP — Expected A Posteriori
+
+EAP returns the **mean** of the posterior distribution, integrating over a
+Gaussian quadrature grid. It has the smallest conditional error variance among
+pattern-based estimators, but it introduces the most shrinkage toward the prior
+mean and is sensitive to the choice of prior distribution, particularly for
+short or less reliable tests [@kolen_tong_2010].
+
+```{r score-eap-mixed}
+# --- Mixed-format test ---
+score_eap_mixed <- est_score(
+  x          = meta_mixed,
+  data       = resp_mixed,
+  D          = 1.702,
+  method     = "EAP",
+  norm.prior = c(0, 1),
+  nquad      = 41,
+  se         = TRUE
+)
+
+head(score_eap_mixed)
+```
+
+```{r score-eap-dich}
+# --- Dichotomous-only test ---
+score_eap_dich <- est_score(
+  x          = meta_dich,
+  data       = resp_dich,
+  D          = 1.702,
+  method     = "EAP",
+  norm.prior = c(0, 1),
+  nquad      = 41,
+  se         = TRUE
+)
+
+head(score_eap_dich)
+```
+
+### Comparison: ML vs WL vs MAP vs EAP
+
+The following code computes correlations with the true $\theta$ values and mean
+absolute errors for both datasets, summarising the practical differences among
+the four pattern-based methods.
+
+```{r score-compare-mixed, fig.width=7, fig.height=5}
+# --- Mixed-format test: recovery statistics ---
+cors_mixed <- c(
+  ML  = cor(score_ml_mixed$est.theta,  theta_mixed),
+  WL  = cor(score_wl_mixed$est.theta,  theta_mixed),
+  MAP = cor(score_map_mixed$est.theta, theta_mixed),
+  EAP = cor(score_eap_mixed$est.theta, theta_mixed)
+)
+round(cors_mixed, 4)
+
+mae_mixed <- c(
+  ML  = mean(abs(score_ml_mixed$est.theta  - theta_mixed)),
+  WL  = mean(abs(score_wl_mixed$est.theta  - theta_mixed)),
+  MAP = mean(abs(score_map_mixed$est.theta - theta_mixed)),
+  EAP = mean(abs(score_eap_mixed$est.theta - theta_mixed))
+)
+round(mae_mixed, 4)
+```
+
+```{r score-compare-dich}
+# --- Dichotomous-only test: recovery statistics ---
+cors_dich <- c(
+  ML  = cor(score_ml_dich$est.theta,  theta_dich),
+  WL  = cor(score_wl_dich$est.theta,  theta_dich),
+  MAP = cor(score_map_dich$est.theta, theta_dich),
+  EAP = cor(score_eap_dich$est.theta, theta_dich)
+)
+round(cors_dich, 4)
+
+mae_dich <- c(
+  ML  = mean(abs(score_ml_dich$est.theta  - theta_dich)),
+  WL  = mean(abs(score_wl_dich$est.theta  - theta_dich)),
+  MAP = mean(abs(score_map_dich$est.theta - theta_dich)),
+  EAP = mean(abs(score_eap_dich$est.theta - theta_dich))
+)
+round(mae_dich, 4)
+```
+
+### Providing an `est_irt` Object vs. Separate Metadata
+
+`est_score()` accepts either an `est_irt` object (which embeds the response data
+and item parameters) or item metadata and response data provided separately.
+When an `est_irt` object is passed to the `x` argument, `est_score()` automatically extracts both the item parameters and the embedded response data. This streamlines the post-calibration scoring workflow by eliminating the need to explicitly supply a separate `data` matrix.
+
+Both workflows produce identical results:
+
+```{r score-alt-input}
+# --- Calibrate the mixed-format test first ---
+mod_cal <- est_irt(
+  data       = resp_mixed,
+  D          = 1.702,
+  model      = c(rep("3PLM", 15), rep("GRM", 10)),
+  cats       = c(rep(2, 15), rep(4, 10)),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  Etol       = 0.01,
+  MaxE       = 150,
+  se         = FALSE,
+  verbose    = FALSE
+)
+
+# Score directly from the est_irt object (response data are automatically embedded)
+score_from_obj <- est_score(
+  x          = mod_cal,     # est_irt object
+  method     = "EAP",
+  norm.prior = c(0, 1),
+  nquad      = 41
+)
+
+head(score_from_obj)
+```
+
+---
+
+## Part 2: IRT Summed-Score Scoring
+
+Summed-score methods assign the same $\theta$ estimate to all examinees with the
+same total raw score. They are computationally efficient, straightforward to
+communicate to test users, and — per Kolen and Tong [-@kolen_tong_2010] —
+typically give results that are statistically comparable to pattern-based methods
+when the key choice is between Bayesian and non-Bayesian estimation rather than
+between summed-score and pattern-score approaches.
+
+### EAP.SUM — EAP Based on Summed Scores
+
+`"EAP.SUM"` computes the Bayesian EAP estimate $\hat{\theta}_{sEAP}$ for each
+possible summed-score value using the Lord–Wingersky recursive algorithm
+[@thissen1995; @thissen_orlando_2001], then maps each examinee's observed sum
+score to the corresponding table entry.
+
+#### Mixed-format test
+
+```{r score-eapsum-mixed}
+score_eapsum_mixed <- est_score(
+  x          = meta_mixed,
+  data       = resp_mixed,
+  D          = 1.702,
+  method     = "EAP.SUM",
+  norm.prior = c(0, 1),
+  nquad      = 41
+)
+
+# Individual-level estimates (observed sum score + ability estimate)
+head(score_eapsum_mixed$est.par)
+
+# Score table: every feasible raw score mapped to a theta estimate
+score_eapsum_mixed$score.table
+```
+
+#### Dichotomous-only test
+
+The score table is easiest to interpret for a purely dichotomous test, because the
+possible raw scores are simple number-correct values from 0 to $n$.
+
+```{r score-eapsum-dich}
+score_eapsum_dich <- est_score(
+  x          = meta_dich,
+  data       = resp_dich,
+  D          = 1.702,
+  method     = "EAP.SUM",
+  norm.prior = c(0, 1),
+  nquad      = 41
+)
+
+head(score_eapsum_dich$est.par)
+score_eapsum_dich$score.table
+```
+
+### INV.TCC — Inverse Test Characteristic Curve
+
+`"INV.TCC"` solves numerically for the $\hat{\theta}_{TCF}$ that satisfies
+$\tau_s(\hat{\theta}_{TCF}) = X_s$, where $\tau_s(\theta)$ is the test
+characteristic function [@stocking1996; @kolen_tong_2010]. Because this is a
+non-Bayesian estimator, it does not depend on a prior distribution and the
+resulting scores are monotonically related to raw scores. Linear interpolation
+(`intpol = TRUE`) handles raw scores that fall outside the invertible range of
+the TCC (for example, when 3PLM items have nonzero guessing parameters, a raw
+score equal to the sum of all guessing parameters $g$ cannot be mapped without
+interpolation).
+
+#### Mixed-format test
+
+```{r score-invtcc-mixed}
+score_invtcc_mixed <- est_score(
+  x         = meta_mixed,
+  data      = resp_mixed,
+  D         = 1.702,
+  method    = "INV.TCC",
+  intpol    = TRUE,
+  range.tcc = c(-7, 5)
+)
+
+head(score_invtcc_mixed$est.par)
+score_invtcc_mixed$score.table
+```
+
+#### Dichotomous-only test
+
+```{r score-invtcc-dich}
+score_invtcc_dich <- est_score(
+  x         = meta_dich,
+  data      = resp_dich,
+  D         = 1.702,
+  method    = "INV.TCC",
+  intpol    = TRUE,
+  range.tcc = c(-7, 5)
+)
+
+head(score_invtcc_dich$est.par)
+score_invtcc_dich$score.table
+```
+
+---
+
+## References

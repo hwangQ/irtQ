@@ -1,0 +1,621 @@
+---
+title: "Model-Data Fit Evaluation"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+csl: apa.csl
+vignette: >
+  %\VignetteIndexEntry{Model-Data Fit Evaluation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+## Overview
+
+After item calibration, it is essential to verify that the chosen IRT model
+adequately describes the observed item response data. A misfitting item can
+lead to biased ability and item parameter estimates, which in turn jeopardize
+the validity of test score interpretations and downstream applications such as
+equating and CAT [@ames_etal2015].
+
+**irtQ** provides two complementary sets of item-level fit tools:
+
+| Function | Statistics | Conditioning variable |
+|----------|-----------|----------------------|
+| `irtfit()` | $\chi^2$, $G^2$, infit, outfit | Estimated $\hat{\theta}$ (ability bins) |
+| `sx2_fit()` | $S$-$X^2$ [@orlando_thissen2000; @orlando_thissen2003; @kang_chen2008] | Observed summed score |
+
+Both functions accept either an `est_irt` object (produced by `est_irt()`) or
+a plain item metadata data frame as their first argument `x`, and both support
+mixed-format tests containing dichotomous and polytomous items.
+
+```{r load-pkg}
+library(irtQ)
+set.seed(2026)
+```
+
+---
+
+## Setup: Calibrated Data for All Examples
+
+We define two test forms — a binary-only test and a mixed-format test — and
+calibrate each so we have item parameters and ability estimates to pass to the
+fit functions throughout this vignette.
+
+### Binary test (20 items, 3PLM)
+
+```{r setup-binary}
+# True item parameters
+meta_bin <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.8, 1.4, 0.9, 1.1, 1.3, 0.7, 1.0, 1.2,
+          0.9, 1.1, 1.4, 0.85, 1.0, 1.2, 0.8, 1.1, 1.3, 0.9),
+    b = c(-2.0, -1.5, -1.0, -0.6, -0.2, 0.0, 0.4, 0.8, 1.1, 1.5,
+          -1.3, -0.4,  0.5,  1.0,  1.8, -0.8, 0.2, 0.7, -1.1, 1.3),
+    g = rep(0.15, 20)
+  ),
+  item.id = paste0("ITEM", 1:20),
+  cats    = 2,
+  model   = "3PLM"
+)
+
+# Simulate 1000 examinees from N(0, 1)
+theta_bin <- rnorm(1000, mean = 0, sd = 1)
+resp_bin  <- simdat(x = meta_bin, theta = theta_bin, D = 1.702)
+```
+
+```{r calibrate-binary, cache=FALSE}
+# Calibrate item parameters
+mod_bin <- est_irt(
+  data       = resp_bin,
+  D          = 1.702,
+  model      = "3PLM",
+  cats       = 2,
+  item.id    = paste0("ITEM", 1:20),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  verbose    = FALSE
+)
+meta_cal_bin <- mod_bin$par.est
+
+# ML ability estimates (required by irtfit())
+score_bin <- est_score(
+  x      = meta_cal_bin,
+  data   = resp_bin,
+  D      = 1.702,
+  method = "ML",
+  range  = c(-5, 5)
+)
+```
+
+### Mixed-format test (15 items 3PLM + 5 items GRM, 4 categories)
+
+```{r setup-mixed}
+meta_mix <- shape_df(
+  par.drm = list(
+    a = c(1.0, 1.2, 0.9, 1.1, 0.8, 1.3, 1.0, 0.9, 1.1, 1.2,
+          0.85, 1.1, 1.3, 0.9, 1.0),
+    b = c(-1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 0.8, 1.1, 1.4, -1.2,
+          -0.4,  0.1,  0.6,  1.0, -0.8),
+    g = rep(0.15, 15)
+  ),
+  par.prm = list(
+    a = c(1.5, 1.2, 1.0, 1.3, 0.9),
+    d = list(
+      c(-1.5, -0.3,  0.9),
+      c(-1.2,  0.0,  1.1),
+      c(-0.9,  0.4,  1.4),
+      c(-1.1, -0.1,  1.0),
+      c(-1.3,  0.3,  1.2)
+    )
+  ),
+  item.id = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  cats    = c(rep(2, 15), rep(4, 5)),
+  model   = c(rep("3PLM", 15), rep("GRM", 5))
+)
+
+theta_mix <- rnorm(1000, mean = 0, sd = 1)
+resp_mix  <- simdat(x = meta_mix, theta = theta_mix, D = 1.702)
+```
+
+```{r calibrate-mixed, cache=FALSE}
+mod_mix <- est_irt(
+  data       = resp_mix,
+  D          = 1.702,
+  model      = c(rep("3PLM", 15), rep("GRM", 5)),
+  cats       = c(rep(2, 15), rep(4, 5)),
+  item.id    = c(paste0("DRM", 1:15), paste0("GRM", 1:5)),
+  use.gprior = TRUE,
+  gprior     = list(dist = "beta", params = c(4, 16)),
+  EmpHist    = FALSE,
+  verbose    = FALSE
+)
+meta_cal_mix <- mod_mix$par.est
+
+# EAP ability estimates
+score_mix <- est_score(
+  x          = meta_cal_mix,
+  data       = resp_mix,
+  D          = 1.702,
+  method     = "EAP",
+  norm.prior = c(0, 1),
+  nquad      = 41
+)
+```
+
+---
+
+## Part 1: Traditional Fit Statistics with `irtfit()`
+
+### How `irtfit()` Works
+
+`irtfit()` computes four classical item-level fit statistics by grouping
+examinees into ability bins and comparing the *observed* response frequencies
+in each bin with the *expected* frequencies predicted by the calibrated item
+response function (IRF).
+
+All statistics are built on the same underlying **individual-level residual**:
+
+$$r_{ni} = x_{ni} - P_{ni}(\hat{\theta})$$
+
+where $x_{ni}$ is examinee $n$'s scored response to item $i$ and
+$P_{ni}(\hat{\theta})$ is the IRF-predicted probability of that response at
+the examinee's estimated ability [@ames_etal2015].
+
+The four statistics differ in how they aggregate these residuals:
+
+**$\chi^2$ and $G^2$ — Group-based statistics**
+
+> **Note.** The formulas below are presented for **dichotomous items** (scored 0/1)
+> for clarity. The same group-based framework extends to polytomous items by
+> replacing the binary response with category-specific observed and expected
+> frequencies, but the dichotomous form is the standard reference in the
+> literature [@ames_etal2015].
+
+Examinees are first sorted into $H$ ability bins. Within each bin $h$:
+
+$$\chi^2 = \sum_{h=1}^{H} \frac{N_h (\bar{x}_h - \bar{P}_h)^2}{\bar{P}_h(1-\bar{P}_h)}, \qquad
+G^2 = 2\sum_{h=1}^{H} \left[ r_h \ln\frac{r_h}{N_h \bar{P}_h} + (N_h - r_h)\ln\frac{N_h - r_h}{N_h(1-\bar{P}_h)} \right]$$
+
+where $N_h$ is the number of examinees in bin $h$, $r_h$ is the observed
+number of correct responses, $\bar{x}_h$ is the observed proportion correct,
+and $\bar{P}_h$ is the model-predicted expected proportion correct in that bin.
+
+- $\chi^2$ follows @bock1960 and @yen1981. Its degrees of freedom equal the
+  number of ability bins minus the number of item parameters, $df = H - p$
+  [@ames_etal2015].
+- $G^2$ follows @mckinley_mills1985. Its degrees of freedom equal the number
+  of ability bins, $df = H$ [@ames_etal2015].
+
+> **Extension to polytomous items:** For items with $K$ response categories, the degrees of freedom are extended to account for the multiple categories. The $\chi^2$ statistic has $df = H \times (K - 1) - p$, and the $G^2$ statistic has $df = H \times (K - 1)$, where $H$ is the final number of ability bins after any necessary cell collapsing.
+
+> **Key difference between $\chi^2$ and $G^2$ df:** For the $\chi^2$ statistic,
+> the number of estimated item parameters is subtracted from the df (e.g., for a
+> 3PLM item with $H = 11$ bins, $df = 11 - 3 = 8$). For $G^2$, no such
+> subtraction is made ($df = H = 11$). This means $G^2$ uses more degrees of
+> freedom and tends to be more conservative.
+
+**Infit and Outfit — Individual-level statistics**
+
+Both infit and outfit treat *each examinee* as a separate bin
+(i.e., $H = N$) [@ames_etal2015; @wright1969]:
+
+$$\text{Outfit} = \frac{1}{N}\sum_{n=1}^{N} \frac{r_{ni}^2}{P_{ni}(1-P_{ni})}, \qquad
+\text{Infit} = \frac{\sum_{n=1}^{N} r_{ni}^2}{\sum_{n=1}^{N} P_{ni}(1-P_{ni})}$$
+
+The key difference is *weighting*:
+
+- **Outfit** gives equal weight to each examinee. It is therefore more sensitive
+  to unexpected responses at *extreme* ability levels (far from item difficulty),
+  where $P_{ni}(1-P_{ni})$ is small and a single aberrant response inflates the
+  statistic dramatically.
+- **Infit** weights each residual by $P_{ni}(1-P_{ni})$ — the item information
+  at that ability level. This down-weights extreme responses and makes infit more
+  sensitive to misfit *near* the item difficulty, where most measurement
+  information resides. For this reason, infit is generally preferred in practice.
+
+> **Caution for non-Rasch models.** Infit and outfit were developed in the Rasch
+> measurement tradition [@wright1969] and their expected distributions under
+> non-Rasch models (2PLM, 3PLM, GRM, GPCM) are less well understood. Use them
+> as supplementary diagnostics alongside $\chi^2$ / $G^2$ when fitting these
+> models [@ames_etal2015].
+
+### Ability Grouping: `group.method`, `n.width`, and `loc.theta`
+
+Because $\chi^2$ and $G^2$ require binning examinees by ability, the grouping
+choices materially affect the statistics:
+
+| Argument | Option | Description |
+|----------|--------|-------------|
+| `group.method` | `"equal.width"` | Bins span equal-length *intervals* on the $\theta$ scale. Easier to interpret geometrically; used by @yen1981. |
+| `group.method` | `"equal.freq"` | Each bin contains approximately the same *number of examinees* (quantile-based). Preferred when the ability distribution is skewed. |
+| `n.width` | integer | Number of bins $H$. @yen1981 used $H = 10$; @bock1960 allowed flexibility. Fewer bins = more examinees per bin but coarser resolution. |
+| `loc.theta` | `"average"` | The within-bin *mean* $\hat{\theta}$ is used to compute expected probabilities $\bar{P}_h$. |
+| `loc.theta` | `"middle"` | The *midpoint* of the bin's $\theta$ interval is used. |
+
+**Practical guidelines for bin specification:**
+
+- Bins should be **wide enough** to contain sufficient examinees for stable
+  expected frequencies (avoid sparse cells), yet **narrow enough** that
+  within-bin ability is approximately homogeneous [@hambleton_etal1991].
+- After binning, cells with very small expected frequencies are automatically
+  collapsed by `irtfit()` before computing $\chi^2$ and $G^2$.
+- `range.score` trims extreme ability estimates before grouping; examinees
+  outside the range are excluded from the fit analysis.
+
+### Key `irtfit()` Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
+| `score` | Numeric vector of examinee ability estimates $\hat{\theta}$ |
+| `data` | Response matrix (examinees × items) |
+| `D` | Scaling constant — must match the value used in calibration |
+| `group.method` | `"equal.width"` (default) or `"equal.freq"` |
+| `n.width` | Number of ability bins (default `10`) |
+| `loc.theta` | `"average"` (default) or `"middle"` |
+| `range.score` | `c(lower, upper)` for trimming extreme $\hat{\theta}$ values. Default is `NULL`, which automatically uses the minimum and maximum of the observed `score` vector. |
+| `alpha` | Significance level for flagging items (default `0.05`) |
+| `overSR` | Standardized-residual threshold for flagging individual bins (default `2`) |
+
+### Return value of `irtfit()`
+
+`irtfit()` returns an object of class `irtfit` with the following components:
+
+| Component | Description |
+|-----------|-------------|
+| `fit_stat` | Data frame with $\chi^2$, $G^2$, infit, outfit statistics and flags for all items |
+| `contingency.fitstat` | Collapsed contingency tables used for $\chi^2$ and $G^2$ computation (one per item) |
+| `contingency.plot` | Uncollapsed contingency tables used for residual plots |
+| `individual.info` | Individual residuals and variances used for infit/outfit |
+| `item_df` | Copy of the item metadata provided in `x` |
+
+The `fit_stat` columns include (one row per item, plus an `id` column):
+
+- `X2` / `df.X2` / `crit.val.X2` / `p.X2`: $\chi^2$ statistic, degrees of freedom, critical value, and p-value
+- `G2` / `df.G2` / `crit.val.G2` / `p.G2`: $G^2$ statistic, degrees of freedom, critical value, and p-value
+- `outfit` / `infit`: mean-square outfit and infit statistics
+- `N`: number of examinees used (after `range.score` trimming)
+- `overSR.prop`: proportion of ability bins (prior to cell collapsing) whose standardized residuals exceed `overSR`
+
+---
+
+### Example 1: Binary test — equal-frequency bins
+
+```{r irtfit-binary-eq-freq}
+fit_bin1 <- irtfit(
+  x            = meta_cal_bin,
+  score        = score_bin$est.theta,
+  data         = resp_bin,
+  D            = 1.702,
+  group.method = "equal.freq",   # ~equal number of examinees per bin
+  n.width      = 11,             # 11 bins → df = 11 - 3 = 8 for 3PLM (χ²)
+  loc.theta    = "middle",       # bin midpoint as representative θ
+  range.score  = c(-4, 4),       # trim extreme ML estimates
+  alpha        = 0.05,
+  overSR       = 2
+)
+
+# Summary of fit statistics for all items
+fit_bin1$fit_stat
+```
+
+### Example 2: Binary test — equal-width bins
+
+```{r irtfit-binary-eq-width}
+fit_bin2 <- irtfit(
+  x            = meta_cal_bin,
+  score        = score_bin$est.theta,
+  data         = resp_bin,
+  D            = 1.702,
+  group.method = "equal.width",  # equal-width θ intervals (Yen, 1981 approach)
+  n.width      = 10,
+  loc.theta    = "average",      # within-bin mean θ
+  range.score  = c(-4, 4),
+  alpha        = 0.05,
+  overSR       = 2
+)
+
+fit_bin2$fit_stat
+```
+
+### Example 3: Inspect the contingency table for one item
+
+The collapsed contingency table for a single item shows, for each ability bin: the
+bin size (`total`), observed and expected frequencies per response category
+(`obs.freq.*`, `exp.freq.*`), observed and expected proportions
+(`obs.prop.*`, `exp.prop.*`), and the raw residual (`raw.rsd.*` = observed
+proportion minus expected proportion). Note that this table contains **raw residuals**,
+not standardized residuals, and does not include a per-bin flag column.
+This is the table used to compute $\chi^2$ and $G^2$ after collapsing bins
+with sparse expected frequencies.
+
+```{r irtfit-contingency}
+# Collapsed contingency table used for χ² and G² of Item 1
+fit_bin1$contingency.fitstat[[1]]
+```
+
+---
+
+## Part 2: Residual Diagnostic Plots with `plot.irtfit()`
+
+`plot()` called on an `irtfit` object produces residual-based graphical
+diagnostics for one item at a time. Two complementary displays are available:
+
+- **`type = "icc"`**: Observed proportion correct (with confidence interval) per
+  ability bin overlaid on the model-predicted ICC. Vertical distances are the
+  raw residuals; systematic patterns (e.g., consistent over- or
+  under-prediction across all bins) suggest model misfit.
+- **`type = "sr"`**: Standardized residuals plotted against $\hat{\theta}$.
+  Reference lines at $\pm$`overSR` mark the flagging threshold. Points outside
+  these lines identify ability bins where the model fits poorly.
+- **`type = "both"`**: Side-by-side display of both views.
+
+These plots use the *uncollapsed* contingency tables stored in
+`fit$contingency.plot`, so every original bin is visible even if adjacent
+cells were merged during the statistical computation.
+
+```{r plot-irtfit-both, fig.width=10, fig.height=4}
+# Side-by-side: ICC overlay (raw residuals) + standardized residual plot
+plot(
+  x          = fit_bin1,
+  item.loc   = 1,          # item index (row number in the metadata)
+  type       = "both",
+  ci.method  = "wald",     # confidence interval method for proportion-correct CI
+  show.table = FALSE
+)
+```
+
+```{r plot-irtfit-icc, fig.width=6, fig.height=4}
+# ICC overlay for Item 3 — Wilson score CI (recommended for proportions)
+plot(
+  x          = fit_bin1,
+  item.loc   = 3,
+  type       = "icc",
+  ci.method  = "wilson",
+  show.table = FALSE
+)
+```
+
+```{r plot-irtfit-sr, fig.width=6, fig.height=4}
+# Standardized residual plot for Item 5
+plot(
+  x          = fit_bin1,
+  item.loc   = 5,
+  type       = "sr",
+  show.table = FALSE
+)
+```
+
+**Confidence interval methods** for the `ci.method` argument:
+
+| Method | Description |
+|--------|-------------|
+| `"wald"` | Normal-approximation (Wald) interval — simplest but can be unreliable for small $N_h$ |
+| `"cp"` | Clopper–Pearson exact interval — conservative but exact |
+| `"wilson"` | Wilson score interval — good coverage even for small $N_h$ |
+| `"wilson.cr"` | Wilson interval with continuity correction |
+
+---
+
+## Part 3: Traditional Fit for Mixed-Format Tests
+
+`irtfit()` handles mixed-format tests transparently. Simply provide the
+mixed-format item metadata and the ability estimates; the function
+computes the appropriate statistics for each item according to its model type.
+
+```{r irtfit-mixed}
+fit_mix <- irtfit(
+  x            = meta_cal_mix,
+  score        = score_mix$est.theta,
+  data         = resp_mix,
+  D            = 1.702,
+  group.method = "equal.freq",
+  n.width      = 10,
+  loc.theta    = "middle",
+  range.score  = c(-4, 4),
+  alpha        = 0.05,
+  overSR       = 2
+)
+
+fit_mix$fit_stat
+```
+
+```{r plot-irtfit-poly, fig.width=10, fig.height=4}
+# Residual diagnostics for a GRM item (item 16 in the mixed form)
+# For polytomous items, the ICC overlay shows the observed and expected
+# *category* proportions rather than a single proportion-correct curve.
+plot(
+  x          = fit_mix,
+  item.loc   = 16,
+  type       = "both",
+  ci.method  = "wald",
+  show.table = FALSE
+)
+```
+
+---
+
+## Part 4: $S$-$X^2$ Statistic with `sx2_fit()`
+
+### How `sx2_fit()` Works
+
+The $S$-$X^2$ statistic was proposed by @orlando_thissen2000 to address two
+known weaknesses of the $\chi^2$ and $G^2$ statistics: (1) the unclear
+distributional properties of statistics that condition on model-dependent
+$\hat{\theta}$ values, and (2) the sample-dependence introduced by arbitrary
+quantile-based bin boundaries.
+
+Instead of conditioning on $\hat{\theta}$, $S$-$X^2$ conditions on the
+**observed summed score** $X_s = \sum_{i} u_i$. Within each summed-score group
+$s$, the expected proportion of correct responses $\hat{P}(X_i = 1 \mid X_s = s)$
+is computed using the **Lord–Wingersky recursive algorithm** [@lord_wingersky1984],
+which integrates the IRF over the latent ability distribution without requiring
+individual $\hat{\theta}$ estimates.
+
+> **Note.** The formula below is presented for **dichotomous items** (scored 0/1).
+> @kang_chen2008 extended $S$-$X^2$ to polytomous items; see the **Extension to
+> polytomous items** paragraph below.
+
+$$S\text{-}X^2 = \sum_{s} \frac{N_s \left(\bar{x}_s - \hat{P}_s\right)^2}{\hat{P}_s(1-\hat{P}_s)}$$
+
+where $N_s$ is the number of examinees with summed score $s$, $\bar{x}_s$ is
+the observed proportion correct on item $i$ among those examinees, and
+$\hat{P}_s$ is the model-based expected proportion.
+
+Degrees of freedom equal the number of feasible summed-score values (excluding 0
+and the maximum, where responses to the item are deterministic) minus the number
+of estimated item parameters: $df = (I - 1) - p$ [@ames_etal2015].
+
+**Extension to polytomous items.** @kang_chen2008 generalized $S$-$X^2$ to
+polytomous IRT models (GRM, GPCM). The generalization uses the same summed-score
+conditioning logic but compares observed and expected *category* frequencies
+rather than proportion-correct values.
+
+**Cell collapsing strategy.** When expected cell frequencies are very small,
+the $\chi^2$ approximation deteriorates. To address this:
+
+- For *dichotomous* items: adjacent summed-score groups are merged until each
+  expected cell frequency $\geq$ `min.collapse` [@orlando_thissen2000].
+- For *polytomous* items: adjacent response *categories within* each summed-score
+  group are merged instead, to avoid excessive score-group loss [@kang_chen2008].
+
+### Key `sx2_fit()` Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
+| `data` | Response matrix (examinees × items). Missing values are replaced with 0 (incorrect). |
+| `D` | Scaling constant — must match calibration |
+| `alpha` | Significance level for flagging items (default `0.05`) |
+| `min.collapse` | Minimum expected frequency per cell before collapsing (default `1`) |
+| `norm.prior` | `c(mean, sd)` of the normal prior used in the Lord–Wingersky integration (default `c(0, 1)`) |
+| `nquad` | Number of Gaussian quadrature points for integration (default `30`) |
+| `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); default `NULL` |
+
+### Return value of `sx2_fit()`
+
+`sx2_fit()` returns a list with the following components:
+
+| Component | Description |
+|-----------|-------------|
+| `fit_stat` | Data frame with columns `id`, `chisq` ($S$-$X^2$ statistic), `df`, `crit.val` (critical value at the specified `alpha`), and `p` (p-value) — one row per item |
+| `item_df` | Copy of the item metadata provided in `x` |
+| `exp_freq` | List of collapsed expected frequency tables (one per item) |
+| `obs_freq` | List of collapsed observed frequency tables |
+| `exp_prob` | List of collapsed expected probability tables |
+| `obs_prop` | List of collapsed observed proportion tables |
+
+---
+
+### Example 1: Binary test
+
+```{r sx2-binary}
+fit_sx2_bin <- sx2_fit(
+  x     = meta_cal_bin,
+  data  = resp_bin,
+  D     = 1.702,
+  alpha = 0.05
+)
+
+# Fit statistics for all items
+fit_sx2_bin$fit_stat
+```
+
+```{r sx2-binary-tables}
+# Inspect collapsed observed vs. expected frequency table for Item 1
+# Rows = summed-score bins; columns = item score categories (0 / 1)
+cat("--- Expected frequencies (Item 1) ---\n")
+fit_sx2_bin$exp_freq[[1]]
+
+cat("--- Observed frequencies (Item 1) ---\n")
+fit_sx2_bin$obs_freq[[1]]
+```
+
+### Example 2: Mixed-format test
+
+For polytomous items, the Kang–Chen [-@kang_chen2008] extension is applied
+automatically when GRM or GPCM items are detected.
+
+```{r sx2-mixed}
+fit_sx2_mix <- sx2_fit(
+  x     = meta_cal_mix,
+  data  = resp_mix,
+  D     = 1.702,
+  alpha = 0.05
+)
+
+fit_sx2_mix$fit_stat
+```
+
+```{r sx2-mixed-tables}
+# Inspect observed proportions for GRM item 16 (polytomous)
+# Rows = summed-score groups; columns = response categories (0, 1, 2, 3)
+cat("--- Observed proportions for GRM item 1 (item 16) ---\n")
+fit_sx2_mix$obs_prop[[16]]
+```
+
+---
+
+## Interpretation Guide
+
+### $\chi^2$ and $G^2$
+
+- Under correct model specification, these statistics follow an *approximate*
+  $\chi^2$ distribution; items with `p.X2 < alpha` or `p.G2 < alpha` are
+  flagged for misfit.
+- $\chi^2$ has df = $H - p$ (number of bins minus number of item parameters);
+  $G^2$ has df = $H$.
+- **Sample-size sensitivity**: with large samples, even trivial deviations from
+  the model produce significant $p$-values. With small samples, power is low.
+  Interpret p-values alongside the `overSR.prop` column (proportion of bins
+  with large standardized residuals) and the residual plots.
+- **Practical guideline**: use `overSR.prop` as a supplementary indicator.
+  An item with a marginally significant p-value but low `overSR.prop` may
+  not warrant deletion; an item with high `overSR.prop` concentrated at a
+  specific ability range signals a meaningful pattern worth investigating.
+
+### Infit and Outfit
+
+- Both statistics have an expected value of **1.0** under correct model
+  specification; the interpretation is "mean squared residual relative to
+  expectation."
+- Common decision rules [@ames_etal2015]:
+  - Values **> 1.5** (sometimes > 2.0): unacceptable *overfit* — the item is
+    less predictable than the model expects (noise, guessing inconsistency).
+  - Values **< 0.5**: *underfit* — the item is more predictable than the model
+    expects (overly narrow ICC, item dependency).
+- **Infit vs. Outfit**: prefer infit for detecting misfit near the item's
+  difficulty; outfit is more sensitive to extreme-ability aberrant responses
+  (e.g., very able examinees missing an easy item due to carelessness).
+- **Non-Rasch caution**: with 2PLM, 3PLM, GRM, or GPCM items, the expected
+  value and distribution of infit/outfit deviate from 1.0 more than for Rasch
+  items. Treat these statistics as supplementary rather than primary evidence
+  of fit for non-Rasch models.
+
+### $S$-$X^2$
+
+- An item with `p < alpha` is flagged for misfit (`p` is the column name in `fit_stat`).
+- $S$-$X^2$ is generally more robust than $\chi^2$ and $G^2$ for detecting
+  misfit because it avoids the noise introduced by model-dependent
+  $\hat{\theta}$ estimates and uses more stable summed-score conditioning
+  [@orlando_thissen2000].
+- For very long tests (large $I$), the number of summed-score groups grows and
+  expected frequencies per group can become small; check the collapsed
+  frequency tables (`exp_freq`) to confirm adequate cell sizes.
+
+---
+
+## References
