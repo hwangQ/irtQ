@@ -35,8 +35,8 @@ one of three Stage 3 modules (3E, 3M, 3H).
 
 A test taker’s *pathway* through the MST is the sequence of modules they
 take, such as 1M → 2E → 3E (for a low-ability examinee) or 1M → 2H → 3H
-(for a high-ability examinee). In a 1-3-3 panel, there are typically 6
-such pathways.
+(for a high-ability examinee). In a 1-3-3 panel above, there are 7 such
+pathways.
 
 ### Advantages of MST Over Linear Tests and CAT
 
@@ -327,7 +327,8 @@ The `route_map` shows:
 
 - Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 — the three Stage
   2 modules
-- Rows 2–4 (Modules 2–4, Stage 2): each routes to two Stage 3 modules
+- Rows 2–4 (Modules 2–4, Stage 2): each routes to two or three Stage 3
+  modules
 - Rows 5–7 (Modules 5–7, Stage 3): all zeros — terminal modules
 
 ``` r
