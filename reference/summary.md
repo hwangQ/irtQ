@@ -71,7 +71,7 @@ fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FA
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 0.385069 EM iteration: 2, Loglike: -2561.3380, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.03 seconds. 
+#> Estimation is finished in 0.02 seconds. 
 
 # Display the calibration summary
 summary(fit.1pl)
@@ -96,7 +96,7 @@ summary(fit.1pl)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.01
 #>  Standard error computation: 0
-#>  Total computation: 0.03
+#>  Total computation: 0.02
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
