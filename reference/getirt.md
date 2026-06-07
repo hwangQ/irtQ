@@ -469,7 +469,7 @@ mod.2pl <- est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 0.390402 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.00000 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.06 seconds. 
+#> Estimation is finished in 0.07 seconds. 
 
 # Extract item parameter estimates
 (est.par <- getirt(mod.2pl, what = "par.est"))
