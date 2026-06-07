@@ -51,7 +51,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    pkgdown
+    pkgdown,
+    RhpcBLASctl
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
