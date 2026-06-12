@@ -98,8 +98,8 @@ internally before computing the RIPD statistics. See \code{\link[=est_score]{est
 for more information on scoring methods. Default is \code{NULL}.}
 
 \item{group}{A numeric or character vector indicating group membership of
-examinees. The length of vector should the same with the number of rows in
-the response data matrix.}
+examinees. The length of the vector should be the same as the number of
+rows in the response data matrix.}
 
 \item{focal.name}{A single numeric or character value specifying the focal
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
@@ -216,8 +216,9 @@ result was obtained.}
 \item{moments}{A data frame reporting the moments of RIPD statistics
 from the final iteration. Includes the same columns as in
 \code{no_purify}, with an additional column for the iteration number.}
-\item{ipd_item}{A list of numeric item indices identified as IPD items
-across iterations.}
+\item{ipd_item}{A numeric vector of item indices (row positions in
+\code{x}) identified as IPD items across all purification iterations,
+sorted in ascending order.}
 \item{n.iter}{An integer indicating the total number of iterations
 performed during the purification process.}
 \item{score}{A numeric vector of purified ability estimates used to
@@ -240,6 +241,155 @@ squared residuals between groups, reflecting nonuniform IPD. \eqn{RIPD_{RS}},
 a combined chi-square-based index, is sensitive to both uniform and
 nonuniform IPD.
 }
+\details{
+\strong{Theoretical Background: From RDIF to RIPD}
+
+The RIPD framework directly adapts the residual-based differential item
+functioning (RDIF) detection framework (Lim et al., 2022; Lim & Choe, 2023)
+to detect item parameter drift (IPD) in computerized adaptive testing (CAT).
+Each RIPD statistic (\eqn{RIPD_R}, \eqn{RIPD_S}, \eqn{RIPD_{RS}}) mirrors
+its RDIF counterpart (\eqn{RDIF_R}, \eqn{RDIF_S}, \eqn{RDIF_{RS}}) in both
+computation and asymptotic theory, with one key adaptation: whereas the
+original RDIF framework estimates item parameters once from the pooled data
+of both groups, the RIPD framework uses the \emph{original, pre-calibrated}
+item parameters from the CAT pool directly, eliminating the need for item
+recalibration. This makes RIPD practically scalable for operational CAT
+programs where recalibration is often infeasible due to sparse and
+non-ignorably missing response data.
+
+IPD in CAT can be viewed as a special case of DIF across time (Lord, 1980;
+Veerkamp & Glas, 2000): the focal group represents current test-takers whose
+responses may reflect drift, while the reference group represents a baseline
+under invariant item parameters.
+
+\strong{Residual Definition}
+
+For examinee \eqn{i} and item \eqn{j}, the raw residual is defined as
+\deqn{e_{ij} = u_{ij} - P_j(\hat{\theta}_i),}
+where \eqn{u_{ij}} is the observed binary response (0 or 1) and
+\eqn{P_j(\hat{\theta}_i)} is the model-predicted probability of a correct
+response under the \emph{original} item parameters evaluated at the
+examinee's ability estimate \eqn{\hat{\theta}_i}. Because item responses
+are independent but not identically distributed (due to varying predicted
+probabilities across examinees with different ability levels), the asymptotic
+distributions of the RIPD statistics are established via Lyapunov's central
+limit theorem.
+
+\strong{Three RIPD Statistics and Their Asymptotic Distributions}
+
+\emph{RIPD\eqn{_R}} (uniform drift): Measures the difference in mean raw
+residuals between the focal (\eqn{F}) and reference (\eqn{R}) groups,
+\deqn{RIPD_{R,j} = \frac{\sum_{i \in F} e_{ij}}{N_F} -
+  \frac{\sum_{i \in R} e_{ij}}{N_R}.}
+\eqn{RIPD_{R,j}} is most effective when the item response functions (IRFs)
+of the two groups differ primarily in location (e.g., drift in the difficulty
+\eqn{b} or guessing \eqn{c} parameter). Under the null hypothesis \eqn{H_0}
+of no IPD, \eqn{RIPD_{R,j}} asymptotically follows a normal distribution
+with mean zero and analytically derived variance
+\eqn{\sigma^2_{RIPD_R} = \frac{\sum_{i \in F} P_{ij}(1 - P_{ij})}{N_F^2} +
+  \frac{\sum_{i \in R} P_{ij}(1 - P_{ij})}{N_R^2}}.
+A standard Z-test is then applied as \eqn{Z_R = RIPD_{R,j} / \sigma_{RIPD_R}}.
+
+\emph{RIPD\eqn{_S}} (nonuniform drift): Measures the difference in mean
+squared residuals between groups,
+\deqn{RIPD_{S,j} = \frac{\sum_{i \in F} e_{ij}^2}{N_F} -
+  \frac{\sum_{i \in R} e_{ij}^2}{N_R}.}
+\eqn{RIPD_{S,j}} captures drift that varies across the ability continuum,
+such as a change in the discrimination parameter \eqn{a}, which
+\eqn{RIPD_{R,j}} alone may not detect. Importantly, under \eqn{H_0}, the
+null mean of \eqn{RIPD_{S,j}} is \strong{not zero} in general; it equals
+\deqn{\mu_{RIPD_S} = \frac{\sum_{i \in F} P_{ij}(1 - P_{ij})}{N_F} -
+  \frac{\sum_{i \in R} P_{ij}(1 - P_{ij})}{N_R},}
+which is a function of the predicted probabilities in both groups and
+vanishes only when their ability distributions are perfectly matched (as in
+the RIPD setup where focal \eqn{\hat{\theta}} values are reused for the
+synthetic reference group). The asymptotic variance is also analytically
+derived. A standard Z-test is applied as
+\eqn{Z_S = (RIPD_{S,j} - \mu_{RIPD_S}) / \sigma_{RIPD_S}}.
+
+\emph{RIPD\eqn{_{RS}}} (combined): A Wald-type statistic that jointly tests
+for uniform and nonuniform drift within a single framework,
+\deqn{RIPD_{RS,j} = (\boldsymbol{\nu}_j - \boldsymbol{\mu}_j)^\top
+  \hat{\boldsymbol{\Sigma}}_j^{-1}
+  (\boldsymbol{\nu}_j - \boldsymbol{\mu}_j),}
+where \eqn{\boldsymbol{\nu}_j = (RIPD_{R,j},\ RIPD_{S,j})^\top},
+\eqn{\boldsymbol{\mu}_j = (\mu_{RIPD_R},\ \mu_{RIPD_S})^\top} is the
+vector of null means, and \eqn{\hat{\boldsymbol{\Sigma}}_j} is the
+analytically derived \eqn{2 \times 2} covariance matrix of
+\eqn{(RIPD_{R,j}, RIPD_{S,j})}. Under \eqn{H_0}, \eqn{RIPD_{RS,j}}
+asymptotically follows a \eqn{\chi^2} distribution with 2 degrees of
+freedom. \eqn{RIPD_{RS}} is the \strong{recommended} statistic in practice
+because it is sensitive to both uniform and nonuniform drift and addresses
+potential inflation of the family-wise Type I error that arises from
+applying \eqn{RIPD_R} and \eqn{RIPD_S} separately to the same item.
+
+\strong{Diagnosing the Nature of Drift}
+
+The pattern of flagging across the three statistics can help diagnose the
+type of drift. If an item is flagged by \eqn{RIPD_R} (and possibly
+\eqn{RIPD_{RS}}) but not \eqn{RIPD_S}, uniform drift is indicated (e.g.,
+difficulty shift). If flagged by \eqn{RIPD_S} (and possibly
+\eqn{RIPD_{RS}}) but not \eqn{RIPD_R}, nonuniform drift is suggested (e.g.,
+discrimination change). Items flagged by all statistics or by
+\eqn{RIPD_{RS}} alone likely exhibit mixed drift.
+
+\strong{CAT-Specific Workflow}
+
+The RIPD procedure for CAT consists of three steps (Lim & Han, in press):
+\enumerate{
+\item \strong{Focal group CAT}: The current cohort of examinees takes the
+CAT using the operational (potentially drifted) item pool. Each examinee
+receives only a subset of items; the resulting response matrix is sparse.
+The ML ability estimates \eqn{\hat{\theta}} from this step are retained.
+\item \strong{Synthetic reference group construction}: The focal group's
+\eqn{\hat{\theta}} values are treated as true abilities. Item responses
+are generated from the \emph{original} (pre-calibrated, drift-free) item
+parameters, and an independent CAT is administered. This creates a
+synthetic reference group that matches the focal group's ability
+distribution, so that any systematic differences in residuals can be
+attributed to IPD rather than ability confounds. The reference group
+size is controlled by a replication factor: e.g., 1F reuses the focal
+\eqn{\hat{\theta}} values once (N_ref = N_foc), while kF replicates them
+k times. Larger reference groups (3F–8F) reduce sampling variability in
+reference residuals and improve detection power, with marginal gains
+typically diminishing beyond 5F.
+\item \strong{RIPD computation with purification}: Residuals are computed
+for both groups using the original item parameters, and the three RIPD
+statistics are evaluated item-by-item. Items whose Z-test (for
+\eqn{RIPD_R} or \eqn{RIPD_S}) or chi-square test (for
+\eqn{RIPD_{RS}}) exceeds the critical value at level \code{alpha} are
+flagged as drifting.
+}
+
+\strong{Purification Procedure}
+
+When \code{purify = TRUE}, an iterative purification procedure adapted from
+Lim et al. (2022) is applied to mitigate the bias in ability estimates caused
+by drifted items—analogous to the contaminating effect of DIF items on
+matching variables. At each iteration:
+\enumerate{
+\item The item with the most statistically significant drift statistic
+(smallest p-value) among currently unflagged items is identified and
+flagged as a potential IPD item.
+\item Ability estimates are recomputed excluding all currently flagged items.
+\item RIPD statistics are recalculated using the updated ability estimates
+for the remaining items.
+}
+The process continues until no additional items are flagged (convergence) or
+the maximum number of iterations (\code{max.iter}) is reached. The statistic
+used to drive purification is specified by \code{purify.by};
+\code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
+types of drift.
+
+\strong{Key Items and item.skip}
+
+In CAT contexts, many items in the pool receive few responses and thus lack
+sufficient data for reliable IPD analysis. The \code{item.skip} argument
+allows users to exclude such items (e.g., low-exposure non-key items) from
+the analysis. In practice, key items for RIPD evaluation are typically
+identified through a preliminary CAT simulation as those with the highest
+average exposure frequencies under the intended operational settings.
+}
 \section{Methods (by class)}{
 \itemize{
 \item \code{ripd(default)}: Default method for computing the three RIPD statistics using
@@ -254,7 +404,7 @@ a data frame \code{x} that contains item metadata
 \donttest{
 ## ─── RIPD Example: Detecting IPD in CAT ─────────────────────────────────
 ##
-## Background (Lim & Han, 2025):
+## Background (Lim & Han, in press):
 ##   In CAT-based IPD detection using RIPD, the reference group is
 ##   "synthetic" — created by re-administering a CAT to examinees whose
 ##   true abilities are set equal to the focal group's ML theta estimates,
@@ -295,7 +445,7 @@ ripd_result <- ripd(
   alpha      = 0.05,
   purify     = TRUE,
   purify.by  = "ripdrs",    # purify using RIPD_RS (combined statistic)
-  max.iter   = 10,
+  max.iter   = 30,
   method     = "ML",
   range      = c(-5, 5)
 )
@@ -324,13 +474,18 @@ cat("True positives:", sum(detected \%in\% simIPD$ipd_item), "of",
 
 }
 \references{
+Lim, H., & Choe, E. M. (2023). Detecting differential item
+functioning in CAT using IRT residual DIF approach.
+\emph{Journal of Educational Measurement, 60}(4), 626-650.
+\doi{doi:10.1111/jedm.12366}.
+
 Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based
 differential item functioning detection framework in item response theory.
 \emph{Journal of Educational Measurement, 59}(1), 80-104.
 \doi{doi:10.1111/jedm.12313}.
 
-Lim, H., & Han, K. T. (in press). A residual-based approach to detecting
-item parameter drift in computerized adaptive testing.
+Lim, H., & Han, K. T. (in press). IRT residual-based approach to detecting
+item parameter drift in CAT.
 \emph{Journal of Educational and Behavioral Statistics}.
 }
 \seealso{

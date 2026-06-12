@@ -44,8 +44,8 @@
 #'
 #' \tabular{ll}{
 #' Package: \tab irtQ\cr
-#' Version: \tab 1.1.0\cr
-#' Date: \tab 2026-06-06\cr
+#' Version: \tab 1.1.1\cr
+#' Date: \tab 2026-06-12\cr
 #' Depends: \tab R (>= 4.4)\cr
 #' License: \tab GPL (>= 2)\cr
 #' }
@@ -573,6 +573,9 @@
 #'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 #'   item functioning detection framework in item response theory. *Journal of
 #'   Educational Measurement, 59*(1), 80-104. \doi{10.1111/jedm.12313}.
+#'
+#'   Lim, H., & Han, K. T. (in press). IRT residual-based approach to detecting 
+#'   item parameter drift in CAT \emph{Journal of Educational and Behavioral Statistics}.
 #'
 #'   Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
 #'   differential item functioning among multiple groups using IRT residual DIF

@@ -42,7 +42,7 @@ the reference group has the same size as the focal group);
 (2) generating item responses from the \emph{original} (non-drifted)
 item parameters; and (3) running an independent CAT simulation.
 This synthetic reference group mirrors the construction described in
-Lim & Han (2025).}
+Lim & Han (in press).}
 \item{ref_score}{A numeric vector of length 3000 containing the
 \strong{synthetic reference group} final ML theta estimates.}
 }
@@ -87,7 +87,7 @@ exposure rate 0.30
 \strong{Note on reference group size:}
 A 1F reference group (same size as the focal group) is used here for
 compactness.  In practice, larger synthetic reference groups (e.g., 3F–8F)
-are recommended to improve RIPD detection power (Lim & Han, 2025).
+are recommended to improve RIPD detection power (Lim & Han, in press).
 A larger reference group can be created by replicating the focal theta
 estimates: e.g., \code{rep(foc_score, times = 3)} for a 3F group, then
 re-running the CAT simulation with the original item parameters.
@@ -104,8 +104,8 @@ dim(simIPD$foc_resp)
 mean(is.na(simIPD$foc_resp))  # ~0.92 (92\% NA due to CAT)
 }
 \references{
-Lim, H., & Han, K. T. (in press). A residual-based approach to detecting
-item parameter drift in computerized adaptive testing.
+Lim, H., & Han, K. T. (in press). IRT residual-based approach to detecting
+item parameter drift in CAT.
 \emph{Journal of Educational and Behavioral Statistics}.
 }
 \seealso{
