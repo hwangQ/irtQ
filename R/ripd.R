@@ -89,6 +89,78 @@
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
+#' @examples
+#' \donttest{
+#' ## ─── RIPD Example: Detecting IPD in CAT ─────────────────────────────────
+#' ##
+#' ## Background (Lim & Han, 2025):
+#' ##   In CAT-based IPD detection using RIPD, the reference group is
+#' ##   "synthetic" — created by re-administering a CAT to examinees whose
+#' ##   true abilities are set equal to the focal group's ML theta estimates,
+#' ##   using the ORIGINAL (pre-drift) item parameters. This eliminates the
+#' ##   need for recalibration and makes RIPD directly applicable to
+#' ##   operational CAT settings.
+#' ##
+#' ## The simIPD dataset contains:
+#' ##   • foc_resp / foc_score : focal group CAT responses + ML theta estimates
+#' ##                            (IPD items: a and b each drifted by -0.5)
+#' ##   • ref_resp / ref_score : synthetic reference group CAT responses + ML
+#' ##                            theta estimates (original parameters, 1F size)
+#' ##   • item_par  : original (non-drifted) 360-item pool in irtQ format
+#' ##   • key_item  : indices of 90 key items (highly exposed in CAT)
+#' ##   • item.skip : indices of 270 non-key items (excluded from RIPD)
+#' ##   • ipd_item  : indices of 18 truly drifted items (ground truth)
+#' ## ─────────────────────────────────────────────────────────────────────────
+#'
+#' data(simIPD)
+#'
+#' ## Step 1. Combine focal and synthetic reference group data
+#' ##         (reference group first, then focal group — as in the paper)
+#' data  <- rbind(simIPD$ref_resp,  simIPD$foc_resp)
+#' score <- c(simIPD$ref_score,     simIPD$foc_score)
+#' group <- c(rep(0, nrow(simIPD$ref_resp)),   # 0 = reference
+#'            rep(1, nrow(simIPD$foc_resp)))   # 1 = focal
+#'
+#' ## Step 2. Run RIPD with purification (recommended statistic: RIPD_RS)
+#' ##         item.skip excludes the 270 non-key items from analysis
+#' ripd_result <- ripd(
+#'   x          = simIPD$item_par,
+#'   data       = data,
+#'   score      = score,
+#'   group      = group,
+#'   focal.name = 1,           # focal group is coded as 1
+#'   item.skip  = simIPD$item.skip,
+#'   D          = 1.7,
+#'   alpha      = 0.05,
+#'   purify     = TRUE,
+#'   purify.by  = "ripdrs",    # purify using RIPD_RS (combined statistic)
+#'   max.iter   = 10,
+#'   method     = "ML",
+#'   range      = c(-5, 5)
+#' )
+#'
+#' ## Step 3. Review RIPD_RS results (with purification)
+#' print(ripd_result, what = "with_purify")
+#'
+#' ## Step 4. Compare detected items to ground truth
+#' detected <- ripd_result$with_purify$ipd_item
+#' cat("Truly drifted items (ground truth):", simIPD$ipd_item, "\n")
+#' cat("RIPD-detected items:               ", detected, "\n")
+#' cat("True positives:", sum(detected %in% simIPD$ipd_item), "of",
+#'     length(simIPD$ipd_item), "\n")
+#'
+#' ## ── Note on reference group size ─────────────────────────────────────────
+#' ## This example uses a 1F reference group (n_ref = n_foc = 3,000).
+#' ## In practice, a larger reference group (3F–8F) substantially improves
+#' ## detection power. To create a 3F reference group, replicate the focal
+#' ## theta estimates and re-run the CAT simulation with original parameters:
+#' ##
+#' ##   theta_3F  <- rep(simIPD$foc_score, times = 3)   # 9,000 examinees
+#' ##   resp_3F   <- simdat(x = simIPD$item_par, theta = theta_3F, D = 1.7)
+#' ##   # ... then run CAT and call ripd() with the larger reference group
+#' ## ─────────────────────────────────────────────────────────────────────────
+#' }
+#'
 #' @seealso [irtQ::rdif()], [irtQ::est_irt()], [irtQ::est_item()],
 #'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()]
 #'
@@ -97,10 +169,9 @@
 #'   *Journal of Educational Measurement, 59*(1), 80-104.
 #'   \doi{doi:10.1111/jedm.12313}.
 #'
-#'   Lim, H., & H, K. T. (2025, April). *IRT residual-based approach to
-#'   detecting item parameter drift in CAT*. Paper presented at the annual
-#'   conference of the National Council on Measurement in Education (NCME),
-#'   Denver, CO
+#'   Lim, H., & Han, K. T. (in press). A residual-based approach to detecting
+#'   item parameter drift in computerized adaptive testing.
+#'   \emph{Journal of Educational and Behavioral Statistics}.
 #'
 #'@export
 ripd <- function(x, ...) UseMethod("ripd")
