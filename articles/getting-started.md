@@ -822,8 +822,8 @@ summary(mod)
 #> 
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.46
-#>  Standard error computation: 0.02
-#>  Total computation: 0.51
+#>  Standard error computation: 0.09
+#>  Total computation: 0.59
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.

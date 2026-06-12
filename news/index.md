@@ -1,6 +1,35 @@
 # Changelog
 
+## irtQ 1.1.1
+
+- Added a new exported dataset, `simIPD`, which contains simulated CAT
+  response data for illustrating IPD detection with
+  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) and
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md). The
+  dataset represents one replication of a CAT simulation (N = 3,000;
+  test length = 30; 360-item 3PLM pool) in which 5% of items (18 items)
+  had both $`a`$ and $`b`$ parameters decreased by 0.5.
+
+- Expanded the documentation for
+  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) by adding
+  a `@details` section that covers the theoretical background of the
+  RIPD framework, asymptotic distributions of the three RIPD statistics,
+  a drift-type diagnostic guide, the CAT-specific three-step workflow,
+  and the purification procedure. Also added a `\donttest{}` example
+  demonstrating a complete CAT-based IPD detection workflow using the
+  `simIPD` dataset. Updated `@references` to include Lim & Choe (2023)
+  and replaced the previous conference paper citation with the in-press
+  journal reference (Lim & Han, in press).
+
+- Added a `\donttest{}` example to
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md)
+  demonstrating CAT-based IPD detection using the `simIPD` dataset,
+  including the bootstrap critical value procedure described in Lim &
+  Han (in press).
+
 ## irtQ 1.1.0
+
+CRAN release: 2026-06-07
 
 ### Major Improvements
 

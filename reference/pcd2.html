@@ -25,7 +25,7 @@ parameter drift, ensuring the stability and accuracy of the test over time."><me
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -491,6 +491,92 @@ measurement, 37</em>(1), 58-75.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $call</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> pcd2(x = x, data = data, crit.val = 0.002, purify = TRUE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co">## ── Example 3: CAT-based IPD detection using simIPD ──────────────────────────</span></span></span>
+<span class="r-in"><span><span class="co">##</span></span></span>
+<span class="r-in"><span><span class="co">## The Pseudo-count D² statistic has no closed-form null distribution.</span></span></span>
+<span class="r-in"><span><span class="co">## Following Lim &amp; Han (in press), the critical value is estimated empirically</span></span></span>
+<span class="r-in"><span><span class="co">## via bootstrap:</span></span></span>
+<span class="r-in"><span><span class="co">##   (1) Select drift-free (anchor) items to form the null D² distribution.</span></span></span>
+<span class="r-in"><span><span class="co">##   (2) Repeatedly resample from those values and take the 95th percentile.</span></span></span>
+<span class="r-in"><span><span class="co">##   (3) Average across bootstrap iterations to obtain the critical value.</span></span></span>
+<span class="r-in"><span><span class="co">##</span></span></span>
+<span class="r-in"><span><span class="co">## The simIPD dataset provides:</span></span></span>
+<span class="r-in"><span><span class="co">##   item_par  : original 360-item pool (3PLM, irtQ format)</span></span></span>
+<span class="r-in"><span><span class="co">##   foc_resp  : focal group CAT responses (N = 3,000; TL = 30; ~92% NA)</span></span></span>
+<span class="r-in"><span><span class="co">##   key_item  : indices of 90 highly-exposed key items (IPD analysis targets)</span></span></span>
+<span class="r-in"><span><span class="co">##   item.skip : indices of 270 non-key items (excluded from analysis)</span></span></span>
+<span class="r-in"><span><span class="co">##   ipd_item  : 18 truly drifted items (ground truth; a &amp; b each −0.5)</span></span></span>
+<span class="r-in"><span><span class="co">## ─────────────────────────────────────────────────────────────────────────────</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">simIPD</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ── Step 1. Select anchor items for bootstrap ─────────────────────────────</span></span></span>
+<span class="r-in"><span><span class="co">## From the full item pool, select items that (a) have sufficient observed</span></span></span>
+<span class="r-in"><span><span class="co">## responses (&gt;= boot_size) and (b) are not known IPD items. These items</span></span></span>
+<span class="r-in"><span><span class="co">## serve as the empirical null distribution of D².</span></span></span>
+<span class="r-in"><span><span class="co">## boot_size = 300: chosen to match the minimum response count used in the</span></span></span>
+<span class="r-in"><span><span class="co">##   bootstrap procedure of the simulation study (Lim &amp; Han, in press).</span></span></span>
+<span class="r-in"><span><span class="co">## In practice, exclude items you know or suspect have drifted; here the</span></span></span>
+<span class="r-in"><span><span class="co">## ground truth (simIPD$ipd_item) is used for illustration.</span></span></span>
+<span class="r-in"><span><span class="va">boot_size</span>    <span class="op">&lt;-</span> <span class="fl">300</span></span></span>
+<span class="r-in"><span><span class="va">n_resp</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">simIPD</span><span class="op">$</span><span class="va">foc_resp</span><span class="op">)</span><span class="op">)</span>   <span class="co"># observed responses per item</span></span></span>
+<span class="r-in"><span><span class="va">anchor_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">n_resp</span> <span class="op">&gt;=</span> <span class="va">boot_size</span><span class="op">)</span>, <span class="va">simIPD</span><span class="op">$</span><span class="va">ipd_item</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ── Step 2. Compute null D² values for the anchor items ──────────────────</span></span></span>
+<span class="r-in"><span><span class="va">pcd2_null</span> <span class="op">&lt;-</span> <span class="fu">pcd2</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x        <span class="op">=</span> <span class="va">simIPD</span><span class="op">$</span><span class="va">item_par</span><span class="op">[</span><span class="va">anchor_items</span>, <span class="op">]</span>,</span></span>
+<span class="r-in"><span>  data     <span class="op">=</span> <span class="va">simIPD</span><span class="op">$</span><span class="va">foc_resp</span><span class="op">[</span>, <span class="va">anchor_items</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>  D        <span class="op">=</span> <span class="fl">1.7</span>,</span></span>
+<span class="r-in"><span>  crit.val <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  purify   <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="va">no_purify</span><span class="op">$</span><span class="va">ipd_stat</span><span class="op">$</span><span class="va">pcd2</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ── Step 3. Bootstrap critical value (Lim &amp; Han, in press) ──────────────</span></span></span>
+<span class="r-in"><span><span class="co">## For each bootstrap iteration: resample boot_size D² values from the null</span></span></span>
+<span class="r-in"><span><span class="co">## distribution and take the 95th percentile. The critical value is the mean</span></span></span>
+<span class="r-in"><span><span class="co">## of these percentiles across all iterations.</span></span></span>
+<span class="r-in"><span><span class="co">## n_boots = 500: reduced for demo speed; use 10,000 in practice for a</span></span></span>
+<span class="r-in"><span><span class="co">##   stable critical value estimate.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_boots</span> <span class="op">&lt;-</span> <span class="fl">500</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">crit_val</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  .x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_boots</span>,</span></span>
+<span class="r-in"><span>  .f <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pcd2_null</span>, size <span class="op">=</span> <span class="va">boot_size</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>           <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span>probs <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Bootstrap critical value (alpha = 0.05):"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">crit_val</span>, <span class="fl">6</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap critical value (alpha = 0.05): 0.003013 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ── Step 4. Run PCD2 with the bootstrap critical value + purification ──</span></span></span>
+<span class="r-in"><span><span class="va">pcd2_result</span> <span class="op">&lt;-</span> <span class="fu">pcd2</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x         <span class="op">=</span> <span class="va">simIPD</span><span class="op">$</span><span class="va">item_par</span>,</span></span>
+<span class="r-in"><span>  data      <span class="op">=</span> <span class="va">simIPD</span><span class="op">$</span><span class="va">foc_resp</span>,</span></span>
+<span class="r-in"><span>  D         <span class="op">=</span> <span class="fl">1.7</span>,</span></span>
+<span class="r-in"><span>  item.skip <span class="op">=</span> <span class="va">simIPD</span><span class="op">$</span><span class="va">item.skip</span>,</span></span>
+<span class="r-in"><span>  crit.val  <span class="op">=</span> <span class="va">crit_val</span>,</span></span>
+<span class="r-in"><span>  purify    <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  max.iter  <span class="op">=</span> <span class="fl">30</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Item(s) 17, Item(s) 19, Item(s) 22, Item(s) 24, Item(s) 27, Item(s) 30, Item(s) 32, Item(s) 34, Item(s) 44, Item(s) 47, Item(s) 50, Item(s) 54, Item(s) 56, Item(s) 65, Item(s) 73, Item(s) 76, Item(s) 77, Item(s) 82, Item(s) 86, Item(s) 93, Item(s) 102, Item(s) 105, Item(s) 108, Item(s) 111, Item(s) 112, Item(s) 120, Item(s) 122, Item(s) 131, Item(s) 137, Item(s) 140, Item(s) 144, Item(s) 155, Item(s) 156, Item(s) 164, Item(s) 165, Item(s) 174, Item(s) 176, Item(s) 182, Item(s) 193, Item(s) 196, Item(s) 201, Item(s) 206, Item(s) 219, Item(s) 222, Item(s) 223, Item(s) 225, Item(s) 232, Item(s) 241, Item(s) 255, Item(s) 265, Item(s) 269, Item(s) 271, Item(s) 278, Item(s) 279, Item(s) 284, Item(s) 286, Item(s) 289, Item(s) 291, Item(s) 292, Item(s) 293, Item(s) 295, Item(s) 305, Item(s) 313, Item(s) 315, Item(s) 316, Item(s) 339, Item(s) 342, Item(s) 343, Item(s) 344, Item(s) 345, Item(s) 352, Item(s) 353, Item(s) 359 has(have) no item response data. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Purification started... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Iteration: 1 Iteration: 2 Iteration: 3 Iteration: 4 Iteration: 5 Iteration: 6 Iteration: 7 Iteration: 8 Iteration: 9 Iteration: 10 Iteration: 11 Iteration: 12 Iteration: 13 Iteration: 14 Iteration: 15 Iteration: 16 Iteration: 17 Iteration: 18 Iteration: 19 Iteration: 20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Purification is finished. </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ── Step 5. Compare detected items to ground truth ────────────────────</span></span></span>
+<span class="r-in"><span><span class="va">detected</span> <span class="op">&lt;-</span> <span class="va">pcd2_result</span><span class="op">$</span><span class="va">with_purify</span><span class="op">$</span><span class="va">ipd_item</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Truly drifted items (ground truth):"</span>, <span class="va">simIPD</span><span class="op">$</span><span class="va">ipd_item</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Truly drifted items (ground truth): 26 42 55 58 97 129 138 145 149 181 184 203 242 246 252 310 334 336 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"PCD2-detected items:               "</span>, <span class="va">detected</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> PCD2-detected items:                26 42 55 58 97 129 138 145 149 181 184 203 236 242 246 252 261 310 334 336 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"True positives:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">detected</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">simIPD</span><span class="op">$</span><span class="va">ipd_item</span><span class="op">)</span>, <span class="st">"of"</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">simIPD</span><span class="op">$</span><span class="va">ipd_item</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> True positives: 18 of 18 </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

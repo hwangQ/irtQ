@@ -445,4 +445,90 @@ print(ps_d2_puri)
 #> $call
 #> pcd2(x = x, data = data, crit.val = 0.002, purify = TRUE)
 #> 
+
+# \donttest{
+## ── Example 3: CAT-based IPD detection using simIPD ──────────────────────────
+##
+## The Pseudo-count D² statistic has no closed-form null distribution.
+## Following Lim & Han (in press), the critical value is estimated empirically
+## via bootstrap:
+##   (1) Select drift-free (anchor) items to form the null D² distribution.
+##   (2) Repeatedly resample from those values and take the 95th percentile.
+##   (3) Average across bootstrap iterations to obtain the critical value.
+##
+## The simIPD dataset provides:
+##   item_par  : original 360-item pool (3PLM, irtQ format)
+##   foc_resp  : focal group CAT responses (N = 3,000; TL = 30; ~92% NA)
+##   key_item  : indices of 90 highly-exposed key items (IPD analysis targets)
+##   item.skip : indices of 270 non-key items (excluded from analysis)
+##   ipd_item  : 18 truly drifted items (ground truth; a & b each −0.5)
+## ─────────────────────────────────────────────────────────────────────────────
+
+data(simIPD)
+
+## ── Step 1. Select anchor items for bootstrap ─────────────────────────────
+## From the full item pool, select items that (a) have sufficient observed
+## responses (>= boot_size) and (b) are not known IPD items. These items
+## serve as the empirical null distribution of D².
+## boot_size = 300: chosen to match the minimum response count used in the
+##   bootstrap procedure of the simulation study (Lim & Han, in press).
+## In practice, exclude items you know or suspect have drifted; here the
+## ground truth (simIPD$ipd_item) is used for illustration.
+boot_size    <- 300
+n_resp       <- colSums(!is.na(simIPD$foc_resp))   # observed responses per item
+anchor_items <- setdiff(which(n_resp >= boot_size), simIPD$ipd_item)
+
+## ── Step 2. Compute null D² values for the anchor items ──────────────────
+pcd2_null <- pcd2(
+  x        = simIPD$item_par[anchor_items, ],
+  data     = simIPD$foc_resp[, anchor_items],
+  D        = 1.7,
+  crit.val = NULL,
+  purify   = FALSE
+)$no_purify$ipd_stat$pcd2
+
+## ── Step 3. Bootstrap critical value (Lim & Han, in press) ──────────────
+## For each bootstrap iteration: resample boot_size D² values from the null
+## distribution and take the 95th percentile. The critical value is the mean
+## of these percentiles across all iterations.
+## n_boots = 500: reduced for demo speed; use 10,000 in practice for a
+##   stable critical value estimate.
+set.seed(2024)
+n_boots <- 500
+
+crit_val <- purrr::map_dbl(
+  .x = 1:n_boots,
+  .f = ~ sample(x = pcd2_null, size = boot_size, replace = TRUE) |>
+           stats::quantile(probs = 0.95)
+) |> mean()
+
+cat("Bootstrap critical value (alpha = 0.05):", round(crit_val, 6), "\n")
+#> Bootstrap critical value (alpha = 0.05): 0.003013 
+
+## ── Step 4. Run PCD2 with the bootstrap critical value + purification ──
+pcd2_result <- pcd2(
+  x         = simIPD$item_par,
+  data      = simIPD$foc_resp,
+  D         = 1.7,
+  item.skip = simIPD$item.skip,
+  crit.val  = crit_val,
+  purify    = TRUE,
+  max.iter  = 30
+)
+#> Warning: Item(s) 17, Item(s) 19, Item(s) 22, Item(s) 24, Item(s) 27, Item(s) 30, Item(s) 32, Item(s) 34, Item(s) 44, Item(s) 47, Item(s) 50, Item(s) 54, Item(s) 56, Item(s) 65, Item(s) 73, Item(s) 76, Item(s) 77, Item(s) 82, Item(s) 86, Item(s) 93, Item(s) 102, Item(s) 105, Item(s) 108, Item(s) 111, Item(s) 112, Item(s) 120, Item(s) 122, Item(s) 131, Item(s) 137, Item(s) 140, Item(s) 144, Item(s) 155, Item(s) 156, Item(s) 164, Item(s) 165, Item(s) 174, Item(s) 176, Item(s) 182, Item(s) 193, Item(s) 196, Item(s) 201, Item(s) 206, Item(s) 219, Item(s) 222, Item(s) 223, Item(s) 225, Item(s) 232, Item(s) 241, Item(s) 255, Item(s) 265, Item(s) 269, Item(s) 271, Item(s) 278, Item(s) 279, Item(s) 284, Item(s) 286, Item(s) 289, Item(s) 291, Item(s) 292, Item(s) 293, Item(s) 295, Item(s) 305, Item(s) 313, Item(s) 315, Item(s) 316, Item(s) 339, Item(s) 342, Item(s) 343, Item(s) 344, Item(s) 345, Item(s) 352, Item(s) 353, Item(s) 359 has(have) no item response data. 
+#> Purification started... 
+#>  Iteration: 1 Iteration: 2 Iteration: 3 Iteration: 4 Iteration: 5 Iteration: 6 Iteration: 7 Iteration: 8 Iteration: 9 Iteration: 10 Iteration: 11 Iteration: 12 Iteration: 13 Iteration: 14 Iteration: 15 Iteration: 16 Iteration: 17 Iteration: 18 Iteration: 19 Iteration: 20 
+#> Purification is finished. 
+
+## ── Step 5. Compare detected items to ground truth ────────────────────
+detected <- pcd2_result$with_purify$ipd_item
+cat("Truly drifted items (ground truth):", simIPD$ipd_item, "\n")
+#> Truly drifted items (ground truth): 26 42 55 58 97 129 138 145 149 181 184 203 242 246 252 310 334 336 
+cat("PCD2-detected items:               ", detected, "\n")
+#> PCD2-detected items:                26 42 55 58 97 129 138 145 149 181 184 203 236 242 246 252 261 310 334 336 
+cat("True positives:", sum(detected %in% simIPD$ipd_item), "of",
+    length(simIPD$ipd_item), "\n")
+#> True positives: 18 of 18 
+# }
+
 ```

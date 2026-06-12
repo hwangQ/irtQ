@@ -1805,6 +1805,8 @@ Example datasets bundled with the package.
   Simulated Single-Item Format CAT Data
 - [`simCAT_MX`](https://hwangQ.github.io/irtQ/reference/simCAT_MX.md) :
   Simulated Mixed-Item Format CAT Data
+- [`simIPD`](https://hwangQ.github.io/irtQ/reference/simIPD.md) :
+  Simulated CAT Data for Item Parameter Drift (IPD) Detection
 - [`simMG`](https://hwangQ.github.io/irtQ/reference/simMG.md) :
   Simulated multiple-group data
 - [`simMST`](https://hwangQ.github.io/irtQ/reference/simMST.md) :
