@@ -108,6 +108,8 @@ reference:
       - bind.fill
       - bisection
       - reval_mst
+      - panel_info
+      - sim_mst
       - summary
 
   - title: "Importing External Software Output"

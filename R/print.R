@@ -648,3 +648,88 @@ print.summary.est_item <- function(x, digits = max(2L, getOption("digits") - 5L)
   cat("\n")
   invisible(x)
 }
+
+
+#' @export
+print.sim_mst <- function(x, digits = 3L, ...) {
+
+  # Print the function call
+  cat("\nCall:\n")
+  cat(paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n")
+
+  # --- Panel structure summary ---
+  panel    <- x$panel
+  n.stg    <- panel$n.stage
+  n.mod    <- panel$n.module
+  n.path   <- nrow(panel$pathway)
+  cat("MST Simulation Results\n")
+  cat(strrep("=", 40), "\n\n")
+
+  cat("Panel structure:\n")
+  cat(sprintf("  Stages              : %d\n", n.stg))
+  cat(sprintf("  Modules per stage   : %s\n", paste(n.mod, collapse = " - ")))
+  cat(sprintf("  Valid pathways      : %d\n", n.path))
+
+  # Routing method label
+  # NULL route.method (cut-score routing) must be converted to a length-1
+  # string before switch(), since as.character(NULL) has length 0.
+  route_method_chr <- if (is.null(x$route.method)) "NULL" else as.character(x$route.method)
+  rm_label <- switch(
+    route_method_chr,
+    "bmat" = "bmat (b-matching)",
+    "mfi"  = "mfi (Maximum Fisher Information)",
+    "NULL" = , "NA" = , "<NA>" = "cut-score based",
+    route_method_chr
+  )
+  cat(sprintf("  Routing method      : %s\n\n", rm_label))
+
+  # --- Examinees and scoring ---
+  cat(sprintf("Number of examinees : %d\n\n", x$N))
+
+  cat("Ability estimation:\n")
+  cat(sprintf("  Routing method      : %s\n", x$route.score$method))
+  cat(sprintf("  Final method        : %s\n\n", x$final.score$method))
+
+  # --- Summary of final ability estimates ---
+  cat("Final ability estimates (est.theta):\n")
+  cat(sprintf("  Mean : %.*f\n", digits, mean(x$est.theta, na.rm = TRUE)))
+  cat(sprintf("  SD   : %.*f\n", digits, stats::sd(x$est.theta, na.rm = TRUE)))
+  cat(sprintf("  Min  : %.*f\n", digits, min(x$est.theta,  na.rm = TRUE)))
+  cat(sprintf("  Max  : %.*f\n\n", digits, max(x$est.theta, na.rm = TRUE)))
+
+  # --- Bias and RMSE if true theta is available ---
+  if (!is.null(x$true.theta)) {
+    errors <- x$est.theta - x$true.theta
+    bias   <- mean(errors, na.rm = TRUE)
+    rmse   <- sqrt(mean(errors^2, na.rm = TRUE))
+    cat("Estimation accuracy (est.theta - true.theta):\n")
+    cat(sprintf("  Bias : %.*f\n", digits, bias))
+    cat(sprintf("  RMSE : %.*f\n\n", digits, rmse))
+  }
+
+  # --- Module frequency table ---
+  cat("Module frequency by stage:\n")
+  for (s in seq_len(n.stg)) {
+    # Module counts for this stage
+    mod_counts <- table(x$path[, s])
+    mod_labels <- paste(
+      vapply(seq_along(mod_counts), function(k) {
+        mod_idx <- as.integer(names(mod_counts)[k])
+        cnt     <- mod_counts[k]
+        pct     <- 100 * cnt / x$N
+        sprintf("Module %d: %d (%.1f%%)", mod_idx, cnt, pct)
+      }, character(1L)),
+      collapse = ",  "
+    )
+    cat(sprintf("  Stage %d: %s\n", s, mod_labels))
+  }
+  cat("\n")
+
+  # Indicate whether the full response matrix is included in the result
+  if (!is.null(x$full.resp)) {
+    cat(sprintf("Full response matrix  : included (%d items x %d examinees)\n\n",
+                nrow(x$full.resp), ncol(x$full.resp)))
+  }
+
+  invisible(x)   # return the object invisibly (standard S3 print convention)
+}
