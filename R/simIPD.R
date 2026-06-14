@@ -4,10 +4,10 @@
 #' A simulated dataset designed to illustrate the use of the \code{\link{ripd}}
 #' function for detecting item parameter drift (IPD) in computerized adaptive
 #' testing (CAT). The dataset represents one replication of a CAT-based IPD
-#' simulation study in which 5\% of a 360-item pool (18 items) had both their
+#' simulation study in which 5% of a 360-item pool (18 items) had both their
 #' discrimination (\emph{a}) and difficulty (\emph{b}) parameters drift
 #' downward by 0.5, under a 30-item adaptive test where all focal group
-#' examinees were exposed to the drifted items (100\% exposure rate).
+#' examinees were exposed to the drifted items (100% exposure rate).
 #'
 #' The data reflect a workflow of IPD detection using the residual-based IPD
 #' (RIPD) framework (Lim & Han, in press): a focal group of examinees takes a
@@ -31,17 +31,17 @@
 #'     (i.e., the complement of \code{key_item} in \code{1:360}).
 #'     Pass this vector to the \code{item.skip} argument of \code{ripd()}.}
 #'   \item{ipd_item}{An integer vector of length 18 giving the row indices of
-#'     items that were subjected to IPD manipulation.  These 18 items (5\% of
+#'     items that were subjected to IPD manipulation.  These 18 items (5% of
 #'     the 360-item pool) had both their discrimination (\emph{a}) and difficulty
 #'     (\emph{b}) parameters decreased by 0.5.  All 18 items are members of
 #'     \code{key_item}.}
 #'   \item{foc_resp}{An integer matrix of dimensions 3000 × 360 containing the
 #'     \strong{focal group} CAT response data.  Each row is one examinee; each
 #'     column corresponds to an item in \code{item_par}.  Because CAT
-#'     administers only 30 items per examinee, approximately 92\% of entries
+#'     administers only 30 items per examinee, approximately 92% of entries
 #'     are \code{NA}.  Responses were generated using the \emph{drifted} item
 #'     parameters (all focal examinees were exposed to IPD items;
-#'     exposure rate = 100\%).}
+#'     exposure rate = 100%).}
 #'   \item{foc_score}{A numeric vector of length 3000 containing the
 #'     \strong{focal group} final maximum likelihood (ML) theta estimates
 #'     obtained from the CAT.}
@@ -69,7 +69,7 @@
 #'     \eqn{N(0, 1)}
 #'   \item Reference group: \eqn{n = 3{,}000} (1F); true abilities =
 #'     \code{foc_score}
-#'   \item IPD items: 18 (5\% of 360), randomly drawn from \code{key_item}
+#'   \item IPD items: 18 (5% of 360), randomly drawn from \code{key_item}
 #'   \item IPD manipulation: both \emph{a} and \emph{b} decreased by 0.50
 #'   \item Interim scoring: EAP; final scoring: ML
 #'   \item Scaling constant: \eqn{D = 1.7}
