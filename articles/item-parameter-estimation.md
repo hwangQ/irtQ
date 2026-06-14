@@ -304,12 +304,12 @@ summary(mod_1pl_fixed)
 #>  Number of free parameters: 20
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 6
-#>  Maximum parameter change: 6.362543e-06
+#>  Maximum parameter change: 6.362554e-06
 #> 
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.17
 #>  Standard error computation: 0.02
-#>  Total computation: 0.21
+#>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -397,8 +397,8 @@ summary(mod_1pl_constrained)
 #>  Maximum parameter change: 0.0007782085
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.14
-#>  Standard error computation: 0.06
+#>  EM algorithm: 0.13
+#>  Standard error computation: 0.07
 #>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
@@ -537,9 +537,9 @@ summary(mod_bin)
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.77
+#>  EM algorithm: 0.79
 #>  Standard error computation: 0.02
-#>  Total computation: 0.8
+#>  Total computation: 0.82
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -863,9 +863,9 @@ summary(mod_3pl_gprior)
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.62
+#>  EM algorithm: 1.66
 #>  Standard error computation: 0.03
-#>  Total computation: 1.67
+#>  Total computation: 1.7
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -983,9 +983,9 @@ summary(mod_3pl_fixg)
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.08
+#>  EM algorithm: 1.25
 #>  Standard error computation: 0.02
-#>  Total computation: 1.13
+#>  Total computation: 1.3
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1102,9 +1102,9 @@ summary(mod_3pl_allprior)
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.21
+#>  EM algorithm: 2.12
 #>  Standard error computation: 0.03
-#>  Total computation: 2.26
+#>  Total computation: 2.18
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1385,9 +1385,9 @@ summary(mod_mix)
 #>  Maximum parameter change: 0.0009697275
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.76
-#>  Standard error computation: 0.03
-#>  Total computation: 0.81
+#>  EM algorithm: 0.78
+#>  Standard error computation: 0.02
+#>  Total computation: 0.83
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1796,12 +1796,12 @@ summary(mod_fipc)
 #>  Number of free parameters: 12
 #>  Number of fixed items: 15
 #>  Number of E-step cycles completed: 13
-#>  Maximum parameter change: 0.0008186951
+#>  Maximum parameter change: 0.0008186949
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.12
+#>  EM algorithm: 0.11
 #>  Standard error computation: 0
-#>  Total computation: 0.14
+#>  Total computation: 0.13
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2067,7 +2067,7 @@ summary(mod_fipc_mix)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.18
 #>  Standard error computation: 0.01
-#>  Total computation: 0.22
+#>  Total computation: 0.21
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2673,9 +2673,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 14.28
-#>  Standard error computation: 0.22
-#>  Total computation: 15.1
+#>  EM algorithm: 14.98
+#>  Standard error computation: 0.35
+#>  Total computation: 16.06
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2983,7 +2983,7 @@ head(par_mg)
 #> 3    C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
 #> 4    C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
 #> 5    C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6    C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
+#> 6    C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA
 #> 7    C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
 #> 8    C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
 #> 9    C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
@@ -2991,11 +2991,11 @@ head(par_mg)
 #> 11   G1I1    2  3PLM 0.9359127 -0.548239144  0.12796867         NA         NA
 #> 12   G1I2    2  3PLM 0.8464253  1.172570909  0.08981114         NA         NA
 #> 13   G1I3    2  3PLM 1.4616326  1.305882948  0.18093863         NA         NA
-#> 14   G1I4    2  3PLM 1.4926688  0.238013232  0.28916429         NA         NA
+#> 14   G1I4    2  3PLM 1.4926688  0.238013233  0.28916429         NA         NA
 #> 15   G1I5    2  3PLM 1.2979873 -0.242251772  0.13400726         NA         NA
 #> 16   G1I6    2  3PLM 2.1074476 -0.012948148  0.07444095         NA         NA
 #> 17   G1I7    2  3PLM 1.4082434 -0.118840206  0.18134112         NA         NA
-#> 18   G1I8    2  3PLM 2.4266305  1.180075734  0.32271527         NA         NA
+#> 18   G1I8    2  3PLM 2.4266306  1.180075775  0.32271527         NA         NA
 #> 19   G1I9    2  3PLM 2.3509008 -0.977087363  0.21540341         NA         NA
 #> 20  G1I10    2  3PLM 1.2511555 -1.833025156  0.18382522         NA         NA
 #> 21  G1I11    2  3PLM 1.5207162 -1.185147713  0.16473757         NA         NA
@@ -3017,7 +3017,7 @@ head(par_mg)
 #> 37  G1I27    2  3PLM 1.6038171 -1.629006369  0.20988867         NA         NA
 #> 38  G1I28    2  3PLM 1.2874830  0.532576013  0.13701099         NA         NA
 #> 39  G1I29    2  3PLM 0.8993998 -0.443199401  0.09884639         NA         NA
-#> 40  G1I30    2  3PLM 0.9764149  2.298256707  0.16440818         NA         NA
+#> 40  G1I30    2  3PLM 0.9764149  2.298256708  0.16440818         NA         NA
 #> 41  G1I31    2  3PLM 2.3488846  1.645346469  0.18059777         NA         NA
 #> 42  G1I32    2  3PLM 1.0719102 -0.141789310  0.12290992         NA         NA
 #> 43  G1I33    2  3PLM 1.5612761  0.146268646  0.14565485         NA         NA
@@ -3066,16 +3066,16 @@ head(par_mg)
 #> 86   C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA
 #> 87   C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA
 #> 88  C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA
-#> 89   G3I1    2  3PLM 1.4958521 -1.157480281  0.13021457         NA         NA
-#> 90   G3I2    2  3PLM 0.7408780 -0.735132395  0.15274024         NA         NA
+#> 89   G3I1    2  3PLM 1.4958520 -1.157480281  0.13021457         NA         NA
+#> 90   G3I2    2  3PLM 0.7408780 -0.735132396  0.15274024         NA         NA
 #> 91   G3I3    2  3PLM 1.1082057  0.025301687  0.15302876         NA         NA
 #> 92   G3I4    2  3PLM 1.2502137  1.732480555  0.22122128         NA         NA
 #> 93   G3I5    2  3PLM 0.7484885 -1.246114621  0.22345365         NA         NA
 #> 94   G3I6    2  3PLM 1.1068583 -1.524973978  0.24798634         NA         NA
 #> 95   G3I7    2  3PLM 1.3187121  0.223560460  0.13144430         NA         NA
 #> 96   G3I8    2  3PLM 1.8714736 -0.110985326  0.14002954         NA         NA
-#> 97   G3I9    2  3PLM 1.1037907 -1.301014196  0.16749544         NA         NA
-#> 98  G3I10    2  3PLM 1.4614569  0.970092509  0.28702354         NA         NA
+#> 97   G3I9    2  3PLM 1.1037907 -1.301014197  0.16749544         NA         NA
+#> 98  G3I10    2  3PLM 1.4614569  0.970092510  0.28702354         NA         NA
 #> 99  G3I11    2  3PLM 0.8635917  0.758975315  0.06886835         NA         NA
 #> 100 G3I12    2  3PLM 1.3635440 -0.866226276  0.22745508         NA         NA
 #> 101 G3I13    2  3PLM 1.0739247 -1.216780038  0.18915640         NA         NA
@@ -3115,7 +3115,7 @@ head(par_mg)
 #> 15  G1I5    2  3PLM 1.2979873 -0.24225177  0.13400726         NA         NA
 #> 16  G1I6    2  3PLM 2.1074476 -0.01294815  0.07444095         NA         NA
 #> 17  G1I7    2  3PLM 1.4082434 -0.11884021  0.18134112         NA         NA
-#> 18  G1I8    2  3PLM 2.4266305  1.18007573  0.32271527         NA         NA
+#> 18  G1I8    2  3PLM 2.4266306  1.18007577  0.32271527         NA         NA
 #> 19  G1I9    2  3PLM 2.3509008 -0.97708736  0.21540341         NA         NA
 #> 20 G1I10    2  3PLM 1.2511555 -1.83302516  0.18382522         NA         NA
 #> 21 G1I11    2  3PLM 1.5207162 -1.18514771  0.16473757         NA         NA
@@ -3156,7 +3156,7 @@ head(par_mg)
 #> 3   C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
 #> 4   C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
 #> 5   C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6   C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
+#> 6   C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA
 #> 7   C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
 #> 8   C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
 #> 9   C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
@@ -3214,10 +3214,10 @@ head(par_mg)
 #> 8   C2I8    2  3PLM 1.4743622  1.27817927 0.18509527        NA       NA
 #> 9   C2I9    2  3PLM 2.1404797 -1.04893386 0.12403332        NA       NA
 #> 10 C2I10    2  3PLM 1.5576919 -1.41374224 0.22823561        NA       NA
-#> 11  G3I1    2  3PLM 1.4958521 -1.15748028 0.13021457        NA       NA
+#> 11  G3I1    2  3PLM 1.4958520 -1.15748028 0.13021457        NA       NA
 #> 12  G3I2    2  3PLM 0.7408780 -0.73513240 0.15274024        NA       NA
 #> 13  G3I3    2  3PLM 1.1082057  0.02530169 0.15302876        NA       NA
-#> 14  G3I4    2  3PLM 1.2502137  1.73248055 0.22122128        NA       NA
+#> 14  G3I4    2  3PLM 1.2502137  1.73248056 0.22122128        NA       NA
 #> 15  G3I5    2  3PLM 0.7484885 -1.24611462 0.22345365        NA       NA
 #> 16  G3I6    2  3PLM 1.1068583 -1.52497398 0.24798634        NA       NA
 #> 17  G3I7    2  3PLM 1.3187121  0.22356046 0.13144430        NA       NA
@@ -3385,9 +3385,9 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.87
-#>  Standard error computation: 0.16
-#>  Total computation: 8.69
+#>  EM algorithm: 7.98
+#>  Standard error computation: 0.15
+#>  Total computation: 8.81
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3656,7 +3656,7 @@ group_par_fipc <- getirt(mod_mg_fipc, what = "group.par")
 print(group_par_fipc)
 #> $Group1
 #>                    mu     sigma2      sigma
-#> estimates -0.01161244 1.00951986 1.00474866
+#> estimates -0.01161244 1.00951987 1.00474866
 #> se         0.02246686 0.03193181 0.01589044
 #> 
 #> $Group2

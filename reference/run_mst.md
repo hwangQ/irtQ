@@ -27,7 +27,8 @@ run_mst(
   route_method = "bmat",
   cut_score = NULL,
   route_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
-    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL),
+    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL, intpol = TRUE, range.tcc =
+    c(-7, 7), max.it = 500L),
   final_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
     tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL, intpol = TRUE, range.tcc =
     c(-7, 7), max.it = 500L),
@@ -164,10 +165,14 @@ run_mst(
 
   :   Character. One of `"ML"` (maximum likelihood), `"WL"` (weighted
       likelihood; Warm, 1989), `"MLF"` (maximum likelihood with fences;
-      Han, 2016), `"MAP"` (maximum a posteriori), or `"EAP"` (expected a
-      posteriori; Bock & Mislevy, 1982). **Note**: `"EAP.SUM"` and
-      `"INV.TCC"` are not supported for routing (only for final
-      scoring). Default: `"ML"`.
+      Han, 2016), `"MAP"` (maximum a posteriori), `"EAP"` (expected a
+      posteriori; Bock & Mislevy, 1982), `"EAP.SUM"` (EAP summed
+      scoring; Thissen et al., 1995), or `"INV.TCC"` (inverse test
+      characteristic curve scoring; Lim et al., 2021). For `"EAP.SUM"`
+      and `"INV.TCC"`, a sum-score-to-theta lookup table is pre-computed
+      once per module before the simulation loop; routing theta is then
+      obtained by a single named-vector lookup, making the approach
+      efficient for large \\N\\. Default: `"ML"`.
 
   `range`
 
@@ -203,10 +208,27 @@ run_mst(
       lower and upper fence items. If `NULL`, `range` is used. Default:
       `NULL`.
 
+  `intpol`
+
+  :   Logical: enable linear interpolation for `"INV.TCC"`. Default:
+      `TRUE`.
+
+  `range.tcc`
+
+  :   Numeric vector of length 2: theta search range for `"INV.TCC"`.
+      Default: `c(-7, 7)`.
+
+  `max.it`
+
+  :   Integer: maximum bisection iterations for `"INV.TCC"`. Default:
+      `500L`.
+
   Unspecified fields take their defaults; the full default is
   `list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),`
-  `nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL)`.
-  Example: `route_score = list(method = "ML", range = c(-4, 4))`.
+  `nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,`
+  `fence.b = NULL, intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)`.
+  Example:
+  `route_score = list(method = "INV.TCC", range.tcc = c(-5, 5))`.
 
 - final_score:
 
@@ -244,9 +266,13 @@ run_mst(
 - se:
 
   Logical. Whether to compute and return the standard error of the final
-  ability estimate. SE is computed for `"ML"`, `"WL"`, `"MLF"`, `"MAP"`,
-  and `"EAP"` only; it is set to `NA` for `"EAP.SUM"` and `"INV.TCC"`.
-  Default is `TRUE`.
+  ability estimate. SE is computed for all `final_score` methods: for
+  `"ML"`, `"WL"`, `"MLF"`, `"MAP"`, and `"EAP"` via the Fisher
+  information / posterior variance; for `"EAP.SUM"` and `"INV.TCC"` via
+  the posterior standard deviation stored in the pre-computed lookup
+  table. Returns `NA` when `se = FALSE`, when all responses are missing,
+  or when the sum score falls outside the estimable range (e.g. a
+  perfect or zero score beyond `range.tcc`). Default is `TRUE`.
 
 - missing:
 
@@ -285,8 +311,11 @@ An object of class `"run_mst"`, which is a named list containing:
 - `se.theta`:
 
   A numeric vector of length *N* containing the standard error of the
-  final ability estimate. `NA` for `"EAP.SUM"` and `"INV.TCC"`, or when
-  `se = FALSE`.
+  final ability estimate. All seven `final_score` methods return SE; for
+  `"EAP.SUM"` and `"INV.TCC"`, SE is the posterior standard deviation
+  from the pre-computed lookup table. `NA` when `se = FALSE`, when all
+  responses are missing, or when the sum score falls outside the
+  estimable range.
 
 - `theta.route`:
 
@@ -795,5 +824,92 @@ print(result_findcut)
 ## Visualise the TIF-based cut scores used for routing
 plot(cut_result)
 
+
+## ---------------------------------------------------------
+## Example 5: INV.TCC routing and final scoring
+## (pre-computed lookup tables; efficient for large N)
+## ---------------------------------------------------------
+# INV.TCC can be used as both the routing and final scoring method.
+# Before the examinee loop, run_mst() pre-computes a sum_score -> theta
+# lookup table for every module (routing) and for every unique complete
+# pathway (final scoring), consistent with the reval_mst() approach.
+# SE is now returned correctly for INV.TCC (posterior SD from the table).
+
+result_inv <- run_mst(
+  x            = x,
+  route_map    = route_map,
+  module       = module,
+  theta        = theta_true,
+  D            = 1.702,
+  route_method = "bmat",
+  route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  se           = TRUE
+)
+#> [run_mst] Panel: 3 stages, 7 modules (1-3-3 design)
+#> [run_mst] Simulating responses for 500 examinees...
+#> [run_mst] Scoring 500 examinees...
+#>   Processing examinee 1 / 500 ...
+#>   Processing examinee 50 / 500 ...
+#>   Processing examinee 100 / 500 ...
+#>   Processing examinee 150 / 500 ...
+#>   Processing examinee 200 / 500 ...
+#>   Processing examinee 250 / 500 ...
+#>   Processing examinee 300 / 500 ...
+#>   Processing examinee 350 / 500 ...
+#>   Processing examinee 400 / 500 ...
+#>   Processing examinee 450 / 500 ...
+#>   Processing examinee 500 / 500 ...
+#> [run_mst] Done.
+print(result_inv)
+#> 
+#> Call:
+#> run_mst(x = x, route_map = route_map, module = module, theta = theta_true, 
+#>     D = 1.702, route_method = "bmat", route_score = list(method = "INV.TCC", 
+#>         range.tcc = c(-5, 5)), final_score = list(method = "INV.TCC", 
+#>         range.tcc = c(-5, 5)), se = TRUE) 
+#> 
+#> MST Simulation Results
+#> ======================================== 
+#> 
+#> Panel structure:
+#>   Stages              : 3
+#>   Modules per stage   : 1 - 3 - 3
+#>   Valid pathways      : 7
+#>   Routing method      : bmat (b-matching)
+#> 
+#> Number of examinees : 500
+#> 
+#> Ability estimation:
+#>   Routing method      : INV.TCC
+#>   Final method        : INV.TCC
+#> 
+#> Final ability estimates (est.theta):
+#>   Mean : 0.012
+#>   SD   : 1.141
+#>   Min  : -4.248
+#>   Max  : 5.000
+#> 
+#> Estimation accuracy (est.theta - true.theta):
+#>   Bias : 0.042
+#>   RMSE : 0.456
+#> 
+#> Module frequency by stage:
+#>   Stage 1: Module 1: 500 (100.0%)
+#>   Stage 2: Module 2: 172 (34.4%),  Module 3: 230 (46.0%),  Module 4: 98 (19.6%)
+#>   Stage 3: Module 5: 122 (24.4%),  Module 6: 158 (31.6%),  Module 7: 220 (44.0%)
+#> 
+
+# SE is now populated (posterior SD from the pre-computed table)
+head(result_inv$se.theta)
+#> [1] 1.3691953 0.2834630 0.2728840 0.2730654 0.2858929 0.2853817
+
+# Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
+rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
+rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
+cat(sprintf("RMSE (INV.TCC routing + scoring): %.4f\n", rmse_inv))
+#> RMSE (INV.TCC routing + scoring): 0.4557
+cat(sprintf("RMSE (ML    routing + scoring):   %.4f\n", rmse_ml))
+#> RMSE (ML    routing + scoring):   0.3234
 # }
 ```
