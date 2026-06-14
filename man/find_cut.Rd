@@ -62,8 +62,8 @@ order, and per-pair crossing details (proper crossings, anomalous
 crossings, and the selected cut score).}
 \item{\code{tif_data}}{A \code{tibble} with columns \code{theta},
 \code{module}, \code{stage}, and \code{tif}, providing TIF curves for
-all modules at stages 2 and above. Useful for visualizing crossings with
-\pkg{ggplot2}.}
+all modules at all stages (including stage 1). Used by
+\code{\link{plot.find_cut}} to visualise TIF curves and crossing points.}
 }
 }
 \description{
@@ -170,6 +170,15 @@ cut_result <- find_cut(x = x, module = module, route_map = route_map)
 ## Print a summary: crossing points found, anomalous crossings excluded,
 ## and the final selected cut scores per stage transition.
 print(cut_result)
+
+## ── Visualise TIF curves and cut scores ─────────────────────────────────
+## plot() shows TIF curves for every module faceted by stage.
+## Selected cut scores appear as solid black vertical lines with theta
+## labels at the crossing point. Anomalous crossings (if any) appear
+## as dashed red lines.
+plot(cut_result)                         # stages stacked vertically (default)
+plot(cut_result, layout = "horizontal")  # stages side by side
+plot(cut_result, show_anomalous = FALSE) # hide anomalous crossing markers
 
 ## Inspect the cut_score element — a list directly compatible with run_mst()
 ## cut_score[[1]]: two cut scores for the stage-1 -> stage-2 transition

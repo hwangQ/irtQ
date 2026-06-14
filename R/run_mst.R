@@ -397,6 +397,9 @@
 #'   se = TRUE
 #' )
 #' print(result_findcut)
+#'
+#' ## Visualise the TIF-based cut scores used for routing
+#' plot(cut_result)
 #' }
 #'
 #' @export

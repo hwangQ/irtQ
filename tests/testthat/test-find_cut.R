@@ -84,7 +84,7 @@ test_that("find_cut() tif_data is a well-formed tibble", {
   expect_true(all(c("theta", "module", "stage", "tif") %in% names(td)))
   expect_true(all(is.finite(td$tif)))
   expect_true(all(td$tif >= 0))    # TIF is always non-negative
-  expect_true(all(td$stage >= 2L)) # only stages >= 2 are included
+  expect_true(all(td$stage >= 1L)) # stage 1 (routing) and above are included
 })
 
 test_that("find_cut() cut_score is directly usable in run_mst()", {
@@ -164,4 +164,54 @@ test_that("find_cut() ref_theta selects the closest proper crossing", {
   expect_s3_class(result_2, "find_cut")
   expect_length(result_0$cut_score, 2L)
   expect_length(result_2$cut_score, 2L)
+})
+
+# ── plot.find_cut() tests ──────────────────────────────────────────────────
+
+test_that("plot.find_cut() returns a ggplot object for all layout options", {
+  skip_if_not_installed("ggplot2")
+
+  x         <- simMST$item_bank
+  module    <- simMST$module
+  route_map <- simMST$route_map
+
+  cut_result <- suppressWarnings(
+    find_cut(x = x, module = module, route_map = route_map)
+  )
+
+  # Default: vertical layout
+  p_vert <- plot(cut_result)
+  expect_s3_class(p_vert, "ggplot")
+
+  # Horizontal layout
+  p_horiz <- plot(cut_result, layout = "horizontal")
+  expect_s3_class(p_horiz, "ggplot")
+
+  # No anomalous markers
+  p_no_anom <- plot(cut_result, show_anomalous = FALSE)
+  expect_s3_class(p_no_anom, "ggplot")
+
+  # No cut score labels
+  p_no_label <- plot(cut_result, label_cuts = FALSE)
+  expect_s3_class(p_no_label, "ggplot")
+})
+
+test_that("find_cut() tif_data now includes stage 1", {
+  x         <- simMST$item_bank
+  module    <- simMST$module
+  route_map <- simMST$route_map
+
+  cut_result <- suppressWarnings(
+    find_cut(x = x, module = module, route_map = route_map)
+  )
+
+  # tif_data must contain all three stages (1, 2, 3) for simMST
+  stages_in_tif <- sort(unique(cut_result$tif_data$stage))
+  expect_equal(stages_in_tif, c(1L, 2L, 3L))
+
+  # Stage 1 should have exactly one module (module 1 for simMST)
+  stage1_modules <- unique(cut_result$tif_data$module[
+    cut_result$tif_data$stage == 1L
+  ])
+  expect_equal(stage1_modules, 1L)
 })

@@ -60,8 +60,8 @@
 #'     crossings, and the selected cut score).}
 #'   \item{\code{tif_data}}{A \code{tibble} with columns \code{theta},
 #'     \code{module}, \code{stage}, and \code{tif}, providing TIF curves for
-#'     all modules at stages 2 and above. Useful for visualizing crossings with
-#'     \pkg{ggplot2}.}
+#'     all modules at all stages (including stage 1). Used by
+#'     \code{\link{plot.find_cut}} to visualise TIF curves and crossing points.}
 #' }
 #'
 #' @details
@@ -164,6 +164,15 @@
 #' ## and the final selected cut scores per stage transition.
 #' print(cut_result)
 #'
+#' ## ── Visualise TIF curves and cut scores ─────────────────────────────────
+#' ## plot() shows TIF curves for every module faceted by stage.
+#' ## Selected cut scores appear as solid black vertical lines with theta
+#' ## labels at the crossing point. Anomalous crossings (if any) appear
+#' ## as dashed red lines.
+#' plot(cut_result)                         # stages stacked vertically (default)
+#' plot(cut_result, layout = "horizontal")  # stages side by side
+#' plot(cut_result, show_anomalous = FALSE) # hide anomalous crossing markers
+#'
 #' ## Inspect the cut_score element — a list directly compatible with run_mst()
 #' ## cut_score[[1]]: two cut scores for the stage-1 -> stage-2 transition
 #' ## cut_score[[2]]: cut scores for the stage-2 -> stage-3 transition
@@ -250,6 +259,21 @@ find_cut <- function(x,
 
   # tif_rows: accumulator for tif_data tibble rows
   tif_rows     <- list()
+
+  # ── 2b. Collect TIF data for stage 1 (routing stage) ──────────────────────
+  # Stage 1 is not processed in the main loop (no routing decision needed),
+  # but its TIF is included in tif_data so plot.find_cut() can display it
+  # as the top facet for context.
+  for (m in config[[1L]]) {
+    tif_vals <- info(x = item_mod[[m]], theta = theta_grid,
+                     D = D, tif = TRUE)$tif
+    tif_rows[[length(tif_rows) + 1L]] <- tibble::tibble(
+      theta  = theta_grid,
+      module = m,
+      stage  = 1L,
+      tif    = tif_vals
+    )
+  }
 
   # ── 3. Main loop: process each stage from stage 2 onward ──────────────────
   for (s in seq(2L, n_stg)) {
@@ -492,8 +516,331 @@ find_cut <- function(x,
   rst <- list(
     cut_score = cut_list,    # list: pass directly to run_mst(cut_score = ...)
     details   = details,     # list: per-stage diagnostic info
-    tif_data  = tif_data     # tibble: TIF curves for all stages >= 2
+    tif_data  = tif_data     # tibble: TIF curves for all stages (1 and above)
   )
   class(rst) <- "find_cut"   # S3 class for print dispatch
   rst
+}
+
+
+# ---------------------------------------------------------------------------
+# plot.find_cut() — S3 plot method for find_cut objects
+# ---------------------------------------------------------------------------
+
+#' Plot TIF Curves and Cut Scores from a \code{find_cut} Result
+#'
+#' @description
+#' Produces a \pkg{ggplot2} visualisation of the Test Information Function
+#' (TIF) curves for each module, faceted by stage, with vertical lines marking
+#' the selected cut scores (proper TIF crossings) and, optionally, any
+#' anomalous crossings detected by \code{\link{find_cut}}.
+#'
+#' Each stage occupies one panel. Stage 1 (routing module) appears first.
+#' Stages with routing decisions show TIF curves for all candidate modules and
+#' mark the selected cut score(s) with a solid black vertical line and a theta
+#' value label at the crossing point.
+#'
+#' @param x An object of class \code{"find_cut"} returned by
+#'   \code{\link{find_cut}}.
+#' @param theta_range A numeric vector of length 2 specifying the theta range
+#'   shown on the x-axis. Defaults to the full range stored in
+#'   \code{x$tif_data}.
+#' @param show_anomalous Logical. If \code{TRUE} (default), anomalous TIF
+#'   crossings (negative-slope crossings excluded from the cut scores) are
+#'   shown as dashed red vertical lines.
+#' @param label_cuts Logical. If \code{TRUE} (default), each selected cut
+#'   score is annotated with its theta value above the crossing point.
+#' @param layout Character string controlling the panel arrangement.
+#'   \code{"vertical"} (default) stacks each stage in its own row (one
+#'   column of panels, stage 1 at the top). \code{"horizontal"} places each
+#'   stage in its own column (one row of panels, stage 1 at the left).
+#' @param ... Currently unused. Reserved for future arguments.
+#'
+#' @return A \code{ggplot} object. The object is printed automatically when
+#'   called interactively. It can be further customised with standard
+#'   \pkg{ggplot2} functions such as \code{ggplot2::theme()},
+#'   \code{ggplot2::scale_color_manual()}, etc.
+#'
+#' @seealso \code{\link{find_cut}}, \code{\link{run_mst}}
+#'
+#' @examples
+#' ## Use the built-in simMST 1-3-3 panel
+#' cut_result <- find_cut(
+#'   x         = simMST$item_bank,
+#'   module    = simMST$module,
+#'   route_map = simMST$route_map
+#' )
+#'
+#' ## Default: stages stacked vertically (stage 1 at the top)
+#' plot(cut_result)
+#'
+#' ## Horizontal layout: stages side by side
+#' plot(cut_result, layout = "horizontal")
+#'
+#' ## Hide anomalous crossing markers
+#' plot(cut_result, show_anomalous = FALSE)
+#'
+#' @export
+plot.find_cut <- function(x,
+                          theta_range    = NULL,
+                          show_anomalous = TRUE,
+                          label_cuts     = TRUE,
+                          layout         = c("vertical", "horizontal"),
+                          ...) {
+
+  # ── 0. Argument validation ─────────────────────────────────────────────────
+  if (!inherits(x, "find_cut"))
+    stop("'x' must be an object of class \"find_cut\".")
+  layout <- match.arg(layout)    # "vertical" or "horizontal"
+  if (!is.logical(show_anomalous) || length(show_anomalous) != 1L)
+    stop("'show_anomalous' must be a single logical value (TRUE or FALSE).")
+  if (!is.logical(label_cuts) || length(label_cuts) != 1L)
+    stop("'label_cuts' must be a single logical value (TRUE or FALSE).")
+
+  # ── 1. Prepare TIF tibble for plotting ────────────────────────────────────
+  tif_plot <- x$tif_data    # columns: theta, module, stage, tif
+
+  # Apply optional theta range filter
+  if (!is.null(theta_range)) {
+    if (!is.numeric(theta_range) || length(theta_range) != 2L ||
+        theta_range[1L] >= theta_range[2L])
+      stop("'theta_range' must be a numeric vector of length 2 with ",
+           "theta_range[1] < theta_range[2].")
+    tif_plot <- tif_plot[tif_plot$theta >= theta_range[1L] &
+                         tif_plot$theta <= theta_range[2L], ]
+  }
+
+  # Create ordered stage factor (stage 1 first = top / leftmost panel)
+  all_stages   <- sort(unique(tif_plot$stage))
+  stage_levels <- paste0("Stage ", all_stages)
+
+  tif_plot$stage_label  <- factor(paste0("Stage ", tif_plot$stage),
+                                  levels = stage_levels)
+  tif_plot$module_label <- paste0("Module ", tif_plot$module)
+
+  # ── 2. Build annotation data for vertical lines and crossing dots ──────────
+  vline_rows <- list()   # rows for vline data frame
+  point_rows <- list()   # rows for crossing-point dot data frame
+
+  has_unselected <- FALSE   # any unselected proper crossings present?
+  has_anomalous  <- FALSE   # any anomalous crossings present?
+
+  for (stage_name in names(x$details)) {
+
+    # Parse stage index from name string (e.g. "stage.2" -> 2L)
+    stage_num <- as.integer(sub("stage\\.", "", stage_name))
+    stg_info  <- x$details[[stage_name]]
+
+    if (is.null(stg_info$pairs)) next    # single-module stage: no crossings
+
+    for (pair in stg_info$pairs) {
+
+      sel       <- pair$selected_cut         # scalar: the chosen cut score
+      proper    <- pair$proper_crossings     # numeric vector: all proper roots
+      anomalous <- pair$anomalous_crossings  # numeric vector: all anomalous roots
+
+      # ── Selected cut score ────────────────────────────────────────────────
+      if (length(sel) == 1L && !is.na(sel)) {
+        vline_rows[[length(vline_rows) + 1L]] <- data.frame(
+          stage         = stage_num,
+          xintercept    = sel,
+          crossing_type = "selected",
+          stringsAsFactors = FALSE
+        )
+        # Interpolate the TIF value at the crossing using the left module curve
+        left_sub <- tif_plot[tif_plot$module == pair$left_module &
+                              tif_plot$stage  == stage_num, ]
+        if (nrow(left_sub) >= 2L) {
+          y_cross <- stats::approx(x    = left_sub$theta,
+                                   y    = left_sub$tif,
+                                   xout = sel)$y
+          if (!is.na(y_cross)) {
+            point_rows[[length(point_rows) + 1L]] <- data.frame(
+              stage  = stage_num,
+              theta  = sel,
+              tif    = y_cross,
+              stringsAsFactors = FALSE
+            )
+          }
+        }
+      }
+
+      # ── Unselected proper crossings (when multiple exist) ──────────────────
+      other_proper <- proper[!is.na(proper) & proper != sel]
+      if (length(other_proper) > 0L) {
+        has_unselected <- TRUE
+        for (op in other_proper) {
+          vline_rows[[length(vline_rows) + 1L]] <- data.frame(
+            stage         = stage_num,
+            xintercept    = op,
+            crossing_type = "unselected",
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+
+      # ── Anomalous crossings (excluded from cut scores) ────────────────────
+      if (show_anomalous &&
+          length(anomalous) > 0L && !all(is.na(anomalous))) {
+        has_anomalous <- TRUE
+        for (ac in anomalous[!is.na(anomalous)]) {
+          vline_rows[[length(vline_rows) + 1L]] <- data.frame(
+            stage         = stage_num,
+            xintercept    = ac,
+            crossing_type = "anomalous",
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+
+    }  # end pair loop
+  }  # end stage loop
+
+  # Combine annotation rows into data frames (NULL if empty)
+  if (length(vline_rows) > 0L) {
+    vline_df <- do.call(rbind, vline_rows)
+    vline_df$stage_label <- factor(paste0("Stage ", vline_df$stage),
+                                   levels = stage_levels)
+  } else {
+    vline_df <- NULL
+  }
+
+  if (length(point_rows) > 0L) {
+    point_df <- do.call(rbind, point_rows)
+    point_df$stage_label <- factor(paste0("Stage ", point_df$stage),
+                                   levels = stage_levels)
+  } else {
+    point_df <- NULL
+  }
+
+  # ── 3. Build plot caption describing vertical line types ───────────────────
+  caption_parts <- "Vertical lines: solid black = selected cut score"
+  if (has_unselected)
+    caption_parts <- paste0(caption_parts,
+                            " · grey dashed = unselected proper crossing")
+  if (show_anomalous && has_anomalous)
+    caption_parts <- paste0(caption_parts,
+                            " · red dashed = anomalous crossing")
+
+  # ── 4. Choose facet layout ─────────────────────────────────────────────────
+  # "vertical"   -> ncol = 1, one row per stage, stage 1 at the top
+  # "horizontal" -> nrow = 1, one column per stage, stage 1 at the left
+  facet_spec <- if (layout == "vertical") {
+    ggplot2::facet_wrap(ggplot2::vars(stage_label),
+                        ncol   = 1L,
+                        scales = "free_y")
+  } else {
+    ggplot2::facet_wrap(ggplot2::vars(stage_label),
+                        nrow   = 1L,
+                        scales = "free_y")
+  }
+
+  # ── 5. Assemble the base ggplot ────────────────────────────────────────────
+  p <- ggplot2::ggplot(
+    data    = tif_plot,
+    mapping = ggplot2::aes(x     = theta,
+                           y     = tif,
+                           color = module_label,
+                           group = module_label)
+  ) +
+    ggplot2::geom_line(linewidth = 0.9) +
+    facet_spec +
+    ggplot2::labs(
+      x       = expression(theta),
+      y       = "Test Information (TIF)",
+      color   = "Module",
+      title   = "TIF Curves and TIF-Crossing Cut Scores by Stage",
+      caption = caption_parts
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      legend.position  = "right",
+      strip.background = ggplot2::element_rect(fill  = "grey92",
+                                               color = "grey70"),
+      strip.text       = ggplot2::element_text(face = "bold", size = 11),
+      plot.caption     = ggplot2::element_text(hjust  = 0,
+                                               size   = 8,
+                                               color  = "grey40")
+    )
+
+  # ── 6. Overlay vertical lines for each crossing type ──────────────────────
+  if (!is.null(vline_df)) {
+
+    # Selected cut scores — solid black, linewidth 1.0
+    sel_df <- vline_df[vline_df$crossing_type == "selected", ]
+    if (nrow(sel_df) > 0L) {
+      p <- p + ggplot2::geom_vline(
+        data        = sel_df,
+        mapping     = ggplot2::aes(xintercept = xintercept),
+        color       = "black",
+        linetype    = "solid",
+        linewidth   = 1.0,
+        alpha       = 0.8,
+        inherit.aes = FALSE
+      )
+    }
+
+    # Unselected proper crossings — dashed grey50
+    unsel_df <- vline_df[vline_df$crossing_type == "unselected", ]
+    if (nrow(unsel_df) > 0L) {
+      p <- p + ggplot2::geom_vline(
+        data        = unsel_df,
+        mapping     = ggplot2::aes(xintercept = xintercept),
+        color       = "grey50",
+        linetype    = "dashed",
+        linewidth   = 0.7,
+        alpha       = 0.8,
+        inherit.aes = FALSE
+      )
+    }
+
+    # Anomalous crossings — dashed firebrick
+    anom_df <- vline_df[vline_df$crossing_type == "anomalous", ]
+    if (nrow(anom_df) > 0L) {
+      p <- p + ggplot2::geom_vline(
+        data        = anom_df,
+        mapping     = ggplot2::aes(xintercept = xintercept),
+        color       = "firebrick",
+        linetype    = "dashed",
+        linewidth   = 0.7,
+        alpha       = 0.8,
+        inherit.aes = FALSE
+      )
+    }
+  }
+
+  # ── 7. Add open-circle dot at each selected crossing point ─────────────────
+  # The dot sits at (theta_cut, TIF_left(theta_cut)) — the exact intersection
+  # of the two adjacent module TIF curves at the cut score theta.
+  if (!is.null(point_df)) {
+    p <- p + ggplot2::geom_point(
+      data        = point_df,
+      mapping     = ggplot2::aes(x = theta, y = tif),
+      color       = "black",
+      fill        = "white",
+      shape       = 21L,       # open circle with border
+      size        = 2.5,
+      stroke      = 1.2,
+      inherit.aes = FALSE
+    )
+  }
+
+  # ── 8. Annotate each selected cut score with its theta value ──────────────
+  # Label is placed above the crossing dot; if no dot exists, it is suppressed.
+  if (label_cuts && !is.null(point_df)) {
+    p <- p + ggplot2::geom_text(
+      data        = point_df,
+      mapping     = ggplot2::aes(x     = theta,
+                                 y     = tif,
+                                 label = sprintf("θ=%.3f", theta)),
+      vjust       = -0.9,     # slightly above the dot
+      hjust       = 0.5,
+      size        = 3.0,
+      color       = "black",
+      fontface    = "bold",
+      inherit.aes = FALSE
+    )
+  }
+
+  p    # return ggplot object (auto-printed when called interactively)
 }
