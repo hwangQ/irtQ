@@ -81,6 +81,10 @@ reference:
       - crdif
       - grdif
       - catsib
+
+  - title: "Item Parameter Drift (IPD)"
+    desc: "Detect and evaluate item parameter drift across test administrations using residual-based methods."
+    contents:
       - ripd
       - pcd2
 
@@ -98,6 +102,15 @@ reference:
       - plot.info
       - plot.traceline
 
+  - title: "Multistage-Adaptive Test (MST)"
+    desc: "Simulate MST administrations, evaluate panel performance, and compute TIF-based routing cut scores."
+    contents:
+      - reval_mst
+      - panel_info
+      - find_cut
+      - plot.find_cut
+      - run_mst
+
   - title: "Data Simulation & Utilities"
     desc: "Simulate item response data and compute supporting quantities."
     contents:
@@ -107,10 +120,6 @@ reference:
       - covirt
       - bind.fill
       - bisection
-      - reval_mst
-      - panel_info
-      - find_cut
-      - run_mst
       - summary
 
   - title: "Importing External Software Output"
