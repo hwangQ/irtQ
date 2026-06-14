@@ -651,7 +651,7 @@ print.summary.est_item <- function(x, digits = max(2L, getOption("digits") - 5L)
 
 
 #' @export
-print.sim_mst <- function(x, digits = 3L, ...) {
+print.run_mst <- function(x, digits = 3L, ...) {
 
   # Print the function call
   cat("\nCall:\n")

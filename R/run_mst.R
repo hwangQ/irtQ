@@ -199,7 +199,7 @@
 #' quadrature weights are computed once per module before the examinee loop,
 #' following the same pattern as \code{est_score_1core()}.
 #'
-#' @return An object of class \code{"sim_mst"}, which is a named list
+#' @return An object of class \code{"run_mst"}, which is a named list
 #'   containing:
 #' \describe{
 #'   \item{\code{call}}{The matched function call.}
@@ -281,7 +281,7 @@
 #' theta_true <- rnorm(500, mean = 0, sd = 1)
 #'
 #' # Run MST simulation with bmat routing and ML scoring
-#' result_bmat <- sim_mst(
+#' result_bmat <- run_mst(
 #'   x          = x,
 #'   route_map  = route_map,
 #'   module     = module,
@@ -307,7 +307,7 @@
 #' ## ---------------------------------------------------------
 #' cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
 #'
-#' result_cut <- sim_mst(
+#' result_cut <- run_mst(
 #'   x            = x,
 #'   route_map    = route_map,
 #'   module       = module,
@@ -332,9 +332,9 @@
 #' resp_matrix <- simdat(x = x, theta = theta_true2, D = 1.702)
 #' # resp_matrix is an N x J matrix (N examinees x J total items in bank)
 #'
-#' # Now run sim_mst() twice with the SAME responses but different routing methods
+#' # Now run run_mst() twice with the SAME responses but different routing methods
 #' # Method A: bmat routing
-#' result_A <- sim_mst(
+#' result_A <- run_mst(
 #'   x            = x,
 #'   route_map    = route_map,
 #'   module       = module,
@@ -348,7 +348,7 @@
 #' )
 #'
 #' # Method B: cut-score routing using the same responses
-#' result_B <- sim_mst(
+#' result_B <- run_mst(
 #'   x            = x,
 #'   route_map    = route_map,
 #'   module       = module,
@@ -370,7 +370,7 @@
 #' }
 #'
 #' @export
-sim_mst <- function(x,
+run_mst <- function(x,
                     route_map,
                     module,
                     theta            = NULL,
@@ -658,14 +658,14 @@ sim_mst <- function(x,
   # --- Verbose progress reporting ---
   if (verbose) {
     message(sprintf(
-      "[sim_mst] Panel: %d stages, %d modules (%s design)",
+      "[run_mst] Panel: %d stages, %d modules (%s design)",
       n.stg, tn.mod,
       paste(n.mod, collapse = "-")
     ))
     if (is.null(response)) {
-      message(sprintf("[sim_mst] Simulating responses for %d examinees...", N))
+      message(sprintf("[run_mst] Simulating responses for %d examinees...", N))
     }
-    message(sprintf("[sim_mst] Scoring %d examinees...", N))
+    message(sprintf("[run_mst] Scoring %d examinees...", N))
     # Report interval: approximately every 10% of examinees (min 1)
     report_every <- max(1L, N %/% 10L)
   }
@@ -997,9 +997,9 @@ sim_mst <- function(x,
   )
 
   # Assign S3 class for print dispatch
-  class(rst) <- "sim_mst"
+  class(rst) <- "run_mst"
 
-  if (verbose) message("[sim_mst] Done.")
+  if (verbose) message("[run_mst] Done.")
 
   rst
 }

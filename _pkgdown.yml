@@ -109,7 +109,7 @@ reference:
       - bisection
       - reval_mst
       - panel_info
-      - sim_mst
+      - run_mst
       - summary
 
   - title: "Importing External Software Output"

@@ -39,7 +39,7 @@
 #' Magis, D., Yan, D., & von Davier, A. A. (2017). \emph{Computerized adaptive
 #' and multistage testing with R: Using packages catR and mstR}. Springer.
 #'
-#' @seealso \code{\link{reval_mst}}, \code{\link{sim_mst}}
+#' @seealso \code{\link{reval_mst}}, \code{\link{run_mst}}
 #'
 #' @examples
 #' # Use the 1-3-3 simMST panel route map
