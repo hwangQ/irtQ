@@ -52,8 +52,8 @@ Lord-Wingersky recursion
 
 \tabular{ll}{
 Package: \tab irtQ\cr
-Version: \tab 1.1.1\cr
-Date: \tab 2026-06-12\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2026-06-14\cr
 Depends: \tab R (>= 4.4)\cr
 License: \tab GPL (>= 2)\cr
 }
