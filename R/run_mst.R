@@ -103,10 +103,14 @@
 #'     \item{\code{method}}{Character. One of \code{"ML"} (maximum likelihood),
 #'       \code{"WL"} (weighted likelihood; Warm, 1989), \code{"MLF"}
 #'       (maximum likelihood with fences; Han, 2016), \code{"MAP"} (maximum
-#'       a posteriori), or \code{"EAP"} (expected a posteriori; Bock &
-#'       Mislevy, 1982). \strong{Note}: \code{"EAP.SUM"} and \code{"INV.TCC"}
-#'       are not supported for routing (only for final scoring). Default:
-#'       \code{"ML"}.}
+#'       a posteriori), \code{"EAP"} (expected a posteriori; Bock & Mislevy,
+#'       1982), \code{"EAP.SUM"} (EAP summed scoring; Thissen et al., 1995),
+#'       or \code{"INV.TCC"} (inverse test characteristic curve scoring; Lim
+#'       et al., 2021). For \code{"EAP.SUM"} and \code{"INV.TCC"}, a
+#'       sum-score-to-theta lookup table is pre-computed once per module before
+#'       the simulation loop; routing theta is then obtained by a single
+#'       named-vector lookup, making the approach efficient for large \eqn{N}.
+#'       Default: \code{"ML"}.}
 #'     \item{\code{range}}{Numeric vector of length 2: lower and upper bounds
 #'       for the ability scale. Default: \code{c(-5, 5)}.}
 #'     \item{\code{norm.prior}}{Numeric vector of length 2: mean and SD of the
@@ -121,11 +125,18 @@
 #'     \item{\code{fence.b}}{Numeric vector of length 2 or \code{NULL}:
 #'       difficulty parameters of the lower and upper fence items. If
 #'       \code{NULL}, \code{range} is used. Default: \code{NULL}.}
+#'     \item{\code{intpol}}{Logical: enable linear interpolation for
+#'       \code{"INV.TCC"}. Default: \code{TRUE}.}
+#'     \item{\code{range.tcc}}{Numeric vector of length 2: theta search range
+#'       for \code{"INV.TCC"}. Default: \code{c(-7, 7)}.}
+#'     \item{\code{max.it}}{Integer: maximum bisection iterations for
+#'       \code{"INV.TCC"}. Default: \code{500L}.}
 #'   }
 #'   Unspecified fields take their defaults; the full default is
 #'   \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
-#'   \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL)}.
-#'   Example: \code{route_score = list(method = "ML", range = c(-4, 4))}.
+#'   \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,}
+#'   \code{fence.b = NULL, intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.
+#'   Example: \code{route_score = list(method = "INV.TCC", range.tcc = c(-5, 5))}.
 #'
 #' @param final_score A named list specifying the scoring method and options
 #'   for the final ability estimate (applied to all items accumulated across
@@ -149,10 +160,14 @@
 #'   \code{intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.
 #'
 #' @param se Logical. Whether to compute and return the standard error of the
-#'   final ability estimate. SE is computed for \code{"ML"}, \code{"WL"},
-#'   \code{"MLF"}, \code{"MAP"}, and \code{"EAP"} only; it is set to
-#'   \code{NA} for \code{"EAP.SUM"} and \code{"INV.TCC"}. Default is
-#'   \code{TRUE}.
+#'   final ability estimate. SE is computed for all \code{final_score} methods:
+#'   for \code{"ML"}, \code{"WL"}, \code{"MLF"}, \code{"MAP"}, and \code{"EAP"}
+#'   via the Fisher information / posterior variance; for \code{"EAP.SUM"} and
+#'   \code{"INV.TCC"} via the posterior standard deviation stored in the
+#'   pre-computed lookup table. Returns \code{NA} when \code{se = FALSE}, when
+#'   all responses are missing, or when the sum score falls outside the
+#'   estimable range (e.g. a perfect or zero score beyond \code{range.tcc}).
+#'   Default is \code{TRUE}.
 #'
 #' @param missing A scalar specifying how missing (not-administered) responses
 #'   are represented in \code{response}. Default is \code{NA}.
@@ -219,8 +234,12 @@
 #'   \item{\code{est.theta}}{A numeric vector of length \emph{N} containing
 #'     the final ability estimate for each examinee.}
 #'   \item{\code{se.theta}}{A numeric vector of length \emph{N} containing
-#'     the standard error of the final ability estimate. \code{NA} for
-#'     \code{"EAP.SUM"} and \code{"INV.TCC"}, or when \code{se = FALSE}.}
+#'     the standard error of the final ability estimate. All seven
+#'     \code{final_score} methods return SE; for \code{"EAP.SUM"} and
+#'     \code{"INV.TCC"}, SE is the posterior standard deviation from the
+#'     pre-computed lookup table. \code{NA} when \code{se = FALSE}, when all
+#'     responses are missing, or when the sum score falls outside the
+#'     estimable range.}
 #'   \item{\code{theta.route}}{An \emph{N} x \code{n.stage} numeric matrix
 #'     of ability estimates. Columns 1 to \code{n.stage - 1} are the
 #'     intermediate routing estimates; column \code{n.stage} is the final
@@ -413,6 +432,38 @@
 #'
 #' ## Visualise the TIF-based cut scores used for routing
 #' plot(cut_result)
+#'
+#' ## ---------------------------------------------------------
+#' ## Example 5: INV.TCC routing and final scoring
+#' ## (pre-computed lookup tables; efficient for large N)
+#' ## ---------------------------------------------------------
+#' # INV.TCC can be used as both the routing and final scoring method.
+#' # Before the examinee loop, run_mst() pre-computes a sum_score -> theta
+#' # lookup table for every module (routing) and for every unique complete
+#' # pathway (final scoring), consistent with the reval_mst() approach.
+#' # SE is now returned correctly for INV.TCC (posterior SD from the table).
+#'
+#' result_inv <- run_mst(
+#'   x            = x,
+#'   route_map    = route_map,
+#'   module       = module,
+#'   theta        = theta_true,
+#'   D            = 1.702,
+#'   route_method = "bmat",
+#'   route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+#'   final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+#'   se           = TRUE
+#' )
+#' print(result_inv)
+#'
+#' # SE is now populated (posterior SD from the pre-computed table)
+#' head(result_inv$se.theta)
+#'
+#' # Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
+#' rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
+#' rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
+#' cat(sprintf("RMSE (INV.TCC routing + scoring): %.4f\n", rmse_inv))
+#' cat(sprintf("RMSE (ML    routing + scoring):   %.4f\n", rmse_ml))
 #' }
 #'
 #' @export
@@ -432,7 +483,10 @@ run_mst <- function(x,
                                            tol        = 1e-4,
                                            max.iter   = 100L,
                                            fence.a    = 3.0,
-                                           fence.b    = NULL),
+                                           fence.b    = NULL,
+                                           intpol     = TRUE,
+                                           range.tcc  = c(-7, 7),
+                                           max.it     = 500L),
                     final_score      = list(method     = "ML",
                                            range      = c(-5, 5),
                                            norm.prior = c(0, 1),
@@ -477,7 +531,8 @@ run_mst <- function(x,
   }
 
   # (E) Validate route_score method
-  valid_route_score_methods <- c("ML", "WL", "MLF", "MAP", "EAP")
+  # EAP.SUM and INV.TCC are supported via pre-computed module-level lookup tables
+  valid_route_score_methods <- c("ML", "WL", "MLF", "MAP", "EAP", "EAP.SUM", "INV.TCC")
   route_score_method <- if (is.null(route_score$method)) "ML" else route_score$method
   if (!(route_score_method %in% valid_route_score_methods)) {
     stop("'route_score$method' must be one of: ",
@@ -502,7 +557,7 @@ run_mst <- function(x,
 
   # --- Merge user-supplied lists with defaults using modifyList() ---
 
-  # Default arguments for routing scoring (ML, WL, MLF, MAP, EAP)
+  # Default arguments for routing scoring (ML, WL, MLF, MAP, EAP, EAP.SUM, INV.TCC)
   default_route <- list(
     method     = "ML",
     range      = c(-5, 5),
@@ -511,15 +566,14 @@ run_mst <- function(x,
     tol        = 1e-4,
     max.iter   = 100L,
     fence.a    = 3.0,
-    fence.b    = NULL
+    fence.b    = NULL,
+    intpol     = TRUE,      # INV.TCC: use linear interpolation
+    range.tcc  = c(-7, 7), # INV.TCC: theta search range for bisection
+    max.it     = 500L       # INV.TCC: maximum bisection iterations
   )
 
   # Default arguments for final scoring (all route methods + EAP.SUM + INV.TCC)
-  default_final <- c(default_route, list(
-    intpol    = TRUE,
-    range.tcc = c(-7, 7),
-    max.it    = 500L
-  ))
+  default_final <- default_route
 
   # Merge user input with defaults (user values override defaults)
   route_args <- utils::modifyList(default_route, route_score)
@@ -661,6 +715,112 @@ run_mst <- function(x,
       mu    = final_args$norm.prior[1],
       sigma = final_args$norm.prior[2]
     )
+  }
+
+  # --- Pre-compute sum_score → theta/SE lookup tables for EAP.SUM/INV.TCC routing ---
+  # One table per module (tn.mod tables total); cost is O(tn.mod), independent of N.
+  # During the examinee loop, routing theta = named-vector lookup, not a function call.
+  #
+  # route_tables[[m]]$theta  named numeric: name = "0","1",...; value = theta estimate
+  # route_tables[[m]]$se     named numeric: name = "0","1",...; value = SE estimate
+  #
+  # Tables are built by calling inv_tcc() or eap_sum() with a 1-row dummy response
+  # matrix (all zeros). Only $score.table is used — it covers all possible sum scores
+  # and is computed independently of the actual response data passed in 'data'.
+  route_tables <- NULL   # remains NULL when method is ML/WL/MLF/MAP/EAP
+
+  if (route_args$method %in% c("EAP.SUM", "INV.TCC")) {
+    route_tables <- vector("list", tn.mod)
+    names(route_tables) <- names(item_mod)   # "m.1", "m.2", ...
+
+    for (m in seq_len(tn.mod)) {
+      n_items_m <- nrow(item_mod[[m]])
+      # Dummy 1-row all-zero matrix: triggers full score.table computation
+      dummy_m <- as.data.frame(matrix(0L, nrow = 1L, ncol = n_items_m))
+
+      if (route_args$method == "INV.TCC") {
+        tbl_m <- inv_tcc(
+          x         = item_mod[[m]],
+          data      = dummy_m,
+          D         = D,
+          intpol    = route_args$intpol,
+          range.tcc = route_args$range.tcc,
+          tol       = route_args$tol,
+          max.it    = route_args$max.it
+        )$score.table
+
+      } else {   # EAP.SUM
+        tbl_m <- eap_sum(
+          x          = item_mod[[m]],
+          data       = dummy_m,
+          norm.prior = route_args$norm.prior,
+          nquad      = route_args$nquad,
+          weights    = NULL,
+          D          = D
+        )$score.table
+      }
+
+      # Build named lookup vectors (name = sum score as string)
+      route_tables[[m]] <- list(
+        theta = setNames(tbl_m$est.theta, as.character(tbl_m$sum.score)),
+        se    = setNames(tbl_m$se.theta,  as.character(tbl_m$sum.score))
+      )
+    }
+  }
+
+  # --- Pre-compute sum_score → theta/SE lookup tables for EAP.SUM/INV.TCC final scoring ---
+  # One table per unique complete pathway; cost is O(n_unique_pathways), independent of N.
+  # Fixes the se_theta=NA bug: both theta AND SE are stored and returned from the table.
+  #
+  # Key format: paste(module_indices_stage1_to_stageN, collapse = "_")  e.g. "1_3_6"
+  # final_tables[["1_3_6"]]$theta  named numeric: sum_score → theta
+  # final_tables[["1_3_6"]]$se     named numeric: sum_score → SE
+  final_tables <- NULL   # remains NULL when method is ML/WL/MLF/MAP/EAP
+
+  if (final_args$method %in% c("EAP.SUM", "INV.TCC")) {
+    # Enumerate all unique complete pathways (rows of panel_data$pathway)
+    uni_path  <- unique(pathway)   # matrix: each row is one complete path
+    path_keys <- apply(uni_path, 1L, paste, collapse = "_")
+    final_tables <- vector("list", length(path_keys))
+    names(final_tables) <- path_keys
+
+    for (p in seq_len(nrow(uni_path))) {
+      # Accumulate item metadata for all modules along this complete pathway
+      path_mods <- uni_path[p, ]   # module indices (length = n.stg)
+      x_path_p  <- dplyr::bind_rows(
+        purrr::map(path_mods, ~ item_mod[[.x]])
+      ) %>% tibble::remove_rownames()
+
+      n_items_p <- nrow(x_path_p)
+      dummy_p   <- as.data.frame(matrix(0L, nrow = 1L, ncol = n_items_p))
+
+      if (final_args$method == "INV.TCC") {
+        tbl_p <- inv_tcc(
+          x         = x_path_p,
+          data      = dummy_p,
+          D         = D,
+          intpol    = final_args$intpol,
+          range.tcc = final_args$range.tcc,
+          tol       = final_args$tol,
+          max.it    = final_args$max.it
+        )$score.table
+
+      } else {   # EAP.SUM
+        tbl_p <- eap_sum(
+          x          = x_path_p,
+          data       = dummy_p,
+          norm.prior = final_args$norm.prior,
+          nquad      = final_args$nquad,
+          weights    = NULL,
+          D          = D
+        )$score.table
+      }
+
+      final_tables[[path_keys[p]]] <- list(
+        theta = setNames(tbl_p$est.theta, as.character(tbl_p$sum.score)),
+        se    = setNames(tbl_p$se.theta,  as.character(tbl_p$sum.score))
+      )
+    }
   }
 
   # --- Generate or prepare the response matrix ---
@@ -820,73 +980,86 @@ run_mst <- function(x,
           # All responses missing: carry forward last theta or use 0
           theta_s <- if (s == 1L) 0 else theta_route_mat[i, s - 1L]
         } else {
-          # Subset to non-missing items
+          # Subset to non-missing items for this stage
           resp_sub <- resp_s_num[na_mask_s]
           na_pos   <- which(na_mask_s)
 
-          # Choose pre-computed elm_item based on whether MLF is used
-          if (route_args$method == "MLF") {
-            # Augmented elm_item (module items + 2 fence items)
-            elm_s        <- elm_mod_mlf_route[[mod_s]]
-            max_cats_s   <- max_cats_mlf_route[[mod_s]]
-            idx_full_s   <- idx_mlf_route[[mod_s]]
-            # Append fence responses: lower fence = 1 (correct), upper = 0
-            resp_sub <- c(resp_sub, 1L, 0L)
-            # Extend na_pos to include both fence items (always observed)
-            n_items_s <- sum(na_mask_s)   # number of non-NA original items
-            n_aug_s   <- length(elm_s$cats)   # total items including fences
-            # The fence items are always "non-NA", so update na_pos accordingly
-            na_pos_fence <- c(na_pos, (length(na_mask_s) + 1L), (length(na_mask_s) + 2L))
-            na_pos <- na_pos_fence
+          if (route_args$method %in% c("EAP.SUM", "INV.TCC")) {
+            # ----- EAP.SUM / INV.TCC: pre-computed module-level table lookup -----
+            # Sum all non-NA responses for this stage; look up theta from the
+            # pre-computed table for module mod_s.
+            sum_s   <- sum(resp_sub)   # sum of observed responses (NA already excluded)
+            theta_s <- route_tables[[mod_s]]$theta[as.character(sum_s)]
+            # Fallback when sum_s is outside the estimable range (e.g. all wrong / all right
+            # near boundary with extreme range.tcc). Carry forward previous theta or use 0.
+            if (is.na(theta_s)) {
+              theta_s <- if (s == 1L) 0 else theta_route_mat[i, s - 1L]
+            }
+
           } else {
-            elm_s      <- elm_mod[[mod_s]]
-            max_cats_s <- max_cats_mod[[mod_s]]
-            idx_full_s <- idx_mod[[mod_s]]
-          }
+            # ----- ML / WL / MLF / MAP / EAP: est_score_indiv() -----
 
-          # Map full-item indices to the non-NA subset (mirrors est_score_1core)
-          if (all(na_mask_s) && route_args$method != "MLF") {
-            idx_drm_s <- idx_full_s$idx.drm
-            idx_prm_s <- idx_full_s$idx.prm
-          } else {
-            idx_drm_s <- if (!is.null(idx_full_s$idx.drm)) {
-              matched <- which(na_pos %in% idx_full_s$idx.drm)
-              if (length(matched) == 0L) NULL else matched
-            } else NULL
-            idx_prm_s <- if (!is.null(idx_full_s$idx.prm)) {
-              matched <- which(na_pos %in% idx_full_s$idx.prm)
-              if (length(matched) == 0L) NULL else matched
-            } else NULL
-          }
+            # Choose pre-computed elm_item based on whether MLF is used
+            if (route_args$method == "MLF") {
+              # Augmented elm_item (module items + 2 fence items)
+              elm_s        <- elm_mod_mlf_route[[mod_s]]
+              max_cats_s   <- max_cats_mlf_route[[mod_s]]
+              idx_full_s   <- idx_mlf_route[[mod_s]]
+              # Append fence responses: lower fence = 1 (correct), upper = 0
+              resp_sub <- c(resp_sub, 1L, 0L)
+              # Extend na_pos to include both fence items (always observed)
+              na_pos_fence <- c(na_pos, (length(na_mask_s) + 1L), (length(na_mask_s) + 2L))
+              na_pos <- na_pos_fence
+            } else {
+              elm_s      <- elm_mod[[mod_s]]
+              max_cats_s <- max_cats_mod[[mod_s]]
+              idx_full_s <- idx_mod[[mod_s]]
+            }
 
-          # Subset elm_item to observed items
-          elm_sub_s       <- elm_s
-          elm_sub_s$pars  <- elm_s$pars[seq_along(resp_sub), , drop = FALSE]
-          elm_sub_s$model <- elm_s$model[seq_along(resp_sub)]
-          elm_sub_s$cats  <- elm_s$cats[seq_along(resp_sub)]
+            # Map full-item indices to the non-NA subset (mirrors est_score_1core)
+            if (all(na_mask_s) && route_args$method != "MLF") {
+              idx_drm_s <- idx_full_s$idx.drm
+              idx_prm_s <- idx_full_s$idx.prm
+            } else {
+              idx_drm_s <- if (!is.null(idx_full_s$idx.drm)) {
+                matched <- which(na_pos %in% idx_full_s$idx.drm)
+                if (length(matched) == 0L) NULL else matched
+              } else NULL
+              idx_prm_s <- if (!is.null(idx_full_s$idx.prm)) {
+                matched <- which(na_pos %in% idx_full_s$idx.prm)
+                if (length(matched) == 0L) NULL else matched
+              } else NULL
+            }
 
-          # Estimate routing theta using est_score_indiv()
-          route_result <- est_score_indiv(
-            resp_vec   = resp_sub,
-            elm_item   = elm_sub_s,
-            max.cats   = max_cats_s,
-            idx.drm    = idx_drm_s,
-            idx.prm    = idx_prm_s,
-            D          = D,
-            method     = route_args$method,
-            range      = route_args$range,
-            norm.prior = route_args$norm.prior,
-            nquad      = route_args$nquad,
-            weights    = NULL,
-            tol        = route_args$tol,
-            max.iter   = route_args$max.iter,
-            se         = FALSE,       # SE not needed for routing
-            stval.opt  = 1L,
-            ji         = (route_args$method == "WL"),
-            obs.sum    = NULL,
-            popdist    = popdist_route   # pre-computed for EAP; NULL otherwise
-          )
-          theta_s <- route_result$est.theta
+            # Subset elm_item to observed items
+            elm_sub_s       <- elm_s
+            elm_sub_s$pars  <- elm_s$pars[seq_along(resp_sub), , drop = FALSE]
+            elm_sub_s$model <- elm_s$model[seq_along(resp_sub)]
+            elm_sub_s$cats  <- elm_s$cats[seq_along(resp_sub)]
+
+            # Estimate routing theta using est_score_indiv()
+            route_result <- est_score_indiv(
+              resp_vec   = resp_sub,
+              elm_item   = elm_sub_s,
+              max.cats   = max_cats_s,
+              idx.drm    = idx_drm_s,
+              idx.prm    = idx_prm_s,
+              D          = D,
+              method     = route_args$method,
+              range      = route_args$range,
+              norm.prior = route_args$norm.prior,
+              nquad      = route_args$nquad,
+              weights    = NULL,
+              tol        = route_args$tol,
+              max.iter   = route_args$max.iter,
+              se         = FALSE,       # SE not needed for routing
+              stval.opt  = 1L,
+              ji         = (route_args$method == "WL"),
+              obs.sum    = NULL,
+              popdist    = popdist_route   # pre-computed for EAP; NULL otherwise
+            )
+            theta_s <- route_result$est.theta
+          }   # end EAP.SUM/INV.TCC vs ML/WL/...
         }
 
         # Store routing estimate for this stage
@@ -912,41 +1085,26 @@ run_mst <- function(x,
         x_path <- x[items_acc, ]  %>% tibble::remove_rownames()
 
         if (final_args$method %in% c("EAP.SUM", "INV.TCC")) {
-          # ----- EAP.SUM or INV.TCC: batch functions -----
-          # These functions operate on a single-row response data frame
-          resp_path_df <- as.data.frame(t(resp_acc_num))
+          # ----- EAP.SUM or INV.TCC: pre-computed pathway lookup table -----
+          # theta and SE are retrieved by a single named-vector lookup.
+          # This also fixes the se_theta=NA bug: SE is now returned correctly.
+          path_key  <- paste(path_mat[i, ], collapse = "_")   # e.g. "1_3_6"
+          sum_total <- sum(resp_acc_num, na.rm = TRUE)         # total accumulated sum score
 
-          if (final_args$method == "EAP.SUM") {
-            final_result <- eap_sum(
-              x          = x_path,
-              data       = resp_path_df,
-              norm.prior = final_args$norm.prior,
-              nquad      = final_args$nquad,
-              weights    = NULL,
-              D          = D
-            )
-            # eap_sum() returns list(est.par = data.frame(sum.score, est.theta,
-            # se.theta), score.table = ...); est.par has one row per examinee
-            est_theta[i] <- final_result$est.par$est.theta[1]
-            se_theta[i]  <- NA_real_
+          # Safety check: pathway must exist in pre-computed tables
+          if (is.null(final_tables[[path_key]])) {
+            est_theta[i]          <- NA_real_
+            se_theta[i]           <- NA_real_
+            theta_route_mat[i, s] <- NA_real_
+          } else {
+            theta_i <- final_tables[[path_key]]$theta[as.character(sum_total)]
+            se_i    <- final_tables[[path_key]]$se[as.character(sum_total)]
 
-          } else {  # INV.TCC
-            final_result <- inv_tcc(
-              x         = x_path,
-              data      = resp_path_df,
-              D         = D,
-              intpol    = final_args$intpol,
-              range.tcc = final_args$range.tcc,
-              tol       = final_args$tol,
-              max.it    = final_args$max.it
-            )
-            # inv_tcc() returns list(est.par = data.frame(sum.score, est.theta,
-            # se.theta), score.table = ...); est.par has one row per examinee
-            est_theta[i] <- final_result$est.par$est.theta[1]
-            se_theta[i]  <- NA_real_
+            # NA can occur at extreme sum scores (outside estimable range)
+            est_theta[i]          <- if (!is.na(theta_i)) theta_i else NA_real_
+            se_theta[i]           <- if (se && !is.na(se_i)) se_i else NA_real_
+            theta_route_mat[i, s] <- est_theta[i]
           }
-
-          theta_route_mat[i, s] <- est_theta[i]
 
         } else {
           # ----- ML / WL / MLF / MAP / EAP via est_score_indiv() -----

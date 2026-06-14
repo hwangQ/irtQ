@@ -15,7 +15,8 @@ run_mst(
   route_method = "bmat",
   cut_score = NULL,
   route_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
-    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL),
+    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL, intpol = TRUE, range.tcc =
+    c(-7, 7), max.it = 500L),
   final_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
     tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL, intpol = TRUE, range.tcc =
     c(-7, 7), max.it = 500L),
@@ -116,10 +117,14 @@ used to obtain intermediate ability estimates for routing decisions
 \item{\code{method}}{Character. One of \code{"ML"} (maximum likelihood),
 \code{"WL"} (weighted likelihood; Warm, 1989), \code{"MLF"}
 (maximum likelihood with fences; Han, 2016), \code{"MAP"} (maximum
-a posteriori), or \code{"EAP"} (expected a posteriori; Bock &
-Mislevy, 1982). \strong{Note}: \code{"EAP.SUM"} and \code{"INV.TCC"}
-are not supported for routing (only for final scoring). Default:
-\code{"ML"}.}
+a posteriori), \code{"EAP"} (expected a posteriori; Bock & Mislevy,
+1982), \code{"EAP.SUM"} (EAP summed scoring; Thissen et al., 1995),
+or \code{"INV.TCC"} (inverse test characteristic curve scoring; Lim
+et al., 2021). For \code{"EAP.SUM"} and \code{"INV.TCC"}, a
+sum-score-to-theta lookup table is pre-computed once per module before
+the simulation loop; routing theta is then obtained by a single
+named-vector lookup, making the approach efficient for large \eqn{N}.
+Default: \code{"ML"}.}
 \item{\code{range}}{Numeric vector of length 2: lower and upper bounds
 for the ability scale. Default: \code{c(-5, 5)}.}
 \item{\code{norm.prior}}{Numeric vector of length 2: mean and SD of the
@@ -134,11 +139,18 @@ for MLF. Default: \code{3.0}.}
 \item{\code{fence.b}}{Numeric vector of length 2 or \code{NULL}:
 difficulty parameters of the lower and upper fence items. If
 \code{NULL}, \code{range} is used. Default: \code{NULL}.}
+\item{\code{intpol}}{Logical: enable linear interpolation for
+\code{"INV.TCC"}. Default: \code{TRUE}.}
+\item{\code{range.tcc}}{Numeric vector of length 2: theta search range
+for \code{"INV.TCC"}. Default: \code{c(-7, 7)}.}
+\item{\code{max.it}}{Integer: maximum bisection iterations for
+\code{"INV.TCC"}. Default: \code{500L}.}
 }
 Unspecified fields take their defaults; the full default is
 \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
-\code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL)}.
-Example: \code{route_score = list(method = "ML", range = c(-4, 4))}.}
+\code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,}
+\code{fence.b = NULL, intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.
+Example: \code{route_score = list(method = "INV.TCC", range.tcc = c(-5, 5))}.}
 
 \item{final_score}{A named list specifying the scoring method and options
 for the final ability estimate (applied to all items accumulated across
@@ -162,10 +174,14 @@ The full default is equivalent to
 \code{intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.}
 
 \item{se}{Logical. Whether to compute and return the standard error of the
-final ability estimate. SE is computed for \code{"ML"}, \code{"WL"},
-\code{"MLF"}, \code{"MAP"}, and \code{"EAP"} only; it is set to
-\code{NA} for \code{"EAP.SUM"} and \code{"INV.TCC"}. Default is
-\code{TRUE}.}
+final ability estimate. SE is computed for all \code{final_score} methods:
+for \code{"ML"}, \code{"WL"}, \code{"MLF"}, \code{"MAP"}, and \code{"EAP"}
+via the Fisher information / posterior variance; for \code{"EAP.SUM"} and
+\code{"INV.TCC"} via the posterior standard deviation stored in the
+pre-computed lookup table. Returns \code{NA} when \code{se = FALSE}, when
+all responses are missing, or when the sum score falls outside the
+estimable range (e.g. a perfect or zero score beyond \code{range.tcc}).
+Default is \code{TRUE}.}
 
 \item{missing}{A scalar specifying how missing (not-administered) responses
 are represented in \code{response}. Default is \code{NA}.}
@@ -193,8 +209,12 @@ containing:
 \item{\code{est.theta}}{A numeric vector of length \emph{N} containing
 the final ability estimate for each examinee.}
 \item{\code{se.theta}}{A numeric vector of length \emph{N} containing
-the standard error of the final ability estimate. \code{NA} for
-\code{"EAP.SUM"} and \code{"INV.TCC"}, or when \code{se = FALSE}.}
+the standard error of the final ability estimate. All seven
+\code{final_score} methods return SE; for \code{"EAP.SUM"} and
+\code{"INV.TCC"}, SE is the posterior standard deviation from the
+pre-computed lookup table. \code{NA} when \code{se = FALSE}, when all
+responses are missing, or when the sum score falls outside the
+estimable range.}
 \item{\code{theta.route}}{An \emph{N} x \code{n.stage} numeric matrix
 of ability estimates. Columns 1 to \code{n.stage - 1} are the
 intermediate routing estimates; column \code{n.stage} is the final
@@ -409,6 +429,38 @@ print(result_findcut)
 
 ## Visualise the TIF-based cut scores used for routing
 plot(cut_result)
+
+## ---------------------------------------------------------
+## Example 5: INV.TCC routing and final scoring
+## (pre-computed lookup tables; efficient for large N)
+## ---------------------------------------------------------
+# INV.TCC can be used as both the routing and final scoring method.
+# Before the examinee loop, run_mst() pre-computes a sum_score -> theta
+# lookup table for every module (routing) and for every unique complete
+# pathway (final scoring), consistent with the reval_mst() approach.
+# SE is now returned correctly for INV.TCC (posterior SD from the table).
+
+result_inv <- run_mst(
+  x            = x,
+  route_map    = route_map,
+  module       = module,
+  theta        = theta_true,
+  D            = 1.702,
+  route_method = "bmat",
+  route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  se           = TRUE
+)
+print(result_inv)
+
+# SE is now populated (posterior SD from the pre-computed table)
+head(result_inv$se.theta)
+
+# Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
+rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
+rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
+cat(sprintf("RMSE (INV.TCC routing + scoring): \%.4f\n", rmse_inv))
+cat(sprintf("RMSE (ML    routing + scoring):   \%.4f\n", rmse_ml))
 }
 
 }
