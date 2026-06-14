@@ -83,7 +83,7 @@ reference:
       - catsib
 
   - title: "Item Parameter Drift (IPD)"
-    desc: "Detect and evaluate item parameter drift across test administrations using residual-based methods."
+    desc: "Detect and evaluate item parameter drift across test administrations."
     contents:
       - ripd
       - pcd2
@@ -123,7 +123,7 @@ reference:
       - summary
 
   - title: "Importing External Software Output"
-    desc: "Read item parameter estimates from IRT software output files."
+    desc: "Import item parameter estimates from IRT software output, write input files, and execute external programs from R."
     contents:
       - bring.flexmirt
       - bring.bilog
