@@ -26,6 +26,7 @@
 <url><loc>https://hwangQ.github.io/irtQ/reference/est_item.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/est_mg.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/est_score.html</loc></url>
+<url><loc>https://hwangQ.github.io/irtQ/reference/find_cut.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/gen.weight.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/getirt.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/grdif.html</loc></url>
@@ -35,7 +36,9 @@
 <url><loc>https://hwangQ.github.io/irtQ/reference/irtfit.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/llike_score.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/lwrc.html</loc></url>
+<url><loc>https://hwangQ.github.io/irtQ/reference/panel_info.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/pcd2.html</loc></url>
+<url><loc>https://hwangQ.github.io/irtQ/reference/plot.find_cut.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/plot.info.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/plot.irtfit.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/plot.traceline.html</loc></url>
@@ -44,6 +47,7 @@
 <url><loc>https://hwangQ.github.io/irtQ/reference/reval_mst.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/ripd.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/run_flexmirt.html</loc></url>
+<url><loc>https://hwangQ.github.io/irtQ/reference/run_mst.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/shape_df.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/shape_df_fipc.html</loc></url>
 <url><loc>https://hwangQ.github.io/irtQ/reference/simCAT_DC.html</loc></url>

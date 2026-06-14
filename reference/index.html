@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -207,8 +207,17 @@
 
         </dt>
         <dd>CATSIB DIF Detection Procedure</dd>
+      </dl></div><div class="section level2">
+      <h2 id="item-parameter-drift-ipd-">Item Parameter Drift (IPD)<a class="anchor" aria-label="anchor" href="#item-parameter-drift-ipd-"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Detect and evaluate item parameter drift across test administrations.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="ripd.html">ripd()</a></code>
 
@@ -282,6 +291,50 @@
         </dt>
         <dd>Plot Item and Test Characteristic Curves</dd>
       </dl></div><div class="section level2">
+      <h2 id="multistage-adaptive-test-mst-">Multistage-Adaptive Test (MST)<a class="anchor" aria-label="anchor" href="#multistage-adaptive-test-mst-"></a></h2>
+
+      <div class="section-desc"><p>Simulate MST administrations, evaluate panel performance, and compute TIF-based routing cut scores.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="reval_mst.html">reval_mst()</a></code>
+
+        </dt>
+        <dd>Recursion-based MST evaluation method</dd>
+
+        <dt>
+
+          <code><a href="panel_info.html">panel_info()</a></code>
+
+        </dt>
+        <dd>Extract Panel Structure from an MST Route Map</dd>
+
+        <dt>
+
+          <code><a href="find_cut.html">find_cut()</a></code>
+
+        </dt>
+        <dd>Find TIF-Crossing Cut Scores for MST Routing</dd>
+
+        <dt>
+
+          <code><a href="plot.find_cut.html">plot(<i>&lt;find_cut&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot TIF Curves and Cut Scores from a <code>find_cut</code> Result</dd>
+
+        <dt>
+
+          <code><a href="run_mst.html">run_mst()</a></code>
+
+        </dt>
+        <dd>Multistage Adaptive Test (MST) Simulation</dd>
+      </dl></div><div class="section level2">
       <h2 id="data-simulation-utilities">Data Simulation &amp; Utilities<a class="anchor" aria-label="anchor" href="#data-simulation-utilities"></a></h2>
 
       <div class="section-desc"><p>Simulate item response data and compute supporting quantities.</p></div>
@@ -335,13 +388,6 @@
 
         <dt>
 
-          <code><a href="reval_mst.html">reval_mst()</a></code>
-
-        </dt>
-        <dd>Recursion-based MST evaluation method</dd>
-
-        <dt>
-
           <code><a href="summary.html">summary()</a></code>
 
         </dt>
@@ -349,7 +395,7 @@
       </dl></div><div class="section level2">
       <h2 id="importing-external-software-output">Importing External Software Output<a class="anchor" aria-label="anchor" href="#importing-external-software-output"></a></h2>
 
-      <div class="section-desc"><p>Read item parameter estimates from IRT software output files.</p></div>
+      <div class="section-desc"><p>Import item parameter estimates from IRT software output, write input files, and execute external programs from R.</p></div>
 
       <dl></dl></div><div class="section level2">
 

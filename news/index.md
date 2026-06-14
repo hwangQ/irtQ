@@ -1,6 +1,29 @@
 # Changelog
 
-## irtQ 1.1.1
+## irtQ 1.2.0
+
+### New Features
+
+- Added a new function,
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
+  which identifies TIF-crossing routing cut scores for MST panels. For
+  each adjacent module pair within a stage, the function locates the
+  theta where the two modules’ test information functions (TIFs)
+  intersect. A warning is issued when the mean difficulty order of
+  modules within a stage differs from their input index order.
+
+- Added a new S3 method,
+  [`plot.find_cut()`](https://hwangQ.github.io/irtQ/reference/plot.find_cut.md),
+  which visualizes TIF curves and routing cut scores stage by stage
+  using **ggplot2** facets. Proper, anomalous, and unselected cut scores
+  are distinguished by line type. A `layout` argument (`"vertical"` /
+  `"horizontal"`) controls the facet orientation.
+
+- Added a new function,
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md),
+  which simulates MST administrations for a given panel structure and
+  returns response data along with ability and routing information for
+  each simulated examinee.
 
 - Added a new exported dataset, `simIPD`, which contains simulated CAT
   response data for illustrating IPD detection with
@@ -9,6 +32,30 @@
   dataset represents one replication of a CAT simulation (N = 3,000;
   test length = 30; 360-item 3PLM pool) in which 5% of items (18 items)
   had both $`a`$ and $`b`$ parameters decreased by 0.5.
+
+### Minor Improvements
+
+- [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
+  [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md),
+  and [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md)
+  now accept a partial `control` list. Users can specify only the
+  arguments they wish to override (e.g.,
+  `control = list(iter.max = 500)`); unspecified arguments fall back to
+  their defaults via
+  [`modifyList()`](https://rdrr.io/r/utils/modifyList.html).
+
+- Reorganized the **pkgdown** reference page:
+  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) and
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md) are now
+  grouped under a new *Item Parameter Drift (IPD)* section, and
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+  [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md),
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
+  [`plot.find_cut()`](https://hwangQ.github.io/irtQ/reference/plot.find_cut.md),
+  and [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+  are grouped under a new *Multistage-Adaptive Test (MST)* section.
+
+### Documentation
 
 - Expanded the documentation for
   [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) by adding

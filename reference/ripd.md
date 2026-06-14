@@ -1,7 +1,7 @@
 # Residual-based Item Parameter Drift (RIPD) Detection Framework
 
-This function computes three RIPD statistics—\\RIPD\_{R}\\,
-\\RIPD\_{S}\\, and \\RIPD\_{RS}\\—for each item. \\RIPD\_{R}\\ captures
+This function computes three RIPD statistics–\\RIPD\_{R}\\,
+\\RIPD\_{S}\\, and \\RIPD\_{RS}\\–for each item. \\RIPD\_{R}\\ captures
 differences in mean raw residuals between groups, which is typically
 indicative of uniform item parameter drift (IPD). \\RIPD\_{S}\\ captures
 differences in mean squared residuals between groups, reflecting
@@ -446,7 +446,7 @@ press):
     The reference group size is controlled by a replication factor:
     e.g., 1F reuses the focal \\\hat{\theta}\\ values once (N_ref =
     N_foc), while kF replicates them k times. Larger reference groups
-    (3F–8F) reduce sampling variability in reference residuals and
+    (3F-8F) reduce sampling variability in reference residuals and
     improve detection power, with marginal gains typically diminishing
     beyond 5F.
 
@@ -460,7 +460,7 @@ press):
 
 When `purify = TRUE`, an iterative purification procedure adapted from
 Lim et al. (2022) is applied to mitigate the bias in ability estimates
-caused by drifted items—analogous to the contaminating effect of DIF
+caused by drifted items–analogous to the contaminating effect of DIF
 items on matching variables. At each iteration:
 
 1.  The item with the most statistically significant drift statistic
@@ -533,31 +533,31 @@ Hwanggyu Lim <hglim83@gmail.com>
 
 ``` r
 # \donttest{
-## ─── RIPD Example: Detecting IPD in CAT ─────────────────────────────────
+## --- RIPD Example: Detecting IPD in CAT ---------------------------------
 ##
 ## Background (Lim & Han, in press):
 ##   In CAT-based IPD detection using RIPD, the reference group is
-##   "synthetic" — created by re-administering a CAT to examinees whose
+##   "synthetic" -- created by re-administering a CAT to examinees whose
 ##   true abilities are set equal to the focal group's ML theta estimates,
 ##   using the ORIGINAL (pre-drift) item parameters. This eliminates the
 ##   need for recalibration and makes RIPD directly applicable to
 ##   operational CAT settings.
 ##
 ## The simIPD dataset contains:
-##   • foc_resp / foc_score : focal group CAT responses + ML theta estimates
+##   - foc_resp / foc_score : focal group CAT responses + ML theta estimates
 ##                            (IPD items: a and b each drifted by -0.5)
-##   • ref_resp / ref_score : synthetic reference group CAT responses + ML
+##   - ref_resp / ref_score : synthetic reference group CAT responses + ML
 ##                            theta estimates (original parameters, 1F size)
-##   • item_par  : original (non-drifted) 360-item pool in irtQ format
-##   • key_item  : indices of 90 key items (highly exposed in CAT)
-##   • item.skip : indices of 270 non-key items (excluded from RIPD)
-##   • ipd_item  : indices of 18 truly drifted items (ground truth)
-## ─────────────────────────────────────────────────────────────────────────
+##   - item_par  : original (non-drifted) 360-item pool in irtQ format
+##   - key_item  : indices of 90 key items (highly exposed in CAT)
+##   - item.skip : indices of 270 non-key items (excluded from RIPD)
+##   - ipd_item  : indices of 18 truly drifted items (ground truth)
+## -------------------------------------------------------------------------
 
 data(simIPD)
 
 ## Step 1. Combine focal and synthetic reference group data
-##         (reference group first, then focal group — as in the paper)
+##         (reference group first, then focal group -- as in the paper)
 data  <- rbind(simIPD$ref_resp,  simIPD$foc_resp)
 score <- c(simIPD$ref_score,     simIPD$foc_score)
 group <- c(rep(0, nrow(simIPD$ref_resp)),   # 0 = reference
@@ -5219,15 +5219,15 @@ cat("True positives:", sum(detected %in% simIPD$ipd_item), "of",
     length(simIPD$ipd_item), "\n")
 #> True positives: 18 of 18 
 
-## ── Note on reference group size ─────────────────────────────────────────
+## -- Note on reference group size -----------------------------------------
 ## This example uses a 1F reference group (n_ref = n_foc = 3,000).
-## In practice, a larger reference group (3F–8F) substantially improves
+## In practice, a larger reference group (3F-8F) substantially improves
 ## detection power. To create a 3F reference group, replicate the focal
 ## theta estimates and re-run the CAT simulation with original parameters:
 ##
 ##   theta_3F  <- rep(simIPD$foc_score, times = 3)   # 9,000 examinees
 ##   resp_3F   <- simdat(x = simIPD$item_par, theta = theta_3F, D = 1.7)
 ##   # ... then run CAT and call ripd() with the larger reference group
-## ─────────────────────────────────────────────────────────────────────────
+## -------------------------------------------------------------------------
 # }
 ```

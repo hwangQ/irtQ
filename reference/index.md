@@ -63,6 +63,11 @@ methods.
   groups (GRDIF)
 - [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) :
   CATSIB DIF Detection Procedure
+
+## Item Parameter Drift (IPD)
+
+Detect and evaluate item parameter drift across test administrations.
+
 - [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) :
   Residual-based Item Parameter Drift (RIPD) Detection Framework
 - [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md) :
@@ -92,6 +97,28 @@ curves.
 - [`plot(`*`<traceline>`*`)`](https://hwangQ.github.io/irtQ/reference/plot.traceline.md)
   : Plot Item and Test Characteristic Curves
 
+## Multistage-Adaptive Test (MST)
+
+Simulate MST administrations, evaluate panel performance, and compute
+TIF-based routing cut scores.
+
+- [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+  : Recursion-based MST evaluation method
+
+- [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)
+  : Extract Panel Structure from an MST Route Map
+
+- [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md) :
+  Find TIF-Crossing Cut Scores for MST Routing
+
+- [`plot(`*`<find_cut>`*`)`](https://hwangQ.github.io/irtQ/reference/plot.find_cut.md)
+  :
+
+  Plot TIF Curves and Cut Scores from a `find_cut` Result
+
+- [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) :
+  Multistage Adaptive Test (MST) Simulation
+
 ## Data Simulation & Utilities
 
 Simulate item response data and compute supporting quantities.
@@ -108,14 +135,13 @@ Simulate item response data and compute supporting quantities.
   : Bind Fill
 - [`bisection()`](https://hwangQ.github.io/irtQ/reference/bisection.md)
   : The Bisection Method to Find a Root
-- [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-  : Recursion-based MST evaluation method
 - [`summary()`](https://hwangQ.github.io/irtQ/reference/summary.md) :
   Summary of Item Calibration Results
 
 ## Importing External Software Output
 
-Read item parameter estimates from IRT software output files.
+Import item parameter estimates from IRT software output, write input
+files, and execute external programs from R.
 
 - [`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
   [`bring.bilog()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
