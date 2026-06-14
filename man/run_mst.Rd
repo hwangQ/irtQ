@@ -11,7 +11,7 @@ run_mst(
   theta = NULL,
   response = NULL,
   D = 1,
-  ini_mod = 1,
+  ini_mod = NULL,
   route_method = "bmat",
   cut_score = NULL,
   route_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
@@ -49,7 +49,10 @@ and \code{ncol(module) == total number of modules in the panel}.}
 \item{theta}{A numeric vector of true ability values, one per examinee
 (length \emph{N}). Used to simulate item responses when \code{response}
 is \code{NULL}, and stored in the result for bias/RMSE computation.
-Either \code{theta} or \code{response} (or both) must be provided.}
+Either \code{theta} or \code{response} (or both) must be provided.
+If \code{theta} is omitted and only \code{response} is given,
+\code{true.theta} in the result will be \code{NULL} and bias/RMSE
+cannot be computed.}
 
 \item{response}{An optional \emph{N} x \emph{J} matrix of observed item
 responses, where \emph{N} is the number of examinees and \emph{J} is the
@@ -67,10 +70,16 @@ options on the \emph{same} set of item responses.}
 (default) for the logistic metric or \code{D = 1.702} to approximate the
 normal ogive.}
 
-\item{ini_mod}{An integer index into the stage-1 module list
-(\code{panel_info(route_map)$config[[1]]}). Specifies which stage-1
-module all examinees begin with. Default is \code{1} (the first stage-1
-module, appropriate for panels with a single routing module).}
+\item{ini_mod}{Either \code{NULL} (default) or a single positive integer
+index into the stage-1 module list
+(\code{panel_info(route_map)$config[[1]]}). When \code{NULL}, each
+examinee is independently and randomly assigned to one of the stage-1
+modules with equal probability — appropriate for MST panels that use
+spiralling or booklet-based stage-1 assignment, or for panels with only
+a single stage-1 module (where random assignment is equivalent to a
+fixed assignment). When an integer is supplied, all examinees begin with
+that stage-1 module; use \code{ini_mod = 1} to force all examinees to
+the first (and typically only) stage-1 module.}
 
 \item{route_method}{A character string specifying the adaptive routing
 method used to select the next module at each stage transition.
@@ -233,6 +242,15 @@ to identify stages, module membership, and valid pathways from
 
 \strong{Response simulation}: If \code{response} is \code{NULL}, item
 responses are simulated from \code{theta} using \code{\link{simdat}}.
+
+\strong{Stage-1 module assignment}: When \code{ini_mod = NULL} (default),
+each examinee is independently assigned to a stage-1 module by uniform
+random sampling from \code{panel_info(route_map)$config[[1]]}. For panels
+with a single stage-1 module (the most common design), this is equivalent
+to a fixed assignment. For panels with multiple stage-1 modules (e.g., a
+2-3-3 or 3-2-3 design), random assignment approximates the spiralling or
+booklet-based allocation used in operational testing. When \code{ini_mod}
+is an integer, all examinees start at the specified stage-1 module.
 
 \strong{Routing (stages 1 to n.stage - 1)}: After each non-final stage,
 an intermediate ability estimate is obtained from the current stage's

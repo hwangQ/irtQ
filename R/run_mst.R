@@ -37,6 +37,9 @@
 #'   (length \emph{N}). Used to simulate item responses when \code{response}
 #'   is \code{NULL}, and stored in the result for bias/RMSE computation.
 #'   Either \code{theta} or \code{response} (or both) must be provided.
+#'   If \code{theta} is omitted and only \code{response} is given,
+#'   \code{true.theta} in the result will be \code{NULL} and bias/RMSE
+#'   cannot be computed.
 #'
 #' @param response An optional \emph{N} x \emph{J} matrix of observed item
 #'   responses, where \emph{N} is the number of examinees and \emph{J} is the
@@ -54,10 +57,16 @@
 #'   (default) for the logistic metric or \code{D = 1.702} to approximate the
 #'   normal ogive.
 #'
-#' @param ini_mod An integer index into the stage-1 module list
-#'   (\code{panel_info(route_map)$config[[1]]}). Specifies which stage-1
-#'   module all examinees begin with. Default is \code{1} (the first stage-1
-#'   module, appropriate for panels with a single routing module).
+#' @param ini_mod Either \code{NULL} (default) or a single positive integer
+#'   index into the stage-1 module list
+#'   (\code{panel_info(route_map)$config[[1]]}). When \code{NULL}, each
+#'   examinee is independently and randomly assigned to one of the stage-1
+#'   modules with equal probability — appropriate for MST panels that use
+#'   spiralling or booklet-based stage-1 assignment, or for panels with only
+#'   a single stage-1 module (where random assignment is equivalent to a
+#'   fixed assignment). When an integer is supplied, all examinees begin with
+#'   that stage-1 module; use \code{ini_mod = 1} to force all examinees to
+#'   the first (and typically only) stage-1 module.
 #'
 #' @param route_method A character string specifying the adaptive routing
 #'   method used to select the next module at each stage transition.
@@ -171,6 +180,15 @@
 #'
 #' \strong{Response simulation}: If \code{response} is \code{NULL}, item
 #' responses are simulated from \code{theta} using \code{\link{simdat}}.
+#'
+#' \strong{Stage-1 module assignment}: When \code{ini_mod = NULL} (default),
+#' each examinee is independently assigned to a stage-1 module by uniform
+#' random sampling from \code{panel_info(route_map)$config[[1]]}. For panels
+#' with a single stage-1 module (the most common design), this is equivalent
+#' to a fixed assignment. For panels with multiple stage-1 modules (e.g., a
+#' 2-3-3 or 3-2-3 design), random assignment approximates the spiralling or
+#' booklet-based allocation used in operational testing. When \code{ini_mod}
+#' is an integer, all examinees start at the specified stage-1 module.
 #'
 #' \strong{Routing (stages 1 to n.stage - 1)}: After each non-final stage,
 #' an intermediate ability estimate is obtained from the current stage's
@@ -409,7 +427,7 @@ run_mst <- function(x,
                     theta            = NULL,
                     response         = NULL,
                     D                = 1,
-                    ini_mod          = 1,
+                    ini_mod          = NULL,
                     route_method     = "bmat",
                     cut_score        = NULL,
                     route_score      = list(method     = "ML",
@@ -521,14 +539,23 @@ run_mst <- function(x,
   tn.mod     <- sum(n.mod)                  # total modules across all stages
   pathway    <- panel_data$pathway          # valid pathway matrix
 
-  # Verify ini_mod is a valid index into stage-1 modules
-  if (ini_mod < 1L || ini_mod > n.mod[1]) {
-    stop(sprintf("'ini_mod' must be between 1 and %d (number of stage-1 modules).",
-                 n.mod[1]), call. = FALSE)
+  # Validate ini_mod: NULL (random per-examinee) or a single integer index
+  if (!is.null(ini_mod)) {
+    if (!is.numeric(ini_mod) || length(ini_mod) != 1L ||
+        is.na(ini_mod) || ini_mod < 1L || ini_mod > n.mod[1L]) {
+      stop(sprintf(
+        "'ini_mod' must be NULL or a single integer between 1 and %d (number of stage-1 modules).",
+        n.mod[1L]), call. = FALSE)
+    }
+    ini_mod <- as.integer(ini_mod)   # coerce to integer for safe indexing
   }
 
-  # The actual module number that all examinees start with
-  start_mod <- panel_data$config[[1]][ini_mod]
+  # Pre-resolve the fixed start module (NULL when random assignment is used)
+  # stage1_mods: all module indices that belong to stage 1
+  stage1_mods <- panel_data$config[[1L]]          # integer vector, length = n.mod[1]
+  fixed_start <- if (!is.null(ini_mod)) stage1_mods[ini_mod] else NULL
+  # When fixed_start is NULL, each examinee is assigned a stage-1 module
+  # by sample() at the start of the per-examinee loop (see below).
 
   # Validate cut_score length matches the number of stage transitions
   if (is.null(route_method) && !is.null(cut_score)) {
@@ -711,8 +738,11 @@ run_mst <- function(x,
       message(sprintf("  Processing examinee %d / %d ...", i, N))
     }
 
-    # current_mod tracks the module administered at the current stage
-    current_mod <- start_mod       # all examinees begin at start_mod
+    # Determine starting module for this examinee:
+    #   fixed_start non-NULL → same module for every examinee (ini_mod was integer)
+    #   fixed_start NULL     → uniformly sample from all stage-1 modules
+    current_mod <- if (!is.null(fixed_start)) fixed_start
+                   else sample(stage1_mods, size = 1L)
     # Accumulate item indices and response vector across all administered stages
     items_acc  <- integer(0)       # item row indices in x (item bank)
     resp_acc   <- integer(0)       # corresponding response values
@@ -722,7 +752,7 @@ run_mst <- function(x,
 
       # ---- Select module for this stage ----
       if (s == 1) {
-        # Stage 1: module is fixed (start_mod, already set above)
+        # Stage 1: module already determined above (current_mod)
         mod_s <- current_mod
 
       } else {
