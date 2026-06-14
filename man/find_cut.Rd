@@ -85,7 +85,7 @@ intended. However, in practice, a harder module's TIF curve can peak at
 a theta value that is unexpectedly low, so that the harder module
 \emph{also} has the highest TIF near the low end of the ability scale.
 In this case, a low-ability examinee is incorrectly routed into the harder
-module — the opposite of what the MST is designed to do, which is called an
+module -- the opposite of what the MST is designed to do, which is called an
 \emph{anomalous routing} or \emph{path reversal}.
 }
 
@@ -112,7 +112,7 @@ This is the correct, expected crossing in the middle of the theta scale.
 \item \strong{Anomalous crossing}: the difference changes sign from
 positive to negative (negative slope at the crossing). This corresponds
 to the pathological situation in which the harder module temporarily
-dominates at the low end of the theta scale — exactly the pattern that
+dominates at the low end of the theta scale -- exactly the pattern that
 causes path reversals under MFI routing.
 }
 Only proper crossings are used as cut scores. Anomalous crossings are
@@ -147,13 +147,13 @@ modules at each stage must be numbered in ascending difficulty order
 (easiest module = lowest index). \code{find_cut()} checks this assumption and issues a warning if the
 difficulty order does not match the index order. Regardless of this warning,
 cut scores are always computed between consecutive module pairs in the
-supplied index order (e.g., modules 2\&3 and 3\&4, not 2\&4 and 4\&3).
+supplied index order (e.g., modules 2 & 3 and 3 & 4, not 2 & 4 and 4 & 3).
 The returned cut scores within each stage are sorted in ascending order,
 as required by \code{\link[base]{cut}}.
 }
 }
 \examples{
-## ── Setup: use the built-in simMST 1-3-3 panel ──────────────────────────
+## -- Setup: use the built-in simMST 1-3-3 panel --------------------------
 ## simMST is a 7-module, 3-stage MST panel (8 dichotomous 3PLM items each).
 ## Modules 1 (routing), 2-4 (stage 2: easy/medium/hard),
 ##         5-7 (stage 3: easy/medium/hard).
@@ -161,7 +161,7 @@ x         <- simMST$item_bank
 module    <- simMST$module
 route_map <- simMST$route_map
 
-## ── Find TIF-crossing cut scores ─────────────────────────────────────────
+## -- Find TIF-crossing cut scores -----------------------------------------
 ## For each adjacent module pair at stages 2 and 3, find_cut() identifies
 ## the theta at which the harder module's TIF first exceeds the easier
 ## module's TIF (proper crossing), and returns it as a cut score.
@@ -171,7 +171,7 @@ cut_result <- find_cut(x = x, module = module, route_map = route_map)
 ## and the final selected cut scores per stage transition.
 print(cut_result)
 
-## ── Visualise TIF curves and cut scores ─────────────────────────────────
+## -- Visualise TIF curves and cut scores ---------------------------------
 ## plot() shows TIF curves for every module faceted by stage.
 ## Selected cut scores appear as solid black vertical lines with theta
 ## labels at the crossing point. Anomalous crossings (if any) appear
@@ -180,7 +180,7 @@ plot(cut_result)                         # stages stacked vertically (default)
 plot(cut_result, layout = "horizontal")  # stages side by side
 plot(cut_result, show_anomalous = FALSE) # hide anomalous crossing markers
 
-## Inspect the cut_score element — a list directly compatible with run_mst()
+## Inspect the cut_score element -- a list directly compatible with run_mst()
 ## cut_score[[1]]: two cut scores for the stage-1 -> stage-2 transition
 ## cut_score[[2]]: cut scores for the stage-2 -> stage-3 transition
 cut_result$cut_score
@@ -188,7 +188,7 @@ cut_result$cut_score
 ## Compare with the manually specified cut scores stored in simMST
 simMST$cut_score
 
-## ── Use the cut scores in run_mst() ──────────────────────────────────────
+## -- Use the cut scores in run_mst() --------------------------------------
 ## Pass cut_result$cut_score directly to run_mst() with route_method = NULL.
 ## This replaces pure MFI routing with TIF-crossing-based fixed cut scores,
 ## preventing anomalous path reversals at the extremes of the theta scale.

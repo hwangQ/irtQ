@@ -609,6 +609,8 @@
 #' }
 #'
 #'
+#' @importFrom utils modifyList
+#'
 #' @export
 est_mg <- function(x = NULL,
                    data,

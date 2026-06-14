@@ -711,6 +711,8 @@
 #'
 #' }
 #'
+#' @importFrom utils modifyList
+#'
 #' @export
 #'
 est_irt <- function(x = NULL,

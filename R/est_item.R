@@ -190,6 +190,7 @@
 #' }
 #'
 #' @importFrom Matrix sparseMatrix
+#' @importFrom utils modifyList
 #' @import dplyr
 #' @export
 #'

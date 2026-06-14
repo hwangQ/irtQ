@@ -1,6 +1,6 @@
 # find_cut.R
 # ---------------------------------------------------------------------------
-# find_cut() — Identify TIF-crossing cut scores for MST routing
+# find_cut() -- Identify TIF-crossing cut scores for MST routing
 #
 # For each pair of adjacent modules (in the order provided by the user,
 # i.e., ascending module index) at each stage transition, this function finds
@@ -75,7 +75,7 @@
 #' a theta value that is unexpectedly low, so that the harder module
 #' \emph{also} has the highest TIF near the low end of the ability scale.
 #' In this case, a low-ability examinee is incorrectly routed into the harder
-#' module — the opposite of what the MST is designed to do, which is called an
+#' module -- the opposite of what the MST is designed to do, which is called an
 #' \emph{anomalous routing} or \emph{path reversal}.
 #' }
 #'
@@ -102,7 +102,7 @@
 #'   \item \strong{Anomalous crossing}: the difference changes sign from
 #'     positive to negative (negative slope at the crossing). This corresponds
 #'     to the pathological situation in which the harder module temporarily
-#'     dominates at the low end of the theta scale — exactly the pattern that
+#'     dominates at the low end of the theta scale -- exactly the pattern that
 #'     causes path reversals under MFI routing.
 #' }
 #' Only proper crossings are used as cut scores. Anomalous crossings are
@@ -137,7 +137,7 @@
 #' (easiest module = lowest index). \code{find_cut()} checks this assumption and issues a warning if the
 #' difficulty order does not match the index order. Regardless of this warning,
 #' cut scores are always computed between consecutive module pairs in the
-#' supplied index order (e.g., modules 2\&3 and 3\&4, not 2\&4 and 4\&3).
+#' supplied index order (e.g., modules 2 & 3 and 3 & 4, not 2 & 4 and 4 & 3).
 #' The returned cut scores within each stage are sorted in ascending order,
 #' as required by \code{\link[base]{cut}}.
 #' }
@@ -145,8 +145,10 @@
 #' @seealso \code{\link{run_mst}}, \code{\link{panel_info}},
 #'   \code{\link{reval_mst}}, \code{\link{info}}
 #'
+#' @importFrom stats setNames
+#'
 #' @examples
-#' ## ── Setup: use the built-in simMST 1-3-3 panel ──────────────────────────
+#' ## -- Setup: use the built-in simMST 1-3-3 panel --------------------------
 #' ## simMST is a 7-module, 3-stage MST panel (8 dichotomous 3PLM items each).
 #' ## Modules 1 (routing), 2-4 (stage 2: easy/medium/hard),
 #' ##         5-7 (stage 3: easy/medium/hard).
@@ -154,7 +156,7 @@
 #' module    <- simMST$module
 #' route_map <- simMST$route_map
 #'
-#' ## ── Find TIF-crossing cut scores ─────────────────────────────────────────
+#' ## -- Find TIF-crossing cut scores -----------------------------------------
 #' ## For each adjacent module pair at stages 2 and 3, find_cut() identifies
 #' ## the theta at which the harder module's TIF first exceeds the easier
 #' ## module's TIF (proper crossing), and returns it as a cut score.
@@ -164,7 +166,7 @@
 #' ## and the final selected cut scores per stage transition.
 #' print(cut_result)
 #'
-#' ## ── Visualise TIF curves and cut scores ─────────────────────────────────
+#' ## -- Visualise TIF curves and cut scores ---------------------------------
 #' ## plot() shows TIF curves for every module faceted by stage.
 #' ## Selected cut scores appear as solid black vertical lines with theta
 #' ## labels at the crossing point. Anomalous crossings (if any) appear
@@ -173,7 +175,7 @@
 #' plot(cut_result, layout = "horizontal")  # stages side by side
 #' plot(cut_result, show_anomalous = FALSE) # hide anomalous crossing markers
 #'
-#' ## Inspect the cut_score element — a list directly compatible with run_mst()
+#' ## Inspect the cut_score element -- a list directly compatible with run_mst()
 #' ## cut_score[[1]]: two cut scores for the stage-1 -> stage-2 transition
 #' ## cut_score[[2]]: cut scores for the stage-2 -> stage-3 transition
 #' cut_result$cut_score
@@ -181,7 +183,7 @@
 #' ## Compare with the manually specified cut scores stored in simMST
 #' simMST$cut_score
 #'
-#' ## ── Use the cut scores in run_mst() ──────────────────────────────────────
+#' ## -- Use the cut scores in run_mst() --------------------------------------
 #' ## Pass cut_result$cut_score directly to run_mst() with route_method = NULL.
 #' ## This replaces pure MFI routing with TIF-crossing-based fixed cut scores,
 #' ## preventing anomalous path reversals at the extremes of the theta scale.
@@ -207,7 +209,7 @@ find_cut <- function(x,
                      n_grid      = 2001L,
                      ref_theta   = 0) {
 
-  # ── 0. Input validation ────────────────────────────────────────────────────
+  # -- 0. Input validation ----------------------------------------------------
   if (!is.data.frame(x))
     stop("'x' must be a data frame of item metadata in irtQ format.")
   if (!is.matrix(module) || !is.numeric(module))
@@ -231,7 +233,7 @@ find_cut <- function(x,
   if (!is.numeric(ref_theta) || length(ref_theta) != 1L || !is.finite(ref_theta))
     stop("'ref_theta' must be a single finite numeric scalar.")
 
-  # ── 1. Panel structure ─────────────────────────────────────────────────────
+  # -- 1. Panel structure -----------------------------------------------------
   # Use panel_info() to identify which modules belong to each stage
   pinfo  <- panel_info(route_map)
   config <- pinfo$config    # named list: config[[s]] = integer vector of module indices
@@ -247,9 +249,9 @@ find_cut <- function(x,
   # Fine theta grid for sign-change scan (root detection)
   theta_grid <- seq(theta_range[1L], theta_range[2L], length.out = n_grid)
 
-  # ── 2. Allocate output containers ──────────────────────────────────────────
+  # -- 2. Allocate output containers ------------------------------------------
   # cut_list[[k]]: cut score vector for transition from stage k to stage k+1
-  # Indexed 1 … n_stg-1, matching the cut_score argument of run_mst()
+  # Indexed 1 ... n_stg-1, matching the cut_score argument of run_mst()
   cut_list     <- vector("list", n_stg - 1L)
   names(cut_list) <- paste0("stage.", seq(2L, n_stg))
 
@@ -260,7 +262,7 @@ find_cut <- function(x,
   # tif_rows: accumulator for tif_data tibble rows
   tif_rows     <- list()
 
-  # ── 2b. Collect TIF data for stage 1 (routing stage) ──────────────────────
+  # -- 2b. Collect TIF data for stage 1 (routing stage) ----------------------
   # Stage 1 is not processed in the main loop (no routing decision needed),
   # but its TIF is included in tif_data so plot.find_cut() can display it
   # as the top facet for context.
@@ -275,13 +277,13 @@ find_cut <- function(x,
     )
   }
 
-  # ── 3. Main loop: process each stage from stage 2 onward ──────────────────
+  # -- 3. Main loop: process each stage from stage 2 onward ------------------
   for (s in seq(2L, n_stg)) {
 
     mod_ids <- config[[s]]    # module indices at stage s (integer vector)
     n_mod_s <- length(mod_ids) # number of modules at this stage
 
-    # ── 3a. Single module: no routing decision at this stage ─────────────────
+    # -- 3a. Single module: no routing decision at this stage -----------------
     if (n_mod_s == 1L) {
       cut_list[[s - 1L]] <- numeric(0L)   # empty: no cut score needed
       details[[s - 1L]]  <- list(
@@ -303,8 +305,8 @@ find_cut <- function(x,
       next   # move to next stage
     }
 
-    # ── 3b. Precompute TIF matrix for all modules at stage s ─────────────────
-    # tif_mat: n_grid × n_mod_s matrix; column k = TIF of mod_ids[k]
+    # -- 3b. Precompute TIF matrix for all modules at stage s -----------------
+    # tif_mat: n_grid x n_mod_s matrix; column k = TIF of mod_ids[k]
     tif_mat <- vapply(
       X         = mod_ids,
       FUN       = function(m) info(x = item_mod[[m]], theta = theta_grid,
@@ -322,7 +324,7 @@ find_cut <- function(x,
       )
     }
 
-    # ── 3c. Sort modules by ascending mean item location (difficulty) ─────────
+    # -- 3c. Sort modules by ascending mean item location (difficulty) ---------
     # mean_loc() returns a vector of per-item mean location parameters
     mean_locs <- vapply(
       X         = mod_ids,
@@ -330,13 +332,13 @@ find_cut <- function(x,
       FUN.VALUE = numeric(1L)
     )
 
-    diff_ord    <- order(mean_locs)       # ascending difficulty → index in mod_ids
+    diff_ord    <- order(mean_locs)       # ascending difficulty -> index in mod_ids
     sorted_mods <- mod_ids[diff_ord]      # module ids sorted by ascending difficulty
     sorted_locs <- mean_locs[diff_ord]    # corresponding mean locations
 
-    # ── 3d. Check: index order should match difficulty order ──────────────────
-    # run_mst() maps routing rank 1 → next_possible[1] (lowest module index).
-    # For cut-score routing to assign low theta → easy module, the modules at
+    # -- 3d. Check: index order should match difficulty order ------------------
+    # run_mst() maps routing rank 1 -> next_possible[1] (lowest module index).
+    # For cut-score routing to assign low theta -> easy module, the modules at
     # each stage must have ascending indices in ascending difficulty order.
     if (!identical(sorted_mods, sort(mod_ids))) {
       warning(sprintf(paste0(
@@ -355,9 +357,9 @@ find_cut <- function(x,
       ))
     }
 
-    # ── 3e. Find cut score for each adjacent pair in module index order ────────
-    # IMPORTANT: pairs always follow the input module index order (e.g., 2↔3,
-    # 3↔4), NOT the difficulty-sorted order.  This matches how run_mst() maps
+    # -- 3e. Find cut score for each adjacent pair in module index order --------
+    # IMPORTANT: pairs always follow the input module index order (e.g., 2<->3,
+    # 3<->4), NOT the difficulty-sorted order.  This matches how run_mst() maps
     # routing rank to module index via next_possible (ascending index sort).
     n_pairs   <- n_mod_s - 1L                  # number of adjacent pairs
     pair_cuts <- numeric(n_pairs)              # one cut score per pair
@@ -390,7 +392,7 @@ find_cut <- function(x,
       # diff() of sign() gives +2, -2, or 0; nonzero means a sign change occurred
       chng_idx <- which(diff(sign(diff_grid)) != 0L)
 
-      # Error: no sign changes → no crossing in the search range
+      # Error: no sign changes -> no crossing in the search range
       if (length(chng_idx) == 0L) {
         stop(sprintf(paste0(
           "Stage %d, pair (module %d vs module %d): ",
@@ -422,7 +424,7 @@ find_cut <- function(x,
           )$root,
           error = function(e) NA_real_
         )
-        if (is.na(root_i)) next    # uniroot failed — skip this candidate
+        if (is.na(root_i)) next    # uniroot failed -- skip this candidate
 
         # Classify the crossing by the sign of the slope (finite difference, h = 0.01)
         slope_i <- (diff_tif_fn(root_i + 0.01) - diff_tif_fn(root_i - 0.01)) / 0.02
@@ -435,7 +437,7 @@ find_cut <- function(x,
       proper_roots    <- all_roots[root_types == "proper"]    # valid cut candidates
       anomalous_roots <- all_roots[root_types == "anomalous"] # pathological crossings
 
-      # ── Error: no proper crossings ──────────────────────────────────────────
+      # -- Error: no proper crossings ------------------------------------------
       if (length(proper_roots) == 0L) {
         if (length(anomalous_roots) > 0L) {
           # Crossings exist but ALL are anomalous (right module dominates at low theta)
@@ -452,7 +454,7 @@ find_cut <- function(x,
           length(anomalous_roots),
           paste(round(anomalous_roots, 4L), collapse = ", ")))
         } else {
-          # Sign changes existed on grid but uniroot() found nothing — numerical issue
+          # Sign changes existed on grid but uniroot() found nothing -- numerical issue
           stop(sprintf(paste0(
             "Stage %d, pair (module %d vs module %d): ",
             "sign changes were detected on the grid but no root could be refined.\n",
@@ -461,7 +463,7 @@ find_cut <- function(x,
         }
       }
 
-      # ── Warning: multiple proper crossings → select closest to ref_theta ───
+      # -- Warning: multiple proper crossings -> select closest to ref_theta ---
       if (length(proper_roots) > 1L) {
         selected_root <- proper_roots[which.min(abs(proper_roots - ref_theta))]
         warning(sprintf(paste0(
@@ -492,7 +494,7 @@ find_cut <- function(x,
 
     }  # end pair loop (k)
 
-    # ── 3f. Store stage-level results ─────────────────────────────────────────
+    # -- 3f. Store stage-level results -----------------------------------------
     # Cut scores must be sorted ascending: give_path() uses them as breaks in
     # cut(x, breaks = c(-Inf, cut_sc, Inf)), so ascending order is required.
     cut_list[[s - 1L]] <- sort(pair_cuts)
@@ -507,12 +509,12 @@ find_cut <- function(x,
 
   }  # end stage loop (s)
 
-  # ── 4. Build tif_data tibble ───────────────────────────────────────────────
+  # -- 4. Build tif_data tibble -----------------------------------------------
   # Tidy data frame with one row per (theta, module) combination
   # Suitable for ggplot2 visualisation of TIF curves and crossing points
   tif_data <- dplyr::bind_rows(tif_rows)
 
-  # ── 5. Assemble and return the result object ───────────────────────────────
+  # -- 5. Assemble and return the result object -------------------------------
   rst <- list(
     cut_score = cut_list,    # list: pass directly to run_mst(cut_score = ...)
     details   = details,     # list: per-stage diagnostic info
@@ -524,7 +526,7 @@ find_cut <- function(x,
 
 
 # ---------------------------------------------------------------------------
-# plot.find_cut() — S3 plot method for find_cut objects
+# plot.find_cut() -- S3 plot method for find_cut objects
 # ---------------------------------------------------------------------------
 
 #' Plot TIF Curves and Cut Scores from a \code{find_cut} Result
@@ -563,6 +565,8 @@ find_cut <- function(x,
 #'
 #' @seealso \code{\link{find_cut}}, \code{\link{run_mst}}
 #'
+#' @importFrom rlang .data
+#'
 #' @examples
 #' ## Use the built-in simMST 1-3-3 panel
 #' cut_result <- find_cut(
@@ -588,7 +592,7 @@ plot.find_cut <- function(x,
                           layout         = c("vertical", "horizontal"),
                           ...) {
 
-  # ── 0. Argument validation ─────────────────────────────────────────────────
+  # -- 0. Argument validation -------------------------------------------------
   if (!inherits(x, "find_cut"))
     stop("'x' must be an object of class \"find_cut\".")
   layout <- match.arg(layout)    # "vertical" or "horizontal"
@@ -597,7 +601,7 @@ plot.find_cut <- function(x,
   if (!is.logical(label_cuts) || length(label_cuts) != 1L)
     stop("'label_cuts' must be a single logical value (TRUE or FALSE).")
 
-  # ── 1. Prepare TIF tibble for plotting ────────────────────────────────────
+  # -- 1. Prepare TIF tibble for plotting ------------------------------------
   tif_plot <- x$tif_data    # columns: theta, module, stage, tif
 
   # Apply optional theta range filter
@@ -618,7 +622,7 @@ plot.find_cut <- function(x,
                                   levels = stage_levels)
   tif_plot$module_label <- paste0("Module ", tif_plot$module)
 
-  # ── 2. Build annotation data for vertical lines and crossing dots ──────────
+  # -- 2. Build annotation data for vertical lines and crossing dots ----------
   vline_rows <- list()   # rows for vline data frame
   point_rows <- list()   # rows for crossing-point dot data frame
 
@@ -639,7 +643,7 @@ plot.find_cut <- function(x,
       proper    <- pair$proper_crossings     # numeric vector: all proper roots
       anomalous <- pair$anomalous_crossings  # numeric vector: all anomalous roots
 
-      # ── Selected cut score ────────────────────────────────────────────────
+      # -- Selected cut score ------------------------------------------------
       if (length(sel) == 1L && !is.na(sel)) {
         vline_rows[[length(vline_rows) + 1L]] <- data.frame(
           stage         = stage_num,
@@ -665,7 +669,7 @@ plot.find_cut <- function(x,
         }
       }
 
-      # ── Unselected proper crossings (when multiple exist) ──────────────────
+      # -- Unselected proper crossings (when multiple exist) ------------------
       other_proper <- proper[!is.na(proper) & proper != sel]
       if (length(other_proper) > 0L) {
         has_unselected <- TRUE
@@ -679,7 +683,7 @@ plot.find_cut <- function(x,
         }
       }
 
-      # ── Anomalous crossings (excluded from cut scores) ────────────────────
+      # -- Anomalous crossings (excluded from cut scores) --------------------
       if (show_anomalous &&
           length(anomalous) > 0L && !all(is.na(anomalous))) {
         has_anomalous <- TRUE
@@ -713,35 +717,35 @@ plot.find_cut <- function(x,
     point_df <- NULL
   }
 
-  # ── 3. Build plot caption describing vertical line types ───────────────────
+  # -- 3. Build plot caption describing vertical line types -------------------
   caption_parts <- "Vertical lines: solid black = selected cut score"
   if (has_unselected)
     caption_parts <- paste0(caption_parts,
-                            " · grey dashed = unselected proper crossing")
+                            " - grey dashed = unselected proper crossing")
   if (show_anomalous && has_anomalous)
     caption_parts <- paste0(caption_parts,
-                            " · red dashed = anomalous crossing")
+                            " - red dashed = anomalous crossing")
 
-  # ── 4. Choose facet layout ─────────────────────────────────────────────────
+  # -- 4. Choose facet layout -------------------------------------------------
   # "vertical"   -> ncol = 1, one row per stage, stage 1 at the top
   # "horizontal" -> nrow = 1, one column per stage, stage 1 at the left
   facet_spec <- if (layout == "vertical") {
-    ggplot2::facet_wrap(ggplot2::vars(stage_label),
+    ggplot2::facet_wrap(ggplot2::vars(.data$stage_label),
                         ncol   = 1L,
                         scales = "free_y")
   } else {
-    ggplot2::facet_wrap(ggplot2::vars(stage_label),
+    ggplot2::facet_wrap(ggplot2::vars(.data$stage_label),
                         nrow   = 1L,
                         scales = "free_y")
   }
 
-  # ── 5. Assemble the base ggplot ────────────────────────────────────────────
+  # -- 5. Assemble the base ggplot --------------------------------------------
   p <- ggplot2::ggplot(
     data    = tif_plot,
-    mapping = ggplot2::aes(x     = theta,
-                           y     = tif,
-                           color = module_label,
-                           group = module_label)
+    mapping = ggplot2::aes(x     = .data$theta,
+                           y     = .data$tif,
+                           color = .data$module_label,
+                           group = .data$module_label)
   ) +
     ggplot2::geom_line(linewidth = 0.9) +
     facet_spec +
@@ -763,15 +767,15 @@ plot.find_cut <- function(x,
                                                color  = "grey40")
     )
 
-  # ── 6. Overlay vertical lines for each crossing type ──────────────────────
+  # -- 6. Overlay vertical lines for each crossing type ----------------------
   if (!is.null(vline_df)) {
 
-    # Selected cut scores — solid black, linewidth 1.0
+    # Selected cut scores -- solid black, linewidth 1.0
     sel_df <- vline_df[vline_df$crossing_type == "selected", ]
     if (nrow(sel_df) > 0L) {
       p <- p + ggplot2::geom_vline(
         data        = sel_df,
-        mapping     = ggplot2::aes(xintercept = xintercept),
+        mapping     = ggplot2::aes(xintercept = .data$xintercept),
         color       = "black",
         linetype    = "solid",
         linewidth   = 1.0,
@@ -780,12 +784,12 @@ plot.find_cut <- function(x,
       )
     }
 
-    # Unselected proper crossings — dashed grey50
+    # Unselected proper crossings -- dashed grey50
     unsel_df <- vline_df[vline_df$crossing_type == "unselected", ]
     if (nrow(unsel_df) > 0L) {
       p <- p + ggplot2::geom_vline(
         data        = unsel_df,
-        mapping     = ggplot2::aes(xintercept = xintercept),
+        mapping     = ggplot2::aes(xintercept = .data$xintercept),
         color       = "grey50",
         linetype    = "dashed",
         linewidth   = 0.7,
@@ -794,12 +798,12 @@ plot.find_cut <- function(x,
       )
     }
 
-    # Anomalous crossings — dashed firebrick
+    # Anomalous crossings -- dashed firebrick
     anom_df <- vline_df[vline_df$crossing_type == "anomalous", ]
     if (nrow(anom_df) > 0L) {
       p <- p + ggplot2::geom_vline(
         data        = anom_df,
-        mapping     = ggplot2::aes(xintercept = xintercept),
+        mapping     = ggplot2::aes(xintercept = .data$xintercept),
         color       = "firebrick",
         linetype    = "dashed",
         linewidth   = 0.7,
@@ -809,13 +813,13 @@ plot.find_cut <- function(x,
     }
   }
 
-  # ── 7. Add open-circle dot at each selected crossing point ─────────────────
-  # The dot sits at (theta_cut, TIF_left(theta_cut)) — the exact intersection
+  # -- 7. Add open-circle dot at each selected crossing point -----------------
+  # The dot sits at (theta_cut, TIF_left(theta_cut)) -- the exact intersection
   # of the two adjacent module TIF curves at the cut score theta.
   if (!is.null(point_df)) {
     p <- p + ggplot2::geom_point(
       data        = point_df,
-      mapping     = ggplot2::aes(x = theta, y = tif),
+      mapping     = ggplot2::aes(x = .data$theta, y = .data$tif),
       color       = "black",
       fill        = "white",
       shape       = 21L,       # open circle with border
@@ -825,14 +829,14 @@ plot.find_cut <- function(x,
     )
   }
 
-  # ── 8. Annotate each selected cut score with its theta value ──────────────
+  # -- 8. Annotate each selected cut score with its theta value --------------
   # Label is placed above the crossing dot; if no dot exists, it is suppressed.
   if (label_cuts && !is.null(point_df)) {
     p <- p + ggplot2::geom_text(
       data        = point_df,
-      mapping     = ggplot2::aes(x     = theta,
-                                 y     = tif,
-                                 label = sprintf("θ=%.3f", theta)),
+      mapping     = ggplot2::aes(x     = .data$theta,
+                                 y     = .data$tif,
+                                 label = sprintf("theta=%.3f", .data$theta)),
       vjust       = -0.9,     # slightly above the dot
       hjust       = 0.5,
       size        = 3.0,
