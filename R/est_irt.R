@@ -750,7 +750,12 @@ est_irt <- function(x = NULL,
   
   # match.call
   cl <- match.call()
-  
+
+  # Merge user-supplied control list with defaults, enabling partial specification
+  # (e.g., control = list(iter.max = 500) keeps eval.max and x.tol at defaults)
+  default_control <- list(eval.max = 500, iter.max = 200, x.tol = 1e-4)
+  control <- modifyList(default_control, control)
+
   # item parameter estimation
   if (!fipc) {
     # item parameter estimation using MMLE-EM algorithm
