@@ -2,11 +2,11 @@
 # ---------------------------------------------------------------------------
 # find_cut() — Identify TIF-crossing cut scores for MST routing
 #
-# For each pair of adjacent modules (sorted by mean item difficulty) at each
-# stage transition, this function finds the theta value where the harder
-# module's TIF curve crosses the easier module's TIF curve with a positive
-# slope (a "proper" crossing).  The resulting cut scores can be passed
-# directly to run_mst() as the cut_score argument.
+# For each pair of adjacent modules (in the order provided by the user,
+# i.e., ascending module index) at each stage transition, this function finds
+# the theta value where the right module's TIF curve crosses the left module's
+# TIF curve with a positive slope (a "proper" crossing).  The resulting cut
+# scores can be passed directly to run_mst() as the cut_score argument.
 # ---------------------------------------------------------------------------
 
 
@@ -116,14 +116,13 @@
 #' \subsection{Algorithm}{
 #' The function proceeds stage by stage (from stage 2 onward). At each stage:
 #' \enumerate{
-#'   \item Modules are sorted by their mean item location parameter (ascending
-#'     difficulty), using the internal \code{mean_loc()} helper also used by
-#'     the \code{"bmat"} routing method in \code{\link{run_mst}}.
-#'   \item For each adjacent pair (easier, harder) in difficulty order, the
-#'     difference \eqn{\text{TIF}_{\text{harder}}(\theta) -
-#'     \text{TIF}_{\text{easier}}(\theta)} is evaluated on a fine theta grid
-#'     of \code{n_grid} points. Sign changes on the grid are detected and
-#'     then refined with \code{\link[stats]{uniroot}}.
+#'   \item For each adjacent pair of modules in the order supplied by the
+#'     user (ascending module index), the difference
+#'     \eqn{\text{TIF}_{\text{right}}(\theta) -
+#'     \text{TIF}_{\text{left}}(\theta)} is evaluated on a fine theta grid
+#'     of \code{n_grid} points, where "left" and "right" refer to the lower-
+#'     and higher-index module in the pair. Sign changes on the grid are
+#'     detected and then refined with \code{\link[stats]{uniroot}}.
 #'   \item The slope at each refined root is estimated by a finite difference
 #'     (step size 0.01) to classify it as proper or anomalous.
 #'   \item The selected proper crossing is stored as the cut score for that pair.
@@ -135,9 +134,12 @@
 #' module index and maps routing rank 1 to the lowest-index module. For
 #' cut-score routing to assign low-theta examinees to the easiest module, the
 #' modules at each stage must be numbered in ascending difficulty order
-#' (easiest module = lowest index). \code{find_cut()} checks this assumption
-#' and issues a warning if it is violated. The returned cut scores are always
-#' sorted in ascending order, as required by \code{\link[base]{cut}}.
+#' (easiest module = lowest index). \code{find_cut()} checks this assumption and issues a warning if the
+#' difficulty order does not match the index order. Regardless of this warning,
+#' cut scores are always computed between consecutive module pairs in the
+#' supplied index order (e.g., modules 2\&3 and 3\&4, not 2\&4 and 4\&3).
+#' The returned cut scores within each stage are sorted in ascending order,
+#' as required by \code{\link[base]{cut}}.
 #' }
 #'
 #' @seealso \code{\link{run_mst}}, \code{\link{panel_info}},
@@ -329,32 +331,35 @@ find_cut <- function(x,
       ))
     }
 
-    # ── 3e. Find cut score for each adjacent difficulty-sorted pair ───────────
+    # ── 3e. Find cut score for each adjacent pair in module index order ────────
+    # IMPORTANT: pairs always follow the input module index order (e.g., 2↔3,
+    # 3↔4), NOT the difficulty-sorted order.  This matches how run_mst() maps
+    # routing rank to module index via next_possible (ascending index sort).
     n_pairs   <- n_mod_s - 1L                  # number of adjacent pairs
     pair_cuts <- numeric(n_pairs)              # one cut score per pair
     pair_info <- vector("list", n_pairs)       # diagnostic info per pair
 
     for (k in seq_len(n_pairs)) {
 
-      easier_m <- sorted_mods[k]          # easier module index
-      harder_m <- sorted_mods[k + 1L]    # harder module index
+      left_m  <- mod_ids[k]          # left (lower-index) module
+      right_m <- mod_ids[k + 1L]    # right (higher-index) module
 
-      # Column positions of easier and harder modules within tif_mat
-      col_e    <- which(mod_ids == easier_m)
-      col_h    <- which(mod_ids == harder_m)
+      # Column positions in tif_mat match the order of mod_ids directly
+      col_l    <- k          # left module is the k-th column in tif_mat
+      col_r    <- k + 1L    # right module is the (k+1)-th column
 
-      # Difference of TIF values on the grid: positive means harder > easier
-      diff_grid <- tif_mat[, col_h] - tif_mat[, col_e]
+      # Difference of TIF values on the grid: positive means right > left
+      diff_grid <- tif_mat[, col_r] - tif_mat[, col_l]
 
       # Inline evaluation function for uniroot() and derivative estimation
-      # Captures easier_m and harder_m from the current loop iteration
-      e_m <- easier_m   # local copy to avoid closure pitfalls
-      h_m <- harder_m
+      # Captures left_m and right_m from the current loop iteration
+      l_m <- left_m    # local copy to avoid closure pitfalls
+      r_m <- right_m
       diff_tif_fn <- function(theta_val) {
-        # Evaluate TIF difference at an arbitrary theta (scalar or vector)
-        tif_h <- info(x = item_mod[[h_m]], theta = theta_val, D = D, tif = TRUE)$tif
-        tif_e <- info(x = item_mod[[e_m]], theta = theta_val, D = D, tif = TRUE)$tif
-        as.numeric(tif_h - tif_e)
+        # Evaluate TIF difference (right minus left) at an arbitrary theta
+        tif_r <- info(x = item_mod[[r_m]], theta = theta_val, D = D, tif = TRUE)$tif
+        tif_l <- info(x = item_mod[[l_m]], theta = theta_val, D = D, tif = TRUE)$tif
+        as.numeric(tif_r - tif_l)
       }
 
       # Detect sign-change positions on the fine grid
@@ -364,11 +369,11 @@ find_cut <- function(x,
       # Error: no sign changes → no crossing in the search range
       if (length(chng_idx) == 0L) {
         stop(sprintf(paste0(
-          "Stage %d, pair (module %d [easier] vs module %d [harder]): ",
+          "Stage %d, pair (module %d vs module %d): ",
           "no TIF crossing detected in theta range [%.2f, %.2f].\n",
           "The TIF curves do not intersect within this range.\n",
           "Consider widening 'theta_range' or reviewing module item composition."
-        ), s, easier_m, harder_m, theta_range[1L], theta_range[2L]))
+        ), s, left_m, right_m, theta_range[1L], theta_range[2L]))
       }
 
       # Refine each sign-change interval with uniroot() and classify the root
@@ -409,26 +414,26 @@ find_cut <- function(x,
       # ── Error: no proper crossings ──────────────────────────────────────────
       if (length(proper_roots) == 0L) {
         if (length(anomalous_roots) > 0L) {
-          # Crossings exist but ALL are anomalous (harder module dominates at low theta)
+          # Crossings exist but ALL are anomalous (right module dominates at low theta)
           stop(sprintf(paste0(
-            "Stage %d, pair (module %d [easier] vs module %d [harder]): ",
+            "Stage %d, pair (module %d vs module %d): ",
             "no valid cut score found.\n",
             "All %d crossing(s) detected have a negative slope (anomalous pattern):\n",
             "  theta = [%s]\n",
-            "This indicates that the harder module unexpectedly has higher TIF at\n",
-            "low theta values, which would cause misrouting of low-ability examinees.\n",
+            "This indicates that the right (higher-index) module has higher TIF at\n",
+            "low theta values, which may cause misrouting of low-ability examinees.\n",
             "Review module item composition or consult a test design specialist."
           ),
-          s, easier_m, harder_m,
+          s, left_m, right_m,
           length(anomalous_roots),
           paste(round(anomalous_roots, 4L), collapse = ", ")))
         } else {
           # Sign changes existed on grid but uniroot() found nothing — numerical issue
           stop(sprintf(paste0(
-            "Stage %d, pair (module %d [easier] vs module %d [harder]): ",
+            "Stage %d, pair (module %d vs module %d): ",
             "sign changes were detected on the grid but no root could be refined.\n",
             "Try increasing 'n_grid' or widening 'theta_range'."
-          ), s, easier_m, harder_m))
+          ), s, left_m, right_m))
         }
       }
 
@@ -436,12 +441,12 @@ find_cut <- function(x,
       if (length(proper_roots) > 1L) {
         selected_root <- proper_roots[which.min(abs(proper_roots - ref_theta))]
         warning(sprintf(paste0(
-          "Stage %d, pair (module %d [easier] vs module %d [harder]): ",
+          "Stage %d, pair (module %d vs module %d): ",
           "%d proper crossings found at theta = [%s].\n",
           "Selecting the crossing closest to ref_theta = %.4f: theta = %.4f.\n",
           "To override the selection, specify a different 'ref_theta'."
         ),
-        s, easier_m, harder_m,
+        s, left_m, right_m,
         length(proper_roots),
         paste(round(proper_roots, 4L), collapse = ", "),
         ref_theta, selected_root))
@@ -453,13 +458,13 @@ find_cut <- function(x,
 
       # Record per-pair diagnostic information
       pair_info[[k]] <- list(
-        easier_module       = easier_m,
-        harder_module       = harder_m,
+        left_module         = left_m,            # lower-index module (left in pair)
+        right_module        = right_m,           # higher-index module (right in pair)
         proper_crossings    = proper_roots,      # all valid crossing points
         anomalous_crossings = anomalous_roots,   # excluded pathological crossings
         selected_cut        = selected_root      # the cut score used
       )
-      names(pair_info)[k] <- sprintf("mod%d_vs_mod%d", easier_m, harder_m)
+      names(pair_info)[k] <- sprintf("mod%d_vs_mod%d", left_m, right_m)
 
     }  # end pair loop (k)
 

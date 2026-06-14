@@ -59,8 +59,8 @@ test_that("find_cut() details contain correct stage-level information", {
   # Each pair entry has the expected fields
   for (pnm in names(d2$pairs)) {
     p <- d2$pairs[[pnm]]
-    expect_true("easier_module"       %in% names(p))
-    expect_true("harder_module"       %in% names(p))
+    expect_true("left_module"         %in% names(p))
+    expect_true("right_module"        %in% names(p))
     expect_true("proper_crossings"    %in% names(p))
     expect_true("anomalous_crossings" %in% names(p))
     expect_true("selected_cut"        %in% names(p))

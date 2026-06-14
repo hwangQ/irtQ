@@ -126,14 +126,13 @@ closest to \code{ref_theta} is selected.
 \subsection{Algorithm}{
 The function proceeds stage by stage (from stage 2 onward). At each stage:
 \enumerate{
-\item Modules are sorted by their mean item location parameter (ascending
-difficulty), using the internal \code{mean_loc()} helper also used by
-the \code{"bmat"} routing method in \code{\link{run_mst}}.
-\item For each adjacent pair (easier, harder) in difficulty order, the
-difference \eqn{\text{TIF}_{\text{harder}}(\theta) -
-    \text{TIF}_{\text{easier}}(\theta)} is evaluated on a fine theta grid
-of \code{n_grid} points. Sign changes on the grid are detected and
-then refined with \code{\link[stats]{uniroot}}.
+\item For each adjacent pair of modules in the order supplied by the
+user (ascending module index), the difference
+\eqn{\text{TIF}_{\text{right}}(\theta) -
+    \text{TIF}_{\text{left}}(\theta)} is evaluated on a fine theta grid
+of \code{n_grid} points, where "left" and "right" refer to the lower-
+and higher-index module in the pair. Sign changes on the grid are
+detected and then refined with \code{\link[stats]{uniroot}}.
 \item The slope at each refined root is estimated by a finite difference
 (step size 0.01) to classify it as proper or anomalous.
 \item The selected proper crossing is stored as the cut score for that pair.
@@ -145,9 +144,12 @@ then refined with \code{\link[stats]{uniroot}}.
 module index and maps routing rank 1 to the lowest-index module. For
 cut-score routing to assign low-theta examinees to the easiest module, the
 modules at each stage must be numbered in ascending difficulty order
-(easiest module = lowest index). \code{find_cut()} checks this assumption
-and issues a warning if it is violated. The returned cut scores are always
-sorted in ascending order, as required by \code{\link[base]{cut}}.
+(easiest module = lowest index). \code{find_cut()} checks this assumption and issues a warning if the
+difficulty order does not match the index order. Regardless of this warning,
+cut scores are always computed between consecutive module pairs in the
+supplied index order (e.g., modules 2\&3 and 3\&4, not 2\&4 and 4\&3).
+The returned cut scores within each stage are sorted in ascending order,
+as required by \code{\link[base]{cut}}.
 }
 }
 \examples{

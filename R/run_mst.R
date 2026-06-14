@@ -367,6 +367,36 @@
 #' rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 #' cat(sprintf("RMSE (bmat): %.4f\n", rmse_A))
 #' cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
+#'
+#' ## ---------------------------------------------------------
+#' ## Example 4: TIF-based cut scores via find_cut()
+#' ## find_cut() computes principled cut scores from TIF crossings.
+#' ## This prevents anomalous routing under MFI-like heuristics.
+#' ## ---------------------------------------------------------
+#' # Derive cut scores from TIF crossings between adjacent modules
+#' cut_result <- find_cut(
+#'   x         = x,
+#'   module    = module,
+#'   route_map = route_map
+#' )
+#'
+#' # Inspect the derived cut scores
+#' print(cut_result)
+#'
+#' # Use the derived cut scores for routing (route_method = NULL)
+#' result_findcut <- run_mst(
+#'   x            = x,
+#'   route_map    = route_map,
+#'   module       = module,
+#'   theta        = theta_true,
+#'   D            = 1.702,
+#'   route_method = NULL,
+#'   cut_score    = cut_result$cut_score,
+#'   route_score  = list(method = "ML", range = c(-4, 4)),
+#'   final_score  = list(method = "ML", range = c(-4, 4)),
+#'   se = TRUE
+#' )
+#' print(result_findcut)
 #' }
 #'
 #' @export
