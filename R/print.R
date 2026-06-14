@@ -733,3 +733,78 @@ print.run_mst <- function(x, digits = 3L, ...) {
 
   invisible(x)   # return the object invisibly (standard S3 print convention)
 }
+
+# ---------------------------------------------------------------------------
+# print.find_cut() - Print method for objects of class "find_cut"
+#
+# Displays a formatted summary of the TIF-crossing cut scores found by
+# find_cut(), including per-stage module information, proper and anomalous
+# crossing points, and the selected cut score for each adjacent module pair.
+#
+# @param x       An object of class "find_cut" returned by find_cut().
+# @param digits  Number of decimal places for rounding numeric output.
+#                Default is 4L.
+# @param ...     Additional arguments (currently unused; for S3 compatibility).
+# @return        x, invisibly.
+# ---------------------------------------------------------------------------
+#' @export
+print.find_cut <- function(x, digits = 4L, ...) {
+
+  # Print header
+  cat("MST TIF-Crossing Cut Score Results\n")
+  cat(strrep("=", 50L), "\n", sep = "")
+
+  for (nm in names(x$details)) {
+    d <- x$details[[nm]]                  # diagnostic info for this stage
+    cs <- x$cut_score[[nm]]              # cut score vector for this stage
+
+    # Stage label (e.g., "stage.2")
+    cat(sprintf("\n%s\n", nm))
+    cat(strrep("-", 35L), "\n", sep = "")
+
+    # Handle single-module stages (no routing needed)
+    if (!is.null(d$message)) {
+      cat("  ", d$message, "\n", sep = "")
+      next
+    }
+
+    # Module summary
+    cat(sprintf("  Modules (index order)    : %s\n",
+                paste(d$modules, collapse = ", ")))
+    cat(sprintf("  Modules (difficulty order): %s\n",
+                paste(d$sorted_order, collapse = ", ")))
+    cat(sprintf("  Mean item locations      : %s\n",
+                paste(round(d$mean_locs[paste0("mod", d$modules)], digits),
+                      collapse = ", ")))
+    cat(sprintf("  Selected cut score(s)    : %s\n",
+                paste(round(cs, digits), collapse = ", ")))
+
+    # Per-pair crossing details
+    if (length(d$pairs) > 0L) {
+      cat("  Pair details:\n")
+      for (pnm in names(d$pairs)) {
+        p           <- d$pairs[[pnm]]
+        n_proper    <- length(p$proper_crossings)
+        n_anomalous <- length(p$anomalous_crossings)
+        cat(sprintf("    [%s]\n", pnm))
+        cat(sprintf("      Proper crossing(s)    : %d  [theta = %s]\n",
+                    n_proper,
+                    if (n_proper > 0L)
+                      paste(round(p$proper_crossings, digits), collapse = ", ")
+                    else "none"))
+        if (n_anomalous > 0L) {
+          cat(sprintf("      Anomalous crossing(s) : %d  [theta = %s]  (excluded)\n",
+                      n_anomalous,
+                      paste(round(p$anomalous_crossings, digits), collapse = ", ")))
+        }
+        cat(sprintf("      Selected cut score    : %.4f\n", p$selected_cut))
+      }
+    }
+  }
+
+  # Usage hint
+  cat(strrep("=", 50L), "\n", sep = "")
+  cat("Usage: run_mst(..., route_method = NULL,",
+      "cut_score = <result>$cut_score)\n")
+  invisible(x)    # return x invisibly for assignment chaining
+}

@@ -109,6 +109,7 @@ reference:
       - bisection
       - reval_mst
       - panel_info
+      - find_cut
       - run_mst
       - summary
 
