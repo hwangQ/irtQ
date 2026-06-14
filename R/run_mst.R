@@ -212,11 +212,6 @@
 #' concatenated, and the final ability estimate is computed using the
 #' \code{final_score} method.
 #'
-#' \strong{Pre-computation for efficiency}: \code{elm_item} objects
-#' (\code{breakdown()} output), DRM/PRM item indices, and EAP
-#' quadrature weights are computed once per module before the examinee loop,
-#' following the same pattern as \code{est_score_1core()}.
-#'
 #' @return An object of class \code{"run_mst"}, which is a named list
 #'   containing:
 #' \describe{
