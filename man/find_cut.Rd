@@ -78,14 +78,14 @@ grounded alternative to heuristic cut-score selection.
 \subsection{Motivation: the MFI routing problem}{
 When \code{\link{run_mst}} uses Maximum Fisher Information (MFI) routing
 (\code{route_method = "mfi"}), it selects the next-stage module that
-maximises TIF at the examinee's current ability estimate. In principle, a
+maximizes TIF at the examinee's current ability estimate. In principle, a
 harder module should always have a higher TIF for high-ability examinees,
 and a lower TIF for low-ability examinees, making MFI routing work as
 intended. However, in practice, a harder module's TIF curve can peak at
 a theta value that is unexpectedly low, so that the harder module
 \emph{also} has the highest TIF near the low end of the ability scale.
 In this case, a low-ability examinee is incorrectly routed into the harder
-module — the opposite of what the MST is designed to do. This is called an
+module — the opposite of what the MST is designed to do, which is called an
 \emph{anomalous routing} or \emph{path reversal}.
 }
 
