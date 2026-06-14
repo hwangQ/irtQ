@@ -1,49 +1,3 @@
-# ---------------------------------------------------------------------------
-# mean_loc() - Internal helper for bmat routing
-#
-# Computes the mean location parameter for each item in an item metadata
-# data frame. Used by the bmat (b-matching) routing method to select the
-# module whose average difficulty is closest to the current theta estimate.
-#
-# For dichotomous items (1PLM, 2PLM, 3PLM, DRM):
-#   Returns the b (difficulty) parameter = par.2.
-#
-# For polytomous items (GRM, GPCM):
-#   Returns the mean of all threshold / step parameters
-#   (par.2 through par.[cats]), i.e., mean(b_1, b_2, ..., b_{K-1}).
-#   This average location captures the overall difficulty of the item.
-#
-# @param item_meta  A data frame conforming to the irtQ item metadata format
-#                   (columns: id, cats, model, par.1, par.2, ...).
-# @return           A numeric vector of length nrow(item_meta), one mean
-#                   location value per item.
-# ---------------------------------------------------------------------------
-mean_loc <- function(item_meta) {
-
-  # Identify all parameter columns (par.1, par.2, ...)
-  par_cols <- grep("^par\\.", names(item_meta), value = TRUE)
-  pars     <- item_meta[, par_cols, drop = FALSE]
-
-  # Compute mean location for each item
-  locs <- purrr::map_dbl(seq_len(nrow(item_meta)), function(i) {
-    model_i <- item_meta$model[i]   # IRT model for this item
-    cats_i  <- item_meta$cats[i]    # number of score categories
-
-    if (model_i %in% c("1PLM", "2PLM", "3PLM", "DRM")) {
-      # Dichotomous: location = b parameter (par.2, 2nd column of pars)
-      as.numeric(pars[i, 2])
-    } else {
-      # GRM / GPCM: location = mean of threshold/step parameters
-      # par.2 through par.[cats] = columns 2 to cats_i
-      thresh_vals <- as.numeric(pars[i, 2:cats_i])
-      mean(thresh_vals, na.rm = TRUE)
-    }
-  })
-
-  locs   # return mean location vector
-}
-
-
 #' Multistage Adaptive Test (MST) Simulation
 #'
 #' @description
@@ -159,8 +113,10 @@ mean_loc <- function(item_meta) {
 #'       difficulty parameters of the lower and upper fence items. If
 #'       \code{NULL}, \code{range} is used. Default: \code{NULL}.}
 #'   }
-#'   Unspecified fields take their defaults. Example:
-#'   \code{route_score = list(method = "ML", range = c(-4, 4))}.
+#'   Unspecified fields take their defaults; the full default is
+#'   \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
+#'   \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL)}.
+#'   Example: \code{route_score = list(method = "ML", range = c(-4, 4))}.
 #'
 #' @param final_score A named list specifying the scoring method and options
 #'   for the final ability estimate (applied to all items accumulated across
@@ -178,6 +134,10 @@ mean_loc <- function(item_meta) {
 #'     \item{\code{max.it}}{Integer: maximum bisection iterations for
 #'       \code{"INV.TCC"}. Default: \code{500}.}
 #'   }
+#'   The full default is equivalent to
+#'   \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
+#'   \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL,}
+#'   \code{intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.
 #'
 #' @param se Logical. Whether to compute and return the standard error of the
 #'   final ability estimate. SE is computed for \code{"ML"}, \code{"WL"},
@@ -190,17 +150,18 @@ mean_loc <- function(item_meta) {
 #'
 #' @param verbose Logical. If \code{TRUE}, prints progress messages to the
 #'   console during the simulation (approximately every 10\% of examinees).
-#'   Default is \code{FALSE}.
+#'   Default is \code{TRUE}.
 #'
-#' @param return_full_resp Logical. If \code{TRUE}, the returned object includes
-#'   a \code{full.resp} element: a \emph{J} x \emph{N} integer matrix where
-#'   \emph{J} = \code{nrow(x)} (all items in the item bank) and \emph{N} is
-#'   the number of examinees. Cell \code{[j, i]} contains examinee \emph{i}'s
-#'   response to item \emph{j} if that item was administered to them, or
-#'   \code{NA} if it was not. Row names are the item IDs from \code{x$id};
-#'   column names are \code{"examinee.1"}, \code{"examinee.2"}, etc.
+#' @param return_full_resp Logical. If \code{TRUE}, the \code{full.resp}
+#'   element of the returned list is an \emph{N} x \emph{J} integer matrix,
+#'   where \emph{N} is the number of examinees and \emph{J} = \code{nrow(x)}
+#'   (all items in the item bank). Cell \code{[i, j]} contains examinee
+#'   \emph{i}'s response to item \emph{j} if that item was administered, or
+#'   \code{NA} if it was not. Row names are \code{"examinee.1"},
+#'   \code{"examinee.2"}, etc.; column names are the item IDs from
+#'   \code{x$id}. If \code{FALSE} (default), \code{full.resp} is \code{NULL}.
 #'   Because this matrix can be large for large panels and many examinees, it
-#'   is not returned by default (\code{FALSE}).
+#'   is not populated by default.
 #'
 #' @details
 #' \strong{Panel structure}: The function first calls \code{\link{panel_info}}
@@ -263,11 +224,14 @@ mean_loc <- function(item_meta) {
 #'   \item{\code{final.score}}{The fully-merged \code{final_score} list
 #'     (with all defaults applied).}
 #'   \item{\code{N}}{Number of examinees.}
-#'   \item{\code{full.resp}}{A \emph{J} x \emph{N} integer matrix of all
-#'     item responses, where \emph{J} = \code{nrow(x)} and \emph{N} is the
-#'     number of examinees. \code{NA} for items not administered to a given
-#'     examinee. Included only when \code{return_full_resp = TRUE}; otherwise
-#'     this element is absent from the list.}
+#'   \item{\code{full.resp}}{Always present in the returned list. When
+#'     \code{return_full_resp = TRUE}, an \emph{N} x \emph{J} integer matrix
+#'     of all item responses, where \emph{N} is the number of examinees and
+#'     \emph{J} = \code{nrow(x)} (total items in the item bank). Row names are
+#'     \code{"examinee.1"}, \code{"examinee.2"}, etc.; column names are the
+#'     item IDs from \code{x$id}. \code{NA} for items not administered to a
+#'     given examinee. When \code{return_full_resp = FALSE} (default), this
+#'     element is \code{NULL}.}
 #' }
 #'
 #' @references
@@ -415,11 +379,28 @@ sim_mst <- function(x,
                     ini_mod          = 1,
                     route_method     = "bmat",
                     cut_score        = NULL,
-                    route_score      = list(method = "ML"),
-                    final_score      = list(method = "ML"),
+                    route_score      = list(method     = "ML",
+                                           range      = c(-5, 5),
+                                           norm.prior = c(0, 1),
+                                           nquad      = 41L,
+                                           tol        = 1e-4,
+                                           max.iter   = 100L,
+                                           fence.a    = 3.0,
+                                           fence.b    = NULL),
+                    final_score      = list(method     = "ML",
+                                           range      = c(-5, 5),
+                                           norm.prior = c(0, 1),
+                                           nquad      = 41L,
+                                           tol        = 1e-4,
+                                           max.iter   = 100L,
+                                           fence.a    = 3.0,
+                                           fence.b    = NULL,
+                                           intpol     = TRUE,
+                                           range.tcc  = c(-7, 7),
+                                           max.it     = 500L),
                     se               = TRUE,
                     missing          = NA,
-                    verbose          = FALSE,
+                    verbose          = TRUE,
                     return_full_resp = FALSE) {
 
   # Capture the function call for inclusion in the result object
@@ -661,13 +642,17 @@ sim_mst <- function(x,
   path_mat   <- matrix(NA_integer_, nrow = N, ncol = n.stg)
   colnames(path_mat) <- paste0("stage.", 1:n.stg)
 
-  # --- Optionally initialise the full J x N response matrix ---
-  # J = total items in item bank (rows), N = examinees (columns)
-  if (return_full_resp) {
-    J         <- nrow(x)          # total items in the item bank
-    full_resp <- matrix(NA_integer_, nrow = J, ncol = N)
-    rownames(full_resp) <- x$id   # item IDs as row names
-    colnames(full_resp) <- paste0("examinee.", seq_len(N))
+  # --- Initialise the full response matrix (always allocated) ---
+  # Dimensions: N x J  (rows = examinees, columns = items in item bank)
+  # full_resp is NULL when return_full_resp = FALSE; matrix otherwise.
+  J         <- nrow(x)             # total items in the item bank
+  full_resp <- if (return_full_resp) {
+    m <- matrix(NA_integer_, nrow = N, ncol = J)   # N examinees x J items
+    rownames(m) <- paste0("examinee.", seq_len(N)) # row names: examinee index
+    colnames(m) <- x$id                            # column names: item IDs
+    m
+  } else {
+    NULL                                           # not requested; keep as NULL
   }
 
   # --- Verbose progress reporting ---
@@ -760,11 +745,10 @@ sim_mst <- function(x,
       items_acc <- c(items_acc, items_s)          # append to accumulated list
       resp_acc  <- c(resp_acc, resp_s)            # append to accumulated responses
 
-      # Record responses into the full J x N matrix (if requested)
+      # Record responses into the full N x J matrix (if requested)
       if (return_full_resp) {
-        # items_s contains the row indices in x for module mod_s's items
-        # resp_s contains this examinee's responses to those items
-        full_resp[items_s, i] <- as.integer(resp_s)
+        # Row i = examinee i; columns items_s = items of module mod_s
+        full_resp[i, items_s] <- as.integer(resp_s)
       }
 
       # ---- Score responses for routing (all stages except the final) ----
@@ -1008,13 +992,9 @@ sim_mst <- function(x,
     route.method     = route_method,        # routing method used
     route.score      = route_args,          # merged route scoring arguments
     final.score      = final_args,          # merged final scoring arguments
-    N                = N                    # number of examinees
+    N                = N,                   # number of examinees
+    full.resp        = full_resp            # N x J matrix or NULL
   )
-
-  # Attach full response matrix only if requested
-  if (return_full_resp) {
-    rst$full.resp <- full_resp   # J x N integer matrix (NA = not administered)
-  }
 
   # Assign S3 class for print dispatch
   class(rst) <- "sim_mst"
@@ -1023,3 +1003,50 @@ sim_mst <- function(x,
 
   rst
 }
+
+# ---------------------------------------------------------------------------
+# mean_loc() - Internal helper for bmat routing
+#
+# Computes the mean location parameter for each item in an item metadata
+# data frame. Used by the bmat (b-matching) routing method to select the
+# module whose average difficulty is closest to the current theta estimate.
+#
+# For dichotomous items (1PLM, 2PLM, 3PLM, DRM):
+#   Returns the b (difficulty) parameter = par.2.
+#
+# For polytomous items (GRM, GPCM):
+#   Returns the mean of all threshold / step parameters
+#   (par.2 through par.[cats]), i.e., mean(b_1, b_2, ..., b_{K-1}).
+#   This average location captures the overall difficulty of the item.
+#
+# @param item_meta  A data frame conforming to the irtQ item metadata format
+#                   (columns: id, cats, model, par.1, par.2, ...).
+# @return           A numeric vector of length nrow(item_meta), one mean
+#                   location value per item.
+# ---------------------------------------------------------------------------
+mean_loc <- function(item_meta) {
+  
+  # Identify all parameter columns (par.1, par.2, ...)
+  par_cols <- grep("^par\\.", names(item_meta), value = TRUE)
+  pars     <- item_meta[, par_cols, drop = FALSE]
+  
+  # Compute mean location for each item
+  locs <- purrr::map_dbl(seq_len(nrow(item_meta)), function(i) {
+    model_i <- item_meta$model[i]   # IRT model for this item
+    cats_i  <- item_meta$cats[i]    # number of score categories
+    
+    if (model_i %in% c("1PLM", "2PLM", "3PLM", "DRM")) {
+      # Dichotomous: location = b parameter (par.2, 2nd column of pars)
+      as.numeric(pars[i, 2])
+    } else {
+      # GRM / GPCM: location = mean of threshold/step parameters
+      # par.2 through par.[cats] = columns 2 to cats_i
+      thresh_vals <- as.numeric(pars[i, 2:cats_i])
+      mean(thresh_vals, na.rm = TRUE)
+    }
+  })
+  
+  locs   # return mean location vector
+}
+
+

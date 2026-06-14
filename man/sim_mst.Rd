@@ -14,11 +14,14 @@ sim_mst(
   ini_mod = 1,
   route_method = "bmat",
   cut_score = NULL,
-  route_score = list(method = "ML"),
-  final_score = list(method = "ML"),
+  route_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
+    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL),
+  final_score = list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41L,
+    tol = 1e-04, max.iter = 100L, fence.a = 3, fence.b = NULL, intpol = TRUE, range.tcc =
+    c(-7, 7), max.it = 500L),
   se = TRUE,
   missing = NA,
-  verbose = FALSE,
+  verbose = TRUE,
   return_full_resp = FALSE
 )
 }
@@ -123,8 +126,10 @@ for MLF. Default: \code{3.0}.}
 difficulty parameters of the lower and upper fence items. If
 \code{NULL}, \code{range} is used. Default: \code{NULL}.}
 }
-Unspecified fields take their defaults. Example:
-\code{route_score = list(method = "ML", range = c(-4, 4))}.}
+Unspecified fields take their defaults; the full default is
+\code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
+\code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL)}.
+Example: \code{route_score = list(method = "ML", range = c(-4, 4))}.}
 
 \item{final_score}{A named list specifying the scoring method and options
 for the final ability estimate (applied to all items accumulated across
@@ -141,7 +146,11 @@ al., 2021). Default: \code{"ML"}.}
 for \code{"INV.TCC"}. Default: \code{c(-7, 7)}.}
 \item{\code{max.it}}{Integer: maximum bisection iterations for
 \code{"INV.TCC"}. Default: \code{500}.}
-}}
+}
+The full default is equivalent to
+\code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
+\code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL,}
+\code{intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)}.}
 
 \item{se}{Logical. Whether to compute and return the standard error of the
 final ability estimate. SE is computed for \code{"ML"}, \code{"WL"},
@@ -154,17 +163,18 @@ are represented in \code{response}. Default is \code{NA}.}
 
 \item{verbose}{Logical. If \code{TRUE}, prints progress messages to the
 console during the simulation (approximately every 10\\% of examinees).
-Default is \code{FALSE}.}
+Default is \code{TRUE}.}
 
-\item{return_full_resp}{Logical. If \code{TRUE}, the returned object includes
-a \code{full.resp} element: a \emph{J} x \emph{N} integer matrix where
-\emph{J} = \code{nrow(x)} (all items in the item bank) and \emph{N} is
-the number of examinees. Cell \code{[j, i]} contains examinee \emph{i}'s
-response to item \emph{j} if that item was administered to them, or
-\code{NA} if it was not. Row names are the item IDs from \code{x$id};
-column names are \code{"examinee.1"}, \code{"examinee.2"}, etc.
+\item{return_full_resp}{Logical. If \code{TRUE}, the \code{full.resp}
+element of the returned list is an \emph{N} x \emph{J} integer matrix,
+where \emph{N} is the number of examinees and \emph{J} = \code{nrow(x)}
+(all items in the item bank). Cell \code{[i, j]} contains examinee
+\emph{i}'s response to item \emph{j} if that item was administered, or
+\code{NA} if it was not. Row names are \code{"examinee.1"},
+\code{"examinee.2"}, etc.; column names are the item IDs from
+\code{x$id}. If \code{FALSE} (default), \code{full.resp} is \code{NULL}.
 Because this matrix can be large for large panels and many examinees, it
-is not returned by default (\code{FALSE}).}
+is not populated by default.}
 }
 \value{
 An object of class \code{"sim_mst"}, which is a named list
@@ -192,11 +202,14 @@ administered module indices.}
 \item{\code{final.score}}{The fully-merged \code{final_score} list
 (with all defaults applied).}
 \item{\code{N}}{Number of examinees.}
-\item{\code{full.resp}}{A \emph{J} x \emph{N} integer matrix of all
-item responses, where \emph{J} = \code{nrow(x)} and \emph{N} is the
-number of examinees. \code{NA} for items not administered to a given
-examinee. Included only when \code{return_full_resp = TRUE}; otherwise
-this element is absent from the list.}
+\item{\code{full.resp}}{Always present in the returned list. When
+\code{return_full_resp = TRUE}, an \emph{N} x \emph{J} integer matrix
+of all item responses, where \emph{N} is the number of examinees and
+\emph{J} = \code{nrow(x)} (total items in the item bank). Row names are
+\code{"examinee.1"}, \code{"examinee.2"}, etc.; column names are the
+item IDs from \code{x$id}. \code{NA} for items not administered to a
+given examinee. When \code{return_full_resp = FALSE} (default), this
+element is \code{NULL}.}
 }
 }
 \description{

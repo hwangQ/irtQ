@@ -727,7 +727,7 @@ print.sim_mst <- function(x, digits = 3L, ...) {
 
   # Indicate whether the full response matrix is included in the result
   if (!is.null(x$full.resp)) {
-    cat(sprintf("Full response matrix  : included (%d items x %d examinees)\n\n",
+    cat(sprintf("Full response matrix  : included (%d examinees x %d items)\n\n",
                 nrow(x$full.resp), ncol(x$full.resp)))
   }
 
