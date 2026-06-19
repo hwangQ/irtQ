@@ -36,7 +36,7 @@ logistic (3PL) model.
 simMST
 }
 \description{
-A simulated multistage testing (MST) dataset based on a 1-3-3 panel
+A simulated Multistage-Adaptive Test (MST) dataset based on a 1-3-3 panel
 structure, used in the simulation study by Lim et al. (2021).
 }
 \references{

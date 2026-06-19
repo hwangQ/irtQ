@@ -1,6 +1,6 @@
 #' Simulated 1-3-3 MST Panel Data
 #'
-#' A simulated multistage testing (MST) dataset based on a 1-3-3 panel
+#' A simulated Multistage-Adaptive Test (MST) dataset based on a 1-3-3 panel
 #' structure, used in the simulation study by Lim et al. (2021).
 #'
 #' @usage simMST
