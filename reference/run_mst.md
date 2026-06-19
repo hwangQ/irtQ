@@ -1,4 +1,4 @@
-# Multistage Adaptive Test (MST) Simulation
+# Multistage-Adaptive Test (MST) Simulation
 
 Simulates an MST administration for a panel of examinees. At each stage,
 examinees are routed to a module based on their current ability estimate
@@ -547,7 +547,10 @@ head(result_bmat$path)
 #> [6,]       1       2       6
 
 ## ---------------------------------------------------------
-## Example 2: Cut-score routing with EAP final scoring
+## Example 2: Cut-score routing with EAP routing and ML final scoring
+## EAP keeps the routing estimate finite even from a short Stage 1
+## module (e.g., a perfect or zero score), while ML avoids the shrinkage
+## that EAP's prior would otherwise introduce in the reported final score.
 ## ---------------------------------------------------------
 cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
 
@@ -559,8 +562,8 @@ result_cut <- run_mst(
   D            = 1.702,
   route_method = NULL,
   cut_score    = cut_score,
-  route_score  = list(method = "ML", range = c(-4, 4)),
-  final_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
+  route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
+  final_score  = list(method = "ML", range = c(-4, 4)),
   se = TRUE
 )
 #> [run_mst] Panel: 3 stages, 7 modules (1-3-3 design)
@@ -582,9 +585,9 @@ print(result_cut)
 #> 
 #> Call:
 #> run_mst(x = x, route_map = route_map, module = module, theta = theta_true, 
-#>     D = 1.702, route_method = NULL, cut_score = cut_score, route_score = list(method = "ML", 
-#>         range = c(-4, 4)), final_score = list(method = "EAP", 
-#>         norm.prior = c(0, 1), nquad = 41), se = TRUE) 
+#>     D = 1.702, route_method = NULL, cut_score = cut_score, route_score = list(method = "EAP", 
+#>         norm.prior = c(0, 1), nquad = 41), final_score = list(method = "ML", 
+#>         range = c(-4, 4)), se = TRUE) 
 #> 
 #> MST Simulation Results
 #> ======================================== 
@@ -598,23 +601,23 @@ print(result_cut)
 #> Number of examinees : 500
 #> 
 #> Ability estimation:
-#>   Routing method      : ML
-#>   Final method        : EAP
+#>   Routing method      : EAP
+#>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.013
-#>   SD   : 0.944
-#>   Min  : -2.627
-#>   Max  : 2.463
+#>   Mean : -0.004
+#>   SD   : 1.065
+#>   Min  : -4.000
+#>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.017
-#>   RMSE : 0.276
+#>   Bias : 0.026
+#>   RMSE : 0.321
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 192 (38.4%),  Module 3: 162 (32.4%),  Module 4: 146 (29.2%)
-#>   Stage 3: Module 5: 125 (25.0%),  Module 6: 200 (40.0%),  Module 7: 175 (35.0%)
+#>   Stage 2: Module 2: 190 (38.0%),  Module 3: 168 (33.6%),  Module 4: 142 (28.4%)
+#>   Stage 3: Module 5: 117 (23.4%),  Module 6: 206 (41.2%),  Module 7: 177 (35.4%)
 #> 
 
 ## ---------------------------------------------------------
@@ -638,7 +641,7 @@ result_A <- run_mst(
   response     = resp_matrix,   # pre-generated N x J response matrix
   D            = 1.702,
   route_method = "bmat",
-  route_score  = list(method = "ML", range = c(-4, 4)),
+  route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
   final_score  = list(method = "ML", range = c(-4, 4)),
   se = FALSE
 )
@@ -667,7 +670,7 @@ result_B <- run_mst(
   D            = 1.702,
   route_method = NULL,
   cut_score    = simMST$cut_score,
-  route_score  = list(method = "ML", range = c(-4, 4)),
+  route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
   final_score  = list(method = "ML", range = c(-4, 4)),
   se = FALSE
 )
@@ -690,9 +693,9 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat): %.4f\n", rmse_A))
-#> RMSE (bmat): 0.3704
+#> RMSE (bmat): 0.3706
 cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
-#> RMSE (cut-score): 0.3417
+#> RMSE (cut-score): 0.3432
 
 ## ---------------------------------------------------------
 ## Example 4: TIF-based cut scores via find_cut()
@@ -763,7 +766,7 @@ result_findcut <- run_mst(
   D            = 1.702,
   route_method = NULL,
   cut_score    = cut_result$cut_score,
-  route_score  = list(method = "ML", range = c(-4, 4)),
+  route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
   final_score  = list(method = "ML", range = c(-4, 4)),
   se = TRUE
 )
@@ -787,8 +790,9 @@ print(result_findcut)
 #> Call:
 #> run_mst(x = x, route_map = route_map, module = module, theta = theta_true, 
 #>     D = 1.702, route_method = NULL, cut_score = cut_result$cut_score, 
-#>     route_score = list(method = "ML", range = c(-4, 4)), final_score = list(method = "ML", 
-#>         range = c(-4, 4)), se = TRUE) 
+#>     route_score = list(method = "EAP", norm.prior = c(0, 1), 
+#>         nquad = 41), final_score = list(method = "ML", range = c(-4, 
+#>         4)), se = TRUE) 
 #> 
 #> MST Simulation Results
 #> ======================================== 
@@ -802,23 +806,23 @@ print(result_findcut)
 #> Number of examinees : 500
 #> 
 #> Ability estimation:
-#>   Routing method      : ML
+#>   Routing method      : EAP
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : 0.018
-#>   SD   : 1.077
+#>   Mean : 0.013
+#>   SD   : 1.081
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.048
-#>   RMSE : 0.329
+#>   Bias : 0.043
+#>   RMSE : 0.328
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 179 (35.8%),  Module 3: 175 (35.0%),  Module 4: 146 (29.2%)
-#>   Stage 3: Module 5: 140 (28.0%),  Module 6: 179 (35.8%),  Module 7: 181 (36.2%)
+#>   Stage 2: Module 2: 179 (35.8%),  Module 3: 180 (36.0%),  Module 4: 141 (28.2%)
+#>   Stage 3: Module 5: 133 (26.6%),  Module 6: 187 (37.4%),  Module 7: 180 (36.0%)
 #> 
 
 ## Visualise the TIF-based cut scores used for routing

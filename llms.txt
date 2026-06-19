@@ -1776,7 +1776,7 @@ TIF-based routing cut scores.
   Plot TIF Curves and Cut Scores from a `find_cut` Result
 
 - [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) :
-  Multistage Adaptive Test (MST) Simulation
+  Multistage-Adaptive Test (MST) Simulation
 
 ## Data Simulation & Utilities
 
@@ -1854,7 +1854,7 @@ Example datasets bundled with the package.
   Estimation](https://hwangQ.github.io/irtQ/articles/item-parameter-estimation.md):
 - [Model-Data Fit
   Evaluation](https://hwangQ.github.io/irtQ/articles/model-fit-evaluation.md):
-- [Evaluating MST Panels with
-  reval_mst()](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md):
+- [MST Panel Evaluation and
+  Simulation](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md):
 - [Utility
   Functions](https://hwangQ.github.io/irtQ/articles/utilities.md):

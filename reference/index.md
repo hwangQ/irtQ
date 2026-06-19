@@ -117,7 +117,7 @@ TIF-based routing cut scores.
   Plot TIF Curves and Cut Scores from a `find_cut` Result
 
 - [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) :
-  Multistage Adaptive Test (MST) Simulation
+  Multistage-Adaptive Test (MST) Simulation
 
 ## Data Simulation & Utilities
 

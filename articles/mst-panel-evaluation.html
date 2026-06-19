@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Evaluating MST Panels with reval_mst() • irtQ</title>
+<title>MST Panel Evaluation and Simulation • irtQ</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Evaluating MST Panels with reval_mst()">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="MST Panel Evaluation and Simulation">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -43,7 +43,7 @@
     <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
     <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
-    <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">Evaluating MST Panels</a></li>
+    <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -73,7 +73,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Evaluating MST Panels with reval_mst()</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>MST Panel Evaluation and Simulation</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/hwangQ/irtQ/blob/main/vignettes/articles/mst-panel-evaluation.Rmd" class="external-link"><code>vignettes/articles/mst-panel-evaluation.Rmd</code></a></small>
@@ -83,9 +83,9 @@
     
     
 <div class="section level2">
-<h2 id="what-is-multistage-testing-mst">What is Multistage Testing (MST)?<a class="anchor" aria-label="anchor" href="#what-is-multistage-testing-mst"></a>
+<h2 id="what-is-a-multistage-adaptive-test-mst">What is a Multistage-Adaptive Test (MST)?<a class="anchor" aria-label="anchor" href="#what-is-a-multistage-adaptive-test-mst"></a>
 </h2>
-<p><strong>Multistage Testing (MST)</strong> is a computer-based
+<p>A <strong>Multistage-Adaptive Test (MST)</strong> is a computer-based
 adaptive testing design that sits between fully adaptive Computerized
 Adaptive Testing (CAT) and traditional linear fixed-form testing. In an
 MST, the test is divided into <em>stages</em>, each containing one or
@@ -180,6 +180,766 @@ each examinee.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="why-simulate-mst-panel-performance">Why Simulate MST Panel Performance?<a class="anchor" aria-label="anchor" href="#why-simulate-mst-panel-performance"></a>
+</h2>
+<p>Designing an operational MST program is rarely a one-shot exercise.
+Test developers typically draft several <strong>candidate panel
+designs</strong> that differ in the number of stages and modules, the
+difficulty targeting of each module, the routing rule (fixed cut scores
+vs. an IRT-information-based router such as b-matching or maximum Fisher
+information), and the scoring method used at each stage. Before
+committing to one design operationally, they need a way to judge which
+candidate best serves the purpose of the testing program: a licensure
+exam may need to maximize precision near the pass/fail cut score,
+whereas a broad-range achievement test may need uniform precision across
+the entire ability continuum. Comparing candidate panels against goals
+like these has long relied on simulating how each design would behave
+with real examinees <span class="citation">(Luecht &amp; Nungester,
+1998; Zenisky et al., 2009)</span>: generate examinees with known true
+abilities, route each one through a candidate panel exactly as a real
+test taker would be routed, and examine how closely the resulting
+ability estimates recover the true values.</p>
+<p><strong>irtQ</strong> provides two functions for exactly this
+purpose. <code><a href="../reference/run_mst.html">run_mst()</a></code> simulates a full MST administration —
+examinee by examinee, stage by stage — and reports the resulting ability
+estimates and routing pathways. <code><a href="../reference/reval_mst.html">reval_mst()</a></code> conducts the
+MST evaluation analytically, via a recursion-based method<span class="citation">(Lim et al., 2021)</span>, without simulating any
+individual examinee. This vignette covers both, starting with
+<code><a href="../reference/run_mst.html">run_mst()</a></code>. They describe an MST panel using the same
+structural inputs, introduced next.</p>
+<div class="section level3">
+<h3 id="input-data-the-building-blocks-of-an-mst-panel">Input Data: The Building Blocks of an MST Panel<a class="anchor" aria-label="anchor" href="#input-data-the-building-blocks-of-an-mst-panel"></a>
+</h3>
+<p><code><a href="../reference/run_mst.html">run_mst()</a></code> and <code><a href="../reference/reval_mst.html">reval_mst()</a></code> describe an MST
+panel using the same core structural inputs, in addition to the item
+metadata:</p>
+<div class="section level4">
+<h4 id="item-bank-x">1. Item Bank (<code>x</code>)<a class="anchor" aria-label="anchor" href="#item-bank-x"></a>
+</h4>
+<p>A standard <strong>irtQ</strong> item metadata data frame (see
+<code><a href="../reference/shape_df.html">?shape_df</a></code> or the <em>Getting Started</em> vignette). Each
+row describes one item in the item bank. The columns are
+<code>id</code>, <code>cats</code>, <code>model</code>,
+<code>par.1</code>, <code>par.2</code>, etc.</p>
+</div>
+<div class="section level4">
+<h4 id="module-assignment-matrix-module">2. Module Assignment Matrix (<code>module</code>)<a class="anchor" aria-label="anchor" href="#module-assignment-matrix-module"></a>
+</h4>
+<p>A binary matrix with <strong>rows = items</strong> (same order as
+<code>x</code>) and <strong>columns = modules</strong>. An entry of 1 in
+row
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+column
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+means item
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+belongs to module
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.</p>
+<pre><code>        M1  M2  M3  M4  M5  M6  M7
+item 1 [  1   0   0   0   0   0   0 ]  ← item 1 is in module 1
+item 2 [  1   0   0   0   0   0   0 ]
+...
+item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
+...</code></pre>
+<p>Each item belongs to exactly one module, so each row has exactly one
+1 and all other entries are 0.</p>
+</div>
+<div class="section level4">
+<h4 id="route-map-route_map">3. Route Map (<code>route_map</code>)<a class="anchor" aria-label="anchor" href="#route-map-route_map"></a>
+</h4>
+<p>A binary <strong>square matrix</strong> of dimension (total modules ×
+total modules). An entry of 1 in row
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+column
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+means test takers can be routed from module
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+directly to module
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
+<p>For a 1-3-3 panel with 7 modules (M1–M7):</p>
+<pre><code>         M1 M2 M3 M4 M5 M6 M7
+M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
+M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
+M3  ──→ [  0  0  0  0  0  1  1 ]   M3 routes to M6 or M7
+M4  ──→ [  0  0  0  0  0  1  1 ]   M4 routes to M6 or M7
+M5  ──→ [  0  0  0  0  0  0  0 ]   terminal (Stage 3)
+M6  ──→ [  0  0  0  0  0  0  0 ]   terminal
+M7  ──→ [  0  0  0  0  0  0  0 ]   terminal</code></pre>
+<p>Stage 1 modules are identified automatically as those with all-zero
+<em>columns</em> (no module routes <em>to</em> them). Terminal modules
+have all-zero <em>rows</em>.</p>
+</div>
+<div class="section level4">
+<h4 id="cut-scores-cut_score">4. Cut Scores (<code>cut_score</code>)<a class="anchor" aria-label="anchor" href="#cut-scores-cut_score"></a>
+</h4>
+<p>A list of numeric vectors — one element per routing stage transition.
+Each vector contains the IRT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+cut points used to determine which next-stage module a test taker
+receives.</p>
+<p>For a 1-3-3 panel with 2 routing stages:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cut_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>,   <span class="co"># Stage 1 → Stage 2: θ̂ &lt; -0.5 → M2 (easy)</span></span>
+<span>                  <span class="co">#                    -0.5 ≤ θ̂ &lt; 0.5 → M3 (medium)</span></span>
+<span>                  <span class="co">#                    θ̂ ≥ 0.5 → M4 (hard)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span>    <span class="co"># Stage 2 → Stage 3: θ̂ &lt; -0.6 → easy module</span></span>
+<span>                  <span class="co">#                    -0.6 ≤ θ̂ &lt; 0.6 → medium module</span></span>
+<span>                  <span class="co">#                    θ̂ ≥ 0.6 → hard module</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code>cut_score</code> is required by <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, which
+always uses inverse-TCC scoring internally, and by
+<code><a href="../reference/run_mst.html">run_mst()</a></code> whenever <code>route_method = NULL</code>. When
+<code>route_method</code> is instead <code>"bmat"</code> or
+<code>"mfi"</code>, <code><a href="../reference/run_mst.html">run_mst()</a></code> ignores
+<code>cut_score</code> entirely and routes from item difficulty or test
+information directly, as shown below.</p>
+</div>
+<div class="section level4">
+<h4 id="true-ability-or-observed-responses-theta-response">5. True Ability or Observed Responses (<code>theta</code> /
+<code>response</code>)<a class="anchor" aria-label="anchor" href="#true-ability-or-observed-responses-theta-response"></a>
+</h4>
+<p><code><a href="../reference/reval_mst.html">reval_mst()</a></code> always treats <code>theta</code> as a fixed
+ability <em>grid</em> at which to evaluate bias and CSEM analytically.
+<code><a href="../reference/run_mst.html">run_mst()</a></code> instead uses <code>theta</code> (or
+<code>response</code>) to simulate individual examinees:</p>
+<ul>
+<li>Supplying <code>theta</code>: a numeric vector of <em>true</em>
+ability values, one per simulated examinee. <code><a href="../reference/run_mst.html">run_mst()</a></code>
+generates each examinee’s item responses internally from these true
+values, <code>x</code>, and <code>D</code>.</li>
+<li>Supplying <code>response</code> instead: an already-generated
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>J</mi></mrow><annotation encoding="application/x-tex">N \times J</annotation></semantics></math>
+item response matrix (e.g., from <code><a href="../reference/simdat.html">simdat()</a></code>, or real observed
+data). <code>theta</code> can still be supplied alongside
+<code>response</code>, purely for RMSE comparison after the fact — it
+plays no role in generating the responses themselves.</li>
+</ul>
+<p>How <code>theta</code> is constructed changes what the simulation
+tells you. Drawing it randomly from an assumed population ability
+distribution — <code>rnorm(1000, 0, 1)</code> in the examples below —
+evaluates the panel’s <strong>overall</strong> performance across a
+single, population-representative batch of examinees, much as a testing
+program would experience it operationally. Fixing <code>theta</code> at
+one value and simulating many replications at that single point instead
+evaluates the panel’s <strong>conditional</strong> bias and precision at
+that specific ability level — the same quantity <code><a href="../reference/reval_mst.html">reval_mst()</a></code>
+computes analytically, without any simulation. Repeating that
+single-point simulation across a grid of ability values is exactly the
+traditional Monte Carlo approach described later in this article, and
+Example 6 demonstrates it directly with <code><a href="../reference/run_mst.html">run_mst()</a></code>.</p>
+</div>
+<div class="section level4">
+<h4 id="scoring-specification-route_score-final_score">6. Scoring Specification (<code>route_score</code> /
+<code>final_score</code>)<a class="anchor" aria-label="anchor" href="#scoring-specification-route_score-final_score"></a>
+</h4>
+<p><code><a href="../reference/run_mst.html">run_mst()</a></code> separates the scoring method used for routing
+decisions at intermediate stages (<code>route_score</code>) from the
+method used to report each examinee’s final score
+(<code>final_score</code>). Both arguments take a named list whose
+<code>method</code> element selects one of <strong>irtQ</strong>’s
+ability estimators — <code>"ML"</code>, <code>"WL"</code>,
+<code>"MAP"</code>, <code>"EAP"</code>, <code>"EAP.SUM"</code>, or
+<code>"INV.TCC"</code> — and whose remaining elements supply that
+estimator’s own arguments, e.g. <code>range</code> for
+<code>"ML"</code>/<code>"WL"</code>, or <code>norm.prior</code> and
+<code>nquad</code> for <code>"EAP"</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">route_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span></span>
+<span><span class="va">final_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Routing and final scoring need not use the same method, and the more
+principled choice runs this way: <code>"EAP"</code> is usually preferred
+for routing, because the intermediate ability estimate must always be
+well-defined, even from a short module. The Stage 1 routing module in
+particular may have so few items that an examinee answers every one
+correctly or every one incorrectly — a pattern for which
+<code>"ML"</code> has no finite solution. <code>"EAP"</code>’s prior
+keeps the routing estimate finite and stable no matter the response
+pattern. For the final reported score, <code>"ML"</code> is often
+preferred instead: by the last stage examinees have answered enough
+items that such extreme patterns are rare, and <code>"ML"</code> avoids
+the shrinkage toward the population mean that <code>"EAP"</code>’s prior
+introduces. <code>"INV.TCC"</code> recovers ability from the observed
+sum score via the inverse Test Characteristic Curve — the same method
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code> uses internally — and is useful when a testing
+program reports summed scores directly.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="the-simmst-dataset">The <code>simMST</code> Dataset<a class="anchor" aria-label="anchor" href="#the-simmst-dataset"></a>
+</h3>
+<p><strong>irtQ</strong> includes <code>simMST</code>, a built-in
+dataset that packages all four inputs described above. This dataset was
+used in the simulation study of <span class="citation">Lim et al.
+(2021)</span> and represents a <strong>1-3-3 MST panel</strong> with the
+following characteristics:</p>
+<ul>
+<li>7 modules across 3 stages</li>
+<li>8 items per module (24 items total)</li>
+<li>All items follow the 3-parameter logistic model (3PLM)</li>
+<li>Item parameters calibrated to span a broad ability range</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hwangQ.github.io/irtQ/">irtQ</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Inspect the simMST dataset</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">simMST</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 5</span></span>
+<span><span class="co">#&gt;  $ item_bank:'data.frame':   300 obs. of  6 variables:</span></span>
+<span><span class="co">#&gt;  $ module   : num [1:300, 1:7] 0 0 0 1 0 0 1 0 0 0 ...</span></span>
+<span><span class="co">#&gt;  $ route_map:'data.frame':   7 obs. of  7 variables:</span></span>
+<span><span class="co">#&gt;  $ cut_score:List of 2</span></span>
+<span><span class="co">#&gt;  $ theta    : num [1:81] -4 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1 ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Item bank: standard irtQ metadata format</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">item_bank</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    id cats model     par.1       par.2      par.3</span></span>
+<span><span class="co">#&gt; 1   1    2  3PLM 0.8750089 -0.01501279 0.03244385</span></span>
+<span><span class="co">#&gt; 2   2    2  3PLM 0.8695412  2.11748844 0.13982330</span></span>
+<span><span class="co">#&gt; 3   3    2  3PLM 0.9691471  1.56938982 0.04946834</span></span>
+<span><span class="co">#&gt; 4   4    2  3PLM 1.5257721 -1.03235839 0.10875097</span></span>
+<span><span class="co">#&gt; 5   5    2  3PLM 0.6737973 -0.65712968 0.05493992</span></span>
+<span><span class="co">#&gt; 6   6    2  3PLM 1.0763360  1.23969146 0.05258577</span></span>
+<span><span class="co">#&gt; 7   7    2  3PLM 1.4353704  0.91128180 0.06818777</span></span>
+<span><span class="co">#&gt; 8   8    2  3PLM 0.8761569  0.68568074 0.08907224</span></span>
+<span><span class="co">#&gt; 9   9    2  3PLM 1.1352444  0.60960604 0.16278267</span></span>
+<span><span class="co">#&gt; 10 10    2  3PLM 1.3357048 -1.22224352 0.14586104</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Module matrix: 56 items × 7 modules</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 300   7</span></span>
+<span></span>
+<span><span class="co"># First 16 rows (items 1-16, first 2 modules)</span></span>
+<span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;       [,1] [,2] [,3] [,4] [,5] [,6] [,7]</span></span>
+<span><span class="co">#&gt;  [1,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [2,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [3,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [4,]    1    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [5,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [6,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [7,]    1    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [8,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt;  [9,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [10,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [11,]    0    0    0    0    0    1    0</span></span>
+<span><span class="co">#&gt; [12,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [13,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [14,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [15,]    0    0    0    0    0    0    0</span></span>
+<span><span class="co">#&gt; [16,]    0    0    0    0    0    0    0</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Route map: 7 × 7 transition matrix</span></span>
+<span><span class="va">simMST</span><span class="op">$</span><span class="va">route_map</span></span>
+<span><span class="co">#&gt;   V1 V2 V3 V4 V5 V6 V7</span></span>
+<span><span class="co">#&gt; 1  0  1  1  1  0  0  0</span></span>
+<span><span class="co">#&gt; 2  0  0  0  0  1  1  0</span></span>
+<span><span class="co">#&gt; 3  0  0  0  0  1  1  1</span></span>
+<span><span class="co">#&gt; 4  0  0  0  0  0  1  1</span></span>
+<span><span class="co">#&gt; 5  0  0  0  0  0  0  0</span></span>
+<span><span class="co">#&gt; 6  0  0  0  0  0  0  0</span></span>
+<span><span class="co">#&gt; 7  0  0  0  0  0  0  0</span></span></code></pre></div>
+<p>The <code>route_map</code> shows:</p>
+<ul>
+<li>Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 — the three
+Stage 2 modules</li>
+<li>Rows 2–4 (Modules 2–4, Stage 2): each routes to two or three Stage 3
+modules</li>
+<li>Rows 5–7 (Modules 5–7, Stage 3): all zeros — terminal modules</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Cut scores: 2 routing transitions for 3 stages</span></span>
+<span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [1] -0.3954891  0.4422893</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; [1] -0.6611704  0.5130905</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Ability grid for evaluation</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 81</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -4  4</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] -4.0 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="simulating-an-mst-administration-with-run_mst">Simulating an MST Administration with <code>run_mst()</code><a class="anchor" aria-label="anchor" href="#simulating-an-mst-administration-with-run_mst"></a>
+</h3>
+<p><strong>irtQ</strong> provides <code><a href="../reference/run_mst.html">run_mst()</a></code> to carry out
+exactly this kind of simulation. Given an item bank, a
+<code>route_map</code>, a <code>module</code> matrix, and a vector of
+true abilities (or a pre-generated response matrix),
+<code><a href="../reference/run_mst.html">run_mst()</a></code> simulates the full MST administration for every
+examinee — stage-by-stage routing and final scoring — and returns the
+resulting ability estimates together with the module pathway each
+examinee traveled.</p>
+<p>The examples below use the same <code>simMST</code> 1-3-3 panel
+introduced above: a routing module at Stage 1, followed by three modules
+of varying difficulty at each of Stages 2 and 3.</p>
+<p><code><a href="../reference/run_mst.html">run_mst()</a></code> supports three routing strategies. Two require
+no fixed cut scores at all: the default,
+<code>route_method = "bmat"</code>, routes each examinee to the
+reachable module whose mean item difficulty is closest to their current
+ability estimate, and <code>route_method = "mfi"</code> routes to the
+reachable module with the highest test information function (TIF) value
+at their current estimate. The third, cut-score routing
+(<code>route_method = NULL</code>), compares the current estimate
+against a fixed set of cut scores. Start with the default,
+<code>bmat</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Item bank and panel structure from simMST</span></span>
+<span><span class="va">x</span>         <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">item_bank</span></span>
+<span><span class="va">module</span>    <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">module</span></span>
+<span><span class="va">route_map</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">route_map</span></span>
+<span></span>
+<span><span class="co"># 1,000 simulated examinees with true abilities from N(0, 1)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">theta_true</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># bmat routing: no cut scores needed</span></span>
+<span><span class="va">sim_bmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="st">"bmat"</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; run_mst(x = x, route_map = route_map, module = module, theta = theta_true, </span></span>
+<span><span class="co">#&gt;     D = 1.702, route_method = "bmat", route_score = list(method = "EAP", </span></span>
+<span><span class="co">#&gt;         norm.prior = c(0, 1), nquad = 41), final_score = list(method = "ML", </span></span>
+<span><span class="co">#&gt;         range = c(-4, 4)), se = TRUE) </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; MST Simulation Results</span></span>
+<span><span class="co">#&gt; ======================================== </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Panel structure:</span></span>
+<span><span class="co">#&gt;   Stages              : 3</span></span>
+<span><span class="co">#&gt;   Modules per stage   : 1 - 3 - 3</span></span>
+<span><span class="co">#&gt;   Valid pathways      : 7</span></span>
+<span><span class="co">#&gt;   Routing method      : bmat (b-matching)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of examinees : 1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Ability estimation:</span></span>
+<span><span class="co">#&gt;   Routing method      : EAP</span></span>
+<span><span class="co">#&gt;   Final method        : ML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
+<span><span class="co">#&gt;   Mean : 0.002</span></span>
+<span><span class="co">#&gt;   SD   : 1.121</span></span>
+<span><span class="co">#&gt;   Min  : -4.000</span></span>
+<span><span class="co">#&gt;   Max  : 4.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
+<span><span class="co">#&gt;   Bias : 0.028</span></span>
+<span><span class="co">#&gt;   RMSE : 0.345</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Module frequency by stage:</span></span>
+<span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
+<span><span class="co">#&gt;   Stage 2: Module 2: 397 (39.7%),  Module 3: 436 (43.6%),  Module 4: 167 (16.7%)</span></span>
+<span><span class="co">#&gt;   Stage 3: Module 5: 264 (26.4%),  Module 6: 341 (34.1%),  Module 7: 395 (39.5%)</span></span></code></pre></div>
+<p>A closely related alternative is <strong>maximum Fisher information
+(MFI) routing</strong> (<code>route_method = "mfi"</code>): instead of
+comparing mean item difficulty, it routes each examinee to the reachable
+module that provides the highest TIF value at their current ability
+estimate.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_mfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="st">"mfi"</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sim_mfi</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; run_mst(x = x, route_map = route_map, module = module, theta = theta_true, </span></span>
+<span><span class="co">#&gt;     D = 1.702, route_method = "mfi", route_score = list(method = "EAP", </span></span>
+<span><span class="co">#&gt;         norm.prior = c(0, 1), nquad = 41), final_score = list(method = "ML", </span></span>
+<span><span class="co">#&gt;         range = c(-4, 4)), se = TRUE) </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; MST Simulation Results</span></span>
+<span><span class="co">#&gt; ======================================== </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Panel structure:</span></span>
+<span><span class="co">#&gt;   Stages              : 3</span></span>
+<span><span class="co">#&gt;   Modules per stage   : 1 - 3 - 3</span></span>
+<span><span class="co">#&gt;   Valid pathways      : 7</span></span>
+<span><span class="co">#&gt;   Routing method      : mfi (Maximum Fisher Information)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of examinees : 1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Ability estimation:</span></span>
+<span><span class="co">#&gt;   Routing method      : EAP</span></span>
+<span><span class="co">#&gt;   Final method        : ML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
+<span><span class="co">#&gt;   Mean : -0.020</span></span>
+<span><span class="co">#&gt;   SD   : 1.048</span></span>
+<span><span class="co">#&gt;   Min  : -4.000</span></span>
+<span><span class="co">#&gt;   Max  : 4.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
+<span><span class="co">#&gt;   Bias : 0.006</span></span>
+<span><span class="co">#&gt;   RMSE : 0.292</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Module frequency by stage:</span></span>
+<span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
+<span><span class="co">#&gt;   Stage 2: Module 2: 377 (37.7%),  Module 3: 348 (34.8%),  Module 4: 275 (27.5%)</span></span>
+<span><span class="co">#&gt;   Stage 3: Module 5: 247 (24.7%),  Module 6: 456 (45.6%),  Module 7: 297 (29.7%)</span></span></code></pre></div>
+<p>MFI routing assumes each module’s TIF curve behaves as intended —
+peaking higher for harder modules as theta increases, and higher for
+easier modules as theta decreases. In practice this assumption can fail:
+a harder module’s TIF curve may unexpectedly peak at a <em>low</em>
+theta value, so that low-ability examinees who should be routed to an
+easy module instead get routed into the harder one. This is called an
+<strong>anomalous routing</strong>, or <strong>path reversal</strong>,
+and it is the opposite of what an MST is designed to do.</p>
+<p>Alternatively, setting <code>route_method = NULL</code> switches to
+traditional <strong>cut-score routing</strong> — the design most
+commonly used in operational MST programs — where each examinee’s
+intermediate ability estimate is compared against a fixed set of cut
+scores to decide the next module:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Fixed routing cut scores bundled with simMST</span></span>
+<span><span class="va">cut_score</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span>   <span class="co"># list(c(-0.5, 0.5), c(-0.6, 0.6))</span></span>
+<span></span>
+<span><span class="va">sim_cut</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut_score    <span class="op">=</span> <span class="va">cut_score</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sim_cut</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; run_mst(x = x, route_map = route_map, module = module, theta = theta_true, </span></span>
+<span><span class="co">#&gt;     D = 1.702, route_method = NULL, cut_score = cut_score, route_score = list(method = "EAP", </span></span>
+<span><span class="co">#&gt;         norm.prior = c(0, 1), nquad = 41), final_score = list(method = "ML", </span></span>
+<span><span class="co">#&gt;         range = c(-4, 4)), se = TRUE) </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; MST Simulation Results</span></span>
+<span><span class="co">#&gt; ======================================== </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Panel structure:</span></span>
+<span><span class="co">#&gt;   Stages              : 3</span></span>
+<span><span class="co">#&gt;   Modules per stage   : 1 - 3 - 3</span></span>
+<span><span class="co">#&gt;   Valid pathways      : 7</span></span>
+<span><span class="co">#&gt;   Routing method      : cut-score based</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of examinees : 1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Ability estimation:</span></span>
+<span><span class="co">#&gt;   Routing method      : EAP</span></span>
+<span><span class="co">#&gt;   Final method        : ML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
+<span><span class="co">#&gt;   Mean : 0.012</span></span>
+<span><span class="co">#&gt;   SD   : 1.063</span></span>
+<span><span class="co">#&gt;   Min  : -4.000</span></span>
+<span><span class="co">#&gt;   Max  : 4.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
+<span><span class="co">#&gt;   Bias : 0.038</span></span>
+<span><span class="co">#&gt;   RMSE : 0.314</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Module frequency by stage:</span></span>
+<span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
+<span><span class="co">#&gt;   Stage 2: Module 2: 351 (35.1%),  Module 3: 348 (34.8%),  Module 4: 301 (30.1%)</span></span>
+<span><span class="co">#&gt;   Stage 3: Module 5: 248 (24.8%),  Module 6: 368 (36.8%),  Module 7: 384 (38.4%)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="deriving-principled-cut-scores-with-find_cut">Deriving Principled Cut Scores with <code>find_cut()</code><a class="anchor" aria-label="anchor" href="#deriving-principled-cut-scores-with-find_cut"></a>
+</h4>
+<p>The cut scores used above (<code>c(-0.5, 0.5)</code> and
+<code>c(-0.6, 0.6)</code>) were chosen heuristically when the
+<code>simMST</code> panel was built — a common practice, but one that
+offers no guarantee that the cut points actually fall where they should
+psychometrically. A more principled choice is to derive the cut score
+directly from the modules’ TIF curves themselves: the natural boundary
+between an easy and a hard module is the theta value at which the hard
+module’s TIF first overtakes the easy module’s TIF. Below that point the
+easier module is more informative; above it, the harder module is. This
+is also exactly the fix for the anomalous-routing problem described
+above for MFI routing — by fixing the cut point at this <em>proper</em>
+crossing, low-ability examinees can never be routed into the harder
+module no matter how its TIF curve behaves at the extremes.</p>
+<p><code><a href="../reference/find_cut.html">find_cut()</a></code> automates this search. For every pair of
+adjacent modules at each stage transition, it scans the theta scale for
+crossings between the two modules’ TIF curves, keeps only the “proper”
+crossing (the TIF difference changing sign from negative to positive),
+and returns the result as a <code>cut_score</code> list that can be
+passed directly to <code><a href="../reference/run_mst.html">run_mst()</a></code>:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cut_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_cut.html">find_cut</a></span><span class="op">(</span></span>
+<span>  x         <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  module    <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  route_map <span class="op">=</span> <span class="va">route_map</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">)</span></span>
+<span><span class="co">#&gt; MST TIF-Crossing Cut Score Results</span></span>
+<span><span class="co">#&gt; ==================================================</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; stage.2</span></span>
+<span><span class="co">#&gt; -----------------------------------</span></span>
+<span><span class="co">#&gt;   Modules (index order)    : 2, 3, 4</span></span>
+<span><span class="co">#&gt;   Modules (difficulty order): 2, 4, 3</span></span>
+<span><span class="co">#&gt;   Mean item locations      : -0.7313, 0.1342, 0.1279</span></span>
+<span><span class="co">#&gt;   Selected cut score(s)    : -0.3955, 0.4423</span></span>
+<span><span class="co">#&gt;   Pair details:</span></span>
+<span><span class="co">#&gt;     [mod2_vs_mod3]</span></span>
+<span><span class="co">#&gt;       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]</span></span>
+<span><span class="co">#&gt;       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)</span></span>
+<span><span class="co">#&gt;       Selected cut score    : -0.3955</span></span>
+<span><span class="co">#&gt;     [mod3_vs_mod4]</span></span>
+<span><span class="co">#&gt;       Proper crossing(s)    : 1  [theta = 0.4423]</span></span>
+<span><span class="co">#&gt;       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)</span></span>
+<span><span class="co">#&gt;       Selected cut score    : 0.4423</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; stage.3</span></span>
+<span><span class="co">#&gt; -----------------------------------</span></span>
+<span><span class="co">#&gt;   Modules (index order)    : 5, 6, 7</span></span>
+<span><span class="co">#&gt;   Modules (difficulty order): 5, 6, 7</span></span>
+<span><span class="co">#&gt;   Mean item locations      : -0.8563, -0.1402, 0.4899</span></span>
+<span><span class="co">#&gt;   Selected cut score(s)    : -0.6612, 0.5131</span></span>
+<span><span class="co">#&gt;   Pair details:</span></span>
+<span><span class="co">#&gt;     [mod5_vs_mod6]</span></span>
+<span><span class="co">#&gt;       Proper crossing(s)    : 1  [theta = -0.6612]</span></span>
+<span><span class="co">#&gt;       Selected cut score    : -0.6612</span></span>
+<span><span class="co">#&gt;     [mod6_vs_mod7]</span></span>
+<span><span class="co">#&gt;       Proper crossing(s)    : 1  [theta = 0.5131]</span></span>
+<span><span class="co">#&gt;       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)</span></span>
+<span><span class="co">#&gt;       Selected cut score    : 0.5131</span></span>
+<span><span class="co">#&gt; ==================================================</span></span>
+<span><span class="co">#&gt; Usage: run_mst(..., route_method = NULL, cut_score = &lt;result&gt;$cut_score)</span></span>
+<span></span>
+<span><span class="co"># Compare with the heuristic cut scores bundled in simMST</span></span>
+<span><span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span></span>
+<span><span class="co">#&gt; $stage.2</span></span>
+<span><span class="co">#&gt; [1] -0.3954894  0.4422831</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $stage.3</span></span>
+<span><span class="co">#&gt; [1] -0.6611766  0.5130904</span></span>
+<span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [1] -0.3954891  0.4422893</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; [1] -0.6611704  0.5130905</span></span></code></pre></div>
+<p>Calling <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on the <code>find_cut</code> object
+visualizes each stage’s module TIF curves, with the selected cut score
+drawn as a solid vertical line and any excluded anomalous crossings
+drawn as dashed red lines:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="mst-panel-evaluation_files/figure-html/find-cut-plot-1.png" class="r-plt" alt="TIF curves for every module in the simMST panel, faceted by stage, with TIF-crossing cut scores from find_cut()." width="1248"><p class="caption">
+TIF curves for every module in the simMST panel, faceted by stage, with
+TIF-crossing cut scores from find_cut().
+</p>
+</div>
+<p>The derived cut scores plug into <code><a href="../reference/run_mst.html">run_mst()</a></code> exactly like
+any other fixed cut scores, by setting
+<code>route_method = NULL</code>:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_findcut</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut_score    <span class="op">=</span> <span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sim_findcut</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; run_mst(x = x, route_map = route_map, module = module, theta = theta_true, </span></span>
+<span><span class="co">#&gt;     D = 1.702, route_method = NULL, cut_score = cut_result$cut_score, </span></span>
+<span><span class="co">#&gt;     route_score = list(method = "EAP", norm.prior = c(0, 1), </span></span>
+<span><span class="co">#&gt;         nquad = 41), final_score = list(method = "ML", range = c(-4, </span></span>
+<span><span class="co">#&gt;         4)), se = TRUE) </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; MST Simulation Results</span></span>
+<span><span class="co">#&gt; ======================================== </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Panel structure:</span></span>
+<span><span class="co">#&gt;   Stages              : 3</span></span>
+<span><span class="co">#&gt;   Modules per stage   : 1 - 3 - 3</span></span>
+<span><span class="co">#&gt;   Valid pathways      : 7</span></span>
+<span><span class="co">#&gt;   Routing method      : cut-score based</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of examinees : 1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Ability estimation:</span></span>
+<span><span class="co">#&gt;   Routing method      : EAP</span></span>
+<span><span class="co">#&gt;   Final method        : ML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
+<span><span class="co">#&gt;   Mean : -0.013</span></span>
+<span><span class="co">#&gt;   SD   : 1.107</span></span>
+<span><span class="co">#&gt;   Min  : -4.000</span></span>
+<span><span class="co">#&gt;   Max  : 4.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
+<span><span class="co">#&gt;   Bias : 0.012</span></span>
+<span><span class="co">#&gt;   RMSE : 0.327</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Module frequency by stage:</span></span>
+<span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
+<span><span class="co">#&gt;   Stage 2: Module 2: 376 (37.6%),  Module 3: 335 (33.5%),  Module 4: 289 (28.9%)</span></span>
+<span><span class="co">#&gt;   Stage 3: Module 5: 253 (25.3%),  Module 6: 379 (37.9%),  Module 7: 368 (36.8%)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="comparing-routing-methods-on-identical-responses-with-response">Comparing Routing Methods on Identical Responses with
+<code>response</code><a class="anchor" aria-label="anchor" href="#comparing-routing-methods-on-identical-responses-with-response"></a>
+</h4>
+<p>All of the calls above let <code><a href="../reference/run_mst.html">run_mst()</a></code> simulate item
+responses internally from <code>theta</code>. When the goal is to
+compare two routing or scoring strategies fairly, simulation noise in
+the responses themselves should not be allowed to confound the
+comparison. Generating the response matrix once with
+<code><a href="../reference/simdat.html">simdat()</a></code> and feeding it through the <code>response</code>
+argument removes that source of noise — and is also how
+<code><a href="../reference/run_mst.html">run_mst()</a></code> would be used with real, already-observed
+response data:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Generate one response matrix from a fresh set of true abilities</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">theta_true2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">resp_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, theta <span class="op">=</span> <span class="va">theta_true2</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
+<span><span class="co"># resp_matrix is an N x J matrix (N examinees x J total items in the bank)</span></span>
+<span></span>
+<span><span class="co"># bmat routing on the pre-generated responses</span></span>
+<span><span class="va">result_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true2</span>,    <span class="co"># kept only for RMSE evaluation below</span></span>
+<span>  response     <span class="op">=</span> <span class="va">resp_matrix</span>,    <span class="co"># pre-generated N x J response matrix</span></span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="st">"bmat"</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># find_cut()-based cut-score routing on the SAME responses</span></span>
+<span><span class="va">result_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">theta_true2</span>,</span>
+<span>  response     <span class="op">=</span> <span class="va">resp_matrix</span>,    <span class="co"># identical responses -&gt; fair comparison</span></span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut_score    <span class="op">=</span> <span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Any RMSE difference now reflects the routing rule alone, not response noise</span></span>
+<span><span class="va">rmse_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_A</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">rmse_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_B</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (bmat):                 %.4f\n"</span>, <span class="va">rmse_A</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; RMSE (bmat):                 0.3706</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (find_cut cut scores):  %.4f\n"</span>, <span class="va">rmse_B</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; RMSE (find_cut cut scores):  0.3432</span></span></code></pre></div>
+<p>All five calls above return the same kind of result regardless of the
+routing rule or input format used: a final ability estimate
+(<code>est.theta</code>), its standard error (<code>se.theta</code>),
+and the module pathway taken by each examinee (<code>path</code>).</p>
+</div>
+<div class="section level4">
+<h4 id="inspecting-the-run_mst-output">Inspecting the <code>run_mst()</code> Output<a class="anchor" aria-label="anchor" href="#inspecting-the-run_mst-output"></a>
+</h4>
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports only aggregated information — the panel
+structure, the routing and final scoring methods, summary statistics
+(mean, SD, min, max) of the final estimates, and, when true abilities
+are supplied, overall bias and RMSE. Every examinee’s individual results
+live in named components of the returned object itself:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Final ability estimate and its standard error, one value per examinee</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  0.91354165 -0.45702570  0.42244620  0.76022539  0.45680206  0.07429823</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.2717126 0.2503814 0.2453777 0.2596967 0.2480902 0.2542344</span></span>
+<span></span>
+<span><span class="co"># Routing and final estimates at every stage: an N x n.stage matrix</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">theta.route</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         stage.1     stage.2     stage.3</span></span>
+<span><span class="co">#&gt; [1,]  1.7362572  0.58220759  0.91354165</span></span>
+<span><span class="co">#&gt; [2,] -0.5054051 -0.19097482 -0.45702570</span></span>
+<span><span class="co">#&gt; [3,]  1.0914435 -0.02701402  0.42244620</span></span>
+<span><span class="co">#&gt; [4,]  1.7362572  0.23973623  0.76022539</span></span>
+<span><span class="co">#&gt; [5,]  0.3594823  0.58220759  0.45680206</span></span>
+<span><span class="co">#&gt; [6,]  0.3594823  0.28133615  0.07429823</span></span>
+<span></span>
+<span><span class="co"># Module index administered at every stage: an N x n.stage matrix</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      stage.1 stage.2 stage.3</span></span>
+<span><span class="co">#&gt; [1,]       1       3       7</span></span>
+<span><span class="co">#&gt; [2,]       1       2       6</span></span>
+<span><span class="co">#&gt; [3,]       1       3       6</span></span>
+<span><span class="co">#&gt; [4,]       1       3       7</span></span>
+<span><span class="co">#&gt; [5,]       1       3       7</span></span>
+<span><span class="co">#&gt; [6,]       1       3       7</span></span></code></pre></div>
+<p><code>se.theta</code> in particular never appears in
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> output, so accessing it directly is the only way to
+see how estimation precision varies across examinees — for example, by
+the Stage 3 (final) module each examinee landed in:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Mean standard error by terminal (Stage 3) module</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span>, <span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span><span class="op">]</span>, <span class="va">mean</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         5         6         7 </span></span>
+<span><span class="co">#&gt; 1.8259796 0.2648599 3.5765081</span></span></code></pre></div>
+<p>The full list of return components — including <code>panel</code>
+(reused from <code><a href="../reference/panel_info.html">panel_info()</a></code>), <code>true.theta</code>, and
+<code>full.resp</code> (the complete item-level response matrix,
+populated only when <code>return_full_resp = TRUE</code>) — is
+summarized in the Function Reference section near the end of this
+article.</p>
+<p>All five calls above drew <code>theta_true</code> (or
+<code>theta_true2</code>) from a single population distribution,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0, 1)</annotation></semantics></math>
+— appropriate for an <strong>overall</strong>, population-representative
+look at how the panel performs across a realistic mix of examinees, the
+way a testing program would experience it operationally. The
+complementary question — how the panel performs
+<strong>conditionally</strong>, at one specific ability level — requires
+fixing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+instead of sampling it, and repeating the simulation many times at that
+single point. Doing this across a whole grid of ability levels is
+exactly the traditional approach described next.</p>
+<hr>
+</div>
+</div>
+</div>
+<div class="section level2">
 <h2 id="the-challenge-of-evaluating-mst-panels">The Challenge of Evaluating MST Panels<a class="anchor" aria-label="anchor" href="#the-challenge-of-evaluating-mst-panels"></a>
 </h2>
 <p>Before deploying an MST panel operationally, test developers need to
@@ -208,8 +968,10 @@ level. Lower CSEM means more precise measurement.</li>
 <div class="section level3">
 <h3 id="the-traditional-approach-monte-carlo-simulation">The Traditional Approach: Monte Carlo Simulation<a class="anchor" aria-label="anchor" href="#the-traditional-approach-monte-carlo-simulation"></a>
 </h3>
-<p>The classical way to evaluate an MST panel is through large-scale
-simulation:</p>
+<p>Conditional evaluation via simulation means repeating the
+<code><a href="../reference/run_mst.html">run_mst()</a></code> procedure shown above systematically across a
+fixed grid of ability levels, with many replications at each grid
+point:</p>
 <ol style="list-style-type: decimal">
 <li>Fix a set of true ability levels
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>θ</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">\theta_1, \theta_2, \ldots</annotation></semantics></math>
@@ -217,8 +979,9 @@ simulation:</p>
 <li>For each
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>,
 generate thousands of simulated response patterns</li>
-<li>Route each simulated examinee through the panel using the cut
-scores</li>
+<li>Route each simulated examinee through the panel — exactly as
+<code><a href="../reference/run_mst.html">run_mst()</a></code> does above — using the chosen routing rule (cut
+scores, b-matching, or maximum information)</li>
 <li>Estimate ability from each simulated response and compute the mean
 and variance of the estimates</li>
 <li>Bias =
@@ -229,11 +992,16 @@ CSEM =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\text{Var}(\hat\theta)}</annotation></semantics></math>
 </li>
 </ol>
-<p>This approach is conceptually simple, but it has practical
-drawbacks:</p>
+<p><code><a href="../reference/run_mst.html">run_mst()</a></code> already automates Steps 2–4 for a single
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>
+and a single batch of replications; a full evaluation just wraps it in a
+loop over the ability grid with a sufficiently large number of
+replications per grid point (Example 6 below demonstrates exactly this).
+This approach is conceptually simple, but looping <code><a href="../reference/run_mst.html">run_mst()</a></code>
+this way inherits several practical drawbacks:</p>
 <ul>
 <li>
-<strong>Computationally expensive</strong>: Millions of response
+<strong>Computationally inefficient</strong>: Thousands of response
 patterns must be generated and scored</li>
 <li>
 <strong>Stochastic</strong>: Results fluctuate across simulation
@@ -320,203 +1088,19 @@ configuration, or ability grid can be evaluated in a single function
 call</li>
 </ul>
 <p>The <code><a href="../reference/reval_mst.html">reval_mst()</a></code> function in <strong>irtQ</strong>
-implements this recursion-based method.</p>
+implements this recursion-based method, computing the same conditional
+bias and CSEM that the Monte Carlo loop above estimates by simulation —
+but analytically, in a single function call and without any simulation
+noise.</p>
 <hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="input-data-the-three-building-blocks-of-an-mst-panel">Input Data: The Three Building Blocks of an MST Panel<a class="anchor" aria-label="anchor" href="#input-data-the-three-building-blocks-of-an-mst-panel"></a>
-</h2>
-<p>Running <code><a href="../reference/reval_mst.html">reval_mst()</a></code> requires three structural inputs in
-addition to the item metadata:</p>
-<div class="section level3">
-<h3 id="item-bank-x">1. Item Bank (<code>x</code>)<a class="anchor" aria-label="anchor" href="#item-bank-x"></a>
-</h3>
-<p>A standard <strong>irtQ</strong> item metadata data frame (see
-<code><a href="../reference/shape_df.html">?shape_df</a></code> or the <em>Getting Started</em> vignette). Each
-row describes one item in the item bank. The columns are
-<code>id</code>, <code>cats</code>, <code>model</code>,
-<code>par.1</code>, <code>par.2</code>, etc.</p>
-</div>
-<div class="section level3">
-<h3 id="module-assignment-matrix-module">2. Module Assignment Matrix (<code>module</code>)<a class="anchor" aria-label="anchor" href="#module-assignment-matrix-module"></a>
-</h3>
-<p>A binary matrix with <strong>rows = items</strong> (same order as
-<code>x</code>) and <strong>columns = modules</strong>. An entry of 1 in
-row
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
-column
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
-means item
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-belongs to module
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.</p>
-<pre><code>        M1  M2  M3  M4  M5  M6  M7
-item 1 [  1   0   0   0   0   0   0 ]  ← item 1 is in module 1
-item 2 [  1   0   0   0   0   0   0 ]
-...
-item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
-...</code></pre>
-<p>Each item belongs to exactly one module, so each row has exactly one
-1 and all other entries are 0.</p>
-</div>
-<div class="section level3">
-<h3 id="route-map-route_map">3. Route Map (<code>route_map</code>)<a class="anchor" aria-label="anchor" href="#route-map-route_map"></a>
-</h3>
-<p>A binary <strong>square matrix</strong> of dimension (total modules ×
-total modules). An entry of 1 in row
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
-column
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
-means test takers can be routed from module
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-directly to module
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
-<p>For a 1-3-3 panel with 7 modules (M1–M7):</p>
-<pre><code>         M1 M2 M3 M4 M5 M6 M7
-M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
-M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
-M3  ──→ [  0  0  0  0  0  1  1 ]   M3 routes to M6 or M7
-M4  ──→ [  0  0  0  0  0  1  1 ]   M4 routes to M6 or M7
-M5  ──→ [  0  0  0  0  0  0  0 ]   terminal (Stage 3)
-M6  ──→ [  0  0  0  0  0  0  0 ]   terminal
-M7  ──→ [  0  0  0  0  0  0  0 ]   terminal</code></pre>
-<p>Stage 1 modules are identified automatically as those with all-zero
-<em>columns</em> (no module routes <em>to</em> them). Terminal modules
-have all-zero <em>rows</em>.</p>
-</div>
-<div class="section level3">
-<h3 id="cut-scores-cut_score">4. Cut Scores (<code>cut_score</code>)<a class="anchor" aria-label="anchor" href="#cut-scores-cut_score"></a>
-</h3>
-<p>A list of numeric vectors — one element per routing stage transition.
-Each vector contains the IRT
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-cut points used to determine which next-stage module a test taker
-receives.</p>
-<p>For a 1-3-3 panel with 2 routing stages:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cut_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>,   <span class="co"># Stage 1 → Stage 2: θ̂ &lt; -0.5 → M2 (easy)</span></span>
-<span>                  <span class="co">#                    -0.5 ≤ θ̂ &lt; 0.5 → M3 (medium)</span></span>
-<span>                  <span class="co">#                    θ̂ ≥ 0.5 → M4 (hard)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span>    <span class="co"># Stage 2 → Stage 3: θ̂ &lt; -0.6 → easy module</span></span>
-<span>                  <span class="co">#                    -0.6 ≤ θ̂ &lt; 0.6 → medium module</span></span>
-<span>                  <span class="co">#                    θ̂ ≥ 0.6 → hard module</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Note: The routing decision uses <strong>inverse TCC scoring</strong>
-— the ability estimate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>
-derived from the observed sum score up to that stage. This is the
-scoring method that <code><a href="../reference/reval_mst.html">reval_mst()</a></code> uses internally.</p>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="the-simmst-dataset">The <code>simMST</code> Dataset<a class="anchor" aria-label="anchor" href="#the-simmst-dataset"></a>
-</h2>
-<p><strong>irtQ</strong> includes <code>simMST</code>, a built-in
-dataset that packages all four inputs described above. This dataset was
-used in the simulation study of <span class="citation">Lim et al.
-(2021)</span> and represents a <strong>1-3-3 MST panel</strong> with the
-following characteristics:</p>
-<ul>
-<li>7 modules across 3 stages</li>
-<li>8 items per module (24 items total)</li>
-<li>All items follow the 3-parameter logistic model (3PLM)</li>
-<li>Item parameters calibrated to span a broad ability range</li>
-</ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hwangQ.github.io/irtQ/">irtQ</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Inspect the simMST dataset</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">simMST</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 5</span></span>
-<span><span class="co">#&gt;  $ item_bank:'data.frame':   300 obs. of  6 variables:</span></span>
-<span><span class="co">#&gt;  $ module   : num [1:300, 1:7] 0 0 0 1 0 0 1 0 0 0 ...</span></span>
-<span><span class="co">#&gt;  $ route_map:'data.frame':   7 obs. of  7 variables:</span></span>
-<span><span class="co">#&gt;  $ cut_score:List of 2</span></span>
-<span><span class="co">#&gt;  $ theta    : num [1:81] -4 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1 ...</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Item bank: standard irtQ metadata format</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">item_bank</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    id cats model     par.1       par.2      par.3</span></span>
-<span><span class="co">#&gt; 1   1    2  3PLM 0.8750089 -0.01501279 0.03244385</span></span>
-<span><span class="co">#&gt; 2   2    2  3PLM 0.8695412  2.11748844 0.13982330</span></span>
-<span><span class="co">#&gt; 3   3    2  3PLM 0.9691471  1.56938982 0.04946834</span></span>
-<span><span class="co">#&gt; 4   4    2  3PLM 1.5257721 -1.03235839 0.10875097</span></span>
-<span><span class="co">#&gt; 5   5    2  3PLM 0.6737973 -0.65712968 0.05493992</span></span>
-<span><span class="co">#&gt; 6   6    2  3PLM 1.0763360  1.23969146 0.05258577</span></span>
-<span><span class="co">#&gt; 7   7    2  3PLM 1.4353704  0.91128180 0.06818777</span></span>
-<span><span class="co">#&gt; 8   8    2  3PLM 0.8761569  0.68568074 0.08907224</span></span>
-<span><span class="co">#&gt; 9   9    2  3PLM 1.1352444  0.60960604 0.16278267</span></span>
-<span><span class="co">#&gt; 10 10    2  3PLM 1.3357048 -1.22224352 0.14586104</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Module matrix: 56 items × 7 modules</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 300   7</span></span>
-<span></span>
-<span><span class="co"># First 16 rows (items 1-16, first 2 modules)</span></span>
-<span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;       [,1] [,2] [,3] [,4] [,5] [,6] [,7]</span></span>
-<span><span class="co">#&gt;  [1,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [2,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [3,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [4,]    1    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [5,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [6,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [7,]    1    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [8,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt;  [9,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [10,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [11,]    0    0    0    0    0    1    0</span></span>
-<span><span class="co">#&gt; [12,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [13,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [14,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [15,]    0    0    0    0    0    0    0</span></span>
-<span><span class="co">#&gt; [16,]    0    0    0    0    0    0    0</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Route map: 7 × 7 transition matrix</span></span>
-<span><span class="va">simMST</span><span class="op">$</span><span class="va">route_map</span></span>
-<span><span class="co">#&gt;   V1 V2 V3 V4 V5 V6 V7</span></span>
-<span><span class="co">#&gt; 1  0  1  1  1  0  0  0</span></span>
-<span><span class="co">#&gt; 2  0  0  0  0  1  1  0</span></span>
-<span><span class="co">#&gt; 3  0  0  0  0  1  1  1</span></span>
-<span><span class="co">#&gt; 4  0  0  0  0  0  1  1</span></span>
-<span><span class="co">#&gt; 5  0  0  0  0  0  0  0</span></span>
-<span><span class="co">#&gt; 6  0  0  0  0  0  0  0</span></span>
-<span><span class="co">#&gt; 7  0  0  0  0  0  0  0</span></span></code></pre></div>
-<p>The <code>route_map</code> shows:</p>
-<ul>
-<li>Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 — the three
-Stage 2 modules</li>
-<li>Rows 2–4 (Modules 2–4, Stage 2): each routes to two or three Stage 3
-modules</li>
-<li>Rows 5–7 (Modules 5–7, Stage 3): all zeros — terminal modules</li>
-</ul>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cut scores: 2 routing transitions for 3 stages</span></span>
-<span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [1] -0.3954891  0.4422893</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt; [1] -0.6611704  0.5130905</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Ability grid for evaluation</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 81</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -4  4</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">theta</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] -4.0 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1</span></span></code></pre></div>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="example-1-evaluating-the-simmst-panel">Example 1: Evaluating the simMST Panel<a class="anchor" aria-label="anchor" href="#example-1-evaluating-the-simmst-panel"></a>
 </h2>
 <p>With all inputs in place, running <code><a href="../reference/reval_mst.html">reval_mst()</a></code> is
 straightforward:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract components from simMST</span></span>
 <span><span class="va">x</span>         <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">item_bank</span></span>
 <span><span class="va">module</span>    <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">module</span></span>
@@ -536,7 +1120,7 @@ straightforward:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The function returns a named list with 7 components. The most
 important is <code>eval.tb</code>, the evaluation summary table:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluation table: theta, mu, sigma2, bias, csem</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    theta           mu     sigma2          bias      csem</span></span>
@@ -681,7 +1265,7 @@ information)</li>
 </h2>
 <p>Plotting the evaluation results provides an intuitive picture of the
 panel’s measurement quality.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval_tb</span> <span class="op">&lt;-</span> <span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span></span>
 <span><span class="co"># Side-by-side plots: bias (left) and CSEM (right)</span></span>
@@ -717,11 +1301,11 @@ Conditional bias (left) and CSEM (right) for the simMST 1-3-3 panel
 across the ability scale.
 </p>
 </div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>You can also create a combined <code>ggplot2</code> figure, as shown
 in the <code><a href="../reference/reval_mst.html">reval_mst()</a></code> help page:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -764,7 +1348,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <div class="section level3">
 <h3 id="panel-structure-panel-info">Panel Structure (<code>panel.info</code>)<a class="anchor" aria-label="anchor" href="#panel-structure-panel-info"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Panel configuration: which modules belong to each stage</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">config</span></span>
 <span><span class="co">#&gt; $stage.1</span></span>
@@ -799,7 +1383,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <div class="section level3">
 <h3 id="items-per-module-item-by-mod">Items per Module (<code>item.by.mod</code>)<a class="anchor" aria-label="anchor" href="#items-per-module-item-by-mod"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Item metadata for Module 1 (the routing module)</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">item.by.mod</span><span class="op">$</span><span class="va">m.1</span></span>
 <span><span class="co">#&gt;    id cats model    par.1       par.2      par.3</span></span>
@@ -811,7 +1395,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <span><span class="co">#&gt; 6  97    2  3PLM 1.425347  1.62529602 0.08793450</span></span>
 <span><span class="co">#&gt; 7 120    2  3PLM 1.629243 -1.55679267 0.08627866</span></span>
 <span><span class="co">#&gt; 8 178    2  3PLM 1.292352 -1.37542472 0.03876443</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Item metadata for Module 5 (Stage 3, first terminal module)</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">item.by.mod</span><span class="op">$</span><span class="va">m.5</span></span>
 <span><span class="co">#&gt;    id cats model    par.1       par.2      par.3</span></span>
@@ -833,7 +1417,7 @@ estimates corresponding to each possible observed sum score, computed
 via the inverse TCC method. These are the
 score-to-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 mappings used for routing and final ability reporting.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># eq.theta[[stage]][[path]] gives a vector of theta estimates,</span></span>
 <span><span class="co"># one per possible observed sum score on that partial path</span></span>
 <span></span>
@@ -842,7 +1426,7 @@ mappings used for routing and final ability reporting.</p>
 <span><span class="co">#&gt; Theta estimates for Stage 1 (8 items, scores 0-8):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eq.theta</span><span class="op">$</span><span class="va">stage.1</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -5.000 -2.052 -1.335 -0.753 -0.173  0.323  0.832  1.441  5.000</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Stage 3 has multiple columns — one per complete pathway</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):</span></span>
@@ -857,7 +1441,7 @@ corresponds to one complete pathway through the MST.</p>
 </h3>
 <p>Comparing item information across pathways reveals why bias and CSEM
 vary with ability level:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Retrieve item metadata for the easiest and hardest complete pathways</span></span>
 <span><span class="co"># (pathway 1 = low ability; last pathway = high ability)</span></span>
 <span><span class="va">n_paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">pathway</span><span class="op">)</span></span>
@@ -939,7 +1523,7 @@ M1-M3-M5.</p>
 </h3>
 <p>Items in easy modules have lower difficulty; items in hard modules
 have higher difficulty. We use the 3PLM for all items.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 6 items per module × 5 modules = 30 items total</span></span>
 <span><span class="va">n_per_mod</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
 <span></span>
@@ -1040,7 +1624,7 @@ have higher difficulty. We use the 3PLM for all items.</p>
 <p>The <code>module</code> matrix has the same number of rows as
 <code>item_bank_122</code> and one column per module. Each row has
 exactly one 1 — in the column for the module that item belongs to.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_mods</span>  <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">n_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>   <span class="co"># 30</span></span>
 <span></span>
@@ -1067,7 +1651,7 @@ exactly one 1 — in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-3-build-the-route-map">Step 3: Build the Route Map<a class="anchor" aria-label="anchor" href="#step-3-build-the-route-map"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">route_map_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0L</span>, nrow <span class="op">=</span> <span class="va">n_mods</span>, ncol <span class="op">=</span> <span class="va">n_mods</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">route_map_122</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">route_map_122</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n_mods</span><span class="op">)</span></span>
 <span></span>
@@ -1092,7 +1676,7 @@ exactly one 1 — in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-4-define-cut-scores">Step 4: Define Cut Scores<a class="anchor" aria-label="anchor" href="#step-4-define-cut-scores"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1 cut point for each of the 2 routing transitions (2-way branching)</span></span>
 <span><span class="va">cut_score_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,    <span class="co"># Stage 1 → Stage 2: θ̂ &lt; 0 → M2, θ̂ ≥ 0 → M3</span></span>
@@ -1102,7 +1686,7 @@ exactly one 1 — in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-5-evaluate-the-custom-panel">Step 5: Evaluate the Custom Panel<a class="anchor" aria-label="anchor" href="#step-5-evaluate-the-custom-panel"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluation grid: -3 to 3 in steps of 0.5 (coarser for speed)</span></span>
 <span><span class="va">theta_grid_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">0.5</span><span class="op">)</span></span>
 <span></span>
@@ -1132,7 +1716,7 @@ exactly one 1 — in the column for the module that item belongs to.</p>
 <span><span class="co">#&gt; 11   2.0  2.15212965 0.5041920  0.152129651 0.7100648</span></span>
 <span><span class="co">#&gt; 12   2.5  3.12555584 1.5165325  0.625555842 1.2314757</span></span>
 <span><span class="co">#&gt; 13   3.0  4.12958178 1.4429566  1.129581775 1.2012313</span></span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval_tb_122</span> <span class="op">&lt;-</span> <span class="va">eval_122</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -1160,14 +1744,14 @@ exactly one 1 — in the column for the module that item belongs to.</p>
 Conditional bias and CSEM for the custom 1-2-2 MST panel.
 </p>
 </div>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-6-inspect-the-panel-pathways">Step 6: Inspect the Panel Pathways<a class="anchor" aria-label="anchor" href="#step-6-inspect-the-panel-pathways"></a>
 </h3>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Confirmed pathways through the 1-2-2 panel</span></span>
 <span><span class="va">eval_122</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">pathway</span></span>
 <span><span class="co">#&gt;        stage.1 stage.2 stage.3</span></span>
@@ -1176,7 +1760,7 @@ Conditional bias and CSEM for the custom 1-2-2 MST panel.
 <span><span class="co">#&gt; path.3       1       3       4</span></span>
 <span><span class="co">#&gt; path.4       1       3       5</span></span></code></pre></div>
 <p>The 1-2-2 panel has 4 pathways — considerably fewer than the 1-3-3
-panel’s 6 pathways. The simpler branching structure is appropriate for
+panel’s 7 pathways. The simpler branching structure is appropriate for
 smaller-scale tests or when fewer stage-3 difficulty levels are
 needed.</p>
 <hr>
@@ -1190,7 +1774,7 @@ too close to the centre can cause mid-ability examinees to be routed
 sub-optimally. Here we compare the original <code>c(-0.5, 0.5)</code>
 cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
 1-3-3 panel.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Alternative cut scores: wider routing bands</span></span>
 <span><span class="va">cut_score_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1203,7 +1787,7 @@ cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
 <span>  theta     <span class="op">=</span> <span class="va">theta</span>,</span>
 <span>  range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tb_orig</span> <span class="op">&lt;-</span> <span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span><span class="va">tb_wide</span> <span class="op">&lt;-</span> <span class="va">eval_wide</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span></span>
@@ -1246,12 +1830,292 @@ cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
 CSEM comparison: original vs. wider cut scores in the 1-3-3 panel.
 </p>
 </div>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Wide cuts concentrate test takers in the middle module of Stage 2 and
 3 for the most ability levels, which tends to reduce bias near the
 centre but may increase CSEM at the ability extremes.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="example-6-validating-reval_mst-against-a-run_mst-monte-carlo-simulation">Example 6: Validating <code>reval_mst()</code> Against a
+<code>run_mst()</code> Monte Carlo Simulation<a class="anchor" aria-label="anchor" href="#example-6-validating-reval_mst-against-a-run_mst-monte-carlo-simulation"></a>
+</h2>
+<p>The “Why Simulate MST Panel Performance?” section introduced
+<code><a href="../reference/run_mst.html">run_mst()</a></code> and noted that turning a single simulation run
+into a full panel evaluation means looping it over a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+grid with many replications per point — the traditional Monte Carlo
+approach. <span class="citation">Lim et al. (2021)</span> validated
+their recursion-based analytical method against exactly this kind of
+simulation, and the closeness of the agreement they found depended on
+the scoring method used. When the simulation used the same scoring the
+recursion assumes throughout — an equated-number-correct (ENC) score, a
+deterministic
+score-to-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+transformation conceptually analogous to <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s
+internal inverse-TCC scoring — the simulated and analytical results
+matched closely at every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
+and converged further as replications increased. When the simulation
+instead used a combination more common in practice — EAP for routing,
+maximum likelihood (MLE) for the final score — the two methods still
+agreed closely in the central ability range, but diverged toward the
+extremes, where the item pool carries little information and MLE behaves
+quite differently from the inverse-TCC-based recursion. That region of
+close central agreement widens as test length increases.</p>
+<p>We reproduce that second condition directly here for the
+<code>simMST</code> panel, using the same scoring combination <span class="citation">Lim et al. (2021)</span> used in their own validation:
+<code>route_score = "EAP"</code> for routing at each interim stage, and
+<code>final_score = "ML"</code> for the reported final score. Neither
+method matches <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal inverse-TCC logic, so
+the two results are not expected to coincide everywhere; the comparison
+below should reproduce the same central-agreement-with-tail-divergence
+pattern <span class="citation">Lim et al. (2021)</span> reported.</p>
+<p>Because the exact values stored in <code>simMST$theta</code> are not
+needed for this comparison, we define our own explicit evaluation grid
+so that the Monte Carlo simulation and the analytical computation are
+guaranteed to line up point-for-point:</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># An explicit, independent evaluation grid</span></span>
+<span><span class="va">theta_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">n_reps</span>     <span class="op">&lt;-</span> <span class="fl">300</span>   <span class="co"># simulated examinees per grid point</span></span>
+<span></span>
+<span><span class="co"># Repeat each grid point n_reps times into one long vector of true abilities</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">true_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">theta_grid</span>, each <span class="op">=</span> <span class="va">n_reps</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Step 1 — Monte Carlo simulation with
+<code><a href="../reference/run_mst.html">run_mst()</a></code>.</strong> All <code>n_reps</code> replications at
+every grid point are simulated in a single call by passing the full
+<code>true_theta</code> vector. Routing uses the panel’s fixed cut
+scores (matching the routing rule <code><a href="../reference/reval_mst.html">reval_mst()</a></code> assumes),
+with <code>EAP</code> routing scores and <code>ML</code> final scores —
+the scoring combination <span class="citation">Lim et al. (2021)</span>
+used in their own Monte Carlo validation:</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">true_theta</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut_score    <span class="op">=</span> <span class="va">cut_score</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"ML"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose      <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Empirical bias and RMSE at each grid point</span></span>
+<span><span class="va">mc_tb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">true_theta</span>, est.theta <span class="op">=</span> <span class="va">sim_mc</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span></span>
+<span><span class="va">diff_mc</span>  <span class="op">&lt;-</span> <span class="va">mc_tb</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">mc_tb</span><span class="op">$</span><span class="va">theta</span></span>
+<span><span class="va">bias_mc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">diff_mc</span>, <span class="va">mc_tb</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mean</span><span class="op">)</span></span>
+<span><span class="va">rmse_mc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">diff_mc</span>, <span class="va">mc_tb</span><span class="op">$</span><span class="va">theta</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mc_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bias_mc</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  bias  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">bias_mc</span><span class="op">)</span>,</span>
+<span>  rmse  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">rmse_mc</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">mc_result</span> <span class="op">&lt;-</span> <span class="va">mc_result</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
+<p><strong>Step 2 — Analytical computation with
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code></strong> on the <em>same</em>
+<code>theta_grid</code>, so the comparison is point-for-point:</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">eval_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reval_mst.html">reval_mst</a></span><span class="op">(</span></span>
+<span>  x         <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  D         <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_map <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module    <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  cut_score <span class="op">=</span> <span class="va">cut_score</span>,</span>
+<span>  theta     <span class="op">=</span> <span class="va">theta_grid</span>,</span>
+<span>  range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tb_grid</span>      <span class="op">&lt;-</span> <span class="va">eval_grid</span><span class="op">$</span><span class="va">eval.tb</span></span>
+<span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">sigma2</span> <span class="op">+</span> <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Step 3 — Overlay the two results:</strong></p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Bias: Monte Carlo (points) vs. analytical (line)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Bias"</span>, main <span class="op">=</span> <span class="st">"Bias: Simulation vs. Analytical"</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">bias</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">bias</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (Monte Carlo)"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
+<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># RMSE: Monte Carlo (points) vs. analytical (line)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"RMSE"</span>, main <span class="op">=</span> <span class="st">"RMSE: Simulation vs. Analytical"</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">rmse</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (Monte Carlo)"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
+<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="mst-panel-evaluation_files/figure-html/mc-vs-analytical-plot-1.png" class="r-plt" alt="Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points) overlaid on the analytical reval_mst() curve (line)." width="768"><p class="caption">
+Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points)
+overlaid on the analytical reval_mst() curve (line).
+</p>
+</div>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>In the central ability range — which <span class="citation">Lim et
+al. (2021)</span> reported as roughly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.5</mn><mo>≤</mo><mi>θ</mi><mo>≤</mo><mn>1.5</mn></mrow><annotation encoding="application/x-tex">-1.5 \le \theta \le 1.5</annotation></semantics></math>
+for this scoring combination, widening for longer tests — the Monte
+Carlo points should track the analytical curve closely, with the small
+remaining deviations attributable to sampling error at
+<code>n_reps = 300</code> replications per grid point (these shrink
+further as <code>n_reps</code> increases). Toward the extremes, the two
+are expected to diverge: both <code>EAP</code> routing and
+<code>ML</code> final scoring depart from <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s
+internal inverse-TCC logic, and that departure grows where the item pool
+carries little information and EAP/MLE estimates behave quite
+differently from the inverse-TCC-based recursion. This mirrors the
+pattern <span class="citation">Lim et al. (2021)</span> reported for
+this identical EAP-routing/MLE-final condition. Matching the recursion’s
+own scoring exactly — <code>route_score = "INV.TCC"</code> and
+<code>final_score = "INV.TCC"</code> instead of
+<code>"EAP"</code>/<code>"ML"</code> — would close most of this gap.
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code> is therefore best read as predicting the
+performance of a panel routed and scored via inverse-TCC; whenever a
+program uses a different scoring approach operationally, a
+<code><a href="../reference/run_mst.html">run_mst()</a></code> simulation like this one remains the more direct
+check, particularly for ability levels far from the panel’s region of
+peak information.</p>
+<p><strong>Step 4 — Confirm the gap closes under matched
+scoring.</strong> As a final check, re-run the same simulation with
+<code>route_score = "INV.TCC"</code> and
+<code>final_score = "INV.TCC"</code>, matching
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal logic exactly:</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_mc_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
+<span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  module       <span class="op">=</span> <span class="va">module</span>,</span>
+<span>  theta        <span class="op">=</span> <span class="va">true_theta</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut_score    <span class="op">=</span> <span class="va">cut_score</span>,</span>
+<span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  se           <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose      <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Empirical bias and RMSE at each grid point, matched-scoring condition</span></span>
+<span><span class="va">diff_matched</span> <span class="op">&lt;-</span> <span class="va">sim_mc_matched</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">true_theta</span></span>
+<span><span class="va">bias_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">diff_matched</span>, <span class="va">true_theta</span>, <span class="va">mean</span><span class="op">)</span></span>
+<span><span class="va">rmse_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">diff_matched</span>, <span class="va">true_theta</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mc_result_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bias_matched</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  bias  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">bias_matched</span><span class="op">)</span>,</span>
+<span>  rmse  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">rmse_matched</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">mc_result_matched</span> <span class="op">&lt;-</span> <span class="va">mc_result_matched</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
+<p>Comparing all three at the tail grid points, where the
+<code>EAP</code>/<code>ML</code> condition diverged most from the
+analytical curve:</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">compare_tb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  theta              <span class="op">=</span> <span class="va">theta_grid</span>,</span>
+<span>  analytical_bias    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  EAP_ML_bias        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">bias</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  INVTCC_INVTCC_bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">bias</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  analytical_rmse    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  EAP_ML_rmse        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  INVTCC_INVTCC_rmse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">compare_tb</span><span class="op">[</span><span class="va">compare_tb</span><span class="op">$</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="op">-</span><span class="fl">3</span> <span class="op">|</span> <span class="va">compare_tb</span><span class="op">$</span><span class="va">theta</span> <span class="op">&gt;=</span> <span class="fl">3</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;    theta analytical_bias EAP_ML_bias INVTCC_INVTCC_bias analytical_rmse</span></span>
+<span><span class="co">#&gt; 1   -5.0           1.658       1.549              1.670           1.887</span></span>
+<span><span class="co">#&gt; 2   -4.5           1.165       1.057              1.260           1.473</span></span>
+<span><span class="co">#&gt; 3   -4.0           0.685       0.479              0.732           1.132</span></span>
+<span><span class="co">#&gt; 4   -3.5           0.240       0.130              0.229           0.933</span></span>
+<span><span class="co">#&gt; 5   -3.0          -0.109      -0.179             -0.109           0.900</span></span>
+<span><span class="co">#&gt; 17   3.0           1.304       0.585              1.225           1.753</span></span>
+<span><span class="co">#&gt; 18   3.5           1.248       0.372              1.265           1.469</span></span>
+<span><span class="co">#&gt; 19   4.0           0.915      -0.054              0.887           1.026</span></span>
+<span><span class="co">#&gt; 20   4.5           0.472      -0.527              0.491           0.544</span></span>
+<span><span class="co">#&gt; 21   5.0          -0.009      -1.005             -0.009           0.157</span></span>
+<span><span class="co">#&gt;    EAP_ML_rmse INVTCC_INVTCC_rmse</span></span>
+<span><span class="co">#&gt; 1        1.706              1.900</span></span>
+<span><span class="co">#&gt; 2        1.255              1.565</span></span>
+<span><span class="co">#&gt; 3        0.822              1.151</span></span>
+<span><span class="co">#&gt; 4        0.747              0.919</span></span>
+<span><span class="co">#&gt; 5        0.787              0.890</span></span>
+<span><span class="co">#&gt; 17       0.924              1.726</span></span>
+<span><span class="co">#&gt; 18       0.571              1.469</span></span>
+<span><span class="co">#&gt; 19       0.298              1.034</span></span>
+<span><span class="co">#&gt; 20       0.566              0.514</span></span>
+<span><span class="co">#&gt; 21       1.010              0.151</span></span></code></pre></div>
+<p>The same comparison, overlaid across the full ability range:</p>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Bias: matched-scoring Monte Carlo (points) vs. analytical (line)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Bias"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Bias: Simulation vs. Analytical"</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">bias</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">bias</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"forestgreen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (INV.TCC/INV.TCC)"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"forestgreen"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
+<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># RMSE: matched-scoring Monte Carlo (points) vs. analytical (line)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"RMSE"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"RMSE: Simulation vs. Analytical"</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">rmse</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"forestgreen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (INV.TCC/INV.TCC)"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"forestgreen"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
+<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="mst-panel-evaluation_files/figure-html/mc-vs-analytical-plot-matched-1.png" class="r-plt" alt="Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo simulation (points) overlaid on the analytical reval_mst() curve (line)." width="768"><p class="caption">
+Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo
+simulation (points) overlaid on the analytical reval_mst() curve (line).
+</p>
+</div>
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Both the table and the plot confirm the same conclusion: the
+<code>INV.TCC</code>/<code>INV.TCC</code> condition tracks the
+analytical bias and RMSE closely across the <em>entire</em> ability
+range, including the extremes where the <code>EAP</code>/<code>ML</code>
+condition diverged.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -1386,33 +2250,181 @@ and stage</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section level3">
+<h3 id="run_mst-arguments">
+<code>run_mst()</code> Arguments<a class="anchor" aria-label="anchor" href="#run_mst-arguments"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="26%">
+<col width="15%">
+<col width="23%">
+<col width="34%">
+</colgroup>
+<thead><tr class="header">
+<th>Argument</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>x</code></td>
+<td>data.frame</td>
+<td>—</td>
+<td>Item bank metadata (irtQ format)</td>
+</tr>
+<tr class="even">
+<td><code>route_map</code></td>
+<td>matrix</td>
+<td>—</td>
+<td>Binary square matrix of module transitions</td>
+</tr>
+<tr class="odd">
+<td><code>module</code></td>
+<td>matrix</td>
+<td>—</td>
+<td>Binary matrix mapping items to modules</td>
+</tr>
+<tr class="even">
+<td><code>theta</code></td>
+<td>numeric</td>
+<td>—</td>
+<td>True ability for each simulated examinee (or supply
+<code>response</code> instead)</td>
+</tr>
+<tr class="odd">
+<td><code>response</code></td>
+<td>matrix</td>
+<td><code>NULL</code></td>
+<td>Pre-generated response matrix, used instead of simulating from
+<code>theta</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>D</code></td>
+<td>numeric</td>
+<td>1</td>
+<td>Scaling constant (use 1.702 for normal-ogive approximation)</td>
+</tr>
+<tr class="odd">
+<td><code>ini_mod</code></td>
+<td>integer</td>
+<td><code>NULL</code></td>
+<td>Fixed Stage-1 module for all examinees; <code>NULL</code> assigns
+each independently at random</td>
+</tr>
+<tr class="even">
+<td><code>route_method</code></td>
+<td>character</td>
+<td><code>"bmat"</code></td>
+<td>
+<code>"bmat"</code>, <code>"mfi"</code>, or <code>NULL</code> for
+fixed cut-score routing</td>
+</tr>
+<tr class="odd">
+<td><code>cut_score</code></td>
+<td>list</td>
+<td><code>NULL</code></td>
+<td>List of routing cut score vectors; used only when
+<code>route_method = NULL</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>route_score</code></td>
+<td>list</td>
+<td>—</td>
+<td>Scoring method used at intermediate stages (<code>ML</code>,
+<code>WL</code>, <code>MAP</code>, <code>EAP</code>,
+<code>EAP.SUM</code>, <code>INV.TCC</code>, …)</td>
+</tr>
+<tr class="odd">
+<td><code>final_score</code></td>
+<td>list</td>
+<td>—</td>
+<td>Scoring method used for the final reported score</td>
+</tr>
+<tr class="even">
+<td><code>se</code></td>
+<td>logical</td>
+<td><code>TRUE</code></td>
+<td>Whether to compute standard errors of the final score</td>
+</tr>
+<tr class="odd">
+<td><code>missing</code></td>
+<td>scalar</td>
+<td><code>NA</code></td>
+<td>Value representing a not-administered response in
+<code>response</code>
+</td>
+</tr>
+<tr class="even">
+<td><code>verbose</code></td>
+<td>logical</td>
+<td><code>TRUE</code></td>
+<td>Whether to print simulation progress messages to the console</td>
+</tr>
+<tr class="odd">
+<td><code>return_full_resp</code></td>
+<td>logical</td>
+<td><code>FALSE</code></td>
+<td>If <code>TRUE</code>, also returns the full <em>N</em> x <em>J</em>
+item-level response matrix as <code>full.resp</code>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="run_mst-return-value">
+<code>run_mst()</code> Return Value<a class="anchor" aria-label="anchor" href="#run_mst-return-value"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="45%">
+<col width="54%">
+</colgroup>
+<thead><tr class="header">
+<th>Component</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>est.theta</code></td>
+<td>Final ability estimate for each simulated examinee</td>
+</tr>
+<tr class="even">
+<td><code>se.theta</code></td>
+<td>Standard error of the final ability estimate</td>
+</tr>
+<tr class="odd">
+<td><code>theta.route</code></td>
+<td>Intermediate ability estimate used for routing at each stage</td>
+</tr>
+<tr class="even">
+<td><code>path</code></td>
+<td>Module pathway taken by each examinee</td>
+</tr>
+<tr class="odd">
+<td><code>true.theta</code></td>
+<td>True ability supplied as input (<code>NA</code> when
+<code>response</code> was supplied instead)</td>
+</tr>
+<tr class="even">
+<td><code>panel</code></td>
+<td>Panel structure information (from <code><a href="../reference/panel_info.html">panel_info()</a></code>)</td>
+</tr>
+<tr class="odd">
+<td><code>full.resp</code></td>
+<td>Full item-level response matrix, if
+<code>return_full_resp = TRUE</code>
+</td>
+</tr>
+</tbody>
+</table>
 <hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
-</h2>
-<p>The <code><a href="../reference/reval_mst.html">reval_mst()</a></code> function implements the analytical
-recursion-based method of <span class="citation">Lim et al.
-(2021)</span>, which replaces large-scale Monte Carlo simulation with an
-exact, fast, and reproducible computation of MST panel measurement
-quality. The workflow is:</p>
-<ol style="list-style-type: decimal">
-<li>Prepare item bank metadata (<code>x</code>) in the standard irtQ
-format</li>
-<li>Construct the <code>module</code> matrix mapping items to
-modules</li>
-<li>Construct the <code>route_map</code> transition matrix</li>
-<li>Specify routing <code>cut_score</code> thresholds</li>
-<li>Call <code><a href="../reference/reval_mst.html">reval_mst()</a></code> and inspect <code>eval.tb</code> for
-conditional bias and CSEM</li>
-<li>Visualize the results to identify ability regions with high bias or
-poor precision</li>
-</ol>
-<p>Use <code><a href="../reference/reval_mst.html">reval_mst()</a></code> iteratively to compare different panel
-designs, item sets, or cut score configurations — each comparison is
-completed in seconds.</p>
-<hr>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -1421,12 +2433,23 @@ completed in seconds.</p>
 <div id="ref-lim_etal2021" class="csl-entry">
 Lim, H., Davey, T., &amp; Wells, C. S. (2021). A recursion-based
 analytical approach to evaluate the performance of <span>MST</span>.
-<em>Journal of Educational Measurement</em>, <em>58</em>(2), 154–178. <a href="https://doi.org/10.1111/jedm.12290" class="external-link">https://doi.org/10.1111/jedm.12290</a>
+<em>Journal of Educational Measurement</em>, <em>58</em>(2), 154–178. <a href="https://doi.org/10.1111/jedm.12276" class="external-link">https://doi.org/10.1111/jedm.12276</a>
 </div>
 <div id="ref-lord_wingersky1984" class="csl-entry">
 Lord, F. M., &amp; Wingersky, M. S. (1984). Comparison of
 <span>IRT</span> true-score and equipercentile observed-score equatings.
 <em>Applied Psychological Measurement</em>, <em>8</em>(4), 453–461. <a href="https://doi.org/10.1177/014662168400800409" class="external-link">https://doi.org/10.1177/014662168400800409</a>
+</div>
+<div id="ref-luecht_nungester1998" class="csl-entry">
+Luecht, R. M., &amp; Nungester, R. J. (1998). Some practical examples of
+computer-adaptive sequential testing. <em>Journal of Educational
+Measurement</em>, <em>35</em>(3), 229–249. <a href="https://doi.org/10.1111/j.1745-3984.1998.tb00537.x" class="external-link">https://doi.org/10.1111/j.1745-3984.1998.tb00537.x</a>
+</div>
+<div id="ref-zenisky_etal2009" class="csl-entry">
+Zenisky, A., Hambleton, R. K., &amp; Luecht, R. M. (2009). Multistage
+testing: Issues, designs, and research. In W. J. van der Linden &amp; C.
+A. W. Glas (Eds.), <em>Elements of adaptive testing</em> (pp. 355–372).
+Springer. <a href="https://doi.org/10.1007/978-0-387-85461-8_18" class="external-link">https://doi.org/10.1007/978-0-387-85461-8_18</a>
 </div>
 </div>
 </div>

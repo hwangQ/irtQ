@@ -14,7 +14,7 @@
   Estimation](https://hwangQ.github.io/irtQ/articles/item-parameter-estimation.md):
 - [Model-Data Fit
   Evaluation](https://hwangQ.github.io/irtQ/articles/model-fit-evaluation.md):
-- [Evaluating MST Panels with
-  reval_mst()](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md):
+- [MST Panel Evaluation and
+  Simulation](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md):
 - [Utility
   Functions](https://hwangQ.github.io/irtQ/articles/utilities.md):

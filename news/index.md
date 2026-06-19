@@ -264,7 +264,7 @@ CRAN release: 2024-08-25
 - Added a new function,
   [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
   which evaluates the measurement precision and bias in
-  Multistage-adaptive Test (MST) panels using a recursion-based
+  Multistage-Adaptive Test (MST) panels using a recursion-based
   evaluation method introduced by Lim et al. (2020).
 
 - Added a new function,
