@@ -1,7 +1,7 @@
 #' Recursion-based MST evaluation method
 #'
 #' This function evaluates the measurement precision and bias in
-#' Multistage-adaptive Test (MST) panels using a recursion-based evaluation
+#' Multistage-Adaptive Test (MST) panels using a recursion-based evaluation
 #' method introduced by Lim et al. (2021). This function computes conditional
 #' biases and standard errors of measurement (CSEMs) across a range of IRT
 #' ability levels, facilitating efficient and accurate MST panel assessments
