@@ -1,4 +1,4 @@
-#' Multistage Adaptive Test (MST) Simulation
+#' Multistage-Adaptive Test (MST) Simulation
 #'
 #' @description
 #' Simulates an MST administration for a panel of examinees. At each stage,
@@ -335,7 +335,10 @@
 #' head(result_bmat$path)
 #'
 #' ## ---------------------------------------------------------
-#' ## Example 2: Cut-score routing with EAP final scoring
+#' ## Example 2: Cut-score routing with EAP routing and ML final scoring
+#' ## EAP keeps the routing estimate finite even from a short Stage 1
+#' ## module (e.g., a perfect or zero score), while ML avoids the shrinkage
+#' ## that EAP's prior would otherwise introduce in the reported final score.
 #' ## ---------------------------------------------------------
 #' cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
 #'
@@ -347,8 +350,8 @@
 #'   D            = 1.702,
 #'   route_method = NULL,
 #'   cut_score    = cut_score,
-#'   route_score  = list(method = "ML", range = c(-4, 4)),
-#'   final_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
+#'   route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
+#'   final_score  = list(method = "ML", range = c(-4, 4)),
 #'   se = TRUE
 #' )
 #' print(result_cut)
@@ -374,7 +377,7 @@
 #'   response     = resp_matrix,   # pre-generated N x J response matrix
 #'   D            = 1.702,
 #'   route_method = "bmat",
-#'   route_score  = list(method = "ML", range = c(-4, 4)),
+#'   route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
 #'   final_score  = list(method = "ML", range = c(-4, 4)),
 #'   se = FALSE
 #' )
@@ -389,7 +392,7 @@
 #'   D            = 1.702,
 #'   route_method = NULL,
 #'   cut_score    = simMST$cut_score,
-#'   route_score  = list(method = "ML", range = c(-4, 4)),
+#'   route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
 #'   final_score  = list(method = "ML", range = c(-4, 4)),
 #'   se = FALSE
 #' )
@@ -424,7 +427,7 @@
 #'   D            = 1.702,
 #'   route_method = NULL,
 #'   cut_score    = cut_result$cut_score,
-#'   route_score  = list(method = "ML", range = c(-4, 4)),
+#'   route_score  = list(method = "EAP", norm.prior = c(0, 1), nquad = 41),
 #'   final_score  = list(method = "ML", range = c(-4, 4)),
 #'   se = TRUE
 #' )
