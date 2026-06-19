@@ -914,7 +914,7 @@ way inherits several practical drawbacks:
 - **Time-consuming**: Evaluating many panel designs or cut score
   configurations requires many separate simulation runs
 
-### The Recursion-Based Analytical Approach
+### The Recursion-Based Analytical Approach: `reval_mst()`
 
 Lim et al. (2021) proposed a fundamentally different approach: instead
 of simulating individual examinees, the method **directly computes the
