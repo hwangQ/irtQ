@@ -1,5 +1,6 @@
 # Project documentation sources (excluded from build)
 ^README\.Rmd$
+^README\.html$
 ^NEWS\.Rmd$
 ^cran-comments\.md$
 ^CLAUDE\.md$

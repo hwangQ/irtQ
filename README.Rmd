@@ -1,12 +1,13 @@
 ---
-title: "irtQ"
 output: github_document
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# irtQ <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -16,6 +17,10 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
+
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/irtQ)](https://CRAN.R-project.org/package=irtQ)
+<!-- badges: end -->
 
 The goal of `irtQ` is to fit unidimensional item response theory (IRT) models to data that may include both dichotomous and polytomous items. The package enables:
 
@@ -51,15 +56,19 @@ Also, model fit assessment includes item fit statistics such as:
 
 In addition, the package offers a variety of utilities for IRT analysis, including:
 
-- Detecting DIF (e.g., RDIF, CATSIB)
+- Detecting differential item functioning (DIF) using RDIF, RDIF-CR (categorical residuals), GRDIF (multiple groups), and CATSIB
+- Detecting item parameter drift (IPD) using the RIPD framework and the Pseudo-count D² statistic
 - Computing classification accuracy and consistency indices
+- Designing, evaluating, and simulating multistage-adaptive test (MST) panels, including TIF-crossing cut-score selection, recursion-based analytical evaluation, and Monte Carlo simulation of full MST administrations
 - Simulating response data
 - Computing the conditional distribution of observed scores using the Lord-Wingersky recursion
 - Calculating item and test information and characteristic functions
 - Visualizing item and test characteristic and information curves
-- Importing item or ability parameters from popular IRT software
+- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package)
 - Running flexMIRT (Cai, 2017) directly from R
 - Supporting additional tools for flexible and practical IRT analyses
+
+For full documentation, including function references and tutorial articles, visit the package website: <https://hwangQ.github.io/irtQ/>.
 
 ## Installation
 
@@ -191,7 +200,7 @@ In computerized adaptive testing (CAT), the fixed ability parameter calibration 
 
 FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is known to produce accurate and unbiased item parameter estimates when items are randomly administered to examinees, rather than adaptively, which is often the case for pretest items (Ban et al., 2001; Chen & Wang, 2016).
 
-In the \pkg{irtQ} package, FAPC can be conducted in two main steps:
+In the `irtQ` package, FAPC can be conducted in two main steps:
 
 1. Prepare a data set containing both the item response data and the corresponding ability (proficiency) estimates.
 
