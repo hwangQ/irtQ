@@ -30,8 +30,8 @@ in each stage.}
 }
 }
 \description{
-Given a binary transition matrix that defines the multistage testing (MST)
-structure, this function extracts key panel information: the module
+Given a binary transition matrix that defines the Multistage-Adaptive Test
+(MST) structure, this function extracts key panel information: the module
 configuration by stage, all valid test pathways, the number of modules per
 stage, and the total number of stages.
 }
