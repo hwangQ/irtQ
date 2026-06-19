@@ -186,7 +186,7 @@
   freely estimating a single item given that all other items are fixed.
 
 - Added a new function, `reval_mst()`, which evaluates the measurement
-  precision and bias in Multistage-adaptive Test (MST) panels using a
+  precision and bias in Multistage-Adaptive Test (MST) panels using a
   recursion-based evaluation method introduced by Lim et al. (2020).
 
 - Added a new function, `pcd2()`, which computes the Pseudo-count
