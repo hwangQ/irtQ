@@ -42,7 +42,7 @@ navbar:
         - text: "--- Extra Articles ---"
         - text: "Utilities"
           href: articles/utilities.html
-        - text: "Evaluating MST Panels"
+        - text: "MST Panel Evaluation and Simulation"
           href: articles/mst-panel-evaluation.html
 
 reference:
