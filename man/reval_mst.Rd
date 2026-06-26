@@ -208,7 +208,9 @@ individual performance levels.
 \donttest{
 ## ------------------------------------------------------------------------------
 # Evaluation of a 1-3-3 MST panel using simMST data.
-# This simulation dataset was utilized in Lim et al.'s (2021) simulation study.
+# This panel was assembled using module-level target TIFs and design
+# constraints similar to those used in Lim et al.'s (2021) simulation study
+# (it is not the identical dataset from that study).
 # Details:
 #    (a) Panel configuration: 1-3-3 MST panel
 #    (b) Test length: 24 items (each module contains 8 items across all stages)
@@ -238,7 +240,7 @@ theta <- simMST$theta
 eval <-
   reval_mst(x,
     D = 1.702, route_map = route_map, module = module,
-    cut_score = cut_score, theta = theta, range.tcc = c(-5, 5)
+    cut_score = cut_score, theta = theta, range.tcc = c(-7, 7)
   )
 
 # Review evaluation results

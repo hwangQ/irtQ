@@ -340,7 +340,7 @@
 #' ## module (e.g., a perfect or zero score), while ML avoids the shrinkage
 #' ## that EAP's prior would otherwise introduce in the reported final score.
 #' ## ---------------------------------------------------------
-#' cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
+#' cut_score <- simMST$cut_score   # list(c(-0.45, 0.46), c(-0.42, 0.45))
 #'
 #' result_cut <- run_mst(
 #'   x            = x,
@@ -453,8 +453,8 @@
 #'   theta        = theta_true,
 #'   D            = 1.702,
 #'   route_method = "bmat",
-#'   route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
-#'   final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+#'   route_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
+#'   final_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
 #'   se           = TRUE
 #' )
 #' print(result_inv)

@@ -227,11 +227,13 @@ directly.
 ### The `simMST` Dataset
 
 **irtQ** includes `simMST`, a built-in dataset that packages all four inputs
-described above. This dataset was used in the simulation study of @lim_etal2021
-and represents a **1-3-3 MST panel** with the following characteristics:
+described above. This dataset represents a **1-3-3 MST panel**, assembled
+using module-level target test information functions and design constraints
+similar to those used in the simulation study of @lim_etal2021 (it is not
+the identical dataset from that study), with the following characteristics:
 
 - 7 modules across 3 stages
-- 8 items per module (24 items total)
+- 8 items per module across 7 modules (56 unique items total, no item shared across modules)
 - All items follow the 3-parameter logistic model (3PLM)
 - Item parameters calibrated to span a broad ability range
 
@@ -360,7 +362,7 @@ against a fixed set of cut scores to decide the next module:
 
 ```{r run-mst-cutscore}
 # Fixed routing cut scores bundled with simMST
-cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
+cut_score <- simMST$cut_score   # list(c(-0.45, 0.46), c(-0.42, 0.45))
 
 sim_cut <- run_mst(
   x            = x,
@@ -379,24 +381,25 @@ print(sim_cut)
 
 #### Deriving Principled Cut Scores with `find_cut()`
 
-The cut scores used above (`c(-0.5, 0.5)` and `c(-0.6, 0.6)`) were chosen
-heuristically when the `simMST` panel was built — a common practice, but one
-that offers no guarantee that the cut points actually fall where they should
-psychometrically. A more principled choice is to derive the cut score
-directly from the modules' TIF curves themselves: the natural boundary
-between an easy and a hard module is the theta value at which the hard
-module's TIF first overtakes the easy module's TIF. Below that point the
-easier module is more informative; above it, the harder module is. This is
-also exactly the fix for the anomalous-routing problem described above for
-MFI routing — by fixing the cut point at this *proper* crossing, low-ability
-examinees can never be routed into the harder module no matter how its TIF
-curve behaves at the extremes.
+Where do cut scores like these come from in the first place? One principled
+choice is to derive them directly from the modules' TIF curves themselves:
+the natural boundary between an easy and a hard module is the theta value
+at which the hard module's TIF first overtakes the easy module's TIF. Below
+that point the easier module is more informative; above it, the harder
+module is. This is also exactly the fix for the anomalous-routing problem
+described above for MFI routing — by fixing the cut point at this *proper*
+crossing, low-ability examinees can never be routed into the harder module
+no matter how its TIF curve behaves at the extremes.
 
 `find_cut()` automates this search. For every pair of adjacent modules at
 each stage transition, it scans the theta scale for crossings between the
 two modules' TIF curves, keeps only the "proper" crossing (the TIF
 difference changing sign from negative to positive), and returns the result
-as a `cut_score` list that can be passed directly to `run_mst()`:
+as a `cut_score` list that can be passed directly to `run_mst()`.
+
+In fact, the cut scores bundled in `simMST$cut_score` were generated this
+same way when the panel was assembled, so recomputing them here should
+reproduce the same values:
 
 ```{r find-cut-example}
 cut_result <- find_cut(
@@ -406,7 +409,7 @@ cut_result <- find_cut(
 )
 print(cut_result)
 
-# Compare with the heuristic cut scores bundled in simMST
+# Recomputing reproduces the cut scores already bundled in simMST
 cut_result$cut_score
 simMST$cut_score
 ```
@@ -666,7 +669,7 @@ eval_result <- reval_mst(
   module     = module,
   cut_score  = cut_score,
   theta      = theta,
-  range.tcc  = c(-5, 5)
+  range.tcc  = c(-7, 7)
 )
 ```
 
@@ -1087,7 +1090,7 @@ eval_wide <- reval_mst(
   module    = module,
   cut_score = cut_score_wide,
   theta     = theta,
-  range.tcc = c(-5, 5)
+  range.tcc = c(-7, 7)
 )
 ```
 
@@ -1229,7 +1232,7 @@ eval_grid <- reval_mst(
   module    = module,
   cut_score = cut_score,
   theta     = theta_grid,
-  range.tcc = c(-5, 5)
+  range.tcc = c(-7, 7)
 )
 
 tb_grid      <- eval_grid$eval.tb
@@ -1305,8 +1308,8 @@ sim_mc_matched <- run_mst(
   D            = 1.702,
   route_method = NULL,
   cut_score    = cut_score,
-  route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
-  final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  route_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
+  final_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
   se           = FALSE,
   verbose      = FALSE
 )
