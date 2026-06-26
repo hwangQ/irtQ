@@ -69,6 +69,11 @@
 <h3 id="documentation-1-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-0"></a></h3>
 <ul><li><p>Expanded the documentation for <code><a href="../reference/ripd.html">ripd()</a></code> by adding a <code>@details</code> section that covers the theoretical background of the RIPD framework, asymptotic distributions of the three RIPD statistics, a drift-type diagnostic guide, the CAT-specific three-step workflow, and the purification procedure. Also added a <code>\donttest{}</code> example demonstrating a complete CAT-based IPD detection workflow using the <code>simIPD</code> dataset. Updated <code>@references</code> to include Lim &amp; Choe (2023) and replaced the previous conference paper citation with the in-press journal reference (Lim &amp; Han, in press).</p></li>
 <li><p>Added a <code>\donttest{}</code> example to <code><a href="../reference/pcd2.html">pcd2()</a></code> demonstrating CAT-based IPD detection using the <code>simIPD</code> dataset, including the bootstrap critical value procedure described in Lim &amp; Han (in press).</p></li>
+<li><p>Updated the <em>MST Panel Evaluation and Simulation</em> article (<code>vignettes/articles/mst-panel-evaluation.Rmd</code>) to introduce <code><a href="../reference/run_mst.html">run_mst()</a></code> and extend the existing <code><a href="../reference/reval_mst.html">reval_mst()</a></code> content with routing and scoring examples, a <code><a href="../reference/find_cut.html">find_cut()</a></code>-based principled cut score derivation, a side-by-side routing method comparison, and a Monte Carlo-vs-analytical validation example (Example 6).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-2-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-0"></a></h3>
+<ul><li>Rebuilt the <code>simMST</code> dataset: the previous version had 9 items duplicated across non-adjacent modules because the original assembly only enforced no-overlap within a single routing pathway. The new version enforces a global no-overlap constraint across all 7 modules (56 unique items total) and adds a mean(<em>b</em>) per-module band constraint; cut scores were regenerated via <code><a href="../reference/find_cut.html">find_cut()</a></code> on the rebuilt modules.</li>
 </ul></div>
 </div>
     <div class="section level2">

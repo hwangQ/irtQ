@@ -517,34 +517,34 @@ print(result_bmat)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.033
-#>   SD   : 1.069
+#>   Mean : -0.009
+#>   SD   : 1.076
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : -0.003
-#>   RMSE : 0.323
+#>   Bias : 0.021
+#>   RMSE : 0.319
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 191 (38.2%),  Module 3: 208 (41.6%),  Module 4: 101 (20.2%)
-#>   Stage 3: Module 5: 141 (28.2%),  Module 6: 157 (31.4%),  Module 7: 202 (40.4%)
+#>   Stage 2: Module 2: 177 (35.4%),  Module 3: 106 (21.2%),  Module 4: 217 (43.4%)
+#>   Stage 3: Module 5: 179 (35.8%),  Module 6: 131 (26.2%),  Module 7: 190 (38.0%)
 #> 
 
 # Final ability estimates
 head(result_bmat$est.theta)
-#> [1]  0.9590295 -0.8221300 -0.2683877  0.7248359  0.1290278 -0.2469213
+#> [1]  1.6882857 -0.8288973  0.6168219  0.5453383  0.4140971  0.2068442
 
 # Module pathway taken by each examinee
 head(result_bmat$path)
 #>      stage.1 stage.2 stage.3
-#> [1,]       1       3       7
-#> [2,]       1       2       5
-#> [3,]       1       3       5
-#> [4,]       1       3       7
-#> [5,]       1       3       6
-#> [6,]       1       2       6
+#> [1,]       1       4       7
+#> [2,]       1       2       6
+#> [3,]       1       4       7
+#> [4,]       1       4       6
+#> [5,]       1       3       7
+#> [6,]       1       4       6
 
 ## ---------------------------------------------------------
 ## Example 2: Cut-score routing with EAP routing and ML final scoring
@@ -552,7 +552,7 @@ head(result_bmat$path)
 ## module (e.g., a perfect or zero score), while ML avoids the shrinkage
 ## that EAP's prior would otherwise introduce in the reported final score.
 ## ---------------------------------------------------------
-cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
+cut_score <- simMST$cut_score   # list(c(-0.45, 0.46), c(-0.42, 0.45))
 
 result_cut <- run_mst(
   x            = x,
@@ -605,19 +605,19 @@ print(result_cut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.004
-#>   SD   : 1.065
+#>   Mean : -0.028
+#>   SD   : 1.003
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.026
-#>   RMSE : 0.321
+#>   Bias : 0.002
+#>   RMSE : 0.292
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 190 (38.0%),  Module 3: 168 (33.6%),  Module 4: 142 (28.4%)
-#>   Stage 3: Module 5: 117 (23.4%),  Module 6: 206 (41.2%),  Module 7: 177 (35.4%)
+#>   Stage 2: Module 2: 142 (28.4%),  Module 3: 219 (43.8%),  Module 4: 139 (27.8%)
+#>   Stage 3: Module 5: 169 (33.8%),  Module 6: 163 (32.6%),  Module 7: 168 (33.6%)
 #> 
 
 ## ---------------------------------------------------------
@@ -693,9 +693,9 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat): %.4f\n", rmse_A))
-#> RMSE (bmat): 0.3706
+#> RMSE (bmat): 0.3119
 cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
-#> RMSE (cut-score): 0.3432
+#> RMSE (cut-score): 0.3083
 
 ## ---------------------------------------------------------
 ## Example 4: TIF-based cut scores via find_cut()
@@ -708,16 +708,6 @@ cut_result <- find_cut(
   module    = module,
   route_map = route_map
 )
-#> Warning: Stage 2: difficulty order of modules does not match their index order.
-#>   Ascending index order    : modules 2, 3, 4
-#>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)
-#>   run_mst() routes by ascending module index (rank 1 -> lowest index).
-#>   If index order differs from difficulty order, cut-score routing may
-#>   not produce the intended module assignments.
-#>   Consider redesigning the panel so that easier modules have lower indices.
-#> Warning: Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].
-#> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.
-#> To override the selection, specify a different 'ref_theta'.
 
 # Inspect the derived cut scores
 print(cut_result)
@@ -727,33 +717,33 @@ print(cut_result)
 #> stage.2
 #> -----------------------------------
 #>   Modules (index order)    : 2, 3, 4
-#>   Modules (difficulty order): 2, 4, 3
-#>   Mean item locations      : -0.7313, 0.1342, 0.1279
-#>   Selected cut score(s)    : -0.3955, 0.4423
+#>   Modules (difficulty order): 2, 3, 4
+#>   Mean item locations      : -0.87, -0.0574, 0.7858
+#>   Selected cut score(s)    : -0.4451, 0.4589
 #>   Pair details:
 #>     [mod2_vs_mod3]
-#>       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]
-#>       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)
-#>       Selected cut score    : -0.3955
+#>       Proper crossing(s)    : 1  [theta = -0.4451]
+#>       Anomalous crossing(s) : 1  [theta = 3.3893]  (excluded)
+#>       Selected cut score    : -0.4451
 #>     [mod3_vs_mod4]
-#>       Proper crossing(s)    : 1  [theta = 0.4423]
-#>       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)
-#>       Selected cut score    : 0.4423
+#>       Proper crossing(s)    : 1  [theta = 0.4589]
+#>       Selected cut score    : 0.4589
 #> 
 #> stage.3
 #> -----------------------------------
 #>   Modules (index order)    : 5, 6, 7
 #>   Modules (difficulty order): 5, 6, 7
-#>   Mean item locations      : -0.8563, -0.1402, 0.4899
-#>   Selected cut score(s)    : -0.6612, 0.5131
+#>   Mean item locations      : -0.5586, -0.042, 0.5066
+#>   Selected cut score(s)    : -0.4171, 0.4532
 #>   Pair details:
 #>     [mod5_vs_mod6]
-#>       Proper crossing(s)    : 1  [theta = -0.6612]
-#>       Selected cut score    : -0.6612
+#>       Proper crossing(s)    : 1  [theta = -0.4171]
+#>       Anomalous crossing(s) : 1  [theta = 1.617]  (excluded)
+#>       Selected cut score    : -0.4171
 #>     [mod6_vs_mod7]
-#>       Proper crossing(s)    : 1  [theta = 0.5131]
-#>       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)
-#>       Selected cut score    : 0.5131
+#>       Proper crossing(s)    : 1  [theta = 0.4532]
+#>       Anomalous crossing(s) : 1  [theta = -1.9874]  (excluded)
+#>       Selected cut score    : 0.4532
 #> ==================================================
 #> Usage: run_mst(..., route_method = NULL, cut_score = <result>$cut_score)
 
@@ -810,19 +800,19 @@ print(result_findcut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : 0.013
-#>   SD   : 1.081
+#>   Mean : -0.006
+#>   SD   : 1.060
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.043
-#>   RMSE : 0.328
+#>   Bias : 0.024
+#>   RMSE : 0.338
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 179 (35.8%),  Module 3: 180 (36.0%),  Module 4: 141 (28.2%)
-#>   Stage 3: Module 5: 133 (26.6%),  Module 6: 187 (37.4%),  Module 7: 180 (36.0%)
+#>   Stage 2: Module 2: 136 (27.2%),  Module 3: 225 (45.0%),  Module 4: 139 (27.8%)
+#>   Stage 3: Module 5: 161 (32.2%),  Module 6: 159 (31.8%),  Module 7: 180 (36.0%)
 #> 
 
 ## Visualise the TIF-based cut scores used for routing
@@ -846,8 +836,8 @@ result_inv <- run_mst(
   theta        = theta_true,
   D            = 1.702,
   route_method = "bmat",
-  route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
-  final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  route_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
+  final_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
   se           = TRUE
 )
 #> [run_mst] Panel: 3 stages, 7 modules (1-3-3 design)
@@ -870,8 +860,8 @@ print(result_inv)
 #> Call:
 #> run_mst(x = x, route_map = route_map, module = module, theta = theta_true, 
 #>     D = 1.702, route_method = "bmat", route_score = list(method = "INV.TCC", 
-#>         range.tcc = c(-5, 5)), final_score = list(method = "INV.TCC", 
-#>         range.tcc = c(-5, 5)), se = TRUE) 
+#>         range.tcc = c(-7, 7)), final_score = list(method = "INV.TCC", 
+#>         range.tcc = c(-7, 7)), se = TRUE) 
 #> 
 #> MST Simulation Results
 #> ======================================== 
@@ -889,31 +879,31 @@ print(result_inv)
 #>   Final method        : INV.TCC
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : 0.012
-#>   SD   : 1.141
-#>   Min  : -4.248
-#>   Max  : 5.000
+#>   Mean : -0.026
+#>   SD   : 1.266
+#>   Min  : -7.000
+#>   Max  : 7.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.042
-#>   RMSE : 0.456
+#>   Bias : 0.004
+#>   RMSE : 0.596
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
-#>   Stage 2: Module 2: 172 (34.4%),  Module 3: 230 (46.0%),  Module 4: 98 (19.6%)
-#>   Stage 3: Module 5: 122 (24.4%),  Module 6: 158 (31.6%),  Module 7: 220 (44.0%)
+#>   Stage 2: Module 2: 187 (37.4%),  Module 3: 84 (16.8%),  Module 4: 229 (45.8%)
+#>   Stage 3: Module 5: 168 (33.6%),  Module 6: 166 (33.2%),  Module 7: 166 (33.2%)
 #> 
 
 # SE is now populated (posterior SD from the pre-computed table)
 head(result_inv$se.theta)
-#> [1] 1.3691953 0.2834630 0.2728840 0.2730654 0.2858929 0.2853817
+#> [1] 0.5213622 0.2798838 0.2659026 0.2692910 0.2692910 0.2739662
 
 # Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
 rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
 rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
 cat(sprintf("RMSE (INV.TCC routing + scoring): %.4f\n", rmse_inv))
-#> RMSE (INV.TCC routing + scoring): 0.4557
+#> RMSE (INV.TCC routing + scoring): 0.5963
 cat(sprintf("RMSE (ML    routing + scoring):   %.4f\n", rmse_ml))
-#> RMSE (ML    routing + scoring):   0.3234
+#> RMSE (ML    routing + scoring):   0.3191
 # }
 ```

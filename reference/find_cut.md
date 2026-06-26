@@ -209,16 +209,6 @@ route_map <- simMST$route_map
 ## the theta at which the harder module's TIF first exceeds the easier
 ## module's TIF (proper crossing), and returns it as a cut score.
 cut_result <- find_cut(x = x, module = module, route_map = route_map)
-#> Warning: Stage 2: difficulty order of modules does not match their index order.
-#>   Ascending index order    : modules 2, 3, 4
-#>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)
-#>   run_mst() routes by ascending module index (rank 1 -> lowest index).
-#>   If index order differs from difficulty order, cut-score routing may
-#>   not produce the intended module assignments.
-#>   Consider redesigning the panel so that easier modules have lower indices.
-#> Warning: Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].
-#> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.
-#> To override the selection, specify a different 'ref_theta'.
 
 ## Print a summary: crossing points found, anomalous crossings excluded,
 ## and the final selected cut scores per stage transition.
@@ -229,33 +219,33 @@ print(cut_result)
 #> stage.2
 #> -----------------------------------
 #>   Modules (index order)    : 2, 3, 4
-#>   Modules (difficulty order): 2, 4, 3
-#>   Mean item locations      : -0.7313, 0.1342, 0.1279
-#>   Selected cut score(s)    : -0.3955, 0.4423
+#>   Modules (difficulty order): 2, 3, 4
+#>   Mean item locations      : -0.87, -0.0574, 0.7858
+#>   Selected cut score(s)    : -0.4451, 0.4589
 #>   Pair details:
 #>     [mod2_vs_mod3]
-#>       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]
-#>       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)
-#>       Selected cut score    : -0.3955
+#>       Proper crossing(s)    : 1  [theta = -0.4451]
+#>       Anomalous crossing(s) : 1  [theta = 3.3893]  (excluded)
+#>       Selected cut score    : -0.4451
 #>     [mod3_vs_mod4]
-#>       Proper crossing(s)    : 1  [theta = 0.4423]
-#>       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)
-#>       Selected cut score    : 0.4423
+#>       Proper crossing(s)    : 1  [theta = 0.4589]
+#>       Selected cut score    : 0.4589
 #> 
 #> stage.3
 #> -----------------------------------
 #>   Modules (index order)    : 5, 6, 7
 #>   Modules (difficulty order): 5, 6, 7
-#>   Mean item locations      : -0.8563, -0.1402, 0.4899
-#>   Selected cut score(s)    : -0.6612, 0.5131
+#>   Mean item locations      : -0.5586, -0.042, 0.5066
+#>   Selected cut score(s)    : -0.4171, 0.4532
 #>   Pair details:
 #>     [mod5_vs_mod6]
-#>       Proper crossing(s)    : 1  [theta = -0.6612]
-#>       Selected cut score    : -0.6612
+#>       Proper crossing(s)    : 1  [theta = -0.4171]
+#>       Anomalous crossing(s) : 1  [theta = 1.617]  (excluded)
+#>       Selected cut score    : -0.4171
 #>     [mod6_vs_mod7]
-#>       Proper crossing(s)    : 1  [theta = 0.5131]
-#>       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)
-#>       Selected cut score    : 0.5131
+#>       Proper crossing(s)    : 1  [theta = 0.4532]
+#>       Anomalous crossing(s) : 1  [theta = -1.9874]  (excluded)
+#>       Selected cut score    : 0.4532
 #> ==================================================
 #> Usage: run_mst(..., route_method = NULL, cut_score = <result>$cut_score)
 
@@ -276,19 +266,19 @@ plot(cut_result, show_anomalous = FALSE) # hide anomalous crossing markers
 ## cut_score[[2]]: cut scores for the stage-2 -> stage-3 transition
 cut_result$cut_score
 #> $stage.2
-#> [1] -0.3954894  0.4422831
+#> [1] -0.4450901  0.4588774
 #> 
 #> $stage.3
-#> [1] -0.6611766  0.5130904
+#> [1] -0.4170988  0.4531584
 #> 
 
 ## Compare with the manually specified cut scores stored in simMST
 simMST$cut_score
-#> [[1]]
-#> [1] -0.3954891  0.4422893
+#> $stage.2
+#> [1] -0.4450901  0.4588774
 #> 
-#> [[2]]
-#> [1] -0.6611704  0.5130905
+#> $stage.3
+#> [1] -0.4170988  0.4531584
 #> 
 
 ## -- Use the cut scores in run_mst() --------------------------------------

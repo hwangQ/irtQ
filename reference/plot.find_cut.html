@@ -147,16 +147,6 @@ called interactively. It can be further customised with standard
 <span class="r-in"><span>  module    <span class="op">=</span> <span class="va">simMST</span><span class="op">$</span><span class="va">module</span>,</span></span>
 <span class="r-in"><span>  route_map <span class="op">=</span> <span class="va">simMST</span><span class="op">$</span><span class="va">route_map</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2: difficulty order of modules does not match their index order.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending index order    : modules 2, 3, 4</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   run_mst() routes by ascending module index (rank 1 -&gt; lowest index).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   If index order differs from difficulty order, cut-score routing may</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   not produce the intended module assignments.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Consider redesigning the panel so that easier modules have lower indices.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> To override the selection, specify a different 'ref_theta'.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Default: stages stacked vertically (stage 1 at the top)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">)</span></span></span>

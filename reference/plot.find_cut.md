@@ -82,16 +82,6 @@ cut_result <- find_cut(
   module    = simMST$module,
   route_map = simMST$route_map
 )
-#> Warning: Stage 2: difficulty order of modules does not match their index order.
-#>   Ascending index order    : modules 2, 3, 4
-#>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)
-#>   run_mst() routes by ascending module index (rank 1 -> lowest index).
-#>   If index order differs from difficulty order, cut-score routing may
-#>   not produce the intended module assignments.
-#>   Consider redesigning the panel so that easier modules have lower indices.
-#> Warning: Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].
-#> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.
-#> To override the selection, specify a different 'ref_theta'.
 
 ## Default: stages stacked vertically (stage 1 at the top)
 plot(cut_result)

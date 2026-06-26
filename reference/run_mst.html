@@ -544,34 +544,34 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.076</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : -0.003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.323</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.021</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.319</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 191 (38.2%),  Module 3: 208 (41.6%),  Module 4: 101 (20.2%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 141 (28.2%),  Module 6: 157 (31.4%),  Module 7: 202 (40.4%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 177 (35.4%),  Module 3: 106 (21.2%),  Module 4: 217 (43.4%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 179 (35.8%),  Module 6: 131 (26.2%),  Module 7: 190 (38.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Final ability estimates</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.9590295 -0.8221300 -0.2683877  0.7248359  0.1290278 -0.2469213</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.6882857 -0.8288973  0.6168219  0.5453383  0.4140971  0.2068442</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Module pathway taken by each examinee</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      stage.1 stage.2 stage.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]       1       3       7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]       1       2       5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]       1       3       5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]       1       3       7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]       1       3       6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]       1       2       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]       1       4       7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]       1       2       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]       1       4       7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]       1       4       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]       1       3       7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]       1       4       6</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Example 2: Cut-score routing with EAP routing and ML final scoring</span></span></span>
@@ -579,7 +579,7 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-in"><span><span class="co">## module (e.g., a perfect or zero score), while ML avoids the shrinkage</span></span></span>
 <span class="r-in"><span><span class="co">## that EAP's prior would otherwise introduce in the reported final score.</span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="va">cut_score</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span>   <span class="co"># list(c(-0.5, 0.5), c(-0.6, 0.6))</span></span></span>
+<span class="r-in"><span><span class="va">cut_score</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span>   <span class="co"># list(c(-0.45, 0.46), c(-0.42, 0.45))</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">result_cut</span> <span class="op">&lt;-</span> <span class="fu">run_mst</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  x            <span class="op">=</span> <span class="va">x</span>,</span></span>
@@ -632,19 +632,19 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.028</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.003</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.026</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.292</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 190 (38.0%),  Module 3: 168 (33.6%),  Module 4: 142 (28.4%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 117 (23.4%),  Module 6: 206 (41.2%),  Module 7: 177 (35.4%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 142 (28.4%),  Module 3: 219 (43.8%),  Module 4: 139 (27.8%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 169 (33.8%),  Module 6: 163 (32.6%),  Module 7: 168 (33.6%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
@@ -720,9 +720,9 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-in"><span><span class="va">rmse_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_A</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_B</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (bmat): %.4f\n"</span>, <span class="va">rmse_A</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (bmat): 0.3706</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (bmat): 0.3119</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (cut-score): %.4f\n"</span>, <span class="va">rmse_B</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (cut-score): 0.3432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (cut-score): 0.3083</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Example 4: TIF-based cut scores via find_cut()</span></span></span>
@@ -735,16 +735,6 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-in"><span>  module    <span class="op">=</span> <span class="va">module</span>,</span></span>
 <span class="r-in"><span>  route_map <span class="op">=</span> <span class="va">route_map</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2: difficulty order of modules does not match their index order.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending index order    : modules 2, 3, 4</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   run_mst() routes by ascending module index (rank 1 -&gt; lowest index).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   If index order differs from difficulty order, cut-score routing may</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   not produce the intended module assignments.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Consider redesigning the panel so that easier modules have lower indices.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> To override the selection, specify a different 'ref_theta'.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect the derived cut scores</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">)</span></span></span>
@@ -754,33 +744,33 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span> stage.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (index order)    : 2, 3, 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 2, 4, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.7313, 0.1342, 0.1279</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.3955, 0.4423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 2, 3, 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.87, -0.0574, 0.7858</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.4451, 0.4589</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pair details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod2_vs_mod3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.3955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.4451]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 3.3893]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.4451</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod3_vs_mod4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4423]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4589]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4589</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stage.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (index order)    : 5, 6, 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 5, 6, 7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.8563, -0.1402, 0.4899</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.6612, 0.5131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.5586, -0.042, 0.5066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.4171, 0.4532</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pair details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod5_vs_mod6]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.6612]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.6612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.4171]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 1.617]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.4171</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod6_vs_mod7]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.5131]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.5131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4532]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = -1.9874]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4532</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ==================================================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Usage: run_mst(..., route_method = NULL, cut_score = &lt;result&gt;$cut_score)</span>
 <span class="r-in"><span></span></span>
@@ -837,19 +827,19 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : 0.013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.006</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.060</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.043</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.328</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.338</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 179 (35.8%),  Module 3: 180 (36.0%),  Module 4: 141 (28.2%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 133 (26.6%),  Module 6: 187 (37.4%),  Module 7: 180 (36.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 136 (27.2%),  Module 3: 225 (45.0%),  Module 4: 139 (27.8%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 161 (32.2%),  Module 6: 159 (31.8%),  Module 7: 180 (36.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Visualise the TIF-based cut scores used for routing</span></span></span>
@@ -873,8 +863,8 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-in"><span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span></span>
 <span class="r-in"><span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span></span>
 <span class="r-in"><span>  route_method <span class="op">=</span> <span class="st">"bmat"</span>,</span></span>
-<span class="r-in"><span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  route_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  final_score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"INV.TCC"</span>, range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  se           <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> [run_mst] Panel: 3 stages, 7 modules (1-3-3 design)</span>
@@ -897,8 +887,8 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> run_mst(x = x, route_map = route_map, module = module, theta = theta_true, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     D = 1.702, route_method = "bmat", route_score = list(method = "INV.TCC", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         range.tcc = c(-5, 5)), final_score = list(method = "INV.TCC", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         range.tcc = c(-5, 5)), se = TRUE) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         range.tcc = c(-7, 7)), final_score = list(method = "INV.TCC", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         range.tcc = c(-7, 7)), se = TRUE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MST Simulation Results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ======================================== </span>
@@ -916,32 +906,32 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : INV.TCC</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : 0.012</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.141</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.248</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 5.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -7.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 7.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.042</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.456</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.004</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.596</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 172 (34.4%),  Module 3: 230 (46.0%),  Module 4: 98 (19.6%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 122 (24.4%),  Module 6: 158 (31.6%),  Module 7: 220 (44.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 187 (37.4%),  Module 3: 84 (16.8%),  Module 4: 229 (45.8%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 168 (33.6%),  Module 6: 166 (33.2%),  Module 7: 166 (33.2%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># SE is now populated (posterior SD from the pre-computed table)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_inv</span><span class="op">$</span><span class="va">se.theta</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.3691953 0.2834630 0.2728840 0.2730654 0.2858929 0.2853817</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5213622 0.2798838 0.2659026 0.2692910 0.2692910 0.2739662</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_inv</span><span class="op">$</span><span class="va">est.theta</span>  <span class="op">-</span> <span class="va">theta_true</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_ml</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (INV.TCC routing + scoring): %.4f\n"</span>, <span class="va">rmse_inv</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (INV.TCC routing + scoring): 0.4557</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (INV.TCC routing + scoring): 0.5963</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (ML    routing + scoring):   %.4f\n"</span>, <span class="va">rmse_ml</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (ML    routing + scoring):   0.3234</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (ML    routing + scoring):   0.3191</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

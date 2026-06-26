@@ -74,6 +74,28 @@
   including the bootstrap critical value procedure described in Lim &
   Han (in press).
 
+- Updated the *MST Panel Evaluation and Simulation* article
+  (`vignettes/articles/mst-panel-evaluation.Rmd`) to introduce
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) and
+  extend the existing
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+  content with routing and scoring examples, a
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md)-based
+  principled cut score derivation, a side-by-side routing method
+  comparison, and a Monte Carlo-vs-analytical validation example
+  (Example 6).
+
+### Bug Fixes
+
+- Rebuilt the `simMST` dataset: the previous version had 9 items
+  duplicated across non-adjacent modules because the original assembly
+  only enforced no-overlap within a single routing pathway. The new
+  version enforces a global no-overlap constraint across all 7 modules
+  (56 unique items total) and adds a mean(*b*) per-module band
+  constraint; cut scores were regenerated via
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md) on
+  the rebuilt modules.
+
 ## irtQ 1.1.0
 
 CRAN release: 2026-06-07

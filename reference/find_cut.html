@@ -259,16 +259,6 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-in"><span><span class="co">## the theta at which the harder module's TIF first exceeds the easier</span></span></span>
 <span class="r-in"><span><span class="co">## module's TIF (proper crossing), and returns it as a cut score.</span></span></span>
 <span class="r-in"><span><span class="va">cut_result</span> <span class="op">&lt;-</span> <span class="fu">find_cut</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, module <span class="op">=</span> <span class="va">module</span>, route_map <span class="op">=</span> <span class="va">route_map</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2: difficulty order of modules does not match their index order.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending index order    : modules 2, 3, 4</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Ascending difficulty order: modules 2, 4, 3 (mean locations: -0.731, 0.128, 0.134)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   run_mst() routes by ascending module index (rank 1 -&gt; lowest index).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   If index order differs from difficulty order, cut-score routing may</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   not produce the intended module assignments.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Consider redesigning the panel so that easier modules have lower indices.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Stage 2, pair (module 2 vs module 3): 2 proper crossings found at theta = [-0.3955, 3.0936].</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Selecting the crossing closest to ref_theta = 0.0000: theta = -0.3955.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> To override the selection, specify a different 'ref_theta'.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Print a summary: crossing points found, anomalous crossings excluded,</span></span></span>
 <span class="r-in"><span><span class="co">## and the final selected cut scores per stage transition.</span></span></span>
@@ -279,33 +269,33 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-out co"><span class="r-pr">#&gt;</span> stage.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (index order)    : 2, 3, 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 2, 4, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.7313, 0.1342, 0.1279</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.3955, 0.4423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 2, 3, 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.87, -0.0574, 0.7858</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.4451, 0.4589</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pair details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod2_vs_mod3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.3955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.4451]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 3.3893]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.4451</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod3_vs_mod4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4423]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4589]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4589</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stage.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (index order)    : 5, 6, 7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Modules (difficulty order): 5, 6, 7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.8563, -0.1402, 0.4899</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.6612, 0.5131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean item locations      : -0.5586, -0.042, 0.5066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Selected cut score(s)    : -0.4171, 0.4532</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pair details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod5_vs_mod6]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.6612]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.6612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = -0.4171]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = 1.617]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : -0.4171</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     [mod6_vs_mod7]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.5131]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.5131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Proper crossing(s)    : 1  [theta = 0.4532]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Anomalous crossing(s) : 1  [theta = -1.9874]  (excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Selected cut score    : 0.4532</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ==================================================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Usage: run_mst(..., route_method = NULL, cut_score = &lt;result&gt;$cut_score)</span>
 <span class="r-in"><span></span></span>
@@ -326,19 +316,19 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-in"><span><span class="co">## cut_score[[2]]: cut scores for the stage-2 -&gt; stage-3 transition</span></span></span>
 <span class="r-in"><span><span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stage.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.3954894  0.4422831</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4450901  0.4588774</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stage.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.6611766  0.5130904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4170988  0.4531584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Compare with the manually specified cut scores stored in simMST</span></span></span>
 <span class="r-in"><span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.3954891  0.4422893</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $stage.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4450901  0.4588774</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.6611704  0.5130905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $stage.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4170988  0.4531584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## -- Use the cut scores in run_mst() --------------------------------------</span></span></span>

@@ -242,12 +242,15 @@ scores directly.
 ### The `simMST` Dataset
 
 **irtQ** includes `simMST`, a built-in dataset that packages all four
-inputs described above. This dataset was used in the simulation study of
-Lim et al. (2021) and represents a **1-3-3 MST panel** with the
-following characteristics:
+inputs described above. This dataset represents a **1-3-3 MST panel**,
+assembled using module-level target test information functions and
+design constraints similar to those used in the simulation study of Lim
+et al. (2021) (it is not the identical dataset from that study), with
+the following characteristics:
 
 - 7 modules across 3 stages
-- 8 items per module (24 items total)
+- 8 items per module across 7 modules (56 unique items total, no item
+  shared across modules)
 - All items follow the 3-parameter logistic model (3PLM)
 - Item parameters calibrated to span a broad ability range
 
@@ -258,9 +261,10 @@ library(irtQ)
 # Inspect the simMST dataset
 str(simMST, max.level = 1)
 #> List of 5
-#>  $ item_bank:'data.frame':   300 obs. of  6 variables:
-#>  $ module   : num [1:300, 1:7] 0 0 0 1 0 0 1 0 0 0 ...
-#>  $ route_map:'data.frame':   7 obs. of  7 variables:
+#>  $ item_bank:'data.frame':   56 obs. of  6 variables:
+#>  $ module   : int [1:56, 1:7] 0 0 0 1 0 0 0 0 0 0 ...
+#>  $ route_map: int [1:7, 1:7] 0 0 0 0 0 0 0 1 0 0 ...
+#>   ..- attr(*, "dimnames")=List of 2
 #>  $ cut_score:List of 2
 #>  $ theta    : num [1:81] -4 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1 ...
 ```
@@ -270,57 +274,57 @@ str(simMST, max.level = 1)
 # Item bank: standard irtQ metadata format
 head(simMST$item_bank, 10)
 #>    id cats model     par.1       par.2      par.3
-#> 1   1    2  3PLM 0.8750089 -0.01501279 0.03244385
-#> 2   2    2  3PLM 0.8695412  2.11748844 0.13982330
-#> 3   3    2  3PLM 0.9691471  1.56938982 0.04946834
-#> 4   4    2  3PLM 1.5257721 -1.03235839 0.10875097
-#> 5   5    2  3PLM 0.6737973 -0.65712968 0.05493992
-#> 6   6    2  3PLM 1.0763360  1.23969146 0.05258577
-#> 7   7    2  3PLM 1.4353704  0.91128180 0.06818777
-#> 8   8    2  3PLM 0.8761569  0.68568074 0.08907224
-#> 9   9    2  3PLM 1.1352444  0.60960604 0.16278267
-#> 10 10    2  3PLM 1.3357048 -1.22224352 0.14586104
+#> 1   1    2  3PLM 0.8046689  0.88877424 0.07111049
+#> 2   2    2  3PLM 1.1698814  1.92935685 0.09127957
+#> 3   3    2  3PLM 1.0684706  0.41364009 0.11193439
+#> 4   4    2  3PLM 1.2212463  1.53688842 0.07581786
+#> 5   5    2  3PLM 1.4571606 -0.75722758 0.06916838
+#> 6   6    2  3PLM 1.3195904 -0.82946802 0.05324622
+#> 7   7    2  3PLM 0.8683278  0.25561228 0.06429254
+#> 8   8    2  3PLM 1.2138528  0.68499259 0.03843348
+#> 9   9    2  3PLM 1.2447288  0.05907495 0.12361107
+#> 10 10    2  3PLM 1.0414900 -0.42144469 0.08158022
 ```
 
 ``` r
 
 # Module matrix: 56 items × 7 modules
 dim(simMST$module)
-#> [1] 300   7
+#> [1] 56  7
 
 # First 16 rows (items 1-16, first 2 modules)
 simMST$module[1:16, ]
 #>       [,1] [,2] [,3] [,4] [,5] [,6] [,7]
-#>  [1,]    0    0    0    0    0    0    0
-#>  [2,]    0    0    0    0    0    0    0
-#>  [3,]    0    0    0    0    0    0    0
+#>  [1,]    0    0    0    1    0    0    0
+#>  [2,]    0    0    0    1    0    0    0
+#>  [3,]    0    0    0    0    0    0    1
 #>  [4,]    1    0    0    0    0    0    0
-#>  [5,]    0    0    0    0    0    0    0
-#>  [6,]    0    0    0    0    0    0    0
-#>  [7,]    1    0    0    0    0    0    0
-#>  [8,]    0    0    0    0    0    0    0
-#>  [9,]    0    0    0    0    0    0    0
-#> [10,]    0    0    0    0    0    0    0
-#> [11,]    0    0    0    0    0    1    0
-#> [12,]    0    0    0    0    0    0    0
-#> [13,]    0    0    0    0    0    0    0
-#> [14,]    0    0    0    0    0    0    0
-#> [15,]    0    0    0    0    0    0    0
-#> [16,]    0    0    0    0    0    0    0
+#>  [5,]    0    1    0    0    0    0    0
+#>  [6,]    0    0    0    0    1    0    0
+#>  [7,]    0    0    0    1    0    0    0
+#>  [8,]    0    0    0    0    0    0    1
+#>  [9,]    0    0    0    0    0    1    0
+#> [10,]    0    0    0    0    0    1    0
+#> [11,]    0    0    0    0    0    0    1
+#> [12,]    0    0    0    0    0    1    0
+#> [13,]    0    0    1    0    0    0    0
+#> [14,]    0    0    0    0    1    0    0
+#> [15,]    0    0    1    0    0    0    0
+#> [16,]    0    0    0    0    1    0    0
 ```
 
 ``` r
 
 # Route map: 7 × 7 transition matrix
 simMST$route_map
-#>   V1 V2 V3 V4 V5 V6 V7
-#> 1  0  1  1  1  0  0  0
-#> 2  0  0  0  0  1  1  0
-#> 3  0  0  0  0  1  1  1
-#> 4  0  0  0  0  0  1  1
-#> 5  0  0  0  0  0  0  0
-#> 6  0  0  0  0  0  0  0
-#> 7  0  0  0  0  0  0  0
+#>      V1 V2 V3 V4 V5 V6 V7
+#> [1,]  0  1  1  1  0  0  0
+#> [2,]  0  0  0  0  1  1  0
+#> [3,]  0  0  0  0  1  1  1
+#> [4,]  0  0  0  0  0  1  1
+#> [5,]  0  0  0  0  0  0  0
+#> [6,]  0  0  0  0  0  0  0
+#> [7,]  0  0  0  0  0  0  0
 ```
 
 The `route_map` shows:
@@ -335,11 +339,11 @@ The `route_map` shows:
 
 # Cut scores: 2 routing transitions for 3 stages
 simMST$cut_score
-#> [[1]]
-#> [1] -0.3954891  0.4422893
+#> $stage.2
+#> [1] -0.4450901  0.4588774
 #> 
-#> [[2]]
-#> [1] -0.6611704  0.5130905
+#> $stage.3
+#> [1] -0.4170988  0.4531584
 ```
 
 ``` r
@@ -427,19 +431,19 @@ print(sim_bmat)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : 0.002
-#>   SD   : 1.121
+#>   Mean : -0.018
+#>   SD   : 1.110
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.028
-#>   RMSE : 0.345
+#>   Bias : 0.007
+#>   RMSE : 0.328
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
-#>   Stage 2: Module 2: 397 (39.7%),  Module 3: 436 (43.6%),  Module 4: 167 (16.7%)
-#>   Stage 3: Module 5: 264 (26.4%),  Module 6: 341 (34.1%),  Module 7: 395 (39.5%)
+#>   Stage 2: Module 2: 302 (30.2%),  Module 3: 314 (31.4%),  Module 4: 384 (38.4%)
+#>   Stage 3: Module 5: 372 (37.2%),  Module 6: 262 (26.2%),  Module 7: 366 (36.6%)
 ```
 
 A closely related alternative is **maximum Fisher information (MFI)
@@ -484,19 +488,19 @@ print(sim_mfi)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.020
-#>   SD   : 1.048
+#>   Mean : -0.015
+#>   SD   : 1.082
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.006
-#>   RMSE : 0.292
+#>   Bias : 0.011
+#>   RMSE : 0.312
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
-#>   Stage 2: Module 2: 377 (37.7%),  Module 3: 348 (34.8%),  Module 4: 275 (27.5%)
-#>   Stage 3: Module 5: 247 (24.7%),  Module 6: 456 (45.6%),  Module 7: 297 (29.7%)
+#>   Stage 2: Module 2: 279 (27.9%),  Module 3: 475 (47.5%),  Module 4: 246 (24.6%)
+#>   Stage 3: Module 5: 334 (33.4%),  Module 6: 359 (35.9%),  Module 7: 307 (30.7%)
 ```
 
 MFI routing assumes each module’s TIF curve behaves as intended —
@@ -516,7 +520,7 @@ compared against a fixed set of cut scores to decide the next module:
 ``` r
 
 # Fixed routing cut scores bundled with simMST
-cut_score <- simMST$cut_score   # list(c(-0.5, 0.5), c(-0.6, 0.6))
+cut_score <- simMST$cut_score   # list(c(-0.45, 0.46), c(-0.42, 0.45))
 
 sim_cut <- run_mst(
   x            = x,
@@ -554,36 +558,33 @@ print(sim_cut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : 0.012
-#>   SD   : 1.063
+#>   Mean : -0.009
+#>   SD   : 1.102
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.038
-#>   RMSE : 0.314
+#>   Bias : 0.017
+#>   RMSE : 0.331
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
-#>   Stage 2: Module 2: 351 (35.1%),  Module 3: 348 (34.8%),  Module 4: 301 (30.1%)
-#>   Stage 3: Module 5: 248 (24.8%),  Module 6: 368 (36.8%),  Module 7: 384 (38.4%)
+#>   Stage 2: Module 2: 266 (26.6%),  Module 3: 456 (45.6%),  Module 4: 278 (27.8%)
+#>   Stage 3: Module 5: 330 (33.0%),  Module 6: 299 (29.9%),  Module 7: 371 (37.1%)
 ```
 
 #### Deriving Principled Cut Scores with `find_cut()`
 
-The cut scores used above (`c(-0.5, 0.5)` and `c(-0.6, 0.6)`) were
-chosen heuristically when the `simMST` panel was built — a common
-practice, but one that offers no guarantee that the cut points actually
-fall where they should psychometrically. A more principled choice is to
-derive the cut score directly from the modules’ TIF curves themselves:
-the natural boundary between an easy and a hard module is the theta
-value at which the hard module’s TIF first overtakes the easy module’s
-TIF. Below that point the easier module is more informative; above it,
-the harder module is. This is also exactly the fix for the
-anomalous-routing problem described above for MFI routing — by fixing
-the cut point at this *proper* crossing, low-ability examinees can never
-be routed into the harder module no matter how its TIF curve behaves at
-the extremes.
+Where do cut scores like these come from in the first place? One
+principled choice is to derive them directly from the modules’ TIF
+curves themselves: the natural boundary between an easy and a hard
+module is the theta value at which the hard module’s TIF first overtakes
+the easy module’s TIF. Below that point the easier module is more
+informative; above it, the harder module is. This is also exactly the
+fix for the anomalous-routing problem described above for MFI routing —
+by fixing the cut point at this *proper* crossing, low-ability examinees
+can never be routed into the harder module no matter how its TIF curve
+behaves at the extremes.
 
 [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md)
 automates this search. For every pair of adjacent modules at each stage
@@ -591,7 +592,11 @@ transition, it scans the theta scale for crossings between the two
 modules’ TIF curves, keeps only the “proper” crossing (the TIF
 difference changing sign from negative to positive), and returns the
 result as a `cut_score` list that can be passed directly to
-[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md):
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md).
+
+In fact, the cut scores bundled in `simMST$cut_score` were generated
+this same way when the panel was assembled, so recomputing them here
+should reproduce the same values:
 
 ``` r
 
@@ -607,49 +612,49 @@ print(cut_result)
 #> stage.2
 #> -----------------------------------
 #>   Modules (index order)    : 2, 3, 4
-#>   Modules (difficulty order): 2, 4, 3
-#>   Mean item locations      : -0.7313, 0.1342, 0.1279
-#>   Selected cut score(s)    : -0.3955, 0.4423
+#>   Modules (difficulty order): 2, 3, 4
+#>   Mean item locations      : -0.87, -0.0574, 0.7858
+#>   Selected cut score(s)    : -0.4451, 0.4589
 #>   Pair details:
 #>     [mod2_vs_mod3]
-#>       Proper crossing(s)    : 2  [theta = -0.3955, 3.0936]
-#>       Anomalous crossing(s) : 1  [theta = 2.1328]  (excluded)
-#>       Selected cut score    : -0.3955
+#>       Proper crossing(s)    : 1  [theta = -0.4451]
+#>       Anomalous crossing(s) : 1  [theta = 3.3893]  (excluded)
+#>       Selected cut score    : -0.4451
 #>     [mod3_vs_mod4]
-#>       Proper crossing(s)    : 1  [theta = 0.4423]
-#>       Anomalous crossing(s) : 2  [theta = -1.3914, 5.7208]  (excluded)
-#>       Selected cut score    : 0.4423
+#>       Proper crossing(s)    : 1  [theta = 0.4589]
+#>       Selected cut score    : 0.4589
 #> 
 #> stage.3
 #> -----------------------------------
 #>   Modules (index order)    : 5, 6, 7
 #>   Modules (difficulty order): 5, 6, 7
-#>   Mean item locations      : -0.8563, -0.1402, 0.4899
-#>   Selected cut score(s)    : -0.6612, 0.5131
+#>   Mean item locations      : -0.5586, -0.042, 0.5066
+#>   Selected cut score(s)    : -0.4171, 0.4532
 #>   Pair details:
 #>     [mod5_vs_mod6]
-#>       Proper crossing(s)    : 1  [theta = -0.6612]
-#>       Selected cut score    : -0.6612
+#>       Proper crossing(s)    : 1  [theta = -0.4171]
+#>       Anomalous crossing(s) : 1  [theta = 1.617]  (excluded)
+#>       Selected cut score    : -0.4171
 #>     [mod6_vs_mod7]
-#>       Proper crossing(s)    : 1  [theta = 0.5131]
-#>       Anomalous crossing(s) : 1  [theta = -1.7322]  (excluded)
-#>       Selected cut score    : 0.5131
+#>       Proper crossing(s)    : 1  [theta = 0.4532]
+#>       Anomalous crossing(s) : 1  [theta = -1.9874]  (excluded)
+#>       Selected cut score    : 0.4532
 #> ==================================================
 #> Usage: run_mst(..., route_method = NULL, cut_score = <result>$cut_score)
 
-# Compare with the heuristic cut scores bundled in simMST
+# Recomputing reproduces the cut scores already bundled in simMST
 cut_result$cut_score
 #> $stage.2
-#> [1] -0.3954894  0.4422831
+#> [1] -0.4450901  0.4588774
 #> 
 #> $stage.3
-#> [1] -0.6611766  0.5130904
+#> [1] -0.4170988  0.4531584
 simMST$cut_score
-#> [[1]]
-#> [1] -0.3954891  0.4422893
+#> $stage.2
+#> [1] -0.4450901  0.4588774
 #> 
-#> [[2]]
-#> [1] -0.6611704  0.5130905
+#> $stage.3
+#> [1] -0.4170988  0.4531584
 ```
 
 Calling [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on the
@@ -713,19 +718,19 @@ print(sim_findcut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.013
-#>   SD   : 1.107
+#>   Mean : -0.010
+#>   SD   : 1.080
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.012
-#>   RMSE : 0.327
+#>   Bias : 0.016
+#>   RMSE : 0.323
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
-#>   Stage 2: Module 2: 376 (37.6%),  Module 3: 335 (33.5%),  Module 4: 289 (28.9%)
-#>   Stage 3: Module 5: 253 (25.3%),  Module 6: 379 (37.9%),  Module 7: 368 (36.8%)
+#>   Stage 2: Module 2: 278 (27.8%),  Module 3: 453 (45.3%),  Module 4: 269 (26.9%)
+#>   Stage 3: Module 5: 337 (33.7%),  Module 6: 299 (29.9%),  Module 7: 364 (36.4%)
 ```
 
 #### Comparing Routing Methods on Identical Responses with `response`
@@ -783,9 +788,9 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat):                 %.4f\n", rmse_A))
-#> RMSE (bmat):                 0.3706
+#> RMSE (bmat):                 0.3119
 cat(sprintf("RMSE (find_cut cut scores):  %.4f\n", rmse_B))
-#> RMSE (find_cut cut scores):  0.3432
+#> RMSE (find_cut cut scores):  0.3083
 ```
 
 All five calls above return the same kind of result regardless of the
@@ -806,28 +811,28 @@ object itself:
 
 # Final ability estimate and its standard error, one value per examinee
 head(sim_bmat$est.theta)
-#> [1]  0.91354165 -0.45702570  0.42244620  0.76022539  0.45680206  0.07429823
+#> [1]  1.25259186 -0.58316775  0.63574972  0.56422861  0.15408580  0.02297489
 head(sim_bmat$se.theta)
-#> [1] 0.2717126 0.2503814 0.2453777 0.2596967 0.2480902 0.2542344
+#> [1] 0.2878269 0.2562197 0.2443803 0.2442056 0.2439128 0.2587183
 
 # Routing and final estimates at every stage: an N x n.stage matrix
 head(sim_bmat$theta.route)
 #>         stage.1     stage.2     stage.3
-#> [1,]  1.7362572  0.58220759  0.91354165
-#> [2,] -0.5054051 -0.19097482 -0.45702570
-#> [3,]  1.0914435 -0.02701402  0.42244620
-#> [4,]  1.7362572  0.23973623  0.76022539
-#> [5,]  0.3594823  0.58220759  0.45680206
-#> [6,]  0.3594823  0.28133615  0.07429823
+#> [1,]  0.8423104  1.58893679  1.25259186
+#> [2,] -0.4208651 -0.47810582 -0.58316775
+#> [3,]  0.3826359  0.54173172  0.63574972
+#> [4,]  0.3826359  0.60844003  0.56422861
+#> [5,]  0.3826359  0.06174652  0.15408580
+#> [6,] -0.0606256  0.31115075  0.02297489
 
 # Module index administered at every stage: an N x n.stage matrix
 head(sim_bmat$path)
 #>      stage.1 stage.2 stage.3
-#> [1,]       1       3       7
-#> [2,]       1       2       6
-#> [3,]       1       3       6
-#> [4,]       1       3       7
-#> [5,]       1       3       7
+#> [1,]       1       4       7
+#> [2,]       1       3       5
+#> [3,]       1       4       7
+#> [4,]       1       4       7
+#> [5,]       1       4       6
 #> [6,]       1       3       7
 ```
 
@@ -842,7 +847,7 @@ landed in:
 # Mean standard error by terminal (Stage 3) module
 tapply(sim_bmat$se.theta, sim_bmat$path[, ncol(sim_bmat$path)], mean)
 #>         5         6         7 
-#> 1.8259796 0.2648599 3.5765081
+#> 2.1794982 0.2469682 3.0071373
 ```
 
 The full list of return components — including `panel` (reused from
@@ -1007,7 +1012,7 @@ eval_result <- reval_mst(
   module     = module,
   cut_score  = cut_score,
   theta      = theta,
-  range.tcc  = c(-5, 5)
+  range.tcc  = c(-7, 7)
 )
 ```
 
@@ -1018,88 +1023,88 @@ is `eval.tb`, the evaluation summary table:
 
 # Evaluation table: theta, mu, sigma2, bias, csem
 print(eval_result$eval.tb)
-#>    theta           mu     sigma2          bias      csem
-#> 1   -4.0 -3.315151711 0.81243639  0.6848482889 0.9013525
-#> 2   -3.9 -3.308122145 0.81249024  0.5918778555 0.9013824
-#> 3   -3.8 -3.299466478 0.81250415  0.5005335222 0.9013901
-#> 4   -3.7 -3.288817058 0.81244163  0.4111829417 0.9013554
-#> 5   -3.6 -3.275730371 0.81224431  0.3242696286 0.9012460
-#> 6   -3.5 -3.259675887 0.81182079  0.2403241126 0.9010110
-#> 7   -3.4 -3.240025903 0.81103090  0.1599740975 0.9005725
-#> 8   -3.3 -3.216048229 0.80966409  0.0839517714 0.8998134
-#> 9   -3.2 -3.186904502 0.80741090  0.0130954981 0.8985605
-#> 10  -3.1 -3.151657917 0.80382781 -0.0516579167 0.8965644
-#> 11  -3.0 -3.109295249 0.79829771 -0.1092952491 0.8934751
-#> 12  -2.9 -3.058768592 0.78999264 -0.1587685917 0.8888153
-#> 13  -2.8 -2.999061853 0.77785149 -0.1990618528 0.8819589
-#> 14  -2.7 -2.929284858 0.76059315 -0.2292848582 0.8721199
-#> 15  -2.6 -2.848793209 0.73679246 -0.2487932093 0.8583662
-#> 16  -2.5 -2.757324677 0.70504694 -0.2573246765 0.8396707
-#> 17  -2.4 -2.655133580 0.66425060 -0.2551335795 0.8150157
-#> 18  -2.3 -2.543095304 0.61395916 -0.2430953040 0.7835555
-#> 19  -2.2 -2.422746810 0.55477998 -0.2227468100 0.7448355
-#> 20  -2.1 -2.296229108 0.48866012 -0.1962291085 0.6990423
-#> 21  -2.0 -2.166108358 0.41890796 -0.1661083585 0.6472310
-#> 22  -1.9 -2.035077758 0.34981064 -0.1350777582 0.5914479
-#> 23  -1.8 -1.905584122 0.28583952 -0.1055841216 0.5346396
-#> 24  -1.7 -1.779470568 0.23064795 -0.0794705684 0.4802582
-#> 25  -1.6 -1.657751636 0.18624743 -0.0577516359 0.4315639
-#> 26  -1.5 -1.540606085 0.15273247 -0.0406060853 0.3908100
-#> 27  -1.4 -1.427583578 0.12865527 -0.0275835775 0.3586855
-#> 28  -1.3 -1.317925176 0.11180081 -0.0179251758 0.3343663
-#> 29  -1.2 -1.210862682 0.09995113 -0.0108626816 0.3161505
-#> 30  -1.1 -1.105805063 0.09135406 -0.0058050633 0.3022483
-#> 31  -1.0 -1.002391488 0.08486148 -0.0023914881 0.2913099
-#> 32  -0.9 -0.900435000 0.07985646 -0.0004349999 0.2825889
-#> 33  -0.8 -0.799797656 0.07608715  0.0002023439 0.2758390
-#> 34  -0.7 -0.700256814 0.07346730 -0.0002568144 0.2710485
-#> 35  -0.6 -0.601437729 0.07189144 -0.0014377292 0.2681258
-#> 36  -0.5 -0.502856126 0.07113257 -0.0028561262 0.2667069
-#> 37  -0.4 -0.404036888 0.07086214 -0.0040368885 0.2661994
-#> 38  -0.3 -0.304627592 0.07074799 -0.0046275922 0.2659849
-#> 39  -0.2 -0.204456986 0.07053962 -0.0044569862 0.2655930
-#> 40  -0.1 -0.103545413 0.07009517 -0.0035454132 0.2647549
-#> 41   0.0 -0.002086355 0.06937647 -0.0020863553 0.2633941
-#> 42   0.1  0.099605094 0.06845181 -0.0003949059 0.2616330
-#> 43   0.2  0.201186926 0.06750554  0.0011869262 0.2598183
-#> 44   0.3  0.302412683 0.06682583  0.0024126833 0.2585069
-#> 45   0.4  0.403238687 0.06675136  0.0032386872 0.2583629
-#> 46   0.5  0.503865394 0.06758217  0.0038653939 0.2599657
-#> 47   0.6  0.604676874 0.06948120  0.0046768744 0.2635929
-#> 48   0.7  0.706084755 0.07241436  0.0060847548 0.2690992
-#> 49   0.8  0.808347795 0.07618349  0.0083477949 0.2760136
-#> 50   0.9  0.911476680 0.08057140  0.0114766796 0.2838510
-#> 51   1.0  1.015292639 0.08556051  0.0152926392 0.2925073
-#> 52   1.1  1.119613635 0.09157890  0.0196136351 0.3026201
-#> 53   1.2  1.224482001 0.09979670  0.0244820009 0.3159062
-#> 54   1.3  1.330368035 0.11256418  0.0303680346 0.3355059
-#> 55   1.4  1.438341074 0.13403659  0.0383410744 0.3661101
-#> 56   1.5  1.550220555 0.17081840  0.0502205547 0.4133018
-#> 57   1.6  1.668675144 0.23213521  0.0686751437 0.4818041
-#> 58   1.7  1.797161158 0.32880161  0.0971611579 0.5734122
-#> 59   1.8  1.939556253 0.47041363  0.1395562528 0.6858671
-#> 60   1.9  2.099420004 0.66100489  0.1994200038 0.8130221
-#> 61   2.0  2.278999976 0.89466646  0.2789999764 0.9458681
-#> 62   2.1  2.478299894 1.15350998  0.3782998942 1.0740158
-#> 63   2.2  2.694589735 1.40985468  0.4945897346 1.1873730
-#> 64   2.3  2.922593610 1.63250973  0.6225936097 1.2776970
-#> 65   2.4  3.155313241 1.79472536  0.7553132408 1.3396736
-#> 66   2.5  3.385198212 1.88048226  0.8851982121 1.3713068
-#> 67   2.6  3.605288505 1.88687626  1.0052885051 1.3736361
-#> 68   2.7  3.810040895 1.82247511  1.1100408947 1.3499908
-#> 69   2.8  3.995722980 1.70319022  1.1957229797 1.3050633
-#> 70   2.9  4.160415693 1.54765003  1.2604156927 1.2440458
-#> 71   3.0  4.303751347 1.37351113  1.3037513472 1.1719689
-#> 72   3.1  4.426528159 1.19527061  1.3265281586 1.0932843
-#> 73   3.2  4.530311684 1.02346632  1.3303116839 1.0116651
-#> 74   3.3  4.617089274 0.86483582  1.3170892740 0.9299655
-#> 75   3.4  4.689004875 0.72297630  1.2890048747 0.8502801
-#> 76   3.5  4.748175629 0.59915902  1.2481756286 0.7740536
-#> 77   3.6  4.796578286 0.49309273  1.1965782860 0.7022056
-#> 78   3.7  4.835988848 0.40354394  1.1359888485 0.6352511
-#> 79   3.8  4.867959380 0.32879397  1.0679593803 0.5734056
-#> 80   3.9  4.893818703 0.26694965  0.9938187025 0.5166717
-#> 81   4.0  4.914687017 0.21613853  0.9146870173 0.4649070
+#>    theta           mu     sigma2         bias      csem
+#> 1   -4.0 -4.808121816 3.42224454 -0.808121816 1.8499310
+#> 2   -3.9 -4.789018117 3.43809047 -0.889018117 1.8542089
+#> 3   -3.8 -4.766227061 3.45633941 -0.966227061 1.8591233
+#> 4   -3.7 -4.739003828 3.47720522 -1.039003828 1.8647266
+#> 5   -3.6 -4.706457625 3.50082146 -1.106457625 1.8710482
+#> 6   -3.5 -4.667529927 3.52716739 -1.167529927 1.8780754
+#> 7   -3.4 -4.620974273 3.55595499 -1.220974273 1.8857240
+#> 8   -3.3 -4.565341408 3.58646261 -1.265341408 1.8937958
+#> 9   -3.2 -4.498975738 3.61729989 -1.298975738 1.9019201
+#> 10  -3.1 -4.420032009 3.64609197 -1.320032009 1.9094743
+#> 11  -3.0 -4.326524655 3.66908363 -1.326524655 1.9154852
+#> 12  -2.9 -4.216425518 3.68069437 -1.316425518 1.9185136
+#> 13  -2.8 -4.087827617 3.67311048 -1.287827617 1.9165361
+#> 14  -2.7 -3.939190341 3.63608699 -1.239190341 1.9068526
+#> 15  -2.6 -3.769671645 3.55723963 -1.169671645 1.8860646
+#> 16  -2.5 -3.579531039 3.42319361 -1.079531039 1.8501875
+#> 17  -2.4 -3.370550870 3.22192852 -0.970550870 1.7949731
+#> 18  -2.3 -3.146374631 2.94638073 -0.846374631 1.7165025
+#> 19  -2.2 -2.912612919 2.59873030 -0.712612919 1.6120578
+#> 20  -2.1 -2.676548271 2.19389663 -0.576548271 1.4811808
+#> 21  -2.0 -2.446322106 1.76007533 -0.446322106 1.3266783
+#> 22  -1.9 -2.229645390 1.33450055 -0.329645390 1.1552058
+#> 23  -1.8 -2.032321625 0.95460517 -0.232321625 0.9770390
+#> 24  -1.7 -1.857088754 0.64771766 -0.157088754 0.8048091
+#> 25  -1.6 -1.703286390 0.42419405 -0.103286390 0.6513018
+#> 26  -1.5 -1.567529547 0.27740271 -0.067529547 0.5266903
+#> 27  -1.4 -1.445069807 0.18987969 -0.045069807 0.4357519
+#> 28  -1.3 -1.331207524 0.14154025 -0.031207524 0.3762184
+#> 29  -1.2 -1.222225352 0.11571234 -0.022225352 0.3401652
+#> 30  -1.1 -1.115711117 0.10132976 -0.015711117 0.3183234
+#> 31  -1.0 -1.010467372 0.09223884 -0.010467372 0.3037085
+#> 32  -0.9 -0.906250276 0.08548769 -0.006250276 0.2923828
+#> 33  -0.8 -0.803427274 0.07989210 -0.003427274 0.2826519
+#> 34  -0.7 -0.702526078 0.07520746 -0.002526078 0.2742398
+#> 35  -0.6 -0.603713902 0.07166265 -0.003713902 0.2676988
+#> 36  -0.5 -0.506419973 0.06957502 -0.006419973 0.2637708
+#> 37  -0.4 -0.409361950 0.06900157 -0.009361950 0.2626815
+#> 38  -0.3 -0.311031582 0.06954823 -0.011031582 0.2637200
+#> 39  -0.2 -0.210392034 0.07043473 -0.010392034 0.2653954
+#> 40  -0.1 -0.107394541 0.07079722 -0.007394541 0.2660775
+#> 41   0.0 -0.003020654 0.07009583 -0.003020654 0.2647562
+#> 42   0.1  0.101195029 0.06841021  0.001195029 0.2615535
+#> 43   0.2  0.203935849 0.06642380  0.003935849 0.2577282
+#> 44   0.3  0.304760735 0.06507124  0.004760735 0.2550906
+#> 45   0.4  0.404268069 0.06505829  0.004268069 0.2550653
+#> 46   0.5  0.503674818 0.06655934  0.003674818 0.2579910
+#> 47   0.6  0.604113025 0.06926578  0.004113025 0.2631839
+#> 48   0.7  0.706116775 0.07271246  0.006116775 0.2696525
+#> 49   0.8  0.809566254 0.07664014  0.009566254 0.2768396
+#> 50   0.9  0.913989404 0.08119260  0.013989404 0.2849431
+#> 51   1.0  1.018936817 0.08697665  0.018936817 0.2949180
+#> 52   1.1  1.124237650 0.09523922  0.024237650 0.3086085
+#> 53   1.2  1.230138950 0.10846069  0.030138950 0.3293337
+#> 54   1.3  1.337437576 0.13152988  0.037437576 0.3626705
+#> 55   1.4  1.447691648 0.17341863  0.047691648 0.4164356
+#> 56   1.5  1.563507131 0.24891023  0.063507131 0.4989090
+#> 57   1.6  1.688793130 0.37944575  0.088793130 0.6159917
+#> 58   1.7  1.828800578 0.59172170  0.128800578 0.7692345
+#> 59   1.8  1.989742189 0.91275843  0.189742189 0.9553839
+#> 60   1.9  2.177883977 1.36127926  0.277883977 1.1667387
+#> 61   2.0  2.398208325 1.93741933  0.398208325 1.3919121
+#> 62   2.1  2.652995666 2.61499495  0.552995666 1.6170946
+#> 63   2.2  2.940808726 3.34098096  0.740808726 1.8278350
+#> 64   2.3  3.256275361 4.04428294  0.956275361 2.0110403
+#> 65   2.4  3.590775050 4.65138229  1.190775050 2.1567064
+#> 66   2.5  3.933796614 5.10289537  1.433796614 2.2589589
+#> 67   2.6  4.274529547 5.36492913  1.674529547 2.3162317
+#> 68   2.7  4.603255939 5.43215059  1.903255939 2.3306974
+#> 69   2.8  4.912272678 5.32338528  2.112272678 2.3072463
+#> 70   2.9  5.196279204 5.07302346  2.296279204 2.2523373
+#> 71   3.0  5.452320839 4.72181852  2.452320839 2.1729746
+#> 72   3.1  5.679446946 4.30951268  2.579446946 2.0759366
+#> 73   3.2  5.878241351 3.87022633  2.678241351 1.9672891
+#> 74   3.3  6.050342862 3.43043317  2.750342862 1.8521429
+#> 75   3.4  6.198025435 3.00881210  2.798025435 1.7345928
+#> 76   3.5  6.323867445 2.61718809  2.823867445 1.6177726
+#> 77   3.6  6.430512839 2.26193109  2.830512839 1.5039718
+#> 78   3.7  6.520512752 1.94540173  2.820512752 1.3947766
+#> 79   3.8  6.596230710 1.66722536  2.796230710 1.2912108
+#> 80   3.9  6.659794430 1.42531046  2.759794430 1.1938637
+#> 81   4.0  6.713079533 1.21660661  2.713079533 1.1029989
 ```
 
 Each row corresponds to one true ability level $`\theta`$. The columns
@@ -1263,30 +1268,30 @@ eval_result$panel.info$n.stage
 
 # Item metadata for Module 1 (the routing module)
 eval_result$item.by.mod$m.1
-#>    id cats model    par.1       par.2      par.3
-#> 1   4    2  3PLM 1.525772 -1.03235839 0.10875097
-#> 2   7    2  3PLM 1.435370  0.91128180 0.06818777
-#> 3  41    2  3PLM 1.307673  0.84073482 0.04531530
-#> 4  79    2  3PLM 1.627854 -0.04267089 0.08726219
-#> 5  85    2  3PLM 1.593441  0.12433962 0.04843426
-#> 6  97    2  3PLM 1.425347  1.62529602 0.08793450
-#> 7 120    2  3PLM 1.629243 -1.55679267 0.08627866
-#> 8 178    2  3PLM 1.292352 -1.37542472 0.03876443
+#>   id cats model    par.1       par.2      par.3
+#> 1  4    2  3PLM 1.221246  1.53688842 0.07581786
+#> 2 18    2  3PLM 1.622737  0.06477017 0.05118737
+#> 3 19    2  3PLM 1.336215  1.40423576 0.04806838
+#> 4 20    2  3PLM 1.629243 -1.55679267 0.08627866
+#> 5 29    2  3PLM 2.083387 -0.72116319 0.06071835
+#> 6 40    2  3PLM 1.423525 -1.51207055 0.09036353
+#> 7 47    2  3PLM 1.749734  0.81776913 0.06977780
+#> 8 51    2  3PLM 1.559166 -0.03225149 0.08974932
 ```
 
 ``` r
 
 # Item metadata for Module 5 (Stage 3, first terminal module)
 eval_result$item.by.mod$m.5
-#>    id cats model    par.1       par.2      par.3
-#> 1  20    2  3PLM 1.115701 -0.84652958 0.06801272
-#> 2  31    2  3PLM 1.414366 -1.28095919 0.11286449
-#> 3  42    2  3PLM 1.457161 -0.75722758 0.06916838
-#> 4 109    2  3PLM 1.622737  0.06477017 0.05118737
-#> 5 123    2  3PLM 1.398542 -1.18015541 0.13934292
-#> 6 163    2  3PLM 1.033430 -0.88532141 0.08320088
-#> 7 194    2  3PLM 1.241976 -1.93284746 0.13121892
-#> 8 287    2  3PLM 1.559166 -0.03225149 0.08974932
+#>   id cats model     par.1      par.2      par.3
+#> 1  6    2  3PLM 1.3195904 -0.8294680 0.05324622
+#> 2 14    2  3PLM 1.0655003 -0.7298034 0.07826248
+#> 3 16    2  3PLM 1.4237437 -1.6356798 0.06386124
+#> 4 21    2  3PLM 1.4501399 -0.5532830 0.15345051
+#> 5 26    2  3PLM 1.3768223 -0.7683207 0.11185801
+#> 6 28    2  3PLM 1.2187965  1.9922146 0.06489523
+#> 7 30    2  3PLM 1.3802801 -0.3492380 0.11699158
+#> 8 45    2  3PLM 0.9269771 -1.5949464 0.09669537
 ```
 
 ### Inverse-TCC Ability Estimates (`eq.theta`)
@@ -1305,7 +1310,7 @@ routing and final ability reporting.
 cat("Theta estimates for Stage 1 (8 items, scores 0-8):\n")
 #> Theta estimates for Stage 1 (8 items, scores 0-8):
 round(eval_result$eq.theta$stage.1[, 1], 3)
-#> [1] -5.000 -2.052 -1.335 -0.753 -0.173  0.323  0.832  1.441  5.000
+#> [1] -7.000 -2.013 -1.249 -0.676 -0.150  0.373  0.913  1.534  7.000
 ```
 
 ``` r
@@ -1679,7 +1684,7 @@ eval_wide <- reval_mst(
   module    = module,
   cut_score = cut_score_wide,
   theta     = theta,
-  range.tcc = c(-5, 5)
+  range.tcc = c(-7, 7)
 )
 ```
 
@@ -1844,7 +1849,7 @@ eval_grid <- reval_mst(
   module    = module,
   cut_score = cut_score,
   theta     = theta_grid,
-  range.tcc = c(-5, 5)
+  range.tcc = c(-7, 7)
 )
 
 tb_grid      <- eval_grid$eval.tb
@@ -1940,8 +1945,8 @@ sim_mc_matched <- run_mst(
   D            = 1.702,
   route_method = NULL,
   cut_score    = cut_score,
-  route_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
-  final_score  = list(method = "INV.TCC", range.tcc = c(-5, 5)),
+  route_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
+  final_score  = list(method = "INV.TCC", range.tcc = c(-7, 7)),
   se           = FALSE,
   verbose      = FALSE
 )
@@ -1975,27 +1980,27 @@ compare_tb <- data.frame(
 )
 compare_tb[compare_tb$theta <= -3 | compare_tb$theta >= 3, ]
 #>    theta analytical_bias EAP_ML_bias INVTCC_INVTCC_bias analytical_rmse
-#> 1   -5.0           1.658       1.549              1.670           1.887
-#> 2   -4.5           1.165       1.057              1.260           1.473
-#> 3   -4.0           0.685       0.479              0.732           1.132
-#> 4   -3.5           0.240       0.130              0.229           0.933
-#> 5   -3.0          -0.109      -0.179             -0.109           0.900
-#> 17   3.0           1.304       0.585              1.225           1.753
-#> 18   3.5           1.248       0.372              1.265           1.469
-#> 19   4.0           0.915      -0.054              0.887           1.026
-#> 20   4.5           0.472      -0.527              0.491           0.544
-#> 21   5.0          -0.009      -1.005             -0.009           0.157
+#> 1   -5.0           0.108       1.488             -0.017           1.833
+#> 2   -4.5          -0.367       1.100             -0.472           1.872
+#> 3   -4.0          -0.808       0.509             -0.783           2.019
+#> 4   -3.5          -1.168       0.136             -1.160           2.211
+#> 5   -3.0          -1.327      -0.134             -1.254           2.330
+#> 17   3.0           2.452       0.481              2.494           3.277
+#> 18   3.5           2.824       0.252              2.819           3.254
+#> 19   4.0           2.713      -0.088              2.741           2.929
+#> 20   4.5           2.375      -0.521              2.410           2.488
+#> 21   5.0           1.942      -1.023              1.955           2.007
 #>    EAP_ML_rmse INVTCC_INVTCC_rmse
-#> 1        1.706              1.900
-#> 2        1.255              1.565
-#> 3        0.822              1.151
-#> 4        0.747              0.919
-#> 5        0.787              0.890
-#> 17       0.924              1.726
-#> 18       0.571              1.469
-#> 19       0.298              1.034
-#> 20       0.566              0.514
-#> 21       1.010              0.151
+#> 1        1.637              1.785
+#> 2        1.300              1.868
+#> 3        0.836              2.022
+#> 4        0.738              2.181
+#> 5        0.779              2.262
+#> 17       0.883              3.302
+#> 18       0.608              3.252
+#> 19       0.359              2.938
+#> 20       0.546              2.491
+#> 21       1.037              2.006
 ```
 
 The same comparison, overlaid across the full ability range:
