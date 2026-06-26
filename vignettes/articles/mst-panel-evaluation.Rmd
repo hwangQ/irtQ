@@ -717,7 +717,7 @@ plot(
   xlab = expression(theta),
   ylab = "Conditional Bias",
   main = "Conditional Bias",
-  ylim = c(-0.3, 0.3)
+  ylim = c(-2.5, 2.5)
 )
 abline(h = 0, col = "red", lty = 2, lwd = 1.5)
 grid()
