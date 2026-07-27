@@ -182,8 +182,8 @@ following components:
 
 - fit_stat:
 
-  A data frame containing the results of three IRT item fit statistics—
-  \\\chi^{2}\\, \\G^{2}\\, infit, and outfit—for all evaluated items.
+  A data frame containing the results of three IRT item fit statistics -
+  \\\chi^{2}\\, \\G^{2}\\, infit, and outfit - for all evaluated items.
   Each row corresponds to one item, and the columns include: the item
   ID; \\\chi^{2}\\ statistic; \\G^{2}\\ statistic; degrees of freedom
   for \\\chi^{2}\\ and \\G^{2}\\; critical values and p-values for both
@@ -269,8 +269,8 @@ Regarding degrees of freedom (*df*):
   freedom for the \\\chi^{2}\\ fit statistic.
 
 Note that infit and outfit statistics should be interpreted with caution
-when applied to non-Rasch models. The returned object—particularly the
-contingency tables—can be passed to
+when applied to non-Rasch models. The returned object - particularly the
+contingency tables - can be passed to
 [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md)
 to generate raw and standardized residual plots (Hambleton et al.,
 1991).

@@ -11,7 +11,7 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 (Bock &amp;amp; Aitkin, 1981). To calibrate pretest (newly developed) items, it
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
-also known as Stocking’s Method A. In addition, the package offers
+also known as Stocking's Method A. In addition, the package offers
 multiple-group item calibration via the MMLE-EM algorithm.
 For ability estimation, several widely used scoring methods are available,
 including:
@@ -43,8 +43,8 @@ Supporting additional tools for flexible and practical IRT analyses
 
 Package:irtQ
 Version:1.2.0
-Date:2026-06-14
-Depends:R (&amp;gt;= 4.4)
+Date:2026-07-26
+Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
 
@@ -60,7 +60,7 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 (Bock &amp;amp; Aitkin, 1981). To calibrate pretest (newly developed) items, it
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
-also known as Stocking’s Method A. In addition, the package offers
+also known as Stocking's Method A. In addition, the package offers
 multiple-group item calibration via the MMLE-EM algorithm.
 For ability estimation, several widely used scoring methods are available,
 including:
@@ -92,8 +92,8 @@ Supporting additional tools for flexible and practical IRT analyses
 
 Package:irtQ
 Version:1.2.0
-Date:2026-06-14
-Depends:R (&amp;gt;= 4.4)
+Date:2026-07-26
+Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
 
@@ -163,7 +163,7 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 (Bock &amp; Aitkin, 1981). To calibrate pretest (newly developed) items, it
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
-also known as Stocking’s Method A. In addition, the package offers
+also known as Stocking's Method A. In addition, the package offers
 multiple-group item calibration via the MMLE-EM algorithm.</p>
 <p>For ability estimation, several widely used scoring methods are available,
 including:</p><ul><li><p>Maximum likelihood estimation (ML)</p></li>
@@ -186,7 +186,7 @@ Lord-Wingersky recursion</p></li>
 <li><p>Calculating item and test information and characteristic functions</p></li>
 <li><p>Visualizing item and test characteristic and information curves</p></li>
 <li><p>Supporting additional tools for flexible and practical IRT analyses</p></li>
-</ul><table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.2.0</td></tr><tr><td>Date:</td><td>2026-06-14</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.4)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
+</ul><table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.2.0</td></tr><tr><td>Date:</td><td>2026-07-26</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.5)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
 
 
     <div class="section level2">
@@ -215,7 +215,7 @@ should be fixed to 1.</p>
 <p>In the following, let \(Y\) be the response of an examinee with latent
 ability \(\theta\) on an item, and suppose that each polytomous item has
 \(K\) unique score categories.</p>
-<dl><dt>IRT 1–3PL models</dt>
+<dl><dt>IRT 1-3PL models</dt>
 <dd><p>For the IRT 1PLM, 2PLM, and 3PLM models, the probability that an examinee
 with ability \(\theta\) responds correctly to an item is given by:
 $$P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},$$
@@ -377,7 +377,7 @@ for <code><a href="est_irt.html">est_irt()</a></code>.</p></li>
 
 
 <p>In computerized adaptive testing (CAT), the fixed ability parameter calibration
-(FAPC) method—also known as Stocking’s Method A (Stocking, 1988)—is one of the
+(FAPC) method (also known as Stocking's Method A; Stocking, 1988) is one of the
 simplest and most straightforward approaches for calibrating pretest items.
 It involves estimating item parameters using maximum likelihood estimation,
 conditional on known or estimated proficiency values.</p>
@@ -422,21 +422,21 @@ true item parameters and true ability values using the <code><a href="simdat.htm
 <p>The examples utilize item parameter estimates imported from a flexMIRT output file sample,
 which includes a mixed-format test of 55 items: 50 dichotomous items modeled with the 3PLM
 and 5 polytomous items modeled with the GRM. These item parameters are treated as the
-"true" values for data generation. Specifically:</p><ul><li><p>Items 1–38: 3PLM items</p></li>
-<li><p>Items 39–40: GRM items</p></li>
-<li><p>Items 41–52: 3PLM items</p></li>
-<li><p>Items 53–55: GRM items (all with 5 score categories)</p></li>
-</ul><p><strong>Example 1 – Estimating item parameters for a linear test form</strong>
+"true" values for data generation. Specifically:</p><ul><li><p>Items 1-38: 3PLM items</p></li>
+<li><p>Items 39-40: GRM items</p></li>
+<li><p>Items 41-52: 3PLM items</p></li>
+<li><p>Items 53-55: GRM items (all with 5 score categories)</p></li>
+</ul><p><strong>Example 1 - Estimating item parameters for a linear test form</strong>
 This example uses the first 40 items (38 3PLM and 2 GRM) to form a linear test.
 The test is assumed to be administered to a reference group of 2,000 examinees
 whose latent ability follows a standard normal distribution, N(0, 1).</p>
-<p><strong>Examples 2 and 3 – Calibrating pretest items using FIPC and FAPC</strong>
+<p><strong>Examples 2 and 3 - Calibrating pretest items using FIPC and FAPC</strong>
 These examples assume a new test form consisting of all 55 items described above.
 The first 40 items are treated as the fixed operational items (i.e., the same
 as in Example 1), while the remaining 15 items are newly developed pretest
 items to be calibrated.</p>
 <p>The new test form is administered to a separate group of 2,000 examinees,
-whose ability distribution is assumed to follow N(0.5, 1.3²).
+whose ability distribution is assumed to follow \(N(0.5, 1.3^2)\).
 The calibration of the pretest items is then conducted on the scale
 of the old form by using FIPC and FAPC procedures, respectively.</p>
 <div class="sourceCode"><pre><code><span></span>
@@ -510,7 +510,7 @@ of the old form by using FIPC and FAPC procedures, respectively.</p>
 <span>                                 cats <span class="op">=</span> <span class="va">new_cats</span>, model <span class="op">=</span> <span class="va">new_models</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## Step 2: Prepare response data for the new test form</span></span>
-<span><span class="co"># Generate latent abilities for 2,000 new examinees from N(0.5, 1.3²)</span></span>
+<span><span class="co"># Generate latent abilities for 2,000 new examinees from N(0.5, 1.3^2)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span></span>
 <span><span class="va">theta_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2000</span>, mean <span class="op">=</span> <span class="fl">0.5</span>, sd <span class="op">=</span> <span class="fl">1.3</span><span class="op">)</span></span>
 <span></span>
@@ -622,7 +622,7 @@ package for the R environment.
 <p>Chen, P., &amp; Wang, C. (2016). A new online calibration method for
 multidimensional computerized adaptive testing.
 <em>Psychometrika, 81</em>(3), 674-701.</p>
-<p>González, J. (2014). SNSequate: Standard and nonstandard statistical models
+<p>Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating.
 <em>Journal of Statistical Software, 59</em>, 1-30.</p>
 <p>Hambleton, R. K., &amp; Swaminathan, H. (1985) <em>Item response theory:
@@ -755,7 +755,7 @@ http://www.ssicentral.com</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

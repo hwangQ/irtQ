@@ -284,7 +284,7 @@ For the "INV.TCC" method, standard errors of ability estimates are
 computed using the approach proposed by Lim et al. (2021). The
 implementation of inverse TCC scoring in this function is based on a
 modified version of the `SNSequate::irt.eq.tse()` function from the
-SNSequate package (González, 2014).
+SNSequate package (Gonzalez, 2014).
 
 For the ML, MLF, WL, and MAP scoring methods, different strategies can
 be used to determine the starting value for ability estimation based on
@@ -297,7 +297,7 @@ the `stval.opt` argument:
 
 - When `stval.opt = 2`, the starting value is derived from the observed
   sum score using a logistic transformation. For example, if the maximum
-  possible score (`max.score`) is 30 and the examinee’s observed sum
+  possible score (`max.score`) is 30 and the examinee's observed sum
   score (`obs.score`) is 20, the starting value is
   `log(obs.score / (max.score - obs.score))`.
 
@@ -335,7 +335,7 @@ package (Magis & Barrada, 2017).
 Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability
 in a microcomputer environment. *Psychometrika, 35*, 179-198.
 
-González, J. (2014). SNSequate: Standard and nonstandard statistical
+Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical
 models and methods for test equating. *Journal of Statistical Software,
 59*, 1-30.
 

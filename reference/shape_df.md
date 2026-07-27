@@ -1,8 +1,8 @@
 # Create a Data Frame of Item Metadata
 
-This function creates a data frame of item metadata—including item
+This function creates a data frame of item metadata - including item
 parameters, the number of score categories, and IRT model
-specifications—to be used in various IRT-related analyses within the
+specifications - to be used in various IRT-related analyses within the
 irtQ package.
 
 ## Usage

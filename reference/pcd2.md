@@ -75,7 +75,7 @@ pcd2(
   - first element: number of quadrature points
 
   - second element: symmetric bound (absolute value) for those points
-    For example, `c(49, 6)` specifies 49 evenly spaced points from –6
+    For example, `c(49, 6)` specifies 49 evenly spaced points from -6
     to 6. These points are used in the E-step of the EM algorithm.
     Default is `c(49, 6)`.
 

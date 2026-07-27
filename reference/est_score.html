@@ -310,7 +310,7 @@ corresponds to the ability estimate for the maximum observed sum score.</p>
 using the approach proposed by Lim et al. (2021). The implementation of
 inverse TCC scoring in this function is based on a modified version of the
 <code>SNSequate::irt.eq.tse()</code> function from the <span class="pkg">SNSequate</span> package
-(González, 2014).</p>
+(Gonzalez, 2014).</p>
 <p>For the ML, MLF, WL, and MAP scoring methods, different strategies can be
 used to determine the starting value for ability estimation based on the
 <code>stval.opt</code> argument:</p><ul><li><p>When <code>stval.opt = 1</code> (default), a brute-force search is performed by
@@ -319,7 +319,7 @@ specified by <code>range</code>, using 0.1 increments. The theta value yielding 
 highest log-likelihood is chosen as the starting value.</p></li>
 <li><p>When <code>stval.opt = 2</code>, the starting value is derived from the observed
 sum score using a logistic transformation. For example, if the maximum
-possible score (<code>max.score</code>) is 30 and the examinee’s observed sum score
+possible score (<code>max.score</code>) is 30 and the examinee's observed sum score
 (<code>obs.score</code>) is 20, the starting value is <code>log(obs.score / (max.score -   obs.score))</code>.</p><ul><li><p>If all responses are incorrect (i.e., <code>obs.score = 0</code>), the starting
 value is <code>log(1 / max.score)</code>.</p></li>
 <li><p>If all responses are correct (<code>obs.score = max.score</code>), the starting
@@ -347,7 +347,7 @@ parameters using a data frame <code>x</code> containing the item metadata.</p></
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Bock, R. D., &amp; Mislevy, R. J. (1982). Adaptive EAP estimation of
 ability in a microcomputer environment. <em>Psychometrika, 35</em>, 179-198.</p>
-<p>González, J. (2014). SNSequate: Standard and nonstandard statistical models
+<p>Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating.
 <em>Journal of Statistical Software, 59</em>, 1-30.</p>
 <p>Hambleton, R. K., Swaminathan, H., &amp; Rogers, H. J. (1991).<em>Fundamentals of
@@ -700,7 +700,7 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

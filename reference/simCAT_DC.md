@@ -18,9 +18,9 @@ A list of length three:
 
   A data frame in item metadata format containing 100 dichotomous items.
 
-  - Items 1–90: Generated and calibrated under the IRT 2PL model.
+  - Items 1-90: Generated and calibrated under the IRT 2PL model.
 
-  - Items 91–100: Generated under the IRT 3PL model but calibrated using
+  - Items 91-100: Generated under the IRT 3PL model but calibrated using
     the 2PL model.
 
 - response_data:

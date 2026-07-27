@@ -59,7 +59,7 @@ and multistage testing with R: Using packages catR and mstR*. Springer.
 
 Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. *Journal of Educational
-Measurement, 58*(2), 154–178.
+Measurement, 58*(2), 154-178.
 
 ## Author
 

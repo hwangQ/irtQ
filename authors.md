@@ -12,7 +12,7 @@
 
 - **Jonathan P Weeks**. Contributor.
 
-- **Jorge González**. Contributor.
+- **Jorge Gonzalez**. Contributor.
 
 - **David Magis**. Contributor.
 

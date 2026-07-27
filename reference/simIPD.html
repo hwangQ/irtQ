@@ -107,7 +107,7 @@ used to detect which items have drifted between the two groups.</p>
 
 <dt>key_item</dt>
 <dd><p>An integer vector of length 90 giving the row indices
-(in <code>item_par</code>) of the <em>key items</em> — items selected by a
+(in <code>item_par</code>) of the <em>key items</em> - items selected by a
 preliminary CAT simulation as highly exposed and therefore most relevant
 for IPD analysis.</p></dd>
 
@@ -125,7 +125,7 @@ the 360-item pool) had both their discrimination (<em>a</em>) and difficulty
 <code>key_item</code>.</p></dd>
 
 <dt>foc_resp</dt>
-<dd><p>An integer matrix of dimensions 3000 × 360 containing the
+<dd><p>An integer matrix of dimensions 3000 x 360 containing the
 <strong>focal group</strong> CAT response data.  Each row is one examinee; each
 column corresponds to an item in <code>item_par</code>.  Because CAT
 administers only 30 items per examinee, approximately 92% of entries
@@ -139,7 +139,7 @@ exposure rate = 100%).</p></dd>
 obtained from the CAT.</p></dd>
 
 <dt>ref_resp</dt>
-<dd><p>An integer matrix of dimensions 3000 × 360 containing the
+<dd><p>An integer matrix of dimensions 3000 x 360 containing the
 <strong>synthetic reference group</strong> CAT response data (same sparsity
 structure as <code>foc_resp</code>).  The reference group was constructed by:
 (1) using <code>foc_score</code> as true ability values (1F scaling, i.e.,
@@ -172,7 +172,7 @@ exposure rate 0.30</p></li>
 <li><p>Random seed: 2024</p></li>
 </ul><p><strong>Note on reference group size:</strong>
 A 1F reference group (same size as the focal group) is used here for
-compactness.  In practice, larger synthetic reference groups (e.g., 3F–8F)
+compactness.  In practice, larger synthetic reference groups (e.g., 3F - 8F)
 are recommended to improve RIPD detection power (Lim &amp; Han, in press).
 A larger reference group can be created by replicating the focal theta
 estimates: e.g., <code>rep(foc_score, times = 3)</code> for a 3F group, then
@@ -231,7 +231,7 @@ item parameter drift in CAT.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

@@ -113,8 +113,8 @@ CRAN release: 2026-06-07
   mixed-format tests, through a series of optimizations.
 - Improved the computational speed of
   [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md)
-  substantially by replacing the O(J²) Lord-Wingersky recursion with a
-  forward-backward pass (up to 11× faster for mixed-format tests with J
+  substantially by replacing the O(J^2) Lord-Wingersky recursion with a
+  forward-backward pass (up to 11x faster for mixed-format tests with J
   = 55 items) and vectorizing internal helper functions `expFreq()`,
   `obsFreq()`, and the PRM category-collapsing routine.
 
@@ -135,8 +135,8 @@ CRAN release: 2026-06-07
 - Added a new function,
   [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md), which
   implements the Residual-based Item Parameter Drift (RIPD) detection
-  framework. The function computes three RIPD statistics— $`RIPD_R`$,
-  $`RIPD_S`$, and $`RIPD_{RS}`$—for each item. $`RIPD_R`$ captures
+  framework. The function computes three RIPD statistics: $`RIPD_R`$,
+  $`RIPD_S`$, and $`RIPD_{RS}`$ (one for each item). $`RIPD_R`$ captures
   uniform item parameter drift (IPD) via differences in mean raw
   residuals between groups, $`RIPD_S`$ captures nonuniform IPD via
   differences in mean squared residuals, and $`RIPD_{RS}`$ is a combined

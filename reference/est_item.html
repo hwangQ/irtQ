@@ -231,7 +231,7 @@ item difficulty (or threshold) parameters during calibration. Default is
 item discrimination (slope), difficulty (or threshold), guessing
 parameters. Three distributions are supported: Beta, Log-normal, and
 Normal. The list must have two elements:</p><ul><li><p><code>dist</code>: A character string, one of <code>"beta"</code>, <code>"lnorm"</code>, or <code>"norm"</code>.</p></li>
-<li><p><code>params</code>: A numeric vector of length two giving the distribution’s
+<li><p><code>params</code>: A numeric vector of length two giving the distribution's
 parameters. For details on each parameterization, see <code><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">stats::dbeta()</a></code>,
 <code><a href="https://rdrr.io/r/stats/Lognormal.html" class="external-link">stats::dlnorm()</a></code>, and <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::dnorm()</a></code>.</p></li>
 </ul><p>Defaults are:</p><ul><li><p><code>aprior = list(dist = "lnorm", params = c(0.0, 0.5))</code></p></li>
@@ -258,7 +258,7 @@ These parameters define settings for the item parameter estimation process,
 such as the maximum number of iterations. By default:
 <code>control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)</code>, where</p><ul><li><p><code>eval.max</code> = 500 limits the number of function evaluations</p></li>
 <li><p><code>iter.max</code> = 200 caps the number of internal optimizer iterations</p></li>
-<li><p><code>x.tol</code> = 1e‑4 sets the absolute change threshold in parameter values
+<li><p><code>x.tol</code> = 1e-4 sets the absolute change threshold in parameter values
 below which <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code> considers the solution to have converged
 Users may additionally supply other <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb()</a></code> control options
 (such as <code>abs.tol</code>, <code>rel.tol</code>, <code>trace</code>, etc.) as needed.</p></li>
@@ -499,7 +499,7 @@ multidimensional computerized adaptive testing.
 <span class="r-out co"><span class="r-pr">#&gt;</span> 55   AFR3  500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Processing time (in seconds) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.39</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence of Solution </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  All item parameters were successfully converged.</span>
@@ -774,7 +774,7 @@ multidimensional computerized adaptive testing.
 <span class="r-out co"><span class="r-pr">#&gt;</span> 55   AFR3  500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Processing time (in seconds) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.45</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence of Solution </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  All item parameters were successfully converged.</span>
@@ -1047,7 +1047,7 @@ multidimensional computerized adaptive testing.
 <span class="r-out co"><span class="r-pr">#&gt;</span> 55   AFR3  500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Processing time (in seconds) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Total computation: 0.25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence of Solution </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  All item parameters were successfully converged.</span>
@@ -1301,7 +1301,7 @@ multidimensional computerized adaptive testing.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

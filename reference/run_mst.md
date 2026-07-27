@@ -109,7 +109,7 @@ run_mst(
   Either `NULL` (default) or a single positive integer index into the
   stage-1 module list (`panel_info(route_map)$config[[1]]`). When
   `NULL`, each examinee is independently and randomly assigned to one of
-  the stage-1 modules with equal probability — appropriate for MST
+  the stage-1 modules with equal probability - appropriate for MST
   panels that use spiralling or booklet-based stage-1 assignment, or for
   panels with only a single stage-1 module (where random assignment is
   equivalent to a fixed assignment). When an integer is supplied, all

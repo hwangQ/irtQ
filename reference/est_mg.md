@@ -228,7 +228,7 @@ est_mg(
 
   - `dist`: A character string, one of `"beta"`, `"lnorm"`, or `"norm"`.
 
-  - `params`: A numeric vector of length two giving the distribution’s
+  - `params`: A numeric vector of length two giving the distribution's
     parameters. For details on each parameterization, see
     [`stats::dbeta()`](https://rdrr.io/r/stats/Beta.html),
     [`stats::dlnorm()`](https://rdrr.io/r/stats/Lognormal.html), and
@@ -255,7 +255,7 @@ est_mg(
   - first element: number of quadrature points
 
   - second element: symmetric bound (absolute value) for those points
-    For example, `c(49, 6)` specifies 49 evenly spaced points from –6
+    For example, `c(49, 6)` specifies 49 evenly spaced points from -6
     to 6. These points are used in the E-step of the EM algorithm.
     Default is `c(49, 6)`.
 
@@ -322,14 +322,14 @@ est_mg(
 
   A named list of options passed directly to
   [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) in each
-  M‑step optimization of the EM algorithm. By default:
+  M-step optimization of the EM algorithm. By default:
   `control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)`, where
 
   - `eval.max` = 500 limits the number of function evaluations
 
   - `iter.max` = 200 caps the number of internal optimizer iterations
 
-  - `x.tol` = 1e‑4 sets the absolute change threshold in parameter
+  - `x.tol` = 1e-4 sets the absolute change threshold in parameter
     values below which
     [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) considers
     the solution to have converged Users may additionally supply other
@@ -382,13 +382,13 @@ est_mg(
   fixed. In the third group, three items with IDs C2I1, C2I2, and G3I1
   are fixed.
 
-  In this case, there are six unique items fixed across the
-  groups—namely, G1I1, C1I1, C1I2, C2I1, C2I2, and G3I1, because C1I1
-  and C1I2 appear in both the first and second groups, while C2I1 and
-  C2I2 appear in both the second and third groups. Thus, you should
-  specify `fix.id = c("G1I1", "C1I1", "C1I2", "C2I1", "C2I2", "G3I1")`.
-  Note that if the `fix.id` argument is not NULL, the information
-  provided in `fix.loc` is ignored. See below for details.
+  In this case, there are six unique items fixed across the groups -
+  namely, G1I1, C1I1, C1I2, C2I1, C2I2, and G3I1, because C1I1 and C1I2
+  appear in both the first and second groups, while C2I1 and C2I2 appear
+  in both the second and third groups. Thus, you should specify
+  `fix.id = c("G1I1", "C1I1", "C1I2", "C2I1", "C2I2", "G3I1")`. Note
+  that if the `fix.id` argument is not NULL, the information provided in
+  `fix.loc` is ignored. See below for details.
 
 - se:
 
@@ -639,26 +639,26 @@ a single run of the MG-FIPC procedure, the parameters of non-fixed
 distributions for multiple groups, can be estimated on the same scale as
 the fixed items (Kim & Kolen, 2016).
 
-For example, suppose that three different test forms—Form 1, Form 2, and
-Form 3—are administered to three nonequivalent groups: Group1, Group2,
-and Group3. Form 1 and Form 2 share 12 common items (C1I1 to C1I12),
-while Form 2 and Form 3 share 10 common items (C2I1 to C2I10). There are
-no common items between Form 1 and Form 3. Also, assume that all unique
-items in Form 1 are from an existing item bank and have already been
-calibrated on the item bank's scale.
+For example, suppose that three different test forms - Form 1, Form 2,
+and Form 3 - are administered to three nonequivalent groups: Group1,
+Group2, and Group3. Form 1 and Form 2 share 12 common items (C1I1 to
+C1I12), while Form 2 and Form 3 share 10 common items (C2I1 to C2I10).
+There are no common items between Form 1 and Form 3. Also, assume that
+all unique items in Form 1 are from an existing item bank and have
+already been calibrated on the item bank's scale.
 
 In this case, the goal of MG-FIPC is to estimate the parameters of all
-items across the three test forms—except the unique items in Form 1— and
-the latent ability distributions of the three groups, all on the same
-scale as the item bank. To achieve this, the unique items in Form 1 must
-be fixed during MG-FIPC to link the current MG test data to the item
-bank scale.
+items across the three test forms - except the unique items in Form 1 -
+and the latent ability distributions of the three groups, all on the
+same scale as the item bank. To achieve this, the unique items in Form 1
+must be fixed during MG-FIPC to link the current MG test data to the
+item bank scale.
 
 The `est_mg()` function can implement MG-FIPC by setting `fipc = TRUE`.
 In this case, the information on which items to fix must be provided
 through either the `fix.loc` or `fix.id` argument. When using `fix.loc`,
 you must supply a list of item positions (locations) to be fixed in each
-group’s test form. For example, suppose that the test data from the
+group's test form. For example, suppose that the test data from the
 three groups above are analyzed. In the first group, the 1st, 3rd, and
 5th items are fixed; in the second group, the 2nd, 3rd, 4th, and 7th
 items are fixed; and in the third group, the 1st, 2nd, and 6th items are
@@ -720,8 +720,8 @@ Hwanggyu Lim <hglim83@gmail.com>
 # 1. MG calibration using the simMG data
 #  - Details:
 #    (a) Constrain common items between groups to have
-#        identical item parameters (i.e., items C1I1–C1I12 between
-#        Groups 1 and 2, and items C2I1–C2I10 between Groups 2 and 3).
+#        identical item parameters (i.e., items C1I1 - C1I12 between
+#        Groups 1 and 2, and items C2I1 - C2I10 between Groups 2 and 3).
 #    (b) Freely estimate the means and variances of the ability
 #        distributions for all groups except the reference group,
 #        where the mean and variance are fixed to 0 and 1, respectively.
@@ -764,7 +764,7 @@ fit.1 <-
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -184619.3757, Max-Change: 2.188782 EM iteration: 2, Loglike: -159724.2438, Max-Change: 0.42374 EM iteration: 3, Loglike: -159631.0877, Max-Change: 0.166346 EM iteration: 4, Loglike: -159617.3743, Max-Change: 0.083614 EM iteration: 5, Loglike: -159611.4702, Max-Change: 0.052115 EM iteration: 6, Loglike: -159608.0480, Max-Change: 0.038966 EM iteration: 7, Loglike: -159605.7836, Max-Change: 0.032285 EM iteration: 8, Loglike: -159604.1351, Max-Change: 0.027248 EM iteration: 9, Loglike: -159602.8431, Max-Change: 0.023166 EM iteration: 10, Loglike: -159601.7733, Max-Change: 0.01977 EM iteration: 11, Loglike: -159600.8519, Max-Change: 0.016922 EM iteration: 12, Loglike: -159600.0358, Max-Change: 0.014527 EM iteration: 13, Loglike: -159599.2989, Max-Change: 0.012509 EM iteration: 14, Loglike: -159598.6241, Max-Change: 0.010869 EM iteration: 15, Loglike: -159597.9998, Max-Change: 0.009797 EM iteration: 16, Loglike: -159597.4177, Max-Change: 0.00890 EM iteration: 17, Loglike: -159596.8716, Max-Change: 0.008145 EM iteration: 18, Loglike: -159596.3569, Max-Change: 0.007856 EM iteration: 19, Loglike: -159595.8700, Max-Change: 0.007658 EM iteration: 20, Loglike: -159595.4080, Max-Change: 0.00744 EM iteration: 21, Loglike: -159594.9687, Max-Change: 0.007208 EM iteration: 22, Loglike: -159594.5501, Max-Change: 0.006968 EM iteration: 23, Loglike: -159594.1507, Max-Change: 0.006723 EM iteration: 24, Loglike: -159593.7692, Max-Change: 0.006477 EM iteration: 25, Loglike: -159593.4043, Max-Change: 0.006232 EM iteration: 26, Loglike: -159593.0551, Max-Change: 0.00599 EM iteration: 27, Loglike: -159592.7206, Max-Change: 0.005753 EM iteration: 28, Loglike: -159592.4000, Max-Change: 0.005522 EM iteration: 29, Loglike: -159592.0925, Max-Change: 0.005298 EM iteration: 30, Loglike: -159591.7975, Max-Change: 0.005081 EM iteration: 31, Loglike: -159591.5143, Max-Change: 0.004871 EM iteration: 32, Loglike: -159591.2423, Max-Change: 0.00467 EM iteration: 33, Loglike: -159590.9808, Max-Change: 0.004476 EM iteration: 34, Loglike: -159590.7295, Max-Change: 0.00429 EM iteration: 35, Loglike: -159590.4879, Max-Change: 0.004112 EM iteration: 36, Loglike: -159590.2553, Max-Change: 0.003942 EM iteration: 37, Loglike: -159590.0316, Max-Change: 0.003779 EM iteration: 38, Loglike: -159589.8161, Max-Change: 0.003624 EM iteration: 39, Loglike: -159589.6086, Max-Change: 0.003475 EM iteration: 40, Loglike: -159589.4087, Max-Change: 0.003333 EM iteration: 41, Loglike: -159589.2160, Max-Change: 0.003198 EM iteration: 42, Loglike: -159589.0303, Max-Change: 0.003068 EM iteration: 43, Loglike: -159588.8512, Max-Change: 0.002945 EM iteration: 44, Loglike: -159588.6785, Max-Change: 0.002827 EM iteration: 45, Loglike: -159588.5119, Max-Change: 0.002715 EM iteration: 46, Loglike: -159588.3511, Max-Change: 0.002607 EM iteration: 47, Loglike: -159588.1959, Max-Change: 0.002505 EM iteration: 48, Loglike: -159588.0460, Max-Change: 0.002407 EM iteration: 49, Loglike: -159587.9013, Max-Change: 0.002313 EM iteration: 50, Loglike: -159587.7616, Max-Change: 0.002228 EM iteration: 51, Loglike: -159587.6266, Max-Change: 0.002156 EM iteration: 52, Loglike: -159587.4961, Max-Change: 0.002086 EM iteration: 53, Loglike: -159587.3700, Max-Change: 0.002019 EM iteration: 54, Loglike: -159587.2481, Max-Change: 0.001955 EM iteration: 55, Loglike: -159587.1302, Max-Change: 0.001893 EM iteration: 56, Loglike: -159587.0163, Max-Change: 0.001833 EM iteration: 57, Loglike: -159586.9060, Max-Change: 0.001776 EM iteration: 58, Loglike: -159586.7993, Max-Change: 0.001721 EM iteration: 59, Loglike: -159586.6961, Max-Change: 0.001667 EM iteration: 60, Loglike: -159586.5962, Max-Change: 0.001616 EM iteration: 61, Loglike: -159586.4995, Max-Change: 0.001566 EM iteration: 62, Loglike: -159586.4058, Max-Change: 0.001519 EM iteration: 63, Loglike: -159586.3151, Max-Change: 0.001473 EM iteration: 64, Loglike: -159586.2272, Max-Change: 0.001429 EM iteration: 65, Loglike: -159586.1421, Max-Change: 0.001386 EM iteration: 66, Loglike: -159586.0596, Max-Change: 0.001358 EM iteration: 67, Loglike: -159585.9796, Max-Change: 0.001334 EM iteration: 68, Loglike: -159585.9021, Max-Change: 0.00131 EM iteration: 69, Loglike: -159585.8269, Max-Change: 0.001287 EM iteration: 70, Loglike: -159585.7540, Max-Change: 0.001264 EM iteration: 71, Loglike: -159585.6832, Max-Change: 0.001241 EM iteration: 72, Loglike: -159585.6146, Max-Change: 0.001219 EM iteration: 73, Loglike: -159585.5479, Max-Change: 0.001197 EM iteration: 74, Loglike: -159585.4832, Max-Change: 0.001175 EM iteration: 75, Loglike: -159585.4204, Max-Change: 0.001153 EM iteration: 76, Loglike: -159585.3593, Max-Change: 0.001132 EM iteration: 77, Loglike: -159585.3000, Max-Change: 0.001111 EM iteration: 78, Loglike: -159585.2424, Max-Change: 0.001091 EM iteration: 79, Loglike: -159585.1864, Max-Change: 0.00107 EM iteration: 80, Loglike: -159585.1319, Max-Change: 0.00105 EM iteration: 81, Loglike: -159585.0790, Max-Change: 0.001031 EM iteration: 82, Loglike: -159585.0274, Max-Change: 0.001011 EM iteration: 83, Loglike: -159584.9773, Max-Change: 0.000992 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 14.9 seconds. 
+#> Estimation is finished in 14.33 seconds. 
 
 # Summary of the estimation
 summary(fit.1)
@@ -797,9 +797,9 @@ summary(fit.1)
 #>  Maximum parameter change: 0.0009920582
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 13.76
-#>  Standard error computation: 0.19
-#>  Total computation: 14.9
+#>  EM algorithm: 13.6
+#>  Standard error computation: 0.18
+#>  Total computation: 14.33
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1063,15 +1063,15 @@ summary(fit.1)
 getirt(fit.1, what = "par.est")
 #> $overall
 #>        id cats model     par.1         par.2       par.3      par.4      par.5
-#> 1    C1I1    2  3PLM 0.9002993  1.3630996576  0.27971247         NA         NA
+#> 1    C1I1    2  3PLM 0.9002993  1.3630996577  0.27971247         NA         NA
 #> 2    C1I2    2  3PLM 2.1246417 -0.9940070191  0.18249617         NA         NA
 #> 3    C1I3    2  3PLM 1.0541278  0.6086911591  0.18187156         NA         NA
 #> 4    C1I4    2  3PLM 1.0789640 -0.1731865978  0.28172552         NA         NA
 #> 5    C1I5    2  3PLM 0.8731636 -0.1539491078  0.18023951         NA         NA
-#> 6    C1I6    2  3PLM 1.9100015  0.5956052553  0.08680994         NA         NA
-#> 7    C1I7    2  3PLM 1.1042207  1.1038327947  0.15045515         NA         NA
-#> 8    C1I8    2  3PLM 0.9407054  0.8862776984  0.15890193         NA         NA
-#> 9    C1I9    2  3PLM 0.8926878  0.6255808127  0.20799520         NA         NA
+#> 6    C1I6    2  3PLM 1.9100015  0.5956052554  0.08680994         NA         NA
+#> 7    C1I7    2  3PLM 1.1042207  1.1038327948  0.15045515         NA         NA
+#> 8    C1I8    2  3PLM 0.9407054  0.8862776985  0.15890193         NA         NA
+#> 9    C1I9    2  3PLM 0.8926878  0.6255808128  0.20799520         NA         NA
 #> 10  C1I10    2  3PLM 1.4872042  0.1323954152  0.15372172         NA         NA
 #> 11   G1I1    2  3PLM 0.9648995 -0.4558711256  0.15992372         NA         NA
 #> 12   G1I2    2  3PLM 0.8982317  1.2036385734  0.10668307         NA         NA
@@ -1080,27 +1080,27 @@ getirt(fit.1, what = "par.est")
 #> 15   G1I5    2  3PLM 1.3511034 -0.1735122324  0.16083579         NA         NA
 #> 16   G1I6    2  3PLM 2.1741319  0.0170068932  0.08620387         NA         NA
 #> 17   G1I7    2  3PLM 1.4655950 -0.0639529914  0.20160863         NA         NA
-#> 18   G1I8    2  3PLM 2.5274624  1.1707732480  0.32453925         NA         NA
+#> 18   G1I8    2  3PLM 2.5274624  1.1707732481  0.32453925         NA         NA
 #> 19   G1I9    2  3PLM 2.3986360 -0.9296897943  0.24418284         NA         NA
-#> 20  G1I10    2  3PLM 1.2585300 -1.7572134104  0.23391662         NA         NA
+#> 20  G1I10    2  3PLM 1.2585300 -1.7572134105  0.23391662         NA         NA
 #> 21  G1I11    2  3PLM 1.5470937 -1.1118172631  0.20751568         NA         NA
 #> 22  G1I12    2  3PLM 0.7556135 -0.8038513481  0.19656034         NA         NA
-#> 23  G1I13    2  3PLM 1.0527888 -0.1185472914  0.20738601         NA         NA
-#> 24  G1I14    2  3PLM 1.5102932  1.7406214138  0.29709350         NA         NA
+#> 23  G1I13    2  3PLM 1.0527888 -0.1185472913  0.20738601         NA         NA
+#> 24  G1I14    2  3PLM 1.5102932  1.7406214139  0.29709350         NA         NA
 #> 25  G1I15    2  3PLM 0.8664971 -1.4323893987  0.21465862         NA         NA
 #> 26  G1I16    2  3PLM 1.0542506 -1.9446624563  0.22812622         NA         NA
-#> 27  G1I17    2  3PLM 1.0571687  0.2574260233  0.15670798         NA         NA
-#> 28  G1I18    2  3PLM 2.1077524 -0.0802270386  0.24053595         NA         NA
+#> 27  G1I17    2  3PLM 1.0571687  0.2574260234  0.15670798         NA         NA
+#> 28  G1I18    2  3PLM 2.1077524 -0.0802270385  0.24053595         NA         NA
 #> 29  G1I19    2  3PLM 1.3243225 -1.3873897669  0.20073972         NA         NA
 #> 30  G1I20    2  3PLM 1.0303144  0.5198099412  0.22883325         NA         NA
 #> 31  G1I21    2  3PLM 0.9230319  0.7599364214  0.13215608         NA         NA
 #> 32  G1I22    2  3PLM 1.7870120 -0.6306797460  0.36010326         NA         NA
-#> 33  G1I23    2  3PLM 1.3094006 -1.1637343305  0.25562388         NA         NA
-#> 34  G1I24    2  3PLM 1.6645514  0.3233691790  0.23193826         NA         NA
+#> 33  G1I23    2  3PLM 1.3094006 -1.1637343306  0.25562388         NA         NA
+#> 34  G1I24    2  3PLM 1.6645514  0.3233691791  0.23193826         NA         NA
 #> 35  G1I25    2  3PLM 1.5989408 -0.1175965323  0.25385326         NA         NA
 #> 36  G1I26    2  3PLM 1.9085326  0.6574101909  0.25475783         NA         NA
 #> 37  G1I27    2  3PLM 1.6232889 -1.5482047548  0.26787427         NA         NA
-#> 38  G1I28    2  3PLM 1.3497743  0.5653525105  0.15089732         NA         NA
+#> 38  G1I28    2  3PLM 1.3497743  0.5653525106  0.15089732         NA         NA
 #> 39  G1I29    2  3PLM 0.9229732 -0.3681170374  0.12451485         NA         NA
 #> 40  G1I30    2  3PLM 1.0636199  2.2379302348  0.17259660         NA         NA
 #> 41  G1I31    2  3PLM 2.4508248  1.6191425518  0.18202915         NA         NA
@@ -1110,74 +1110,74 @@ getirt(fit.1, what = "par.est")
 #> 45  G1I35    2  3PLM 1.3498016  1.2826823306  0.06760955         NA         NA
 #> 46  G1I36    2  3PLM 1.4377572 -1.2263600168  0.22297804         NA         NA
 #> 47  G1I37    2  3PLM 1.0646367 -0.5799937856  0.27097889         NA         NA
-#> 48  G1I38    5   GRM 1.0649768 -0.3653605941  0.21365349  0.8571501  1.4220840
-#> 49  C1I11    5   GRM 1.1892683 -2.2080814019 -1.44963215 -0.7471002 -0.1188008
+#> 48  G1I38    5   GRM 1.0649768 -0.3653605940  0.21365349  0.8571501  1.4220840
+#> 49  C1I11    5   GRM 1.1892683 -2.2080814020 -1.44963215 -0.7471002 -0.1188008
 #> 50  C1I12    5   GRM 0.9141155 -0.6885203551  0.02631147  0.6789189  1.2487151
 #> 51   G2I1    2  3PLM 1.7609541 -0.8578505772  0.24035894         NA         NA
-#> 52   G2I2    2  3PLM 0.8436960 -0.4382789597  0.21438678         NA         NA
+#> 52   G2I2    2  3PLM 0.8436960 -0.4382789598  0.21438678         NA         NA
 #> 53   G2I3    2  3PLM 1.0886052  0.0911696948  0.18458253         NA         NA
-#> 54   G2I4    2  3PLM 1.5129142  1.4502930939  0.18027120         NA         NA
-#> 55   G2I5    2  3PLM 0.7139700 -1.6581797024  0.19781812         NA         NA
-#> 56   G2I6    2  3PLM 1.0919249 -1.5999033276  0.21671254         NA         NA
+#> 54   G2I4    2  3PLM 1.5129142  1.4502930941  0.18027120         NA         NA
+#> 55   G2I5    2  3PLM 0.7139700 -1.6581797025  0.19781812         NA         NA
+#> 56   G2I6    2  3PLM 1.0919249 -1.5999033278  0.21671254         NA         NA
 #> 57   G2I7    2  3PLM 1.3325688  0.2633001080  0.13036039         NA         NA
 #> 58   G2I8    2  3PLM 2.2199875 -0.0891740329  0.13780823         NA         NA
-#> 59   G2I9    2  3PLM 1.0832071 -1.5619697271  0.20682223         NA         NA
-#> 60  G2I10    2  3PLM 1.6525972  0.8838581722  0.29075920         NA         NA
-#> 61  G2I11    2  3PLM 0.9630202  0.8571579301  0.11294805         NA         NA
-#> 62  G2I12    2  3PLM 1.6845080 -0.6793797278  0.25993819         NA         NA
-#> 63  G2I13    2  3PLM 1.1744864 -1.3046157584  0.20979661         NA         NA
+#> 59   G2I9    2  3PLM 1.0832071 -1.5619697272  0.20682223         NA         NA
+#> 60  G2I10    2  3PLM 1.6525972  0.8838581723  0.29075920         NA         NA
+#> 61  G2I11    2  3PLM 0.9630202  0.8571579302  0.11294805         NA         NA
+#> 62  G2I12    2  3PLM 1.6845080 -0.6793797279  0.25993819         NA         NA
+#> 63  G2I13    2  3PLM 1.1744864 -1.3046157585  0.20979661         NA         NA
 #> 64  G2I14    2  3PLM 1.4329862  0.2158522635  0.12986846         NA         NA
 #> 65  G2I15    2  3PLM 1.5763766  0.0515443553  0.27114790         NA         NA
-#> 66  G2I16    2  3PLM 1.7692947  0.7418363902  0.21979684         NA         NA
-#> 67  G2I17    2  3PLM 2.1059175 -1.2085830261  0.20089939         NA         NA
-#> 68  G2I18    2  3PLM 1.7861465  0.6306602725  0.14248762         NA         NA
+#> 66  G2I16    2  3PLM 1.7692947  0.7418363903  0.21979684         NA         NA
+#> 67  G2I17    2  3PLM 2.1059175 -1.2085830262  0.20089939         NA         NA
+#> 68  G2I18    2  3PLM 1.7861465  0.6306602726  0.14248762         NA         NA
 #> 69  G2I19    2  3PLM 1.1236963  0.0462753631  0.21071941         NA         NA
-#> 70  G2I20    2  3PLM 1.6957930  2.1576947264  0.16005055         NA         NA
-#> 71  G2I21    2  3PLM 2.4882719  1.5329597738  0.11756098         NA         NA
-#> 72  G2I22    2  3PLM 1.4964966  0.2397808194  0.21725633         NA         NA
-#> 73  G2I23    2  3PLM 2.1906673  0.4452744274  0.28388427         NA         NA
-#> 74  G2I24    2  3PLM 1.4315517  0.3567207426  0.07277537         NA         NA
-#> 75  G2I25    2  3PLM 1.8049099  1.3706377058  0.07249339         NA         NA
+#> 70  G2I20    2  3PLM 1.6957930  2.1576947266  0.16005055         NA         NA
+#> 71  G2I21    2  3PLM 2.4882719  1.5329597740  0.11756098         NA         NA
+#> 72  G2I22    2  3PLM 1.4964966  0.2397808195  0.21725633         NA         NA
+#> 73  G2I23    2  3PLM 2.1906673  0.4452744275  0.28388427         NA         NA
+#> 74  G2I24    2  3PLM 1.4315517  0.3567207427  0.07277537         NA         NA
+#> 75  G2I25    2  3PLM 1.8049099  1.3706377060  0.07249339         NA         NA
 #> 76  G2I26    2  3PLM 1.8993430 -0.8763222592  0.24753546         NA         NA
 #> 77  G2I27    2  3PLM 0.9922602 -0.5809395819  0.20058057         NA         NA
-#> 78  G2I28    5   GRM 1.1428941 -0.3726286563  0.13986303  0.7760909  1.4399545
+#> 78  G2I28    5   GRM 1.1428941 -0.3726286564  0.13986303  0.7760909  1.4399545
 #> 79   C2I1    2  3PLM 1.0724788 -0.2925185566  0.12706645         NA         NA
-#> 80   C2I2    2  3PLM 1.0026458  1.2329410898  0.06038371         NA         NA
-#> 81   C2I3    2  3PLM 1.6298126  1.3717691197  0.12593191         NA         NA
+#> 80   C2I2    2  3PLM 1.0026458  1.2329410900  0.06038371         NA         NA
+#> 81   C2I3    2  3PLM 1.6298126  1.3717691198  0.12593191         NA         NA
 #> 82   C2I4    2  3PLM 1.5539481  0.2386833730  0.18401402         NA         NA
-#> 83   C2I5    2  3PLM 1.4284843 -0.0690446133  0.11886473         NA         NA
+#> 83   C2I5    2  3PLM 1.4284843 -0.0690446132  0.11886473         NA         NA
 #> 84   C2I6    2  3PLM 2.0356386 -0.0609918393  0.04627366         NA         NA
 #> 85   C2I7    2  3PLM 1.5601571  0.0009650233  0.17678863         NA         NA
-#> 86   C2I8    2  3PLM 1.5324423  1.2675649742  0.18822170         NA         NA
-#> 87   C2I9    2  3PLM 2.1652174 -1.0147828257  0.14241930         NA         NA
-#> 88  C2I10    2  3PLM 1.5756487 -1.3546338577  0.26239714         NA         NA
-#> 89   G3I1    2  3PLM 1.5177028 -1.1012930873  0.16029848         NA         NA
-#> 90   G3I2    2  3PLM 0.7684745 -0.5958229704  0.19239503         NA         NA
-#> 91   G3I3    2  3PLM 1.1511024  0.0760256821  0.16953254         NA         NA
-#> 92   G3I4    2  3PLM 1.3078975  1.7075770992  0.22441977         NA         NA
+#> 86   C2I8    2  3PLM 1.5324423  1.2675649744  0.18822170         NA         NA
+#> 87   C2I9    2  3PLM 2.1652174 -1.0147828259  0.14241930         NA         NA
+#> 88  C2I10    2  3PLM 1.5756487 -1.3546338578  0.26239714         NA         NA
+#> 89   G3I1    2  3PLM 1.5177028 -1.1012930875  0.16029848         NA         NA
+#> 90   G3I2    2  3PLM 0.7684745 -0.5958229705  0.19239503         NA         NA
+#> 91   G3I3    2  3PLM 1.1511024  0.0760256822  0.16953254         NA         NA
+#> 92   G3I4    2  3PLM 1.3078975  1.7075770994  0.22441977         NA         NA
 #> 93   G3I5    2  3PLM 0.7934450 -1.0028686375  0.28801113         NA         NA
-#> 94   G3I6    2  3PLM 1.1835586 -1.2995355425  0.32753494         NA         NA
+#> 94   G3I6    2  3PLM 1.1835586 -1.2995355426  0.32753494         NA         NA
 #> 95   G3I7    2  3PLM 1.3696476  0.2557793125  0.14270858         NA         NA
 #> 96   G3I8    2  3PLM 1.9236418 -0.0843458754  0.14793716         NA         NA
-#> 97   G3I9    2  3PLM 1.1300723 -1.1978738763  0.21206463         NA         NA
-#> 98  G3I10    2  3PLM 1.5126694  0.9703312346  0.29033962         NA         NA
-#> 99  G3I11    2  3PLM 0.9021794  0.7968831684  0.08388012         NA         NA
+#> 97   G3I9    2  3PLM 1.1300723 -1.1978738764  0.21206463         NA         NA
+#> 98  G3I10    2  3PLM 1.5126694  0.9703312347  0.29033962         NA         NA
+#> 99  G3I11    2  3PLM 0.9021794  0.7968831685  0.08388012         NA         NA
 #> 100 G3I12    2  3PLM 1.4214420 -0.7766765567  0.25975672         NA         NA
-#> 101 G3I13    2  3PLM 1.1082496 -1.0983147685  0.23504140         NA         NA
-#> 102 G3I14    2  3PLM 1.3797649  0.3022772312  0.16690037         NA         NA
+#> 101 G3I13    2  3PLM 1.1082496 -1.0983147686  0.23504140         NA         NA
+#> 102 G3I14    2  3PLM 1.3797649  0.3022772313  0.16690037         NA         NA
 #> 103 G3I15    2  3PLM 1.2876135 -0.0573943526  0.19245588         NA         NA
-#> 104 G3I16    2  3PLM 1.5824294  0.7372872340  0.20217816         NA         NA
-#> 105 G3I17    2  3PLM 1.6058953 -1.5522762073  0.18645088         NA         NA
-#> 106 G3I18    2  3PLM 1.3800007  0.7080448815  0.11881653         NA         NA
+#> 104 G3I16    2  3PLM 1.5824294  0.7372872341  0.20217816         NA         NA
+#> 105 G3I17    2  3PLM 1.6058953 -1.5522762074  0.18645088         NA         NA
+#> 106 G3I18    2  3PLM 1.3800007  0.7080448816  0.11881653         NA         NA
 #> 107 G3I19    2  3PLM 0.9933705  0.0911167343  0.16557109         NA         NA
-#> 108 G3I20    2  3PLM 1.1645170  2.2678742087  0.11821851         NA         NA
-#> 109 G3I21    2  3PLM 3.0616274  1.6301700618  0.14040136         NA         NA
+#> 108 G3I20    2  3PLM 1.1645170  2.2678742090  0.11821851         NA         NA
+#> 109 G3I21    2  3PLM 3.0616274  1.6301700620  0.14040136         NA         NA
 #> 110 G3I22    2  3PLM 1.1712500  0.0856353360  0.10276551         NA         NA
-#> 111 G3I23    2  3PLM 1.7915979  0.3172563764  0.15045425         NA         NA
+#> 111 G3I23    2  3PLM 1.7915979  0.3172563765  0.15045425         NA         NA
 #> 112 G3I24    2  3PLM 1.1259988  0.3187456984  0.05486984         NA         NA
-#> 113 G3I25    2  3PLM 1.3848088  1.3476897615  0.05145709         NA         NA
-#> 114 G3I26    2  3PLM 1.6627860 -0.9983631680  0.21786458         NA         NA
-#> 115 G3I27    2  3PLM 0.9242740 -0.6199576215  0.18433956         NA         NA
+#> 113 G3I25    2  3PLM 1.3848088  1.3476897617  0.05145709         NA         NA
+#> 114 G3I26    2  3PLM 1.6627860 -0.9983631681  0.21786458         NA         NA
+#> 115 G3I27    2  3PLM 0.9242740 -0.6199576216  0.18433956         NA         NA
 #> 116 G3I28    5   GRM 0.9426521 -0.3795334512  0.14801722  0.8117698  1.5515925
 #> 
 #> $group
@@ -1236,96 +1236,96 @@ getirt(fit.1, what = "par.est")
 #> 
 #> $group$Group2
 #>       id cats model     par.1         par.2       par.3      par.4      par.5
-#> 1   C1I1    2  3PLM 0.9002993  1.3630996576  0.27971247         NA         NA
+#> 1   C1I1    2  3PLM 0.9002993  1.3630996577  0.27971247         NA         NA
 #> 2   C1I2    2  3PLM 2.1246417 -0.9940070191  0.18249617         NA         NA
 #> 3   C1I3    2  3PLM 1.0541278  0.6086911591  0.18187156         NA         NA
 #> 4   C1I4    2  3PLM 1.0789640 -0.1731865978  0.28172552         NA         NA
 #> 5   C1I5    2  3PLM 0.8731636 -0.1539491078  0.18023951         NA         NA
-#> 6   C1I6    2  3PLM 1.9100015  0.5956052553  0.08680994         NA         NA
-#> 7   C1I7    2  3PLM 1.1042207  1.1038327947  0.15045515         NA         NA
-#> 8   C1I8    2  3PLM 0.9407054  0.8862776984  0.15890193         NA         NA
-#> 9   C1I9    2  3PLM 0.8926878  0.6255808127  0.20799520         NA         NA
+#> 6   C1I6    2  3PLM 1.9100015  0.5956052554  0.08680994         NA         NA
+#> 7   C1I7    2  3PLM 1.1042207  1.1038327948  0.15045515         NA         NA
+#> 8   C1I8    2  3PLM 0.9407054  0.8862776985  0.15890193         NA         NA
+#> 9   C1I9    2  3PLM 0.8926878  0.6255808128  0.20799520         NA         NA
 #> 10 C1I10    2  3PLM 1.4872042  0.1323954152  0.15372172         NA         NA
-#> 11 C1I11    5   GRM 1.1892683 -2.2080814019 -1.44963215 -0.7471002 -0.1188008
+#> 11 C1I11    5   GRM 1.1892683 -2.2080814020 -1.44963215 -0.7471002 -0.1188008
 #> 12 C1I12    5   GRM 0.9141155 -0.6885203551  0.02631147  0.6789189  1.2487151
 #> 13  G2I1    2  3PLM 1.7609541 -0.8578505772  0.24035894         NA         NA
-#> 14  G2I2    2  3PLM 0.8436960 -0.4382789597  0.21438678         NA         NA
+#> 14  G2I2    2  3PLM 0.8436960 -0.4382789598  0.21438678         NA         NA
 #> 15  G2I3    2  3PLM 1.0886052  0.0911696948  0.18458253         NA         NA
-#> 16  G2I4    2  3PLM 1.5129142  1.4502930939  0.18027120         NA         NA
-#> 17  G2I5    2  3PLM 0.7139700 -1.6581797024  0.19781812         NA         NA
-#> 18  G2I6    2  3PLM 1.0919249 -1.5999033276  0.21671254         NA         NA
+#> 16  G2I4    2  3PLM 1.5129142  1.4502930941  0.18027120         NA         NA
+#> 17  G2I5    2  3PLM 0.7139700 -1.6581797025  0.19781812         NA         NA
+#> 18  G2I6    2  3PLM 1.0919249 -1.5999033278  0.21671254         NA         NA
 #> 19  G2I7    2  3PLM 1.3325688  0.2633001080  0.13036039         NA         NA
 #> 20  G2I8    2  3PLM 2.2199875 -0.0891740329  0.13780823         NA         NA
-#> 21  G2I9    2  3PLM 1.0832071 -1.5619697271  0.20682223         NA         NA
-#> 22 G2I10    2  3PLM 1.6525972  0.8838581722  0.29075920         NA         NA
-#> 23 G2I11    2  3PLM 0.9630202  0.8571579301  0.11294805         NA         NA
-#> 24 G2I12    2  3PLM 1.6845080 -0.6793797278  0.25993819         NA         NA
-#> 25 G2I13    2  3PLM 1.1744864 -1.3046157584  0.20979661         NA         NA
+#> 21  G2I9    2  3PLM 1.0832071 -1.5619697272  0.20682223         NA         NA
+#> 22 G2I10    2  3PLM 1.6525972  0.8838581723  0.29075920         NA         NA
+#> 23 G2I11    2  3PLM 0.9630202  0.8571579302  0.11294805         NA         NA
+#> 24 G2I12    2  3PLM 1.6845080 -0.6793797279  0.25993819         NA         NA
+#> 25 G2I13    2  3PLM 1.1744864 -1.3046157585  0.20979661         NA         NA
 #> 26 G2I14    2  3PLM 1.4329862  0.2158522635  0.12986846         NA         NA
 #> 27 G2I15    2  3PLM 1.5763766  0.0515443553  0.27114790         NA         NA
-#> 28 G2I16    2  3PLM 1.7692947  0.7418363902  0.21979684         NA         NA
-#> 29 G2I17    2  3PLM 2.1059175 -1.2085830261  0.20089939         NA         NA
-#> 30 G2I18    2  3PLM 1.7861465  0.6306602725  0.14248762         NA         NA
+#> 28 G2I16    2  3PLM 1.7692947  0.7418363903  0.21979684         NA         NA
+#> 29 G2I17    2  3PLM 2.1059175 -1.2085830262  0.20089939         NA         NA
+#> 30 G2I18    2  3PLM 1.7861465  0.6306602726  0.14248762         NA         NA
 #> 31 G2I19    2  3PLM 1.1236963  0.0462753631  0.21071941         NA         NA
-#> 32 G2I20    2  3PLM 1.6957930  2.1576947264  0.16005055         NA         NA
-#> 33 G2I21    2  3PLM 2.4882719  1.5329597738  0.11756098         NA         NA
-#> 34 G2I22    2  3PLM 1.4964966  0.2397808194  0.21725633         NA         NA
-#> 35 G2I23    2  3PLM 2.1906673  0.4452744274  0.28388427         NA         NA
-#> 36 G2I24    2  3PLM 1.4315517  0.3567207426  0.07277537         NA         NA
-#> 37 G2I25    2  3PLM 1.8049099  1.3706377058  0.07249339         NA         NA
+#> 32 G2I20    2  3PLM 1.6957930  2.1576947266  0.16005055         NA         NA
+#> 33 G2I21    2  3PLM 2.4882719  1.5329597740  0.11756098         NA         NA
+#> 34 G2I22    2  3PLM 1.4964966  0.2397808195  0.21725633         NA         NA
+#> 35 G2I23    2  3PLM 2.1906673  0.4452744275  0.28388427         NA         NA
+#> 36 G2I24    2  3PLM 1.4315517  0.3567207427  0.07277537         NA         NA
+#> 37 G2I25    2  3PLM 1.8049099  1.3706377060  0.07249339         NA         NA
 #> 38 G2I26    2  3PLM 1.8993430 -0.8763222592  0.24753546         NA         NA
 #> 39 G2I27    2  3PLM 0.9922602 -0.5809395819  0.20058057         NA         NA
-#> 40 G2I28    5   GRM 1.1428941 -0.3726286563  0.13986303  0.7760909  1.4399545
+#> 40 G2I28    5   GRM 1.1428941 -0.3726286564  0.13986303  0.7760909  1.4399545
 #> 41  C2I1    2  3PLM 1.0724788 -0.2925185566  0.12706645         NA         NA
-#> 42  C2I2    2  3PLM 1.0026458  1.2329410898  0.06038371         NA         NA
-#> 43  C2I3    2  3PLM 1.6298126  1.3717691197  0.12593191         NA         NA
+#> 42  C2I2    2  3PLM 1.0026458  1.2329410900  0.06038371         NA         NA
+#> 43  C2I3    2  3PLM 1.6298126  1.3717691198  0.12593191         NA         NA
 #> 44  C2I4    2  3PLM 1.5539481  0.2386833730  0.18401402         NA         NA
-#> 45  C2I5    2  3PLM 1.4284843 -0.0690446133  0.11886473         NA         NA
+#> 45  C2I5    2  3PLM 1.4284843 -0.0690446132  0.11886473         NA         NA
 #> 46  C2I6    2  3PLM 2.0356386 -0.0609918393  0.04627366         NA         NA
 #> 47  C2I7    2  3PLM 1.5601571  0.0009650233  0.17678863         NA         NA
-#> 48  C2I8    2  3PLM 1.5324423  1.2675649742  0.18822170         NA         NA
-#> 49  C2I9    2  3PLM 2.1652174 -1.0147828257  0.14241930         NA         NA
-#> 50 C2I10    2  3PLM 1.5756487 -1.3546338577  0.26239714         NA         NA
+#> 48  C2I8    2  3PLM 1.5324423  1.2675649744  0.18822170         NA         NA
+#> 49  C2I9    2  3PLM 2.1652174 -1.0147828259  0.14241930         NA         NA
+#> 50 C2I10    2  3PLM 1.5756487 -1.3546338578  0.26239714         NA         NA
 #> 
 #> $group$Group3
 #>       id cats model     par.1         par.2      par.3     par.4    par.5
 #> 1   C2I1    2  3PLM 1.0724788 -0.2925185566 0.12706645        NA       NA
-#> 2   C2I2    2  3PLM 1.0026458  1.2329410898 0.06038371        NA       NA
-#> 3   C2I3    2  3PLM 1.6298126  1.3717691197 0.12593191        NA       NA
+#> 2   C2I2    2  3PLM 1.0026458  1.2329410900 0.06038371        NA       NA
+#> 3   C2I3    2  3PLM 1.6298126  1.3717691198 0.12593191        NA       NA
 #> 4   C2I4    2  3PLM 1.5539481  0.2386833730 0.18401402        NA       NA
-#> 5   C2I5    2  3PLM 1.4284843 -0.0690446133 0.11886473        NA       NA
+#> 5   C2I5    2  3PLM 1.4284843 -0.0690446132 0.11886473        NA       NA
 #> 6   C2I6    2  3PLM 2.0356386 -0.0609918393 0.04627366        NA       NA
 #> 7   C2I7    2  3PLM 1.5601571  0.0009650233 0.17678863        NA       NA
-#> 8   C2I8    2  3PLM 1.5324423  1.2675649742 0.18822170        NA       NA
-#> 9   C2I9    2  3PLM 2.1652174 -1.0147828257 0.14241930        NA       NA
-#> 10 C2I10    2  3PLM 1.5756487 -1.3546338577 0.26239714        NA       NA
-#> 11  G3I1    2  3PLM 1.5177028 -1.1012930873 0.16029848        NA       NA
-#> 12  G3I2    2  3PLM 0.7684745 -0.5958229704 0.19239503        NA       NA
-#> 13  G3I3    2  3PLM 1.1511024  0.0760256821 0.16953254        NA       NA
-#> 14  G3I4    2  3PLM 1.3078975  1.7075770992 0.22441977        NA       NA
+#> 8   C2I8    2  3PLM 1.5324423  1.2675649744 0.18822170        NA       NA
+#> 9   C2I9    2  3PLM 2.1652174 -1.0147828259 0.14241930        NA       NA
+#> 10 C2I10    2  3PLM 1.5756487 -1.3546338578 0.26239714        NA       NA
+#> 11  G3I1    2  3PLM 1.5177028 -1.1012930875 0.16029848        NA       NA
+#> 12  G3I2    2  3PLM 0.7684745 -0.5958229705 0.19239503        NA       NA
+#> 13  G3I3    2  3PLM 1.1511024  0.0760256822 0.16953254        NA       NA
+#> 14  G3I4    2  3PLM 1.3078975  1.7075770994 0.22441977        NA       NA
 #> 15  G3I5    2  3PLM 0.7934450 -1.0028686375 0.28801113        NA       NA
-#> 16  G3I6    2  3PLM 1.1835586 -1.2995355425 0.32753494        NA       NA
+#> 16  G3I6    2  3PLM 1.1835586 -1.2995355426 0.32753494        NA       NA
 #> 17  G3I7    2  3PLM 1.3696476  0.2557793125 0.14270858        NA       NA
 #> 18  G3I8    2  3PLM 1.9236418 -0.0843458754 0.14793716        NA       NA
-#> 19  G3I9    2  3PLM 1.1300723 -1.1978738763 0.21206463        NA       NA
-#> 20 G3I10    2  3PLM 1.5126694  0.9703312346 0.29033962        NA       NA
-#> 21 G3I11    2  3PLM 0.9021794  0.7968831684 0.08388012        NA       NA
+#> 19  G3I9    2  3PLM 1.1300723 -1.1978738764 0.21206463        NA       NA
+#> 20 G3I10    2  3PLM 1.5126694  0.9703312347 0.29033962        NA       NA
+#> 21 G3I11    2  3PLM 0.9021794  0.7968831685 0.08388012        NA       NA
 #> 22 G3I12    2  3PLM 1.4214420 -0.7766765567 0.25975672        NA       NA
-#> 23 G3I13    2  3PLM 1.1082496 -1.0983147685 0.23504140        NA       NA
-#> 24 G3I14    2  3PLM 1.3797649  0.3022772312 0.16690037        NA       NA
+#> 23 G3I13    2  3PLM 1.1082496 -1.0983147686 0.23504140        NA       NA
+#> 24 G3I14    2  3PLM 1.3797649  0.3022772313 0.16690037        NA       NA
 #> 25 G3I15    2  3PLM 1.2876135 -0.0573943526 0.19245588        NA       NA
-#> 26 G3I16    2  3PLM 1.5824294  0.7372872340 0.20217816        NA       NA
-#> 27 G3I17    2  3PLM 1.6058953 -1.5522762073 0.18645088        NA       NA
-#> 28 G3I18    2  3PLM 1.3800007  0.7080448815 0.11881653        NA       NA
+#> 26 G3I16    2  3PLM 1.5824294  0.7372872341 0.20217816        NA       NA
+#> 27 G3I17    2  3PLM 1.6058953 -1.5522762074 0.18645088        NA       NA
+#> 28 G3I18    2  3PLM 1.3800007  0.7080448816 0.11881653        NA       NA
 #> 29 G3I19    2  3PLM 0.9933705  0.0911167343 0.16557109        NA       NA
-#> 30 G3I20    2  3PLM 1.1645170  2.2678742087 0.11821851        NA       NA
-#> 31 G3I21    2  3PLM 3.0616274  1.6301700618 0.14040136        NA       NA
+#> 30 G3I20    2  3PLM 1.1645170  2.2678742090 0.11821851        NA       NA
+#> 31 G3I21    2  3PLM 3.0616274  1.6301700620 0.14040136        NA       NA
 #> 32 G3I22    2  3PLM 1.1712500  0.0856353360 0.10276551        NA       NA
-#> 33 G3I23    2  3PLM 1.7915979  0.3172563764 0.15045425        NA       NA
+#> 33 G3I23    2  3PLM 1.7915979  0.3172563765 0.15045425        NA       NA
 #> 34 G3I24    2  3PLM 1.1259988  0.3187456984 0.05486984        NA       NA
-#> 35 G3I25    2  3PLM 1.3848088  1.3476897615 0.05145709        NA       NA
-#> 36 G3I26    2  3PLM 1.6627860 -0.9983631680 0.21786458        NA       NA
-#> 37 G3I27    2  3PLM 0.9242740 -0.6199576215 0.18433956        NA       NA
+#> 35 G3I25    2  3PLM 1.3848088  1.3476897617 0.05145709        NA       NA
+#> 36 G3I26    2  3PLM 1.6627860 -0.9983631681 0.21786458        NA       NA
+#> 37 G3I27    2  3PLM 0.9242740 -0.6199576216 0.18433956        NA       NA
 #> 38 G3I28    5   GRM 0.9426521 -0.3795334512 0.14801722 0.8117698 1.551592
 #> 
 #> 
@@ -1625,7 +1625,7 @@ getirt(fit.1, what = "weights")
 #>    theta       weight
 #> 1  -6.00 2.596404e-24
 #> 2  -5.75 6.661462e-12
-#> 3  -5.50 6.687304e-11
+#> 3  -5.50 6.687303e-11
 #> 4  -5.25 3.455143e-10
 #> 5  -5.00 1.240179e-09
 #> 6  -4.75 3.547688e-09
@@ -1678,17 +1678,17 @@ getirt(fit.1, what = "weights")
 #> 1  -6.00 4.462701e-59
 #> 2  -5.75 5.478200e-57
 #> 3  -5.50 1.250041e-54
-#> 4  -5.25 5.639732e-52
-#> 5  -5.00 5.211160e-49
-#> 6  -4.75 9.838327e-46
+#> 4  -5.25 5.639733e-52
+#> 5  -5.00 5.211161e-49
+#> 6  -4.75 9.838328e-46
 #> 7  -4.50 3.615813e-42
 #> 8  -4.25 2.347660e-38
 #> 9  -4.00 2.341231e-34
 #> 10 -3.75 3.033389e-30
-#> 11 -3.50 4.296681e-26
+#> 11 -3.50 4.296682e-26
 #> 12 -3.25 5.685725e-22
-#> 13 -3.00 6.113539e-18
-#> 14 -2.75 4.561112e-14
+#> 13 -3.00 6.113540e-18
+#> 14 -2.75 4.561113e-14
 #> 15 -2.50 1.824133e-10
 #> 16 -2.25 2.490398e-07
 #> 17 -2.00 6.146622e-05
@@ -1722,7 +1722,7 @@ getirt(fit.1, what = "weights")
 #> 45  5.00 2.322071e-12
 #> 46  5.25 6.327049e-14
 #> 47  5.50 2.144754e-15
-#> 48  5.75 9.160692e-17
+#> 48  5.75 9.160693e-17
 #> 49  6.00 4.870649e-18
 #> 
 #> $Group3
@@ -1797,7 +1797,7 @@ fit.2 <-
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -159736.5073, Max-Change: 0.400714 EM iteration: 2, Loglike: -159610.2190, Max-Change: 0.165418 EM iteration: 3, Loglike: -159601.3164, Max-Change: 0.088375 EM iteration: 4, Loglike: -159596.5635, Max-Change: 0.054733 EM iteration: 5, Loglike: -159593.6124, Max-Change: 0.040346 EM iteration: 6, Loglike: -159591.6852, Max-Change: 0.035828 EM iteration: 7, Loglike: -159590.3654, Max-Change: 0.030999 EM iteration: 8, Loglike: -159589.4215, Max-Change: 0.026538 EM iteration: 9, Loglike: -159588.7193, Max-Change: 0.022633 EM iteration: 10, Loglike: -159588.1782, Max-Change: 0.019291 EM iteration: 11, Loglike: -159587.7475, Max-Change: 0.016548 EM iteration: 12, Loglike: -159587.3947, Max-Change: 0.014582 EM iteration: 13, Loglike: -159587.0984, Max-Change: 0.012898 EM iteration: 14, Loglike: -159586.8441, Max-Change: 0.011459 EM iteration: 15, Loglike: -159586.6218, Max-Change: 0.010231 EM iteration: 16, Loglike: -159586.4248, Max-Change: 0.009182 EM iteration: 17, Loglike: -159586.2479, Max-Change: 0.008283 EM iteration: 18, Loglike: -159586.0876, Max-Change: 0.007509 EM iteration: 19, Loglike: -159585.9412, Max-Change: 0.006838 EM iteration: 20, Loglike: -159585.8067, Max-Change: 0.006252 EM iteration: 21, Loglike: -159585.6824, Max-Change: 0.005735 EM iteration: 22, Loglike: -159585.5673, Max-Change: 0.005275 EM iteration: 23, Loglike: -159585.4607, Max-Change: 0.004862 EM iteration: 24, Loglike: -159585.3616, Max-Change: 0.004488 EM iteration: 25, Loglike: -159585.2689, Max-Change: 0.004146 EM iteration: 26, Loglike: -159585.1819, Max-Change: 0.003832 EM iteration: 27, Loglike: -159585.0999, Max-Change: 0.003542 EM iteration: 28, Loglike: -159585.0226, Max-Change: 0.003272 EM iteration: 29, Loglike: -159584.9497, Max-Change: 0.00302 EM iteration: 30, Loglike: -159584.8808, Max-Change: 0.002784 EM iteration: 31, Loglike: -159584.8156, Max-Change: 0.002563 EM iteration: 32, Loglike: -159584.7538, Max-Change: 0.002355 EM iteration: 33, Loglike: -159584.6951, Max-Change: 0.00216 EM iteration: 34, Loglike: -159584.6391, Max-Change: 0.001976 EM iteration: 35, Loglike: -159584.5858, Max-Change: 0.001804 EM iteration: 36, Loglike: -159584.5348, Max-Change: 0.001641 EM iteration: 37, Loglike: -159584.4860, Max-Change: 0.001489 EM iteration: 38, Loglike: -159584.4392, Max-Change: 0.001351 EM iteration: 39, Loglike: -159584.3942, Max-Change: 0.00126 EM iteration: 40, Loglike: -159584.3510, Max-Change: 0.001174 EM iteration: 41, Loglike: -159584.3092, Max-Change: 0.001092 EM iteration: 42, Loglike: -159584.2690, Max-Change: 0.001015 EM iteration: 43, Loglike: -159584.2300, Max-Change: 0.000942 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 8.06 seconds. 
+#> Estimation is finished in 7.94 seconds. 
 
 # Summary of the estimation
 summary(fit.2)
@@ -1829,9 +1829,9 @@ summary(fit.2)
 #>  Maximum parameter change: 0.0009420884
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.34
-#>  Standard error computation: 0.19
-#>  Total computation: 8.06
+#>  EM algorithm: 7.23
+#>  Standard error computation: 0.18
+#>  Total computation: 7.94
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2095,8 +2095,8 @@ summary(fit.2)
 # 2. MG calibration with FIPC using simMG data
 #  - Details:
 #    (a) Fix the parameters of the common items between the groups
-#        (i.e., items C1I1–C1I12 between Groups 1 and 2, and
-#        items C2I1–C2I10 between Groups 2 and 3)
+#        (i.e., items C1I1 - C1I12 between Groups 1 and 2, and
+#        items C2I1 - C2I10 between Groups 2 and 3)
 #    (b) Freely estimate the means and variances of the ability
 #        distributions for all three groups
 ## ------------------------------------------------------------------------------
@@ -2106,10 +2106,10 @@ summary(fit.2)
 free.group <- 1:3 # or use 'free.group <- group.name'
 
 # Specify the locations of items to be fixed in each group's metadata
-# For Group 1: C1I1–C1I12 are located in rows 1–10 and 49–50
-# For Group 2: C1I1–C1I12 are in rows 1–12, and
-#              C2I1–C2I10 are in rows 41–50
-# For Group 3: C2I1–C2I10 are in rows 1–10
+# For Group 1: C1I1 - C1I12 are located in rows 1-10 and 49-50
+# For Group 2: C1I1 - C1I12 are in rows 1-12, and
+#              C2I1 - C2I10 are in rows 41-50
+# For Group 3: C2I1 - C2I10 are in rows 1-10
 fix.loc <- list(
   c(1:10, 49:50),
   c(1:12, 41:50),
@@ -2135,7 +2135,7 @@ fit.3 <-
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -56756.7548, Max-Change: 3.554166 EM iteration: 2, Loglike: -160424.0878, Max-Change: 0.780368 EM iteration: 3, Loglike: -159755.3559, Max-Change: 0.276071 EM iteration: 4, Loglike: -159686.2158, Max-Change: 0.151073 EM iteration: 5, Loglike: -159657.5520, Max-Change: 0.102849 EM iteration: 6, Loglike: -159642.1127, Max-Change: 0.080257 EM iteration: 7, Loglike: -159633.1411, Max-Change: 0.066343 EM iteration: 8, Loglike: -159627.6844, Max-Change: 0.055853 EM iteration: 9, Loglike: -159624.2459, Max-Change: 0.047172 EM iteration: 10, Loglike: -159622.0120, Max-Change: 0.039781 EM iteration: 11, Loglike: -159620.5195, Max-Change: 0.033468 EM iteration: 12, Loglike: -159619.4950, Max-Change: 0.028101 EM iteration: 13, Loglike: -159618.7723, Max-Change: 0.023565 EM iteration: 14, Loglike: -159618.2481, Max-Change: 0.019752 EM iteration: 15, Loglike: -159617.8570, Max-Change: 0.016845 EM iteration: 16, Loglike: -159617.5566, Max-Change: 0.014864 EM iteration: 17, Loglike: -159617.3191, Max-Change: 0.01318 EM iteration: 18, Loglike: -159617.1261, Max-Change: 0.011751 EM iteration: 19, Loglike: -159616.9650, Max-Change: 0.010538 EM iteration: 20, Loglike: -159616.8273, Max-Change: 0.009507 EM iteration: 21, Loglike: -159616.7072, Max-Change: 0.008626 EM iteration: 22, Loglike: -159616.6005, Max-Change: 0.007869 EM iteration: 23, Loglike: -159616.5042, Max-Change: 0.007214 EM iteration: 24, Loglike: -159616.4163, Max-Change: 0.006643 EM iteration: 25, Loglike: -159616.3352, Max-Change: 0.006141 EM iteration: 26, Loglike: -159616.2596, Max-Change: 0.005695 EM iteration: 27, Loglike: -159616.1888, Max-Change: 0.005295 EM iteration: 28, Loglike: -159616.1221, Max-Change: 0.004934 EM iteration: 29, Loglike: -159616.0589, Max-Change: 0.004606 EM iteration: 30, Loglike: -159615.9989, Max-Change: 0.004306 EM iteration: 31, Loglike: -159615.9416, Max-Change: 0.00403 EM iteration: 32, Loglike: -159615.8868, Max-Change: 0.003774 EM iteration: 33, Loglike: -159615.8343, Max-Change: 0.003537 EM iteration: 34, Loglike: -159615.7838, Max-Change: 0.003317 EM iteration: 35, Loglike: -159615.7352, Max-Change: 0.003111 EM iteration: 36, Loglike: -159615.6884, Max-Change: 0.002919 EM iteration: 37, Loglike: -159615.6431, Max-Change: 0.00274 EM iteration: 38, Loglike: -159615.5994, Max-Change: 0.002572 EM iteration: 39, Loglike: -159615.5570, Max-Change: 0.002416 EM iteration: 40, Loglike: -159615.5159, Max-Change: 0.002269 EM iteration: 41, Loglike: -159615.4761, Max-Change: 0.002131 EM iteration: 42, Loglike: -159615.4373, Max-Change: 0.002003 EM iteration: 43, Loglike: -159615.3997, Max-Change: 0.001882 EM iteration: 44, Loglike: -159615.3630, Max-Change: 0.00177 EM iteration: 45, Loglike: -159615.3274, Max-Change: 0.001665 EM iteration: 46, Loglike: -159615.2926, Max-Change: 0.001566 EM iteration: 47, Loglike: -159615.2587, Max-Change: 0.001474 EM iteration: 48, Loglike: -159615.2256, Max-Change: 0.001388 EM iteration: 49, Loglike: -159615.1933, Max-Change: 0.001308 EM iteration: 50, Loglike: -159615.1617, Max-Change: 0.001232 EM iteration: 51, Loglike: -159615.1309, Max-Change: 0.001162 EM iteration: 52, Loglike: -159615.1007, Max-Change: 0.001097 EM iteration: 53, Loglike: -159615.0711, Max-Change: 0.001035 EM iteration: 54, Loglike: -159615.0422, Max-Change: 0.000978 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 8.5 seconds. 
+#> Estimation is finished in 7.98 seconds. 
 
 # Summary of the estimation
 summary(fit.3)
@@ -2167,9 +2167,9 @@ summary(fit.3)
 #>  Maximum parameter change: 0.0009779691
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.74
+#>  EM algorithm: 7.19
 #>  Standard error computation: 0.14
-#>  Total computation: 8.5
+#>  Total computation: 7.98
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2450,12 +2450,12 @@ getirt(fit.3, what = "par.est")
 #> 15   G1I5    2  3PLM 1.3343885 -0.18476888  0.15642097         NA        NA
 #> 16   G1I6    2  3PLM 2.1457296  0.01122821  0.08373745         NA        NA
 #> 17   G1I7    2  3PLM 1.4492421 -0.07232467  0.19831474         NA        NA
-#> 18   G1I8    2  3PLM 2.4981366  1.18142115  0.32459740         NA        NA
+#> 18   G1I8    2  3PLM 2.4981366  1.18142114  0.32459740         NA        NA
 #> 19   G1I9    2  3PLM 2.4036619 -0.93389393  0.24090792         NA        NA
 #> 20  G1I10    2  3PLM 1.2603565 -1.75076139  0.23712596         NA        NA
 #> 21  G1I11    2  3PLM 1.5482444 -1.11447546  0.20564573         NA        NA
 #> 22  G1I12    2  3PLM 0.7501881 -0.81274221  0.19483606         NA        NA
-#> 23  G1I13    2  3PLM 1.0391850 -0.13129452  0.20305864         NA        NA
+#> 23  G1I13    2  3PLM 1.0391850 -0.13129451  0.20305864         NA        NA
 #> 24  G1I14    2  3PLM 1.4641086  1.76817734  0.29587746         NA        NA
 #> 25  G1I15    2  3PLM 0.8642507 -1.44005202  0.21246953         NA        NA
 #> 26  G1I16    2  3PLM 1.0481967 -1.94936219  0.22996558         NA        NA
@@ -2570,12 +2570,12 @@ getirt(fit.3, what = "par.est")
 #> 15  G1I5    2  3PLM 1.3343885 -0.18476888  0.15642097         NA        NA
 #> 16  G1I6    2  3PLM 2.1457296  0.01122821  0.08373745         NA        NA
 #> 17  G1I7    2  3PLM 1.4492421 -0.07232467  0.19831474         NA        NA
-#> 18  G1I8    2  3PLM 2.4981366  1.18142115  0.32459740         NA        NA
+#> 18  G1I8    2  3PLM 2.4981366  1.18142114  0.32459740         NA        NA
 #> 19  G1I9    2  3PLM 2.4036619 -0.93389393  0.24090792         NA        NA
 #> 20 G1I10    2  3PLM 1.2603565 -1.75076139  0.23712596         NA        NA
 #> 21 G1I11    2  3PLM 1.5482444 -1.11447546  0.20564573         NA        NA
 #> 22 G1I12    2  3PLM 0.7501881 -0.81274221  0.19483606         NA        NA
-#> 23 G1I13    2  3PLM 1.0391850 -0.13129452  0.20305864         NA        NA
+#> 23 G1I13    2  3PLM 1.0391850 -0.13129451  0.20305864         NA        NA
 #> 24 G1I14    2  3PLM 1.4641086  1.76817734  0.29587746         NA        NA
 #> 25 G1I15    2  3PLM 0.8642507 -1.44005202  0.21246953         NA        NA
 #> 26 G1I16    2  3PLM 1.0481967 -1.94936219  0.22996558         NA        NA
@@ -2723,7 +2723,7 @@ getirt(fit.3, what = "se.est")
 #> 17   G1I7    2  3PLM 0.15675133 0.12128691 0.04842894         NA         NA
 #> 18   G1I8    2  3PLM 0.46148303 0.06925484 0.01882411         NA         NA
 #> 19   G1I9    2  3PLM 0.25992134 0.10854364 0.06176901         NA         NA
-#> 20  G1I10    2  3PLM 0.12525002 0.22773298 0.09804119         NA         NA
+#> 20  G1I10    2  3PLM 0.12525002 0.22773299 0.09804119         NA         NA
 #> 21  G1I11    2  3PLM 0.14906877 0.16092483 0.07743255         NA         NA
 #> 22  G1I12    2  3PLM 0.09144445 0.31119356 0.08351947         NA         NA
 #> 23  G1I13    2  3PLM 0.13678756 0.20744666 0.06854745         NA         NA
@@ -2744,7 +2744,7 @@ getirt(fit.3, what = "se.est")
 #> 38  G1I28    2  3PLM 0.16142785 0.09763951 0.03660579         NA         NA
 #> 39  G1I29    2  3PLM 0.08893330 0.17133724 0.05492922         NA         NA
 #> 40  G1I30    2  3PLM 0.26897282 0.25352870 0.03089404         NA         NA
-#> 41  G1I31    2  3PLM 0.46169957 0.09359258 0.01431405         NA         NA
+#> 41  G1I31    2  3PLM 0.46169956 0.09359258 0.01431405         NA         NA
 #> 42  G1I32    2  3PLM 0.11905116 0.15068461 0.05352540         NA         NA
 #> 43  G1I33    2  3PLM 0.17012521 0.08891040 0.03755055         NA         NA
 #> 44  G1I34    2  3PLM 0.13288626 0.09359115 0.03655936         NA         NA
@@ -2843,7 +2843,7 @@ getirt(fit.3, what = "se.est")
 #> 17  G1I7    2  3PLM 0.15675133 0.12128691 0.04842894         NA         NA
 #> 18  G1I8    2  3PLM 0.46148303 0.06925484 0.01882411         NA         NA
 #> 19  G1I9    2  3PLM 0.25992134 0.10854364 0.06176901         NA         NA
-#> 20 G1I10    2  3PLM 0.12525002 0.22773298 0.09804119         NA         NA
+#> 20 G1I10    2  3PLM 0.12525002 0.22773299 0.09804119         NA         NA
 #> 21 G1I11    2  3PLM 0.14906877 0.16092483 0.07743255         NA         NA
 #> 22 G1I12    2  3PLM 0.09144445 0.31119356 0.08351947         NA         NA
 #> 23 G1I13    2  3PLM 0.13678756 0.20744666 0.06854745         NA         NA
@@ -2864,7 +2864,7 @@ getirt(fit.3, what = "se.est")
 #> 38 G1I28    2  3PLM 0.16142785 0.09763951 0.03660579         NA         NA
 #> 39 G1I29    2  3PLM 0.08893330 0.17133724 0.05492922         NA         NA
 #> 40 G1I30    2  3PLM 0.26897282 0.25352870 0.03089404         NA         NA
-#> 41 G1I31    2  3PLM 0.46169957 0.09359258 0.01431405         NA         NA
+#> 41 G1I31    2  3PLM 0.46169956 0.09359258 0.01431405         NA         NA
 #> 42 G1I32    2  3PLM 0.11905116 0.15068461 0.05352540         NA         NA
 #> 43 G1I33    2  3PLM 0.17012521 0.08891040 0.03755055         NA         NA
 #> 44 G1I34    2  3PLM 0.13288626 0.09359115 0.03655936         NA         NA
@@ -2993,7 +2993,7 @@ getirt(fit.3, what = "group.par")
 getirt(fit.3, what = "weights")
 #> $Group1
 #>    theta       weight
-#> 1  -6.00 7.662190e-12
+#> 1  -6.00 7.662191e-12
 #> 2  -5.75 2.451684e-11
 #> 3  -5.50 7.119151e-11
 #> 4  -5.25 1.891374e-10
@@ -3047,14 +3047,14 @@ getirt(fit.3, what = "weights")
 #>    theta       weight
 #> 1  -6.00 3.894817e-89
 #> 2  -5.75 3.951307e-84
-#> 3  -5.50 7.764026e-79
-#> 4  -5.25 2.603004e-73
+#> 3  -5.50 7.764027e-79
+#> 4  -5.25 2.603005e-73
 #> 5  -5.00 1.291279e-67
-#> 6  -4.75 8.143648e-62
-#> 7  -4.50 5.597431e-56
+#> 6  -4.75 8.143649e-62
+#> 7  -4.50 5.597432e-56
 #> 8  -4.25 3.620629e-50
 #> 9  -4.00 1.945094e-44
-#> 10 -3.75 7.996024e-39
+#> 10 -3.75 7.996025e-39
 #> 11 -3.50 2.475576e-33
 #> 12 -3.25 6.096104e-28
 #> 13 -3.00 1.277570e-22
@@ -3164,7 +3164,7 @@ fit.4 <-
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -56756.7548, Max-Change: 3.554166 EM iteration: 2, Loglike: -160424.0878, Max-Change: 0.780368 EM iteration: 3, Loglike: -159755.3559, Max-Change: 0.276071 EM iteration: 4, Loglike: -159686.2158, Max-Change: 0.151073 EM iteration: 5, Loglike: -159657.5520, Max-Change: 0.102849 EM iteration: 6, Loglike: -159642.1127, Max-Change: 0.080257 EM iteration: 7, Loglike: -159633.1411, Max-Change: 0.066343 EM iteration: 8, Loglike: -159627.6844, Max-Change: 0.055853 EM iteration: 9, Loglike: -159624.2459, Max-Change: 0.047172 EM iteration: 10, Loglike: -159622.0120, Max-Change: 0.039781 EM iteration: 11, Loglike: -159620.5195, Max-Change: 0.033468 EM iteration: 12, Loglike: -159619.4950, Max-Change: 0.028101 EM iteration: 13, Loglike: -159618.7723, Max-Change: 0.023565 EM iteration: 14, Loglike: -159618.2481, Max-Change: 0.019752 EM iteration: 15, Loglike: -159617.8570, Max-Change: 0.016845 EM iteration: 16, Loglike: -159617.5566, Max-Change: 0.014864 EM iteration: 17, Loglike: -159617.3191, Max-Change: 0.01318 EM iteration: 18, Loglike: -159617.1261, Max-Change: 0.011751 EM iteration: 19, Loglike: -159616.9650, Max-Change: 0.010538 EM iteration: 20, Loglike: -159616.8273, Max-Change: 0.009507 EM iteration: 21, Loglike: -159616.7072, Max-Change: 0.008626 EM iteration: 22, Loglike: -159616.6005, Max-Change: 0.007869 EM iteration: 23, Loglike: -159616.5042, Max-Change: 0.007214 EM iteration: 24, Loglike: -159616.4163, Max-Change: 0.006643 EM iteration: 25, Loglike: -159616.3352, Max-Change: 0.006141 EM iteration: 26, Loglike: -159616.2596, Max-Change: 0.005695 EM iteration: 27, Loglike: -159616.1888, Max-Change: 0.005295 EM iteration: 28, Loglike: -159616.1221, Max-Change: 0.004934 EM iteration: 29, Loglike: -159616.0589, Max-Change: 0.004606 EM iteration: 30, Loglike: -159615.9989, Max-Change: 0.004306 EM iteration: 31, Loglike: -159615.9416, Max-Change: 0.00403 EM iteration: 32, Loglike: -159615.8868, Max-Change: 0.003774 EM iteration: 33, Loglike: -159615.8343, Max-Change: 0.003537 EM iteration: 34, Loglike: -159615.7838, Max-Change: 0.003317 EM iteration: 35, Loglike: -159615.7352, Max-Change: 0.003111 EM iteration: 36, Loglike: -159615.6884, Max-Change: 0.002919 EM iteration: 37, Loglike: -159615.6431, Max-Change: 0.00274 EM iteration: 38, Loglike: -159615.5994, Max-Change: 0.002572 EM iteration: 39, Loglike: -159615.5570, Max-Change: 0.002416 EM iteration: 40, Loglike: -159615.5159, Max-Change: 0.002269 EM iteration: 41, Loglike: -159615.4761, Max-Change: 0.002131 EM iteration: 42, Loglike: -159615.4373, Max-Change: 0.002003 EM iteration: 43, Loglike: -159615.3997, Max-Change: 0.001882 EM iteration: 44, Loglike: -159615.3630, Max-Change: 0.00177 EM iteration: 45, Loglike: -159615.3274, Max-Change: 0.001665 EM iteration: 46, Loglike: -159615.2926, Max-Change: 0.001566 EM iteration: 47, Loglike: -159615.2587, Max-Change: 0.001474 EM iteration: 48, Loglike: -159615.2256, Max-Change: 0.001388 EM iteration: 49, Loglike: -159615.1933, Max-Change: 0.001308 EM iteration: 50, Loglike: -159615.1617, Max-Change: 0.001232 EM iteration: 51, Loglike: -159615.1309, Max-Change: 0.001162 EM iteration: 52, Loglike: -159615.1007, Max-Change: 0.001097 EM iteration: 53, Loglike: -159615.0711, Max-Change: 0.001035 EM iteration: 54, Loglike: -159615.0422, Max-Change: 0.000978 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 8.32 seconds. 
+#> Estimation is finished in 8.04 seconds. 
 
 # Summary of the estimation
 summary(fit.4)
@@ -3196,9 +3196,9 @@ summary(fit.4)
 #>  Maximum parameter change: 0.0009779691
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.51
-#>  Standard error computation: 0.14
-#>  Total computation: 8.32
+#>  EM algorithm: 6.97
+#>  Standard error computation: 0.15
+#>  Total computation: 8.04
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3486,7 +3486,7 @@ fit.5 <-
 #> Parsing input... 
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -159735.7617, Max-Change: 0.476403 EM iteration: 2, Loglike: -159719.0182, Max-Change: 0.138031 EM iteration: 3, Loglike: -159716.3699, Max-Change: 0.04617 EM iteration: 4, Loglike: -159715.2802, Max-Change: 0.018371 EM iteration: 5, Loglike: -159714.6363, Max-Change: 0.009115 EM iteration: 6, Loglike: -159714.1843, Max-Change: 0.005329 EM iteration: 7, Loglike: -159713.8343, Max-Change: 0.003463 EM iteration: 8, Loglike: -159713.5471, Max-Change: 0.002427 EM iteration: 9, Loglike: -159713.3033, Max-Change: 0.00181 EM iteration: 10, Loglike: -159713.0914, Max-Change: 0.001421 EM iteration: 11, Loglike: -159712.9045, Max-Change: 0.001165 EM iteration: 12, Loglike: -159712.7377, Max-Change: 0.000987 
-#> Estimation is finished in 0.99 seconds. 
+#> Estimation is finished in 0.95 seconds. 
 
 # Summary of the estimation
 summary(fit.5)
@@ -3518,9 +3518,9 @@ summary(fit.5)
 #>  Maximum parameter change: 0.0009867474
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.45
+#>  EM algorithm: 0.41
 #>  Standard error computation: 
-#>  Total computation: 0.99
+#>  Total computation: 0.95
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3804,8 +3804,8 @@ getirt(fit.5, what = "group.par")
 #  - Details:
 #    (a) Fix item parameters of the unique items in Group 1 only
 #    (b) Constrain the common items across groups to have
-#        the same item parameters (i.e., C1I1–C1I12 between
-#        Groups 1 and 2, and C2I1–C2I10 between Groups 2 and 3)
+#        the same item parameters (i.e., C1I1 - C1I12 between
+#        Groups 1 and 2, and C2I1 - C2I10 between Groups 2 and 3)
 #    (c) Freely estimate the means and variances of the ability
 #        distributions for all three groups
 ## ------------------------------------------------------------------------------
@@ -3832,10 +3832,10 @@ fit.6 <-
   )
 #> Parsing input... 
 #> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -43183.7384, Max-Change: 432.57651 EM iteration: 2, Loglike: -171691.1579, Max-Change: 4501.79291 EM iteration: 3, Loglike: -167102.6836, Max-Change: 21514.29256 EM iteration: 4, Loglike: -161125.0804, Max-Change: 0.614658 EM iteration: 5, Loglike: -160697.8752, Max-Change: 15745.96473 EM iteration: 6, Loglike: -160607.1903, Max-Change: 0.223705 EM iteration: 7, Loglike: -160564.3088, Max-Change: 44701.60439 EM iteration: 8, Loglike: -160537.2418, Max-Change: 0.114086 EM iteration: 9, Loglike: -160522.5507, Max-Change: 0.085219 EM iteration: 10, Loglike: -160512.8183, Max-Change: 0.065365 EM iteration: 11, Loglike: -160505.9064, Max-Change: 0.051414 EM iteration: 12, Loglike: -160500.7067, Max-Change: 0.041546 EM iteration: 13, Loglike: -160496.6073, Max-Change: 0.037669 EM iteration: 14, Loglike: -160493.2514, Max-Change: 0.034155 EM iteration: 15, Loglike: -160490.4210, Max-Change: 0.031016 EM iteration: 16, Loglike: -160487.9770, Max-Change: 0.028238 EM iteration: 17, Loglike: -160485.8270, Max-Change: 0.025795 EM iteration: 18, Loglike: -160483.9076, Max-Change: 0.024255 EM iteration: 19, Loglike: -160482.1744, Max-Change: 0.023508 EM iteration: 20, Loglike: -160480.5948, Max-Change: 0.022739 EM iteration: 21, Loglike: -160479.1451, Max-Change: 0.021973 EM iteration: 22, Loglike: -160477.8067, Max-Change: 0.021227 EM iteration: 23, Loglike: -160476.5657, Max-Change: 0.02051 EM iteration: 24, Loglike: -160475.4104, Max-Change: 0.019825 EM iteration: 25, Loglike: -160474.3324, Max-Change: 0.019174 EM iteration: 26, Loglike: -160473.3235, Max-Change: 0.018558 EM iteration: 27, Loglike: -160472.3778, Max-Change: 0.017975 EM iteration: 28, Loglike: -160471.4899, Max-Change: 0.017422 EM iteration: 29, Loglike: -160470.6550, Max-Change: 0.016898 EM iteration: 30, Loglike: -160469.8690, Max-Change: 0.016399 EM iteration: 31, Loglike: -160469.1285, Max-Change: 0.015925 EM iteration: 32, Loglike: -160468.4300, Max-Change: 0.015472 EM iteration: 33, Loglike: -160467.7707, Max-Change: 0.015038 EM iteration: 34, Loglike: -160467.1479, Max-Change: 0.014622 EM iteration: 35, Loglike: -160466.5592, Max-Change: 0.014223 EM iteration: 36, Loglike: -160466.0024, Max-Change: 0.013838 EM iteration: 37, Loglike: -160465.4753, Max-Change: 0.013467 EM iteration: 38, Loglike: -160464.9761, Max-Change: 0.013108 EM iteration: 39, Loglike: -160464.5030, Max-Change: 0.012761 EM iteration: 40, Loglike: -160464.0543, Max-Change: 0.012424 EM iteration: 41, Loglike: -160463.6286, Max-Change: 0.012098 EM iteration: 42, Loglike: -160463.2244, Max-Change: 0.011782 EM iteration: 43, Loglike: -160462.8404, Max-Change: 0.011475 EM iteration: 44, Loglike: -160462.4753, Max-Change: 0.011176 EM iteration: 45, Loglike: -160462.1280, Max-Change: 0.010886 EM iteration: 46, Loglike: -160461.7973, Max-Change: 0.010604 EM iteration: 47, Loglike: -160461.4822, Max-Change: 0.01033 EM iteration: 48, Loglike: -160461.1818, Max-Change: 0.010063 EM iteration: 49, Loglike: -160460.8951, Max-Change: 0.009804 EM iteration: 50, Loglike: -160460.6215, Max-Change: 0.009551 EM iteration: 51, Loglike: -160460.3601, Max-Change: 0.009306 EM iteration: 52, Loglike: -160460.1103, Max-Change: 0.009067 EM iteration: 53, Loglike: -160459.8716, Max-Change: 0.008836 EM iteration: 54, Loglike: -160459.6434, Max-Change: 0.00861 EM iteration: 55, Loglike: -160459.4254, Max-Change: 0.008391 EM iteration: 56, Loglike: -160459.2169, Max-Change: 0.008178 EM iteration: 57, Loglike: -160459.0178, Max-Change: 0.00797 EM iteration: 58, Loglike: -160458.8274, Max-Change: 0.007769 EM iteration: 59, Loglike: -160458.6455, Max-Change: 0.007573 EM iteration: 60, Loglike: -160458.4716, Max-Change: 0.007383 EM iteration: 61, Loglike: -160458.3053, Max-Change: 0.007199 EM iteration: 62, Loglike: -160458.1463, Max-Change: 0.007019 EM iteration: 63, Loglike: -160457.9940, Max-Change: 0.006845 EM iteration: 64, Loglike: -160457.8483, Max-Change: 0.006676 EM iteration: 65, Loglike: -160457.7087, Max-Change: 0.006512 EM iteration: 66, Loglike: -160457.5748, Max-Change: 0.006352 EM iteration: 67, Loglike: -160457.4465, Max-Change: 0.006198 EM iteration: 68, Loglike: -160457.3234, Max-Change: 0.006047 EM iteration: 69, Loglike: -160457.2053, Max-Change: 0.005901 EM iteration: 70, Loglike: -160457.0919, Max-Change: 0.00576 EM iteration: 71, Loglike: -160456.9830, Max-Change: 0.005623 EM iteration: 72, Loglike: -160456.8784, Max-Change: 0.005489 EM iteration: 73, Loglike: -160456.7779, Max-Change: 0.00536 EM iteration: 74, Loglike: -160456.6812, Max-Change: 0.005234 EM iteration: 75, Loglike: -160456.5883, Max-Change: 0.005112 EM iteration: 76, Loglike: -160456.4989, Max-Change: 0.004994 EM iteration: 77, Loglike: -160456.4129, Max-Change: 0.004879 EM iteration: 78, Loglike: -160456.3300, Max-Change: 0.004767 EM iteration: 79, Loglike: -160456.2503, Max-Change: 0.004658 EM iteration: 80, Loglike: -160456.1735, Max-Change: 0.004553 EM iteration: 81, Loglike: -160456.0995, Max-Change: 0.00445 EM iteration: 82, Loglike: -160456.0281, Max-Change: 0.004351 EM iteration: 83, Loglike: -160455.9593, Max-Change: 0.004254 EM iteration: 84, Loglike: -160455.8929, Max-Change: 0.00416 EM iteration: 85, Loglike: -160455.8289, Max-Change: 0.004069 EM iteration: 86, Loglike: -160455.7671, Max-Change: 0.00398 EM iteration: 87, Loglike: -160455.7074, Max-Change: 0.003893 EM iteration: 88, Loglike: -160455.6498, Max-Change: 0.003809 EM iteration: 89, Loglike: -160455.5941, Max-Change: 0.003727 EM iteration: 90, Loglike: -160455.5403, Max-Change: 0.003648 EM iteration: 91, Loglike: -160455.4883, Max-Change: 0.00357 EM iteration: 92, Loglike: -160455.4381, Max-Change: 0.003495 EM iteration: 93, Loglike: -160455.3894, Max-Change: 0.003421 EM iteration: 94, Loglike: -160455.3423, Max-Change: 0.00335 EM iteration: 95, Loglike: -160455.2968, Max-Change: 0.00328 EM iteration: 96, Loglike: -160455.2527, Max-Change: 0.003212 EM iteration: 97, Loglike: -160455.2100, Max-Change: 0.003146 EM iteration: 98, Loglike: -160455.1686, Max-Change: 0.003082 EM iteration: 99, Loglike: -160455.1286, Max-Change: 0.003019 EM iteration: 100, Loglike: -160455.0897, Max-Change: 0.002958 EM iteration: 101, Loglike: -160455.0520, Max-Change: 0.002898 EM iteration: 102, Loglike: -160455.0155, Max-Change: 0.00284 EM iteration: 103, Loglike: -160454.9800, Max-Change: 0.002783 EM iteration: 104, Loglike: -160454.9456, Max-Change: 0.002728 EM iteration: 105, Loglike: -160454.9121, Max-Change: 0.002674 EM iteration: 106, Loglike: -160454.8797, Max-Change: 0.002622 EM iteration: 107, Loglike: -160454.8482, Max-Change: 0.00257 EM iteration: 108, Loglike: -160454.8176, Max-Change: 0.00252 EM iteration: 109, Loglike: -160454.7878, Max-Change: 0.002471 EM iteration: 110, Loglike: -160454.7588, Max-Change: 0.002424 EM iteration: 111, Loglike: -160454.7307, Max-Change: 0.002377 EM iteration: 112, Loglike: -160454.7033, Max-Change: 0.002332 EM iteration: 113, Loglike: -160454.6767, Max-Change: 0.002287 EM iteration: 114, Loglike: -160454.6507, Max-Change: 0.002244 EM iteration: 115, Loglike: -160454.6255, Max-Change: 0.002201 EM iteration: 116, Loglike: -160454.6009, Max-Change: 0.00216 EM iteration: 117, Loglike: -160454.5769, Max-Change: 0.002119 EM iteration: 118, Loglike: -160454.5536, Max-Change: 0.00208 EM iteration: 119, Loglike: -160454.5308, Max-Change: 0.002041 EM iteration: 120, Loglike: -160454.5086, Max-Change: 0.002003 EM iteration: 121, Loglike: -160454.4869, Max-Change: 0.001967 EM iteration: 122, Loglike: -160454.4658, Max-Change: 0.001931 EM iteration: 123, Loglike: -160454.4452, Max-Change: 0.001895 EM iteration: 124, Loglike: -160454.4251, Max-Change: 0.001861 EM iteration: 125, Loglike: -160454.4054, Max-Change: 0.001827 EM iteration: 126, Loglike: -160454.3862, Max-Change: 0.001794 EM iteration: 127, Loglike: -160454.3674, Max-Change: 0.001762 EM iteration: 128, Loglike: -160454.3491, Max-Change: 0.00173 EM iteration: 129, Loglike: -160454.3312, Max-Change: 0.001699 EM iteration: 130, Loglike: -160454.3137, Max-Change: 0.001669 EM iteration: 131, Loglike: -160454.2966, Max-Change: 0.00164 EM iteration: 132, Loglike: -160454.2798, Max-Change: 0.001611 EM iteration: 133, Loglike: -160454.2634, Max-Change: 0.001582 EM iteration: 134, Loglike: -160454.2473, Max-Change: 0.001555 EM iteration: 135, Loglike: -160454.2316, Max-Change: 0.001528 EM iteration: 136, Loglike: -160454.2162, Max-Change: 0.001501 EM iteration: 137, Loglike: -160454.2011, Max-Change: 0.001475 EM iteration: 138, Loglike: -160454.1863, Max-Change: 0.00145 EM iteration: 139, Loglike: -160454.1718, Max-Change: 0.001425 EM iteration: 140, Loglike: -160454.1577, Max-Change: 0.00140 EM iteration: 141, Loglike: -160454.1437, Max-Change: 0.001377 EM iteration: 142, Loglike: -160454.1301, Max-Change: 0.001353 EM iteration: 143, Loglike: -160454.1166, Max-Change: 0.00133 EM iteration: 144, Loglike: -160454.1035, Max-Change: 0.001308 EM iteration: 145, Loglike: -160454.0906, Max-Change: 0.001286 EM iteration: 146, Loglike: -160454.0779, Max-Change: 0.001265 EM iteration: 147, Loglike: -160454.0655, Max-Change: 0.001243 EM iteration: 148, Loglike: -160454.0533, Max-Change: 0.001223 EM iteration: 149, Loglike: -160454.0413, Max-Change: 0.001203 EM iteration: 150, Loglike: -160454.0295, Max-Change: 0.001183 EM iteration: 151, Loglike: -160454.0179, Max-Change: 0.001164 EM iteration: 152, Loglike: -160454.0065, Max-Change: 0.001145 EM iteration: 153, Loglike: -160453.9953, Max-Change: 0.001126 EM iteration: 154, Loglike: -160453.9842, Max-Change: 0.001108 EM iteration: 155, Loglike: -160453.9734, Max-Change: 0.00109 EM iteration: 156, Loglike: -160453.9627, Max-Change: 0.001072 EM iteration: 157, Loglike: -160453.9522, Max-Change: 0.001055 EM iteration: 158, Loglike: -160453.9419, Max-Change: 0.001038 EM iteration: 159, Loglike: -160453.9317, Max-Change: 0.001022 EM iteration: 160, Loglike: -160453.9217, Max-Change: 0.001006 EM iteration: 161, Loglike: -160453.9118, Max-Change: 0.00099 
+#>  EM iteration: 1, Loglike: -43183.7384, Max-Change: 444.18843 EM iteration: 2, Loglike: -171692.4290, Max-Change: 13050.34448 EM iteration: 3, Loglike: -167123.7793, Max-Change: 21637.27771 EM iteration: 4, Loglike: -161120.9164, Max-Change: 0.616799 EM iteration: 5, Loglike: -160694.0896, Max-Change: 66377.21511 EM iteration: 6, Loglike: -160603.1254, Max-Change: 0.222458 EM iteration: 7, Loglike: -160560.8201, Max-Change: 0.287771 EM iteration: 8, Loglike: -160537.6414, Max-Change: 0.113785 EM iteration: 9, Loglike: -160523.0487, Max-Change: 0.085115 EM iteration: 10, Loglike: -160513.2716, Max-Change: 0.065378 EM iteration: 11, Loglike: -160506.3076, Max-Change: 0.051517 EM iteration: 12, Loglike: -160501.0628, Max-Change: 0.04167 EM iteration: 13, Loglike: -160496.9258, Max-Change: 0.037795 EM iteration: 14, Loglike: -160493.5386, Max-Change: 0.034279 EM iteration: 15, Loglike: -160490.6821, Max-Change: 0.031135 EM iteration: 16, Loglike: -160488.2162, Max-Change: 0.028352 EM iteration: 17, Loglike: -160486.0476, Max-Change: 0.025903 EM iteration: 18, Loglike: -160484.1126, Max-Change: 0.024341 EM iteration: 19, Loglike: -160482.3659, Max-Change: 0.023592 EM iteration: 20, Loglike: -160480.7747, Max-Change: 0.02282 EM iteration: 21, Loglike: -160479.3147, Max-Change: 0.022051 EM iteration: 22, Loglike: -160477.9674, Max-Change: 0.021301 EM iteration: 23, Loglike: -160476.7184, Max-Change: 0.02058 EM iteration: 24, Loglike: -160475.5562, Max-Change: 0.019892 EM iteration: 25, Loglike: -160474.4716, Max-Change: 0.019238 EM iteration: 26, Loglike: -160473.4571, Max-Change: 0.018619 EM iteration: 27, Loglike: -160472.5063, Max-Change: 0.018032 EM iteration: 28, Loglike: -160471.6136, Max-Change: 0.017477 EM iteration: 29, Loglike: -160470.7743, Max-Change: 0.01695 EM iteration: 30, Loglike: -160469.9845, Max-Change: 0.016449 EM iteration: 31, Loglike: -160469.2402, Max-Change: 0.015973 EM iteration: 32, Loglike: -160468.5384, Max-Change: 0.015517 EM iteration: 33, Loglike: -160467.8760, Max-Change: 0.015082 EM iteration: 34, Loglike: -160467.2504, Max-Change: 0.014664 EM iteration: 35, Loglike: -160466.6590, Max-Change: 0.014263 EM iteration: 36, Loglike: -160466.0997, Max-Change: 0.013877 EM iteration: 37, Loglike: -160465.5703, Max-Change: 0.013504 EM iteration: 38, Loglike: -160465.0689, Max-Change: 0.013144 EM iteration: 39, Loglike: -160464.5938, Max-Change: 0.012795 EM iteration: 40, Loglike: -160464.1433, Max-Change: 0.012458 EM iteration: 41, Loglike: -160463.7159, Max-Change: 0.01213 EM iteration: 42, Loglike: -160463.3101, Max-Change: 0.011813 EM iteration: 43, Loglike: -160462.9246, Max-Change: 0.011504 EM iteration: 44, Loglike: -160462.5581, Max-Change: 0.011205 EM iteration: 45, Loglike: -160462.2094, Max-Change: 0.010913 EM iteration: 46, Loglike: -160461.8775, Max-Change: 0.01063 EM iteration: 47, Loglike: -160461.5613, Max-Change: 0.010355 EM iteration: 48, Loglike: -160461.2598, Max-Change: 0.010087 EM iteration: 49, Loglike: -160460.9721, Max-Change: 0.009827 EM iteration: 50, Loglike: -160460.6975, Max-Change: 0.009574 EM iteration: 51, Loglike: -160460.4353, Max-Change: 0.009328 EM iteration: 52, Loglike: -160460.1846, Max-Change: 0.009088 EM iteration: 53, Loglike: -160459.9451, Max-Change: 0.008855 EM iteration: 54, Loglike: -160459.7162, Max-Change: 0.008629 EM iteration: 55, Loglike: -160459.4974, Max-Change: 0.008409 EM iteration: 56, Loglike: -160459.2883, Max-Change: 0.008195 EM iteration: 57, Loglike: -160459.0885, Max-Change: 0.007987 EM iteration: 58, Loglike: -160458.8976, Max-Change: 0.007785 EM iteration: 59, Loglike: -160458.7151, Max-Change: 0.007589 EM iteration: 60, Loglike: -160458.5407, Max-Change: 0.007398 EM iteration: 61, Loglike: -160458.3739, Max-Change: 0.007213 EM iteration: 62, Loglike: -160458.2144, Max-Change: 0.007033 EM iteration: 63, Loglike: -160458.0617, Max-Change: 0.006858 EM iteration: 64, Loglike: -160457.9155, Max-Change: 0.006688 EM iteration: 65, Loglike: -160457.7755, Max-Change: 0.006524 EM iteration: 66, Loglike: -160457.6413, Max-Change: 0.006364 EM iteration: 67, Loglike: -160457.5126, Max-Change: 0.006208 EM iteration: 68, Loglike: -160457.3891, Max-Change: 0.006058 EM iteration: 69, Loglike: -160457.2707, Max-Change: 0.005911 EM iteration: 70, Loglike: -160457.1570, Max-Change: 0.00577 EM iteration: 71, Loglike: -160457.0478, Max-Change: 0.005632 EM iteration: 72, Loglike: -160456.9430, Max-Change: 0.005498 EM iteration: 73, Loglike: -160456.8422, Max-Change: 0.005368 EM iteration: 74, Loglike: -160456.7453, Max-Change: 0.005242 EM iteration: 75, Loglike: -160456.6521, Max-Change: 0.00512 EM iteration: 76, Loglike: -160456.5625, Max-Change: 0.005001 EM iteration: 77, Loglike: -160456.4762, Max-Change: 0.004886 EM iteration: 78, Loglike: -160456.3932, Max-Change: 0.004774 EM iteration: 79, Loglike: -160456.3133, Max-Change: 0.004665 EM iteration: 80, Loglike: -160456.2363, Max-Change: 0.004559 EM iteration: 81, Loglike: -160456.1621, Max-Change: 0.004457 EM iteration: 82, Loglike: -160456.0905, Max-Change: 0.004357 EM iteration: 83, Loglike: -160456.0216, Max-Change: 0.00426 EM iteration: 84, Loglike: -160455.9550, Max-Change: 0.004165 EM iteration: 85, Loglike: -160455.8909, Max-Change: 0.004074 EM iteration: 86, Loglike: -160455.8289, Max-Change: 0.003985 EM iteration: 87, Loglike: -160455.7691, Max-Change: 0.003898 EM iteration: 88, Loglike: -160455.7114, Max-Change: 0.003814 EM iteration: 89, Loglike: -160455.6556, Max-Change: 0.003732 EM iteration: 90, Loglike: -160455.6017, Max-Change: 0.003652 EM iteration: 91, Loglike: -160455.5496, Max-Change: 0.003574 EM iteration: 92, Loglike: -160455.4992, Max-Change: 0.003499 EM iteration: 93, Loglike: -160455.4504, Max-Change: 0.003425 EM iteration: 94, Loglike: -160455.4033, Max-Change: 0.003354 EM iteration: 95, Loglike: -160455.3576, Max-Change: 0.003284 EM iteration: 96, Loglike: -160455.3134, Max-Change: 0.003216 EM iteration: 97, Loglike: -160455.2706, Max-Change: 0.00315 EM iteration: 98, Loglike: -160455.2292, Max-Change: 0.003085 EM iteration: 99, Loglike: -160455.1890, Max-Change: 0.003022 EM iteration: 100, Loglike: -160455.1501, Max-Change: 0.002961 EM iteration: 101, Loglike: -160455.1123, Max-Change: 0.002901 EM iteration: 102, Loglike: -160455.0757, Max-Change: 0.002843 EM iteration: 103, Loglike: -160455.0401, Max-Change: 0.002786 EM iteration: 104, Loglike: -160455.0057, Max-Change: 0.002731 EM iteration: 105, Loglike: -160454.9722, Max-Change: 0.002677 EM iteration: 106, Loglike: -160454.9397, Max-Change: 0.002624 EM iteration: 107, Loglike: -160454.9081, Max-Change: 0.002573 EM iteration: 108, Loglike: -160454.8774, Max-Change: 0.002523 EM iteration: 109, Loglike: -160454.8476, Max-Change: 0.002474 EM iteration: 110, Loglike: -160454.8186, Max-Change: 0.002426 EM iteration: 111, Loglike: -160454.7904, Max-Change: 0.002379 EM iteration: 112, Loglike: -160454.7630, Max-Change: 0.002334 EM iteration: 113, Loglike: -160454.7363, Max-Change: 0.002289 EM iteration: 114, Loglike: -160454.7103, Max-Change: 0.002246 EM iteration: 115, Loglike: -160454.6850, Max-Change: 0.002204 EM iteration: 116, Loglike: -160454.6604, Max-Change: 0.002162 EM iteration: 117, Loglike: -160454.6363, Max-Change: 0.002122 EM iteration: 118, Loglike: -160454.6129, Max-Change: 0.002082 EM iteration: 119, Loglike: -160454.5901, Max-Change: 0.002043 EM iteration: 120, Loglike: -160454.5679, Max-Change: 0.002006 EM iteration: 121, Loglike: -160454.5462, Max-Change: 0.001969 EM iteration: 122, Loglike: -160454.5250, Max-Change: 0.001932 EM iteration: 123, Loglike: -160454.5044, Max-Change: 0.001897 EM iteration: 124, Loglike: -160454.4842, Max-Change: 0.001863 EM iteration: 125, Loglike: -160454.4645, Max-Change: 0.001829 EM iteration: 126, Loglike: -160454.4453, Max-Change: 0.001796 EM iteration: 127, Loglike: -160454.4265, Max-Change: 0.001763 EM iteration: 128, Loglike: -160454.4082, Max-Change: 0.001732 EM iteration: 129, Loglike: -160454.3902, Max-Change: 0.001701 EM iteration: 130, Loglike: -160454.3727, Max-Change: 0.001671 EM iteration: 131, Loglike: -160454.3555, Max-Change: 0.001641 EM iteration: 132, Loglike: -160454.3387, Max-Change: 0.001612 EM iteration: 133, Loglike: -160454.3223, Max-Change: 0.001584 EM iteration: 134, Loglike: -160454.3062, Max-Change: 0.001556 EM iteration: 135, Loglike: -160454.2904, Max-Change: 0.001529 EM iteration: 136, Loglike: -160454.2750, Max-Change: 0.001502 EM iteration: 137, Loglike: -160454.2599, Max-Change: 0.001477 EM iteration: 138, Loglike: -160454.2451, Max-Change: 0.001451 EM iteration: 139, Loglike: -160454.2306, Max-Change: 0.001426 EM iteration: 140, Loglike: -160454.2164, Max-Change: 0.001402 EM iteration: 141, Loglike: -160454.2024, Max-Change: 0.001378 EM iteration: 142, Loglike: -160454.1887, Max-Change: 0.001355 EM iteration: 143, Loglike: -160454.1753, Max-Change: 0.001332 EM iteration: 144, Loglike: -160454.1622, Max-Change: 0.001309 EM iteration: 145, Loglike: -160454.1492, Max-Change: 0.001287 EM iteration: 146, Loglike: -160454.1365, Max-Change: 0.001266 EM iteration: 147, Loglike: -160454.1241, Max-Change: 0.001245 EM iteration: 148, Loglike: -160454.1118, Max-Change: 0.001224 EM iteration: 149, Loglike: -160454.0998, Max-Change: 0.001204 EM iteration: 150, Loglike: -160454.0880, Max-Change: 0.001184 EM iteration: 151, Loglike: -160454.0764, Max-Change: 0.001165 EM iteration: 152, Loglike: -160454.0649, Max-Change: 0.001146 EM iteration: 153, Loglike: -160454.0537, Max-Change: 0.001127 EM iteration: 154, Loglike: -160454.0427, Max-Change: 0.001109 EM iteration: 155, Loglike: -160454.0318, Max-Change: 0.001091 EM iteration: 156, Loglike: -160454.0211, Max-Change: 0.001073 EM iteration: 157, Loglike: -160454.0106, Max-Change: 0.001056 EM iteration: 158, Loglike: -160454.0003, Max-Change: 0.001039 EM iteration: 159, Loglike: -160453.9901, Max-Change: 0.001023 EM iteration: 160, Loglike: -160453.9800, Max-Change: 0.001007 EM iteration: 161, Loglike: -160453.9702, Max-Change: 0.000991 
 #> Warning: Convergence criteria are not satisfied. 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 52.28 seconds. 
+#> Estimation is finished in 45.78 seconds. 
 
 # Summary of the estimation
 summary(fit.6)
@@ -3864,12 +3864,12 @@ summary(fit.6)
 #>   Overall: 38
 #>   By group: 38(Group1), 0(Group2), 0(Group3)
 #>  Number of E-step cycles completed: 161
-#>  Maximum parameter change: 0.0009898914
+#>  Maximum parameter change: 0.0009907607
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 51.52
+#>  EM algorithm: 45.34
 #>  Standard error computation: 0.11
-#>  Total computation: 52.28
+#>  Total computation: 45.78
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are not satisfied.
@@ -3879,11 +3879,11 @@ summary(fit.6)
 #> 
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 
-#>   Overall: 320907.8
-#>   By group: 120433.219(Group1), 114532.034(Group2), 85942.567(Group3)
+#>   Overall: 320907.9
+#>   By group: 120433.219(Group1), 114532.122(Group2), 85942.596(Group3)
 #> 
-#>  Akaike Information Criterion (AIC): 321403.8
-#>  Bayesian Information Criterion (BIC): 323065.3
+#>  Akaike Information Criterion (AIC): 321403.9
+#>  Bayesian Information Criterion (BIC): 323065.4
 #>  Item Parameters (Overall): 
 #>         id  cats  model  par.1  se.1     par.2      se.2  par.3  se.3  par.4
 #> 1     C1I1     2   3PLM   0.88  0.17      1.37      0.17   0.27  0.05     NA
@@ -3937,17 +3937,17 @@ summary(fit.6)
 #> 49   C1I11     5    GRM   1.21  0.05     -2.13      0.09  -1.39  0.06  -0.70
 #> 50   C1I12     5    GRM   0.92  0.04     -0.66      0.05   0.05  0.04   0.70
 #> 51    G2I1     2   3PLM   1.76  0.19     -0.85      0.17   0.22  0.09     NA
-#> 52    G2I2     2   3PLM   0.00  0.09  21591.11  99999.00   0.21  0.09     NA
+#> 52    G2I2     2   3PLM   0.00  0.09  21713.81  99999.00   0.21  0.09     NA
 #> 53    G2I3     2   3PLM   1.08  0.14      0.12      0.20   0.18  0.08     NA
 #> 54    G2I4     2   3PLM   1.53  0.30      1.47      0.09   0.18  0.04     NA
-#> 55    G2I5     2   3PLM   0.00  0.09  16153.77  99999.00   0.21  0.09     NA
+#> 55    G2I5     2   3PLM   0.00  0.09  14446.88  99999.00   0.21  0.09     NA
 #> 56    G2I6     2   3PLM   1.07  0.15     -1.61      0.31   0.22  0.10     NA
 #> 57    G2I7     2   3PLM   1.33  0.14      0.29      0.12   0.13  0.05     NA
 #> 58    G2I8     2   3PLM   2.24  0.20     -0.06      0.08   0.14  0.05     NA
 #> 59    G2I9     2   3PLM   1.08  0.13     -1.54      0.28   0.21  0.09     NA
 #> 60   G2I10     2   3PLM   1.77  0.30      0.95      0.10   0.31  0.05     NA
 #> 61   G2I11     2   3PLM   0.96  0.13      0.89      0.15   0.12  0.05     NA
-#> 62   G2I12     2   3PLM   0.00  0.11  21352.80  99999.00   0.21  0.09     NA
+#> 62   G2I12     2   3PLM   0.00  0.11  13346.62  99999.00   0.21  0.09     NA
 #> 63   G2I13     2   3PLM   1.18  0.13     -1.27      0.24   0.21  0.09     NA
 #> 64   G2I14     2   3PLM   1.41  0.14      0.23      0.11   0.12  0.05     NA
 #> 65   G2I15     2   3PLM   1.58  0.21      0.09      0.17   0.28  0.08     NA
@@ -3973,12 +3973,12 @@ summary(fit.6)
 #> 85    C2I7     2   3PLM   1.56  0.11      0.04      0.07   0.18  0.02     NA
 #> 86    C2I8     2   3PLM   1.51  0.15      1.30      0.06   0.19  0.02     NA
 #> 87    C2I9     2   3PLM   2.10  0.13     -1.03      0.07   0.13  0.03     NA
-#> 88   C2I10     2   3PLM   0.00  0.04  45122.03  99999.00   0.21  0.09     NA
+#> 88   C2I10     2   3PLM   0.00  0.04   9805.45  99999.00   0.21  0.09     NA
 #> 89    G3I1     2   3PLM   1.50  0.14     -1.07      0.13   0.17  0.05     NA
-#> 90    G3I2     2   3PLM   0.00  0.05    299.41  99999.00   0.24  0.10     NA
+#> 90    G3I2     2   3PLM   0.00  0.05    342.64  99999.00   0.24  0.10     NA
 #> 91    G3I3     2   3PLM   1.10  0.12      0.07      0.12   0.16  0.03     NA
 #> 92    G3I4     2   3PLM   1.32  0.24      1.75      0.12   0.23  0.02     NA
-#> 93    G3I5     2   3PLM   0.00  0.05   4605.96  99999.00   0.21  0.09     NA
+#> 93    G3I5     2   3PLM   0.00  0.05  66756.43  99999.00   0.21  0.09     NA
 #> 94    G3I6     2   3PLM   1.17  0.15     -1.27      0.25   0.33  0.07     NA
 #> 95    G3I7     2   3PLM   1.36  0.13      0.29      0.09   0.14  0.03     NA
 #> 96    G3I8     2   3PLM   1.85  0.17     -0.07      0.07   0.14  0.02     NA
@@ -4132,19 +4132,19 @@ summary(fit.6)
 # Extract the group parameter estimates (i.e., scale parameters)
 getirt(fit.6, what = "group.par")
 #> $Group1
-#>                    mu     sigma2     sigma
-#> estimates 0.008398825 0.95861133 0.9790870
-#> se        0.021893051 0.03032153 0.0154846
+#>                    mu     sigma2      sigma
+#> estimates 0.008398423 0.95859715 0.97907974
+#> se        0.021892889 0.03032108 0.01548448
 #> 
 #> $Group2
 #>                   mu     sigma2      sigma
-#> estimates 0.51380432 0.55799843 0.74699293
-#> se        0.01670327 0.01764987 0.01181395
+#> estimates 0.51378696 0.55792281 0.74694231
+#> se        0.01670214 0.01764748 0.01181315
 #> 
 #> $Group3
 #>                    mu     sigma2      sigma
-#> estimates -0.36201704 2.10782685 1.45183568
-#> se         0.03246403 0.06667201 0.02296128
+#> estimates -0.36181792 2.10651430 1.45138358
+#> se         0.03245392 0.06663049 0.02295413
 #> 
 
 # }

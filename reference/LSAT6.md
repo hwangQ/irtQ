@@ -18,7 +18,7 @@ unique examinee's response pattern to five dichotomously scored items (0
 ## References
 
 Thissen, D. (1982). Marginal maximum likelihood estimation for the
-one-parameter logistic model. *Psychometrika, 47*, 175–186.
+one-parameter logistic model. *Psychometrika, 47*, 175-186.
 
 ## Author
 

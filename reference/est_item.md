@@ -166,7 +166,7 @@ est_item(
 
   - `dist`: A character string, one of `"beta"`, `"lnorm"`, or `"norm"`.
 
-  - `params`: A numeric vector of length two giving the distribution’s
+  - `params`: A numeric vector of length two giving the distribution's
     parameters. For details on each parameterization, see
     [`stats::dbeta()`](https://rdrr.io/r/stats/Beta.html),
     [`stats::dlnorm()`](https://rdrr.io/r/stats/Lognormal.html), and
@@ -205,7 +205,7 @@ est_item(
 
   - `iter.max` = 200 caps the number of internal optimizer iterations
 
-  - `x.tol` = 1e‑4 sets the absolute change threshold in parameter
+  - `x.tol` = 1e-4 sets the absolute change threshold in parameter
     values below which
     [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) considers
     the solution to have converged Users may additionally supply other
@@ -454,7 +454,7 @@ summary(mod1)
 #> 55   AFR3  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.45
+#>  Total computation: 0.39
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
@@ -729,7 +729,7 @@ summary(mod2)
 #> 55   AFR3  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.45
+#>  Total computation: 0.4
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
@@ -1002,7 +1002,7 @@ summary(mod3)
 #> 55   AFR3  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.28
+#>  Total computation: 0.25
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.

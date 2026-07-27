@@ -61,8 +61,8 @@ plot(
   ICCs or item score curves.
 
   If `TRUE`, curves are overlaid in a single panel using different
-  colors. If `FALSE`, each curve is drawn in a separate panel—either one
-  panel per item or per score category, depending on the setting of
+  colors. If `FALSE`, each curve is drawn in a separate panel - either
+  one panel per item or per score category, depending on the setting of
   `score.curve`.
 
 - layout.col:

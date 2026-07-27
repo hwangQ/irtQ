@@ -50,7 +50,7 @@ ordered by test position.
 ## Details
 
 To use this function, first prepare a metadata frame `x` containing only
-fixed items—either created by
+fixed items - either created by
 [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md) or
 imported from external software (e.g., via
 [`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)),

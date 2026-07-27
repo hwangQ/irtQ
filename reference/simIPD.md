@@ -36,7 +36,7 @@ A named list with eight elements:
 - key_item:
 
   An integer vector of length 90 giving the row indices (in `item_par`)
-  of the *key items* — items selected by a preliminary CAT simulation as
+  of the *key items* - items selected by a preliminary CAT simulation as
   highly exposed and therefore most relevant for IPD analysis.
 
 - item.skip:
@@ -56,7 +56,7 @@ A named list with eight elements:
 
 - foc_resp:
 
-  An integer matrix of dimensions 3000 × 360 containing the **focal
+  An integer matrix of dimensions 3000 x 360 containing the **focal
   group** CAT response data. Each row is one examinee; each column
   corresponds to an item in `item_par`. Because CAT administers only 30
   items per examinee, approximately 92% of entries are `NA`. Responses
@@ -70,7 +70,7 @@ A named list with eight elements:
 
 - ref_resp:
 
-  An integer matrix of dimensions 3000 × 360 containing the **synthetic
+  An integer matrix of dimensions 3000 x 360 containing the **synthetic
   reference group** CAT response data (same sparsity structure as
   `foc_resp`). The reference group was constructed by: (1) using
   `foc_score` as true ability values (1F scaling, i.e., the reference
@@ -111,11 +111,11 @@ A named list with eight elements:
 
 **Note on reference group size:** A 1F reference group (same size as the
 focal group) is used here for compactness. In practice, larger synthetic
-reference groups (e.g., 3F–8F) are recommended to improve RIPD detection
-power (Lim & Han, in press). A larger reference group can be created by
-replicating the focal theta estimates: e.g., `rep(foc_score, times = 3)`
-for a 3F group, then re-running the CAT simulation with the original
-item parameters.
+reference groups (e.g., 3F - 8F) are recommended to improve RIPD
+detection power (Lim & Han, in press). A larger reference group can be
+created by replicating the focal theta estimates: e.g.,
+`rep(foc_score, times = 3)` for a 3F group, then re-running the CAT
+simulation with the original item parameters.
 
 ## References
 
