@@ -3,10 +3,6 @@ title: "Model-Data Fit Evaluation"
 output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
-vignette: >
-  %\VignetteIndexEntry{Model-Data Fit Evaluation}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

@@ -3,10 +3,6 @@ title: "MST Panel Evaluation and Simulation"
 output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
-vignette: >
-  %\VignetteIndexEntry{MST Panel Evaluation and Simulation}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

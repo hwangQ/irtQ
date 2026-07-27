@@ -2,10 +2,6 @@
 title: "Classification Accuracy and Consistency"
 output: rmarkdown::html_vignette
 bibliography: references.bib
-vignette: >
-  %\VignetteIndexEntry{Classification Accuracy and Consistency}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

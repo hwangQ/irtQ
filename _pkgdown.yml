@@ -26,7 +26,7 @@ navbar:
     articles:
       text: Articles
       menu:
-        - text: "--- Core Vignettes ---"
+        - text: "--- Core Articles ---"
         - text: "Getting Started"
           href: articles/getting-started.html
         - text: "Item Parameter Estimation"
