@@ -46,8 +46,8 @@ is \code{NA}.}
 \itemize{
 \item first element: number of quadrature points
 \item second element: symmetric bound (absolute value) for those points
-For example, \code{c(49, 6)} specifies 49 evenly spaced points from –6 to 6.
-These points are used in the E-step of the EM algorithm. Default is \code{c(49,   6)}.
+For example, \code{c(49, 6)} specifies 49 evenly spaced points from -6 to 6.
+These points are used in the E-step of the EM algorithm. Default is \code{c(49, 6)}.
 }}
 
 \item{weights}{A two-column matrix or data frame containing the quadrature

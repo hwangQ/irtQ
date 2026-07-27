@@ -7,7 +7,7 @@
 
 - Added a new function, `find_cut()`, which identifies TIF-crossing
   routing cut scores for MST panels. For each adjacent module pair
-  within a stage, the function locates the theta where the two modules’
+  within a stage, the function locates the theta where the two modules'
   test information functions (TIFs) intersect. A warning is issued when
   the mean difficulty order of modules within a stage differs from their
   input index order.
@@ -85,8 +85,8 @@
   dichotomous items (N = 10,000) and up to 27% for mixed-format tests,
   through a series of optimizations.
 - Improved the computational speed of `sx2_fit()` substantially by
-  replacing the O(J²) Lord-Wingersky recursion with a forward-backward
-  pass (up to 11× faster for mixed-format tests with J = 55 items) and
+  replacing the O(J^2) Lord-Wingersky recursion with a forward-backward
+  pass (up to 11x faster for mixed-format tests with J = 55 items) and
   vectorizing internal helper functions `expFreq()`, `obsFreq()`, and
   the PRM category-collapsing routine.
 
@@ -99,8 +99,8 @@
   polytomous, and mixed-format item scenarios (355 tests total).
 - Added a new function, `ripd()`, which implements the Residual-based
   Item Parameter Drift (RIPD) detection framework. The function computes
-  three RIPD statistics— $RIPD_R$, $RIPD_S$, and $RIPD_{RS}$—for each
-  item. $RIPD_R$ captures uniform item parameter drift (IPD) via
+  three RIPD statistics: $RIPD_R$, $RIPD_S$, and $RIPD_{RS}$ (one for
+  each item). $RIPD_R$ captures uniform item parameter drift (IPD) via
   differences in mean raw residuals between groups, $RIPD_S$ captures
   nonuniform IPD via differences in mean squared residuals, and
   $RIPD_{RS}$ is a combined chi-square-based statistic sensitive to both
@@ -204,7 +204,7 @@
 
 - Added a new function, `reval_mst()`, which evaluates the measurement
   precision and bias in Multistage-Adaptive Test (MST) panels using a
-  recursion-based evaluation method introduced by Lim et al. (2020).
+  recursion-based evaluation method introduced by Lim et al. (2020).
 
 - Added a new function, `pcd2()`, which computes the Pseudo-count
   $D^{2}$ statistics (Cappaert et al., 2018; Stone, 2000) to detect item
@@ -212,7 +212,7 @@
 
 # irtQ 0.2.0
 
-- Introduced Warm’s (1989) Weighted Likelihood (WL) estimation method to
+- Introduced Warm's (1989) Weighted Likelihood (WL) estimation method to
   the `est_score()` function. This WL scoring method can now be utilized
   by setting `method = "WL"`.
 
@@ -229,14 +229,14 @@
 - Added two new functions for computing classification accuracy and
   consistency: `cac_rud()` and `cac_lee()`.
 
-  - `cac_rud`: This function implements Rudner’s (2001, 2005) method for
+  - `cac_rud`: This function implements Rudner's (2001, 2005) method for
     computing classification accuracy and consistency. It takes cut
     scores, ability estimates, standard errors, and optional weights as
     inputs and returns a list containing a confusion matrix, marginal
     and conditional classification accuracy and consistency indices, the
     probability of being assigned to each level category, and the cut
     scores used in the analysis.
-  - `cac_lee`: This function implements Lee’s (2010) method for
+  - `cac_lee`: This function implements Lee's (2010) method for
     computing classification accuracy and consistency. It takes a data
     frame containing item metadata, cut scores, optional ability
     estimates, optional weights, a scaling factor, and a logical value
@@ -253,8 +253,8 @@
 
 - Fixed an issue in the `grdif()` function that inaccurately calculated
   the GRDIF statistics when group membership was specified in a
-  non-standard way. Specifically, the problem arose when 0 wasn’t used
-  as the reference group and consecutive numbers (e.g., 1, 2, 3) weren’t
+  non-standard way. Specifically, the problem arose when 0 wasn't used
+  as the reference group and consecutive numbers (e.g., 1, 2, 3) weren't
   used to represent focal groups in the `group` argument.
 
 # irtQ 0.1.1

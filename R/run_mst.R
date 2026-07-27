@@ -61,7 +61,7 @@
 #'   index into the stage-1 module list
 #'   (\code{panel_info(route_map)$config[[1]]}). When \code{NULL}, each
 #'   examinee is independently and randomly assigned to one of the stage-1
-#'   modules with equal probability — appropriate for MST panels that use
+#'   modules with equal probability - appropriate for MST panels that use
 #'   spiralling or booklet-based stage-1 assignment, or for panels with only
 #'   a single stage-1 module (where random assignment is equivalent to a
 #'   fixed assignment). When an integer is supplied, all examinees begin with
@@ -720,7 +720,7 @@ run_mst <- function(x,
     )
   }
 
-  # --- Pre-compute sum_score → theta/SE lookup tables for EAP.SUM/INV.TCC routing ---
+  # --- Pre-compute sum_score -> theta/SE lookup tables for EAP.SUM/INV.TCC routing ---
   # One table per module (tn.mod tables total); cost is O(tn.mod), independent of N.
   # During the examinee loop, routing theta = named-vector lookup, not a function call.
   #
@@ -728,7 +728,7 @@ run_mst <- function(x,
   # route_tables[[m]]$se     named numeric: name = "0","1",...; value = SE estimate
   #
   # Tables are built by calling inv_tcc() or eap_sum() with a 1-row dummy response
-  # matrix (all zeros). Only $score.table is used — it covers all possible sum scores
+  # matrix (all zeros). Only $score.table is used - it covers all possible sum scores
   # and is computed independently of the actual response data passed in 'data'.
   route_tables <- NULL   # remains NULL when method is ML/WL/MLF/MAP/EAP
 
@@ -771,13 +771,13 @@ run_mst <- function(x,
     }
   }
 
-  # --- Pre-compute sum_score → theta/SE lookup tables for EAP.SUM/INV.TCC final scoring ---
+  # --- Pre-compute sum_score -> theta/SE lookup tables for EAP.SUM/INV.TCC final scoring ---
   # One table per unique complete pathway; cost is O(n_unique_pathways), independent of N.
   # Fixes the se_theta=NA bug: both theta AND SE are stored and returned from the table.
   #
   # Key format: paste(module_indices_stage1_to_stageN, collapse = "_")  e.g. "1_3_6"
-  # final_tables[["1_3_6"]]$theta  named numeric: sum_score → theta
-  # final_tables[["1_3_6"]]$se     named numeric: sum_score → SE
+  # final_tables[["1_3_6"]]$theta  named numeric: sum_score -> theta
+  # final_tables[["1_3_6"]]$se     named numeric: sum_score -> SE
   final_tables <- NULL   # remains NULL when method is ML/WL/MLF/MAP/EAP
 
   if (final_args$method %in% c("EAP.SUM", "INV.TCC")) {
@@ -897,8 +897,8 @@ run_mst <- function(x,
     }
 
     # Determine starting module for this examinee:
-    #   fixed_start non-NULL → same module for every examinee (ini_mod was integer)
-    #   fixed_start NULL     → uniformly sample from all stage-1 modules
+    #   fixed_start non-NULL -> same module for every examinee (ini_mod was integer)
+    #   fixed_start NULL     -> uniformly sample from all stage-1 modules
     current_mod <- if (!is.null(fixed_start)) fixed_start
                    else sample(stage1_mods, size = 1L)
     # Accumulate item indices and response vector across all administered stages

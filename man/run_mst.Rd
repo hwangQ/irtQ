@@ -75,7 +75,7 @@ normal ogive.}
 index into the stage-1 module list
 (\code{panel_info(route_map)$config[[1]]}). When \code{NULL}, each
 examinee is independently and randomly assigned to one of the stage-1
-modules with equal probability — appropriate for MST panels that use
+modules with equal probability - appropriate for MST panels that use
 spiralling or booklet-based stage-1 assignment, or for panels with only
 a single stage-1 module (where random assignment is equivalent to a
 fixed assignment). When an integer is supplied, all examinees begin with
@@ -104,7 +104,7 @@ used when \code{route_method = NULL}. The list should have
 \code{n.stage - 1} elements, one per stage transition. Element \emph{s}
 contains the cut scores for routing from stage \emph{s} to stage
 \emph{s}+1. For example, in a 1-3-3 MST, \code{cut_score = list(c(-0.5,
-  0.5), c(-0.6, 0.6))} routes examinees whose stage-1 score is below
+0.5), c(-0.6, 0.6))} routes examinees whose stage-1 score is below
 \eqn{-0.5} to the easiest stage-2 module, between \eqn{-0.5} and
 \eqn{0.5} to the medium module, and above \eqn{0.5} to the hardest
 module. Ignored when \code{route_method} is \code{"bmat"} or

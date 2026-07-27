@@ -23,7 +23,7 @@
 #'     (columns: \code{id}, \code{cats}, \code{model}, \code{par.1},
 #'     \code{par.2}, \code{par.3}).  All items follow the 3PLM.}
 #'   \item{key_item}{An integer vector of length 90 giving the row indices
-#'     (in \code{item_par}) of the \emph{key items} — items selected by a
+#'     (in \code{item_par}) of the \emph{key items} - items selected by a
 #'     preliminary CAT simulation as highly exposed and therefore most relevant
 #'     for IPD analysis.}
 #'   \item{item.skip}{An integer vector of length 270 giving the row indices of
@@ -35,7 +35,7 @@
 #'     the 360-item pool) had both their discrimination (\emph{a}) and difficulty
 #'     (\emph{b}) parameters decreased by 0.5.  All 18 items are members of
 #'     \code{key_item}.}
-#'   \item{foc_resp}{An integer matrix of dimensions 3000 × 360 containing the
+#'   \item{foc_resp}{An integer matrix of dimensions 3000 x 360 containing the
 #'     \strong{focal group} CAT response data.  Each row is one examinee; each
 #'     column corresponds to an item in \code{item_par}.  Because CAT
 #'     administers only 30 items per examinee, approximately 92% of entries
@@ -45,7 +45,7 @@
 #'   \item{foc_score}{A numeric vector of length 3000 containing the
 #'     \strong{focal group} final maximum likelihood (ML) theta estimates
 #'     obtained from the CAT.}
-#'   \item{ref_resp}{An integer matrix of dimensions 3000 × 360 containing the
+#'   \item{ref_resp}{An integer matrix of dimensions 3000 x 360 containing the
 #'     \strong{synthetic reference group} CAT response data (same sparsity
 #'     structure as \code{foc_resp}).  The reference group was constructed by:
 #'     (1) using \code{foc_score} as true ability values (1F scaling, i.e.,
@@ -78,7 +78,7 @@
 #'
 #' \strong{Note on reference group size:}
 #' A 1F reference group (same size as the focal group) is used here for
-#' compactness.  In practice, larger synthetic reference groups (e.g., 3F–8F)
+#' compactness.  In practice, larger synthetic reference groups (e.g., 3F - 8F)
 #' are recommended to improve RIPD detection power (Lim & Han, in press).
 #' A larger reference group can be created by replicating the focal theta
 #' estimates: e.g., \code{rep(foc_score, times = 3)} for a 3F group, then

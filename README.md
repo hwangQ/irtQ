@@ -16,7 +16,7 @@ The package enables:
 - Typical item parameters estimation
 - Pretest item calibration
 - Multiple-group item calibration
-- Estimation of examinees’ latent abilities
+- Estimation of examinees' latent abilities
 - Evaluation of model-data fit at the item level
 
 Item parameter estimation is conducted using marginal maximum likelihood
@@ -42,11 +42,11 @@ available, including:
 
 Also, model fit assessment includes item fit statistics such as:
 
-- Chi-square (X²; Bock, 1960; Yen, 1981),
-- Likelihood ratio chi-square (G²; McKinley & Mills, 1985),
+- Chi-square (X^2; Bock, 1960; Yen, 1981),
+- Likelihood ratio chi-square (G^2; McKinley & Mills, 1985),
 - Infit and outfit statistics (Ames et al., 2015)
 - Graphical residual diagnostics (Hambleton et al., 1991)
-- S-X² (Orlando & Thissen, 2000, 2003)
+- S-X^2 (Orlando & Thissen, 2000, 2003)
 
 In addition, the package offers a variety of utilities for IRT analysis,
 including:
@@ -54,7 +54,7 @@ including:
 - Detecting differential item functioning (DIF) using RDIF, RDIF-CR
   (categorical residuals), GRDIF (multiple groups), and CATSIB
 - Detecting item parameter drift (IPD) using the RIPD framework and the
-  Pseudo-count D² statistic
+  Pseudo-count D^2 statistic
 - Computing classification accuracy and consistency indices
 - Designing, evaluating, and simulating multistage-adaptive test (MST)
   panels, including TIF-crossing cut-score selection, recursion-based
@@ -113,7 +113,7 @@ For example, users can:
 In the `irtQ` package, item calibration for a linear test form typically
 involves two main steps:
 
-1.  Prepare the examinees’ response data set for the linear test form
+1.  Prepare the examinees' response data set for the linear test form
 
     To estimate item parameters using the `irtQ::est_irt()` function, a
     response data set for the linear test form must first be prepared.
@@ -126,7 +126,7 @@ involves two main steps:
     To estimate item parameters, several key input arguments must be
     specified in the `irtQ::est_irt()` function:
 
-    - `data`: A matrix or data frame containing examinees’ item
+    - `data`: A matrix or data frame containing examinees' item
       responses.
     - `model`: A character vector specifying the IRT model for each item
       (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
@@ -200,7 +200,7 @@ steps:
 2.  Prepare the response data set from examinees who answered both the
     operational and pretest items.
 
-    To implement FIPC using the `irtQ::est_irt()` function, examinees’
+    To implement FIPC using the `irtQ::est_irt()` function, examinees'
     response data for the test form must be provided, including both
     operational and pretest items. The response data should be in a
     matrix or data frame format, where rows represent examinees and
@@ -238,8 +238,8 @@ steps:
 ## 3. Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)
 
 In computerized adaptive testing (CAT), the fixed ability parameter
-calibration (FAPC) method—also known as Stocking’s Method A (Stocking,
-1988)—is one of the simplest and most straightforward approaches for
+calibration (FAPC) method - also known as Stocking's Method A (Stocking,
+1988) - is one of the simplest and most straightforward approaches for
 calibrating pretest items. It involves estimating item parameters using
 maximum likelihood estimation, conditional on known or estimated
 proficiency values.
@@ -261,7 +261,7 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
     To use the `irtQ::est_item()` function, two input data sets are
     required:
 
-    - Ability estimates: A numeric vector containing examinees’ ability
+    - Ability estimates: A numeric vector containing examinees' ability
       (or proficiency) estimates.
     - Item response data: A matrix or data frame containing item
       responses, where rows represent examinees and columns represent
@@ -274,9 +274,9 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
     based on provided ability estimates. To use this function, you must
     specify the following arguments:
 
-    - `data`: A matrix or data frame containing examinees’ item
+    - `data`: A matrix or data frame containing examinees' item
       responses.
-    - `score`: A numeric vector of examinees’ ability (proficiency)
+    - `score`: A numeric vector of examinees' ability (proficiency)
       estimates.
     - `model`: A character vector specifying the IRT model for each item
       (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
@@ -288,13 +288,13 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
     For additional details on implementing FAPC, refer to the
     documentation for `irtQ::est_item()`.
 
-## 4. The Process of Evaluating the IRT Model–Data Fit
+## 4. The Process of Evaluating the IRT Model-Data Fit
 
 Evaluating how well an item response theory (IRT) model fits observed
 response data is a critical step in psychometric analysis. The `irtQ`
 package provides both statistical and graphical tools for evaluating
 item-level model fit. These include traditional fit statistics (e.g.,
-X², G², infit, outfit, and S-X²) and diagnostic residual plots.
+X^2, G^2, infit, outfit, and S-X^2) and diagnostic residual plots.
 
 Model fit evaluation using `irtQ` typically involves the following three
 steps:
@@ -319,7 +319,7 @@ be prepared:
     them using the corresponding `irtQ::bring.*()` functions (e.g.,
     `irtQ::bring.flexmirt()`, `irtQ::bring.bilog()`).
 
-2.  **Ability estimates**: A numeric vector of examinees’ estimated
+2.  **Ability estimates**: A numeric vector of examinees' estimated
     proficiency values.
 
 3.  **Response data**: A matrix or data frame in which rows represent
@@ -332,11 +332,11 @@ be prepared:
 The `irtQ::irtfit()` function calculates widely used item fit
 statistics, including:
 
-- Chi-square (X²)
-- Likelihood-ratio chi-square (G²)
+- Chi-square (X^2)
+- Likelihood-ratio chi-square (G^2)
 - Infit and outfit statistics
 
-To compute X² and G² statistics, the latent ability scale must be
+To compute X^2 and G^2 statistics, the latent ability scale must be
 divided into several groups. Two grouping methods are available:
 
 - `"equal.width"`: Divides the scale into intervals of equal length
@@ -357,9 +357,9 @@ response data contain missing values, specify the missing value code
 using the `missing` argument.
 
 Upon execution, the function returns item fit statistics and contingency
-tables used to compute the X² and G² statistics.
+tables used to compute the X^2 and G^2 statistics.
 
-Note that the model-fit evaluation using the S-X² statistic can be
+Note that the model-fit evaluation using the S-X^2 statistic can be
 implemented using the `irtQ::sx2_fit()` function.
 
 ### 3. Draw residual plots using the `plot()` method
@@ -377,7 +377,7 @@ in the raw residual plots. Supported methods include:
 
 - `"wald"`: Wald interval based on the normal approximation (Laplace,
   1812)
-- `"cp"`: Clopper–Pearson interval (Clopper & Pearson, 1934)
+- `"cp"`: Clopper-Pearson interval (Clopper & Pearson, 1934)
 - `"wilson"`: Wilson score interval (Wilson, 1927)
 - `"wilson.cr"`: Wilson score interval with continuity correction
   (Newcombe, 1998)
@@ -450,7 +450,7 @@ mod_ref <- irtQ::est_irt(data = data_ref, D = 1, model = c(rep("3PLM",
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -53907.8298, Max-Change: 1.476851 EM iteration: 2, Loglike: -47810.7610, Max-Change: 0.333348 EM iteration: 3, Loglike: -47780.1401, Max-Change: 0.130911 EM iteration: 4, Loglike: -47777.7493, Max-Change: 0.064179 EM iteration: 5, Loglike: -47776.9296, Max-Change: 0.038227 EM iteration: 6, Loglike: -47776.4542, Max-Change: 0.026209 EM iteration: 7, Loglike: -47776.1402, Max-Change: 0.019566 EM iteration: 8, Loglike: -47775.9185, Max-Change: 0.015306 EM iteration: 9, Loglike: -47775.7539, Max-Change: 0.012285 EM iteration: 10, Loglike: -47775.6263, Max-Change: 0.01001 EM iteration: 11, Loglike: -47775.5239, Max-Change: 0.008238 EM iteration: 12, Loglike: -47775.4394, Max-Change: 0.006834 EM iteration: 13, Loglike: -47775.3679, Max-Change: 0.005706 EM iteration: 14, Loglike: -47775.3064, Max-Change: 0.004795 EM iteration: 15, Loglike: -47775.2525, Max-Change: 0.004052 EM iteration: 16, Loglike: -47775.2048, Max-Change: 0.003444 EM iteration: 17, Loglike: -47775.1621, Max-Change: 0.002944 EM iteration: 18, Loglike: -47775.1234, Max-Change: 0.002529 EM iteration: 19, Loglike: -47775.0882, Max-Change: 0.002184 EM iteration: 20, Loglike: -47775.0558, Max-Change: 0.001895 EM iteration: 21, Loglike: -47775.0259, Max-Change: 0.001652 EM iteration: 22, Loglike: -47774.9980, Max-Change: 0.001446 EM iteration: 23, Loglike: -47774.9719, Max-Change: 0.001271 EM iteration: 24, Loglike: -47774.9473, Max-Change: 0.001121 EM iteration: 25, Loglike: -47774.9241, Max-Change: 0.000993 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.46 seconds.
+#> Estimation is finished in 2.5 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_ref)
@@ -477,9 +477,9 @@ irtQ::summary(mod_ref)
 #>  Maximum parameter change: 0.0009933655
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.34
-#>  Standard error computation: 0.05
-#>  Total computation: 1.46
+#>  EM algorithm: 2.24
+#>  Standard error computation: 0.15
+#>  Total computation: 2.5
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -492,47 +492,88 @@ irtQ::summary(mod_ref)
 #>  Akaike Information Criterion (AIC): 95797.84
 #>  Bayesian Information Criterion (BIC): 96492.35
 #>  Item Parameters: 
-#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4  par.5  se.5
-#> 1    Ref_I1     2   3PLM   0.69  0.15   1.14  0.27   0.19  0.07     NA    NA     NA    NA
-#> 2    Ref_I2     2   3PLM   1.77  0.17  -1.02  0.14   0.20  0.07     NA    NA     NA    NA
-#> 3    Ref_I3     2   3PLM   1.52  0.21   0.71  0.10   0.24  0.03     NA    NA     NA    NA
-#> 4    Ref_I4     2   3PLM   1.05  0.12  -0.44  0.20   0.18  0.07     NA    NA     NA    NA
-#> 5    Ref_I5     2   3PLM   0.92  0.16   0.27  0.26   0.26  0.07     NA    NA     NA    NA
-#> 6    Ref_I6     2   3PLM   1.87  0.20   0.73  0.06   0.09  0.02     NA    NA     NA    NA
-#> 7    Ref_I7     2   3PLM   1.06  0.19   1.20  0.13   0.18  0.04     NA    NA     NA    NA
-#> 8    Ref_I8     2   3PLM   0.97  0.16   0.95  0.15   0.16  0.05     NA    NA     NA    NA
-#> 9    Ref_I9     2   3PLM   1.30  0.22   0.73  0.13   0.28  0.04     NA    NA     NA    NA
-#> 10  Ref_I10     2   3PLM   1.86  0.20   0.19  0.08   0.16  0.03     NA    NA     NA    NA
-#> 11  Ref_I11     2   3PLM   0.99  0.12  -0.27  0.19   0.16  0.06     NA    NA     NA    NA
-#> 12  Ref_I12     2   3PLM   1.04  0.16   1.16  0.12   0.12  0.04     NA    NA     NA    NA
-#> 13  Ref_I13     2   3PLM   1.22  0.21   1.33  0.11   0.15  0.03     NA    NA     NA    NA
-#> 14  Ref_I14     2   3PLM   1.54  0.19   0.24  0.11   0.24  0.04     NA    NA     NA    NA
-#> 15  Ref_I15     2   3PLM   1.48  0.16   0.01  0.11   0.17  0.05     NA    NA     NA    NA
-#> 16  Ref_I16     2   3PLM   2.35  0.19   0.01  0.05   0.07  0.02     NA    NA     NA    NA
-#> 17  Ref_I17     2   3PLM   1.48  0.17  -0.03  0.12   0.21  0.05     NA    NA     NA    NA
-#> 18  Ref_I18     2   3PLM   1.70  0.30   1.24  0.09   0.27  0.02     NA    NA     NA    NA
-#> 19  Ref_I19     2   3PLM   2.15  0.19  -1.01  0.10   0.15  0.06     NA    NA     NA    NA
-#> 20  Ref_I20     2   3PLM   1.76  0.20  -1.28  0.19   0.30  0.09     NA    NA     NA    NA
-#> 21  Ref_I21     2   3PLM   1.73  0.20  -0.94  0.16   0.26  0.08     NA    NA     NA    NA
-#> 22  Ref_I22     2   3PLM   0.90  0.14  -0.23  0.29   0.25  0.08     NA    NA     NA    NA
-#> 23  Ref_I23     2   3PLM   0.96  0.10  -0.27  0.17   0.13  0.06     NA    NA     NA    NA
-#> 24  Ref_I24     2   3PLM   1.05  0.25   1.54  0.15   0.23  0.04     NA    NA     NA    NA
-#> 25  Ref_I25     2   3PLM   0.71  0.09  -1.60  0.37   0.22  0.09     NA    NA     NA    NA
-#> 26  Ref_I26     2   3PLM   0.88  0.10  -1.98  0.31   0.22  0.10     NA    NA     NA    NA
-#> 27  Ref_I27     2   3PLM   1.41  0.16   0.13  0.11   0.16  0.04     NA    NA     NA    NA
-#> 28  Ref_I28     2   3PLM   2.73  0.30   0.12  0.06   0.25  0.03     NA    NA     NA    NA
-#> 29  Ref_I29     2   3PLM   1.27  0.13  -1.38  0.21   0.22  0.09     NA    NA     NA    NA
-#> 30  Ref_I30     2   3PLM   1.69  0.27   0.89  0.10   0.35  0.03     NA    NA     NA    NA
-#> 31  Ref_I31     2   3PLM   1.04  0.16   0.84  0.13   0.14  0.04     NA    NA     NA    NA
-#> 32  Ref_I32     2   3PLM   1.69  0.19  -0.70  0.16   0.30  0.07     NA    NA     NA    NA
-#> 33  Ref_I33     2   3PLM   1.24  0.11  -1.38  0.18   0.17  0.07     NA    NA     NA    NA
-#> 34  Ref_I34     2   3PLM   1.38  0.18   0.37  0.12   0.21  0.04     NA    NA     NA    NA
-#> 35  Ref_I35     2   3PLM   1.68  0.21   0.01  0.12   0.28  0.05     NA    NA     NA    NA
-#> 36  Ref_I36     2   3PLM   1.02  0.19   1.35  0.13   0.16  0.04     NA    NA     NA    NA
-#> 37  Ref_I37     2   3PLM   1.92  0.19  -0.21  0.09   0.17  0.04     NA    NA     NA    NA
-#> 38  Ref_I38     2   3PLM   0.72  0.10  -0.43  0.34   0.21  0.09     NA    NA     NA    NA
-#> 39  Ref_I39     5    GRM   1.96  0.09  -1.83  0.08  -1.17  0.05  -0.62  0.04  -0.17  0.04
-#> 40  Ref_I40     5    GRM   1.33  0.06  -0.73  0.06  -0.07  0.05   0.58  0.05   1.10  0.06
+#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
+#> 1    Ref_I1     2   3PLM   0.69  0.15   1.14  0.27   0.19  0.07     NA    NA
+#> 2    Ref_I2     2   3PLM   1.77  0.17  -1.02  0.14   0.20  0.07     NA    NA
+#> 3    Ref_I3     2   3PLM   1.52  0.21   0.71  0.10   0.24  0.03     NA    NA
+#> 4    Ref_I4     2   3PLM   1.05  0.12  -0.44  0.20   0.18  0.07     NA    NA
+#> 5    Ref_I5     2   3PLM   0.92  0.16   0.27  0.26   0.26  0.07     NA    NA
+#> 6    Ref_I6     2   3PLM   1.87  0.20   0.73  0.06   0.09  0.02     NA    NA
+#> 7    Ref_I7     2   3PLM   1.06  0.19   1.20  0.13   0.18  0.04     NA    NA
+#> 8    Ref_I8     2   3PLM   0.97  0.16   0.95  0.15   0.16  0.05     NA    NA
+#> 9    Ref_I9     2   3PLM   1.30  0.22   0.73  0.13   0.28  0.04     NA    NA
+#> 10  Ref_I10     2   3PLM   1.86  0.20   0.19  0.08   0.16  0.03     NA    NA
+#> 11  Ref_I11     2   3PLM   0.99  0.12  -0.27  0.19   0.16  0.06     NA    NA
+#> 12  Ref_I12     2   3PLM   1.04  0.16   1.16  0.12   0.12  0.04     NA    NA
+#> 13  Ref_I13     2   3PLM   1.22  0.21   1.33  0.11   0.15  0.03     NA    NA
+#> 14  Ref_I14     2   3PLM   1.54  0.19   0.24  0.11   0.24  0.04     NA    NA
+#> 15  Ref_I15     2   3PLM   1.48  0.16   0.01  0.11   0.17  0.05     NA    NA
+#> 16  Ref_I16     2   3PLM   2.35  0.19   0.01  0.05   0.07  0.02     NA    NA
+#> 17  Ref_I17     2   3PLM   1.48  0.17  -0.03  0.12   0.21  0.05     NA    NA
+#> 18  Ref_I18     2   3PLM   1.70  0.30   1.24  0.09   0.27  0.02     NA    NA
+#> 19  Ref_I19     2   3PLM   2.15  0.19  -1.01  0.10   0.15  0.06     NA    NA
+#> 20  Ref_I20     2   3PLM   1.76  0.20  -1.28  0.19   0.30  0.09     NA    NA
+#> 21  Ref_I21     2   3PLM   1.73  0.20  -0.94  0.16   0.26  0.08     NA    NA
+#> 22  Ref_I22     2   3PLM   0.90  0.14  -0.23  0.29   0.25  0.08     NA    NA
+#> 23  Ref_I23     2   3PLM   0.96  0.10  -0.27  0.17   0.13  0.06     NA    NA
+#> 24  Ref_I24     2   3PLM   1.05  0.25   1.54  0.15   0.23  0.04     NA    NA
+#> 25  Ref_I25     2   3PLM   0.71  0.09  -1.60  0.37   0.22  0.09     NA    NA
+#> 26  Ref_I26     2   3PLM   0.88  0.10  -1.98  0.31   0.22  0.10     NA    NA
+#> 27  Ref_I27     2   3PLM   1.41  0.16   0.13  0.11   0.16  0.04     NA    NA
+#> 28  Ref_I28     2   3PLM   2.73  0.30   0.12  0.06   0.25  0.03     NA    NA
+#> 29  Ref_I29     2   3PLM   1.27  0.13  -1.38  0.21   0.22  0.09     NA    NA
+#> 30  Ref_I30     2   3PLM   1.69  0.27   0.89  0.10   0.35  0.03     NA    NA
+#> 31  Ref_I31     2   3PLM   1.04  0.16   0.84  0.13   0.14  0.04     NA    NA
+#> 32  Ref_I32     2   3PLM   1.69  0.19  -0.70  0.16   0.30  0.07     NA    NA
+#> 33  Ref_I33     2   3PLM   1.24  0.11  -1.38  0.18   0.17  0.07     NA    NA
+#> 34  Ref_I34     2   3PLM   1.38  0.18   0.37  0.12   0.21  0.04     NA    NA
+#> 35  Ref_I35     2   3PLM   1.68  0.21   0.01  0.12   0.28  0.05     NA    NA
+#> 36  Ref_I36     2   3PLM   1.02  0.19   1.35  0.13   0.16  0.04     NA    NA
+#> 37  Ref_I37     2   3PLM   1.92  0.19  -0.21  0.09   0.17  0.04     NA    NA
+#> 38  Ref_I38     2   3PLM   0.72  0.10  -0.43  0.34   0.21  0.09     NA    NA
+#> 39  Ref_I39     5    GRM   1.96  0.09  -1.83  0.08  -1.17  0.05  -0.62  0.04
+#> 40  Ref_I40     5    GRM   1.33  0.06  -0.73  0.06  -0.07  0.05   0.58  0.05
+#>     par.5  se.5
+#> 1      NA    NA
+#> 2      NA    NA
+#> 3      NA    NA
+#> 4      NA    NA
+#> 5      NA    NA
+#> 6      NA    NA
+#> 7      NA    NA
+#> 8      NA    NA
+#> 9      NA    NA
+#> 10     NA    NA
+#> 11     NA    NA
+#> 12     NA    NA
+#> 13     NA    NA
+#> 14     NA    NA
+#> 15     NA    NA
+#> 16     NA    NA
+#> 17     NA    NA
+#> 18     NA    NA
+#> 19     NA    NA
+#> 20     NA    NA
+#> 21     NA    NA
+#> 22     NA    NA
+#> 23     NA    NA
+#> 24     NA    NA
+#> 25     NA    NA
+#> 26     NA    NA
+#> 27     NA    NA
+#> 28     NA    NA
+#> 29     NA    NA
+#> 30     NA    NA
+#> 31     NA    NA
+#> 32     NA    NA
+#> 33     NA    NA
+#> 34     NA    NA
+#> 35     NA    NA
+#> 36     NA    NA
+#> 37     NA    NA
+#> 38     NA    NA
+#> 39  -0.17  0.04
+#> 40   1.10  0.06
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
 #> estimates   0       1      1
@@ -570,7 +611,7 @@ print(est_ref)
 #> 26 Ref_I26    2  3PLM 0.8782582 -1.97974491  0.22367121         NA         NA
 #> 27 Ref_I27    2  3PLM 1.4142228  0.12900789  0.16073407         NA         NA
 #> 28 Ref_I28    2  3PLM 2.7271259  0.11722864  0.24875028         NA         NA
-#> 29 Ref_I29    2  3PLM 1.2736643 -1.38227008  0.22190753         NA         NA
+#> 29 Ref_I29    2  3PLM 1.2736643 -1.38227009  0.22190752         NA         NA
 #> 30 Ref_I30    2  3PLM 1.6924004  0.89383796  0.35473129         NA         NA
 #> 31 Ref_I31    2  3PLM 1.0382178  0.83916998  0.14081448         NA         NA
 #> 32 Ref_I32    2  3PLM 1.6949111 -0.69941722  0.30436382         NA         NA
@@ -610,7 +651,7 @@ meta_fipc <- irtQ::shape_df_fipc(x = est_ref, fix.loc = fixed_pos,
 
 ## Step 2: Prepare response data for the new test
 ## form Generate latent abilities for 2,000 new
-## examinees from N(0.5, 1.3²)
+## examinees from N(0.5, 1.3^2)
 set.seed(21)
 theta_new <- rnorm(2000, mean = 0.5, sd = 1.3)
 
@@ -645,7 +686,7 @@ mod_fipc <- irtQ::est_irt(x = meta_fipc, data = data_new,
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001326 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.000788 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.4 seconds.
+#> Estimation is finished in 1.73 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_fipc)
@@ -671,9 +712,9 @@ irtQ::summary(mod_fipc)
 #>  Maximum parameter change: 0.0007875969
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.33
-#>  Standard error computation: 0.02
-#>  Total computation: 0.4
+#>  EM algorithm: 1.55
+#>  Standard error computation: 0.05
+#>  Total computation: 1.73
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -686,62 +727,118 @@ irtQ::summary(mod_fipc)
 #>  Akaike Information Criterion (AIC): 120386
 #>  Bayesian Information Criterion (BIC): 120682.9
 #>  Item Parameters: 
-#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4  par.5  se.5
-#> 1    Ref_I1     2   3PLM   0.69    NA   1.14    NA   0.19    NA     NA    NA     NA    NA
-#> 2    Ref_I2     2   3PLM   1.77    NA  -1.02    NA   0.20    NA     NA    NA     NA    NA
-#> 3    Ref_I3     2   3PLM   1.52    NA   0.71    NA   0.24    NA     NA    NA     NA    NA
-#> 4    Ref_I4     2   3PLM   1.05    NA  -0.44    NA   0.18    NA     NA    NA     NA    NA
-#> 5    Ref_I5     2   3PLM   0.92    NA   0.27    NA   0.26    NA     NA    NA     NA    NA
-#> 6    Ref_I6     2   3PLM   1.87    NA   0.73    NA   0.09    NA     NA    NA     NA    NA
-#> 7    Ref_I7     2   3PLM   1.06    NA   1.20    NA   0.18    NA     NA    NA     NA    NA
-#> 8    Ref_I8     2   3PLM   0.97    NA   0.95    NA   0.16    NA     NA    NA     NA    NA
-#> 9    Ref_I9     2   3PLM   1.30    NA   0.73    NA   0.28    NA     NA    NA     NA    NA
-#> 10  Ref_I10     2   3PLM   1.86    NA   0.19    NA   0.16    NA     NA    NA     NA    NA
-#> 11  Ref_I11     2   3PLM   0.99    NA  -0.27    NA   0.16    NA     NA    NA     NA    NA
-#> 12  Ref_I12     2   3PLM   1.04    NA   1.16    NA   0.12    NA     NA    NA     NA    NA
-#> 13  Ref_I13     2   3PLM   1.22    NA   1.33    NA   0.15    NA     NA    NA     NA    NA
-#> 14  Ref_I14     2   3PLM   1.54    NA   0.24    NA   0.24    NA     NA    NA     NA    NA
-#> 15  Ref_I15     2   3PLM   1.48    NA   0.01    NA   0.17    NA     NA    NA     NA    NA
-#> 16  Ref_I16     2   3PLM   2.35    NA   0.01    NA   0.07    NA     NA    NA     NA    NA
-#> 17  Ref_I17     2   3PLM   1.48    NA  -0.03    NA   0.21    NA     NA    NA     NA    NA
-#> 18  Ref_I18     2   3PLM   1.70    NA   1.24    NA   0.27    NA     NA    NA     NA    NA
-#> 19  Ref_I19     2   3PLM   2.15    NA  -1.01    NA   0.15    NA     NA    NA     NA    NA
-#> 20  Ref_I20     2   3PLM   1.76    NA  -1.28    NA   0.30    NA     NA    NA     NA    NA
-#> 21  Ref_I21     2   3PLM   1.73    NA  -0.94    NA   0.26    NA     NA    NA     NA    NA
-#> 22  Ref_I22     2   3PLM   0.90    NA  -0.23    NA   0.25    NA     NA    NA     NA    NA
-#> 23  Ref_I23     2   3PLM   0.96    NA  -0.27    NA   0.13    NA     NA    NA     NA    NA
-#> 24  Ref_I24     2   3PLM   1.05    NA   1.54    NA   0.23    NA     NA    NA     NA    NA
-#> 25  Ref_I25     2   3PLM   0.71    NA  -1.60    NA   0.22    NA     NA    NA     NA    NA
-#> 26  Ref_I26     2   3PLM   0.88    NA  -1.98    NA   0.22    NA     NA    NA     NA    NA
-#> 27  Ref_I27     2   3PLM   1.41    NA   0.13    NA   0.16    NA     NA    NA     NA    NA
-#> 28  Ref_I28     2   3PLM   2.73    NA   0.12    NA   0.25    NA     NA    NA     NA    NA
-#> 29  Ref_I29     2   3PLM   1.27    NA  -1.38    NA   0.22    NA     NA    NA     NA    NA
-#> 30  Ref_I30     2   3PLM   1.69    NA   0.89    NA   0.35    NA     NA    NA     NA    NA
-#> 31  Ref_I31     2   3PLM   1.04    NA   0.84    NA   0.14    NA     NA    NA     NA    NA
-#> 32  Ref_I32     2   3PLM   1.69    NA  -0.70    NA   0.30    NA     NA    NA     NA    NA
-#> 33  Ref_I33     2   3PLM   1.24    NA  -1.38    NA   0.17    NA     NA    NA     NA    NA
-#> 34  Ref_I34     2   3PLM   1.38    NA   0.37    NA   0.21    NA     NA    NA     NA    NA
-#> 35  Ref_I35     2   3PLM   1.68    NA   0.01    NA   0.28    NA     NA    NA     NA    NA
-#> 36  Ref_I36     2   3PLM   1.02    NA   1.35    NA   0.16    NA     NA    NA     NA    NA
-#> 37  Ref_I37     2   3PLM   1.92    NA  -0.21    NA   0.17    NA     NA    NA     NA    NA
-#> 38  Ref_I38     2   3PLM   0.72    NA  -0.43    NA   0.21    NA     NA    NA     NA    NA
-#> 39  Ref_I39     5    GRM   1.96    NA  -1.83    NA  -1.17    NA  -0.62    NA  -0.17    NA
-#> 40  Ref_I40     5    GRM   1.33    NA  -0.73    NA  -0.07    NA   0.58    NA   1.10    NA
-#> 41   New_I1     2   3PLM   1.75  0.17   0.61  0.08   0.25  0.03     NA    NA     NA    NA
-#> 42   New_I2     2   3PLM   1.85  0.17  -1.21  0.14   0.20  0.07     NA    NA     NA    NA
-#> 43   New_I3     2   3PLM   1.61  0.13   0.49  0.08   0.14  0.03     NA    NA     NA    NA
-#> 44   New_I4     2   3PLM   1.06  0.10  -0.24  0.17   0.15  0.06     NA    NA     NA    NA
-#> 45   New_I5     2   3PLM   1.09  0.17   2.21  0.12   0.15  0.03     NA    NA     NA    NA
-#> 46   New_I6     2   3PLM   2.85  0.35   1.54  0.05   0.20  0.02     NA    NA     NA    NA
-#> 47   New_I7     2   3PLM   1.38  0.11   0.10  0.11   0.17  0.04     NA    NA     NA    NA
-#> 48   New_I8     2   3PLM   1.72  0.15   0.15  0.09   0.18  0.04     NA    NA     NA    NA
-#> 49   New_I9     2   3PLM   1.34  0.10   0.32  0.08   0.09  0.03     NA    NA     NA    NA
-#> 50  New_I10     2   3PLM   1.53  0.14   1.24  0.06   0.09  0.02     NA    NA     NA    NA
-#> 51  New_I11     2   3PLM   1.90  0.18  -0.99  0.13   0.21  0.06     NA    NA     NA    NA
-#> 52  New_I12     2   3PLM   1.35  0.16  -0.16  0.19   0.38  0.06     NA    NA     NA    NA
-#> 53  New_I13     5    GRM   1.25  0.05  -0.39  0.05   0.19  0.05   0.77  0.04   1.22  0.05
-#> 54  New_I14     5    GRM   1.28  0.06  -2.17  0.11  -1.46  0.08  -0.74  0.06  -0.13  0.05
-#> 55  New_I15     5    GRM   0.91  0.05  -0.76  0.08  -0.04  0.06   0.61  0.05   1.13  0.06
+#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
+#> 1    Ref_I1     2   3PLM   0.69    NA   1.14    NA   0.19    NA     NA    NA
+#> 2    Ref_I2     2   3PLM   1.77    NA  -1.02    NA   0.20    NA     NA    NA
+#> 3    Ref_I3     2   3PLM   1.52    NA   0.71    NA   0.24    NA     NA    NA
+#> 4    Ref_I4     2   3PLM   1.05    NA  -0.44    NA   0.18    NA     NA    NA
+#> 5    Ref_I5     2   3PLM   0.92    NA   0.27    NA   0.26    NA     NA    NA
+#> 6    Ref_I6     2   3PLM   1.87    NA   0.73    NA   0.09    NA     NA    NA
+#> 7    Ref_I7     2   3PLM   1.06    NA   1.20    NA   0.18    NA     NA    NA
+#> 8    Ref_I8     2   3PLM   0.97    NA   0.95    NA   0.16    NA     NA    NA
+#> 9    Ref_I9     2   3PLM   1.30    NA   0.73    NA   0.28    NA     NA    NA
+#> 10  Ref_I10     2   3PLM   1.86    NA   0.19    NA   0.16    NA     NA    NA
+#> 11  Ref_I11     2   3PLM   0.99    NA  -0.27    NA   0.16    NA     NA    NA
+#> 12  Ref_I12     2   3PLM   1.04    NA   1.16    NA   0.12    NA     NA    NA
+#> 13  Ref_I13     2   3PLM   1.22    NA   1.33    NA   0.15    NA     NA    NA
+#> 14  Ref_I14     2   3PLM   1.54    NA   0.24    NA   0.24    NA     NA    NA
+#> 15  Ref_I15     2   3PLM   1.48    NA   0.01    NA   0.17    NA     NA    NA
+#> 16  Ref_I16     2   3PLM   2.35    NA   0.01    NA   0.07    NA     NA    NA
+#> 17  Ref_I17     2   3PLM   1.48    NA  -0.03    NA   0.21    NA     NA    NA
+#> 18  Ref_I18     2   3PLM   1.70    NA   1.24    NA   0.27    NA     NA    NA
+#> 19  Ref_I19     2   3PLM   2.15    NA  -1.01    NA   0.15    NA     NA    NA
+#> 20  Ref_I20     2   3PLM   1.76    NA  -1.28    NA   0.30    NA     NA    NA
+#> 21  Ref_I21     2   3PLM   1.73    NA  -0.94    NA   0.26    NA     NA    NA
+#> 22  Ref_I22     2   3PLM   0.90    NA  -0.23    NA   0.25    NA     NA    NA
+#> 23  Ref_I23     2   3PLM   0.96    NA  -0.27    NA   0.13    NA     NA    NA
+#> 24  Ref_I24     2   3PLM   1.05    NA   1.54    NA   0.23    NA     NA    NA
+#> 25  Ref_I25     2   3PLM   0.71    NA  -1.60    NA   0.22    NA     NA    NA
+#> 26  Ref_I26     2   3PLM   0.88    NA  -1.98    NA   0.22    NA     NA    NA
+#> 27  Ref_I27     2   3PLM   1.41    NA   0.13    NA   0.16    NA     NA    NA
+#> 28  Ref_I28     2   3PLM   2.73    NA   0.12    NA   0.25    NA     NA    NA
+#> 29  Ref_I29     2   3PLM   1.27    NA  -1.38    NA   0.22    NA     NA    NA
+#> 30  Ref_I30     2   3PLM   1.69    NA   0.89    NA   0.35    NA     NA    NA
+#> 31  Ref_I31     2   3PLM   1.04    NA   0.84    NA   0.14    NA     NA    NA
+#> 32  Ref_I32     2   3PLM   1.69    NA  -0.70    NA   0.30    NA     NA    NA
+#> 33  Ref_I33     2   3PLM   1.24    NA  -1.38    NA   0.17    NA     NA    NA
+#> 34  Ref_I34     2   3PLM   1.38    NA   0.37    NA   0.21    NA     NA    NA
+#> 35  Ref_I35     2   3PLM   1.68    NA   0.01    NA   0.28    NA     NA    NA
+#> 36  Ref_I36     2   3PLM   1.02    NA   1.35    NA   0.16    NA     NA    NA
+#> 37  Ref_I37     2   3PLM   1.92    NA  -0.21    NA   0.17    NA     NA    NA
+#> 38  Ref_I38     2   3PLM   0.72    NA  -0.43    NA   0.21    NA     NA    NA
+#> 39  Ref_I39     5    GRM   1.96    NA  -1.83    NA  -1.17    NA  -0.62    NA
+#> 40  Ref_I40     5    GRM   1.33    NA  -0.73    NA  -0.07    NA   0.58    NA
+#> 41   New_I1     2   3PLM   1.75  0.17   0.61  0.08   0.25  0.03     NA    NA
+#> 42   New_I2     2   3PLM   1.85  0.17  -1.21  0.14   0.20  0.07     NA    NA
+#> 43   New_I3     2   3PLM   1.61  0.13   0.49  0.08   0.14  0.03     NA    NA
+#> 44   New_I4     2   3PLM   1.06  0.10  -0.24  0.17   0.15  0.06     NA    NA
+#> 45   New_I5     2   3PLM   1.09  0.17   2.21  0.12   0.15  0.03     NA    NA
+#> 46   New_I6     2   3PLM   2.85  0.35   1.54  0.05   0.20  0.02     NA    NA
+#> 47   New_I7     2   3PLM   1.38  0.11   0.10  0.11   0.17  0.04     NA    NA
+#> 48   New_I8     2   3PLM   1.72  0.15   0.15  0.09   0.18  0.04     NA    NA
+#> 49   New_I9     2   3PLM   1.34  0.10   0.32  0.08   0.09  0.03     NA    NA
+#> 50  New_I10     2   3PLM   1.53  0.14   1.24  0.06   0.09  0.02     NA    NA
+#> 51  New_I11     2   3PLM   1.90  0.18  -0.99  0.13   0.21  0.06     NA    NA
+#> 52  New_I12     2   3PLM   1.35  0.16  -0.16  0.19   0.38  0.06     NA    NA
+#> 53  New_I13     5    GRM   1.25  0.05  -0.39  0.05   0.19  0.05   0.77  0.04
+#> 54  New_I14     5    GRM   1.28  0.06  -2.17  0.11  -1.46  0.08  -0.74  0.06
+#> 55  New_I15     5    GRM   0.91  0.05  -0.76  0.08  -0.04  0.06   0.61  0.05
+#>     par.5  se.5
+#> 1      NA    NA
+#> 2      NA    NA
+#> 3      NA    NA
+#> 4      NA    NA
+#> 5      NA    NA
+#> 6      NA    NA
+#> 7      NA    NA
+#> 8      NA    NA
+#> 9      NA    NA
+#> 10     NA    NA
+#> 11     NA    NA
+#> 12     NA    NA
+#> 13     NA    NA
+#> 14     NA    NA
+#> 15     NA    NA
+#> 16     NA    NA
+#> 17     NA    NA
+#> 18     NA    NA
+#> 19     NA    NA
+#> 20     NA    NA
+#> 21     NA    NA
+#> 22     NA    NA
+#> 23     NA    NA
+#> 24     NA    NA
+#> 25     NA    NA
+#> 26     NA    NA
+#> 27     NA    NA
+#> 28     NA    NA
+#> 29     NA    NA
+#> 30     NA    NA
+#> 31     NA    NA
+#> 32     NA    NA
+#> 33     NA    NA
+#> 34     NA    NA
+#> 35     NA    NA
+#> 36     NA    NA
+#> 37     NA    NA
+#> 38     NA    NA
+#> 39  -0.17    NA
+#> 40   1.10    NA
+#> 41     NA    NA
+#> 42     NA    NA
+#> 43     NA    NA
+#> 44     NA    NA
+#> 45     NA    NA
+#> 46     NA    NA
+#> 47     NA    NA
+#> 48     NA    NA
+#> 49     NA    NA
+#> 50     NA    NA
+#> 51     NA    NA
+#> 52     NA    NA
+#> 53   1.22  0.05
+#> 54  -0.13  0.05
+#> 55   1.13  0.06
 #>  Group Parameters: 
 #>              mu  sigma2  sigma
 #> estimates  0.55    1.50   1.22
@@ -779,7 +876,7 @@ print(est_new_fipc)
 #> 26 Ref_I26    2  3PLM 0.8782582 -1.97974491  0.22367121         NA         NA
 #> 27 Ref_I27    2  3PLM 1.4142228  0.12900789  0.16073407         NA         NA
 #> 28 Ref_I28    2  3PLM 2.7271259  0.11722864  0.24875028         NA         NA
-#> 29 Ref_I29    2  3PLM 1.2736643 -1.38227008  0.22190753         NA         NA
+#> 29 Ref_I29    2  3PLM 1.2736643 -1.38227009  0.22190752         NA         NA
 #> 30 Ref_I30    2  3PLM 1.6924004  0.89383796  0.35473129         NA         NA
 #> 31 Ref_I31    2  3PLM 1.0382178  0.83916998  0.14081448         NA         NA
 #> 32 Ref_I32    2  3PLM 1.6949111 -0.69941722  0.30436382         NA         NA
@@ -792,7 +889,7 @@ print(est_new_fipc)
 #> 39 Ref_I39    5   GRM 1.9602130 -1.83262071 -1.16744768 -0.6208679 -0.1692025
 #> 40 Ref_I40    5   GRM 1.3329010 -0.72583244 -0.06982294  0.5783162  1.1047434
 #> 41  New_I1    2  3PLM 1.7544480  0.60773268  0.24514471         NA         NA
-#> 42  New_I2    2  3PLM 1.8504109 -1.20664265  0.20151190         NA         NA
+#> 42  New_I2    2  3PLM 1.8504109 -1.20664264  0.20151190         NA         NA
 #> 43  New_I3    2  3PLM 1.6147606  0.49347600  0.13571997         NA         NA
 #> 44  New_I4    2  3PLM 1.0555607 -0.23825505  0.15300057         NA         NA
 #> 45  New_I5    2  3PLM 1.0904024  2.21167266  0.15226183         NA         NA
@@ -801,7 +898,7 @@ print(est_new_fipc)
 #> 48  New_I8    2  3PLM 1.7223300  0.15449590  0.17624706         NA         NA
 #> 49  New_I9    2  3PLM 1.3362538  0.32062018  0.08717881         NA         NA
 #> 50 New_I10    2  3PLM 1.5311035  1.24203909  0.08670597         NA         NA
-#> 51 New_I11    2  3PLM 1.9026709 -0.98886362  0.21168998         NA         NA
+#> 51 New_I11    2  3PLM 1.9026709 -0.98886361  0.21168998         NA         NA
 #> 52 New_I12    2  3PLM 1.3468728 -0.16146762  0.37836732         NA         NA
 #> 53 New_I13    5   GRM 1.2495401 -0.38606491  0.18902252  0.7711329  1.2171389
 #> 54 New_I14    5   GRM 1.2827773 -2.16768674 -1.45593517 -0.7442029 -0.1292640
@@ -814,7 +911,7 @@ plot(emphist$weight ~ emphist$theta, xlab = "Theta",
   ylab = "Density", type = "h")
 ```
 
-<img src="man/figures/README-example-1.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-1.png" alt="" width="70%" height="50%" />
 
 ``` r
 
@@ -901,7 +998,7 @@ irtQ::summary(mod_fapc)
 #> 15  New_I15  2000
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.6
+#>  Total computation: 2.14
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
@@ -909,22 +1006,38 @@ irtQ::summary(mod_fapc)
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 36901.01
 #>  Item Parameters: 
-#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4  par.5  se.5
-#> 1    New_I1     2   3PLM   1.41  0.12   0.58  0.09   0.23  0.03     NA    NA     NA    NA
-#> 2    New_I2     2   3PLM   1.73  0.16  -1.17  0.15   0.28  0.06     NA    NA     NA    NA
-#> 3    New_I3     2   3PLM   1.34  0.10   0.46  0.08   0.12  0.03     NA    NA     NA    NA
-#> 4    New_I4     2   3PLM   0.94  0.08  -0.27  0.16   0.16  0.05     NA    NA     NA    NA
-#> 5    New_I5     2   3PLM   0.72  0.09   2.58  0.17   0.12  0.03     NA    NA     NA    NA
-#> 6    New_I6     2   3PLM   1.73  0.15   1.66  0.06   0.18  0.02     NA    NA     NA    NA
-#> 7    New_I7     2   3PLM   1.15  0.09   0.04  0.12   0.17  0.04     NA    NA     NA    NA
-#> 8    New_I8     2   3PLM   1.46  0.11   0.10  0.09   0.17  0.03     NA    NA     NA    NA
-#> 9    New_I9     2   3PLM   1.14  0.07   0.29  0.08   0.08  0.03     NA    NA     NA    NA
-#> 10  New_I10     2   3PLM   1.17  0.09   1.32  0.07   0.07  0.02     NA    NA     NA    NA
-#> 11  New_I11     2   3PLM   1.75  0.18  -0.97  0.16   0.28  0.06     NA    NA     NA    NA
-#> 12  New_I12     2   3PLM   1.15  0.12  -0.22  0.19   0.38  0.05     NA    NA     NA    NA
-#> 13  New_I13     5    GRM   1.04  0.04  -0.50  0.06   0.16  0.05   0.83  0.05   1.34  0.06
-#> 14  New_I14     5    GRM   1.06  0.05  -2.59  0.13  -1.75  0.10  -0.92  0.07  -0.21  0.05
-#> 15  New_I15     5    GRM   0.77  0.04  -0.94  0.09  -0.10  0.07   0.65  0.06   1.25  0.07
+#>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
+#> 1    New_I1     2   3PLM   1.41  0.12   0.58  0.09   0.23  0.03     NA    NA
+#> 2    New_I2     2   3PLM   1.73  0.16  -1.17  0.15   0.28  0.06     NA    NA
+#> 3    New_I3     2   3PLM   1.34  0.10   0.46  0.08   0.12  0.03     NA    NA
+#> 4    New_I4     2   3PLM   0.94  0.08  -0.27  0.16   0.16  0.05     NA    NA
+#> 5    New_I5     2   3PLM   0.72  0.09   2.58  0.17   0.12  0.03     NA    NA
+#> 6    New_I6     2   3PLM   1.73  0.15   1.66  0.06   0.18  0.02     NA    NA
+#> 7    New_I7     2   3PLM   1.15  0.09   0.04  0.12   0.17  0.04     NA    NA
+#> 8    New_I8     2   3PLM   1.46  0.11   0.10  0.09   0.17  0.03     NA    NA
+#> 9    New_I9     2   3PLM   1.14  0.07   0.29  0.08   0.08  0.03     NA    NA
+#> 10  New_I10     2   3PLM   1.17  0.09   1.32  0.07   0.07  0.02     NA    NA
+#> 11  New_I11     2   3PLM   1.75  0.18  -0.97  0.16   0.28  0.06     NA    NA
+#> 12  New_I12     2   3PLM   1.15  0.12  -0.22  0.19   0.38  0.05     NA    NA
+#> 13  New_I13     5    GRM   1.04  0.04  -0.50  0.06   0.16  0.05   0.83  0.05
+#> 14  New_I14     5    GRM   1.06  0.05  -2.59  0.13  -1.75  0.10  -0.92  0.07
+#> 15  New_I15     5    GRM   0.77  0.04  -0.94  0.09  -0.10  0.07   0.65  0.06
+#>     par.5  se.5
+#> 1      NA    NA
+#> 2      NA    NA
+#> 3      NA    NA
+#> 4      NA    NA
+#> 5      NA    NA
+#> 6      NA    NA
+#> 7      NA    NA
+#> 8      NA    NA
+#> 9      NA    NA
+#> 10     NA    NA
+#> 11     NA    NA
+#> 12     NA    NA
+#> 13   1.34  0.06
+#> 14  -0.21  0.05
+#> 15   1.25  0.07
 #> 
 #>  Group Parameters: 
 #>    mu  sigma  
@@ -988,21 +1101,23 @@ score <- simCAT_MX$score
 length(score)
 #> [1] 30000
 print(score[1:100])
-#>   [1] -0.30311440 -0.67224807 -0.73474583  1.76935738 -0.91017203 -0.28448278  0.81656431
-#>   [8] -1.66434615  0.59312008 -0.35182937  0.23129679 -0.93107524 -0.29971993 -0.32700449
-#>  [15] -0.22271651  1.48912121 -0.92927809  0.43453041 -0.01795450 -0.28365286  0.01115173
-#>  [22] -0.76101441  0.12144273  0.83096135  1.96600585 -0.83510402 -0.40268865 -0.05605526
-#>  [29]  0.72398446 -0.16026059 -1.09011778  1.22126764 -0.13340360 -1.28230720 -1.05581980
-#>  [36]  0.83484173 -0.52136360 -0.66913590 -1.08580804  1.73214834  0.56950387  0.48016332
-#>  [43] -0.03472720 -2.17577824  0.44127032  0.98913071  1.43861714 -1.08133809 -0.69016072
-#>  [50]  0.19325797  0.89998383  1.25383167 -1.09600809  0.50519143 -0.51707395 -0.39474484
-#>  [57] -0.45031102  1.85675021  1.50768131  1.06011811 -0.41064797  1.10960278 -0.68853387
-#>  [64] -0.59397660 -0.65326436  0.29147751 -1.86787473  1.04838050 -1.14582092  1.07395234
-#>  [71] -0.03828693  0.08445559  0.34582524  0.72300905  0.84448992 -1.86488055  0.77121937
-#>  [78]  1.66573208  0.10311673 -0.50768866 -1.60992457 -0.23074682  0.16162326  0.26091160
-#>  [85]  0.60682182  0.65415304 -0.69923141  1.07545766  0.24060267 -0.93542383  1.24988766
-#>  [92] -0.01826940  1.27403936  0.10985621 -1.19092047  0.79614598  0.62302338 -0.89455596
-#>  [99] -0.03472720  0.20250837
+#>   [1] -0.30311440 -0.67224807 -0.73474583  1.76935738 -0.91017203 -0.28448278
+#>   [7]  0.81656431 -1.66434615  0.59312008 -0.35182937  0.23129679 -0.93107524
+#>  [13] -0.29971993 -0.32700449 -0.22271651  1.48912121 -0.92927809  0.43453041
+#>  [19] -0.01795450 -0.28365286  0.01115173 -0.76101441  0.12144273  0.83096135
+#>  [25]  1.96600585 -0.83510402 -0.40268865 -0.05605526  0.72398446 -0.16026059
+#>  [31] -1.09011778  1.22126764 -0.13340360 -1.28230720 -1.05581980  0.83484173
+#>  [37] -0.52136360 -0.66913590 -1.08580804  1.73214834  0.56950387  0.48016332
+#>  [43] -0.03472720 -2.17577824  0.44127032  0.98913071  1.43861714 -1.08133809
+#>  [49] -0.69016072  0.19325797  0.89998383  1.25383167 -1.09600809  0.50519143
+#>  [55] -0.51707395 -0.39474484 -0.45031102  1.85675021  1.50768131  1.06011811
+#>  [61] -0.41064797  1.10960278 -0.68853387 -0.59397660 -0.65326436  0.29147751
+#>  [67] -1.86787473  1.04838050 -1.14582092  1.07395234 -0.03828693  0.08445559
+#>  [73]  0.34582524  0.72300905  0.84448992 -1.86488055  0.77121937  1.66573208
+#>  [79]  0.10311673 -0.50768866 -1.60992457 -0.23074682  0.16162326  0.26091160
+#>  [85]  0.60682182  0.65415304 -0.69923141  1.07545766  0.24060267 -0.93542383
+#>  [91]  1.24988766 -0.01826940  1.27403936  0.10985621 -1.19092047  0.79614598
+#>  [97]  0.62302338 -0.89455596 -0.03472720  0.20250837
 
 # (3) Response data
 data <- simCAT_MX$res.dat[, over1000]
@@ -1031,7 +1146,7 @@ print(data[1:20, 1:6])
 #> [19,]        NA         0        NA         0         1         1
 #> [20,]        NA        NA        NA        NA        NA        NA
 
-## Step 2: Compute IRT model–data fit statistics
+## Step 2: Compute IRT model-data fit statistics
 ## (1) Using the 'equal.width' method to form
 ## ability groups
 fit1 <- irtfit(x = x, score = score, data = data, group.method = "equal.width",
@@ -1040,59 +1155,60 @@ fit1 <- irtfit(x = x, score = score, data = data, group.method = "equal.width",
 
 # Inspect the structure of the returned object
 names(fit1)
-#> [1] "fit_stat"            "contingency.fitstat" "contingency.plot"    "item_df"            
-#> [5] "individual.info"     "ancillary"           "call"
+#> [1] "fit_stat"            "contingency.fitstat" "contingency.plot"   
+#> [4] "item_df"             "individual.info"     "ancillary"          
+#> [7] "call"
 
 # View the first 10 rows of fit statistics
 fit1$fit_stat[1:10, ]
-#>     id      X2      G2 df.X2 df.G2 crit.val.X2 crit.val.G2 p.X2 p.G2 outfit infit     N
-#> 1   V2  75.070  75.209     8    10       15.51       18.31    0    0  1.018 1.016  2018
-#> 2   V3 186.880 168.082     8    10       15.51       18.31    0    0  1.124 1.090 11041
-#> 3   V5 151.329 139.213     8    10       15.51       18.31    0    0  1.133 1.111  5181
-#> 4   V6 178.409 157.911     8    10       15.51       18.31    0    0  1.056 1.045 13599
-#> 5   V7 185.438 170.360     9    11       16.92       19.68    0    0  1.078 1.059 18293
-#> 6   V8 209.653 193.001     8    10       15.51       18.31    0    0  1.098 1.075 16163
-#> 7  V10 267.444 239.563     9    11       16.92       19.68    0    0  1.097 1.073 19702
-#> 8  V11 148.896 133.209     7     9       14.07       16.92    0    0  1.129 1.083 13885
-#> 9  V12 139.295 125.647     9    11       16.92       19.68    0    0  1.065 1.051 12118
-#> 10 V13 128.422 117.439     9    11       16.92       19.68    0    0  1.075 1.059 10719
-#>    overSR.prop
-#> 1        0.364
-#> 2        0.636
-#> 3        0.727
-#> 4        0.545
-#> 5        0.455
-#> 6        0.636
-#> 7        0.727
-#> 8        0.455
-#> 9        0.636
-#> 10       0.545
+#>     id      X2      G2 df.X2 df.G2 crit.val.X2 crit.val.G2 p.X2 p.G2 outfit
+#> 1   V2  75.070  75.209     8    10       15.51       18.31    0    0  1.018
+#> 2   V3 186.880 168.082     8    10       15.51       18.31    0    0  1.124
+#> 3   V5 151.329 139.213     8    10       15.51       18.31    0    0  1.133
+#> 4   V6 178.409 157.911     8    10       15.51       18.31    0    0  1.056
+#> 5   V7 185.438 170.360     9    11       16.92       19.68    0    0  1.078
+#> 6   V8 209.653 193.001     8    10       15.51       18.31    0    0  1.098
+#> 7  V10 267.444 239.563     9    11       16.92       19.68    0    0  1.097
+#> 8  V11 148.896 133.209     7     9       14.07       16.92    0    0  1.129
+#> 9  V12 139.295 125.647     9    11       16.92       19.68    0    0  1.065
+#> 10 V13 128.422 117.439     9    11       16.92       19.68    0    0  1.075
+#>    infit     N overSR.prop
+#> 1  1.016  2018       0.364
+#> 2  1.090 11041       0.636
+#> 3  1.111  5181       0.727
+#> 4  1.045 13599       0.545
+#> 5  1.059 18293       0.455
+#> 6  1.075 16163       0.636
+#> 7  1.073 19702       0.727
+#> 8  1.083 13885       0.455
+#> 9  1.051 12118       0.636
+#> 10 1.059 10719       0.545
 
 # View the contingency table for the first item
 # (dichotomous)
 fit1$contingency.fitstat[[1]]
-#>    total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1 obs.prop.0 obs.prop.1 exp.prob.0 exp.prob.1
-#> 1      8          5          3   6.102331   1.897669  0.6250000  0.3750000  0.7627914  0.2372086
-#> 2     14          8          6   9.969510   4.030490  0.5714286  0.4285714  0.7121079  0.2878921
-#> 3     60         34         26  40.253757  19.746243  0.5666667  0.4333333  0.6708959  0.3291041
-#> 4    185         99         86 115.264928  69.735072  0.5351351  0.4648649  0.6230537  0.3769463
-#> 5    240        115        125 138.368078 101.631922  0.4791667  0.5208333  0.5765337  0.4234663
-#> 6    349        145        204 185.031440 163.968560  0.4154728  0.5845272  0.5301760  0.4698240
-#> 7    325        114        211 155.483116 169.516884  0.3507692  0.6492308  0.4784096  0.5215904
-#> 8    246         82        164 108.731822 137.268178  0.3333333  0.6666667  0.4419993  0.5580007
-#> 9    377        139        238 154.062263 222.937737  0.3687003  0.6312997  0.4086532  0.5913468
-#> 10   214         78        136  72.645447 141.354553  0.3644860  0.6355140  0.3394647  0.6605353
-#>      raw.rsd.0   raw.rsd.1
-#> 1  -0.13779141  0.13779141
-#> 2  -0.14067932  0.14067932
-#> 3  -0.10422928  0.10422928
-#> 4  -0.08791853  0.08791853
-#> 5  -0.09736699  0.09736699
-#> 6  -0.11470327  0.11470327
-#> 7  -0.12764036  0.12764036
-#> 8  -0.10866594  0.10866594
-#> 9  -0.03995295  0.03995295
-#> 10  0.02502128 -0.02502128
+#>    total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1 obs.prop.0 obs.prop.1
+#> 1      8          5          3   6.102331   1.897669  0.6250000  0.3750000
+#> 2     14          8          6   9.969510   4.030490  0.5714286  0.4285714
+#> 3     60         34         26  40.253757  19.746243  0.5666667  0.4333333
+#> 4    185         99         86 115.264928  69.735072  0.5351351  0.4648649
+#> 5    240        115        125 138.368078 101.631922  0.4791667  0.5208333
+#> 6    349        145        204 185.031440 163.968560  0.4154728  0.5845272
+#> 7    325        114        211 155.483116 169.516884  0.3507692  0.6492308
+#> 8    246         82        164 108.731822 137.268178  0.3333333  0.6666667
+#> 9    377        139        238 154.062263 222.937737  0.3687003  0.6312997
+#> 10   214         78        136  72.645447 141.354553  0.3644860  0.6355140
+#>    exp.prob.0 exp.prob.1   raw.rsd.0   raw.rsd.1
+#> 1   0.7627914  0.2372086 -0.13779141  0.13779141
+#> 2   0.7121079  0.2878921 -0.14067932  0.14067932
+#> 3   0.6708959  0.3291041 -0.10422928  0.10422928
+#> 4   0.6230537  0.3769463 -0.08791853  0.08791853
+#> 5   0.5765337  0.4234663 -0.09736699  0.09736699
+#> 6   0.5301760  0.4698240 -0.11470327  0.11470327
+#> 7   0.4784096  0.5215904 -0.12764036  0.12764036
+#> 8   0.4419993  0.5580007 -0.10866594  0.10866594
+#> 9   0.4086532  0.5913468 -0.03995295  0.03995295
+#> 10  0.3394647  0.6605353  0.02502128 -0.02502128
 
 # (2) Using the 'equal.freq' method to form
 # ability groups
@@ -1102,164 +1218,200 @@ fit2 <- irtfit(x = x, score = score, data = data, group.method = "equal.freq",
 
 # View the first 10 rows of fit statistics
 fit2$fit_stat[1:10, ]
-#>     id      X2      G2 df.X2 df.G2 crit.val.X2 crit.val.G2 p.X2 p.G2 outfit infit     N
-#> 1   V2  79.629  79.941     9    11       16.92       19.68    0    0  1.018 1.016  2018
-#> 2   V3 200.266 180.620     9    11       16.92       19.68    0    0  1.124 1.090 11041
-#> 3   V5 148.742 138.244     9    11       16.92       19.68    0    0  1.133 1.111  5181
-#> 4   V6 141.905 135.027     9    11       16.92       19.68    0    0  1.056 1.045 13599
-#> 5   V7 189.680 178.200     9    11       16.92       19.68    0    0  1.078 1.059 18293
-#> 6   V8 214.014 198.621     9    11       16.92       19.68    0    0  1.098 1.075 16163
-#> 7  V10 258.335 237.874     9    11       16.92       19.68    0    0  1.097 1.073 19702
-#> 8  V11 162.225 146.413     9    11       16.92       19.68    0    0  1.129 1.083 13885
-#> 9  V12 147.600 136.192     9    11       16.92       19.68    0    0  1.065 1.051 12118
-#> 10 V13 141.090 132.064     9    11       16.92       19.68    0    0  1.075 1.059 10719
-#>    overSR.prop
-#> 1        0.636
-#> 2        0.636
-#> 3        0.727
-#> 4        0.636
-#> 5        0.455
-#> 6        0.545
-#> 7        0.636
-#> 8        0.636
-#> 9        0.455
-#> 10       0.636
+#>     id      X2      G2 df.X2 df.G2 crit.val.X2 crit.val.G2 p.X2 p.G2 outfit
+#> 1   V2  79.629  79.941     9    11       16.92       19.68    0    0  1.018
+#> 2   V3 200.266 180.620     9    11       16.92       19.68    0    0  1.124
+#> 3   V5 148.742 138.244     9    11       16.92       19.68    0    0  1.133
+#> 4   V6 141.905 135.027     9    11       16.92       19.68    0    0  1.056
+#> 5   V7 189.680 178.200     9    11       16.92       19.68    0    0  1.078
+#> 6   V8 214.014 198.621     9    11       16.92       19.68    0    0  1.098
+#> 7  V10 258.335 237.874     9    11       16.92       19.68    0    0  1.097
+#> 8  V11 162.225 146.413     9    11       16.92       19.68    0    0  1.129
+#> 9  V12 147.600 136.192     9    11       16.92       19.68    0    0  1.065
+#> 10 V13 141.090 132.064     9    11       16.92       19.68    0    0  1.075
+#>    infit     N overSR.prop
+#> 1  1.016  2018       0.636
+#> 2  1.090 11041       0.636
+#> 3  1.111  5181       0.727
+#> 4  1.045 13599       0.636
+#> 5  1.059 18293       0.455
+#> 6  1.075 16163       0.545
+#> 7  1.073 19702       0.636
+#> 8  1.083 13885       0.636
+#> 9  1.051 12118       0.455
+#> 10 1.059 10719       0.636
 
 # View the contingency table for the fourth item
 # (polytomous)
 fit2$contingency.fitstat[[4]]
-#>    total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1 obs.prop.0 obs.prop.1 exp.prob.0 exp.prob.1
-#> 1   1156        901        255   932.9066   223.0934  0.7794118  0.2205882  0.8070127  0.1929873
-#> 2   1304        928        376   938.1209   365.8791  0.7116564  0.2883436  0.7194179  0.2805821
-#> 3   1248        786        462   821.9101   426.0899  0.6298077  0.3701923  0.6585818  0.3414182
-#> 4   1235        760        475   747.7321   487.2679  0.6153846  0.3846154  0.6054511  0.3945489
-#> 5   1222        694        528   686.2295   535.7705  0.5679214  0.4320786  0.5615626  0.4384374
-#> 6   1249        683        566   659.9220   589.0780  0.5468375  0.4531625  0.5283603  0.4716397
-#> 7   1238        652        586   610.7195   627.2805  0.5266559  0.4733441  0.4933114  0.5066886
-#> 8   1231        612        619   554.8880   676.1120  0.4971568  0.5028432  0.4507620  0.5492380
-#> 9   1241        571        670   501.1981   739.8019  0.4601128  0.5398872  0.4038663  0.5961337
-#> 10  1238        495        743   434.7901   803.2099  0.3998384  0.6001616  0.3512036  0.6487964
-#> 11  1237        467        770   325.5017   911.4983  0.3775263  0.6224737  0.2631380  0.7368620
-#>       raw.rsd.0    raw.rsd.1
-#> 1  -0.027600903  0.027600903
-#> 2  -0.007761448  0.007761448
-#> 3  -0.028774123  0.028774123
-#> 4   0.009933503 -0.009933503
-#> 5   0.006358826 -0.006358826
-#> 6   0.018477151 -0.018477151
-#> 7   0.033344472 -0.033344472
-#> 8   0.046394802 -0.046394802
-#> 9   0.056246491 -0.056246491
-#> 10  0.048634854 -0.048634854
-#> 11  0.114388254 -0.114388254
+#>    total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1 obs.prop.0 obs.prop.1
+#> 1   1156        901        255   932.9066   223.0934  0.7794118  0.2205882
+#> 2   1304        928        376   938.1209   365.8791  0.7116564  0.2883436
+#> 3   1248        786        462   821.9101   426.0899  0.6298077  0.3701923
+#> 4   1235        760        475   747.7321   487.2679  0.6153846  0.3846154
+#> 5   1222        694        528   686.2295   535.7705  0.5679214  0.4320786
+#> 6   1249        683        566   659.9220   589.0780  0.5468375  0.4531625
+#> 7   1238        652        586   610.7195   627.2805  0.5266559  0.4733441
+#> 8   1231        612        619   554.8880   676.1120  0.4971568  0.5028432
+#> 9   1241        571        670   501.1981   739.8019  0.4601128  0.5398872
+#> 10  1238        495        743   434.7901   803.2099  0.3998384  0.6001616
+#> 11  1237        467        770   325.5017   911.4983  0.3775263  0.6224737
+#>    exp.prob.0 exp.prob.1    raw.rsd.0    raw.rsd.1
+#> 1   0.8070127  0.1929873 -0.027600903  0.027600903
+#> 2   0.7194179  0.2805821 -0.007761448  0.007761448
+#> 3   0.6585818  0.3414182 -0.028774123  0.028774123
+#> 4   0.6054511  0.3945489  0.009933503 -0.009933503
+#> 5   0.5615626  0.4384374  0.006358826 -0.006358826
+#> 6   0.5283603  0.4716397  0.018477151 -0.018477151
+#> 7   0.4933114  0.5066886  0.033344472 -0.033344472
+#> 8   0.4507620  0.5492380  0.046394802 -0.046394802
+#> 9   0.4038663  0.5961337  0.056246491 -0.056246491
+#> 10  0.3512036  0.6487964  0.048634854 -0.048634854
+#> 11  0.2631380  0.7368620  0.114388254 -0.114388254
 
-## Step 3: Draw residual plots for IRT model–data
+## Step 3: Draw residual plots for IRT model-data
 ## fit diagnostics 1. Dichotomous item (1) Both
 ## raw and standardized residual plots
 plot(x = fit1, item.loc = 1, type = "both", ci.method = "wald",
   ylim.sr.adjust = TRUE)
 ```
 
-<img src="man/figures/README-example-2.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-2.png" alt="" width="70%" height="50%" />
 
-    #>                   interval       point total obs.freq.0 obs.freq.1 obs.prop.0 obs.prop.1
-    #> 1  [-0.1218815,0.08512996) -0.02529272     3          3          0  1.0000000  0.0000000
-    #> 2   [0.08512996,0.2921415)  0.18431014     5          2          3  0.4000000  0.6000000
-    #> 3     [0.2921415,0.499153)  0.39488272    14          8          6  0.5714286  0.4285714
-    #> 4     [0.499153,0.7061645)  0.60618911    60         34         26  0.5666667  0.4333333
-    #> 5     [0.7061645,0.913176)  0.83531169   185         99         86  0.5351351  0.4648649
-    #> 6      [0.913176,1.120187)  1.04723712   240        115        125  0.4791667  0.5208333
-    #> 7      [1.120187,1.327199)  1.25232143   349        145        204  0.4154728  0.5845272
-    #> 8       [1.327199,1.53421)  1.47877397   325        114        211  0.3507692  0.6492308
-    #> 9       [1.53421,1.741222)  1.63898436   246         82        164  0.3333333  0.6666667
-    #> 10     [1.741222,1.948233)  1.78810197   377        139        238  0.3687003  0.6312997
-    #> 11     [1.948233,2.155245]  2.11166019   214         78        136  0.3644860  0.6355140
-    #>    exp.prob.0 exp.prob.1   raw.rsd.0   raw.rsd.1       se.0       se.1  std.rsd.0  std.rsd.1
-    #> 1   0.7841844  0.2158156  0.21581559 -0.21581559 0.23751437 0.23751437  0.9086423 -0.9086423
-    #> 2   0.7499556  0.2500444 -0.34995561  0.34995561 0.19366063 0.19366063 -1.8070560  1.8070560
-    #> 3   0.7121079  0.2878921 -0.14067932  0.14067932 0.12101070 0.12101070 -1.1625362  1.1625362
-    #> 4   0.6708959  0.3291041 -0.10422928  0.10422928 0.06066226 0.06066226 -1.7181899  1.7181899
-    #> 5   0.6230537  0.3769463 -0.08791853  0.08791853 0.03563007 0.03563007 -2.4675377  2.4675377
-    #> 6   0.5765337  0.4234663 -0.09736699  0.09736699 0.03189453 0.03189453 -3.0527806  3.0527806
-    #> 7   0.5301760  0.4698240 -0.11470327  0.11470327 0.02671560 0.02671560 -4.2934941  4.2934941
-    #> 8   0.4784096  0.5215904 -0.12764036  0.12764036 0.02770914 0.02770914 -4.6064351  4.6064351
-    #> 9   0.4419993  0.5580007 -0.10866594  0.10866594 0.03166362 0.03166362 -3.4318859  3.4318859
-    #> 10  0.4086532  0.5913468 -0.03995295  0.03995295 0.02531791 0.02531791 -1.5780508  1.5780508
-    #> 11  0.3394647  0.6605353  0.02502128 -0.02502128 0.03236968 0.03236968  0.7729850 -0.7729850
+    #>                   interval       point total obs.freq.0 obs.freq.1 obs.prop.0
+    #> 1  [-0.1218815,0.08512996) -0.02529272     3          3          0  1.0000000
+    #> 2   [0.08512996,0.2921415)  0.18431014     5          2          3  0.4000000
+    #> 3     [0.2921415,0.499153)  0.39488272    14          8          6  0.5714286
+    #> 4     [0.499153,0.7061645)  0.60618911    60         34         26  0.5666667
+    #> 5     [0.7061645,0.913176)  0.83531169   185         99         86  0.5351351
+    #> 6      [0.913176,1.120187)  1.04723712   240        115        125  0.4791667
+    #> 7      [1.120187,1.327199)  1.25232143   349        145        204  0.4154728
+    #> 8       [1.327199,1.53421)  1.47877397   325        114        211  0.3507692
+    #> 9       [1.53421,1.741222)  1.63898436   246         82        164  0.3333333
+    #> 10     [1.741222,1.948233)  1.78810197   377        139        238  0.3687003
+    #> 11     [1.948233,2.155245]  2.11166019   214         78        136  0.3644860
+    #>    obs.prop.1 exp.prob.0 exp.prob.1   raw.rsd.0   raw.rsd.1       se.0
+    #> 1   0.0000000  0.7841844  0.2158156  0.21581559 -0.21581559 0.23751437
+    #> 2   0.6000000  0.7499556  0.2500444 -0.34995561  0.34995561 0.19366063
+    #> 3   0.4285714  0.7121079  0.2878921 -0.14067932  0.14067932 0.12101070
+    #> 4   0.4333333  0.6708959  0.3291041 -0.10422928  0.10422928 0.06066226
+    #> 5   0.4648649  0.6230537  0.3769463 -0.08791853  0.08791853 0.03563007
+    #> 6   0.5208333  0.5765337  0.4234663 -0.09736699  0.09736699 0.03189453
+    #> 7   0.5845272  0.5301760  0.4698240 -0.11470327  0.11470327 0.02671560
+    #> 8   0.6492308  0.4784096  0.5215904 -0.12764036  0.12764036 0.02770914
+    #> 9   0.6666667  0.4419993  0.5580007 -0.10866594  0.10866594 0.03166362
+    #> 10  0.6312997  0.4086532  0.5913468 -0.03995295  0.03995295 0.02531791
+    #> 11  0.6355140  0.3394647  0.6605353  0.02502128 -0.02502128 0.03236968
+    #>          se.1  std.rsd.0  std.rsd.1
+    #> 1  0.23751437  0.9086423 -0.9086423
+    #> 2  0.19366063 -1.8070560  1.8070560
+    #> 3  0.12101070 -1.1625362  1.1625362
+    #> 4  0.06066226 -1.7181899  1.7181899
+    #> 5  0.03563007 -2.4675377  2.4675377
+    #> 6  0.03189453 -3.0527806  3.0527806
+    #> 7  0.02671560 -4.2934941  4.2934941
+    #> 8  0.02770914 -4.6064351  4.6064351
+    #> 9  0.03166362 -3.4318859  3.4318859
+    #> 10 0.02531791 -1.5780508  1.5780508
+    #> 11 0.03236968  0.7729850 -0.7729850
 
     # (2) Raw residual plot only
     plot(x = fit1, item.loc = 1, type = "icc", ci.method = "wald",
       ylim.sr.adjust = TRUE)
 
-<img src="man/figures/README-example-3.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-3.png" alt="" width="70%" height="50%" />
 
-    #>                   interval       point total obs.freq.0 obs.freq.1 obs.prop.0 obs.prop.1
-    #> 1  [-0.1218815,0.08512996) -0.02529272     3          3          0  1.0000000  0.0000000
-    #> 2   [0.08512996,0.2921415)  0.18431014     5          2          3  0.4000000  0.6000000
-    #> 3     [0.2921415,0.499153)  0.39488272    14          8          6  0.5714286  0.4285714
-    #> 4     [0.499153,0.7061645)  0.60618911    60         34         26  0.5666667  0.4333333
-    #> 5     [0.7061645,0.913176)  0.83531169   185         99         86  0.5351351  0.4648649
-    #> 6      [0.913176,1.120187)  1.04723712   240        115        125  0.4791667  0.5208333
-    #> 7      [1.120187,1.327199)  1.25232143   349        145        204  0.4154728  0.5845272
-    #> 8       [1.327199,1.53421)  1.47877397   325        114        211  0.3507692  0.6492308
-    #> 9       [1.53421,1.741222)  1.63898436   246         82        164  0.3333333  0.6666667
-    #> 10     [1.741222,1.948233)  1.78810197   377        139        238  0.3687003  0.6312997
-    #> 11     [1.948233,2.155245]  2.11166019   214         78        136  0.3644860  0.6355140
-    #>    exp.prob.0 exp.prob.1   raw.rsd.0   raw.rsd.1       se.0       se.1  std.rsd.0  std.rsd.1
-    #> 1   0.7841844  0.2158156  0.21581559 -0.21581559 0.23751437 0.23751437  0.9086423 -0.9086423
-    #> 2   0.7499556  0.2500444 -0.34995561  0.34995561 0.19366063 0.19366063 -1.8070560  1.8070560
-    #> 3   0.7121079  0.2878921 -0.14067932  0.14067932 0.12101070 0.12101070 -1.1625362  1.1625362
-    #> 4   0.6708959  0.3291041 -0.10422928  0.10422928 0.06066226 0.06066226 -1.7181899  1.7181899
-    #> 5   0.6230537  0.3769463 -0.08791853  0.08791853 0.03563007 0.03563007 -2.4675377  2.4675377
-    #> 6   0.5765337  0.4234663 -0.09736699  0.09736699 0.03189453 0.03189453 -3.0527806  3.0527806
-    #> 7   0.5301760  0.4698240 -0.11470327  0.11470327 0.02671560 0.02671560 -4.2934941  4.2934941
-    #> 8   0.4784096  0.5215904 -0.12764036  0.12764036 0.02770914 0.02770914 -4.6064351  4.6064351
-    #> 9   0.4419993  0.5580007 -0.10866594  0.10866594 0.03166362 0.03166362 -3.4318859  3.4318859
-    #> 10  0.4086532  0.5913468 -0.03995295  0.03995295 0.02531791 0.02531791 -1.5780508  1.5780508
-    #> 11  0.3394647  0.6605353  0.02502128 -0.02502128 0.03236968 0.03236968  0.7729850 -0.7729850
+    #>                   interval       point total obs.freq.0 obs.freq.1 obs.prop.0
+    #> 1  [-0.1218815,0.08512996) -0.02529272     3          3          0  1.0000000
+    #> 2   [0.08512996,0.2921415)  0.18431014     5          2          3  0.4000000
+    #> 3     [0.2921415,0.499153)  0.39488272    14          8          6  0.5714286
+    #> 4     [0.499153,0.7061645)  0.60618911    60         34         26  0.5666667
+    #> 5     [0.7061645,0.913176)  0.83531169   185         99         86  0.5351351
+    #> 6      [0.913176,1.120187)  1.04723712   240        115        125  0.4791667
+    #> 7      [1.120187,1.327199)  1.25232143   349        145        204  0.4154728
+    #> 8       [1.327199,1.53421)  1.47877397   325        114        211  0.3507692
+    #> 9       [1.53421,1.741222)  1.63898436   246         82        164  0.3333333
+    #> 10     [1.741222,1.948233)  1.78810197   377        139        238  0.3687003
+    #> 11     [1.948233,2.155245]  2.11166019   214         78        136  0.3644860
+    #>    obs.prop.1 exp.prob.0 exp.prob.1   raw.rsd.0   raw.rsd.1       se.0
+    #> 1   0.0000000  0.7841844  0.2158156  0.21581559 -0.21581559 0.23751437
+    #> 2   0.6000000  0.7499556  0.2500444 -0.34995561  0.34995561 0.19366063
+    #> 3   0.4285714  0.7121079  0.2878921 -0.14067932  0.14067932 0.12101070
+    #> 4   0.4333333  0.6708959  0.3291041 -0.10422928  0.10422928 0.06066226
+    #> 5   0.4648649  0.6230537  0.3769463 -0.08791853  0.08791853 0.03563007
+    #> 6   0.5208333  0.5765337  0.4234663 -0.09736699  0.09736699 0.03189453
+    #> 7   0.5845272  0.5301760  0.4698240 -0.11470327  0.11470327 0.02671560
+    #> 8   0.6492308  0.4784096  0.5215904 -0.12764036  0.12764036 0.02770914
+    #> 9   0.6666667  0.4419993  0.5580007 -0.10866594  0.10866594 0.03166362
+    #> 10  0.6312997  0.4086532  0.5913468 -0.03995295  0.03995295 0.02531791
+    #> 11  0.6355140  0.3394647  0.6605353  0.02502128 -0.02502128 0.03236968
+    #>          se.1  std.rsd.0  std.rsd.1
+    #> 1  0.23751437  0.9086423 -0.9086423
+    #> 2  0.19366063 -1.8070560  1.8070560
+    #> 3  0.12101070 -1.1625362  1.1625362
+    #> 4  0.06066226 -1.7181899  1.7181899
+    #> 5  0.03563007 -2.4675377  2.4675377
+    #> 6  0.03189453 -3.0527806  3.0527806
+    #> 7  0.02671560 -4.2934941  4.2934941
+    #> 8  0.02770914 -4.6064351  4.6064351
+    #> 9  0.03166362 -3.4318859  3.4318859
+    #> 10 0.02531791 -1.5780508  1.5780508
+    #> 11 0.03236968  0.7729850 -0.7729850
 
     # (3) Standardized residual plot only
     plot(x = fit1, item.loc = 113, type = "sr", ci.method = "wald",
       ylim.sr.adjust = TRUE)
 
-<img src="man/figures/README-example-4.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-4.png" alt="" width="70%" height="50%" />
 
-    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2 obs.freq.3 obs.prop.0
-    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0          0 1.00000000
-    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0          0 0.60000000
-    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0          0 0.33333333
-    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34          1 0.09090909
-    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53         34 0.04511278
-    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153         62 0.03076923
-    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57         18 0.00000000
-    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85        214 0.00000000
-    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145        273 0.00000000
-    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0         69 0.00000000
-    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0        263 0.00000000
-    #>    obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0 exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0
-    #> 1  0.00000000  0.0000000 0.00000000 0.196511833 0.31299790  0.3472692  0.1432210  0.803488167
-    #> 2  0.40000000  0.0000000 0.00000000 0.130431315 0.27025065  0.3900531  0.2092649  0.469568685
-    #> 3  0.66666667  0.0000000 0.00000000 0.102631449 0.24407213  0.4043226  0.2489738  0.230701885
-    #> 4  0.27272727  0.6181818 0.01818182 0.077129446 0.21379299  0.4127992  0.2962784  0.013779645
-    #> 5  0.30075188  0.3984962 0.25563910 0.051169395 0.17398130  0.4120662  0.3627831 -0.006056613
-    #> 6  0.14230769  0.5884615 0.23846154 0.032494074 0.13632441  0.3983962  0.4327853 -0.001724843
-    #> 7  0.23469388  0.5816327 0.18367347 0.020534959 0.10523862  0.3756891  0.4985373 -0.020534959
-    #> 8  0.02287582  0.2777778 0.69934641 0.017857642 0.09707782  0.3676106  0.5174539 -0.017857642
-    #> 9  0.00000000  0.3468900 0.65311005 0.009866868 0.06836048  0.3299158  0.5918569 -0.009866868
-    #> 10 0.00000000  0.0000000 1.00000000 0.007690015 0.05880602  0.3132481  0.6202558 -0.007690015
-    #> 11 0.00000000  0.0000000 1.00000000 0.003962699 0.03912356  0.2690653  0.6878484 -0.003962699
-    #>       raw.rsd.1   raw.rsd.2   raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
-    #> 1  -0.312997903 -0.34726922 -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
-    #> 2   0.129749354 -0.39005312 -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
-    #> 3   0.422594537 -0.40432265 -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
-    #> 4   0.058934282  0.20538261 -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
-    #> 5   0.126770584 -0.01356995 -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
-    #> 6   0.005983284  0.19006531 -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
-    #> 7   0.129455259  0.20594357 -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
-    #> 8  -0.074201998 -0.08983281  0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
-    #> 9  -0.068360484  0.01697418  0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
-    #> 10 -0.058806016 -0.31324812  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
-    #> 11 -0.039123555 -0.26906531  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
+    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2
+    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0
+    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0
+    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0
+    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34
+    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53
+    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153
+    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57
+    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85
+    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145
+    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0
+    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0
+    #>    obs.freq.3 obs.prop.0 obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0
+    #> 1           0 1.00000000 0.00000000  0.0000000 0.00000000 0.196511833
+    #> 2           0 0.60000000 0.40000000  0.0000000 0.00000000 0.130431315
+    #> 3           0 0.33333333 0.66666667  0.0000000 0.00000000 0.102631449
+    #> 4           1 0.09090909 0.27272727  0.6181818 0.01818182 0.077129446
+    #> 5          34 0.04511278 0.30075188  0.3984962 0.25563910 0.051169395
+    #> 6          62 0.03076923 0.14230769  0.5884615 0.23846154 0.032494074
+    #> 7          18 0.00000000 0.23469388  0.5816327 0.18367347 0.020534959
+    #> 8         214 0.00000000 0.02287582  0.2777778 0.69934641 0.017857642
+    #> 9         273 0.00000000 0.00000000  0.3468900 0.65311005 0.009866868
+    #> 10         69 0.00000000 0.00000000  0.0000000 1.00000000 0.007690015
+    #> 11        263 0.00000000 0.00000000  0.0000000 1.00000000 0.003962699
+    #>    exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0    raw.rsd.1   raw.rsd.2
+    #> 1  0.31299790  0.3472692  0.1432210  0.803488167 -0.312997903 -0.34726922
+    #> 2  0.27025065  0.3900531  0.2092649  0.469568685  0.129749354 -0.39005312
+    #> 3  0.24407213  0.4043226  0.2489738  0.230701885  0.422594537 -0.40432265
+    #> 4  0.21379299  0.4127992  0.2962784  0.013779645  0.058934282  0.20538261
+    #> 5  0.17398130  0.4120662  0.3627831 -0.006056613  0.126770584 -0.01356995
+    #> 6  0.13632441  0.3983962  0.4327853 -0.001724843  0.005983284  0.19006531
+    #> 7  0.10523862  0.3756891  0.4985373 -0.020534959  0.129455259  0.20594357
+    #> 8  0.09707782  0.3676106  0.5174539 -0.017857642 -0.074201998 -0.08983281
+    #> 9  0.06836048  0.3299158  0.5918569 -0.009866868 -0.068360484  0.01697418
+    #> 10 0.05880602  0.3132481  0.6202558 -0.007690015 -0.058806016 -0.31324812
+    #> 11 0.03912356  0.2690653  0.6878484 -0.003962699 -0.039123555 -0.26906531
+    #>      raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
+    #> 1  -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
+    #> 2  -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
+    #> 3  -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
+    #> 4  -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
+    #> 5  -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
+    #> 6  -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
+    #> 7  -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
+    #> 8   0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
+    #> 9   0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
+    #> 10  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
+    #> 11  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
     #>     std.rsd.1  std.rsd.2  std.rsd.3
     #> 1  -0.6749812 -0.7294006 -0.4088547
     #> 2   0.6533110 -1.7881373 -1.1503175
@@ -1278,44 +1430,56 @@ plot(x = fit1, item.loc = 1, type = "both", ci.method = "wald",
     plot(x = fit1, item.loc = 113, type = "both", ci.method = "wald",
       ylim.sr.adjust = TRUE)
 
-<img src="man/figures/README-example-5.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-5.png" alt="" width="70%" height="50%" />
 
-    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2 obs.freq.3 obs.prop.0
-    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0          0 1.00000000
-    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0          0 0.60000000
-    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0          0 0.33333333
-    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34          1 0.09090909
-    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53         34 0.04511278
-    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153         62 0.03076923
-    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57         18 0.00000000
-    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85        214 0.00000000
-    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145        273 0.00000000
-    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0         69 0.00000000
-    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0        263 0.00000000
-    #>    obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0 exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0
-    #> 1  0.00000000  0.0000000 0.00000000 0.196511833 0.31299790  0.3472692  0.1432210  0.803488167
-    #> 2  0.40000000  0.0000000 0.00000000 0.130431315 0.27025065  0.3900531  0.2092649  0.469568685
-    #> 3  0.66666667  0.0000000 0.00000000 0.102631449 0.24407213  0.4043226  0.2489738  0.230701885
-    #> 4  0.27272727  0.6181818 0.01818182 0.077129446 0.21379299  0.4127992  0.2962784  0.013779645
-    #> 5  0.30075188  0.3984962 0.25563910 0.051169395 0.17398130  0.4120662  0.3627831 -0.006056613
-    #> 6  0.14230769  0.5884615 0.23846154 0.032494074 0.13632441  0.3983962  0.4327853 -0.001724843
-    #> 7  0.23469388  0.5816327 0.18367347 0.020534959 0.10523862  0.3756891  0.4985373 -0.020534959
-    #> 8  0.02287582  0.2777778 0.69934641 0.017857642 0.09707782  0.3676106  0.5174539 -0.017857642
-    #> 9  0.00000000  0.3468900 0.65311005 0.009866868 0.06836048  0.3299158  0.5918569 -0.009866868
-    #> 10 0.00000000  0.0000000 1.00000000 0.007690015 0.05880602  0.3132481  0.6202558 -0.007690015
-    #> 11 0.00000000  0.0000000 1.00000000 0.003962699 0.03912356  0.2690653  0.6878484 -0.003962699
-    #>       raw.rsd.1   raw.rsd.2   raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
-    #> 1  -0.312997903 -0.34726922 -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
-    #> 2   0.129749354 -0.39005312 -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
-    #> 3   0.422594537 -0.40432265 -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
-    #> 4   0.058934282  0.20538261 -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
-    #> 5   0.126770584 -0.01356995 -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
-    #> 6   0.005983284  0.19006531 -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
-    #> 7   0.129455259  0.20594357 -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
-    #> 8  -0.074201998 -0.08983281  0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
-    #> 9  -0.068360484  0.01697418  0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
-    #> 10 -0.058806016 -0.31324812  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
-    #> 11 -0.039123555 -0.26906531  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
+    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2
+    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0
+    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0
+    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0
+    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34
+    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53
+    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153
+    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57
+    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85
+    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145
+    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0
+    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0
+    #>    obs.freq.3 obs.prop.0 obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0
+    #> 1           0 1.00000000 0.00000000  0.0000000 0.00000000 0.196511833
+    #> 2           0 0.60000000 0.40000000  0.0000000 0.00000000 0.130431315
+    #> 3           0 0.33333333 0.66666667  0.0000000 0.00000000 0.102631449
+    #> 4           1 0.09090909 0.27272727  0.6181818 0.01818182 0.077129446
+    #> 5          34 0.04511278 0.30075188  0.3984962 0.25563910 0.051169395
+    #> 6          62 0.03076923 0.14230769  0.5884615 0.23846154 0.032494074
+    #> 7          18 0.00000000 0.23469388  0.5816327 0.18367347 0.020534959
+    #> 8         214 0.00000000 0.02287582  0.2777778 0.69934641 0.017857642
+    #> 9         273 0.00000000 0.00000000  0.3468900 0.65311005 0.009866868
+    #> 10         69 0.00000000 0.00000000  0.0000000 1.00000000 0.007690015
+    #> 11        263 0.00000000 0.00000000  0.0000000 1.00000000 0.003962699
+    #>    exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0    raw.rsd.1   raw.rsd.2
+    #> 1  0.31299790  0.3472692  0.1432210  0.803488167 -0.312997903 -0.34726922
+    #> 2  0.27025065  0.3900531  0.2092649  0.469568685  0.129749354 -0.39005312
+    #> 3  0.24407213  0.4043226  0.2489738  0.230701885  0.422594537 -0.40432265
+    #> 4  0.21379299  0.4127992  0.2962784  0.013779645  0.058934282  0.20538261
+    #> 5  0.17398130  0.4120662  0.3627831 -0.006056613  0.126770584 -0.01356995
+    #> 6  0.13632441  0.3983962  0.4327853 -0.001724843  0.005983284  0.19006531
+    #> 7  0.10523862  0.3756891  0.4985373 -0.020534959  0.129455259  0.20594357
+    #> 8  0.09707782  0.3676106  0.5174539 -0.017857642 -0.074201998 -0.08983281
+    #> 9  0.06836048  0.3299158  0.5918569 -0.009866868 -0.068360484  0.01697418
+    #> 10 0.05880602  0.3132481  0.6202558 -0.007690015 -0.058806016 -0.31324812
+    #> 11 0.03912356  0.2690653  0.6878484 -0.003962699 -0.039123555 -0.26906531
+    #>      raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
+    #> 1  -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
+    #> 2  -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
+    #> 3  -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
+    #> 4  -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
+    #> 5  -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
+    #> 6  -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
+    #> 7  -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
+    #> 8   0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
+    #> 9   0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
+    #> 10  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
+    #> 11  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
     #>     std.rsd.1  std.rsd.2  std.rsd.3
     #> 1  -0.6749812 -0.7294006 -0.4088547
     #> 2   0.6533110 -1.7881373 -1.1503175
@@ -1334,44 +1498,56 @@ plot(x = fit1, item.loc = 1, type = "both", ci.method = "wald",
     plot(x = fit1, item.loc = 113, type = "icc", ci.method = "wald",
       layout.col = 2, ylim.sr.adjust = TRUE)
 
-<img src="man/figures/README-example-6.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-6.png" alt="" width="70%" height="50%" />
 
-    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2 obs.freq.3 obs.prop.0
-    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0          0 1.00000000
-    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0          0 0.60000000
-    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0          0 0.33333333
-    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34          1 0.09090909
-    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53         34 0.04511278
-    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153         62 0.03076923
-    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57         18 0.00000000
-    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85        214 0.00000000
-    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145        273 0.00000000
-    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0         69 0.00000000
-    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0        263 0.00000000
-    #>    obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0 exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0
-    #> 1  0.00000000  0.0000000 0.00000000 0.196511833 0.31299790  0.3472692  0.1432210  0.803488167
-    #> 2  0.40000000  0.0000000 0.00000000 0.130431315 0.27025065  0.3900531  0.2092649  0.469568685
-    #> 3  0.66666667  0.0000000 0.00000000 0.102631449 0.24407213  0.4043226  0.2489738  0.230701885
-    #> 4  0.27272727  0.6181818 0.01818182 0.077129446 0.21379299  0.4127992  0.2962784  0.013779645
-    #> 5  0.30075188  0.3984962 0.25563910 0.051169395 0.17398130  0.4120662  0.3627831 -0.006056613
-    #> 6  0.14230769  0.5884615 0.23846154 0.032494074 0.13632441  0.3983962  0.4327853 -0.001724843
-    #> 7  0.23469388  0.5816327 0.18367347 0.020534959 0.10523862  0.3756891  0.4985373 -0.020534959
-    #> 8  0.02287582  0.2777778 0.69934641 0.017857642 0.09707782  0.3676106  0.5174539 -0.017857642
-    #> 9  0.00000000  0.3468900 0.65311005 0.009866868 0.06836048  0.3299158  0.5918569 -0.009866868
-    #> 10 0.00000000  0.0000000 1.00000000 0.007690015 0.05880602  0.3132481  0.6202558 -0.007690015
-    #> 11 0.00000000  0.0000000 1.00000000 0.003962699 0.03912356  0.2690653  0.6878484 -0.003962699
-    #>       raw.rsd.1   raw.rsd.2   raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
-    #> 1  -0.312997903 -0.34726922 -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
-    #> 2   0.129749354 -0.39005312 -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
-    #> 3   0.422594537 -0.40432265 -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
-    #> 4   0.058934282  0.20538261 -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
-    #> 5   0.126770584 -0.01356995 -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
-    #> 6   0.005983284  0.19006531 -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
-    #> 7   0.129455259  0.20594357 -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
-    #> 8  -0.074201998 -0.08983281  0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
-    #> 9  -0.068360484  0.01697418  0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
-    #> 10 -0.058806016 -0.31324812  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
-    #> 11 -0.039123555 -0.26906531  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
+    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2
+    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0
+    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0
+    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0
+    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34
+    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53
+    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153
+    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57
+    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85
+    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145
+    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0
+    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0
+    #>    obs.freq.3 obs.prop.0 obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0
+    #> 1           0 1.00000000 0.00000000  0.0000000 0.00000000 0.196511833
+    #> 2           0 0.60000000 0.40000000  0.0000000 0.00000000 0.130431315
+    #> 3           0 0.33333333 0.66666667  0.0000000 0.00000000 0.102631449
+    #> 4           1 0.09090909 0.27272727  0.6181818 0.01818182 0.077129446
+    #> 5          34 0.04511278 0.30075188  0.3984962 0.25563910 0.051169395
+    #> 6          62 0.03076923 0.14230769  0.5884615 0.23846154 0.032494074
+    #> 7          18 0.00000000 0.23469388  0.5816327 0.18367347 0.020534959
+    #> 8         214 0.00000000 0.02287582  0.2777778 0.69934641 0.017857642
+    #> 9         273 0.00000000 0.00000000  0.3468900 0.65311005 0.009866868
+    #> 10         69 0.00000000 0.00000000  0.0000000 1.00000000 0.007690015
+    #> 11        263 0.00000000 0.00000000  0.0000000 1.00000000 0.003962699
+    #>    exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0    raw.rsd.1   raw.rsd.2
+    #> 1  0.31299790  0.3472692  0.1432210  0.803488167 -0.312997903 -0.34726922
+    #> 2  0.27025065  0.3900531  0.2092649  0.469568685  0.129749354 -0.39005312
+    #> 3  0.24407213  0.4043226  0.2489738  0.230701885  0.422594537 -0.40432265
+    #> 4  0.21379299  0.4127992  0.2962784  0.013779645  0.058934282  0.20538261
+    #> 5  0.17398130  0.4120662  0.3627831 -0.006056613  0.126770584 -0.01356995
+    #> 6  0.13632441  0.3983962  0.4327853 -0.001724843  0.005983284  0.19006531
+    #> 7  0.10523862  0.3756891  0.4985373 -0.020534959  0.129455259  0.20594357
+    #> 8  0.09707782  0.3676106  0.5174539 -0.017857642 -0.074201998 -0.08983281
+    #> 9  0.06836048  0.3299158  0.5918569 -0.009866868 -0.068360484  0.01697418
+    #> 10 0.05880602  0.3132481  0.6202558 -0.007690015 -0.058806016 -0.31324812
+    #> 11 0.03912356  0.2690653  0.6878484 -0.003962699 -0.039123555 -0.26906531
+    #>      raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
+    #> 1  -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
+    #> 2  -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
+    #> 3  -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
+    #> 4  -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
+    #> 5  -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
+    #> 6  -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
+    #> 7  -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
+    #> 8   0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
+    #> 9   0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
+    #> 10  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
+    #> 11  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
     #>     std.rsd.1  std.rsd.2  std.rsd.3
     #> 1  -0.6749812 -0.7294006 -0.4088547
     #> 2   0.6533110 -1.7881373 -1.1503175
@@ -1390,44 +1566,56 @@ plot(x = fit1, item.loc = 1, type = "both", ci.method = "wald",
     plot(x = fit1, item.loc = 113, type = "sr", ci.method = "wald",
       layout.col = 4, ylim.sr.adjust = TRUE)
 
-<img src="man/figures/README-example-7.png" width="70%" height="50%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example-7.png" alt="" width="70%" height="50%" />
 
-    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2 obs.freq.3 obs.prop.0
-    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0          0 1.00000000
-    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0          0 0.60000000
-    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0          0 0.33333333
-    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34          1 0.09090909
-    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53         34 0.04511278
-    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153         62 0.03076923
-    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57         18 0.00000000
-    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85        214 0.00000000
-    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145        273 0.00000000
-    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0         69 0.00000000
-    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0        263 0.00000000
-    #>    obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0 exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0
-    #> 1  0.00000000  0.0000000 0.00000000 0.196511833 0.31299790  0.3472692  0.1432210  0.803488167
-    #> 2  0.40000000  0.0000000 0.00000000 0.130431315 0.27025065  0.3900531  0.2092649  0.469568685
-    #> 3  0.66666667  0.0000000 0.00000000 0.102631449 0.24407213  0.4043226  0.2489738  0.230701885
-    #> 4  0.27272727  0.6181818 0.01818182 0.077129446 0.21379299  0.4127992  0.2962784  0.013779645
-    #> 5  0.30075188  0.3984962 0.25563910 0.051169395 0.17398130  0.4120662  0.3627831 -0.006056613
-    #> 6  0.14230769  0.5884615 0.23846154 0.032494074 0.13632441  0.3983962  0.4327853 -0.001724843
-    #> 7  0.23469388  0.5816327 0.18367347 0.020534959 0.10523862  0.3756891  0.4985373 -0.020534959
-    #> 8  0.02287582  0.2777778 0.69934641 0.017857642 0.09707782  0.3676106  0.5174539 -0.017857642
-    #> 9  0.00000000  0.3468900 0.65311005 0.009866868 0.06836048  0.3299158  0.5918569 -0.009866868
-    #> 10 0.00000000  0.0000000 1.00000000 0.007690015 0.05880602  0.3132481  0.6202558 -0.007690015
-    #> 11 0.00000000  0.0000000 1.00000000 0.003962699 0.03912356  0.2690653  0.6878484 -0.003962699
-    #>       raw.rsd.1   raw.rsd.2   raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
-    #> 1  -0.312997903 -0.34726922 -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
-    #> 2   0.129749354 -0.39005312 -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
-    #> 3   0.422594537 -0.40432265 -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
-    #> 4   0.058934282  0.20538261 -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
-    #> 5   0.126770584 -0.01356995 -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
-    #> 6   0.005983284  0.19006531 -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
-    #> 7   0.129455259  0.20594357 -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
-    #> 8  -0.074201998 -0.08983281  0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
-    #> 9  -0.068360484  0.01697418  0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
-    #> 10 -0.058806016 -0.31324812  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
-    #> 11 -0.039123555 -0.26906531  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
+    #>                 interval     point total obs.freq.0 obs.freq.1 obs.freq.2
+    #> 1  [0.3564295,0.5199582) 0.3564295     1          1          0          0
+    #> 2  [0.5199582,0.6834869) 0.6081321     5          3          2          0
+    #> 3  [0.6834869,0.8470155) 0.7400138    15          5         10          0
+    #> 4   [0.8470155,1.010544) 0.8866202    55          5         15         34
+    #> 5    [1.010544,1.174073) 1.0821064   133          6         40         53
+    #> 6    [1.174073,1.337602) 1.2832293   260          8         37        153
+    #> 7     [1.337602,1.50113) 1.4747336    98          0         23         57
+    #> 8     [1.50113,1.664659) 1.5311735   306          0          7         85
+    #> 9    [1.664659,1.828188) 1.7632607   418          0          0        145
+    #> 10   [1.828188,1.991716) 1.8577191    69          0          0          0
+    #> 11   [1.991716,2.155245] 2.1021956   263          0          0          0
+    #>    obs.freq.3 obs.prop.0 obs.prop.1 obs.prop.2 obs.prop.3  exp.prob.0
+    #> 1           0 1.00000000 0.00000000  0.0000000 0.00000000 0.196511833
+    #> 2           0 0.60000000 0.40000000  0.0000000 0.00000000 0.130431315
+    #> 3           0 0.33333333 0.66666667  0.0000000 0.00000000 0.102631449
+    #> 4           1 0.09090909 0.27272727  0.6181818 0.01818182 0.077129446
+    #> 5          34 0.04511278 0.30075188  0.3984962 0.25563910 0.051169395
+    #> 6          62 0.03076923 0.14230769  0.5884615 0.23846154 0.032494074
+    #> 7          18 0.00000000 0.23469388  0.5816327 0.18367347 0.020534959
+    #> 8         214 0.00000000 0.02287582  0.2777778 0.69934641 0.017857642
+    #> 9         273 0.00000000 0.00000000  0.3468900 0.65311005 0.009866868
+    #> 10         69 0.00000000 0.00000000  0.0000000 1.00000000 0.007690015
+    #> 11        263 0.00000000 0.00000000  0.0000000 1.00000000 0.003962699
+    #>    exp.prob.1 exp.prob.2 exp.prob.3    raw.rsd.0    raw.rsd.1   raw.rsd.2
+    #> 1  0.31299790  0.3472692  0.1432210  0.803488167 -0.312997903 -0.34726922
+    #> 2  0.27025065  0.3900531  0.2092649  0.469568685  0.129749354 -0.39005312
+    #> 3  0.24407213  0.4043226  0.2489738  0.230701885  0.422594537 -0.40432265
+    #> 4  0.21379299  0.4127992  0.2962784  0.013779645  0.058934282  0.20538261
+    #> 5  0.17398130  0.4120662  0.3627831 -0.006056613  0.126770584 -0.01356995
+    #> 6  0.13632441  0.3983962  0.4327853 -0.001724843  0.005983284  0.19006531
+    #> 7  0.10523862  0.3756891  0.4985373 -0.020534959  0.129455259  0.20594357
+    #> 8  0.09707782  0.3676106  0.5174539 -0.017857642 -0.074201998 -0.08983281
+    #> 9  0.06836048  0.3299158  0.5918569 -0.009866868 -0.068360484  0.01697418
+    #> 10 0.05880602  0.3132481  0.6202558 -0.007690015 -0.058806016 -0.31324812
+    #> 11 0.03912356  0.2690653  0.6878484 -0.003962699 -0.039123555 -0.26906531
+    #>      raw.rsd.3        se.0       se.1       se.2       se.3  std.rsd.0
+    #> 1  -0.14322104 0.397359953 0.46371351 0.47610220 0.35029812  2.0220663
+    #> 2  -0.20926492 0.150611412 0.19860274 0.21813376 0.18191928  3.1177497
+    #> 3  -0.24897378 0.078357401 0.11090564 0.12671381 0.11165000  2.9442258
+    #> 4  -0.27809653 0.035974863 0.05528201 0.06638675 0.06156999  0.3830354
+    #> 5  -0.10714402 0.019106171 0.03287157 0.04267975 0.04169091 -0.3169978
+    #> 6  -0.19432375 0.010996190 0.02128019 0.03036171 0.03072722 -0.1568583
+    #> 7  -0.31486387 0.014326112 0.03099761 0.04892172 0.05050741 -1.4333937
+    #> 8   0.18189246 0.007570744 0.01692484 0.02756294 0.02856568 -2.3587698
+    #> 9   0.06125317 0.004834464 0.01234350 0.02299737 0.02403956 -2.0409436
+    #> 10  0.37974416 0.010516294 0.02832213 0.05583668 0.05842604 -0.7312476
+    #> 11  0.31215156 0.003873963 0.01195570 0.02734578 0.02857270 -1.0229057
     #>     std.rsd.1  std.rsd.2  std.rsd.3
     #> 1  -0.6749812 -0.7294006 -0.4088547
     #> 2   0.6533110 -1.7881373 -1.1503175

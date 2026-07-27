@@ -48,7 +48,7 @@
 #'   `control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)`, where  
 #'   - `eval.max` = 500 limits the number of function evaluations  
 #'   - `iter.max` = 200 caps the number of internal optimizer iterations  
-#'   - `x.tol` = 1e‑4 sets the absolute change threshold in parameter values  
+#'   - `x.tol` = 1e-4 sets the absolute change threshold in parameter values  
 #'     below which [stats::nlminb()] considers the solution to have converged  
 #'   Users may additionally supply other `nlminb()` control options  
 #'   (such as `abs.tol`, `rel.tol`, `trace`, etc.) as needed.
