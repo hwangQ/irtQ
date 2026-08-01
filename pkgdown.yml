@@ -4,13 +4,14 @@ pkgdown_sha: ~
 articles:
   articles/ability-estimation: ability-estimation.html
   articles/classification-analysis: classification-analysis.html
+  articles/ctt-analysis: ctt-analysis.html
   articles/dif-detection: dif-detection.html
   articles/getting-started: getting-started.html
   articles/item-parameter-estimation: item-parameter-estimation.html
   articles/model-fit-evaluation: model-fit-evaluation.html
   articles/mst-panel-evaluation: mst-panel-evaluation.html
   articles/utilities: utilities.html
-last_built: 2026-07-27T04:44Z
+last_built: 2026-08-01T04:50Z
 urls:
   reference: https://hwangQ.github.io/irtQ/reference
   article: https://hwangQ.github.io/irtQ/articles

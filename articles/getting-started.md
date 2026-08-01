@@ -72,6 +72,16 @@ advantages are:
   ([`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md),
   [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md))
 
+**Beyond these IRT-based analyses**, irtQ also provides a small set of
+classical test theory (CTT) functions — item difficulty, item-total
+correlation, Cronbach’s alpha, option/distractor response distributions,
+and total-score frequency distributions — for scoring and analyzing
+selected-response item data without fitting an IRT model
+([`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md),
+[`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md),
+[`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md),
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)).
+
 **Utilities:**
 
 | Function | Purpose |
@@ -83,6 +93,7 @@ advantages are:
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature weights from a distribution |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | IRT-based covariance between items |
 | [`run_flexmirt()`](https://hwangQ.github.io/irtQ/reference/run_flexmirt.md) | Run flexMIRT directly from R |
+| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data into a 0/1 matrix |
 
 This vignette introduces the **IRT models** supported by **irtQ** and
 the **item metadata** data structure that connects all functions. At the
@@ -821,9 +832,9 @@ summary(mod)
 #>  Maximum parameter change: 0.000805268
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.25
-#>  Standard error computation: 0.01
-#>  Total computation: 0.29
+#>  EM algorithm: 0.39
+#>  Standard error computation: 0.02
+#>  Total computation: 0.43
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -924,7 +935,8 @@ IRT models, you are ready to explore each analysis in depth:
 | Model–data fit | `vignette("model-fit-evaluation")` | [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) |
 | DIF detection | `vignette("dif-detection")` | [`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md), [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md), [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) |
 | Classification accuracy | `vignette("classification-analysis")` | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
-| Utilities | `vignette("utilities")` | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md), [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md), [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
+| Utilities | `vignette("utilities")` | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md), [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md), [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) |
+| Classical test theory (CTT) analysis | `vignette("ctt-analysis")` | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
 | MST panel evaluation | `vignette("mst-panel-evaluation")` | [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) |
 
 ------------------------------------------------------------------------

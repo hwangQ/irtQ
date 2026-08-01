@@ -73,6 +73,27 @@ Detect and evaluate item parameter drift across test administrations.
 - [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md) :
   Pseudo-count D2 method
 
+## Classical Test Theory (CTT) Analysis
+
+Compute traditional item- and test-level statistics (difficulty,
+item-total correlation, Cronbach’s alpha) and score selected-response
+data against an answer key.
+
+- [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) : Classical
+  Test Theory (CTT) Item and Test Analysis
+- [`print(`*`<ctt>`*`)`](https://hwangQ.github.io/irtQ/reference/print.ctt.md)
+  : Print a Combined CTT Analysis
+- [`summary(`*`<ctt>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.ctt.md)
+  : Summarize a Combined CTT Analysis
+- [`print(`*`<summary.ctt>`*`)`](https://hwangQ.github.io/irtQ/reference/print.summary.ctt.md)
+  : Print the Full Report for a Combined CTT Analysis
+- [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
+  : Frequency Distribution Table for Total Scores
+- [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
+  : Option/Category Response Distribution and Distractor Analysis
+- [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
+  : Score Selected-Response Item Data Against an Answer Key
+
 ## Classification Accuracy & Consistency
 
 Evaluate the reliability of cut-score-based pass/fail classifications.

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@
     <li><a class="dropdown-item" href="articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
     <li><a class="dropdown-item" href="articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
@@ -126,6 +127,7 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <li>Running flexMIRT (Cai, 2017) directly from R</li>
 <li>Supporting additional tools for flexible and practical IRT analyses</li>
 </ul>
+<p>Beyond these IRT-based analyses, the package also provides a small set of classical test theory (CTT) functions (<code><a href="reference/ctt.html">ctt()</a></code>, <code><a href="reference/freq_score.html">freq_score()</a></code>, <code><a href="reference/ctt_distr.html">ctt_distr()</a></code>, and <code><a href="reference/score_resp.html">score_resp()</a></code>) for computing traditional item- and test-level statistics and for scoring selected-response item data.</p>
 <p>For full documentation, including function references and tutorial articles, visit the package website: <a href="https://hwangQ.github.io/irtQ/" class="uri">https://hwangQ.github.io/irtQ/</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -395,7 +397,7 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <span><span class="co">#&gt; Estimating item parameters... </span></span>
 <span><span class="co">#&gt;  EM iteration: 1, Loglike: -53907.8298, Max-Change: 1.476851 EM iteration: 2, Loglike: -47810.7610, Max-Change: 0.333348 EM iteration: 3, Loglike: -47780.1401, Max-Change: 0.130911 EM iteration: 4, Loglike: -47777.7493, Max-Change: 0.064179 EM iteration: 5, Loglike: -47776.9296, Max-Change: 0.038227 EM iteration: 6, Loglike: -47776.4542, Max-Change: 0.026209 EM iteration: 7, Loglike: -47776.1402, Max-Change: 0.019566 EM iteration: 8, Loglike: -47775.9185, Max-Change: 0.015306 EM iteration: 9, Loglike: -47775.7539, Max-Change: 0.012285 EM iteration: 10, Loglike: -47775.6263, Max-Change: 0.01001 EM iteration: 11, Loglike: -47775.5239, Max-Change: 0.008238 EM iteration: 12, Loglike: -47775.4394, Max-Change: 0.006834 EM iteration: 13, Loglike: -47775.3679, Max-Change: 0.005706 EM iteration: 14, Loglike: -47775.3064, Max-Change: 0.004795 EM iteration: 15, Loglike: -47775.2525, Max-Change: 0.004052 EM iteration: 16, Loglike: -47775.2048, Max-Change: 0.003444 EM iteration: 17, Loglike: -47775.1621, Max-Change: 0.002944 EM iteration: 18, Loglike: -47775.1234, Max-Change: 0.002529 EM iteration: 19, Loglike: -47775.0882, Max-Change: 0.002184 EM iteration: 20, Loglike: -47775.0558, Max-Change: 0.001895 EM iteration: 21, Loglike: -47775.0259, Max-Change: 0.001652 EM iteration: 22, Loglike: -47774.9980, Max-Change: 0.001446 EM iteration: 23, Loglike: -47774.9719, Max-Change: 0.001271 EM iteration: 24, Loglike: -47774.9473, Max-Change: 0.001121 EM iteration: 25, Loglike: -47774.9241, Max-Change: 0.000993 </span></span>
 <span><span class="co">#&gt; Computing item parameter var-covariance matrix... </span></span>
-<span><span class="co">#&gt; Estimation is finished in 2.5 seconds.</span></span>
+<span><span class="co">#&gt; Estimation is finished in 2.81 seconds.</span></span>
 <span></span>
 <span><span class="co"># Summarize estimation results</span></span>
 <span><span class="fu">irtQ</span><span class="fu">::</span><span class="fu"><a href="reference/summary.html">summary</a></span><span class="op">(</span><span class="va">mod_ref</span><span class="op">)</span></span>
@@ -422,9 +424,9 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009933655</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 2.24</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.15</span></span>
-<span><span class="co">#&gt;  Total computation: 2.5</span></span>
+<span><span class="co">#&gt;  EM algorithm: 2.57</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.1</span></span>
+<span><span class="co">#&gt;  Total computation: 2.81</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -631,7 +633,7 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <span><span class="co">#&gt; Estimating item parameters... </span></span>
 <span><span class="co">#&gt;  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001326 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.000788 </span></span>
 <span><span class="co">#&gt; Computing item parameter var-covariance matrix... </span></span>
-<span><span class="co">#&gt; Estimation is finished in 1.73 seconds.</span></span>
+<span><span class="co">#&gt; Estimation is finished in 1.03 seconds.</span></span>
 <span></span>
 <span><span class="co"># Summarize estimation results</span></span>
 <span><span class="fu">irtQ</span><span class="fu">::</span><span class="fu"><a href="reference/summary.html">summary</a></span><span class="op">(</span><span class="va">mod_fipc</span><span class="op">)</span></span>
@@ -657,9 +659,9 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0007875969</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.55</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.05</span></span>
-<span><span class="co">#&gt;  Total computation: 1.73</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.88</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.04</span></span>
+<span><span class="co">#&gt;  Total computation: 1.03</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -940,7 +942,7 @@ For pretest item calibration, <code>irtQ</code> supports:</p>
 <span><span class="co">#&gt; 15  New_I15  2000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  Total computation: 2.14</span></span>
+<span><span class="co">#&gt;  Total computation: 1.13</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence of Solution </span></span>
 <span><span class="co">#&gt;  All item parameters were successfully converged.</span></span>

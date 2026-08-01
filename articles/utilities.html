@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
     <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
@@ -88,8 +89,9 @@
 <p>Beyond the main analysis pipeline, <strong>irtQ</strong> includes a
 set of utility functions for simulating item response data, computing
 information and characteristic functions, supporting numerical
-integration over the ability scale, and computing asymptotic standard
-errors of item parameter estimates.</p>
+integration over the ability scale, computing asymptotic standard errors
+of item parameter estimates, and scoring raw selected-response data into
+a 0/1 matrix suitable for downstream analysis.</p>
 <table class="table">
 <colgroup>
 <col width="59%">
@@ -135,6 +137,11 @@ distributions</td>
 <td><code><a href="../reference/covirt.html">covirt()</a></code></td>
 <td>Analytical asymptotic variance-covariance matrices of item parameter
 estimates</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
+<td>Score raw selected-response data (option choices) into a 0/1
+matrix</td>
 </tr>
 </tbody>
 </table>
@@ -1345,6 +1352,111 @@ sample sizes:</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="score_resp-score-selected-response-item-data">
+<code>score_resp()</code> — Score Selected-Response Item Data<a class="anchor" aria-label="anchor" href="#score_resp-score-selected-response-item-data"></a>
+</h2>
+<p>The functions above all start from item parameters that are either
+known (<code><a href="../reference/drm.html">drm()</a></code>, <code><a href="../reference/prm.html">prm()</a></code>, <code><a href="../reference/info.html">info()</a></code>,
+<code><a href="../reference/traceline.html">traceline()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>) or estimated from an
+already-scored response matrix. In practice, raw testing data usually
+looks different: for each examinee, each item records the option that
+was actually chosen (e.g., <code>2</code>, <code>"C"</code>), not yet a
+0/1 correct/incorrect indicator. <code><a href="../reference/score_resp.html">score_resp()</a></code> bridges that
+gap. Given the raw option choices and an answer key, it returns a
+dichotomously scored (0/1) item-response matrix, of exactly the kind
+consumed by <code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>, and the
+package’s classical test theory (CTT) functions introduced in the
+<em>Classical Test Theory (CTT) Analysis</em> article.</p>
+<p><code><a href="../reference/score_resp.html">score_resp()</a></code> infers each item’s option-coding scheme
+independently from its own answer-key value, so a single test form may
+freely mix items that use different coding conventions:</p>
+<ul>
+<li>a <strong>numeric</strong> key (e.g., <code>4</code>) is compared to
+responses as a number,</li>
+<li>a <strong>Latin-letter</strong> key (e.g., <code>"D"</code>) is
+compared case-insensitively as a letter (<code>"d"</code> matches
+<code>"D"</code>),</li>
+<li>any other non-blank key (e.g., a Korean syllable label, or a Roman
+numeral written in a non-Latin numeral script) is treated as a
+<strong>general label</strong> and matched with a case-insensitive exact
+string comparison.</li>
+</ul>
+<p>An omitted response and a double-marked response (e.g.,
+<code>"1,5"</code> for a selected-response item where the examinee
+marked two options) are both scored as incorrect (0), but their counts
+are tabulated separately in the returned <code>resp_summary</code> so
+that omission and double-marking rates can be reported on their own.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 5 examinees, 3 items, coded with option numbers; item 2 has one</span></span>
+<span><span class="co"># double-marked response ("2,4") and item 3 has one blank (NA) response</span></span>
+<span><span class="va">raw_num</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  V1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>,</span>
+<span>  V2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"4"</span>, <span class="st">"4"</span>, <span class="st">"2,4"</span>, <span class="st">"4"</span>, <span class="st">"1"</span><span class="op">)</span>,</span>
+<span>  V3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2"</span>, <span class="st">"1"</span>, <span class="st">"3"</span>, <span class="st">"3"</span>, <span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">key_num</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span>   <span class="co"># correct option for V1, V2, V3</span></span>
+<span><span class="va">out_num</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/score_resp.html">score_resp</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_num</span>, key <span class="op">=</span> <span class="va">key_num</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out_num</span><span class="op">$</span><span class="va">scored</span>          <span class="co"># 0/1 scored matrix, same dimensions as raw_num</span></span>
+<span><span class="co">#&gt;   V1 V2 V3</span></span>
+<span><span class="co">#&gt; 1  1  1  0</span></span>
+<span><span class="co">#&gt; 2  0  1  0</span></span>
+<span><span class="co">#&gt; 3  0  0  1</span></span>
+<span><span class="co">#&gt; 4  1  1  1</span></span>
+<span><span class="co">#&gt; 5  0  0  0</span></span>
+<span><span class="va">out_num</span><span class="op">$</span><span class="va">resp_summary</span>    <span class="co"># one row per item: n_correct, n_blank, pct_double, ...</span></span>
+<span><span class="co">#&gt;   item key n n_correct n_wrong n_blank n_double n_invalid pct_blank pct_double</span></span>
+<span><span class="co">#&gt; 1   V1   1 5         2       3       0        0         0         0          0</span></span>
+<span><span class="co">#&gt; 2   V2   4 5         3       2       0        1         0         0         20</span></span>
+<span><span class="co">#&gt; 3   V3   3 5         2       3       1        0         0        20          0</span></span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Same idea, but items are coded with letter option labels instead of</span></span>
+<span><span class="co"># numbers; a lowercase response ("c") is still matched to key "C"</span></span>
+<span><span class="va">raw_let</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  V1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
+<span>  V2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D"</span>, <span class="st">"D"</span>, <span class="st">"B,D"</span>, <span class="st">"D"</span>, <span class="st">"A"</span><span class="op">)</span>,</span>
+<span>  V3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"c"</span>, <span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">key_let</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"D"</span>, <span class="st">"C"</span><span class="op">)</span></span>
+<span><span class="va">out_let</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/score_resp.html">score_resp</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_let</span>, key <span class="op">=</span> <span class="va">key_let</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">out_let</span><span class="op">$</span><span class="va">scored</span></span>
+<span><span class="co">#&gt;   V1 V2 V3</span></span>
+<span><span class="co">#&gt; 1  1  1  0</span></span>
+<span><span class="co">#&gt; 2  0  1  0</span></span>
+<span><span class="co">#&gt; 3  0  0  1</span></span>
+<span><span class="co">#&gt; 4  1  1  1</span></span>
+<span><span class="co">#&gt; 5  0  0  0</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">out_let</span><span class="op">$</span><span class="va">scored</span>, <span class="va">out_num</span><span class="op">$</span><span class="va">scored</span><span class="op">)</span>  <span class="co"># same scoring pattern as above</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>Because the coding scheme is detected per item, a numerically coded
+item and a letter-coded item can appear side by side in the same call to
+<code><a href="../reference/score_resp.html">score_resp()</a></code>, with each item’s own key value deciding how
+that item’s column is interpreted:</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Item 1 is numerically coded; items 2-3 are letter-coded</span></span>
+<span><span class="va">raw_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  V1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"3"</span><span class="op">)</span>,</span>
+<span>  V2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D"</span>, <span class="st">"D"</span>, <span class="st">"D"</span>, <span class="st">"B,D"</span>, <span class="st">"D"</span><span class="op">)</span>,</span>
+<span>  V3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">key_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"D"</span>, <span class="st">"C"</span><span class="op">)</span></span>
+<span><span class="va">out_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/score_resp.html">score_resp</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw_mix</span>, key <span class="op">=</span> <span class="va">key_mix</span><span class="op">)</span></span>
+<span><span class="va">out_mix</span><span class="op">$</span><span class="va">scored</span></span>
+<span><span class="co">#&gt;   V1 V2 V3</span></span>
+<span><span class="co">#&gt; 1  1  1  0</span></span>
+<span><span class="co">#&gt; 2  0  1  0</span></span>
+<span><span class="co">#&gt; 3  1  1  1</span></span>
+<span><span class="co">#&gt; 4  1  0  1</span></span>
+<span><span class="co">#&gt; 5  0  1  0</span></span></code></pre></div>
+<p>Option labels written in scripts other than Latin letters (Korean
+syllables, Roman numerals rendered with non-Latin numeral characters,
+and so on) are supported as well, under the general-label rule described
+above; see <code><a href="../reference/score_resp.html">?score_resp</a></code> for a worked example using Korean
+syllable labels.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <table style="width:100%;" class="table">
@@ -1422,6 +1534,15 @@ sample sizes:</p>
 <td>Item metadata + sample size</td>
 <td>Cov matrices, ASE vectors</td>
 <td>SE approximation</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
+<td>Raw option choices + answer key</td>
+<td>0/1 scored response matrix</td>
+<td>
+<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>,
+<code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>
+</td>
 </tr>
 </tbody>
 </table>

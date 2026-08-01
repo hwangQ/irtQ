@@ -5,8 +5,9 @@
 Beyond the main analysis pipeline, **irtQ** includes a set of utility
 functions for simulating item response data, computing information and
 characteristic functions, supporting numerical integration over the
-ability scale, and computing asymptotic standard errors of item
-parameter estimates.
+ability scale, computing asymptotic standard errors of item parameter
+estimates, and scoring raw selected-response data into a 0/1 matrix
+suitable for downstream analysis.
 
 | Function | Purpose |
 |----|----|
@@ -18,6 +19,7 @@ parameter estimates.
 | [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord–Wingersky recursion: conditional summed-score distributions |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature nodes and weights from a distribution |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Analytical asymptotic variance-covariance matrices of item parameter estimates |
+| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data (option choices) into a 0/1 matrix |
 
 ``` r
 
@@ -1176,6 +1178,129 @@ cov_mix$se[["GRM1"]]
 
 ------------------------------------------------------------------------
 
+## `score_resp()` — Score Selected-Response Item Data
+
+The functions above all start from item parameters that are either known
+([`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md),
+[`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md),
+[`info()`](https://hwangQ.github.io/irtQ/reference/info.md),
+[`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md),
+[`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md)) or
+estimated from an already-scored response matrix. In practice, raw
+testing data usually looks different: for each examinee, each item
+records the option that was actually chosen (e.g., `2`, `"C"`), not yet
+a 0/1 correct/incorrect indicator.
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
+bridges that gap. Given the raw option choices and an answer key, it
+returns a dichotomously scored (0/1) item-response matrix, of exactly
+the kind consumed by
+[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
+[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md),
+and the package’s classical test theory (CTT) functions introduced in
+the *Classical Test Theory (CTT) Analysis* article.
+
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
+infers each item’s option-coding scheme independently from its own
+answer-key value, so a single test form may freely mix items that use
+different coding conventions:
+
+- a **numeric** key (e.g., `4`) is compared to responses as a number,
+- a **Latin-letter** key (e.g., `"D"`) is compared case-insensitively as
+  a letter (`"d"` matches `"D"`),
+- any other non-blank key (e.g., a Korean syllable label, or a Roman
+  numeral written in a non-Latin numeral script) is treated as a
+  **general label** and matched with a case-insensitive exact string
+  comparison.
+
+An omitted response and a double-marked response (e.g., `"1,5"` for a
+selected-response item where the examinee marked two options) are both
+scored as incorrect (0), but their counts are tabulated separately in
+the returned `resp_summary` so that omission and double-marking rates
+can be reported on their own.
+
+``` r
+
+# 5 examinees, 3 items, coded with option numbers; item 2 has one
+# double-marked response ("2,4") and item 3 has one blank (NA) response
+raw_num <- data.frame(
+  V1 = c("1", "2", "3", "1", "2"),
+  V2 = c("4", "4", "2,4", "4", "1"),
+  V3 = c("2", "1", "3", "3", NA)
+)
+key_num <- c(1, 4, 3)   # correct option for V1, V2, V3
+out_num <- score_resp(data = raw_num, key = key_num)
+
+out_num$scored          # 0/1 scored matrix, same dimensions as raw_num
+#>   V1 V2 V3
+#> 1  1  1  0
+#> 2  0  1  0
+#> 3  0  0  1
+#> 4  1  1  1
+#> 5  0  0  0
+out_num$resp_summary    # one row per item: n_correct, n_blank, pct_double, ...
+#>   item key n n_correct n_wrong n_blank n_double n_invalid pct_blank pct_double
+#> 1   V1   1 5         2       3       0        0         0         0          0
+#> 2   V2   4 5         3       2       0        1         0         0         20
+#> 3   V3   3 5         2       3       1        0         0        20          0
+```
+
+``` r
+
+# Same idea, but items are coded with letter option labels instead of
+# numbers; a lowercase response ("c") is still matched to key "C"
+raw_let <- data.frame(
+  V1 = c("A", "B", "C", "A", "B"),
+  V2 = c("D", "D", "B,D", "D", "A"),
+  V3 = c("B", "A", "C", "c", NA)
+)
+key_let <- c("A", "D", "C")
+out_let <- score_resp(data = raw_let, key = key_let)
+
+out_let$scored
+#>   V1 V2 V3
+#> 1  1  1  0
+#> 2  0  1  0
+#> 3  0  0  1
+#> 4  1  1  1
+#> 5  0  0  0
+identical(out_let$scored, out_num$scored)  # same scoring pattern as above
+#> [1] TRUE
+```
+
+Because the coding scheme is detected per item, a numerically coded item
+and a letter-coded item can appear side by side in the same call to
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md),
+with each item’s own key value deciding how that item’s column is
+interpreted:
+
+``` r
+
+# Item 1 is numerically coded; items 2-3 are letter-coded
+raw_mix <- data.frame(
+  V1 = c("1", "2", "1", "1", "3"),
+  V2 = c("D", "D", "D", "B,D", "D"),
+  V3 = c("B", "A", "C", "C", NA)
+)
+key_mix <- c(1, "D", "C")
+out_mix <- score_resp(data = raw_mix, key = key_mix)
+out_mix$scored
+#>   V1 V2 V3
+#> 1  1  1  0
+#> 2  0  1  0
+#> 3  1  1  1
+#> 4  1  0  1
+#> 5  0  1  0
+```
+
+Option labels written in scripts other than Latin letters (Korean
+syllables, Roman numerals rendered with non-Latin numeral characters,
+and so on) are supported as well, under the general-label rule described
+above; see
+[`?score_resp`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
+for a worked example using Korean syllable labels.
+
+------------------------------------------------------------------------
+
 ## Summary
 
 | Function | Input | Key output | Used by |
@@ -1188,6 +1313,7 @@ cov_mix$se[["GRM1"]]
 | [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + θ, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node–weight data frame | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
+| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
 
 ------------------------------------------------------------------------
 

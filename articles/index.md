@@ -6,6 +6,8 @@
   Estimation](https://hwangQ.github.io/irtQ/articles/ability-estimation.md):
 - [Classification Accuracy and
   Consistency](https://hwangQ.github.io/irtQ/articles/classification-analysis.md):
+- [Classical Test Theory (CTT)
+  Analysis](https://hwangQ.github.io/irtQ/articles/ctt-analysis.md):
 - [DIF
   Detection](https://hwangQ.github.io/irtQ/articles/dif-detection.md):
 - [Getting Started with

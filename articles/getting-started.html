@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
     <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
@@ -165,6 +166,13 @@ bias test modified for CAT (CATSIB) (<code><a href="../reference/rdif.html">rdif
 <li>Computing classification accuracy and consistency indices
 (<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>)</li>
 </ul>
+<p><strong>Beyond these IRT-based analyses</strong>, irtQ also provides
+a small set of classical test theory (CTT) functions — item difficulty,
+item-total correlation, Cronbach’s alpha, option/distractor response
+distributions, and total-score frequency distributions — for scoring and
+analyzing selected-response item data without fitting an IRT model
+(<code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/freq_score.html">freq_score()</a></code>,
+<code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>, <code><a href="../reference/score_resp.html">score_resp()</a></code>).</p>
 <p><strong>Utilities:</strong></p>
 <table class="table">
 <thead><tr class="header">
@@ -199,6 +207,10 @@ bias test modified for CAT (CATSIB) (<code><a href="../reference/rdif.html">rdif
 <tr class="odd">
 <td><code><a href="../reference/run_flexmirt.html">run_flexmirt()</a></code></td>
 <td>Run flexMIRT directly from R</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
+<td>Score raw selected-response data into a 0/1 matrix</td>
 </tr>
 </tbody>
 </table>
@@ -1209,9 +1221,9 @@ recovery.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.000805268</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.25</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.29</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.39</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.43</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1350,10 +1362,19 @@ depth:</p>
 <td>
 <code><a href="../reference/simdat.html">simdat()</a></code>, <code><a href="../reference/drm.html">drm()</a></code>, <code><a href="../reference/prm.html">prm()</a></code>,
 <code><a href="../reference/info.html">info()</a></code>, <code><a href="../reference/traceline.html">traceline()</a></code>, <code><a href="../reference/lwrc.html">lwrc()</a></code>,
-<code><a href="../reference/gen.weight.html">gen.weight()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>
+<code><a href="../reference/gen.weight.html">gen.weight()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>,
+<code><a href="../reference/score_resp.html">score_resp()</a></code>
 </td>
 </tr>
 <tr class="odd">
+<td>Classical test theory (CTT) analysis</td>
+<td><code>vignette("ctt-analysis")</code></td>
+<td>
+<code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/freq_score.html">freq_score()</a></code>,
+<code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>
+</td>
+</tr>
+<tr class="even">
 <td>MST panel evaluation</td>
 <td><code>vignette("mst-panel-evaluation")</code></td>
 <td><code><a href="../reference/reval_mst.html">reval_mst()</a></code></td>

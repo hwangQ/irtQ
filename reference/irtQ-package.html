@@ -40,10 +40,14 @@ Visualizing item and test characteristic and information curves
 Supporting additional tools for flexible and practical IRT analyses
 
 
+Beyond these IRT-based analyses, the package also provides a small set of
+classical test theory (CTT) functions (ctt(), freq_score(),
+ctt_distr(), and score_resp()) for computing traditional item- and
+test-level statistics and for scoring selected-response item data.
 
 Package:irtQ
-Version:1.2.0
-Date:2026-07-26
+Version:1.2.1
+Date:2026-08-01
 Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
@@ -89,10 +93,14 @@ Visualizing item and test characteristic and information curves
 Supporting additional tools for flexible and practical IRT analyses
 
 
+Beyond these IRT-based analyses, the package also provides a small set of
+classical test theory (CTT) functions (ctt(), freq_score(),
+ctt_distr(), and score_resp()) for computing traditional item- and
+test-level statistics and for scoring selected-response item data.
 
 Package:irtQ
-Version:1.2.0
-Date:2026-07-26
+Version:1.2.1
+Date:2026-08-01
 Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
@@ -105,7 +113,7 @@ License:GPL (&amp;gt;= 2)
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,6 +134,7 @@ License:GPL (&amp;gt;= 2)
     <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
     <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul></li>
 <li class="nav-item dropdown">
@@ -186,7 +195,11 @@ Lord-Wingersky recursion</p></li>
 <li><p>Calculating item and test information and characteristic functions</p></li>
 <li><p>Visualizing item and test characteristic and information curves</p></li>
 <li><p>Supporting additional tools for flexible and practical IRT analyses</p></li>
-</ul><table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.2.0</td></tr><tr><td>Date:</td><td>2026-07-26</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.5)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
+</ul><p>Beyond these IRT-based analyses, the package also provides a small set of
+classical test theory (CTT) functions (<code><a href="ctt.html">ctt()</a></code>, <code><a href="freq_score.html">freq_score()</a></code>,
+<code><a href="ctt_distr.html">ctt_distr()</a></code>, and <code><a href="score_resp.html">score_resp()</a></code>) for computing traditional item- and
+test-level statistics and for scoring selected-response item data.</p>
+<table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.2.1</td></tr><tr><td>Date:</td><td>2026-08-01</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.5)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
 
 
     <div class="section level2">
@@ -622,6 +635,12 @@ package for the R environment.
 <p>Chen, P., &amp; Wang, C. (2016). A new online calibration method for
 multidimensional computerized adaptive testing.
 <em>Psychometrika, 81</em>(3), 674-701.</p>
+<p>Crocker, L., &amp; Algina, J. (1986). <em>Introduction to classical and modern
+test theory</em>. Holt, Rinehart and Winston.</p>
+<p>Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
+tests.
+<em>Psychometrika, 16</em>(3), 297-334. <a href="https://doi.org/10.1007/BF02310555" class="external-link">doi:10.1007/BF02310555</a>
+.</p>
 <p>Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating.
 <em>Journal of Statistical Software, 59</em>, 1-30.</p>
@@ -695,6 +714,10 @@ dichotomous item response theory models.
 <p>Orlando, M., &amp; Thissen, D. (2003). Further investigation of the performance
 of S-X2: An item fit index for use with dichotomous item response theory
 models. <em>Applied Psychological Measurement, 27</em>(4), 289-298.</p>
+<p>Osburn, H. G. (2000). Coefficient alpha and related internal consistency
+reliability coefficients.
+<em>Psychological Methods, 5</em>(3), 343-355. <a href="https://doi.org/10.1037/1082-989X.5.3.343" class="external-link">doi:10.1037/1082-989X.5.3.343</a>
+.</p>
 <p>Pritikin, J. (2018). <em>rpf: Response Probability Functions</em>. R package
 version 0.59. https://CRAN.R-project.org/package=rpf.</p>
 <p>Pritikin, J. N., &amp; Falk, C. F. (2020). OpenMx: A modular research

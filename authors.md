@@ -22,12 +22,12 @@ Source:
 [`DESCRIPTION`](https://github.com/hwangQ/irtQ/blob/main/DESCRIPTION)
 
 Lim H (2026). *irtQ: Unidimensional Item Response Theory Modeling*. R
-package version 1.2.0, <https://hwangQ.github.io/irtQ/>.
+package version 1.2.1, <https://hwangQ.github.io/irtQ/>.
 
     @Manual{,
       title = {irtQ: Unidimensional Item Response Theory Modeling},
       author = {Hwanggyu Lim},
       year = {2026},
-      note = {R package version 1.2.0},
+      note = {R package version 1.2.1},
       url = {https://hwangQ.github.io/irtQ/},
     }
