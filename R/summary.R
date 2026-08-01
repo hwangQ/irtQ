@@ -130,3 +130,37 @@ summary.est_item <- function(object, ...) {
   class(out) <- "summary.est_item"
   out
 }
+
+#' Summarize a Combined CTT Analysis
+#'
+#' Prepares the full, detailed report for an object of class `"ctt"`
+#' returned by [ctt()]. Following the convention used by
+#' [irtQ::est_irt()]/`summary.est_irt()`, this method returns an object of
+#' class `"summary.ctt"` whose own `print.summary.ctt()` method displays the
+#' complete item-level table, test-level reliability summary, and total-score
+#' frequency distribution.
+#'
+#' @param object An object of class `"ctt"`, as returned by [ctt()].
+#' @param ... Additional arguments passed to or from other methods (currently
+#'   not used).
+#'
+#' @return An object of class `"summary.ctt"`: a list with the same `item`,
+#'   `crit`, `alpha`, `freq`, and `call` elements as `object` (see
+#'   [ctt()]'s **Value**), to be displayed by `print.summary.ctt()`.
+#'
+#' @author Hwanggyu Lim \email{hglim83@@gmail.com}
+#'
+#' @seealso [ctt()], [print.ctt()]
+#'
+#' @export
+summary.ctt <- function(object, ...) {
+
+  # ctt() already computes every element needed for the full report, so
+  # summary.ctt() simply re-classes the same content for dispatch to
+  # print.summary.ctt(), mirroring how summary.est_irt() repackages est_irt()
+  # output rather than recomputing anything
+  out <- list(item = object$item, crit = object$crit, alpha = object$alpha,
+              freq = object$freq, call = object$call)
+  class(out) <- "summary.ctt"
+  out
+}

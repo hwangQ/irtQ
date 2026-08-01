@@ -15,6 +15,42 @@ knitr::opts_chunk$set(
 )
 ```
 
+# irtQ 1.2.1
+
+## New Features
+* Added a new function, `ctt()`, which runs a complete classical test theory
+  (CTT) analysis on a scored item response data set (dichotomous or
+  polytomous) and returns a single `"ctt"` object bundling item-level
+  statistics, a test-level reliability summary, and a total-score frequency
+  distribution. `print.ctt()` and `summary.ctt()` methods provide a condensed
+  and a full report, respectively, following the same pattern as
+  `est_irt()`/`print.est_irt()`/`summary.est_irt()`.
+
+* Added a new function, `freq_score()`, which tabulates a frequency
+  distribution table (frequency, percentage, cumulative percentage) for a
+  vector of total (raw) scores.
+
+* Added a new function, `ctt_distr()`, which computes, for each item, the
+  response percentage and point-biserial correlation with the total score
+  for every response option (selected-response mode, with an answer key) or
+  score category (scored-category mode, for already-scored polytomous data).
+  In selected-response mode, it also reports omission/double-marking rates
+  and flags distractors that are more attractive to high scorers than the
+  keyed option.
+
+* Added a new function, `score_resp()`, which converts raw selected-response
+  (e.g., multiple-choice) item data - option numbers, missing-response
+  indicators, or comma-separated double-marked responses (e.g., `"1,5"`) -
+  into a dichotomously scored (0/1) response matrix using a supplied answer
+  key, along with a per-item summary of omission, double-marking, and
+  invalid-response rates.
+
+* Item- and option-level discrimination statistics computed for these new
+  functions always report both the raw (uncorrected) and corrected
+  (item-excluded) item-total (or option-total) correlation as separate
+  columns, rather than only one or the other, following the convention used
+  by `psych::alpha()` (`raw.r` / `r.drop`).
+
 # irtQ 1.2.0
 
 ## New Features

@@ -50,10 +50,15 @@ Lord-Wingersky recursion
 \item Supporting additional tools for flexible and practical IRT analyses
 }
 
+Beyond these IRT-based analyses, the package also provides a small set of
+classical test theory (CTT) functions (\code{\link[=ctt]{ctt()}}, \code{\link[=freq_score]{freq_score()}},
+\code{\link[=ctt_distr]{ctt_distr()}}, and \code{\link[=score_resp]{score_resp()}}) for computing traditional item- and
+test-level statistics and for scoring selected-response item data.
+
 \tabular{ll}{
 Package: \tab irtQ\cr
-Version: \tab 1.2.0\cr
-Date: \tab 2026-07-26\cr
+Version: \tab 1.2.1\cr
+Date: \tab 2026-08-01\cr
 Depends: \tab R (>= 4.5)\cr
 License: \tab GPL (>= 2)\cr
 }
@@ -561,6 +566,13 @@ Chen, P., & Wang, C. (2016). A new online calibration method for
 multidimensional computerized adaptive testing.
 \emph{Psychometrika, 81}(3), 674-701.
 
+Crocker, L., & Algina, J. (1986). \emph{Introduction to classical and modern
+test theory}. Holt, Rinehart and Winston.
+
+Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
+tests.
+\emph{Psychometrika, 16}(3), 297-334. \doi{10.1007/BF02310555}.
+
 Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating.
 \emph{Journal of Statistical Software, 59}, 1-30.
@@ -657,6 +669,10 @@ dichotomous item response theory models.
 Orlando, M., & Thissen, D. (2003). Further investigation of the performance
 of S-X2: An item fit index for use with dichotomous item response theory
 models. \emph{Applied Psychological Measurement, 27}(4), 289-298.
+
+Osburn, H. G. (2000). Coefficient alpha and related internal consistency
+reliability coefficients.
+\emph{Psychological Methods, 5}(3), 343-355. \doi{10.1037/1082-989X.5.3.343}.
 
 Pritikin, J. (2018). \emph{rpf: Response Probability Functions}. R package
 version 0.59. https://CRAN.R-project.org/package=rpf.

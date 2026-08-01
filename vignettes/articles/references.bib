@@ -1,16 +1,18 @@
 %% ============================================================
 %%  references.bib
-%%  Shared BibTeX database for all irtQ package vignettes.
+%%  Shared BibTeX database for all irtQ pkgdown articles.
 %%
-%%  File location: vignettes/references.bib
+%%  File location: vignettes/articles/references.bib
 %%
-%%  How to reference from vignettes:
-%%    - Vignettes in vignettes/         → bibliography: references.bib
-%%    - Vignettes in vignettes/articles/ → bibliography: ../references.bib
+%%  How to reference from an article:
+%%    - Every .Rmd file in vignettes/articles/ lives in this same
+%%      directory, so each one simply uses:
+%%        bibliography: references.bib
 %%
-%%  The relative path "../references.bib" tells pandoc to look one
-%%  directory level up, so articles/ vignettes can share the same
-%%  file without duplication.
+%%  All current articles (getting-started.Rmd, item-parameter-estimation.Rmd,
+%%  ability-estimation.Rmd, model-fit-evaluation.Rmd, dif-detection.Rmd,
+%%  classification-analysis.Rmd, utilities.Rmd, mst-panel-evaluation.Rmd,
+%%  ctt-analysis.Rmd) share this one file without duplication.
 %% ============================================================
 
 %% ----------------------------------------------------------
@@ -573,6 +575,41 @@
   number  = {2},
   pages   = {85--117},
   doi     = {10.1111/j.1745-3984.2004.tb01109.x}
+}
+
+%% ----------------------------------------------------------
+%%  Classical Test Theory (CTT)
+%% ----------------------------------------------------------
+
+@article{cronbach1951,
+  author  = {Cronbach, Lee J.},
+  title   = {Coefficient alpha and the internal structure of tests},
+  journal = {Psychometrika},
+  year    = {1951},
+  volume  = {16},
+  number  = {3},
+  pages   = {297--334},
+  doi     = {10.1007/BF02310555}
+}
+
+@article{osburn2000,
+  author  = {Osburn, H. G.},
+  title   = {Coefficient alpha and related internal consistency reliability
+             coefficients},
+  journal = {Psychological Methods},
+  year    = {2000},
+  volume  = {5},
+  number  = {3},
+  pages   = {343--355},
+  doi     = {10.1037/1082-989X.5.3.343}
+}
+
+@book{crocker_algina1986,
+  author    = {Crocker, Linda and Algina, James},
+  title     = {Introduction to Classical and Modern Test Theory},
+  year      = {1986},
+  publisher = {Holt, Rinehart and Winston},
+  address   = {New York, NY}
 }
 
 %% ----------------------------------------------------------

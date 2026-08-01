@@ -42,10 +42,15 @@
 #' - Visualizing item and test characteristic and information curves
 #' - Supporting additional tools for flexible and practical IRT analyses
 #'
+#' Beyond these IRT-based analyses, the package also provides a small set of
+#' classical test theory (CTT) functions ([ctt()], [freq_score()],
+#' [ctt_distr()], and [score_resp()]) for computing traditional item- and
+#' test-level statistics and for scoring selected-response item data.
+#'
 #' \tabular{ll}{
 #' Package: \tab irtQ\cr
-#' Version: \tab 1.2.0\cr
-#' Date: \tab 2026-07-26\cr
+#' Version: \tab 1.2.1\cr
+#' Date: \tab 2026-08-01\cr
 #' Depends: \tab R (>= 4.5)\cr
 #' License: \tab GPL (>= 2)\cr
 #' }
@@ -523,6 +528,13 @@
 #'   multidimensional computerized adaptive testing.
 #' *Psychometrika, 81*(3), 674-701.
 #'
+#'   Crocker, L., & Algina, J. (1986). *Introduction to classical and modern
+#'   test theory*. Holt, Rinehart and Winston.
+#'
+#'   Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
+#'   tests.
+#' *Psychometrika, 16*(3), 297-334. \doi{10.1007/BF02310555}.
+#'
 #'   Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 #'   and methods for test equating.
 #' *Journal of Statistical Software, 59*, 1-30.
@@ -619,6 +631,10 @@
 #'   Orlando, M., & Thissen, D. (2003). Further investigation of the performance
 #'   of S-X2: An item fit index for use with dichotomous item response theory
 #'   models. *Applied Psychological Measurement, 27*(4), 289-298.
+#'
+#'   Osburn, H. G. (2000). Coefficient alpha and related internal consistency
+#'   reliability coefficients.
+#' *Psychological Methods, 5*(3), 343-355. \doi{10.1037/1082-989X.5.3.343}.
 #'
 #'   Pritikin, J. (2018). *rpf: Response Probability Functions*. R package
 #'   version 0.59. https://CRAN.R-project.org/package=rpf.
