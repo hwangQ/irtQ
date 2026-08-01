@@ -1,14 +1,18 @@
 Package: irtQ
 Type: Package
 Title: Unidimensional Item Response Theory Modeling
-Version: 1.2.0
+Version: 1.2.1
 Description: Fit unidimensional item response theory (IRT) models to test
     data, which includes both dichotomous and polytomous items, calibrate 
     pretest item parameters, estimate examinees' abilities, and examine 
     the IRT model-data fit on item-level in different ways as well as provide 
-    useful functions related to IRT analyses such as IRT model-data fit 
-    evaluation and differential item functioning analysis. 
-    The bring.flexmirt() and write.flexmirt() functions were written by modifying 
+    useful functions related to IRT analyses such as IRT model-data fit
+    evaluation and differential item functioning analysis.
+    In addition, the package provides a set of classical test theory (CTT) functions
+    for computing item- and test-level statistics (e.g., item difficulty, item-total
+    correlation, and Cronbach's alpha) and for scoring and analyzing selected-response
+    item data.
+    The bring.flexmirt() and write.flexmirt() functions were written by modifying
     the read.flexmirt() function (Pritikin & Falk (2022) <doi:10.1177/0146621620929431>).
     The bring.bilog() and bring.parscale() functions were written by modifying the read.bilog() 
     and read.parscale() functions, respectively (Weeks (2010) <doi:10.18637/jss.v035.i12>).

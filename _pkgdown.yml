@@ -42,6 +42,8 @@ navbar:
         - text: "--- Extra Articles ---"
         - text: "Utilities"
           href: articles/utilities.html
+        - text: "Classical Test Theory (CTT) Analysis"
+          href: articles/ctt-analysis.html
         - text: "MST Panel Evaluation and Simulation"
           href: articles/mst-panel-evaluation.html
 
@@ -87,6 +89,17 @@ reference:
     contents:
       - ripd
       - pcd2
+
+  - title: "Classical Test Theory (CTT) Analysis"
+    desc: "Compute traditional item- and test-level statistics (difficulty, item-total correlation, Cronbach's alpha) and score selected-response data against an answer key."
+    contents:
+      - ctt
+      - print.ctt
+      - summary.ctt
+      - print.summary.ctt
+      - freq_score
+      - ctt_distr
+      - score_resp
 
   - title: "Classification Accuracy & Consistency"
     desc: "Evaluate the reliability of cut-score-based pass/fail classifications."

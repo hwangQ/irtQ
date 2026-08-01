@@ -70,6 +70,8 @@ In addition, the package offers a variety of utilities for IRT analysis, includi
 - Running flexMIRT (Cai, 2017) directly from R
 - Supporting additional tools for flexible and practical IRT analyses
 
+Beyond these IRT-based analyses, the package also provides a small set of classical test theory (CTT) functions (`ctt()`, `freq_score()`, `ctt_distr()`, and `score_resp()`) for computing traditional item- and test-level statistics and for scoring selected-response item data.
+
 For full documentation, including function references and tutorial articles, visit the package website: <https://hwangQ.github.io/irtQ/>.
 
 ## Installation

@@ -73,6 +73,13 @@ attitude) and item parameters. Key advantages are:
 - Computing classification accuracy and consistency indices
   (`cac_lee()`, `cac_rud()`)
 
+**Beyond these IRT-based analyses**, irtQ also provides a small set of
+classical test theory (CTT) functions — item difficulty, item-total
+correlation, Cronbach's alpha, option/distractor response distributions, and
+total-score frequency distributions — for scoring and analyzing
+selected-response item data without fitting an IRT model
+(`ctt()`, `freq_score()`, `ctt_distr()`, `score_resp()`).
+
 **Utilities:**
 
 | Function | Purpose |
@@ -84,6 +91,7 @@ attitude) and item parameters. Key advantages are:
 | `gen.weight()` | Generate quadrature weights from a distribution |
 | `covirt()` | IRT-based covariance between items |
 | `run_flexmirt()` | Run flexMIRT directly from R |
+| `score_resp()` | Score raw selected-response data into a 0/1 matrix |
 
 This vignette introduces the **IRT models** supported by **irtQ** and the **item
 metadata** data structure that connects all functions. At the end, a minimal
@@ -649,7 +657,8 @@ you are ready to explore each analysis in depth:
 | Model–data fit | `vignette("model-fit-evaluation")` | `irtfit()`, `sx2_fit()` |
 | DIF detection | `vignette("dif-detection")` | `rdif()`, `grdif()`, `catsib()` |
 | Classification accuracy | `vignette("classification-analysis")` | `cac_lee()`, `cac_rud()` |
-| Utilities | `vignette("utilities")` | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()` |
+| Utilities | `vignette("utilities")` | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()`, `score_resp()` |
+| Classical test theory (CTT) analysis | `vignette("ctt-analysis")` | `ctt()`, `freq_score()`, `ctt_distr()` |
 | MST panel evaluation | `vignette("mst-panel-evaluation")` | `reval_mst()` |
 
 ---
