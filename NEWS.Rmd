@@ -51,6 +51,31 @@ knitr::opts_chunk$set(
   columns, rather than only one or the other, following the convention used
   by `psych::alpha()` (`raw.r` / `r.drop`).
 
+## Bug Fixes
+* Fixed the EM convergence check in `est_irt()` and `est_mg()`. The maximum
+  change in parameter estimates between two EM cycles was computed as the
+  absolute value of the largest signed change, so a larger change in the
+  negative direction was ignored and the EM could stop before the documented
+  criterion (largest absolute change <= `Etol`) was met. It is now the largest
+  absolute change. In the package examples that were compared, the 2PLM fit to
+  `LSAT6` now runs 50 EM cycles instead of stopping after 2 (slope and
+  difficulty estimates changed by up to 0.18 and 0.87, respectively), the
+  mixed-format example changed from 16 to 18 cycles (estimates changed by at
+  most 0.0003), and the other examples, including the FIPC and multiple-group
+  examples, were unchanged.
+
+* `est_irt()` and `est_mg()` no longer issue a spurious "Convergence criteria
+  are not satisfied" warning when `fipc.method = "OEM"`, which runs a single
+  EM cycle by design, or when the EM converges exactly at the `MaxE`-th cycle.
+
+* `est_item()` now uses Beta(5, 16) as the default prior for the guessing
+  parameter, consistent with `est_irt()` and `est_mg()` (previously
+  Beta(5, 17)).
+
+## Documentation
+* Corrected the documented return class of `est_mg()` and the references to
+  Bock and Mislevy (1982) and Bock and Zimowski (1997).
+
 # irtQ 1.2.0
 
 ## New Features
