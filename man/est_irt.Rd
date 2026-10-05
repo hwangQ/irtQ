@@ -801,7 +801,7 @@ Stocking, M. L. (1988). \emph{Scale drift in on-line calibration} (Research Rep.
 
 Wainer, H., & Mislevy, R. J. (1990). Item response theory, item
 calibration, and proficiency estimation. In H. Wainer (Ed.), \emph{Computer
-adaptive testing: A primer} (Chap. 4, pp.65-102). Hillsdale, NJ: Lawrence
+adaptive testing: A primer} (Chap. 4, pp. 65-102). Hillsdale, NJ: Lawrence
 Erlbaum.
 
 Woods, C. M. (2007). Empirical histograms in item response theory with

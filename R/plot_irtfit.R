@@ -98,9 +98,9 @@
 #'   Laplace, P. S. (1820). *Theorie analytique des probabilites* (in French).
 #'   Courcier.
 #'
-#' Newcombe, R. G. (1998). Two-sided confidence intervals for the single
-#' proportion: comparison of seven methods.
-#' *Statistics in medicine, 17*(8), 857-872.
+#'   Newcombe, R. G. (1998). Two-sided confidence intervals for the single
+#'   proportion: comparison of seven methods. *Statistics in Medicine, 17*(8),
+#'   857-872.
 #'
 #' Wilson, E. B. (1927). Probable inference, the law of succession, and
 #' statistical inference.

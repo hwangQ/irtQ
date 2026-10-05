@@ -136,25 +136,25 @@ Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional
 item analysis and test scoring (Computer software). Chapel Hill, NC: Vector
 Psychometric Group.
 
-Chalmers, R. P. (2012). mirt: A multidimensional item response theory package
-for the R environment.
-\emph{Journal of Statistical Software, 48}(6), 1-29.
+Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+package for the R environment. \emph{Journal of Statistical Software, 48}(6),
+1-29.
 
-Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests Using
-IRT-Based Methods.
-\emph{Journal of Statistical Software, 35}(12), 1-33. URL http://www.jstatsoft.org/v35/i12/.
+Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
+scoring for rating scale data (Computer software). Chicago, IL: Scientific
+Software International. URL http://www.ssicentral.com
 
-Pritikin, J. (2018). \emph{rpf: Response Probability Functions}. R package version
-0.59. https://CRAN.R-project.org/package=rpf.
+Pritikin, J. (2018). \emph{rpf: Response Probability Functions}. R package
+version 0.59. https://CRAN.R-project.org/package=rpf.
 
 Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
 environment for item response theory method development. \emph{Applied
 Psychological Measurement, 44}(7-8), 561-562.
 \doi{10.1177/0146621620929431}.
 
-Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-scoring for rating scale data (Computer software). Chicago, IL: Scientific
-Software International. URL http://www.ssicentral.com
+Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests
+Using IRT-Based Methods. \emph{Journal of Statistical Software, 35}(12), 1-33.
+\doi{10.18637/jss.v035.i12}.
 
 Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003). BILOG-MG
 3: Multiple-group IRT analysis and test maintenance for binary items

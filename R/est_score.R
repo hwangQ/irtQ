@@ -187,8 +187,8 @@
 #'   6*(4), 431-444. \doi{10.1177/014662168200600405}.
 #'
 #'   Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
-#'   and methods for test equating.
-#' *Journal of Statistical Software, 59*, 1-30.
+#'   and methods for test equating. *Journal of Statistical Software, 59*(7),
+#'   1-30.
 #'
 #'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
 #'   item response theory*. Newbury Park, CA: Sage.
@@ -203,9 +203,8 @@
 #'   Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling, and
 #'   linking* (2nd ed.). Springer.
 #'
-#'   Kolen, M. J. & Tong, Y. (2010). Psychometric properties of IRT proficiency
-#'   estimates.
-#' *Educational Measurement: Issues and Practice, 29*(3), 8-14.
+#'   Kolen, M. J., & Tong, Y. (2010). Psychometric properties of IRT proficiency
+#'   estimates. *Educational Measurement: Issues and Practice, 29*(3), 8-14.
 #'
 #'   Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 #'   approach to evaluate the performance of MST. *Journal of Educational
@@ -218,9 +217,9 @@
 #'   Stocking, M. L. (1996). An alternative method for scoring adaptive tests.
 #' *Journal of Educational and Behavioral Statistics, 21*(4), 365-389.
 #'
-#'   Thissen, D. & Orlando, M. (2001). Item response theory for items scored in
-#'   two categories. In D. Thissen & H. Wainer (Eds.),
-#' *Test scoring* (pp.73-140). Mahwah, NJ: Lawrence Erlbaum.
+#'   Thissen, D., & Orlando, M. (2001). Item response theory for items scored in
+#'   two categories. In D. Thissen & H. Wainer (Eds.), *Test scoring* (pp.
+#'   73-140). Mahwah, NJ: Lawrence Erlbaum.
 #'
 #'   Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995). Item
 #'   response theory for scores on tests including polytomous items with ordered

@@ -140,9 +140,9 @@
 #' approaches for suspected item parameter drift detection. *Measurement:
 #' Interdisciplinary Research and Perspectives, 16*(4), 226-238.
 #'
-#' Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
-#' goodness-of-fit test statistic in IRT models. *Journal of educational
-#' measurement, 37*(1), 58-75.
+#'   Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
+#'   goodness-of-fit test statistic in IRT models. *Journal of Educational
+#'   Measurement, 37*(1), 58-75.
 #'
 #' @examples
 #' ## Example 1: No critical value specified

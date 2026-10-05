@@ -106,9 +106,9 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 Kolen, M. J., & Brennan, R. L. (2004). \emph{Test equating, scaling,
 and linking} (2nd ed.). Springer.
 
-Lord, F. & Wingersky, M. (1984). Comparison of IRT true score and
-equipercentile observed score equatings. \emph{Applied Psychological Measurement,
-8}(4), 453-461.
+Lord, F., & Wingersky, M. (1984). Comparison of IRT true score and
+equipercentile observed score equatings. \emph{Applied Psychological
+Measurement, 8}(4), 453-461.
 }
 \author{
 Hwanggyu Lim \email{hglim83@gmail.com}

@@ -303,8 +303,8 @@ approaches for suspected item parameter drift detection. \emph{Measurement:
 Interdisciplinary Research and Perspectives, 16}(4), 226-238.
 
 Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
-goodness-of-fit test statistic in IRT models. \emph{Journal of educational
-measurement, 37}(1), 58-75.
+goodness-of-fit test statistic in IRT models. \emph{Journal of Educational
+Measurement, 37}(1), 58-75.
 }
 \author{
 Hwanggyu Lim \email{hglim83@gmail.com}

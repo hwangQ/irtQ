@@ -48,9 +48,9 @@
 #' @references Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling,
 #'   and linking* (2nd ed.). Springer.
 #'
-#'   Lord, F. & Wingersky, M. (1984). Comparison of IRT true score and
-#'   equipercentile observed score equatings. *Applied Psychological Measurement,
-#'   8*(4), 453-461.
+#'   Lord, F., & Wingersky, M. (1984). Comparison of IRT true score and
+#'   equipercentile observed score equatings. *Applied Psychological
+#'   Measurement, 8*(4), 453-461.
 #'
 #' @examples
 #' ## Example 1: Using a matrix of category probabilities
