@@ -151,11 +151,11 @@ knitr::opts_chunk$set(
   added a `\donttest{}` example demonstrating a complete CAT-based IPD detection
   workflow using the `simIPD` dataset. Updated `@references` to include Lim &
   Choe (2023) and replaced the previous conference paper citation with the
-  in-press journal reference (Lim & Han, in press).
+  journal reference (Lim & Han, 2026).
 
 * Added a `\donttest{}` example to `pcd2()` demonstrating CAT-based IPD
   detection using the `simIPD` dataset, including the bootstrap critical value
-  procedure described in Lim & Han (in press).
+  procedure described in Lim & Han (2026).
 
 * Updated the *MST Panel Evaluation and Simulation* article
   (`vignettes/articles/mst-panel-evaluation.Rmd`) to introduce `run_mst()` and
