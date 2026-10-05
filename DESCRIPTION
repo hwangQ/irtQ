@@ -6,8 +6,8 @@ Description: Fit unidimensional item response theory (IRT) models to test
     data, which includes both dichotomous and polytomous items, calibrate 
     pretest item parameters, estimate examinees' abilities, and examine 
     the IRT model-data fit on item-level in different ways as well as provide 
-    useful functions related to IRT analyses such as IRT model-data fit
-    evaluation and differential item functioning analysis.
+    useful functions related to IRT analyses such as differential item
+    functioning analysis.
     In addition, the package provides a set of classical test theory (CTT) functions
     for computing item- and test-level statistics (e.g., item difficulty, item-total
     correlation, and Cronbach's alpha) and for scoring and analyzing selected-response
