@@ -68,10 +68,9 @@ test_that("est_irt() LSAT6 data (1PLM, fix.a.1pl = FALSE) returns est_irt object
   expect_equal(nrow(fit$par.est), 5L)
 })
 
-# Regression test for the EM convergence check.  Constant entries (such as the
-# guessing column of 2PLM items) have a change of exactly zero, so the former
-# statistic abs(max(change)) returned 0 whenever every free parameter decreased
-# in a cycle, and the EM stopped after 2 cycles with maxpar.diff = 0.
+# the EM must stop only when the largest absolute change is <= Etol; the
+# constant guessing column of 2PLM items has a change of exactly zero and
+# must not hide larger negative changes in the free parameters
 test_that("est_irt() 2PLM on LSAT6 stops only when the largest absolute change is <= Etol", {
   fit <- est_irt(
     data = LSAT6, D = 1, model = "2PLM", cats = 2,
