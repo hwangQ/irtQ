@@ -26,7 +26,7 @@ simple, total-score-based indices of item difficulty, item discrimination,
 and test reliability that require no IRT model fitting at all. irtQ provides
 a small set of CTT functions for exactly this purpose, working directly from
 raw selected-response data or an already-scored item response matrix. For a
-comprehensive treatment of classical test theory, see @crocker_algina1986.
+fuller treatment of classical test theory, see @crocker_algina1986.
 
 | Function       | Purpose |
 |----------------|---------|
@@ -97,7 +97,7 @@ dim(dat_bin)     # 300 examinees x 8 items
 
 ---
 
-## `freq_score()` — Total-Score Frequency Distribution
+## `freq_score()`: Total-Score Frequency Distribution
 
 `freq_score()` tabulates a vector of total (raw) scores into a frequency
 distribution table: frequency, percentage, and cumulative percentage for
@@ -119,7 +119,7 @@ sum(freq_out$freq) == nrow(dat_mixed)   # every examinee accounted for
 
 ---
 
-## `ctt_distr()` — Option/Category Response Distribution and Distractor Analysis
+## `ctt_distr()`: Option/Category Response Distribution and Distractor Analysis
 
 `ctt_distr()` reports, for every item, how examinees distributed themselves
 across response options (or, for already-scored polytomous data, score
@@ -229,7 +229,7 @@ exists between any two categories.
 
 ---
 
-## `ctt()` — Full Item- and Test-Level CTT Analysis
+## `ctt()`: Full Item- and Test-Level CTT Analysis
 
 `ctt()` is the main entry point for a complete CTT analysis: for each item it
 computes difficulty, an item-total correlation (reported in both raw and
