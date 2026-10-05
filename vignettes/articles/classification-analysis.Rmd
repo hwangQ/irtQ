@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 ## Overview
 
 In many testing contexts, test scores are used to assign examinees to performance
-categories — for example, pass/fail decisions or placement into proficiency levels.
+categories, for example, pass/fail decisions or placement into proficiency levels.
 Two indices quantify the quality of such classification decisions:
 
 - **Classification Accuracy (CA)**: the probability that an examinee is correctly
@@ -35,8 +35,8 @@ single-administration estimation procedures based on IRT models are commonly use
 
 | Function    | Method                                              | Cut-score scale          |
 |-------------|-----------------------------------------------------|--------------------------|
-| `cac_lee()` | @lee2010 — conditional summed-score distribution    | Observed score or theta  |
-| `cac_rud()` | @rudner2001; @rudner2005 — normal approximation via test information function (TIF) | Theta scale only     |
+| `cac_lee()` | @lee2010: conditional summed-score distribution    | Observed score or theta  |
+| `cac_rud()` | @rudner2001; @rudner2005: normal approximation via test information function (TIF) | Theta scale only     |
 
 Both functions support two estimation approaches:
 
@@ -185,7 +185,7 @@ quad_weights <- gen.weight(dist = "norm", mu = 0, sigma = 1, theta = quad_nodes)
 
 ---
 
-## Part 1: Lee's Method — `cac_lee()`
+## Part 1: Lee's Method (`cac_lee()`)
 
 ### Method overview
 
@@ -194,7 +194,7 @@ a single test administration. The method can be applied to tests consisting of
 dichotomous items, polytomous items, or a mixture of both.
 
 The key quantity is the **conditional summed-score distribution**, $\Pr(X = x \mid \theta)$,
-computed using the Lord–Wingersky recursive algorithm [@lord_wingersky1984; @kolen_brennan2004].
+computed using the Lord-Wingersky recursive algorithm [@lord_wingersky1984; @kolen_brennan2004].
 This distribution gives the probability that an examinee with ability $\theta$ obtains
 each possible observed summed score $x$.
 
@@ -248,7 +248,7 @@ where:
 | `cutscore` | Numeric vector of cut scores; defines $K + 1$ performance levels |
 | `weights`  | Two-column matrix of quadrature nodes and weights for D-method (use `gen.weight()`) |
 | `theta`    | Numeric vector of individual ability estimates for P-method |
-| `D`        | Scaling constant — must match the value used during calibration |
+| `D`        | Scaling constant; must match the value used during calibration |
 | `cut.obs`  | `TRUE` (default): cut scores on the observed summed-score scale; `FALSE`: on the theta scale (converted internally via TCC) |
 
 Either `theta` or `weights` must be provided (but not both. If both are supplied, 
@@ -264,7 +264,7 @@ Provide a quadrature grid via `weights`. Use `gen.weight()` to construct weights
 from a parametric distribution.
 
 ```{r cac-lee-binary-d}
-# Two cut scores on the observed summed-score scale (range: 0–20)
+# Two cut scores on the observed summed-score scale (range: 0-20)
 # Defines three performance levels: [0,8), [8,14), [14,20]
 cutscore_obs <- c(8, 14)
 
@@ -343,7 +343,7 @@ score categories for item $j$. In our test: 15 binary items (max 15) + 5 four-ca
 items (max $3 \times 5 = 15$) → max = 30.
 
 ```{r cac-lee-mixed}
-# Cut scores on the observed summed-score scale (range: 0–30)
+# Cut scores on the observed summed-score scale (range: 0-30)
 cutscore_mix <- c(10, 22)
 
 # D-method
@@ -369,7 +369,7 @@ cac_l_mix_p$marginal
 
 ---
 
-## Part 2: Rudner's Method — `cac_rud()`
+## Part 2: Rudner's Method (`cac_rud()`)
 
 ### Method overview
 
@@ -402,7 +402,7 @@ and marginal indices are obtained by averaging over the ability distribution.
 
 Standard errors can be supplied in two ways:
 
-1. Pass item metadata via `x` — the function computes SE from the TIF internally.
+1. Pass item metadata via `x`; the function computes SE from the TIF internally.
 2. Pass a pre-computed SE vector via `se` (same length as `theta` for P-method,
    or same length as the number of quadrature nodes for D-method).
 
@@ -520,15 +520,15 @@ cat("\n=== Rudner's method (P-method, SE from TIF) ===\n")
 print(cac_r_p$marginal)
 ```
 
-The two methods share the same conceptual framework — both estimate CA and CC
+The two methods share the same conceptual framework: both estimate CA and CC
 by computing, for each ability level, the probabilities of being assigned to each
-performance category — but differ in how they model the conditional score distribution
+performance category, but differ in how they model the conditional score distribution
 and what metric the cut scores operate on:
 
 | Aspect | Lee (2010) | Rudner (2001, 2005) |
 |--------|-----------|---------------------|
 | Cut-score metric | Observed summed score (or theta, converted via TCC) | Theta scale only |
-| Conditional distribution | Exact conditional summed-score distribution via Lord–Wingersky recursion | Normal approximation: $\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)$ |
+| Conditional distribution | Exact conditional summed-score distribution via Lord-Wingersky recursion | Normal approximation: $\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)$ |
 | SE source | Implicit (via IRT-based score distribution) | Explicit: $\text{SE}(\theta) = 1/\sqrt{I(\theta)}$ |
 | Typical CA/CC values | Generally similar to Rudner's method when IRT fits well | Generally similar to Lee's method when IRT fits well |
 

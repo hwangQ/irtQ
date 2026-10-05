@@ -144,15 +144,15 @@ test_that("score_resp() flags a numeric response on a letter-coded item as inval
   expect_equal(out$resp_summary$n_invalid, 1L)
 })
 
-test_that("score_resp() treats a non-Latin, non-numeric key as a general label instead of erroring", {
-  # a mixed alphanumeric key value like "1A" used to be rejected as
-  # "ambiguous"; it is now accepted as a general option label (matched by
-  # exact, case-insensitive string comparison), since score_resp() no longer
-  # restricts option labels to plain numbers or single-script Latin letters
+test_that("score_resp() treats a non-Latin, non-numeric key as a general label", {
+  # a mixed alphanumeric key value like "1A" is accepted as a general option
+  # label (matched by exact, case-insensitive string comparison), since
+  # score_resp() does not restrict option labels to plain numbers or
+  # single-script Latin letters
   raw <- data.frame(V1 = c("1", "2"), V2 = c("A", "B"))
   out <- score_resp(data = raw, key = c("1A", "B"))
   # V1's key "1A" is a general label ("1" and "2" both fail to match it
-  # exactly); V2's key "B" is Latin-letter-coded as before ("A" != "B",
+  # exactly); V2's key "B" is Latin-letter-coded ("A" != "B",
   # "B" == "B")
   expect_equal(out$scored$V1, c(0L, 0L))
   expect_equal(out$scored$V2, c(0L, 1L))

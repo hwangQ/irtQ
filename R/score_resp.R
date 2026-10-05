@@ -76,8 +76,7 @@
 #' `key` value, using one of three rules:
 #' \itemize{
 #'   \item If the key value parses as a number (e.g., `4`), responses to
-#'     that item are compared numerically, exactly as in earlier versions of
-#'     this function.
+#'     that item are compared numerically.
 #'   \item If the key value consists of one or more Latin letters (e.g.,
 #'     `"D"`), responses are compared as letters, case-insensitively (`"d"`
 #'     and `"D"` are treated as the same option), and a response must itself
@@ -345,8 +344,7 @@ score_resp <- function(data, key, missing = NA) {
     if (is_key_numeric[j]) {
 
       # numeric-coded item: parse each response as a number and compare
-      # numerically to the key, exactly as in earlier versions of this
-      # function
+      # numerically to the key
       resp_num <- suppressWarnings(as.numeric(resp_chr))
       is_single <- !is_blank & !is_double & !is.na(resp_num)
       item_score[is_single & resp_num == as.numeric(key_vec[j])] <- 1L

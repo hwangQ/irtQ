@@ -57,14 +57,14 @@ set.seed(2026)
 We simulate a 40-item dichotomous test (3PLM) with 1,000 examinees per group.
 DIF is introduced into six items:
 
-- **Items 1–2**: Uniform DIF — the focal group has a higher difficulty parameter
+- **Items 1-2**: Uniform DIF, in which the focal group has a higher difficulty parameter
   ($b + 0.5$) while the discrimination parameter is unchanged.
-- **Items 3–4**: Nonuniform DIF — the focal group has a lower discrimination
+- **Items 3-4**: Nonuniform DIF, in which the focal group has a lower discrimination
   parameter ($a \times 0.5$) while the difficulty parameter is unchanged.
-- **Items 5–6**: Mixed DIF — the focal group has both a lower discrimination
+- **Items 5-6**: Mixed DIF, in which the focal group has both a lower discrimination
   parameter ($a \times 0.5$) and a higher difficulty parameter ($b + 0.5$),
   making these items both less discriminating and harder for the focal group.
-- **Items 7–40**: No DIF.
+- **Items 7-40**: No DIF.
 
 The focal group has a slightly lower mean ability ($\mu = -0.3$) than the
 reference group ($\mu = 0$), representing a realistic impact condition.
@@ -87,7 +87,7 @@ meta_ref <- shape_df(
   model   = "3PLM"
 )
 
-# Focal group item metadata: DIF injected into items 1–6
+# Focal group item metadata: DIF injected into items 1-6
 a_focal      <- a_base
 b_focal      <- b_base
 b_focal[1:2] <- b_base[1:2] + 0.5          # uniform DIF: harder for focal
@@ -150,13 +150,13 @@ score_pool <- est_score(
 
 ---
 
-## Part 1: RDIF — Residual-Based DIF (`rdif()`)
+## Part 1: Residual-Based DIF Detection (RDIF, `rdif()`)
 
 ### Statistical Framework
 
 The RDIF framework [@lim_etal2022] detects DIF by comparing item-level
-residuals—defined as the difference between observed and model-expected item
-scores—between the reference and focal groups. For a dichotomously scored item,
+residuals, defined as the difference between observed and model-expected item
+scores, between the reference and focal groups. For a dichotomously scored item,
 the residual for examinee $h$ is:
 
 $$r_h = x_h - P_h(\hat{\theta}_h)$$
@@ -165,21 +165,21 @@ where $x_h \in \{0, 1\}$ is the observed response and $P_h(\hat{\theta}_h)$ is
 the IRT model-predicted probability of a correct response. Three statistics are
 computed from these residuals:
 
-**RDIF$_R$** — targets **uniform DIF** via differences in mean raw residuals:
+**RDIF$_R$**: targets **uniform DIF** via differences in mean raw residuals:
 
 $$\text{RDIF}_R = \frac{1}{N_F}\sum_{j=1}^{N_F} r_{Fj} - \frac{1}{N_R}\sum_{i=1}^{N_R} r_{Ri}$$
 
 Under the null hypothesis of no DIF, $\text{RDIF}_R$ asymptotically follows a
 normal distribution $\mathcal{N}(\mu_{\text{RDIF}_R},\, \sigma^2_{\text{RDIF}_R})$.
 
-**RDIF$_S$** — targets **nonuniform DIF** via differences in mean squared residuals:
+**RDIF$_S$**: targets **nonuniform DIF** via differences in mean squared residuals:
 
 $$\text{RDIF}_S = \frac{1}{N_F}\sum_{j=1}^{N_F} r_{Fj}^2 - \frac{1}{N_R}\sum_{i=1}^{N_R} r_{Ri}^2$$
 
 Under the null hypothesis, $\text{RDIF}_S$ also asymptotically follows a normal
 distribution $\mathcal{N}(\mu_{\text{RDIF}_S},\, \sigma^2_{\text{RDIF}_S})$.
 
-**RDIF$_{RS}$** — a joint Wald-type statistic that detects **both uniform and
+**RDIF$_{RS}$**: a joint Wald-type statistic that detects **both uniform and
 nonuniform DIF** simultaneously. It is based on the bivariate normality of
 $(\text{RDIF}_R, \text{RDIF}_S)$ and under the null hypothesis asymptotically
 follows a $\chi^2$ distribution with 2 degrees of freedom.
@@ -284,13 +284,13 @@ converged. The `n.iter` field reports how many iterations were performed, and
 
 ---
 
-## Part 2: GRDIF — Multiple-Group DIF Detection (`grdif()`)
+## Part 2: Multiple-Group DIF Detection (GRDIF, `grdif()`)
 
 ### Statistical Framework
 
 The GRDIF framework [@lim_etal2024] generalizes the two-group RDIF approach to
-simultaneously detect DIF across $G \geq 2$ groups. Three statistics—
-$\text{GRDIF}_R$, $\text{GRDIF}_S$, and $\text{GRDIF}_{RS}$—are constructed
+simultaneously detect DIF across $G \geq 2$ groups. Three statistics,
+$\text{GRDIF}_R$, $\text{GRDIF}_S$, and $\text{GRDIF}_{RS}$, are constructed
 by applying a contrast matrix $\mathbf{C}$ to the stacked vector of per-group
 mean raw residuals (MRR) and mean squared residuals (MSR), exploiting their
 asymptotic multivariate normality.
@@ -327,7 +327,7 @@ of groups exhibit DIF.
 ### Example 1: GRDIF without purification
 
 We extend the simulation to a three-group scenario by adding a second focal
-group. Items 1–2 exhibit uniform DIF (b-parameters shifted upward) in both
+group. Items 1-2 exhibit uniform DIF (b-parameters shifted upward) in both
 focal groups, with a larger shift for Focal Group 2.
 
 ```{r grdif-setup}
@@ -503,7 +503,7 @@ distribution.
 > addition to point estimates, because $\hat{\rho}^2_G$ in the regression
 > correction uses the measurement error variance. Supply these via the `se`
 > argument. When `score` and `se` are provided externally, `x` (item metadata)
-> is not required (`x = NULL`), unless purification is applied — in which case
+> is not required (`x = NULL`), unless purification is applied, in which case
 > `x` must be provided for internal ability re-estimation.
 
 ### Key arguments of `catsib()`
@@ -607,7 +607,7 @@ catsib_pur$with_purify$dif_item
 
 **Sensitivity to DIF type.** CATSIB, like its predecessor SIBTEST
 [@shealy_stout1993], was originally designed and validated for detecting
-**uniform DIF** — the condition in which the direction of group differences in
+**uniform DIF**, the condition in which the direction of group differences in
 item performance is consistent across all ability levels. The $\hat{\beta}$
 statistic accumulates the signed difference $\hat{P}_{R,k} - \hat{P}_{F,k}$
 across all ability bins, which means that positive and negative bin-level
@@ -630,8 +630,8 @@ group $G$. When DIF items with substantially reduced discrimination are present,
 their large IRT standard errors may inflate $\hat{\sigma}^2_{e,G}$ for 
 the focal group, causing $\hat{\rho}^2_G$ to approach or fall below zero. 
 A negative $\hat{\rho}^2_G$ would reverse the direction of the regression 
-correction — compressing scores away from the group mean rather than toward 
-it — which severely distorts the bin-level matching and leads to inflated Type I error rates.
+correction, compressing scores away from the group mean rather than toward 
+it, which severely distorts the bin-level matching and leads to inflated Type I error rates.
 
 To prevent this, `catsib()` clamps $\hat{\rho}^2_G$ to the interval $[0.05,\,
 1]$:
@@ -643,7 +643,7 @@ When the unclamped value falls below 0.05, a warning is issued. This situation
 is most likely to occur during purification, when the removal of DIF-flagged
 items reduces the number of items used for ability re-estimation, causing
 standard errors to grow. If a warning is triggered, results should be
-interpreted with caution — or `purify = FALSE` should be considered.
+interpreted with caution, or `purify = FALSE` should be considered.
 
 ---
 

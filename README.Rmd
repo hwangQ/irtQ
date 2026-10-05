@@ -66,13 +66,14 @@ In addition, the package offers a variety of utilities for IRT analysis, includi
 - Computing the conditional distribution of observed scores using the Lord-Wingersky recursion
 - Calculating item and test information and characteristic functions
 - Visualizing item and test characteristic and information curves
-- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package)
+- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter requires the suggested **mirt** package)
 - Running flexMIRT (Cai, 2017) directly from R
 - Supporting additional tools for flexible and practical IRT analyses
 
 Beyond these IRT-based analyses, the package also provides a small set of classical test theory (CTT) functions (`ctt()`, `freq_score()`, `ctt_distr()`, and `score_resp()`) for computing traditional item- and test-level statistics and for scoring selected-response item data.
 
 For full documentation, including function references and tutorial articles, visit the package website: <https://hwangQ.github.io/irtQ/>.
+A short introduction is available with `vignette("irtQ", package = "irtQ")`.
 
 ## Installation
 
@@ -119,8 +120,8 @@ In the `irtQ` package, item calibration for a linear test form typically involve
         (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
      - `cats`: A numeric vector indicating the number of score categories for
         each item. For dichotomous items, use 2.
-     - `D`: A scaling constant (typically 1.702) to align the logistic
-        function with the normal ogive model.
+     - `D`: A scaling constant; the default, 1, gives the logistic metric, and
+        1.702 approximates the normal ogive.
 
      Optionally, you may incorporate prior distributions for item parameters:
      - `use.aprior`, `use.bprior`, `use.gprior`: Logical indicators specifying
@@ -227,8 +228,8 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
         (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
      - `cats`: A numeric vector indicating the number of score categories for
         each item. For dichotomous items, use 2.
-     - `D`: A scaling constant (typically 1.702) to align the logistic
-        function with the normal ogive model.
+     - `D`: A scaling constant; the default, 1, gives the logistic metric, and
+        1.702 approximates the normal ogive.
 
      For additional details on implementing FAPC, refer to the documentation
      for `irtQ::est_item()`.

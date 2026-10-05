@@ -85,13 +85,12 @@
 #' @seealso [ctt_item()], [irtQ::score_resp()]
 #'
 #' @references
-#' Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
-#' tests. *Psychometrika*, *16*(3), 297-334.
-#' https://doi.org/10.1007/BF02310555
+#'   Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
+#'   tests. *Psychometrika, 16*(3), 297-334. \doi{10.1007/BF02310555}.
 #'
-#' Osburn, H. G. (2000). Coefficient alpha and related internal consistency
-#' reliability coefficients. *Psychological Methods*, *5*(3), 343-355.
-#' https://doi.org/10.1037/1082-989X.5.3.343
+#'   Osburn, H. G. (2000). Coefficient alpha and related internal consistency
+#'   reliability coefficients. *Psychological Methods, 5*(3), 343-355.
+#'   \doi{10.1037/1082-989X.5.3.343}.
 #'
 #' @keywords internal
 ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,

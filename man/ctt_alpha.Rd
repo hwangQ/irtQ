@@ -125,12 +125,11 @@ degenerate in this way, these means will be \code{NaN} (mean of an empty/all-
 }
 \references{
 Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
-tests. \emph{Psychometrika}, \emph{16}(3), 297-334.
-https://doi.org/10.1007/BF02310555
+tests. \emph{Psychometrika, 16}(3), 297-334. \doi{10.1007/BF02310555}.
 
 Osburn, H. G. (2000). Coefficient alpha and related internal consistency
-reliability coefficients. \emph{Psychological Methods}, \emph{5}(3), 343-355.
-https://doi.org/10.1037/1082-989X.5.3.343
+reliability coefficients. \emph{Psychological Methods, 5}(3), 343-355.
+\doi{10.1037/1082-989X.5.3.343}.
 }
 \seealso{
 \code{\link[=ctt_item]{ctt_item()}}, \code{\link[=score_resp]{score_resp()}}

@@ -27,6 +27,23 @@ returned by \code{\link[=ctt]{ctt()}}, following the same brief/full print-summa
 used by \code{\link[=est_irt]{est_irt()}} (compare \code{print.est_irt()} vs.
 \code{summary.est_irt()}/\code{print.summary.est_irt()}).
 }
+\examples{
+# simulate the responses of 300 examinees to 15 dichotomous 3PLM items
+set.seed(1)
+x <- shape_df(
+  par.drm = list(a = rep(1.5, 15), b = seq(-1.5, 1.5, length.out = 15),
+                 g = rep(0.2, 15)),
+  cats = 2, model = "3PLM"
+)
+dat <- simdat(x = x, theta = rnorm(300), D = 1)
+
+# run the CTT analysis
+out <- ctt(data = dat)
+
+# print the condensed report
+print(out)
+
+}
 \seealso{
 \code{\link[=ctt]{ctt()}}, \code{\link[=summary.ctt]{summary.ctt()}}
 }

@@ -18,6 +18,7 @@
 ^revdep$
 
 # Git and GitHub configuration files
+^\.git$
 ^\.gitignore$
 ^\.github$
 ^\.positai$
@@ -32,4 +33,3 @@
 ^_pkgdown\.yml$
 ^docs$
 ^vignettes/articles$
-^\.claude$

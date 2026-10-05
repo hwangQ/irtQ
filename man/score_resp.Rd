@@ -85,8 +85,7 @@ Each item's option coding scheme is determined independently from its own
 \code{key} value, using one of three rules:
 \itemize{
 \item If the key value parses as a number (e.g., \code{4}), responses to
-that item are compared numerically, exactly as in earlier versions of
-this function.
+that item are compared numerically.
 \item If the key value consists of one or more Latin letters (e.g.,
 \code{"D"}), responses are compared as letters, case-insensitively (\code{"d"}
 and \code{"D"} are treated as the same option), and a response must itself

@@ -31,7 +31,7 @@ selected-response data into a 0/1 matrix suitable for downstream analysis.
 | `prm()`     | Compute category response probabilities for polytomous items (GRM / GPCM) |
 | `info()`    | Item and test information functions (IIF / TIF) |
 | `traceline()` | Item and test characteristic curves (ICC / TCC) |
-| `lwrc()`    | Lord–Wingersky recursion: conditional summed-score distributions |
+| `lwrc()`    | Lord-Wingersky recursion: conditional summed-score distributions |
 | `gen.weight()` | Generate quadrature nodes and weights from a distribution |
 | `covirt()`  | Analytical asymptotic variance-covariance matrices of item parameter estimates |
 | `score_resp()` | Score raw selected-response data (option choices) into a 0/1 matrix |
@@ -84,7 +84,7 @@ theta_grid <- seq(-4, 4, by = 0.1)
 
 ---
 
-## `simdat()` — Simulate Item Response Data
+## `simdat()`: Simulate Item Response Data
 
 `simdat()` generates item response matrices from known IRT parameters. It is the
 primary tool for producing synthetic data for testing and demonstration. It supports
@@ -93,7 +93,7 @@ items, including mixed-format tests.
 
 **Two usage modes:**
 
-- **Via item metadata** (`x` argument): pass a `shape_df()` data frame — the
+- **Via item metadata** (`x` argument): pass a `shape_df()` data frame, the
   simplest and recommended approach.
 - **Via raw parameter vectors** (`a.drm`, `b.drm`, `g.drm`, `a.prm`, `d.prm`,
   `cats`, `pr.model`): useful when the metadata object has not yet been created,
@@ -125,7 +125,7 @@ theta_mix <- rnorm(400, mean = 0, sd = 1)
 resp_mix  <- simdat(x = meta_mix, theta = theta_mix, D = 1.702)
 
 dim(resp_mix)
-head(resp_mix)    # dichotomous (0/1) and polytomous (0–3) responses
+head(resp_mix)    # dichotomous (0/1) and polytomous (0-3) responses
 ```
 
 ### Mode 2: Via raw parameter vectors (without `x`)
@@ -189,14 +189,14 @@ resp_mix_raw <- simdat(
   D        = 1.702
 )
 dim(resp_mix_raw)
-head(resp_mix_raw)   # columns 3 and 5 are polytomous (0–3 and 0–2)
+head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 ```
 
 ### Key `simdat()` arguments
 
 | Argument    | Description |
 |-------------|-------------|
-| `x`         | Item metadata from `shape_df()` — use this when available |
+| `x`         | Item metadata from `shape_df()`; use this when available |
 | `theta`     | Vector of true ability values |
 | `D`         | Scaling constant |
 | `a.drm`     | Discrimination parameters for dichotomous items (required when `x = NULL`) |
@@ -207,11 +207,11 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0–3 and 0–2)
 | `cats`      | Number of score categories per item (2 for dichotomous); required when `x = NULL` |
 | `pr.model`  | IRT model per polytomous item: `"GRM"` or `"GPCM"` |
 
-**Note on the `D` constant:** The scaling constant `D` is used to make the logistic function closely approximate the normal ogive function. It is crucial to use the exact same `D` value (commonly `1.702` or `1.0`) that was utilized during the item parameter calibration phase to avoid any scaling mismatch in the simulated responses or probability computations.
+**Note on the `D` constant:** The scaling constant `D` is used to make the logistic function closely approximate the normal ogive function. Use the same `D` value (commonly `1.702` or `1.0`) that was used for item calibration to avoid any scaling mismatch in the simulated responses or probability computations.
 
 ---
 
-## `drm()` and `prm()` — Item Response Probability Functions
+## `drm()` and `prm()`: Item Response Probability Functions
 
 `drm()` and `prm()` are the low-level probability engines underlying
 `simdat()`, `traceline()`, `info()`, and the internal estimation routines.
@@ -219,7 +219,7 @@ They compute item response probabilities directly from IRT parameters and are
 useful whenever you need category probabilities at a specific set of theta
 values without constructing a full item metadata frame.
 
-### `drm()` — Dichotomous Response Model
+### `drm()`: Dichotomous Response Model
 
 `drm()` computes $P(\theta)$, the probability of a correct response, for one
 or more dichotomous items under the 1PLM, 2PLM, or 3PLM:
@@ -264,7 +264,7 @@ cat("P(theta=b):", round(as.numeric(P_at_b), 6),
     "  Expected:", (1 + 0.15) / 2, "\n")
 ```
 
-### `prm()` — Polytomous Response Model
+### `prm()`: Polytomous Response Model
 
 `prm()` computes category response probabilities for a **single** polytomous
 item under the GRM or GPCM. It returns a **matrix** with rows = theta values
@@ -328,15 +328,15 @@ set `a = 1`.
 |------------|:-------:|:-------:|-------------|
 | `theta`    | ✓ | ✓ | Numeric vector of ability values |
 | `a`        | ✓ | ✓ | Discrimination (slope) parameter(s) |
-| `b`        | ✓ |   | Difficulty parameter(s) — dichotomous items only |
+| `b`        | ✓ |   | Difficulty parameter(s), dichotomous items only |
 | `g`        | ✓ |   | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
-| `d`        |   | ✓ | Vector of $K-1$ threshold parameters — polytomous items only |
+| `d`        |   | ✓ | Vector of $K-1$ threshold parameters, polytomous items only |
 | `D`        | ✓ | ✓ | Scaling constant (typically `1.702`) |
 | `pr.model` |   | ✓ | `"GRM"` or `"GPCM"` |
 
 ---
 
-## `info()` — Item and Test Information Functions
+## `info()`: Item and Test Information Functions
 
 `info()` computes the item information function (IIF) and test information
 function (TIF) at specified ability values. The TIF is the sum of all IIFs
@@ -362,7 +362,7 @@ info_val <- info(
 
 names(info_val)
 head(info_val$tif)               # TIF at first few theta points
-info_val$iif[1:5, 1:6]          # IIF: items 1–5, theta points 1–6
+info_val$iif[1:5, 1:6]          # IIF: items 1-5, theta points 1-6
 ```
 
 ### Plot: Test Information Function (TIF)
@@ -402,7 +402,7 @@ plot(
 )
 ```
 
-### Plot: IIFs for multiple items — overlaid and in panels
+### Plot: IIFs for multiple items, overlaid and in panels
 
 ```{r plot-iif-overlap, fig.width=9, fig.height=4}
 # Overlaid in one panel
@@ -410,7 +410,7 @@ plot(
   x         = info_val,
   item.loc  = 1:5,
   overlap   = TRUE,
-  main.text = "IIFs for Items 1–5 (overlaid)"
+  main.text = "IIFs for Items 1-5 (overlaid)"
 )
 ```
 
@@ -421,7 +421,7 @@ plot(
   item.loc   = 1:5,
   overlap    = FALSE,
   layout.col = 5,
-  main.text  = "IIFs for Items 1–5 (separate panels)"
+  main.text  = "IIFs for Items 1-5 (separate panels)"
 )
 ```
 
@@ -445,7 +445,7 @@ plot(
 
 #### IIF for a single polytomous item
 
-Items 6–8 in `meta_mix` are the three GRM items. Their IIFs tend to be broader
+Items 6-8 in `meta_mix` are the three GRM items. Their IIFs tend to be broader
 than those of dichotomous items.
 
 ```{r info-mixed-single-poly}
@@ -459,7 +459,7 @@ plot(
 )
 ```
 
-#### IIFs for multiple items — mixed dichotomous and polytomous
+#### IIFs for multiple items: mixed dichotomous and polytomous
 
 ```{r info-mixed-multi-overlap, fig.width=9, fig.height=4}
 # Overlaid: compare DRM items vs. GRM items
@@ -467,7 +467,7 @@ plot(
   x         = info_mix,
   item.loc  = c(1, 3, 5, 6, 7, 8),   # 3 DRM + 3 GRM
   overlap   = TRUE,
-  main.text = "IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8) — overlaid"
+  main.text = "IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8), overlaid"
 )
 ```
 
@@ -484,7 +484,7 @@ plot(
 
 ---
 
-## `traceline()` — Item and Test Characteristic Curves
+## `traceline()`: Item and Test Characteristic Curves
 
 `traceline()` computes the item characteristic curve (ICC), test characteristic
 curve (TCC), and category response probabilities for each item over a specified
@@ -519,7 +519,7 @@ trace_bin <- traceline(x = meta_bin, theta = theta_grid, D = 1.702)
 
 names(trace_bin)
 head(trace_bin$tcc)               # TCC: expected summed score at each theta
-trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1–5
+trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1-5
 ```
 
 ### Plot: Test Characteristic Curve (TCC)
@@ -536,7 +536,7 @@ plot(
 
 ### Plot: ICCs for a dichotomous item
 
-For a 3PLM item, `score.curve = FALSE` draws two panels — one for each score
+For a 3PLM item, `score.curve = FALSE` draws two panels, one for each score
 category (0 = incorrect, 1 = correct); `score.curve = TRUE` shows only
 $P(\theta)$ (the probability of a correct response) as a single curve.
 
@@ -547,7 +547,7 @@ plot(
   item.loc    = 2,
   score.curve = FALSE,
   layout.col  = 2,
-  main.text   = "ICCs for Item 2 (3PLM) — by category"
+  main.text   = "ICCs for Item 2 (3PLM), by category"
 )
 ```
 
@@ -572,7 +572,7 @@ plot(
   item.loc    = 1:5,
   score.curve = TRUE,
   overlap     = TRUE,
-  main.text   = "Item Score Curves: Items 1–5 (overlaid)"
+  main.text   = "Item Score Curves: Items 1-5 (overlaid)"
 )
 ```
 
@@ -584,14 +584,14 @@ plot(
   score.curve = TRUE,
   overlap     = FALSE,
   layout.col  = 5,
-  main.text   = "Item Score Curves: Items 1–5 (separate panels)"
+  main.text   = "Item Score Curves: Items 1-5 (separate panels)"
 )
 ```
 
 ### Plot: Category response curves and expected score curve for a polytomous item
 
 For a GRM item, `score.curve = FALSE` draws one curve per score category
-(0, 1, 2, 3). Items 6–8 in `meta_mix` are the three GRM items.
+(0, 1, 2, 3). Items 6-8 in `meta_mix` are the three GRM items.
 
 ```{r traceline-mix-compute}
 trace_mix <- traceline(x = meta_mix, theta = theta_grid, D = 1.702)
@@ -631,19 +631,19 @@ plot(
 )
 ```
 
-### Plot: Item score curves for multiple items — mixed dichotomous and polytomous
+### Plot: Item score curves for multiple items, mixed dichotomous and polytomous
 
 When `score.curve = TRUE`, items of any format can be plotted together because
 all ICCs are expressed on the same expected-score metric.
 
 ```{r plot-mix-multi-overlap, fig.width=9, fig.height=4}
-# Overlaid: DRM items (1–3) and GRM items (6–8) in one panel
+# Overlaid: DRM items (1-3) and GRM items (6-8) in one panel
 plot(
   x           = trace_mix,
   item.loc    = c(1, 2, 3, 6, 7, 8),
   score.curve = TRUE,
   overlap     = TRUE,
-  main.text   = "Item Score Curves: DRM (1–3) and GRM (6–8) — overlaid"
+  main.text   = "Item Score Curves: DRM (1-3) and GRM (6-8), overlaid"
 )
 ```
 
@@ -655,7 +655,7 @@ plot(
   score.curve = TRUE,
   overlap     = FALSE,
   layout.col  = 3,
-  main.text   = "Item Score Curves: DRM (1–3) and GRM (6–8)"
+  main.text   = "Item Score Curves: DRM (1-3) and GRM (6-8)"
 )
 ```
 
@@ -672,15 +672,15 @@ plot(
   score.curve = FALSE,
   overlap     = TRUE,
   layout.col  = 3,
-  main.text   = "Category Response Curves: GRM Items 1–3 (overlaid by category)"
+  main.text   = "Category Response Curves: GRM1-GRM3 (overlaid by category)"
 )
 ```
 
 ---
 
-## `lwrc()` — Lord–Wingersky Recursion
+## `lwrc()`: Lord-Wingersky Recursion
 
-`lwrc()` implements the Lord–Wingersky recursive algorithm
+`lwrc()` implements the Lord-Wingersky recursive algorithm
 [@lord_wingersky1984; @kolen_brennan2004], which computes the **conditional
 distribution of the observed summed score given $\theta$**:
 $$
@@ -770,7 +770,7 @@ sum(score_dist_mix)
 
 ---
 
-## `gen.weight()` — Quadrature Weights
+## `gen.weight()`: Quadrature Weights
 
 `gen.weight()` generates a two-column data frame of quadrature nodes and
 normalised weights to be used in numerical integration over the ability scale.
@@ -783,16 +783,16 @@ Three distribution options are available via the `dist` argument:
   quadrature points and weights are computed via `statmod::gauss.quad.prob()`.
   When `theta` is given, weights are proportional to the normal density
   evaluated at each node.
-- `"unif"`: uniform distribution — equally spaced nodes over $[l, u]$ with
+- `"unif"`: uniform distribution, equally spaced nodes over $[l, u]$ with
   equal weights.
-- `"emp"`: empirical distribution — equal weights for user-supplied `theta`
+- `"emp"`: empirical distribution, equal weights for user-supplied `theta`
   values.
 
 The returned data frame always has columns named `theta` and `weight`, and
 the weights always sum to 1.
 
 ```{r gen-weight-norm}
-# 41 Gaussian quadrature points from N(0, 1) — most common usage
+# 41 Gaussian quadrature points from N(0, 1), most common usage
 w_norm <- gen.weight(n = 41, dist = "norm", mu = 0, sigma = 1)
 head(w_norm)
 sum(w_norm$weight)      # always sums to 1
@@ -801,7 +801,7 @@ sum(w_norm$weight)      # always sums to 1
 plot(w_norm$weight ~ w_norm$theta,
      type = "h", lwd = 2,
      xlab = expression(theta), ylab = "Weight",
-     main = "Gaussian Quadrature Approximation of N(0, 1) — 41 nodes")
+     main = "Gaussian Quadrature Approximation of N(0, 1) with 41 nodes")
 ```
 
 ```{r gen-weight-grid}
@@ -828,13 +828,13 @@ sum(w_emp$weight)        # sums to 1
 
 ---
 
-## `covirt()` — Asymptotic Variance-Covariance Matrices of Item Parameters
+## `covirt()`: Asymptotic Variance-Covariance Matrices of Item Parameters
 
 `covirt()` computes the analytical asymptotic variance-covariance matrices of
 item parameter estimates using the formulas developed by @thissen_wainer1982
 and extended to polytomous IRT models by @li_lissitz2004. These matrices
 provide the asymptotic standard errors (ASEs) of maximum likelihood estimates
-**without requiring examinee response data** — only the item parameters and the
+**without requiring examinee response data**; only the item parameters and the
 sample size used for calibration are needed.
 
 The ASEs obtained analytically represent **lower bounds** of the true standard
@@ -876,7 +876,7 @@ do.call(rbind, cov_bin$se)
 When items were calibrated on different samples, pass a vector of sample sizes:
 
 ```{r covirt-varying-n}
-# Example: items 1–5 calibrated on n=500, items 6–15 on n=2000
+# Example: items 1-5 calibrated on n=500, items 6-15 on n=2000
 n_vec <- c(rep(500, 5), rep(2000, 10))
 cov_bin2 <- covirt(x = meta_bin, D = 1.702, nstd = n_vec,
                    norm.prior = c(0, 1), nquad = 41)
@@ -889,7 +889,7 @@ cat("SE(b) for I6 (n=2000):", cov_bin2$se[["I6"]][2], "\n")
 ### Mixed-format test
 
 ```{r covirt-mixed}
-# GRM items in meta_mix: items 6–8 (DRM1–DRM5 come first)
+# GRM items in meta_mix: items 6-8 (DRM1-DRM5 come first)
 cov_mix <- covirt(
   x          = meta_mix,
   D          = 1.702,
@@ -904,7 +904,7 @@ cov_mix$se[["GRM1"]]
 
 ---
 
-## `score_resp()` — Score Selected-Response Item Data
+## `score_resp()`: Score Selected-Response Item Data
 
 The functions above all start from item parameters that are either known
 (`drm()`, `prm()`, `info()`, `traceline()`, `covirt()`) or estimated from an
@@ -999,7 +999,7 @@ using Korean syllable labels.
 | `info()`       | Item metadata + θ grid | IIF matrix, TIF vector; `plot()` | `est_score()` |
 | `traceline()`  | Item metadata + θ grid | ICC matrix, TCC vector, category probs; `plot()` | Visualisation |
 | `lwrc()`       | Item metadata + θ, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `sx2_fit()`, `est_score()` |
-| `gen.weight()` | Distribution spec | Node–weight data frame               | `cac_lee()`, `cac_rud()`, `est_score()`, `covirt()` |
+| `gen.weight()` | Distribution spec | Node-weight data frame               | `cac_lee()`, `cac_rud()`, `est_score()`, `covirt()` |
 | `covirt()`     | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
 | `score_resp()` | Raw option choices + answer key | 0/1 scored response matrix | `est_irt()`, `est_score()`, `ctt()`, `ctt_distr()` |
 
