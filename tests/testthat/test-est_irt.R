@@ -112,17 +112,23 @@ test_that("est_irt() converges for GRM", {
 
 test_that("est_irt() converges for GPCM", {
   set.seed(42)
+  # eight 4-category items with slopes from 0.8 to 1.6 and sorted step
+  # parameters in [-1.5, 1.5]; a design with enough items to identify the slopes
   x_gpcm <- shape_df(
-    par.prm = list(a = c(1.0, 1.2), d = list(c(-1, 0, 1), c(-0.5, 0.5, 1.2))),
-    cats    = c(4L, 4L),
+    par.prm = list(
+      a = seq(0.8, 1.6, length.out = 8),
+      d = lapply(1:8, function(i) sort(runif(3, -1.5, 1.5)))
+    ),
+    cats    = rep(4L, 8),
     model   = "GPCM"
   )
-  theta <- rnorm(500)
+  theta <- rnorm(1000)
   data  <- simdat(x = x_gpcm, theta = theta, D = 1)
   args  <- c(list(data = data, x = x_gpcm), EM_args)
   fit   <- do.call(est_irt, args)
   expect_s3_class(fit, "est_irt")
-  expect_equal(nrow(fit$par.est), 2L)
+  expect_equal(nrow(fit$par.est), 8L)
+  expect_identical(fit$test.1, "Convergence criteria are satisfied.")
 })
 
 
