@@ -1148,7 +1148,7 @@ est_mg_em <- function(x = NULL,
   est_time1 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
 
   # the first order test: check convergence-criteria test
-  test_1st <- all(c(all(mstep$convergence == 0L), r < MaxE))
+  test_1st <- all(mstep$convergence == 0L) && converge # M-step converged and EM criterion met
   if (test_1st) {
     memo3 <- "Convergence criteria are satisfied."
   } else {
@@ -2014,7 +2014,7 @@ est_mg_fipc <- function(x = NULL,
   est_time1 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
 
   # the first order test: check convergence-criteria test
-  test_1st <- all(c(all(mstep$convergence == 0L), r < MaxE))
+  test_1st <- all(mstep$convergence == 0L) && (converge || fipc.method == "OEM") # OEM runs one cycle by design
   if (test_1st) {
     memo3 <- "Convergence criteria are satisfied."
   } else {

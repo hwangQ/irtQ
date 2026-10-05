@@ -163,6 +163,41 @@ test_that("est_irt() FIPC (MEM) estimates pretest items on fixed-item scale", {
   expect_equal(nrow(fit$par.est), 55L)
 })
 
+test_that("est_irt() FIPC (OEM) does not warn about convergence criteria", {
+  set.seed(21)
+  theta_new <- rnorm(800, mean = 0.5, sd = 1.3)
+  data_new  <- simdat(x = x_true, theta = theta_new, D = 1)
+
+  meta_fipc <- shape_df_fipc(
+    x        = x_ref,
+    fix.loc  = 1:40,
+    item.id  = paste0("NI", 1:15),
+    cats     = c(rep(2L, 12L), rep(5L, 3L)),
+    model    = c(rep("3PLM", 12), rep("GRM", 3))
+  )
+
+  args <- c(
+    list(x = meta_fipc, data = data_new,
+         use.gprior = TRUE, gprior = list(dist = "beta", params = c(5, 16)),
+         EmpHist = TRUE, fipc = TRUE, fipc.method = "OEM", fix.loc = 1:40),
+    EM_args
+  )
+
+  # collect every warning message; other warnings are allowed
+  warns <- character(0)
+  fit <- withCallingHandlers(
+    do.call(est_irt, args),
+    warning = function(w) {
+      warns <<- c(warns, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_equal(fit$niter, 1L)
+  expect_false(any(grepl("Convergence criteria are not satisfied", warns)))
+  expect_match(fit$test.1, "satisfied")
+})
+
 
 # ── 6. Parameter recovery ─────────────────────────────────────────────────────
 
