@@ -38,9 +38,12 @@
 #'   item.id = list(x$Group1$id, x$Group2$id, x$Group3$id),
 #'   D = 1, free.group = c(2, 3), use.gprior = TRUE,
 #'   gprior = list(dist = "beta", params = c(5, 16)),
-#'   group.mean = 0, group.var = 1, EmpHist = TRUE, Etol = 0.001, MaxE = 500
+#'   group.mean = 0, group.var = 1, EmpHist = TRUE, Etol = 0.001, MaxE = 500,
+#'   verbose = FALSE
 #' )
-#' summary(fit)
+#'
+#' # group means and variances
+#' fit$group.par
 #' }
 #'
 "simMG"

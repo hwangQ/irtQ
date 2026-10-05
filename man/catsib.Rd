@@ -106,7 +106,10 @@ is \code{NA}.}
 Default is \code{FALSE}.}
 
 \item{max.iter}{A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is \code{10}.}
+iterations allowed for the purification process. Default is \code{10}. If the
+limit is reached while flagged items remain, a warning is issued and the
+\code{complete} element of the purification results is \code{FALSE}; for tests with
+many items or many DIF items, consider increasing \code{max.iter}.}
 
 \item{min.resp}{A positive integer specifying the minimum number of valid
 item responses required from an examinee in order to compute an ability
@@ -325,7 +328,7 @@ difpar_foc <-
   dplyr::mutate_at(.vars = "par.2", .funs = function(x) x + rep(0.7, 4))
 
 # Combine the 4 DIF and 36 non-DIF items for both reference and focal groups
-# Threfore, the first four items now exhibit uniform DIF
+# Therefore, the first four items now exhibit uniform DIF
 par_ref <- rbind(difpar_ref, par_nstd)
 par_foc <- rbind(difpar_foc, par_nstd)
 

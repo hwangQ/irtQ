@@ -18,7 +18,8 @@
 #'   Default is `TRUE`.
 #' @param n.factor A numeric value indicating the number of latent traits (factors)
 #'   estimated. This argument must be specified when `type = "sco"`. Default is 1.
-#' @param x An object returned by the function [mirt::mirt()].
+#' @param x An object returned by [mirt::mirt()]. The \pkg{mirt} package, listed
+#'   in Suggests, must be installed to use bring.mirt().
 #'
 #' @details The [irtQ::bring.flexmirt()] function was developed by modifying
 #'   the `read.flexmirt()` function (Pritikin & Falk, 2020). Similarly,
@@ -119,6 +120,15 @@
 #'
 #' # Read item parameters and convert them to item metadata
 #' bring.parscale(file = pscale_sam, "par")$full_df
+#'
+#' ## Example 3
+#' # Import the item parameters of a model fitted with the mirt package
+#' \donttest{
+#' if (requireNamespace("mirt", quietly = TRUE)) {
+#'   fit <- mirt::mirt(as.data.frame(LSAT6), 1, itemtype = "2PL", verbose = FALSE)
+#'   bring.mirt(fit)$full_df
+#' }
+#' }
 #'
 #' @export
 bring.flexmirt <- function(file,

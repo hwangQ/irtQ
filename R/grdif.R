@@ -137,6 +137,9 @@
 #'     \item{moments}{A list of three data frames showing the MRR and MSR
 #'     moments across iterations. The final column in each data frame indicates
 #'     the iteration in which the statistics were computed.}
+#'     \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
+#'     the items flagged as DIF by the \code{purify.by} statistic across all
+#'     purification iterations, sorted in ascending order.}
 #'     \item{n.iter}{The total number of iterations executed during the
 #'     purification process.}
 #'     \item{score}{A numeric vector of the final purified ability estimates

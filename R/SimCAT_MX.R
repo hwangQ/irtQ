@@ -15,7 +15,10 @@
 #'   (GPCM), with four score categories (0, 1, 2, 3).}
 #'
 #'   \item{res.dat}{A matrix of item responses from 30,000 examinees (rows) to 230
-#'   items (columns). `NA` marks an item that was not administered to the examinee.}
+#'   items (columns). `NA` marks an item that was not administered to the examinee.
+#'   The columns are named `Item.dc.1` to `Item.dc.200` and `Item.py.1` to
+#'   `Item.py.30`, not by the `id` column of `item.prm` (`V1` to `V230`); the
+#'   columns follow the row order of `item.prm`.}
 #'   \item{score}{A numeric vector of ability estimates for the 30,000
 #'   examinees.}
 #' }

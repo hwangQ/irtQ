@@ -38,7 +38,10 @@
 #'   \item{scale.D}{The scaling constant (usually 1 or 1.7) used in the IRT model.}
 #'   \item{ncase}{The number of unique response patterns.}
 #'   \item{nitem}{The number of items included in the dataset.}
-#'   \item{Etol}{The convergence criterion used for the E-step in the EM algorithm.}
+#'   \item{Etol}{The convergence criterion for the E-step of the EM algorithm:
+#'   the largest absolute change in the item parameter estimates between
+#'   consecutive cycles. For FIPC with all items fixed, it applies to the
+#'   change in the mean and variance of the prior distribution.}
 #'   \item{MaxE}{The maximum number of E-steps allowed during EM estimation.}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
 #'   \item{bprior}{A list describing the prior distribution for item difficulty
@@ -105,9 +108,14 @@
 #'   number of response patterns in each.}
 #'   \item{nitem}{A list with `overall` and `group` components indicating the
 #'   number of items in the respective response sets.}
-#'   \item{Etol}{Convergence criterion used for the E-step in the EM algorithm.}
+#'   \item{Etol}{The convergence criterion for the E-step of the EM algorithm:
+#'   the largest absolute change in the item parameter estimates between
+#'   consecutive cycles. For FIPC with all items fixed, it applies to the
+#'   change in the mean and variance of the prior distribution.}
 #'   \item{MaxE}{Maximum number of E-steps allowed in the EM algorithm.}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
+#'   \item{bprior}{A list describing the prior distribution for item difficulty
+#'   parameters.}
 #'   \item{gprior}{A list describing the prior distribution for item guessing parameters.}
 #'   \item{npar.est}{Total number of parameters estimated across all unique items.}
 #'   \item{niter}{Number of EM cycles completed.}

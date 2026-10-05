@@ -16,7 +16,10 @@ dichotomous items and 30 polytomous items.
 }
 
 \item{res.dat}{A matrix of item responses from 30,000 examinees (rows) to 230
-items (columns). \code{NA} marks an item that was not administered to the examinee.}
+items (columns). \code{NA} marks an item that was not administered to the examinee.
+The columns are named \code{Item.dc.1} to \code{Item.dc.200} and \code{Item.py.1} to
+\code{Item.py.30}, not by the \code{id} column of \code{item.prm} (\code{V1} to \code{V230}); the
+columns follow the row order of \code{item.prm}.}
 \item{score}{A numeric vector of ability estimates for the 30,000
 examinees.}
 }

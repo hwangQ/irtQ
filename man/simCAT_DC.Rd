@@ -14,7 +14,9 @@ A list of length three:
 }
 
 \item{res.dat}{A matrix of item responses from 10,000 examinees (rows) to 100
-items (columns). \code{NA} marks an item that was not administered to the examinee.}
+items (columns). \code{NA} marks an item that was not administered to the examinee.
+The columns have no names; they follow the row order of \code{item.prm}, whose
+\code{id} values are \code{V1} to \code{V100}.}
 \item{score}{A numeric vector of ability estimates for the 10,000 examinees.}
 }
 }

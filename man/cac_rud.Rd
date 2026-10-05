@@ -26,7 +26,9 @@ model. The theta parameter is optional and can be \code{NULL}.}
 \item{se}{A numeric vector of the same length as \code{theta} representing the
 standard errors associated with each ability estimate. If \code{NULL} and
 \code{x} is supplied, standard errors are computed using the test information
-function. See the \strong{Details} section for more information}
+function. See the \strong{Details} section for more information. Standard
+errors from \code{\link[=est_score]{est_score()}} that are set to 99.9999 (ability estimates
+at a limit of \code{range}) should be handled before they are supplied.}
 
 \item{weights}{An optional two-column data frame or matrix where the first
 column is the quadrature points (nodes) and the second column is the

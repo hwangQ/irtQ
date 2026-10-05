@@ -441,7 +441,7 @@ plot(cut_result)
 # Before the examinee loop, run_mst() pre-computes a sum_score -> theta
 # lookup table for every module (routing) and for every unique complete
 # pathway (final scoring), consistent with the reval_mst() approach.
-# SE is now returned correctly for INV.TCC (posterior SD from the table).
+# SE is taken from the pre-computed lookup table.
 
 result_inv <- run_mst(
   x            = x,
@@ -456,7 +456,7 @@ result_inv <- run_mst(
 )
 print(result_inv)
 
-# SE is now populated (posterior SD from the pre-computed table)
+# standard errors from the lookup table
 head(result_inv$se.theta)
 
 # Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)

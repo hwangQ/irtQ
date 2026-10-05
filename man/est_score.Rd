@@ -163,6 +163,9 @@ a two-column data frame is returned:
 \item Column 2: Standard errors of the ability estimates
 }
 
+When \code{method} is one of \code{"ML"}, \code{"MLF"}, \code{"WL"}, or \code{"MAP"}, the standard
+error is set to 99.9999 when the ability estimate equals a limit of \code{range}.
+
 When \code{method} is either \code{"EAP.SUM"} or \code{"INV.TCC"}, a list with two
 components is returned:
 \itemize{

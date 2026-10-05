@@ -16,7 +16,9 @@
 #' @param se A numeric vector of the same length as `theta` representing the
 #'   standard errors associated with each ability estimate. If `NULL` and
 #'   `x` is supplied, standard errors are computed using the test information
-#'   function. See the **Details** section for more information
+#'   function. See the **Details** section for more information. Standard
+#'   errors from [irtQ::est_score()] that are set to 99.9999 (ability estimates
+#'   at a limit of `range`) should be handled before they are supplied.
 #'
 #' @details This function first validates the input arguments. If both `theta`
 #' and `weights` are `NULL`, the function will stop and return an error message.

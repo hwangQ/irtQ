@@ -165,6 +165,9 @@
 #' * Column 1: Ability estimates
 #' * Column 2: Standard errors of the ability estimates
 #'
+#' When `method` is one of `"ML"`, `"MLF"`, `"WL"`, or `"MAP"`, the standard
+#' error is set to 99.9999 when the ability estimate equals a limit of `range`.
+#'
 #' When `method` is either `"EAP.SUM"` or `"INV.TCC"`, a list with two
 #' components is returned:
 #' * Object 1: A three-column data frame including:

@@ -13,7 +13,9 @@
 #'   - Items 91-100: Generated under the IRT 3PL model but calibrated using the 2PL model.}
 #'
 #'   \item{res.dat}{A matrix of item responses from 10,000 examinees (rows) to 100
-#'   items (columns). `NA` marks an item that was not administered to the examinee.}
+#'   items (columns). `NA` marks an item that was not administered to the examinee.
+#'   The columns have no names; they follow the row order of `item.prm`, whose
+#'   `id` values are `V1` to `V100`.}
 #'   \item{score}{A numeric vector of ability estimates for the 10,000 examinees.}
 #' }
 #'

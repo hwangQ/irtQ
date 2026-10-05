@@ -81,7 +81,10 @@ responses for each evaluated item. Defaults to \code{NULL}.}
 Default is \code{FALSE}.}
 
 \item{max.iter}{A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is \code{10}.}
+iterations allowed for the purification process. Default is \code{10}. If the
+limit is reached while flagged items remain, a warning is issued and the
+\code{complete} element of the purification results is \code{FALSE}; for tests with
+many items or many DIF items, consider increasing \code{max.iter}.}
 
 \item{verbose}{Logical. If \code{TRUE}, progress messages from the purification
 procedure will be displayed; if \code{FALSE}, the messages will be suppressed.

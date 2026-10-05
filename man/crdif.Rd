@@ -128,7 +128,10 @@ to perform the purification. Available options are \code{"crdifrs"} for
 \code{"crdifs"} for \eqn{RDIF_{S}-CR}.}
 
 \item{max.iter}{A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is \code{10}.}
+iterations allowed for the purification process. Default is \code{10}. If the
+limit is reached while flagged items remain, a warning is issued and the
+\code{complete} element of the purification results is \code{FALSE}; for tests with
+many items or many DIF items, consider increasing \code{max.iter}.}
 
 \item{min.resp}{A positive integer specifying the minimum number of valid
 item responses required from an examinee in order to compute an ability
@@ -209,8 +212,9 @@ purification. Same structure as in \code{no_purify}, with an additional
 column indicating the iteration in which the result was obtained.}
 \item{moments}{A list of moments (means and covariance matrices) of the
 RDIF-CR statistics for all items, updated based on the final iteration.}
-\item{dif_item}{A list of three numeric vectors identifying items flagged
-as DIF at any iteration, by each statistic.}
+\item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
+the items flagged as DIF by the \code{purify.by} statistic across all
+purification iterations, sorted in ascending order.}
 \item{n.iter}{An integer indicating the number of iterations performed during
 the purification procedure.}
 \item{score}{A numeric vector of updated ability estimates used in the final
@@ -248,7 +252,7 @@ impact of DIF on the item's expected score.
 The RDIF framework using categorical residuals (RDIF-CR), implemented in
 \code{\link[=crdif]{crdif()}}, extends the original residual-based DIF framework proposed
 by Lim et al. (2022) to detect global DIF in polytomous items (Jung & Lim,
-2026; Lim et al., 2024). This framework
+2026; Lim, Malatesta, & Lee, 2024). This framework
 includes three statistics: \eqn{RDIF_{R}-CR}, \eqn{RDIF_{S}-CR}, and
 \eqn{RDIF_{RS}-CR}, each designed to capture different aspects of group-level
 differences in categorical response patterns.

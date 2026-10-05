@@ -306,8 +306,8 @@ parameters.}
 
 \item{niter}{The number of completed EM cycles.}
 
-\item{maxpar.diff}{The maximum absolute change in parameter estimates at
-convergence.}
+\item{maxpar.diff}{The largest absolute change in the estimates in
+the last EM cycle.}
 
 \item{EMtime}{Time (in seconds) spent on EM cycles.}
 
