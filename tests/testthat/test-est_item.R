@@ -26,8 +26,8 @@ x_1plm5 <- shape_df(
   cats = rep(2L, 5L), model = "1PLM"
 )
 
-# Mixed 1PLM-constrained + 2PLM + 3PLM bank.  This scenario
-# that exercises the row alignment of est_item(): estimation order
+# Mixed 1PLM-constrained + 2PLM + 3PLM bank.  This scenario exercises the
+# row alignment of est_item(): estimation order
 # is [loc_1p_const items first, then loc_else items], so c(1,3,5,
 # 2,4,6) -- different from natural order -- and the (id, params)
 # pairing has to be permuted back via order(c(loc_1p_const,
