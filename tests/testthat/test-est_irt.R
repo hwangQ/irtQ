@@ -80,8 +80,8 @@ test_that("est_irt() 2PLM on LSAT6 stops only when the largest absolute change i
   expect_gt(fit$maxpar.diff, 0)
   expect_lte(fit$maxpar.diff, fit$Etol)
 
-  # allowing exactly the number of cycles that were needed must still be
-  # judged as converged, without a spurious warning
+  # allowing exactly the number of cycles that were needed is still
+  # judged as converged and gives no warning
   warns <- character(0)
   fit2 <- withCallingHandlers(
     est_irt(

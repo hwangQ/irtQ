@@ -28,7 +28,7 @@ posterior <- function(likehd, weights, idx.std = NULL) {
     # denominator of Bayes' rule per examinee:
     #   denom[i] = sum_q likehd[i, q] * w[q]
     # computed as a single BLAS GEMV (likehd %*% w), giving an nstd-vector;
-    # avoids the sweep + rowsums two-pass pattern used previously
+    # avoids a sweep + rowsums two-pass computation
     denom <- as.vector(likehd %*% w)
 
     # numerator: column-scale likehd by w (Rfast::eachrow gives the

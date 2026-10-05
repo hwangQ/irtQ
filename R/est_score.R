@@ -359,12 +359,12 @@ est_score.default <- function(x,
     # pre-populate elm_item with pars, model, cats, id from item metadata
     elm_item <- breakdown(x)
 
-    # B3: classify DRM/PRM items once for the full item set, outside the loop
+    # classify DRM/PRM items once for the full item set, outside the loop
     idx_full     <- idxfinder(elm_item)
     idx_drm_full <- idx_full$idx.drm
     idx_prm_full <- idx_full$idx.prm
 
-    # B4: pre-compute quadrature points once for EAP method (not per examinee)
+    # pre-compute quadrature points once for EAP method (not per examinee)
     popdist <- if (method == "EAP") {
       if (is.null(weights)) {
         gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
@@ -395,7 +395,7 @@ est_score.default <- function(x,
       est <- lapply(seq_len(nstd), function(i) {
         resp_vec_i <- data[i, ]
 
-        # subset to non-NA items, mirroring the original na.rm=TRUE melt behavior
+        # subset to non-NA items
         na_mask <- !is.na(resp_vec_i)
 
         # return NA immediately for examinees with all missing responses
@@ -415,7 +415,7 @@ est_score.default <- function(x,
         # observed sum score for stval.opt==2 starting value (computed once here)
         obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
-        # B3: map pre-computed full-item DRM/PRM indices to the non-NA subset
+        # map pre-computed full-item DRM/PRM indices to the non-NA subset
         if (all(na_mask)) {
           # no missing items: pre-computed indices apply directly
           idx_drm_i <- idx_drm_full
@@ -442,7 +442,7 @@ est_score.default <- function(x,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
           stval.opt = stval.opt, ji = ji,
           obs.sum = obs_sum_i,
-          popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
+          popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
         )
       })
 
@@ -468,7 +468,7 @@ est_score.default <- function(x,
       rm(data, envir = environment(), inherits = FALSE)
 
       # export pre-populated elm_item, pre-computed popdist, and required functions;
-      # x and max.col are no longer needed after B1 (melt removed)
+      # x and max.col are not exported because the workers do not need them
       parallel::clusterExport(cl, c(
         "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
@@ -479,8 +479,8 @@ est_score.default <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      # B9: pre-load Rfast on workers (used in ll_score, info_drm, etc.);
-      # reshape2 removed since melt is no longer used in est_score_1core
+      # pre-load Rfast on workers (used in ll_score, info_drm, etc.);
+      # reshape2 is not loaded because est_score_1core does not use melt
       parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
@@ -491,7 +491,7 @@ est_score.default <- function(x,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
           se = se, stval.opt = stval.opt, ji = ji,
-          popdist = popdist        # B4: pre-computed quadrature passed to workers
+          popdist = popdist        # pre-computed quadrature passed to workers
         )
       }
 
@@ -606,12 +606,12 @@ est_score.est_irt <- function(x,
     # pre-populate elm_item with pars, model, cats, id from item metadata
     elm_item <- breakdown(x)
 
-    # B3: classify DRM/PRM items once for the full item set, outside the loop
+    # classify DRM/PRM items once for the full item set, outside the loop
     idx_full     <- idxfinder(elm_item)
     idx_drm_full <- idx_full$idx.drm
     idx_prm_full <- idx_full$idx.prm
 
-    # B4: pre-compute quadrature points once for EAP method (not per examinee)
+    # pre-compute quadrature points once for EAP method (not per examinee)
     popdist <- if (method == "EAP") {
       if (is.null(weights)) {
         gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
@@ -642,7 +642,7 @@ est_score.est_irt <- function(x,
       est <- lapply(seq_len(nstd), function(i) {
         resp_vec_i <- data[i, ]
 
-        # subset to non-NA items, mirroring the original na.rm=TRUE melt behavior
+        # subset to non-NA items
         na_mask <- !is.na(resp_vec_i)
 
         # return NA immediately for examinees with all missing responses
@@ -662,7 +662,7 @@ est_score.est_irt <- function(x,
         # observed sum score for stval.opt==2 starting value (computed once here)
         obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
-        # B3: map pre-computed full-item DRM/PRM indices to the non-NA subset
+        # map pre-computed full-item DRM/PRM indices to the non-NA subset
         if (all(na_mask)) {
           # no missing items: pre-computed indices apply directly
           idx_drm_i <- idx_drm_full
@@ -689,7 +689,7 @@ est_score.est_irt <- function(x,
           weights = weights, tol = tol, max.iter = max.iter, se = se,
           stval.opt = stval.opt, ji = ji,
           obs.sum = obs_sum_i,
-          popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
+          popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
         )
       })
 
@@ -715,7 +715,7 @@ est_score.est_irt <- function(x,
       rm(data, envir = environment(), inherits = FALSE)
 
       # export pre-populated elm_item, pre-computed popdist, and required functions;
-      # x and max.col are no longer needed after B1 (melt removed)
+      # x and max.col are not exported because the workers do not need them
       parallel::clusterExport(cl, c(
         "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
@@ -726,8 +726,8 @@ est_score.est_irt <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      # B9: pre-load Rfast on workers (used in ll_score, info_drm, etc.);
-      # reshape2 removed since melt is no longer used in est_score_1core
+      # pre-load Rfast on workers (used in ll_score, info_drm, etc.);
+      # reshape2 is not loaded because est_score_1core does not use melt
       parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
@@ -738,7 +738,7 @@ est_score.est_irt <- function(x,
           range = range, norm.prior = norm.prior, nquad = nquad,
           weights = weights, tol = tol, max.iter = max.iter,
           se = se, stval.opt = stval.opt, ji = ji,
-          popdist = popdist        # B4: pre-computed quadrature passed to workers
+          popdist = popdist        # pre-computed quadrature passed to workers
         )
       }
 
@@ -798,7 +798,7 @@ est_score_1core <- function(elm_item,
   # check the number of examinees in this chunk
   nstd <- nrow(data)
 
-  # B3: classify DRM/PRM items once for this chunk (called once per worker, not per examinee)
+  # classify DRM/PRM items once for this chunk (called once per worker, not per examinee)
   idx_full     <- idxfinder(elm_item)
   idx_drm_full <- idx_full$idx.drm
   idx_prm_full <- idx_full$idx.prm
@@ -824,7 +824,7 @@ est_score_1core <- function(elm_item,
     resp_sub  <- as.numeric(resp_vec_i[na_mask])
     obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
 
-    # B3: map pre-computed full-item indices to the non-NA subset
+    # map pre-computed full-item indices to the non-NA subset
     if (all(na_mask)) {
       idx_drm_i <- idx_drm_full
       idx_prm_i <- idx_prm_full
@@ -849,7 +849,7 @@ est_score_1core <- function(elm_item,
       weights = weights, tol = tol, max.iter = max.iter, se = se,
       stval.opt = stval.opt, ji = ji,
       obs.sum = obs_sum_i,
-      popdist = popdist        # B4: pre-computed quadrature (NULL for non-EAP)
+      popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
     )
   })
 
@@ -866,11 +866,11 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
                             stval.opt = 1, ji = FALSE, obs.sum = NULL,
                             popdist = NULL) {
   # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only;
-  # idx.drm/idx.prm are pre-computed by the caller (B3: moved outside the loop)
+  # idx.drm/idx.prm are pre-computed by the caller, outside the loop
   n.resp <- nrow(elm_item$pars)
 
-  # B2: build the n.resp x max.cats one-hot freq.cat via direct matrix indexing
-  # (replaces the per-examinee stats::xtabs() call which had high formula overhead)
+  # build the n.resp x max.cats one-hot freq.cat via direct matrix indexing
+  # (direct indexing avoids the formula overhead of stats::xtabs())
   freq.cat <- matrix(0L, nrow = n.resp, ncol = max.cats)
   resp_int  <- as.integer(resp_vec)          # 0-based integer responses (no NAs: caller subsets)
   freq.cat[cbind(seq_len(n.resp), resp_int + 1L)] <- 1L
@@ -922,7 +922,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
     # set the iteration number to 0
     i <- 0
     abs_delta <- 1
-    # B5: preserve the last protected finfo for SE reuse on clean convergence;
+    # preserve the last protected finfo for SE reuse on clean convergence;
     # initialised to 1e-5 (the floor) in case the loop body never executes
     finfo_last <- 1e-5
     while (abs_delta >= tol) {
@@ -943,7 +943,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
       # protect the fisher information having value close to 0
       finfo[finfo < 1e-5 | is.nan(finfo)] <- 1e-5
 
-      # B5: save protected finfo at current theta before the theta update
+      # save protected finfo at current theta before the theta update
       finfo_last <- finfo
 
       # compute the theta correction factor (delta)
@@ -958,7 +958,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
 
       if (i == max.iter) break
     }
-    # B5: flag whether the loop exited via convergence (abs_delta < tol) or
+    # flag whether the loop exited via convergence (abs_delta < tol) or
     # hit the iteration ceiling; finfo_last is only safe to reuse when converged
     nr_converged <- (abs_delta < tol)
 
@@ -972,7 +972,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
       if (est.theta %in% range) {
         se.theta <- 99.9999
       } else if (nr_converged) {
-        # B5: reuse finfo_last (at theta_prev = est.theta + delta where |delta| < tol);
+        # reuse finfo_last (at theta_prev = est.theta + delta where |delta| < tol);
         # avoids a second info_score() call; approximation error is O(tol)
         se.theta <- 1 / sqrt(finfo_last)
       } else {
@@ -994,7 +994,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
   ## ----------------------------------------------------
   ## EAP scoring
   if (method == "EAP") {
-    # B4: popdist is pre-computed by the caller (gen.weight() no longer called per examinee)
+    # popdist is pre-computed by the caller (gen.weight() is not called per examinee)
 
     # compute the posterior distribution
     posterior <-

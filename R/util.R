@@ -91,11 +91,7 @@ cal_moment <- function(node, weight) {
 #   list of length nitem; element [[k]] is an nstd x cats[k] integer
 #   matrix as described above.
 #
-# Replaces the previous inline pattern that allocated four separate
-# copies of the response data via
-#   data.matrix -> data.frame -> factor list -> xtabs -> matrix.
-# This direct one-hot construction allocates only the final per-item
-# matrices (15-30x faster on large CAT datasets).
+# This direct one-hot construction allocates only the final per-item matrices.
 build_freqcat <- function(data, cats) {
 
   # number of examinees and items in the response matrix

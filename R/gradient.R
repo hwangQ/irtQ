@@ -161,7 +161,7 @@ grad_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM"
   # across loglike_drm / grad_item_drm / hess_item_drm at the same
   # (item_par, theta) - saving 2 of the 3 drm() calls per nlminb point.
   # When NULL (e.g. callers outside the optim factory), each branch
-  # falls back to drm() exactly as before.
+  # calls drm() directly.
   # count the number of item parameters to be estimated
   n.par <- length(item_par)
 

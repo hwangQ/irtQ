@@ -137,11 +137,9 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
       s_i <- freq.exp[, cols.item$cols.1pl][, c(TRUE, FALSE), drop = FALSE]
       r_i <- freq.exp[, cols.item$cols.1pl][, c(FALSE, TRUE), drop = FALSE]
       # f_i (total responses per 1PLM item per quadrature point) is
-      # the elementwise sum of s_i and r_i; this replaces the previous
-      # n.1PLM-iteration for-loop that called Rfast::rowsums on each
-      # 2-column slice of freq.exp -- the loop was redundant because
-      # cats[k] == 2 for every 1PLM item, so the 2-col rowsum is
-      # identical to a single elementwise add of the s_i/r_i matrices
+      # the elementwise sum of s_i and r_i (cats[k] == 2 for every
+      # 1PLM item, so the 2-column rowsum equals a single elementwise
+      # add of the s_i/r_i matrices)
       f_i <- s_i + r_i
 
       # set the starting values
@@ -192,10 +190,9 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
           cols.tmp <- cols.item$cols.all[[loc_else[i]]]
           s_i <- freq.exp[, cols.tmp[1]]
           r_i <- freq.exp[, cols.tmp[2]]
-          # total responses per quadrature point = s_i + r_i; replaces
-          # the previous Rfast::rowsums(freq.exp[, cols.tmp]) call,
-          # which was a 2-column rowsum and is identical to the direct
-          # add (avoids a function-call indirection per item per Mstep)
+          # total responses per quadrature point = s_i + r_i (a 2-column
+          # rowsum equals the direct add, which avoids a function-call
+          # indirection per item per Mstep)
           f_i <- s_i + r_i
 
           # set the starting values

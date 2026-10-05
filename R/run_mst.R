@@ -773,7 +773,7 @@ run_mst <- function(x,
 
   # --- Pre-compute sum_score -> theta/SE lookup tables for EAP.SUM/INV.TCC final scoring ---
   # One table per unique complete pathway; cost is O(n_unique_pathways), independent of N.
-  # Fixes the se_theta=NA bug: both theta AND SE are stored and returned from the table.
+  # Both theta AND SE are stored and returned from the table.
   #
   # Key format: paste(module_indices_stage1_to_stageN, collapse = "_")  e.g. "1_3_6"
   # final_tables[["1_3_6"]]$theta  named numeric: sum_score -> theta
@@ -1090,7 +1090,6 @@ run_mst <- function(x,
         if (final_args$method %in% c("EAP.SUM", "INV.TCC")) {
           # ----- EAP.SUM or INV.TCC: pre-computed pathway lookup table -----
           # theta and SE are retrieved by a single named-vector lookup.
-          # This also fixes the se_theta=NA bug: SE is now returned correctly.
           path_key  <- paste(path_mat[i, ], collapse = "_")   # e.g. "1_3_6"
           sum_total <- sum(resp_acc_num, na.rm = TRUE)         # total accumulated sum score
 

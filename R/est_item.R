@@ -373,8 +373,7 @@ est_item <- function(x = NULL,
 
   # build the per-item one-hot frequency-category list used downstream
   # in the FAPC scoring loop.  See build_freqcat() (R/util.R) for the
-  # output structure; it replaces a factor -> xtabs -> matrix chain
-  # with direct one-hot construction (15-30x faster).
+  # output structure.
   freq.cat <- build_freqcat(data, cats)
 
   ## -------------------------------------------------------------------------------------------------------
@@ -413,13 +412,8 @@ est_item <- function(x = NULL,
     prm = idx.prm
   )
 
-  # NOTE: previously this point added a per-DRM-item 3rd column equal
-  # to (s + r) via stats::addmargins() so that the 1PLM-constrained
-  # and DRM blocks below could read f_i directly as freq.cat[, 3].
-  # That augmentation is removed: f_i = s_i + r_i is computed at the
-  # point of use (see the loops below), which avoids one purrr::map
-  # over all DRM items, one matrix copy per item, and the integer ->
-  # double promotion that addmargins() silently performs.
+  # f_i = s_i + r_i is computed at the point of use (see the loops below),
+  # so freq.cat is not augmented with a total column
 
   # create the lower and upper bounds of the item parameters
   parbd <- lubound(model, cats, n.1PLM, idx4est, fix.a.1pl, fix.g, fix.a.gpcm)
@@ -434,11 +428,7 @@ est_item <- function(x = NULL,
     # prepare input files to estimate the 1PLM item parameters.
     # extract the per-item (incorrect, correct) columns from freq.cat
     # via array preallocation (so the resulting matrices have no
-    # dimnames -- preserving the original behavior bit-for-bit) and
-    # compute f_i = s_i + r_i in one elementwise add.  This replaces
-    # the previous pattern that read freq.cat[[k]][, 3] -- a column
-    # added upfront by stats::addmargins() -- and removes the now-
-    # unneeded addmargins() pass entirely.
+    # dimnames) and compute f_i = s_i + r_i in one elementwise add.
     fc1pl <- freq.cat[loc_1p_const]
     s_i <- r_i <- array(0, c(nstd, n.1PLM))
     for (k in seq_len(n.1PLM)) {
@@ -513,16 +503,13 @@ est_item <- function(x = NULL,
       # in case of a DRM item
       if (score.cat == 2) {
         # extract (incorrect, correct) columns from the raw freq.cat
-        # matrix for this item; cast to double so f_i has the same
-        # storage.mode that stats::addmargins() previously produced,
-        # preserving downstream estimation1() equivalence
+        # matrix for this item; cast to double so that s_i, r_i, and f_i
+        # are double vectors for downstream estimation1()
         fc_i <- freq.cat[loc_else][[i]]
         s_i <- as.double(fc_i[, 1])
         r_i <- as.double(fc_i[, 2])
         # f_i (total response indicator: 1 if examinee answered the
-        # item, 0 otherwise) replaces freq.cat[, 3] which was a margin
-        # column added upfront via stats::addmargins(); the value is
-        # arithmetically identical to s_i + r_i
+        # item, 0 otherwise) is arithmetically identical to s_i + r_i
         f_i <- s_i + r_i
 
         # set the starting values
@@ -694,16 +681,6 @@ est_item <- function(x = NULL,
   # order item indices in the order they were appended, and the
   # order() of that vector gives the row positions to pick out so
   # that natural item k ends up in row k of the result.
-  #
-  # Historical note: the previous implementation attempted the same
-  # permutation via dplyr::arrange("loc") %>% dplyr::select(-"loc")
-  # after attaching a loc column, but arrange() called with a STRING
-  # argument sorts by the literal value "loc" (constant across rows)
-  # rather than by the column named loc -- so the arrange step was a
-  # silent no-op and the (id, parameter) mis-pairing went undetected
-  # because est_item() had no test coverage.  The fix is verified by
-  # data-raw/verify_estitem_alignment.R and by the new bug-regression
-  # case in tests/testthat/test-est_item.R.
   ord    <- order(c(loc_1p_const, loc_else))
   par_df <- data.frame(bind.fill(est_par, type = "rbind")[ord, , drop = FALSE])
   se_df  <- data.frame(bind.fill(est_se,  type = "rbind")[ord, , drop = FALSE])

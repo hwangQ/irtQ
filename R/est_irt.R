@@ -985,9 +985,7 @@ est_irt_em <- function(x = NULL,
   
   # build the per-item one-hot frequency-category list used by
   # divide_data() below and by info_xpd() in the SE step.  See
-  # build_freqcat() (R/util.R) for the output structure; it replaces a
-  # data.frame -> factor -> xtabs -> matrix chain that allocated four
-  # separate copies of the response data.
+  # build_freqcat() (R/util.R) for the output structure.
   freq.cat <- build_freqcat(data, cats)
   
   # break down the item metadata into several elements
@@ -1140,7 +1138,7 @@ est_irt_em <- function(x = NULL,
 
     # compute the information matrix of item parameters; info_xpd()
     # works on the original ntheta-length quadrature grid (no
-    # nstd*ntheta expansion), so the caller no longer needs to
+    # nstd*ntheta expansion), so the caller does not need to
     # construct quadpt.vec
     info.data <- info_xpd(
       elm_item = elm_item, freq.cat = freq.cat, post_dist = post_dist,
@@ -1880,8 +1878,7 @@ est_irt_fipc <- function(x = NULL,
     # deploy the standard errors into the same row/column layout that
     # holds the item parameter estimates.
     # 1) for the only new items.  See the linear-form branch above
-    #    (around line ~1216) for the full rationale of the logical-
-    #    mask assignment that replaces the previous per-row for-loop.
+    #    for the rationale of the logical-mask assignment.
     se_df <- loc.par <- param_loc$loc.par
     mask  <- !is.na(loc.par)
     if (se) {

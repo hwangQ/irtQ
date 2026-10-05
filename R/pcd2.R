@@ -527,9 +527,7 @@ pcd2_one <- function(x, data, D = 1, item.skip = NULL,
   # factorize the response values
   # build the per-item one-hot frequency-category list used downstream
   # by divide_data() and the pseudo-count D^2 statistic.  See
-  # build_freqcat() (R/util.R) for the output structure; it replaces a
-  # data.frame -> factor -> xtabs -> matrix chain with direct one-hot
-  # construction (15-30x faster).
+  # build_freqcat() (R/util.R) for the output structure.
   freq.cat <- build_freqcat(data, cats)
 
   # break down the item metadata into several elements
