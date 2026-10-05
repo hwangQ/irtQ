@@ -272,4 +272,6 @@ test_that("getirt() returns the documented posterior.dist and scale.D for est_ir
   expect_identical(getirt(fit, what = "posterior.dist"), fit$posterior.dist)
   expect_identical(getirt(fit, what = "scale.D"), fit$scale.D)
   expect_identical(getirt(fit, what = "scale.D"), 1)
+  expect_true(is.matrix(getirt(fit, what = "posterior.dist")))
+  expect_true(is.numeric(getirt(fit, what = "scale.D")))
 })

@@ -69,7 +69,7 @@ columns represent quadrature points.}
 \item{gprior}{A list describing the prior distribution for item guessing parameters.}
 \item{npar.est}{The total number of parameters estimated.}
 \item{niter}{The number of EM cycles completed.}
-\item{maxpar.diff}{The maximum change in parameter estimates at convergence.}
+\item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
 \item{EMtime}{Computation time (in seconds) for the EM algorithm.}
 \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 \item{TotalTime}{Total computation time (in seconds) for model estimation.}
@@ -137,7 +137,7 @@ number of items in the respective response sets.}
 \item{gprior}{A list describing the prior distribution for item guessing parameters.}
 \item{npar.est}{Total number of parameters estimated across all unique items.}
 \item{niter}{Number of EM cycles completed.}
-\item{maxpar.diff}{Maximum change in item parameter estimates at convergence.}
+\item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
 \item{EMtime}{Computation time (in seconds) for EM estimation.}
 \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 \item{TotalTime}{Total computation time (in seconds) for model estimation.}
