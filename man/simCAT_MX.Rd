@@ -7,16 +7,17 @@
 \format{
 A list of length three:
 \describe{
-\item{item_pool}{A data frame in item metadata format consisting of 200
+\item{item.prm}{A data frame in item metadata format consisting of 200
 dichotomous items and 30 polytomous items.
 \itemize{
-\item Dichotomous items: Calibrated using the IRT 3PL model.
+\item Dichotomous items: Calibrated using the IRT 2PL model.
 \item Polytomous items: Calibrated using the Generalized Partial Credit Model
-(GPCM), with three score categories (0, 1, 2).}
+(GPCM), with four score categories (0, 1, 2, 3).}
 }
 
-\item{response_data}{A sparse matrix of item responses from 30,000 examinees.}
-\item{theta_estimates}{A numeric vector of ability estimates for the 30,000
+\item{res.dat}{A matrix of item responses from 30,000 examinees (rows) to 230
+items (columns). \code{NA} marks an item that was not administered to the examinee.}
+\item{score}{A numeric vector of ability estimates for the 30,000
 examinees.}
 }
 }
