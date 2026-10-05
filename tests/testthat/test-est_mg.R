@@ -372,7 +372,7 @@ test_that("est_mg() FIPC (OEM) does not warn about convergence criteria", {
 
   expect_equal(fit$niter, 1L)
   expect_false(any(grepl("Convergence criteria are not satisfied", warns)))
-  expect_match(fit$test.1, "satisfied")
+  expect_identical(fit$test.1, "Convergence criteria are satisfied.")
 })
 
 

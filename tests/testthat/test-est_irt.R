@@ -68,6 +68,37 @@ test_that("est_irt() LSAT6 data (1PLM, fix.a.1pl = FALSE) returns est_irt object
   expect_equal(nrow(fit$par.est), 5L)
 })
 
+# Regression test for the EM convergence check.  Constant entries (such as the
+# guessing column of 2PLM items) have a change of exactly zero, so the former
+# statistic abs(max(change)) returned 0 whenever every free parameter decreased
+# in a cycle, and the EM stopped after 2 cycles with maxpar.diff = 0.
+test_that("est_irt() 2PLM on LSAT6 stops only when the largest absolute change is <= Etol", {
+  fit <- est_irt(
+    data = LSAT6, D = 1, model = "2PLM", cats = 2,
+    se = FALSE, verbose = FALSE
+  )
+  expect_gt(fit$niter, 2L)
+  expect_gt(fit$maxpar.diff, 0)
+  expect_lte(fit$maxpar.diff, fit$Etol)
+
+  # allowing exactly the number of cycles that were needed must still be
+  # judged as converged, without a spurious warning
+  warns <- character(0)
+  fit2 <- withCallingHandlers(
+    est_irt(
+      data = LSAT6, D = 1, model = "2PLM", cats = 2,
+      MaxE = fit$niter, se = FALSE, verbose = FALSE
+    ),
+    warning = function(w) {
+      warns <<- c(warns, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_equal(fit2$niter, fit$niter)
+  expect_false(any(grepl("Convergence criteria are not satisfied", warns)))
+  expect_identical(fit2$test.1, "Convergence criteria are satisfied.")
+})
+
 
 # ── 2. Polytomous-only ────────────────────────────────────────────────────────
 
@@ -195,7 +226,7 @@ test_that("est_irt() FIPC (OEM) does not warn about convergence criteria", {
 
   expect_equal(fit$niter, 1L)
   expect_false(any(grepl("Convergence criteria are not satisfied", warns)))
-  expect_match(fit$test.1, "satisfied")
+  expect_identical(fit$test.1, "Convergence criteria are satisfied.")
 })
 
 
