@@ -52,7 +52,7 @@ Also, model fit assessment includes item fit statistics such as:
 
 - Chi-square (X^2; Bock, 1960; Yen, 1981),
 - Likelihood ratio chi-square (G^2; McKinley & Mills, 1985),
-- Infit and outfit statistics (Ames et al., 2015)
+- Infit and outfit statistics (Ames & Penfield, 2015)
 - Graphical residual diagnostics (Hambleton et al., 1991)
 - S-X^2 (Orlando & Thissen, 2000, 2003)  
 
@@ -298,7 +298,7 @@ These graphical diagnostics complement the statistical fit measures, allowing fo
 
 ## 5. Examples of implementing online calibration and evaluating the IRT model-data fit
 
-```{r example, out.width="70%", out.height="50%", message = FALSE, tidy=TRUE, tidy.opts=list(arrow=TRUE, indent=2, width.cutoff=50)}
+```{r example, out.width="70%", out.height="50%", message = FALSE}
 
 # Attach the packages
 library(irtQ)
