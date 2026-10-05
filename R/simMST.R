@@ -40,12 +40,12 @@
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @references Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized
-#' adaptive and multistage testing with R: Using packages catR and mstR*.
-#' Springer.
+#'   adaptive and multistage testing with R: Using packages catR and mstR*.
+#'   Springer. \doi{10.1007/978-3-319-69218-0}.
 #'
-#' Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
-#' approach to evaluate the performance of MST. *Journal of Educational
-#' Measurement, 58*(2), 154-178.
+#'   Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
+#'   approach to evaluate the performance of MST. *Journal of Educational
+#'   Measurement, 58*(2), 154-178. \doi{10.1111/jedm.12276}.
 #'
 #' @examples
 #' # structure of the data

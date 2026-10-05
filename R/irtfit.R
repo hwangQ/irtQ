@@ -145,8 +145,8 @@
 #' Bock, R.D. (1960), *Methods and applications of optimal scaling*. Chapel
 #' Hill, NC: L.L. Thurstone Psychometric Laboratory.
 #'
-#' Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991).*Fundamentals of
-#' item response theory*. Newbury Park, CA: Sage.
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
+#'   item response theory*. Newbury Park, CA: Sage.
 #'
 #' McKinley, R., & Mills, C. (1985). A comparison of several goodness-of-fit
 #' statistics.

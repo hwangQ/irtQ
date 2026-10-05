@@ -400,7 +400,7 @@ National Council on Measurement in Education, Los Angeles, CA.
 
 Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 item functioning detection framework in item response theory. \emph{Journal of
-Educational Measurement, 59}(1), 80-104. \doi{doi:10.1111/jedm.12313}.
+Educational Measurement, 59}(1), 80-104. \doi{10.1111/jedm.12313}.
 
 Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 detection with the residual DIF framework. Paper presented at the annual
@@ -408,6 +408,7 @@ International Meeting of the Psychometric Society, Prague, Czech Republic.
 
 Penfield, R. D. (2010). Distinguishing between net and global DIF in
 polytomous items. \emph{Journal of Educational Measurement, 47}(2), 129-149.
+\doi{10.1111/j.1745-3984.2010.00105.x}.
 }
 \seealso{
 \code{\link[=rdif]{rdif()}}, \code{\link[=est_irt]{est_irt()}}, \code{\link[=est_item]{est_item()}},

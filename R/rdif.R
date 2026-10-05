@@ -192,13 +192,13 @@
 #'   polytomous items using RDIF. Paper presented at the annual meeting of the
 #'   National Council on Measurement in Education, Los Angeles, CA.
 #'
-#'   Lim, H., & Choe, E. M. (2023). Detecting differential item
-#'   functioning in CAT using IRT residual DIF approach.
-#'  *Journal of Educational Measurement, 60*(4), 626-650. \doi{doi:10.1111/jedm.12366}.
+#'   Lim, H., & Choe, E. M. (2023). Detecting differential item functioning in
+#'   CAT using IRT residual DIF approach. *Journal of Educational Measurement,
+#'   60*(4), 626-650. \doi{10.1111/jedm.12366}.
 #'
 #'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 #'   item functioning detection framework in item response theory. *Journal of
-#'   Educational Measurement, 59*(1), 80-104. \doi{doi:10.1111/jedm.12313}.
+#'   Educational Measurement, 59*(1), 80-104. \doi{10.1111/jedm.12313}.
 #'
 #'   Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 #'   detection with the residual DIF framework. Paper presented at the annual

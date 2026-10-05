@@ -267,32 +267,29 @@
 #' }
 #'
 #' @references
-#' Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability
-#' in a microcomputer environment. \emph{Applied Psychological Measurement,
-#' 6}(4), 431-444. \doi{10.1177/014662168200600405}
+#'   Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in
+#'   a microcomputer environment. *Applied Psychological Measurement, 6*(4),
+#'   431-444. \doi{10.1177/014662168200600405}.
 #'
-#' Han, K. T. (2016). Maximum likelihood score estimation method with fences
-#' for short-length tests and computerized adaptive tests.
-#' \emph{Applied Psychological Measurement, 40}(4), 289-301.
-#' \doi{10.1177/0146621616631317}
+#'   Han, K. T. (2016). Maximum likelihood score estimation method with fences
+#'   for short-length tests and computerized adaptive tests. *Applied
+#'   Psychological Measurement, 40*(4), 289-301. \doi{10.1177/0146621616631317}.
 #'
-#' Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
-#' approach to evaluate the performance of MST.
-#' \emph{Journal of Educational Measurement, 58}(2), 154-178.
-#' \doi{10.1111/jedm.12276}
+#'   Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
+#'   approach to evaluate the performance of MST. *Journal of Educational
+#'   Measurement, 58*(2), 154-178. \doi{10.1111/jedm.12276}.
 #'
-#' Magis, D., Yan, D., & von Davier, A. A. (2017). \emph{Computerized adaptive
-#' and multistage testing with R: Using packages catR and mstR}. Springer.
-#' \doi{10.1007/978-3-319-69218-0}
+#'   Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive and
+#'   multistage testing with R: Using packages catR and mstR*. Springer.
+#'   \doi{10.1007/978-3-319-69218-0}.
 #'
-#' Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995).
-#' Item response theory for scores on tests including polytomous items with
-#' ordered responses. \emph{Applied Psychological Measurement, 19}(1), 39-49.
-#' \doi{10.1177/014662169501900105}
+#'   Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995). Item
+#'   response theory for scores on tests including polytomous items with ordered
+#'   responses. *Applied Psychological Measurement, 19*(1), 39-49.
+#'   \doi{10.1177/014662169501900105}.
 #'
-#' Warm, T. A. (1989). Weighted likelihood estimation of ability in item
-#' response theory. \emph{Psychometrika, 54}(3), 427-450.
-#' \doi{10.1007/BF02294627}
+#'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+#'   response theory. *Psychometrika, 54*(3), 427-450. \doi{10.1007/BF02294627}.
 #'
 #' @seealso \code{\link{panel_info}}, \code{\link{reval_mst}},
 #'   \code{\link{est_score}}, \code{\link{simdat}}, \code{\link{simMST}}

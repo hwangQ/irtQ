@@ -392,8 +392,8 @@
 #'
 #' @seealso [irtQ::shape_df()], [irtQ::shape_df_fipc()], [irtQ::getirt()]
 #'
-#' @references Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D., J.
-#'   (2001) A comparative study of on-line pretest item calibration/scaling
+#' @references Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J.
+#'   (2001). A comparative study of on-line pretest item calibration/scaling
 #'   methods in computerized adaptive testing. *Journal of Educational
 #'   Measurement, 38*(3), 191-212.
 #'

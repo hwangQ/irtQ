@@ -780,8 +780,8 @@ summary(mod.fix4)
 
 }
 \references{
-Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D., J.
-(2001) A comparative study of on-line pretest item calibration/scaling
+Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J.
+(2001). A comparative study of on-line pretest item calibration/scaling
 methods in computerized adaptive testing. \emph{Journal of Educational
 Measurement, 38}(3), 191-212.
 

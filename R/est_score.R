@@ -180,32 +180,33 @@
 #'   [irtQ::gen.weight()]
 #'
 #' @references Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of
-#'   ability in a microcomputer environment. *Applied Psychological Measurement, 6*(4), 431-444.
+#'   ability in a microcomputer environment. *Applied Psychological Measurement,
+#'   6*(4), 431-444. \doi{10.1177/014662168200600405}.
 #'
 #'   Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 #'   and methods for test equating.
 #' *Journal of Statistical Software, 59*, 1-30.
 #'
-#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991).*Fundamentals of
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
 #'   item response theory*. Newbury Park, CA: Sage.
 #'
 #'   Han, K. T. (2016). Maximum likelihood score estimation method with fences
-#'   for short-length tests and computerized adaptive tests.
-#' *Applied psychological measurement, 40*(4), 289-301.
+#'   for short-length tests and computerized adaptive tests. *Applied
+#'   Psychological Measurement, 40*(4), 289-301. \doi{10.1177/0146621616631317}.
 #'
 #'   Howard, J. P. (2017). *Computational methods for numerical analysis with
 #'   R*. New York: Chapman and Hall/CRC.
 #'
-#'   Kolen, M. J. & Brennan, R. L. (2004). *Test Equating, Scaling, and Linking*
-#'   (2nd ed.). New York: Springer
+#'   Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling, and
+#'   linking* (2nd ed.). Springer.
 #'
 #'   Kolen, M. J. & Tong, Y. (2010). Psychometric properties of IRT proficiency
 #'   estimates.
 #' *Educational Measurement: Issues and Practice, 29*(3), 8-14.
 #'
 #'   Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
-#'   approach to evaluate the performance of MST.
-#' *Journal of Educational Measurement, 58*(2), 154-178.
+#'   approach to evaluate the performance of MST. *Journal of Educational
+#'   Measurement, 58*(2), 154-178. \doi{10.1111/jedm.12276}.
 #'
 #'   Magis, D., & Barrada, J. R. (2017). Computerized adaptive testing with R:
 #'   Recent updates of the package catR.
@@ -218,12 +219,13 @@
 #'   two categories. In D. Thissen & H. Wainer (Eds.),
 #' *Test scoring* (pp.73-140). Mahwah, NJ: Lawrence Erlbaum.
 #'
-#'   Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. (1995). Item
-#'   Response Theory for Scores on Tests Including Polytomous Items with Ordered
-#'   Responses. *Applied Psychological Measurement, 19*(1), 39-49.
+#'   Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995). Item
+#'   response theory for scores on tests including polytomous items with ordered
+#'   responses. *Applied Psychological Measurement, 19*(1), 39-49.
+#'   \doi{10.1177/014662169501900105}.
 #'
 #'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
-#'   response theory. *Psychometrika, 54*(3), 427-450.
+#'   response theory. *Psychometrika, 54*(3), 427-450. \doi{10.1007/BF02294627}.
 #'
 #' @examples
 #' ## Import the "-prm.txt" output file from flexMIRT

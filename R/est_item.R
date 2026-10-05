@@ -117,7 +117,7 @@
 #' @references Baker, F. B., & Kim, S. H. (2004). *Item response theory:
 #'   Parameter estimation techniques.* CRC Press.
 #'
-#'   Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D., J. (2001) A
+#'   Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001). A
 #'   comparative study of on-line pretest item calibration/scaling methods in
 #'   computerized adaptive testing. *Journal of Educational Measurement, 38*(3),
 #'   191-212.

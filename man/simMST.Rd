@@ -55,11 +55,11 @@ head(simMST$item_bank, 3)
 \references{
 Magis, D., Yan, D., & von Davier, A. A. (2017). \emph{Computerized
 adaptive and multistage testing with R: Using packages catR and mstR}.
-Springer.
+Springer. \doi{10.1007/978-3-319-69218-0}.
 
 Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. \emph{Journal of Educational
-Measurement, 58}(2), 154-178.
+Measurement, 58}(2), 154-178. \doi{10.1111/jedm.12276}.
 }
 \author{
 Hwanggyu Lim \email{hglim83@gmail.com}

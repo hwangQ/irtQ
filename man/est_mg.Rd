@@ -765,9 +765,9 @@ Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood
 estimation of item parameters: Application of an EM algorithm.
 \emph{Psychometrika, 46}, 443-459.
 
-Bock, R. D., & Zimowski, M. F. (1997). Multiple group IRT. In W. J.
-van der Linden & R. K. Hambleton (Eds.), \emph{Handbook of modern item response theory}
-(pp. 433-448). New York: Springer.
+Bock, R. D., & Zimowski, M. F. (1997). Multiple group IRT. In W. J. van der
+Linden & R. K. Hambleton (Eds.), \emph{Handbook of modern item response theory}
+(pp. 433-448). Springer. \doi{10.1007/978-1-4757-2691-6_25}.
 
 Kim, S. (2006). A comparative study of IRT fixed parameter calibration
 methods. \emph{Journal of Educational Measurement, 43}(4), 355-381.
