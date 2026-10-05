@@ -123,11 +123,11 @@ items and the last two were calibrated using PCM, then specify
 
 ## References
 
-Li, Y. & Lissitz, R. (2004). Applications of the analytically derived
+Li, Y., & Lissitz, R. (2004). Applications of the analytically derived
 asymptotic standard errors of item response theory item parameter
-estimates. *Journal of educational measurement, 41*(2), 85-117.
+estimates. *Journal of Educational Measurement, 41*(2), 85-117.
 
-Thissen, D. & Wainer, H. (1982). Some standard errors in item response
+Thissen, D., & Wainer, H. (1982). Some standard errors in item response
 theory. *Psychometrika, 47*, 397-412.
 
 ## See also

@@ -10,12 +10,12 @@ downward by 0.5, under a 30-item adaptive test where all focal group
 examinees were exposed to the drifted items (100% exposure rate).
 
 The data reflect a workflow of IPD detection using the residual-based
-IPD (RIPD) framework (Lim & Han, in press): a focal group of examinees
-takes a CAT using a drifted item pool, and a synthetic reference group
-is created by re-running the CAT with the focal group's ability
-estimates as true abilities but with the original (non-drifted) item
-parameters. RIPD statistics are then used to detect which items have
-drifted between the two groups.
+IPD (RIPD) framework (Lim & Han, 2026): a focal group of examinees takes
+a CAT using a drifted item pool, and a synthetic reference group is
+created by re-running the CAT with the focal group's ability estimates
+as true abilities but with the original (non-drifted) item parameters.
+RIPD statistics are then used to detect which items have drifted between
+the two groups.
 
 ## Usage
 
@@ -77,7 +77,7 @@ A named list with eight elements:
   group has the same size as the focal group); (2) generating item
   responses from the *original* (non-drifted) item parameters; and (3)
   running an independent CAT simulation. This synthetic reference group
-  mirrors the construction described in Lim & Han (in press).
+  mirrors the construction described in Lim & Han (2026).
 
 - ref_score:
 
@@ -112,16 +112,18 @@ A named list with eight elements:
 **Note on reference group size:** A 1F reference group (same size as the
 focal group) is used here for compactness. In practice, larger synthetic
 reference groups (e.g., 3F - 8F) are recommended to improve RIPD
-detection power (Lim & Han, in press). A larger reference group can be
+detection power (Lim & Han, 2026). A larger reference group can be
 created by replicating the focal theta estimates: e.g.,
 `rep(foc_score, times = 3)` for a 3F group, then re-running the CAT
 simulation with the original item parameters.
 
 ## References
 
-Lim, H., & Han, K. T. (in press). IRT residual-based approach to
-detecting item parameter drift in CAT. *Journal of Educational and
-Behavioral Statistics*.
+Lim, H., & Han, K. T. (2026). IRT residual-based approach to detecting
+item parameter drift in CAT. *Journal of Educational and Behavioral
+Statistics*.
+[doi:10.3102/10769986261460852](https://doi.org/10.3102/10769986261460852)
+.
 
 ## See also
 

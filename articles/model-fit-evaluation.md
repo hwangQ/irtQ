@@ -31,7 +31,7 @@ set.seed(2026)
 
 ## Setup: Calibrated Data for All Examples
 
-We define two test forms — a binary-only test and a mixed-format test —
+We define two test forms (a binary-only test and a mixed-format test)
 and calibrate each so we have item parameters and ability estimates to
 pass to the fit functions throughout this vignette.
 
@@ -166,7 +166,7 @@ response at the examinee’s estimated ability (Ames & Penfield, 2015).
 
 The four statistics differ in how they aggregate these residuals:
 
-**$`\chi^2`$ and $`G^2`$ — Group-based statistics**
+**$`\chi^2`$ and $`G^2`$: Group-based statistics**
 
 > **Note.** The formulas below are presented for **dichotomous items**
 > (scored 0/1) for clarity. The same group-based framework extends to
@@ -208,7 +208,7 @@ proportion correct in that bin.
 > ($`df = H = 11`$). This means $`G^2`$ uses more degrees of freedom and
 > tends to be more conservative.
 
-**Infit and Outfit — Individual-level statistics**
+**Infit and Outfit: Individual-level statistics**
 
 Both infit and outfit treat *each examinee* as a separate bin (i.e.,
 $`H = N`$) (Ames & Penfield, 2015; Wright & Panchapakesan, 1969):
@@ -224,7 +224,7 @@ The key difference is *weighting*:
   sensitive to unexpected responses at *extreme* ability levels (far
   from item difficulty), where $`P_{ni}(1-P_{ni})`$ is small and a
   single aberrant response inflates the statistic dramatically.
-- **Infit** weights each residual by $`P_{ni}(1-P_{ni})`$ — the item
+- **Infit** weights each residual by $`P_{ni}(1-P_{ni})`$, the item
   information at that ability level. This down-weights extreme responses
   and makes infit more sensitive to misfit *near* the item difficulty,
   where most measurement information resides. For this reason, infit is
@@ -270,7 +270,7 @@ grouping choices materially affect the statistics:
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
 | `score` | Numeric vector of examinee ability estimates $`\hat{\theta}`$ |
 | `data` | Response matrix (examinees × items) |
-| `D` | Scaling constant — must match the value used in calibration |
+| `D` | Scaling constant; must match the value used in calibration |
 | `group.method` | `"equal.width"` (default) or `"equal.freq"` |
 | `n.width` | Number of ability bins (default `10`) |
 | `loc.theta` | `"average"` (default) or `"middle"` |
@@ -304,7 +304,7 @@ The `fit_stat` columns include (one row per item, plus an `id` column):
 
 ------------------------------------------------------------------------
 
-### Example 1: Binary test — equal-frequency bins
+### Example 1: Binary test with equal-frequency bins
 
 ``` r
 
@@ -367,7 +367,7 @@ fit_bin1$fit_stat
 #> 20 0.973 1000       0.273
 ```
 
-### Example 2: Binary test — equal-width bins
+### Example 2: Binary test with equal-width bins
 
 ``` r
 
@@ -504,7 +504,7 @@ plot(
 
 ``` r
 
-# ICC overlay for Item 3 — Wilson score CI (recommended for proportions)
+# ICC overlay for Item 3, Wilson score CI (recommended for proportions)
 plot(
   x          = fit_bin1,
   item.loc   = 3,
@@ -533,9 +533,8 @@ plot(
 
 | Method | Description |
 |----|----|
-| `"wald"` | Normal-approximation (Wald) interval — simplest but can be unreliable for small $`N_h`$ |
-| `"cp"` | Clopper–Pearson exact interval — conservative but exact |
-| `"wilson"` | Wilson score interval — good coverage even for small $`N_h`$ |
+| `"wald"` | Normal-approximation (Wald) interval, simplest but can be unreliable for small $`N_h`$ |
+| `"wilson"` | Wilson score interval, good coverage even for small $`N_h`$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
 
 ------------------------------------------------------------------------
@@ -638,7 +637,7 @@ sample-dependence introduced by arbitrary quantile-based bin boundaries.
 Instead of conditioning on $`\hat{\theta}`$, $`S`$-$`X^2`$ conditions on
 the **observed summed score** $`X_s = \sum_{i} u_i`$. Within each
 summed-score group $`s`$, the expected proportion of correct responses
-$`\hat{P}(X_i = 1 \mid X_s = s)`$ is computed using the **Lord–Wingersky
+$`\hat{P}(X_i = 1 \mid X_s = s)`$ is computed using the **Lord-Wingersky
 recursive algorithm** (Lord & Wingersky, 1984), which integrates the IRF
 over the latent ability distribution without requiring individual
 $`\hat{\theta}`$ estimates.
@@ -682,10 +681,10 @@ small, the $`\chi^2`$ approximation deteriorates. To address this:
 |----|----|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
 | `data` | Response matrix (examinees × items). Missing values are replaced with 0 (incorrect). |
-| `D` | Scaling constant — must match calibration |
+| `D` | Scaling constant; must match calibration |
 | `alpha` | Significance level for flagging items (default `0.05`) |
 | `min.collapse` | Minimum expected frequency per cell before collapsing (default `1`) |
-| `norm.prior` | `c(mean, sd)` of the normal prior used in the Lord–Wingersky integration (default `c(0, 1)`) |
+| `norm.prior` | `c(mean, sd)` of the normal prior used in the Lord-Wingersky integration (default `c(0, 1)`) |
 | `nquad` | Number of Gaussian quadrature points for integration (default `30`) |
 | `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); default `NULL` |
 
@@ -696,7 +695,7 @@ returns a list with the following components:
 
 | Component | Description |
 |----|----|
-| `fit_stat` | Data frame with columns `id`, `chisq` ($`S`$-$`X^2`$ statistic), `df`, `crit.val` (critical value at the specified `alpha`), and `p` (p-value) — one row per item |
+| `fit_stat` | Data frame with columns `id`, `chisq` ($`S`$-$`X^2`$ statistic), `df`, `crit.val` (critical value at the specified `alpha`), and `p` (p-value); one row per item |
 | `item_df` | Copy of the item metadata provided in `x` |
 | `exp_freq` | List of collapsed expected frequency tables (one per item) |
 | `obs_freq` | List of collapsed observed frequency tables |
@@ -784,7 +783,7 @@ fit_sx2_bin$obs_freq[[1]]
 
 ### Example 2: Mixed-format test
 
-For polytomous items, the Kang–Chen (2008) extension is applied
+For polytomous items, the Kang-Chen (2008) extension is applied
 automatically when GRM or GPCM items are detected.
 
 ``` r
@@ -883,11 +882,11 @@ fit_sx2_mix$obs_prop[[16]]
   specification; the interpretation is “mean squared residual relative
   to expectation.”
 - Common decision rules (Ames & Penfield, 2015):
-  - Values **\> 1.5** (sometimes \> 2.0): unacceptable *overfit* — the
-    item is less predictable than the model expects (noise, guessing
-    inconsistency).
-  - Values **\< 0.5**: *underfit* — the item is more predictable than
-    the model expects (overly narrow ICC, item dependency).
+  - Values **\> 1.5** (sometimes \> 2.0): *underfit*, meaning the item
+    is less predictable than the model expects (noise, inconsistent
+    guessing).
+  - Values **\< 0.5**: *overfit*, meaning the item is more predictable
+    than the model expects (overly steep ICC, item dependency).
 - **Infit vs. Outfit**: prefer infit for detecting misfit near the
   item’s difficulty; outfit is more sensitive to extreme-ability
   aberrant responses (e.g., very able examinees missing an easy item due
@@ -901,7 +900,7 @@ fit_sx2_mix$obs_prop[[16]]
 
 - An item with `p < alpha` is flagged for misfit (`p` is the column name
   in `fit_stat`).
-- $`S`$-$`X^2`$ is generally more robust than $`\chi^2`$ and $`G^2`$ for
+- $`S`$-$`X^2`$ is generally preferable to $`\chi^2`$ and $`G^2`$ for
   detecting misfit because it avoids the noise introduced by
   model-dependent $`\hat{\theta}`$ estimates and uses more stable
   summed-score conditioning (Orlando & Thissen, 2000).

@@ -170,7 +170,10 @@ rdif(
 - max.iter:
 
   A positive integer specifying the maximum number of iterations allowed
-  for the purification process. Default is `10`.
+  for the purification process. Default is `10`. If the limit is reached
+  while flagged items remain, a warning is issued and the `complete`
+  element of the purification results is `FALSE`; for tests with many
+  items or many DIF items, consider increasing `max.iter`.
 
 - min.resp:
 
@@ -308,8 +311,9 @@ This function returns a list containing four main components:
 
   dif_item
 
-  :   A list of three numeric vectors identifying DIF items flagged by
-      each RDIF statistic.
+  :   A numeric vector of the positions (rows of `x`) of the items
+      flagged as DIF by the `purify.by` statistic across all
+      purification iterations, sorted in ascending order.
 
   n.iter
 
@@ -347,9 +351,9 @@ details about the RDIF framework.
 The `rdif()` function computes all three RDIF statistics: \\RDIF\_{R}\\,
 \\RDIF\_{S}\\, and \\RDIF\_{RS}\\. The current version of `rdif()`
 supports both dichotomous and polytomous item response data. Note that
-for polytomous items, net DIF are assessed. To evaluate global DIF for
-polytomous items, use
-[`crdif()`](https://hwangQ.github.io/irtQ/reference/crdif.md) function.
+for polytomous items, net DIF is assessed (Jung & Lim, 2026; Lim,
+Malatesta, & Lee, 2024). To evaluate global DIF for polytomous items,
+use [`crdif()`](https://hwangQ.github.io/irtQ/reference/crdif.md).
 
 To compute the RDIF statistics, the `rdif()` function requires: (1) item
 parameter estimates obtained from aggregate data (regardless of group
@@ -406,6 +410,10 @@ response.
 
 ## References
 
+Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
+polytomous items using RDIF. Paper presented at the annual meeting of
+the National Council on Measurement in Education, Los Angeles, CA.
+
 Lim, H., & Choe, E. M. (2023). Detecting differential item functioning
 in CAT using IRT residual DIF approach. *Journal of Educational
 Measurement, 60*(4), 626-650.
@@ -415,6 +423,11 @@ Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 item functioning detection framework in item response theory. *Journal
 of Educational Measurement, 59*(1), 80-104.
 [doi:10.1111/jedm.12313](https://doi.org/10.1111/jedm.12313) .
+
+Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
+detection with the residual DIF framework. Paper presented at the annual
+International Meeting of the Psychometric Society, Prague, Czech
+Republic.
 
 ## See also
 
@@ -487,9 +500,9 @@ data <- rbind(resp_ref, resp_foc)
 est_mod <- est_irt(data = data, D = 1, model = "3PLM")
 #> Parsing input... 
 #> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -25510.5305, Max-Change: 1.315321 EM iteration: 2, Loglike: -22606.9434, Max-Change: 0.354576 EM iteration: 3, Loglike: -22588.3376, Max-Change: 0.156275 EM iteration: 4, Loglike: -22586.3606, Max-Change: 0.075037 EM iteration: 5, Loglike: -22585.8560, Max-Change: 0.039037 EM iteration: 6, Loglike: -22585.6468, Max-Change: 0.022879 EM iteration: 7, Loglike: -22585.5393, Max-Change: 0.014254 EM iteration: 8, Loglike: -22585.4778, Max-Change: 0.009304 EM iteration: 9, Loglike: -22585.4400, Max-Change: 0.006289 EM iteration: 10, Loglike: -22585.4156, Max-Change: 0.004361 EM iteration: 11, Loglike: -22585.3992, Max-Change: 0.00308 EM iteration: 12, Loglike: -22585.3877, Max-Change: 0.002204 EM iteration: 13, Loglike: -22585.3795, Max-Change: 0.001592 EM iteration: 14, Loglike: -22585.3736, Max-Change: 0.001277 EM iteration: 15, Loglike: -22585.3692, Max-Change: 0.001067 EM iteration: 16, Loglike: -22585.3659, Max-Change: 0.000905 EM iteration: 17, Loglike: -22585.3634, Max-Change: 0.000772 EM iteration: 18, Loglike: -22585.3616, Max-Change: 0.000663 EM iteration: 19, Loglike: -22585.3602, Max-Change: 0.000572 EM iteration: 20, Loglike: -22585.3592, Max-Change: 0.000496 EM iteration: 21, Loglike: -22585.3584, Max-Change: 0.000431 EM iteration: 22, Loglike: -22585.3579, Max-Change: 0.000377 EM iteration: 23, Loglike: -22585.3575, Max-Change: 0.00033 EM iteration: 24, Loglike: -22585.3572, Max-Change: 0.00029 EM iteration: 25, Loglike: -22585.3571, Max-Change: 0.000255 EM iteration: 26, Loglike: -22585.3570, Max-Change: 0.000225 EM iteration: 27, Loglike: -22585.3569, Max-Change: 0.000198 EM iteration: 28, Loglike: -22585.3569, Max-Change: 0.000175 EM iteration: 29, Loglike: -22585.3569, Max-Change: 0.000155 EM iteration: 30, Loglike: -22585.3569, Max-Change: 0.000137 EM iteration: 31, Loglike: -22585.3569, Max-Change: 0.000122 EM iteration: 32, Loglike: -22585.3569, Max-Change: 0.000108 EM iteration: 33, Loglike: -22585.3570, Max-Change: 9.6e-05 
+#>  EM iteration: 1, Loglike: -25510.5305, Max-Change: 1.906945 EM iteration: 2, Loglike: -22606.9434, Max-Change: 0.354576 EM iteration: 3, Loglike: -22588.3376, Max-Change: 0.156275 EM iteration: 4, Loglike: -22586.3606, Max-Change: 0.075037 EM iteration: 5, Loglike: -22585.8560, Max-Change: 0.039037 EM iteration: 6, Loglike: -22585.6468, Max-Change: 0.022879 EM iteration: 7, Loglike: -22585.5393, Max-Change: 0.014254 EM iteration: 8, Loglike: -22585.4778, Max-Change: 0.009304 EM iteration: 9, Loglike: -22585.4400, Max-Change: 0.006289 EM iteration: 10, Loglike: -22585.4156, Max-Change: 0.004361 EM iteration: 11, Loglike: -22585.3992, Max-Change: 0.00308 EM iteration: 12, Loglike: -22585.3877, Max-Change: 0.002204 EM iteration: 13, Loglike: -22585.3795, Max-Change: 0.001592 EM iteration: 14, Loglike: -22585.3736, Max-Change: 0.001277 EM iteration: 15, Loglike: -22585.3692, Max-Change: 0.001067 EM iteration: 16, Loglike: -22585.3659, Max-Change: 0.000905 EM iteration: 17, Loglike: -22585.3634, Max-Change: 0.000772 EM iteration: 18, Loglike: -22585.3616, Max-Change: 0.000663 EM iteration: 19, Loglike: -22585.3602, Max-Change: 0.000572 EM iteration: 20, Loglike: -22585.3592, Max-Change: 0.000496 EM iteration: 21, Loglike: -22585.3584, Max-Change: 0.000431 EM iteration: 22, Loglike: -22585.3579, Max-Change: 0.000377 EM iteration: 23, Loglike: -22585.3575, Max-Change: 0.00033 EM iteration: 24, Loglike: -22585.3572, Max-Change: 0.00029 EM iteration: 25, Loglike: -22585.3571, Max-Change: 0.000255 EM iteration: 26, Loglike: -22585.3570, Max-Change: 0.000225 EM iteration: 27, Loglike: -22585.3569, Max-Change: 0.000198 EM iteration: 28, Loglike: -22585.3569, Max-Change: 0.000175 EM iteration: 29, Loglike: -22585.3569, Max-Change: 0.000155 EM iteration: 30, Loglike: -22585.3569, Max-Change: 0.000137 EM iteration: 31, Loglike: -22585.3569, Max-Change: 0.000122 EM iteration: 32, Loglike: -22585.3569, Max-Change: 0.000108 EM iteration: 33, Loglike: -22585.3570, Max-Change: 9.6e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.52 seconds. 
+#> Estimation is finished in 2.23 seconds. 
 est_par <- est_mod$par.est
 
 # Estimate ability parameters using ML

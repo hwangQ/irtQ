@@ -10,8 +10,8 @@ test theory (CTT) statistics: simple, total-score-based indices of item
 difficulty, item discrimination, and test reliability that require no
 IRT model fitting at all. irtQ provides a small set of CTT functions for
 exactly this purpose, working directly from raw selected-response data
-or an already-scored item response matrix. For a comprehensive treatment
-of classical test theory, see Crocker and Algina (1986).
+or an already-scored item response matrix. For a fuller treatment of
+classical test theory, see Crocker and Algina (1986).
 
 | Function | Purpose |
 |----|----|
@@ -109,7 +109,7 @@ dim(dat_bin)     # 300 examinees x 8 items
 
 ------------------------------------------------------------------------
 
-## `freq_score()` — Total-Score Frequency Distribution
+## `freq_score()`: Total-Score Frequency Distribution
 
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
 tabulates a vector of total (raw) scores into a frequency distribution
@@ -149,7 +149,7 @@ sum(freq_out$freq) == nrow(dat_mixed)   # every examinee accounted for
 
 ------------------------------------------------------------------------
 
-## `ctt_distr()` — Option/Category Response Distribution and Distractor Analysis
+## `ctt_distr()`: Option/Category Response Distribution and Distractor Analysis
 
 [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
 reports, for every item, how examinees distributed themselves across
@@ -300,7 +300,7 @@ complementary relationship exists between any two categories.
 
 ------------------------------------------------------------------------
 
-## `ctt()` — Full Item- and Test-Level CTT Analysis
+## `ctt()`: Full Item- and Test-Level CTT Analysis
 
 [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) is the main
 entry point for a complete CTT analysis: for each item it computes

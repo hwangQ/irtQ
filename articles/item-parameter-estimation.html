@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,33 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -190,8 +183,8 @@ as a random variable following a specific prior distribution, typically
 <blockquote>
 <p>Note on Item Types: For clarity and simplicity, the mathematical
 formulation and explanations below are presented using dichotomous
-(binary) items, although the underlying logic seamlessly extends to
-polytomous item response models.</p>
+(binary) items, although the underlying logic extends to polytomous item
+response models.</p>
 </blockquote>
 <p>By integrating the latent variable
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
@@ -308,8 +301,8 @@ maintaining the identical decoupling optimization structure.</p>
 <p><strong>Convergence</strong></p>
 <p>This two-step cycle (E and M) repeats. The algorithm terminates when
 the maximum absolute change in item parameter estimates between
-consecutive iterations is smaller than the convergence threshold
-specified by the <code>Etol</code> argument.</p>
+consecutive iterations is less than or equal to the convergence
+threshold specified by the <code>Etol</code> argument.</p>
 <p><strong>Key advantages of MMLE-EM:</strong></p>
 <ul>
 <li>Does not require individual ability estimates
@@ -468,8 +461,8 @@ for all 3PLM items</td>
 </tr>
 <tr class="even">
 <td><code>gprior</code></td>
-<td>e.g., <code>list(dist = "beta", params = c(4, 16))</code> — mean =
-4/(4+16) = 0.2</td>
+<td>e.g., <code>list(dist = "beta", params = c(5, 16))</code> (default),
+mean = 5/(5+16) = 0.24</td>
 </tr>
 </tbody>
 </table>
@@ -586,13 +579,13 @@ data</li>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 20</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
-<span><span class="co">#&gt;  Number of E-step cycles completed: 6</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 6.362543e-06</span></span>
+<span><span class="co">#&gt;  Number of E-step cycles completed: 10</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.000937656</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.11</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.09</span></span>
-<span><span class="co">#&gt;  Total computation: 0.23</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.4</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.52</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -601,30 +594,30 @@ data</li>
 <span><span class="co">#&gt;   Variance-covariance matrix of item parameter estimates is obtainable.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary of Estimation Results </span></span>
-<span><span class="co">#&gt;  -2loglikelihood: 8479.304</span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8519.304</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 8603.597</span></span>
+<span><span class="co">#&gt;  -2loglikelihood: 8479.269</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8519.269</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 8603.561</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3</span></span>
 <span><span class="co">#&gt; 1    I1     2   1PLM      1    NA  -2.12  0.13     NA    NA</span></span>
 <span><span class="co">#&gt; 2    I2     2   1PLM      1    NA  -1.80  0.11     NA    NA</span></span>
 <span><span class="co">#&gt; 3    I3     2   1PLM      1    NA  -1.58  0.10     NA    NA</span></span>
 <span><span class="co">#&gt; 4    I4     2   1PLM      1    NA  -1.43  0.10     NA    NA</span></span>
-<span><span class="co">#&gt; 5    I5     2   1PLM      1    NA  -1.12  0.09     NA    NA</span></span>
-<span><span class="co">#&gt; 6    I6     2   1PLM      1    NA  -1.09  0.09     NA    NA</span></span>
-<span><span class="co">#&gt; 7    I7     2   1PLM      1    NA  -0.79  0.09     NA    NA</span></span>
+<span><span class="co">#&gt; 5    I5     2   1PLM      1    NA  -1.13  0.09     NA    NA</span></span>
+<span><span class="co">#&gt; 6    I6     2   1PLM      1    NA  -1.10  0.09     NA    NA</span></span>
+<span><span class="co">#&gt; 7    I7     2   1PLM      1    NA  -0.80  0.09     NA    NA</span></span>
 <span><span class="co">#&gt; 8    I8     2   1PLM      1    NA  -0.56  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 9    I9     2   1PLM      1    NA  -0.30  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 10  I10     2   1PLM      1    NA  -0.19  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 11  I11     2   1PLM      1    NA   0.04  0.08     NA    NA</span></span>
-<span><span class="co">#&gt; 12  I12     2   1PLM      1    NA   0.30  0.08     NA    NA</span></span>
+<span><span class="co">#&gt; 12  I12     2   1PLM      1    NA   0.29  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 13  I13     2   1PLM      1    NA   0.57  0.08     NA    NA</span></span>
-<span><span class="co">#&gt; 14  I14     2   1PLM      1    NA   0.83  0.09     NA    NA</span></span>
+<span><span class="co">#&gt; 14  I14     2   1PLM      1    NA   0.82  0.09     NA    NA</span></span>
 <span><span class="co">#&gt; 15  I15     2   1PLM      1    NA   0.94  0.09     NA    NA</span></span>
-<span><span class="co">#&gt; 16  I16     2   1PLM      1    NA   1.13  0.09     NA    NA</span></span>
+<span><span class="co">#&gt; 16  I16     2   1PLM      1    NA   1.12  0.09     NA    NA</span></span>
 <span><span class="co">#&gt; 17  I17     2   1PLM      1    NA   1.43  0.10     NA    NA</span></span>
-<span><span class="co">#&gt; 18  I18     2   1PLM      1    NA   1.45  0.10     NA    NA</span></span>
-<span><span class="co">#&gt; 19  I19     2   1PLM      1    NA   1.68  0.10     NA    NA</span></span>
+<span><span class="co">#&gt; 18  I18     2   1PLM      1    NA   1.44  0.10     NA    NA</span></span>
+<span><span class="co">#&gt; 19  I19     2   1PLM      1    NA   1.67  0.10     NA    NA</span></span>
 <span><span class="co">#&gt; 20  I20     2   1PLM      1    NA   1.91  0.11     NA    NA</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
 <span><span class="co">#&gt;            mu  sigma2  sigma</span></span>
@@ -635,12 +628,12 @@ data</li>
 <span><span class="va">par_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_1pl_fixed</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">par_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   id cats model par.1     par.2 par.3</span></span>
-<span><span class="co">#&gt; 1 I1    2  1PLM     1 -2.117258    NA</span></span>
-<span><span class="co">#&gt; 2 I2    2  1PLM     1 -1.799535    NA</span></span>
-<span><span class="co">#&gt; 3 I3    2  1PLM     1 -1.578528    NA</span></span>
-<span><span class="co">#&gt; 4 I4    2  1PLM     1 -1.425732    NA</span></span>
-<span><span class="co">#&gt; 5 I5    2  1PLM     1 -1.120830    NA</span></span>
-<span><span class="co">#&gt; 6 I6    2  1PLM     1 -1.091244    NA</span></span>
+<span><span class="co">#&gt; 1 I1    2  1PLM     1 -2.122563    NA</span></span>
+<span><span class="co">#&gt; 2 I2    2  1PLM     1 -1.804785    NA</span></span>
+<span><span class="co">#&gt; 3 I3    2  1PLM     1 -1.583729    NA</span></span>
+<span><span class="co">#&gt; 4 I4    2  1PLM     1 -1.430895    NA</span></span>
+<span><span class="co">#&gt; 5 I5    2  1PLM     1 -1.125902    NA</span></span>
+<span><span class="co">#&gt; 6 I6    2  1PLM     1 -1.096306    NA</span></span>
 <span></span>
 <span><span class="co"># ---- Step 3b: Estimate with CONSTRAINED discrimination ----</span></span>
 <span><span class="co"># Discrimination is constrained equal across items but freely estimated</span></span>
@@ -676,13 +669,13 @@ data</li>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 21</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
-<span><span class="co">#&gt;  Number of E-step cycles completed: 21</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 0.0007782085</span></span>
+<span><span class="co">#&gt;  Number of E-step cycles completed: 23</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.0009438272</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.27</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.29</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.16</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
+<span><span class="co">#&gt;  Total computation: 0.19</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -691,12 +684,12 @@ data</li>
 <span><span class="co">#&gt;   Variance-covariance matrix of item parameter estimates is obtainable.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary of Estimation Results </span></span>
-<span><span class="co">#&gt;  -2loglikelihood: 8479.074</span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8521.074</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 8609.581</span></span>
+<span><span class="co">#&gt;  -2loglikelihood: 8479.072</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8521.072</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 8609.578</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3</span></span>
-<span><span class="co">#&gt; 1    I1     2   1PLM   1.02  0.05  -2.09  0.15     NA    NA</span></span>
+<span><span class="co">#&gt; 1    I1     2   1PLM   1.02  0.05  -2.10  0.15     NA    NA</span></span>
 <span><span class="co">#&gt; 2    I2     2   1PLM   1.02    NA  -1.78  0.13     NA    NA</span></span>
 <span><span class="co">#&gt; 3    I3     2   1PLM   1.02    NA  -1.56  0.12     NA    NA</span></span>
 <span><span class="co">#&gt; 4    I4     2   1PLM   1.02    NA  -1.41  0.11     NA    NA</span></span>
@@ -706,14 +699,14 @@ data</li>
 <span><span class="co">#&gt; 8    I8     2   1PLM   1.02    NA  -0.56  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 9    I9     2   1PLM   1.02    NA  -0.30  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 10  I10     2   1PLM   1.02    NA  -0.19  0.08     NA    NA</span></span>
-<span><span class="co">#&gt; 11  I11     2   1PLM   1.02    NA   0.04  0.08     NA    NA</span></span>
+<span><span class="co">#&gt; 11  I11     2   1PLM   1.02    NA   0.03  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 12  I12     2   1PLM   1.02    NA   0.29  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 13  I13     2   1PLM   1.02    NA   0.55  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 14  I14     2   1PLM   1.02    NA   0.81  0.09     NA    NA</span></span>
 <span><span class="co">#&gt; 15  I15     2   1PLM   1.02    NA   0.92  0.09     NA    NA</span></span>
 <span><span class="co">#&gt; 16  I16     2   1PLM   1.02    NA   1.10  0.10     NA    NA</span></span>
 <span><span class="co">#&gt; 17  I17     2   1PLM   1.02    NA   1.40  0.11     NA    NA</span></span>
-<span><span class="co">#&gt; 18  I18     2   1PLM   1.02    NA   1.41  0.11     NA    NA</span></span>
+<span><span class="co">#&gt; 18  I18     2   1PLM   1.02    NA   1.42  0.11     NA    NA</span></span>
 <span><span class="co">#&gt; 19  I19     2   1PLM   1.02    NA   1.64  0.12     NA    NA</span></span>
 <span><span class="co">#&gt; 20  I20     2   1PLM   1.02    NA   1.88  0.13     NA    NA</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
@@ -724,17 +717,17 @@ data</li>
 <span><span class="va">par_constrained</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_1pl_constrained</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">par_constrained</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   id cats model    par.1     par.2 par.3</span></span>
-<span><span class="co">#&gt; 1 I1    2  1PLM 1.019657 -2.093318    NA</span></span>
-<span><span class="co">#&gt; 2 I2    2  1PLM 1.019657 -1.780631    NA</span></span>
-<span><span class="co">#&gt; 3 I3    2  1PLM 1.019657 -1.563083    NA</span></span>
-<span><span class="co">#&gt; 4 I4    2  1PLM 1.019657 -1.412665    NA</span></span>
-<span><span class="co">#&gt; 5 I5    2  1PLM 1.019657 -1.112475    NA</span></span>
-<span><span class="co">#&gt; 6 I6    2  1PLM 1.019657 -1.083345    NA</span></span>
+<span><span class="co">#&gt; 1 I1    2  1PLM 1.018825 -2.095437    NA</span></span>
+<span><span class="co">#&gt; 2 I2    2  1PLM 1.018825 -1.782512    NA</span></span>
+<span><span class="co">#&gt; 3 I3    2  1PLM 1.018825 -1.564798    NA</span></span>
+<span><span class="co">#&gt; 4 I4    2  1PLM 1.018825 -1.414263    NA</span></span>
+<span><span class="co">#&gt; 5 I5    2  1PLM 1.018825 -1.113839    NA</span></span>
+<span><span class="co">#&gt; 6 I6    2  1PLM 1.018825 -1.084686    NA</span></span>
 <span></span>
 <span><span class="co"># Note: par.1 (discrimination) is the same for all items, but its value</span></span>
 <span><span class="co"># is estimated from the data and may differ from 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Common discrimination estimate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">par_constrained</span><span class="op">$</span><span class="va">par.1</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Common discrimination estimate: 1.019657</span></span>
+<span><span class="co">#&gt; Common discrimination estimate: 1.018825</span></span>
 <span></span>
 <span><span class="co"># ---- Compare difficulty recovery ----</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -815,9 +808,9 @@ data</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009961947</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.57</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.59</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.85</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.88</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -996,8 +989,8 @@ empirical estimate closely follows the normal overlay.</p>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="example-4-3plm-calibration-priors-and-guessing-parameter-options">Example 4: 3PLM Calibration — Priors and Guessing Parameter
-Options<a class="anchor" aria-label="anchor" href="#example-4-3plm-calibration-priors-and-guessing-parameter-options"></a>
+<h3 id="example-4-3plm-calibration-with-priors-and-guessing-parameter-options">Example 4: 3PLM Calibration with Priors and Guessing Parameter
+Options<a class="anchor" aria-label="anchor" href="#example-4-3plm-calibration-with-priors-and-guessing-parameter-options"></a>
 </h3>
 <p>The <strong>3-parameter logistic model (3PLM)</strong> adds a
 lower-asymptote (guessing) parameter
@@ -1019,8 +1012,7 @@ in <code><a href="../reference/est_irt.html">est_irt()</a></code>:</p>
 <li>
 <strong>Estimate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
-with a Beta prior</strong> (<code>use.gprior = TRUE</code>) —
-regularizes
+with a Beta prior</strong> (<code>use.gprior = TRUE</code>): regularizes
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
 toward a plausible range (e.g.,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">1/K</annotation></semantics></math>
@@ -1031,7 +1023,7 @@ MC item), or</li>
 <strong>Fix
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
 at a constant value</strong> (<code>fix.g = TRUE</code>,
-<code>g.val = ...</code>) — appropriate when the number of response
+<code>g.val = ...</code>): appropriate when the number of response
 options is known and guessing is assumed uniform.</li>
 </ol>
 <p>In addition, <strong>priors on discrimination
@@ -1188,9 +1180,9 @@ estimates back toward plausible values.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009130637</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.11</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.67</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.03</span></span>
-<span><span class="co">#&gt;  Total computation: 1.15</span></span>
+<span><span class="co">#&gt;  Total computation: 1.72</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1313,9 +1305,9 @@ estimates, especially with smaller samples.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009903456</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.74</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.14</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.78</span></span>
+<span><span class="co">#&gt;  Total computation: 1.21</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1431,9 +1423,9 @@ simultaneously can improve estimation stability.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008924307</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.47</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 1.5</span></span>
+<span><span class="co">#&gt;  EM algorithm: 2.2</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.22</span></span>
+<span><span class="co">#&gt;  Total computation: 2.45</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1612,7 +1604,7 @@ the test design mandates a known guessing level.</p>
 <strong>15 dichotomous items</strong> modeled with 3PLM</li>
 <li>
 <strong>5 polytomous items</strong> modeled with GRM (4 categories
-each, scored 0–3)</li>
+each, scored 0-3)</li>
 </ul>
 <div class="section level4">
 <h4 id="understanding-grm-parameters">Understanding GRM Parameters<a class="anchor" aria-label="anchor" href="#understanding-grm-parameters"></a>
@@ -1621,7 +1613,7 @@ each, scored 0–3)</li>
 3), the model uses:</p>
 <ul>
 <li>
-<strong>a</strong>: Discrimination parameter — shared across all
+<strong>a</strong>: Discrimination parameter, shared across all
 category boundaries</li>
 <li>
 <strong>b₁, b₂, b₃</strong>: Boundary threshold parameters for
@@ -1737,9 +1729,9 @@ This parameterization differs from the GRM.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009697275</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.53</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.81</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.76</span></span>
+<span><span class="co">#&gt;  Total computation: 0.85</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1781,7 +1773,7 @@ This parameterization differs from the GRM.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_mix</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># GRM items are rows 16–20</span></span>
+<span><span class="co"># GRM items are rows 16-20</span></span>
 <span><span class="va">grm_items</span> <span class="op">&lt;-</span> <span class="va">est_mix</span><span class="op">[</span><span class="fl">16</span><span class="op">:</span><span class="fl">20</span>, <span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">grm_items</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      id cats model     par.1      par.2      par.3     par.4</span></span>
@@ -1898,7 +1890,7 @@ Very easy or very hard items may cause instability.</li>
 </div>
 </div>
 <div class="section level2">
-<h2 id="part-2-pretest-calibration-fipc">Part 2: Pretest Calibration — FIPC<a class="anchor" aria-label="anchor" href="#part-2-pretest-calibration-fipc"></a>
+<h2 id="part-2-pretest-calibration-fipc">Part 2: Pretest Calibration (FIPC)<a class="anchor" aria-label="anchor" href="#part-2-pretest-calibration-fipc"></a>
 </h2>
 <div class="section level3">
 <h3 id="why-fixed-item-parameter-calibration-fipc">Why Fixed Item Parameter Calibration (FIPC)?<a class="anchor" aria-label="anchor" href="#why-fixed-item-parameter-calibration-fipc"></a>
@@ -1910,9 +1902,9 @@ measurement scale poses a challenge. Traditional concurrent calibration
 requires re-estimating all operational and pretest items together. For
 large-scale item banks, this concurrent approach is not only
 computationally expensive but also risks causing <strong>scale
-drift</strong>—unwanted shifts in the parameters of already established
+drift</strong>: unwanted shifts in the parameters of already established
 operational items.</p>
-<p><strong>FIPC</strong> effectively resolves this dilemma by:</p>
+<p><strong>FIPC</strong> addresses this problem by:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Fixing</strong> the parameters of operational (anchor) items
@@ -1923,19 +1915,19 @@ items.</li>
 <li>Automatically <strong>placing</strong> the new items directly onto
 the existing measurement scale of the item bank.</li>
 </ol>
-<p>This approach is highly essential for:</p>
+<p>This approach is useful for:</p>
 <ul>
 <li>
 <strong>Pre-equating</strong> new test forms to predict form
 characteristics before operational administration.</li>
 <li>
-<strong>Continuous Item Banking</strong>—systematically updating and
-expanding a measurement pool.</li>
+<strong>Continuous Item Banking</strong>: systematically updating
+and expanding a measurement pool.</li>
 <li>
-<strong>Eliminating Post-hoc Linking</strong>—obviating the need for
-separate, labor-intensive equating studies.</li>
+<strong>Eliminating Post-hoc Linking</strong>: obviating the need
+for separate, labor-intensive equating studies.</li>
 <li>
-<strong>Online Pretest Calibration in CAT</strong>—calibrating new
+<strong>Online Pretest Calibration in CAT</strong>: calibrating new
 items interspersed within a Computerized Adaptive Testing (CAT)
 environment without taking the operational pool offline or altering its
 scale.</li>
@@ -1985,7 +1977,7 @@ directly onto Group X’s scale (the item bank scale).</li>
 <h4 id="scenario-b-computerized-adaptive-testing-individual-level-anchoring">Scenario B: Computerized Adaptive Testing (Individual-level
 Anchoring)<a class="anchor" aria-label="anchor" href="#scenario-b-computerized-adaptive-testing-individual-level-anchoring"></a>
 </h4>
-<p>In a CAT environment, FIPC functions as a powerful <strong>online
+<p>In a CAT environment, FIPC functions as an <strong>online
 calibration</strong> method. Because each examinee receives a unique,
 adapted set of operational items, there is no single fixed “form.”
 Instead:</p>
@@ -2009,7 +2001,7 @@ scale immediately.</p>
 <p>Note: While FIPC preserves the scale rigorously by integrating out
 the latent trait distribution through EM iterations, it can be
 computationally intensive in real-time CAT settings. A computationally
-streamlined alternative is <strong>FAPC</strong>, which fixes individual
+lighter alternative is <strong>FAPC</strong>, which fixes individual
 ability estimates instead of item parameters, as detailed in Part 3.</p>
 </blockquote>
 </div>
@@ -2065,7 +2057,7 @@ sample-size conditions.</p>
 <span>  D     <span class="op">=</span> <span class="fl">1.702</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co"># Extract calibrated parameters — these become the anchors</span></span>
+<span><span class="co"># Extract calibrated parameters to use as anchors</span></span>
 <span><span class="va">meta_anchor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_old</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Step 2: Build new form metadata with
 <code><a href="../reference/shape_df_fipc.html">shape_df_fipc()</a></code></strong></p>
@@ -2113,8 +2105,8 @@ pre-equating scenario:</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0, 1)</annotation></semantics></math>
 examinees</li>
 <li>
-<strong>New form (Group Y)</strong>: Items 1–15 are anchor items
-(fixed) + Items 16–20 are pretest items (to estimate);
+<strong>New form (Group Y)</strong>: Items 1-15 are anchor items
+(fixed) + Items 16-20 are pretest items (to estimate);
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0.3</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0.3, 1)</annotation></semantics></math>
 examinees</li>
 </ul>
@@ -2151,7 +2143,7 @@ examinees</li>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Extract calibrated parameters — these serve as anchors</span></span>
+<span><span class="co"># Extract calibrated parameters to use as anchors</span></span>
 <span><span class="va">meta_anchor_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_old</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">meta_anchor_full</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    id cats model     par.1       par.2 par.3</span></span>
@@ -2163,13 +2155,13 @@ examinees</li>
 <span><span class="co">#&gt; 6 OI6    2  2PLM 1.1283972  0.21817008    NA</span></span></code></pre></div>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 2: Build new form metadata ----</span></span>
-<span><span class="co"># Select 15 anchor items: positions 1–15 in the old form</span></span>
+<span><span class="co"># Select 15 anchor items: positions 1-15 in the old form</span></span>
 <span><span class="va">fixed_pos</span>   <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">15</span></span>
 <span><span class="va">meta_anchor</span> <span class="op">&lt;-</span> <span class="va">meta_anchor_full</span><span class="op">[</span><span class="va">fixed_pos</span>, <span class="op">]</span></span>
 <span></span>
 <span><span class="co"># New form layout:</span></span>
-<span><span class="co">#   Positions 1–15: anchor items (fixed at old-form estimates)</span></span>
-<span><span class="co">#   Positions 16–20: pretest items (to be estimated)</span></span>
+<span><span class="co">#   Positions 1-15: anchor items (fixed at old-form estimates)</span></span>
+<span><span class="co">#   Positions 16-20: pretest items (to be estimated)</span></span>
 <span><span class="co"># Total: 15 anchor + 5 pretest = 20 items</span></span>
 <span><span class="va">meta_fipc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/shape_df_fipc.html">shape_df_fipc</a></span><span class="op">(</span></span>
 <span>  x       <span class="op">=</span> <span class="va">meta_anchor</span>,            <span class="co"># Fixed anchor item metadata</span></span>
@@ -2207,7 +2199,7 @@ examinees</li>
 <span><span class="co"># Group Y has slightly higher ability: N(0.3, 1)</span></span>
 <span><span class="va">theta_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span>, mean <span class="op">=</span> <span class="fl">0.3</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># True parameters for pretest items (for simulation only — unknown in practice)</span></span>
+<span><span class="co"># True parameters for pretest items (for simulation only, unknown in practice)</span></span>
 <span><span class="va">meta_new_true</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/shape_df.html">shape_df</a></span><span class="op">(</span></span>
 <span>  par.drm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.1</span>, <span class="fl">0.9</span>, <span class="fl">1.2</span>, <span class="fl">0.8</span>, <span class="fl">1.3</span><span class="op">)</span>,</span>
@@ -2219,8 +2211,8 @@ examinees</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simulate full new form responses:</span></span>
-<span><span class="co"># Columns 1–15: anchor item responses</span></span>
-<span><span class="co"># Columns 16–20: pretest item responses</span></span>
+<span><span class="co"># Columns 1-15: anchor item responses</span></span>
+<span><span class="co"># Columns 16-20: pretest item responses</span></span>
 <span><span class="va">resp_anch</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_anchor</span>, theta <span class="op">=</span> <span class="va">theta_new</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span><span class="va">resp_pre</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_new_true</span>, theta <span class="op">=</span> <span class="va">theta_new</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span><span class="va">resp_new</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">resp_anch</span>, <span class="va">resp_pre</span><span class="op">)</span>   <span class="co"># 500 × 20 matrix</span></span>
@@ -2258,12 +2250,12 @@ examinees</li>
 <span><span class="co">#&gt;  Number of free parameters: 12</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 15</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 13</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 0.0008186951</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.0008186949</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.08</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.11</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.1</span></span>
+<span><span class="co">#&gt;  Total computation: 0.14</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -2303,7 +2295,7 @@ examinees</li>
 <span><span class="co">#&gt; se         0.04    0.06   0.03</span></span></code></pre></div>
 <p><strong>Extract and verify results:</strong></p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Estimated parameters — pretest items are the last 5 rows</span></span>
+<code class="sourceCode R"><span><span class="co"># Estimated parameters; pretest items are the last 5 rows</span></span>
 <span><span class="va">all_par</span>     <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_fipc</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span><span class="va">pretest_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">all_par</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pretest_par</span><span class="op">)</span></span>
@@ -2346,7 +2338,7 @@ scale</strong> (Group X) because the anchor items constrain the
 θ-metric.</li>
 <li>Group Y’s ability distribution is accurately recovered (mean ≈ 0.3,
 SD ≈ 1.0).</li>
-<li>Anchor items (positions 1–15) retain their fixed values from
+<li>Anchor items (positions 1-15) retain their fixed values from
 <code>meta_anchor</code>.</li>
 <li>Pretest items can now be added to the operational item bank.</li>
 </ul>
@@ -2363,10 +2355,10 @@ includes both dichotomous and polytomous items.</p>
 <strong>Old form</strong>: 25 dichotomous (3PLM) + 3 polytomous
 (GRM, 5 categories) = 28 items</li>
 <li>
-<strong>Anchor items</strong> (to be fixed): Items 1–20 (3PLM) +
-Items 26–27 (GRM) = 22 items</li>
+<strong>Anchor items</strong> (to be fixed): Items 1-20 (3PLM) +
+Items 26-27 (GRM) = 22 items</li>
 <li>
-<strong>Pretest items</strong> (to be estimated): Items 21–25 (3PLM)
+<strong>Pretest items</strong> (to be estimated): Items 21-25 (3PLM)
 + Item 28 (GRM) = 6 items</li>
 </ul>
 <p>This mirrors a realistic scenario where new items of both types are
@@ -2418,7 +2410,7 @@ simultaneously field-tested.</p>
 <span><span class="co"># Extract calibrated parameters and select anchor items</span></span>
 <span><span class="va">meta_anchor_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_old_mix</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Anchor: items 1–20 (3PLM) + items 26–27 (GRM)</span></span>
+<span><span class="co"># Anchor: items 1-20 (3PLM) + items 26-27 (GRM)</span></span>
 <span><span class="va">fixed_pos_mix</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="fl">26</span><span class="op">:</span><span class="fl">27</span><span class="op">)</span></span>
 <span><span class="va">meta_anchor_mix</span> <span class="op">&lt;-</span> <span class="va">meta_anchor_mix</span><span class="op">[</span><span class="va">fixed_pos_mix</span>, <span class="op">]</span></span>
 <span></span>
@@ -2431,7 +2423,7 @@ simultaneously field-tested.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 2: Build new form metadata ----</span></span>
 <span><span class="co"># Pretest: 5 dichotomous (3PLM) + 1 polytomous (GRM)</span></span>
-<span><span class="co"># New form positions: anchor at 1–20, 26–27; pretest at 21–25, 28</span></span>
+<span><span class="co"># New form positions: anchor at 1-20, 26-27; pretest at 21-25, 28</span></span>
 <span><span class="va">meta_fipc_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/shape_df_fipc.html">shape_df_fipc</a></span><span class="op">(</span></span>
 <span>  x       <span class="op">=</span> <span class="va">meta_anchor_mix</span>,</span>
 <span>  fix.loc <span class="op">=</span> <span class="va">fixed_pos_mix</span>,</span>
@@ -2514,12 +2506,12 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt;  Number of free parameters: 22</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 22</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 7</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 0.0008470059</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.0008719196</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.13</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.16</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.2</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
+<span><span class="co">#&gt;  Total computation: 0.23</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -2689,7 +2681,7 @@ simultaneously. If <code>fix.id</code> is non-<code>NULL</code>,
 </div>
 </div>
 <div class="section level2">
-<h2 id="part-3-pretest-calibration-fapc-with-est_item">Part 3: Pretest Calibration — FAPC with <code>est_item()</code><a class="anchor" aria-label="anchor" href="#part-3-pretest-calibration-fapc-with-est_item"></a>
+<h2 id="part-3-pretest-calibration-fapc-with-est_item">Part 3: Pretest Calibration (FAPC with <code>est_item()</code>)<a class="anchor" aria-label="anchor" href="#part-3-pretest-calibration-fapc-with-est_item"></a>
 </h2>
 <div class="section level3">
 <h3 id="why-fixed-ability-parameter-calibration-fapc">Why Fixed Ability Parameter Calibration (FAPC)?<a class="anchor" aria-label="anchor" href="#why-fixed-ability-parameter-calibration-fapc"></a>
@@ -2713,7 +2705,7 @@ update the examinees’ abilities
 within the test to accumulate response data; their parameters are
 unknown and need to be calibrated.</li>
 </ul>
-<p>FAPC leverages the individual
+<p>FAPC uses the individual
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
 values obtained from the operational items to calibrate each pretest
 item independently.</p>
@@ -2808,7 +2800,7 @@ ability estimates</strong>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simulate complete pretest responses based on the abilities</span></span>
-<span><span class="co"># (Note: est_item() also works perfectly if this matrix contains NA values)</span></span>
+<span><span class="co"># (Note: est_item() also accepts NA values in this matrix)</span></span>
 <span><span class="va">resp_pre10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_pre</span>, theta <span class="op">=</span> <span class="va">theta_fapc</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ---- Step 3: Calibrate via FAPC ----</span></span>
@@ -2844,7 +2836,7 @@ ability estimates</strong>
 <span><span class="co">#&gt; 10  PRE10  500</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  Total computation: 0.04</span></span>
+<span><span class="co">#&gt;  Total computation: 0.05</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence of Solution </span></span>
 <span><span class="co">#&gt;  All item parameters were successfully converged.</span></span>
@@ -3087,26 +3079,26 @@ dichotomous and polytomous items.</p>
 categories)
 <ul>
 <li>Shares 12 anchor items (<strong>C1</strong>: items
-<code>C1I1</code>–<code>C1I12</code>) with Group 2.</li>
+<code>C1I1</code>-<code>C1I12</code>) with Group 2.</li>
 <li>In Group 1’s test form, these <strong>C1</strong> items are located
-at positions <strong>1–10 and 49–50</strong>.</li>
+at positions <strong>1-10 and 49-50</strong>.</li>
 </ul>
 </li>
 <li>
 <strong>Group 2</strong>: 50 items (47 3PLM + 3 GRM)
 <ul>
 <li>Shares 12 anchor items (<strong>C1</strong>) with Group 1, located
-at positions <strong>1–12</strong>.</li>
+at positions <strong>1-12</strong>.</li>
 <li>Shares 10 anchor items (<strong>C2</strong>: items
-<code>C2I1</code>–<code>C2I10</code>) with Group 3, located at positions
-<strong>41–50</strong>.</li>
+<code>C2I1</code>-<code>C2I10</code>) with Group 3, located at positions
+<strong>41-50</strong>.</li>
 </ul>
 </li>
 <li>
 <strong>Group 3</strong>: 38 items (37 3PLM + 1 GRM)
 <ul>
 <li>Shares 10 anchor items (<strong>C2</strong>) with Group 2, located
-at positions <strong>1–10</strong>.</li>
+at positions <strong>1-10</strong>.</li>
 </ul>
 </li>
 </ul>
@@ -3214,9 +3206,9 @@ scale.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009935414</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 11.25</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.15</span></span>
-<span><span class="co">#&gt;  Total computation: 11.97</span></span>
+<span><span class="co">#&gt;  EM algorithm: 14.86</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.2</span></span>
+<span><span class="co">#&gt;  Total computation: 15.66</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -3520,7 +3512,7 @@ scale.</p>
 <span><span class="co">#&gt; 3    C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA</span></span>
 <span><span class="co">#&gt; 4    C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA</span></span>
 <span><span class="co">#&gt; 5    C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA</span></span>
-<span><span class="co">#&gt; 6    C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA</span></span>
+<span><span class="co">#&gt; 6    C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA</span></span>
 <span><span class="co">#&gt; 7    C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA</span></span>
 <span><span class="co">#&gt; 8    C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA</span></span>
 <span><span class="co">#&gt; 9    C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA</span></span>
@@ -3528,11 +3520,11 @@ scale.</p>
 <span><span class="co">#&gt; 11   G1I1    2  3PLM 0.9359127 -0.548239144  0.12796867         NA         NA</span></span>
 <span><span class="co">#&gt; 12   G1I2    2  3PLM 0.8464253  1.172570909  0.08981114         NA         NA</span></span>
 <span><span class="co">#&gt; 13   G1I3    2  3PLM 1.4616326  1.305882948  0.18093863         NA         NA</span></span>
-<span><span class="co">#&gt; 14   G1I4    2  3PLM 1.4926688  0.238013232  0.28916429         NA         NA</span></span>
+<span><span class="co">#&gt; 14   G1I4    2  3PLM 1.4926688  0.238013233  0.28916429         NA         NA</span></span>
 <span><span class="co">#&gt; 15   G1I5    2  3PLM 1.2979873 -0.242251772  0.13400726         NA         NA</span></span>
 <span><span class="co">#&gt; 16   G1I6    2  3PLM 2.1074476 -0.012948148  0.07444095         NA         NA</span></span>
 <span><span class="co">#&gt; 17   G1I7    2  3PLM 1.4082434 -0.118840206  0.18134112         NA         NA</span></span>
-<span><span class="co">#&gt; 18   G1I8    2  3PLM 2.4266305  1.180075734  0.32271527         NA         NA</span></span>
+<span><span class="co">#&gt; 18   G1I8    2  3PLM 2.4266306  1.180075775  0.32271527         NA         NA</span></span>
 <span><span class="co">#&gt; 19   G1I9    2  3PLM 2.3509008 -0.977087363  0.21540341         NA         NA</span></span>
 <span><span class="co">#&gt; 20  G1I10    2  3PLM 1.2511555 -1.833025156  0.18382522         NA         NA</span></span>
 <span><span class="co">#&gt; 21  G1I11    2  3PLM 1.5207162 -1.185147713  0.16473757         NA         NA</span></span>
@@ -3554,7 +3546,7 @@ scale.</p>
 <span><span class="co">#&gt; 37  G1I27    2  3PLM 1.6038171 -1.629006369  0.20988867         NA         NA</span></span>
 <span><span class="co">#&gt; 38  G1I28    2  3PLM 1.2874830  0.532576013  0.13701099         NA         NA</span></span>
 <span><span class="co">#&gt; 39  G1I29    2  3PLM 0.8993998 -0.443199401  0.09884639         NA         NA</span></span>
-<span><span class="co">#&gt; 40  G1I30    2  3PLM 0.9764149  2.298256707  0.16440818         NA         NA</span></span>
+<span><span class="co">#&gt; 40  G1I30    2  3PLM 0.9764149  2.298256708  0.16440818         NA         NA</span></span>
 <span><span class="co">#&gt; 41  G1I31    2  3PLM 2.3488846  1.645346469  0.18059777         NA         NA</span></span>
 <span><span class="co">#&gt; 42  G1I32    2  3PLM 1.0719102 -0.141789310  0.12290992         NA         NA</span></span>
 <span><span class="co">#&gt; 43  G1I33    2  3PLM 1.5612761  0.146268646  0.14565485         NA         NA</span></span>
@@ -3603,16 +3595,16 @@ scale.</p>
 <span><span class="co">#&gt; 86   C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA</span></span>
 <span><span class="co">#&gt; 87   C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA</span></span>
 <span><span class="co">#&gt; 88  C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA</span></span>
-<span><span class="co">#&gt; 89   G3I1    2  3PLM 1.4958521 -1.157480281  0.13021457         NA         NA</span></span>
-<span><span class="co">#&gt; 90   G3I2    2  3PLM 0.7408780 -0.735132395  0.15274024         NA         NA</span></span>
+<span><span class="co">#&gt; 89   G3I1    2  3PLM 1.4958520 -1.157480281  0.13021457         NA         NA</span></span>
+<span><span class="co">#&gt; 90   G3I2    2  3PLM 0.7408780 -0.735132396  0.15274024         NA         NA</span></span>
 <span><span class="co">#&gt; 91   G3I3    2  3PLM 1.1082057  0.025301687  0.15302876         NA         NA</span></span>
 <span><span class="co">#&gt; 92   G3I4    2  3PLM 1.2502137  1.732480555  0.22122128         NA         NA</span></span>
 <span><span class="co">#&gt; 93   G3I5    2  3PLM 0.7484885 -1.246114621  0.22345365         NA         NA</span></span>
 <span><span class="co">#&gt; 94   G3I6    2  3PLM 1.1068583 -1.524973978  0.24798634         NA         NA</span></span>
 <span><span class="co">#&gt; 95   G3I7    2  3PLM 1.3187121  0.223560460  0.13144430         NA         NA</span></span>
 <span><span class="co">#&gt; 96   G3I8    2  3PLM 1.8714736 -0.110985326  0.14002954         NA         NA</span></span>
-<span><span class="co">#&gt; 97   G3I9    2  3PLM 1.1037907 -1.301014196  0.16749544         NA         NA</span></span>
-<span><span class="co">#&gt; 98  G3I10    2  3PLM 1.4614569  0.970092509  0.28702354         NA         NA</span></span>
+<span><span class="co">#&gt; 97   G3I9    2  3PLM 1.1037907 -1.301014197  0.16749544         NA         NA</span></span>
+<span><span class="co">#&gt; 98  G3I10    2  3PLM 1.4614569  0.970092510  0.28702354         NA         NA</span></span>
 <span><span class="co">#&gt; 99  G3I11    2  3PLM 0.8635917  0.758975315  0.06886835         NA         NA</span></span>
 <span><span class="co">#&gt; 100 G3I12    2  3PLM 1.3635440 -0.866226276  0.22745508         NA         NA</span></span>
 <span><span class="co">#&gt; 101 G3I13    2  3PLM 1.0739247 -1.216780038  0.18915640         NA         NA</span></span>
@@ -3652,7 +3644,7 @@ scale.</p>
 <span><span class="co">#&gt; 15  G1I5    2  3PLM 1.2979873 -0.24225177  0.13400726         NA         NA</span></span>
 <span><span class="co">#&gt; 16  G1I6    2  3PLM 2.1074476 -0.01294815  0.07444095         NA         NA</span></span>
 <span><span class="co">#&gt; 17  G1I7    2  3PLM 1.4082434 -0.11884021  0.18134112         NA         NA</span></span>
-<span><span class="co">#&gt; 18  G1I8    2  3PLM 2.4266305  1.18007573  0.32271527         NA         NA</span></span>
+<span><span class="co">#&gt; 18  G1I8    2  3PLM 2.4266306  1.18007577  0.32271527         NA         NA</span></span>
 <span><span class="co">#&gt; 19  G1I9    2  3PLM 2.3509008 -0.97708736  0.21540341         NA         NA</span></span>
 <span><span class="co">#&gt; 20 G1I10    2  3PLM 1.2511555 -1.83302516  0.18382522         NA         NA</span></span>
 <span><span class="co">#&gt; 21 G1I11    2  3PLM 1.5207162 -1.18514771  0.16473757         NA         NA</span></span>
@@ -3693,7 +3685,7 @@ scale.</p>
 <span><span class="co">#&gt; 3   C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA</span></span>
 <span><span class="co">#&gt; 4   C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA</span></span>
 <span><span class="co">#&gt; 5   C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA</span></span>
-<span><span class="co">#&gt; 6   C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA</span></span>
+<span><span class="co">#&gt; 6   C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA</span></span>
 <span><span class="co">#&gt; 7   C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA</span></span>
 <span><span class="co">#&gt; 8   C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA</span></span>
 <span><span class="co">#&gt; 9   C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA</span></span>
@@ -3751,10 +3743,10 @@ scale.</p>
 <span><span class="co">#&gt; 8   C2I8    2  3PLM 1.4743622  1.27817927 0.18509527        NA       NA</span></span>
 <span><span class="co">#&gt; 9   C2I9    2  3PLM 2.1404797 -1.04893386 0.12403332        NA       NA</span></span>
 <span><span class="co">#&gt; 10 C2I10    2  3PLM 1.5576919 -1.41374224 0.22823561        NA       NA</span></span>
-<span><span class="co">#&gt; 11  G3I1    2  3PLM 1.4958521 -1.15748028 0.13021457        NA       NA</span></span>
+<span><span class="co">#&gt; 11  G3I1    2  3PLM 1.4958520 -1.15748028 0.13021457        NA       NA</span></span>
 <span><span class="co">#&gt; 12  G3I2    2  3PLM 0.7408780 -0.73513240 0.15274024        NA       NA</span></span>
 <span><span class="co">#&gt; 13  G3I3    2  3PLM 1.1082057  0.02530169 0.15302876        NA       NA</span></span>
-<span><span class="co">#&gt; 14  G3I4    2  3PLM 1.2502137  1.73248055 0.22122128        NA       NA</span></span>
+<span><span class="co">#&gt; 14  G3I4    2  3PLM 1.2502137  1.73248056 0.22122128        NA       NA</span></span>
 <span><span class="co">#&gt; 15  G3I5    2  3PLM 0.7484885 -1.24611462 0.22345365        NA       NA</span></span>
 <span><span class="co">#&gt; 16  G3I6    2  3PLM 1.1068583 -1.52497398 0.24798634        NA       NA</span></span>
 <span><span class="co">#&gt; 17  G3I7    2  3PLM 1.3187121  0.22356046 0.13144430        NA       NA</span></span>
@@ -3858,8 +3850,8 @@ Kolen, 2016)</span>.</p>
 scale).</li>
 <li>New test forms are field-tested across different examinee
 groups.</li>
-<li>You want to seamlessly add new items to the bank without
-re-calibrating or shifting the existing anchors.</li>
+<li>You want to add new items to the bank without re-calibrating or
+shifting the existing anchors.</li>
 </ul>
 <p>The anchor item positions specified in the <code>fix.loc</code>
 argument must accurately reflect each group’s unique test form
@@ -3867,14 +3859,14 @@ layout:</p>
 <ul>
 <li>
 <strong>Group 1</strong>: C1 anchor items located at positions
-<strong>1–10 and 49–50</strong>.</li>
+<strong>1-10 and 49-50</strong>.</li>
 <li>
 <strong>Group 2</strong>: Contains both <strong>C1</strong> anchor
-items (at positions <strong>1–12</strong>) and <strong>C2</strong>
-anchor items (at positions <strong>41–50</strong>).</li>
+items (at positions <strong>1-12</strong>) and <strong>C2</strong>
+anchor items (at positions <strong>41-50</strong>).</li>
 <li>
 <strong>Group 3</strong>: C2 anchor items located at positions
-<strong>1–10</strong>.</li>
+<strong>1-10</strong>.</li>
 </ul>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define anchor positions per group</span></span>
@@ -3931,9 +3923,9 @@ anchor items (at positions <strong>41–50</strong>).</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009769281</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 5.71</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.11</span></span>
-<span><span class="co">#&gt;  Total computation: 6.48</span></span>
+<span><span class="co">#&gt;  EM algorithm: 8.13</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.16</span></span>
+<span><span class="co">#&gt;  Total computation: 9.02</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -4198,7 +4190,7 @@ anchor items (at positions <strong>41–50</strong>).</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">group_par_fipc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $Group1</span></span>
 <span><span class="co">#&gt;                    mu     sigma2      sigma</span></span>
-<span><span class="co">#&gt; estimates -0.01161244 1.00951986 1.00474866</span></span>
+<span><span class="co">#&gt; estimates -0.01161244 1.00951987 1.00474866</span></span>
 <span><span class="co">#&gt; se         0.02246686 0.03193181 0.01589044</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Group2</span></span>
@@ -4360,7 +4352,7 @@ different structures, <code>fix.loc</code> or <code>fix.id</code> must
 always be supplied as a <strong>list</strong>, containing one element
 per group.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># WRONG — fix.loc must be a list for est_mg(), even if only fixing items in one group</span></span>
+<code class="sourceCode R"><span><span class="co"># WRONG: fix.loc must be a list for est_mg(), even if only fixing items in one group</span></span>
 <span><span class="fu"><a href="../reference/est_mg.html">est_mg</a></span><span class="op">(</span><span class="va">...</span>, fipc <span class="op">=</span> <span class="cn">TRUE</span>, fix.loc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># CORRECT</span></span>
@@ -4388,18 +4380,18 @@ appears.</p>
 <div class="section level3">
 <h3 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h3>
-<p>The <code><a href="../reference/est_mg.html">est_mg()</a></code> function provides a powerful framework that
+<p>The <code><a href="../reference/est_mg.html">est_mg()</a></code> function provides a framework that
 enables:</p>
 <ul>
 <li>✅ <strong>Simultaneous Calibration</strong> across multiple
 independent or non-equivalent examinee samples.</li>
-<li>✅ <strong>Automatic Anchor Constraints</strong> to establish robust
-scale linking via unique item ID matching.</li>
+<li>✅ <strong>Automatic Anchor Constraints</strong> to establish scale
+linking via unique item ID matching.</li>
 <li>✅ <strong>Group-Specific Population Estimation</strong> featuring
 flexible empirical histogram (<code>EmpHist</code>) support to track
 population drifts accurately.</li>
-<li>✅ <strong>MG-FIPC Execution</strong> for seamlessly appending
-field-tested items onto an active, pre-scaled item bank.</li>
+<li>✅ <strong>MG-FIPC Execution</strong> for appending field-tested
+items onto an active, pre-scaled item bank.</li>
 <li>✅ <strong>Mixed-Format Support</strong> that handles combinations
 of dichotomous and polytomous parameters concurrently.</li>
 </ul>

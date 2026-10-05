@@ -126,10 +126,10 @@ information matrix and the test information vector. The
 
 ## References
 
-Hambleton, R. K., & Swaminathan, H. (1985) *Item response theory:
+Hambleton, R. K., & Swaminathan, H. (1985). *Item response theory:
 Principles and applications*. Boston, MA: Kluwer.
 
-Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991) *Fundamentals
+Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals
 of item response theory*. Newbury Park, CA: Sage.
 
 ## See also

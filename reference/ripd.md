@@ -170,7 +170,10 @@ ripd(
 - max.iter:
 
   A positive integer specifying the maximum number of iterations allowed
-  for the purification process. Default is `10`.
+  for the purification process. Default is `10`. If the limit is reached
+  while flagged items remain, a warning is issued and the `complete`
+  element of the purification results is `FALSE`; for tests with many
+  items or many DIF items, consider increasing `max.iter`.
 
 - min.resp:
 
@@ -427,8 +430,7 @@ discrimination change). Items flagged by all statistics or by
 
 **CAT-Specific Workflow**
 
-The RIPD procedure for CAT consists of three steps (Lim & Han, in
-press):
+The RIPD procedure for CAT consists of three steps (Lim & Han, 2026):
 
 1.  **Focal group CAT**: The current cohort of examinees takes the CAT
     using the operational (potentially drifted) item pool. Each examinee
@@ -512,9 +514,11 @@ item functioning detection framework in item response theory. *Journal
 of Educational Measurement, 59*(1), 80-104.
 [doi:10.1111/jedm.12313](https://doi.org/10.1111/jedm.12313) .
 
-Lim, H., & Han, K. T. (in press). IRT residual-based approach to
-detecting item parameter drift in CAT. *Journal of Educational and
-Behavioral Statistics*.
+Lim, H., & Han, K. T. (2026). IRT residual-based approach to detecting
+item parameter drift in CAT. *Journal of Educational and Behavioral
+Statistics*.
+[doi:10.3102/10769986261460852](https://doi.org/10.3102/10769986261460852)
+.
 
 ## See also
 
@@ -535,7 +539,7 @@ Hwanggyu Lim <hglim83@gmail.com>
 # \donttest{
 ## --- RIPD Example: Detecting IPD in CAT ---------------------------------
 ##
-## Background (Lim & Han, in press):
+## Background (Lim & Han, 2026):
 ##   In CAT-based IPD detection using RIPD, the reference group is
 ##   "synthetic" -- created by re-administering a CAT to examinees whose
 ##   true abilities are set equal to the focal group's ML theta estimates,

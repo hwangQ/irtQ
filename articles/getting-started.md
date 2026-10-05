@@ -1,4 +1,4 @@
-# Getting Started with irtQ
+# Getting Started: A Detailed Guide
 
 ## What is irtQ?
 
@@ -6,7 +6,10 @@
 (IRT)** analyses. It supports mixed-format tests containing both
 dichotomous and polytomous items, and provides a unified interface for
 the most common psychometric tasks in educational and psychological
-measurement.
+measurement. For a short overview of the package, see [Introduction to
+irtQ](https://hwangQ.github.io/irtQ/articles/irtQ.md), also available in
+R as
+[`vignette("irtQ", package = "irtQ")`](https://hwangQ.github.io/irtQ/articles/irtQ.md).
 
 ### Why IRT? A Brief Motivation
 
@@ -46,23 +49,23 @@ advantages are:
 
 **Primary functions:**
 
-- Estimating item parameters — fixed-form calibration, pretest
+- Estimating item parameters: fixed-form calibration, pretest
   calibration using Fixed Item Parameter Calibration (FIPC) and Fixed
   Ability Parameter Calibration (FAPC) approaches, and multiple-group
   calibration
   ([`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
   [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md),
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md))
-- Estimating examinee abilities — maximum likelihood (ML), weighted
+- Estimating examinee abilities: maximum likelihood (ML), weighted
   likelihood (WLE), maximum a posteriori (MAP), expected a posteriori
   (EAP), EAP summed scoring, and inverse test characteristic curve (TCC)
   scoring
   ([`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md))
-- Evaluating item-level model–data fit — $`\chi^2`$, $`G^2`$,
+- Evaluating item-level model-data fit: $`\chi^2`$, $`G^2`$,
   infit/outfit, $`S`$-$`X^2`$
   ([`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md),
   [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md))
-- Detecting differential item functioning (DIF) — residual-based DIF
+- Detecting differential item functioning (DIF): residual-based DIF
   (RDIF), generalized residual-based DIF (GRDIF), and simultaneous item
   bias test modified for CAT (CATSIB)
   ([`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md),
@@ -73,9 +76,9 @@ advantages are:
   [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md))
 
 **Beyond these IRT-based analyses**, irtQ also provides a small set of
-classical test theory (CTT) functions — item difficulty, item-total
+classical test theory (CTT) functions (item difficulty, item-total
 correlation, Cronbach’s alpha, option/distractor response distributions,
-and total-score frequency distributions — for scoring and analyzing
+and total-score frequency distributions) for scoring and analyzing
 selected-response item data without fitting an IRT model
 ([`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md),
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md),
@@ -89,14 +92,14 @@ selected-response item data without fitting an IRT model
 | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) | Simulate IRT item response data |
 | [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item and test information functions |
 | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item and test characteristic curves |
-| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord–Wingersky recursion (summed-score distributions) |
+| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord-Wingersky recursion (summed-score distributions) |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature weights from a distribution |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | IRT-based covariance between items |
 | [`run_flexmirt()`](https://hwangQ.github.io/irtQ/reference/run_flexmirt.md) | Run flexMIRT directly from R |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data into a 0/1 matrix |
 
-This vignette introduces the **IRT models** supported by **irtQ** and
-the **item metadata** data structure that connects all functions. At the
+This article introduces the **IRT models** supported by **irtQ** and the
+**item metadata** data structure that connects all functions. At the
 end, a minimal end-to-end workflow ties everything together.
 
 ------------------------------------------------------------------------
@@ -145,13 +148,13 @@ P(Y = 1 \mid \theta) = g + \frac{1 - g}{1 + \exp(-D\,a\,(\theta - b))}
 The four quantities in this equation each have a concrete
 interpretation:
 
-**$`\theta`$ — Latent ability (person parameter)**  
+**$`\theta`$: Latent ability (person parameter)**  
 The unobserved trait being measured. The $`\theta`$ scale is typically
 standardized so that $`\theta \sim N(0, 1)`$ in the reference
 population: $`\theta = 0`$ is average ability, $`\theta = 1`$ is one
 standard deviation above average, and so on.
 
-**$`a`$ — Discrimination (item parameter)**  
+**$`a`$: Discrimination (item parameter)**  
 Controls how steeply the item characteristic curve (ICC) rises. A highly
 discriminating item (large $`a`$) sharply separates examinees just below
 and just above the item’s difficulty; a weakly discriminating item
@@ -159,7 +162,7 @@ and just above the item’s difficulty; a weakly discriminating item
 about $`\theta`$. In practice, $`a`$ typically ranges from about 0.5 to
 2.5.
 
-**$`b`$ — Difficulty (item parameter)**  
+**$`b`$: Difficulty (item parameter)**  
 The point on the $`\theta`$ scale where the probability of a correct
 response is halfway between $`g`$ and 1, i.e. $`P = g + (1-g)/2`$. For
 the 2PLM (where $`g = 0`$), this simplifies to the $`\theta`$ value
@@ -167,18 +170,19 @@ where $`P = 0.5`$. Items with $`b < 0`$ are easy (most examinees answer
 correctly); items with $`b > 0`$ are hard. Values typically range from
 about $`-3`$ to $`+3`$.
 
-**$`g`$ — Pseudo-guessing (item parameter)**  
-The lower asymptote of the ICC — the probability of a correct response
-as $`\theta \to -\infty`$. For a 5-option multiple-choice item with pure
+**$`g`$: Pseudo-guessing (item parameter)**  
+The lower asymptote of the ICC: the probability of a correct response as
+$`\theta \to -\infty`$. For a 5-option multiple-choice item with pure
 random guessing, $`g = 0.2`$. When $`g = 0`$ the ICC passes through the
 origin and the model reduces to the 2PLM or 1PLM.
 
-**$`D`$ — Scaling constant**  
+**$`D`$: Scaling constant**  
 $`D = 1.702`$ is a constant that makes the logistic function closely
 approximate the normal ogive used in the original IRT formulation. Using
 $`D = 1.702`$ is conventional when working with logistic models; set
-$`D = 1`$ to work on the purely logistic scale. All irtQ functions
-accept `D` as an argument with default `1.702`.
+$`D = 1`$ to work on the purely logistic scale. irtQ functions that take
+`D` use `D = 1` by default; set `D = 1.702` explicitly to approximate
+the normal-ogive metric.
 
 #### Special cases: 1PLM and 2PLM
 
@@ -190,7 +194,7 @@ accept `D` as an argument with default `1.702`.
 
 > **Note on 1PLM in irtQ.** When `fix.a.1pl = TRUE` (in
 > [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)),
-> the discrimination is *fixed* to the value `a.val.1pl` (default 1) —
+> the discrimination is *fixed* to the value `a.val.1pl` (default 1);
 > this is the strict **Rasch model**. When `fix.a.1pl = FALSE` (the
 > default), the common discrimination is *estimated* from the data but
 > constrained to be equal across all 1PLM items. Both specifications
@@ -203,7 +207,7 @@ accept `D` as an argument with default `1.702`.
 ### Polytomous Models: GRM and GPCM
 
 For items with $`K`$**ordered** response categories scored
-$`0, 1, \ldots, K-1`$ (e.g., a 4-point rating scale scored 0–3), irtQ
+$`0, 1, \ldots, K-1`$ (e.g., a 4-point rating scale scored 0-3), irtQ
 supports two models.
 
 #### Graded Response Model (GRM)
@@ -310,8 +314,8 @@ Nearly every **irtQ** function accepts a data frame `x` as its first
 argument. This **item metadata** frame is a standardized, row-per-item
 table that encodes the IRT model and parameter values for each item in a
 test form. It serves as the single input format shared across all
-analyses — calibration, scoring, fit evaluation, DIF detection, and more
-— so you only need to build it once.
+analyses (calibration, scoring, fit evaluation, DIF detection, and
+more), so you only need to build it once.
 
 ### Column Structure
 
@@ -363,10 +367,10 @@ meta_demo
 
 Reading across the columns:
 
-- Items I1–I3 are 2PLM: `par.1` = $`a`$, `par.2` = $`b`$, `par.3` = `NA`
+- Items I1-I3 are 2PLM: `par.1` = $`a`$, `par.2` = $`b`$, `par.3` = `NA`
   (no guessing), `par.4` = `NA` (no third threshold)
-- Items I4–I5 are GRM with 4 categories: `par.1` = $`a`$,
-  `par.2`–`par.4` = $`b_1, b_2, b_3`$
+- Items I4-I5 are GRM with 4 categories: `par.1` = $`a`$,
+  `par.2`-`par.4` = $`b_1, b_2, b_3`$
 
 ------------------------------------------------------------------------
 
@@ -457,8 +461,8 @@ meta_ex2
 - For a **GPCM** item, the values in `d` are step parameters
   $`b_1, \ldots, b_{K-1}`$, which need *not* be ordered.
 - The `d` vectors for GRM and GPCM items can be mixed within the same
-  `par.prm` list — the `model` argument determines which model applies
-  to each item.
+  `par.prm` list; the `model` argument determines which model applies to
+  each item.
 
 ### Example 3: Uniform model, auto-assigned IDs
 
@@ -678,7 +682,7 @@ meta_pscale
 
 ``` r
 
-# Import from a BILOG-MG .PAR output file (not run — replace with your path)
+# Import from a BILOG-MG .PAR output file (not run; replace with your path)
 meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 ```
 
@@ -721,7 +725,7 @@ specification.
 
 ``` r
 
-# Read item metadata from a CSV file (not run — replace with your path)
+# Read item metadata from a CSV file (not run; replace with your path)
 meta_csv <- read.csv("my_item_parameters.csv", stringsAsFactors = FALSE)
 
 # Verify the structure
@@ -743,17 +747,13 @@ Ensure that:
 
 ## A Complete End-to-End Workflow
 
-This vignette has focused on **item metadata** — the central data
+This article has focused on **item metadata**, the central data
 structure that connects all **irtQ** functions. To show how metadata
 fits into the broader analysis pipeline, the example below walks through
 a minimal end-to-end workflow: define item metadata → simulate responses
 → estimate item parameters → estimate abilities → check recovery. Each
 step beyond metadata creation is covered in depth in its own dedicated
-vignette (see **What’s Next?** at the end of this page).
-
-The following example walks through the core **irtQ** workflow from
-start to finish: define item metadata → simulate responses → **estimate
-item parameters** → estimate abilities → check recovery.
+article (see **What’s Next?** at the end of this page).
 
 ``` r
 
@@ -828,13 +828,13 @@ summary(mod)
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 50
 #>  Number of fixed items: 0
-#>  Number of E-step cycles completed: 14
-#>  Maximum parameter change: 0.000805268
+#>  Number of E-step cycles completed: 28
+#>  Maximum parameter change: 0.0009162516
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.39
+#>  EM algorithm: 0.84
 #>  Standard error computation: 0.02
-#>  Total computation: 0.43
+#>  Total computation: 0.9
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -843,31 +843,31 @@ summary(mod)
 #>   Variance-covariance matrix of item parameter estimates is obtainable.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 12453.76
-#>  Akaike Information Criterion (AIC): 12553.76
-#>  Bayesian Information Criterion (BIC): 12764.5
+#>  -2loglikelihood: 12453.42
+#>  Akaike Information Criterion (AIC): 12553.42
+#>  Bayesian Information Criterion (BIC): 12764.15
 #>  Item Parameters: 
 #>      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
-#> 1    D1     2   2PLM   1.01  0.12  -1.38  0.13     NA    NA     NA    NA
-#> 2    D2     2   2PLM   1.33  0.17  -1.02  0.09     NA    NA     NA    NA
-#> 3    D3     2   2PLM   1.64  0.19  -0.37  0.06     NA    NA     NA    NA
-#> 4    D4     2   2PLM   0.95  0.10  -0.19  0.08     NA    NA     NA    NA
-#> 5    D5     2   2PLM   1.10  0.12   0.05  0.07     NA    NA     NA    NA
-#> 6    D6     2   2PLM   1.60  0.17   0.05  0.06     NA    NA     NA    NA
-#> 7    D7     2   2PLM   0.64  0.08   0.49  0.11     NA    NA     NA    NA
-#> 8    D8     2   2PLM   1.14  0.14   0.72  0.08     NA    NA     NA    NA
-#> 9    D9     2   2PLM   1.69  0.23   0.83  0.07     NA    NA     NA    NA
-#> 10  D10     2   2PLM   0.85  0.12   1.43  0.15     NA    NA     NA    NA
-#> 11  D11     2   2PLM   1.12  0.16  -1.24  0.12     NA    NA     NA    NA
-#> 12  D12     2   2PLM   0.87  0.10  -0.82  0.10     NA    NA     NA    NA
-#> 13  D13     2   2PLM   1.46  0.16  -0.30  0.06     NA    NA     NA    NA
-#> 14  D14     2   2PLM   1.00  0.11   0.14  0.07     NA    NA     NA    NA
-#> 15  D15     2   2PLM   1.32  0.14   0.40  0.07     NA    NA     NA    NA
-#> 16   P1     4    GRM   1.44  0.20  -1.39  0.18  -0.20  0.10   0.83  0.13
-#> 17   P2     4    GRM   1.33  0.19  -1.07  0.15   0.09  0.10   1.00  0.14
-#> 18   P3     4    GRM   0.93  0.15  -0.93  0.18   0.43  0.14   1.61  0.25
-#> 19   P4     4    GRM   1.23  0.17  -1.04  0.16  -0.01  0.11   1.02  0.15
-#> 20   P5     4    GRM   0.92  0.14  -1.48  0.25   0.24  0.13   1.28  0.20
+#> 1    D1     2   2PLM   1.01  0.12  -1.41  0.13     NA    NA     NA    NA
+#> 2    D2     2   2PLM   1.32  0.17  -1.05  0.09     NA    NA     NA    NA
+#> 3    D3     2   2PLM   1.63  0.19  -0.39  0.06     NA    NA     NA    NA
+#> 4    D4     2   2PLM   0.94  0.10  -0.20  0.08     NA    NA     NA    NA
+#> 5    D5     2   2PLM   1.09  0.12   0.03  0.07     NA    NA     NA    NA
+#> 6    D6     2   2PLM   1.58  0.17   0.03  0.06     NA    NA     NA    NA
+#> 7    D7     2   2PLM   0.64  0.08   0.47  0.11     NA    NA     NA    NA
+#> 8    D8     2   2PLM   1.13  0.13   0.70  0.08     NA    NA     NA    NA
+#> 9    D9     2   2PLM   1.67  0.23   0.82  0.07     NA    NA     NA    NA
+#> 10  D10     2   2PLM   0.84  0.12   1.43  0.15     NA    NA     NA    NA
+#> 11  D11     2   2PLM   1.12  0.16  -1.26  0.12     NA    NA     NA    NA
+#> 12  D12     2   2PLM   0.86  0.10  -0.85  0.11     NA    NA     NA    NA
+#> 13  D13     2   2PLM   1.45  0.16  -0.32  0.06     NA    NA     NA    NA
+#> 14  D14     2   2PLM   1.00  0.10   0.12  0.08     NA    NA     NA    NA
+#> 15  D15     2   2PLM   1.31  0.14   0.38  0.07     NA    NA     NA    NA
+#> 16   P1     4    GRM   1.43  0.20  -1.42  0.18  -0.22  0.10   0.82  0.13
+#> 17   P2     4    GRM   1.32  0.19  -1.10  0.15   0.07  0.10   0.99  0.15
+#> 18   P3     4    GRM   0.93  0.15  -0.96  0.18   0.41  0.14   1.61  0.25
+#> 19   P4     4    GRM   1.22  0.17  -1.06  0.16  -0.03  0.11   1.01  0.15
+#> 20   P5     4    GRM   0.91  0.14  -1.51  0.25   0.22  0.13   1.27  0.20
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
 #> estimates   0       1      1
@@ -876,13 +876,13 @@ summary(mod)
 # Extract estimated item parameters
 est_par <- getirt(mod, what = "par.est")
 head(est_par)
-#>   id cats model     par.1       par.2 par.3 par.4
-#> 1 D1    2  2PLM 1.0123517 -1.37784253    NA    NA
-#> 2 D2    2  2PLM 1.3299712 -1.02270411    NA    NA
-#> 3 D3    2  2PLM 1.6403799 -0.37121257    NA    NA
-#> 4 D4    2  2PLM 0.9498437 -0.18544536    NA    NA
-#> 5 D5    2  2PLM 1.1028978  0.04530653    NA    NA
-#> 6 D6    2  2PLM 1.5957104  0.04913832    NA    NA
+#>   id cats model    par.1       par.2 par.3 par.4
+#> 1 D1    2  2PLM 1.005256 -1.40527077    NA    NA
+#> 2 D2    2  2PLM 1.320271 -1.04794595    NA    NA
+#> 3 D3    2  2PLM 1.626844 -0.39180035    NA    NA
+#> 4 D4    2  2PLM 0.942379 -0.20436386    NA    NA
+#> 5 D5    2  2PLM 1.093854  0.02820389    NA    NA
+#> 6 D6    2  2PLM 1.582117  0.03201383    NA    NA
 ```
 
 ``` r
@@ -896,9 +896,10 @@ scores <- est_score(
 )
 
 head(scores$est.theta)   # EAP point estimates
-#> [1]  0.34463246 -0.79829815  0.01201060  0.02605644 -0.65820040 -1.80059559
+#> [1]  0.329351295 -0.821716552 -0.001138609  0.012362376 -0.681457328
+#> [6] -1.825776845
 head(scores$se.theta)    # posterior standard deviations
-#> [1] 0.2593798 0.2654566 0.2129144 0.2252718 0.2551288 0.3670970
+#> [1] 0.2630482 0.2642191 0.2154156 0.2272038 0.2598002 0.3685849
 ```
 
 ``` r
@@ -928,16 +929,16 @@ are working correctly.
 Now that you understand irtQ’s item metadata structure and the supported
 IRT models, you are ready to explore each analysis in depth:
 
-| Topic | Vignette | Key Functions |
+| Topic | Article | Key Functions |
 |----|----|----|
-| Item parameter estimation | `vignette("item-parameter-estimation")` | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md) |
-| Ability estimation | `vignette("ability-estimation")` | [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
-| Model–data fit | `vignette("model-fit-evaluation")` | [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) |
-| DIF detection | `vignette("dif-detection")` | [`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md), [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md), [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) |
-| Classification accuracy | `vignette("classification-analysis")` | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
-| Utilities | `vignette("utilities")` | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md), [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md), [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) |
-| Classical test theory (CTT) analysis | `vignette("ctt-analysis")` | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
-| MST panel evaluation | `vignette("mst-panel-evaluation")` | [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) |
+| Item parameter estimation | [Item Parameter Estimation](https://hwangQ.github.io/irtQ/articles/item-parameter-estimation.md) | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md) |
+| Ability estimation | [Ability Estimation](https://hwangQ.github.io/irtQ/articles/ability-estimation.md) | [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
+| Model-data fit | [Model-Data Fit Evaluation](https://hwangQ.github.io/irtQ/articles/model-fit-evaluation.md) | [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) |
+| DIF detection | [DIF Detection](https://hwangQ.github.io/irtQ/articles/dif-detection.md) | [`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md), [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md), [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) |
+| Classification accuracy | [Classification Accuracy and Consistency](https://hwangQ.github.io/irtQ/articles/classification-analysis.md) | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
+| Utilities | [Utility Functions](https://hwangQ.github.io/irtQ/articles/utilities.md) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md), [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md), [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) |
+| Classical test theory (CTT) analysis | [Classical Test Theory (CTT) Analysis](https://hwangQ.github.io/irtQ/articles/ctt-analysis.md) | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
+| MST panel evaluation | [MST Panel Evaluation and Simulation](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md) | [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) |
 
 ------------------------------------------------------------------------
 

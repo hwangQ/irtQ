@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,33 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -87,7 +80,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p>In many testing contexts, test scores are used to assign examinees to
-performance categories — for example, pass/fail decisions or placement
+performance categories, for example, pass/fail decisions or placement
 into proficiency levels. Two indices quantify the quality of such
 classification decisions:</p>
 <ul>
@@ -121,14 +114,14 @@ methods:</p>
 <tr class="odd">
 <td><code><a href="../reference/cac_lee.html">cac_lee()</a></code></td>
 <td>
-<span class="citation">Lee (2010)</span> — conditional summed-score
+<span class="citation">Lee (2010)</span>: conditional summed-score
 distribution</td>
 <td>Observed score or theta</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/cac_rud.html">cac_rud()</a></code></td>
 <td>
-<span class="citation">Rudner (2001)</span>; <span class="citation">Rudner (2005)</span> — normal approximation via test
+<span class="citation">Rudner (2001)</span>; <span class="citation">Rudner (2005)</span>: normal approximation via test
 information function (TIF)</td>
 <td>Theta scale only</td>
 </tr>
@@ -287,7 +280,7 @@ possible observed summed score is
 </div>
 </div>
 <div class="section level2">
-<h2 id="part-1-lees-method-cac_lee">Part 1: Lee’s Method — <code>cac_lee()</code><a class="anchor" aria-label="anchor" href="#part-1-lees-method-cac_lee"></a>
+<h2 id="part-1-lees-method-cac_lee">Part 1: Lee’s Method (<code>cac_lee()</code>)<a class="anchor" aria-label="anchor" href="#part-1-lees-method-cac_lee"></a>
 </h2>
 <div class="section level3">
 <h3 id="method-overview">Method overview<a class="anchor" aria-label="anchor" href="#method-overview"></a>
@@ -299,7 +292,7 @@ dichotomous items, polytomous items, or a mixture of both.</p>
 <p>The key quantity is the <strong>conditional summed-score
 distribution</strong>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><mi>x</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Pr(X = x \mid \theta)</annotation></semantics></math>,
-computed using the Lord–Wingersky recursive algorithm <span class="citation">(Lord and Wingersky 1984; Kolen and Brennan
+computed using the Lord-Wingersky recursive algorithm <span class="citation">(Lord and Wingersky 1984; Kolen and Brennan
 2004)</span>. This distribution gives the probability that an examinee
 with ability
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
@@ -420,7 +413,7 @@ performance levels</td>
 </tr>
 <tr class="odd">
 <td><code>D</code></td>
-<td>Scaling constant — must match the value used during calibration</td>
+<td>Scaling constant; must match the value used during calibration</td>
 </tr>
 <tr class="even">
 <td><code>cut.obs</code></td>
@@ -447,7 +440,7 @@ distribution<a class="anchor" aria-label="anchor" href="#d-method-integrate-over
 <code><a href="../reference/gen.weight.html">gen.weight()</a></code> to construct weights from a parametric
 distribution.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Two cut scores on the observed summed-score scale (range: 0–20)</span></span>
+<code class="sourceCode R"><span><span class="co"># Two cut scores on the observed summed-score scale (range: 0-20)</span></span>
 <span><span class="co"># Defines three performance levels: [0,8), [8,14), [14,20]</span></span>
 <span><span class="va">cutscore_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">14</span><span class="op">)</span></span>
 <span></span>
@@ -535,7 +528,7 @@ distribution.</p>
 <span><span class="co">#&gt; 20  0.75 7.528702e-02  14.546417     3 1.896328e-05 2.620147e-01 7.379663e-01</span></span>
 <span><span class="co">#&gt; 21  1.00 6.049482e-02  15.555088     3 7.663720e-07 1.002162e-01 8.997831e-01</span></span>
 <span><span class="co">#&gt; 22  1.25 4.566389e-02  16.505175     3 1.876512e-08 2.651963e-02 9.734804e-01</span></span>
-<span><span class="co">#&gt; 23  1.50 3.238054e-02  17.356735     3 2.855207e-10 4.814701e-03 9.951853e-01</span></span>
+<span><span class="co">#&gt; 23  1.50 3.238054e-02  17.356735     3 2.855208e-10 4.814701e-03 9.951853e-01</span></span>
 <span><span class="co">#&gt; 24  1.75 2.157009e-02  18.065625     3 2.879399e-12 6.245660e-04 9.993754e-01</span></span>
 <span><span class="co">#&gt; 25  2.00 1.349822e-02  18.616683     3 2.112469e-14 6.251190e-05 9.999375e-01</span></span>
 <span><span class="co">#&gt; 26  2.25 7.935194e-03  19.026191     3 1.237687e-16 5.238462e-06 9.999948e-01</span></span>
@@ -641,7 +634,7 @@ In our test: 15 binary items (max 15) + 5 four-category items (max
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>5</mn><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">3 \times 5 = 15</annotation></semantics></math>)
 → max = 30.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cut scores on the observed summed-score scale (range: 0–30)</span></span>
+<code class="sourceCode R"><span><span class="co"># Cut scores on the observed summed-score scale (range: 0-30)</span></span>
 <span><span class="va">cutscore_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">22</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># D-method</span></span>
@@ -760,7 +753,7 @@ In our test: 15 binary items (max 15) + 5 four-category items (max
 </div>
 </div>
 <div class="section level2">
-<h2 id="part-2-rudners-method-cac_rud">Part 2: Rudner’s Method — <code>cac_rud()</code><a class="anchor" aria-label="anchor" href="#part-2-rudners-method-cac_rud"></a>
+<h2 id="part-2-rudners-method-cac_rud">Part 2: Rudner’s Method (<code>cac_rud()</code>)<a class="anchor" aria-label="anchor" href="#part-2-rudners-method-cac_rud"></a>
 </h2>
 <div class="section level3">
 <h3 id="method-overview-1">Method overview<a class="anchor" aria-label="anchor" href="#method-overview-1"></a>
@@ -804,8 +797,8 @@ scale).</p>
 </blockquote>
 <p>Standard errors can be supplied in two ways:</p>
 <ol style="list-style-type: decimal">
-<li>Pass item metadata via <code>x</code> — the function computes SE
-from the TIF internally.</li>
+<li>Pass item metadata via <code>x</code>; the function computes SE from
+the TIF internally.</li>
 <li>Pass a pre-computed SE vector via <code>se</code> (same length as
 <code>theta</code> for P-method, or same length as the number of
 quadrature nodes for D-method).</li>
@@ -959,8 +952,8 @@ scale</strong>
 <span><span class="co">#&gt; 29  3.00 1.108001e-03     3 8.953873e-04 0.02392962 9.751750e-01</span></span>
 <span><span class="co">#&gt; 30  3.25 5.072800e-04     3 2.878648e-03 0.03273349 9.643879e-01</span></span>
 <span><span class="co">#&gt; 31  3.50 2.181784e-04     3 7.651606e-03 0.04316803 9.491804e-01</span></span>
-<span><span class="co">#&gt; 32  3.75 8.815204e-05     3 1.706328e-02 0.05364464 9.292921e-01</span></span>
-<span><span class="co">#&gt; 33  4.00 3.345874e-05     3 3.265689e-02 0.06233080 9.050123e-01</span></span>
+<span><span class="co">#&gt; 32  3.75 8.815204e-05     3 1.706328e-02 0.05364463 9.292921e-01</span></span>
+<span><span class="co">#&gt; 33  4.00 3.345874e-05     3 3.265689e-02 0.06233079 9.050123e-01</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $cutscore</span></span>
 <span><span class="co">#&gt; [1] -0.5  0.8</span></span></code></pre></div>
@@ -1175,11 +1168,11 @@ observed.</p>
 <span><span class="co">#&gt;         2 0.3460603   0.3015966</span></span>
 <span><span class="co">#&gt;         3 0.1917003   0.1761846</span></span>
 <span><span class="co">#&gt;  marginal 0.7994807   0.7173665</span></span></code></pre></div>
-<p>The two methods share the same conceptual framework — both estimate
-CA and CC by computing, for each ability level, the probabilities of
-being assigned to each performance category — but differ in how they
-model the conditional score distribution and what metric the cut scores
-operate on:</p>
+<p>The two methods share the same conceptual framework: both estimate CA
+and CC by computing, for each ability level, the probabilities of being
+assigned to each performance category, but differ in how they model the
+conditional score distribution and what metric the cut scores operate
+on:</p>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -1199,7 +1192,7 @@ operate on:</p>
 </tr>
 <tr class="even">
 <td>Conditional distribution</td>
-<td>Exact conditional summed-score distribution via Lord–Wingersky
+<td>Exact conditional summed-score distribution via Lord-Wingersky
 recursion</td>
 <td>Normal approximation:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>∣</mo><mi>θ</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>,</mo><msup><mtext mathvariant="normal">SE</mtext><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)</annotation></semantics></math>

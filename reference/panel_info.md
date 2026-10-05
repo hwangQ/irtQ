@@ -61,6 +61,8 @@ remaining pathways are sorted and returned as a matrix.
 
 Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive
 and multistage testing with R: Using packages catR and mstR*. Springer.
+[doi:10.1007/978-3-319-69218-0](https://doi.org/10.1007/978-3-319-69218-0)
+.
 
 ## See also
 

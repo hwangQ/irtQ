@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,33 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -137,8 +130,8 @@ containing dichotomous and polytomous items.</p>
 <div class="section level2">
 <h2 id="setup-calibrated-data-for-all-examples">Setup: Calibrated Data for All Examples<a class="anchor" aria-label="anchor" href="#setup-calibrated-data-for-all-examples"></a>
 </h2>
-<p>We define two test forms — a binary-only test and a mixed-format test
-— and calibrate each so we have item parameters and ability estimates to
+<p>We define two test forms (a binary-only test and a mixed-format test)
+and calibrate each so we have item parameters and ability estimates to
 pass to the fit functions throughout this vignette.</p>
 <div class="section level3">
 <h3 id="binary-test-20-items-3plm">Binary test (20 items, 3PLM)<a class="anchor" aria-label="anchor" href="#binary-test-20-items-3plm"></a>
@@ -268,8 +261,8 @@ estimated ability <span class="citation">(Ames &amp; Penfield,
 <p>The four statistics differ in how they aggregate these residuals:</p>
 <p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
-— Group-based statistics</strong></p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>:
+Group-based statistics</strong></p>
 <blockquote>
 <p><strong>Note.</strong> The formulas below are presented for
 <strong>dichotomous items</strong> (scored 0/1) for clarity. The same
@@ -344,7 +337,7 @@ This means
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
 uses more degrees of freedom and tends to be more conservative.</p>
 </blockquote>
-<p><strong>Infit and Outfit — Individual-level statistics</strong></p>
+<p><strong>Infit and Outfit: Individual-level statistics</strong></p>
 <p>Both infit and outfit treat <em>each examinee</em> as a separate bin
 (i.e.,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">H = N</annotation></semantics></math>)
@@ -363,8 +356,8 @@ is small and a single aberrant response inflates the statistic
 dramatically.</li>
 <li>
 <strong>Infit</strong> weights each residual by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_{ni}(1-P_{ni})</annotation></semantics></math>
-— the item information at that ability level. This down-weights extreme
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_{ni}(1-P_{ni})</annotation></semantics></math>,
+the item information at that ability level. This down-weights extreme
 responses and makes infit more sensitive to misfit <em>near</em> the
 item difficulty, where most measurement information resides. For this
 reason, infit is generally preferred in practice.</li>
@@ -492,7 +485,7 @@ analysis.</li>
 </tr>
 <tr class="even">
 <td><code>D</code></td>
-<td>Scaling constant — must match the value used in calibration</td>
+<td>Scaling constant; must match the value used in calibration</td>
 </tr>
 <tr class="odd">
 <td><code>group.method</code></td>
@@ -604,7 +597,7 @@ collapsing) whose standardized residuals exceed <code>overSR</code>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="example-1-binary-test-equal-frequency-bins">Example 1: Binary test — equal-frequency bins<a class="anchor" aria-label="anchor" href="#example-1-binary-test-equal-frequency-bins"></a>
+<h3 id="example-1-binary-test-with-equal-frequency-bins">Example 1: Binary test with equal-frequency bins<a class="anchor" aria-label="anchor" href="#example-1-binary-test-with-equal-frequency-bins"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_bin1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/irtfit.html">irtfit</a></span><span class="op">(</span></span>
@@ -666,7 +659,7 @@ collapsing) whose standardized residuals exceed <code>overSR</code>
 <span><span class="co">#&gt; 20 0.973 1000       0.273</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="example-2-binary-test-equal-width-bins">Example 2: Binary test — equal-width bins<a class="anchor" aria-label="anchor" href="#example-2-binary-test-equal-width-bins"></a>
+<h3 id="example-2-binary-test-with-equal-width-bins">Example 2: Binary test with equal-width bins<a class="anchor" aria-label="anchor" href="#example-2-binary-test-with-equal-width-bins"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_bin2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/irtfit.html">irtfit</a></span><span class="op">(</span></span>
@@ -806,7 +799,7 @@ if adjacent cells were merged during the statistical computation.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="model-fit-evaluation_files/figure-html/plot-irtfit-both-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># ICC overlay for Item 3 — Wilson score CI (recommended for proportions)</span></span>
+<code class="sourceCode R"><span><span class="co"># ICC overlay for Item 3, Wilson score CI (recommended for proportions)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">fit_bin1</span>,</span>
 <span>  item.loc   <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -838,22 +831,18 @@ if adjacent cells were merged during the statistical computation.</p>
 <tbody>
 <tr class="odd">
 <td><code>"wald"</code></td>
-<td>Normal-approximation (Wald) interval — simplest but can be
-unreliable for small
+<td>Normal-approximation (Wald) interval, simplest but can be unreliable
+for small
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>h</mi></msub><annotation encoding="application/x-tex">N_h</annotation></semantics></math>
 </td>
 </tr>
 <tr class="even">
-<td><code>"cp"</code></td>
-<td>Clopper–Pearson exact interval — conservative but exact</td>
+<td><code>"wilson"</code></td>
+<td>Wilson score interval, good coverage even for small
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>h</mi></msub><annotation encoding="application/x-tex">N_h</annotation></semantics></math>
+</td>
 </tr>
 <tr class="odd">
-<td><code>"wilson"</code></td>
-<td>Wilson score interval — good coverage even for small
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>h</mi></msub><annotation encoding="application/x-tex">N_h</annotation></semantics></math>
-</td>
-</tr>
-<tr class="even">
 <td><code>"wilson.cr"</code></td>
 <td>Wilson interval with continuity correction</td>
 </tr>
@@ -968,7 +957,7 @@ Within each summed-score group
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>,
 the expected proportion of correct responses
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>∣</mo><msub><mi>X</mi><mi>s</mi></msub><mo>=</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{P}(X_i = 1 \mid X_s = s)</annotation></semantics></math>
-is computed using the <strong>Lord–Wingersky recursive
+is computed using the <strong>Lord-Wingersky recursive
 algorithm</strong> <span class="citation">(Lord &amp; Wingersky,
 1984)</span>, which integrates the IRF over the latent ability
 distribution without requiring individual
@@ -1041,7 +1030,7 @@ with 0 (incorrect).</td>
 </tr>
 <tr class="odd">
 <td><code>D</code></td>
-<td>Scaling constant — must match calibration</td>
+<td>Scaling constant; must match calibration</td>
 </tr>
 <tr class="even">
 <td><code>alpha</code></td>
@@ -1057,7 +1046,7 @@ with 0 (incorrect).</td>
 <td><code>norm.prior</code></td>
 <td>
 <code>c(mean, sd)</code> of the normal prior used in the
-Lord–Wingersky integration (default <code>c(0, 1)</code>)</td>
+Lord-Wingersky integration (default <code>c(0, 1)</code>)</td>
 </tr>
 <tr class="odd">
 <td><code>nquad</code></td>
@@ -1093,8 +1082,8 @@ components:</p>
 <td>Data frame with columns <code>id</code>, <code>chisq</code>
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
 statistic), <code>df</code>, <code>crit.val</code> (critical value at
-the specified <code>alpha</code>), and <code>p</code> (p-value) — one
-row per item</td>
+the specified <code>alpha</code>), and <code>p</code> (p-value); one row
+per item</td>
 </tr>
 <tr class="even">
 <td><code>item_df</code></td>
@@ -1197,7 +1186,7 @@ row per item</td>
 <div class="section level3">
 <h3 id="example-2-mixed-format-test">Example 2: Mixed-format test<a class="anchor" aria-label="anchor" href="#example-2-mixed-format-test"></a>
 </h3>
-<p>For polytomous items, the Kang–Chen <span class="citation">(2008)</span> extension is applied automatically when
+<p>For polytomous items, the Kang-Chen <span class="citation">(2008)</span> extension is applied automatically when
 GRM or GPCM items are detected.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sx2_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sx2_fit.html">sx2_fit</a></span><span class="op">(</span></span>
@@ -1312,11 +1301,11 @@ residual relative to expectation.”</li>
 <li>Common decision rules <span class="citation">(Ames &amp; Penfield,
 2015)</span>:
 <ul>
-<li>Values <strong>&gt; 1.5</strong> (sometimes &gt; 2.0): unacceptable
-<em>overfit</em> — the item is less predictable than the model expects
-(noise, guessing inconsistency).</li>
-<li>Values <strong>&lt; 0.5</strong>: <em>underfit</em> — the item is
-more predictable than the model expects (overly narrow ICC, item
+<li>Values <strong>&gt; 1.5</strong> (sometimes &gt; 2.0):
+<em>underfit</em>, meaning the item is less predictable than the model
+expects (noise, inconsistent guessing).</li>
+<li>Values <strong>&lt; 0.5</strong>: <em>overfit</em>, meaning the item
+is more predictable than the model expects (overly steep ICC, item
 dependency).</li>
 </ul>
 </li>
@@ -1341,7 +1330,7 @@ rather than primary evidence of fit for non-Rasch models.</li>
 (<code>p</code> is the column name in <code>fit_stat</code>).</li>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
-is generally more robust than
+is generally preferable to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>

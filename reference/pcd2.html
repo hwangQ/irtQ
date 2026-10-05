@@ -25,7 +25,7 @@ parameter drift, ensuring the stability and accuracy of the test over time."><me
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,29 +33,24 @@ parameter drift, ensuring the stability and accuracy of the test over time."><me
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/hwangQ/irtQ" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -189,7 +184,10 @@ Default is <code>FALSE</code>.</p></dd>
 
 <dt id="arg-max-iter">max.iter<a class="anchor" aria-label="anchor" href="#arg-max-iter"></a></dt>
 <dd><p>A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is <code>10</code>.</p></dd>
+iterations allowed for the purification process. Default is <code>10</code>. If the
+limit is reached while flagged items remain, a warning is issued and the
+<code>complete</code> element of the purification results is <code>FALSE</code>; for tests with
+many items or many DIF items, consider increasing <code>max.iter</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -304,8 +302,8 @@ improving the robustness of the results.</p>
 approaches for suspected item parameter drift detection. <em>Measurement:
 Interdisciplinary Research and Perspectives, 16</em>(4), 226-238.</p>
 <p>Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
-goodness-of-fit test statistic in IRT models. <em>Journal of educational
-measurement, 37</em>(1), 58-75.</p>
+goodness-of-fit test statistic in IRT models. <em>Journal of Educational
+Measurement, 37</em>(1), 58-75.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -497,7 +495,7 @@ measurement, 37</em>(1), 58-75.</p>
 <span class="r-in"><span><span class="co">## -- Example 3: CAT-based IPD detection using simIPD --------------------------</span></span></span>
 <span class="r-in"><span><span class="co">##</span></span></span>
 <span class="r-in"><span><span class="co">## The Pseudo-count D2 statistic has no closed-form null distribution.</span></span></span>
-<span class="r-in"><span><span class="co">## Following Lim &amp; Han (in press), the critical value is estimated empirically</span></span></span>
+<span class="r-in"><span><span class="co">## Following Lim &amp; Han (2026), the critical value is estimated empirically</span></span></span>
 <span class="r-in"><span><span class="co">## via bootstrap:</span></span></span>
 <span class="r-in"><span><span class="co">##   (1) Select drift-free (anchor) items to form the null D2 distribution.</span></span></span>
 <span class="r-in"><span><span class="co">##   (2) Repeatedly resample from those values and take the 95th percentile.</span></span></span>
@@ -518,7 +516,7 @@ measurement, 37</em>(1), 58-75.</p>
 <span class="r-in"><span><span class="co">## responses (&gt;= boot_size) and (b) are not known IPD items. These items</span></span></span>
 <span class="r-in"><span><span class="co">## serve as the empirical null distribution of D2.</span></span></span>
 <span class="r-in"><span><span class="co">## boot_size = 300: chosen to match the minimum response count used in the</span></span></span>
-<span class="r-in"><span><span class="co">##   bootstrap procedure of the simulation study (Lim &amp; Han, in press).</span></span></span>
+<span class="r-in"><span><span class="co">##   bootstrap procedure of the simulation study (Lim &amp; Han, 2026).</span></span></span>
 <span class="r-in"><span><span class="co">## In practice, exclude items you know or suspect have drifted; here the</span></span></span>
 <span class="r-in"><span><span class="co">## ground truth (simIPD$ipd_item) is used for illustration.</span></span></span>
 <span class="r-in"><span><span class="va">boot_size</span>    <span class="op">&lt;-</span> <span class="fl">300</span></span></span>
@@ -534,7 +532,7 @@ measurement, 37</em>(1), 58-75.</p>
 <span class="r-in"><span>  purify   <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="va">no_purify</span><span class="op">$</span><span class="va">ipd_stat</span><span class="op">$</span><span class="va">pcd2</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## -- Step 3. Bootstrap critical value (Lim &amp; Han, in press) --------------</span></span></span>
+<span class="r-in"><span><span class="co">## -- Step 3. Bootstrap critical value (Lim &amp; Han, 2026) --------------</span></span></span>
 <span class="r-in"><span><span class="co">## For each bootstrap iteration: resample boot_size D2 values from the null</span></span></span>
 <span class="r-in"><span><span class="co">## distribution and take the 95th percentile. The critical value is the mean</span></span></span>
 <span class="r-in"><span><span class="co">## of these percentiles across all iterations.</span></span></span>

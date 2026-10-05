@@ -70,8 +70,8 @@ $`g(\theta) \sim N(0, 1)`$.
 
 > Note on Item Types: For clarity and simplicity, the mathematical
 > formulation and explanations below are presented using dichotomous
-> (binary) items, although the underlying logic seamlessly extends to
-> polytomous item response models.
+> (binary) items, although the underlying logic extends to polytomous
+> item response models.
 
 By integrating the latent variable $`\theta`$ out of the joint
 likelihood, we obtain the **marginal log-likelihood** of the observed
@@ -158,8 +158,8 @@ or other root-finding techniques.
 
 This two-step cycle (E and M) repeats. The algorithm terminates when the
 maximum absolute change in item parameter estimates between consecutive
-iterations is smaller than the convergence threshold specified by the
-`Etol` argument.
+iterations is less than or equal to the convergence threshold specified
+by the `Etol` argument.
 
 **Key advantages of MMLE-EM:**
 
@@ -211,7 +211,7 @@ iterations is smaller than the convergence threshold specified by the
 | `use.gprior` | Apply beta prior to guessing parameters (recommended for 3PLM) |
 | `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
 | `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
-| `gprior` | e.g., `list(dist = "beta", params = c(4, 16))` — mean = 4/(4+16) = 0.2 |
+| `gprior` | e.g., `list(dist = "beta", params = c(5, 16))` (default), mean = 5/(5+16) = 0.24 |
 
 **Convergence Settings:**
 
@@ -303,13 +303,13 @@ summary(mod_1pl_fixed)
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 20
 #>  Number of fixed items: 0
-#>  Number of E-step cycles completed: 6
-#>  Maximum parameter change: 6.362543e-06
+#>  Number of E-step cycles completed: 10
+#>  Maximum parameter change: 0.000937656
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.11
-#>  Standard error computation: 0.09
-#>  Total computation: 0.23
+#>  EM algorithm: 0.4
+#>  Standard error computation: 0.02
+#>  Total computation: 0.52
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -318,30 +318,30 @@ summary(mod_1pl_fixed)
 #>   Variance-covariance matrix of item parameter estimates is obtainable.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 8479.304
-#>  Akaike Information Criterion (AIC): 8519.304
-#>  Bayesian Information Criterion (BIC): 8603.597
+#>  -2loglikelihood: 8479.269
+#>  Akaike Information Criterion (AIC): 8519.269
+#>  Bayesian Information Criterion (BIC): 8603.561
 #>  Item Parameters: 
 #>      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3
 #> 1    I1     2   1PLM      1    NA  -2.12  0.13     NA    NA
 #> 2    I2     2   1PLM      1    NA  -1.80  0.11     NA    NA
 #> 3    I3     2   1PLM      1    NA  -1.58  0.10     NA    NA
 #> 4    I4     2   1PLM      1    NA  -1.43  0.10     NA    NA
-#> 5    I5     2   1PLM      1    NA  -1.12  0.09     NA    NA
-#> 6    I6     2   1PLM      1    NA  -1.09  0.09     NA    NA
-#> 7    I7     2   1PLM      1    NA  -0.79  0.09     NA    NA
+#> 5    I5     2   1PLM      1    NA  -1.13  0.09     NA    NA
+#> 6    I6     2   1PLM      1    NA  -1.10  0.09     NA    NA
+#> 7    I7     2   1PLM      1    NA  -0.80  0.09     NA    NA
 #> 8    I8     2   1PLM      1    NA  -0.56  0.08     NA    NA
 #> 9    I9     2   1PLM      1    NA  -0.30  0.08     NA    NA
 #> 10  I10     2   1PLM      1    NA  -0.19  0.08     NA    NA
 #> 11  I11     2   1PLM      1    NA   0.04  0.08     NA    NA
-#> 12  I12     2   1PLM      1    NA   0.30  0.08     NA    NA
+#> 12  I12     2   1PLM      1    NA   0.29  0.08     NA    NA
 #> 13  I13     2   1PLM      1    NA   0.57  0.08     NA    NA
-#> 14  I14     2   1PLM      1    NA   0.83  0.09     NA    NA
+#> 14  I14     2   1PLM      1    NA   0.82  0.09     NA    NA
 #> 15  I15     2   1PLM      1    NA   0.94  0.09     NA    NA
-#> 16  I16     2   1PLM      1    NA   1.13  0.09     NA    NA
+#> 16  I16     2   1PLM      1    NA   1.12  0.09     NA    NA
 #> 17  I17     2   1PLM      1    NA   1.43  0.10     NA    NA
-#> 18  I18     2   1PLM      1    NA   1.45  0.10     NA    NA
-#> 19  I19     2   1PLM      1    NA   1.68  0.10     NA    NA
+#> 18  I18     2   1PLM      1    NA   1.44  0.10     NA    NA
+#> 19  I19     2   1PLM      1    NA   1.67  0.10     NA    NA
 #> 20  I20     2   1PLM      1    NA   1.91  0.11     NA    NA
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
@@ -352,12 +352,12 @@ summary(mod_1pl_fixed)
 par_fixed <- getirt(mod_1pl_fixed, what = "par.est")
 head(par_fixed)
 #>   id cats model par.1     par.2 par.3
-#> 1 I1    2  1PLM     1 -2.117258    NA
-#> 2 I2    2  1PLM     1 -1.799535    NA
-#> 3 I3    2  1PLM     1 -1.578528    NA
-#> 4 I4    2  1PLM     1 -1.425732    NA
-#> 5 I5    2  1PLM     1 -1.120830    NA
-#> 6 I6    2  1PLM     1 -1.091244    NA
+#> 1 I1    2  1PLM     1 -2.122563    NA
+#> 2 I2    2  1PLM     1 -1.804785    NA
+#> 3 I3    2  1PLM     1 -1.583729    NA
+#> 4 I4    2  1PLM     1 -1.430895    NA
+#> 5 I5    2  1PLM     1 -1.125902    NA
+#> 6 I6    2  1PLM     1 -1.096306    NA
 
 # ---- Step 3b: Estimate with CONSTRAINED discrimination ----
 # Discrimination is constrained equal across items but freely estimated
@@ -393,13 +393,13 @@ summary(mod_1pl_constrained)
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 21
 #>  Number of fixed items: 0
-#>  Number of E-step cycles completed: 21
-#>  Maximum parameter change: 0.0007782085
+#>  Number of E-step cycles completed: 23
+#>  Maximum parameter change: 0.0009438272
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.27
-#>  Standard error computation: 0
-#>  Total computation: 0.29
+#>  EM algorithm: 0.16
+#>  Standard error computation: 0.01
+#>  Total computation: 0.19
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -408,12 +408,12 @@ summary(mod_1pl_constrained)
 #>   Variance-covariance matrix of item parameter estimates is obtainable.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 8479.074
-#>  Akaike Information Criterion (AIC): 8521.074
-#>  Bayesian Information Criterion (BIC): 8609.581
+#>  -2loglikelihood: 8479.072
+#>  Akaike Information Criterion (AIC): 8521.072
+#>  Bayesian Information Criterion (BIC): 8609.578
 #>  Item Parameters: 
 #>      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3
-#> 1    I1     2   1PLM   1.02  0.05  -2.09  0.15     NA    NA
+#> 1    I1     2   1PLM   1.02  0.05  -2.10  0.15     NA    NA
 #> 2    I2     2   1PLM   1.02    NA  -1.78  0.13     NA    NA
 #> 3    I3     2   1PLM   1.02    NA  -1.56  0.12     NA    NA
 #> 4    I4     2   1PLM   1.02    NA  -1.41  0.11     NA    NA
@@ -423,14 +423,14 @@ summary(mod_1pl_constrained)
 #> 8    I8     2   1PLM   1.02    NA  -0.56  0.08     NA    NA
 #> 9    I9     2   1PLM   1.02    NA  -0.30  0.08     NA    NA
 #> 10  I10     2   1PLM   1.02    NA  -0.19  0.08     NA    NA
-#> 11  I11     2   1PLM   1.02    NA   0.04  0.08     NA    NA
+#> 11  I11     2   1PLM   1.02    NA   0.03  0.08     NA    NA
 #> 12  I12     2   1PLM   1.02    NA   0.29  0.08     NA    NA
 #> 13  I13     2   1PLM   1.02    NA   0.55  0.08     NA    NA
 #> 14  I14     2   1PLM   1.02    NA   0.81  0.09     NA    NA
 #> 15  I15     2   1PLM   1.02    NA   0.92  0.09     NA    NA
 #> 16  I16     2   1PLM   1.02    NA   1.10  0.10     NA    NA
 #> 17  I17     2   1PLM   1.02    NA   1.40  0.11     NA    NA
-#> 18  I18     2   1PLM   1.02    NA   1.41  0.11     NA    NA
+#> 18  I18     2   1PLM   1.02    NA   1.42  0.11     NA    NA
 #> 19  I19     2   1PLM   1.02    NA   1.64  0.12     NA    NA
 #> 20  I20     2   1PLM   1.02    NA   1.88  0.13     NA    NA
 #>  Group Parameters: 
@@ -441,17 +441,17 @@ summary(mod_1pl_constrained)
 par_constrained <- getirt(mod_1pl_constrained, what = "par.est")
 head(par_constrained)
 #>   id cats model    par.1     par.2 par.3
-#> 1 I1    2  1PLM 1.019657 -2.093318    NA
-#> 2 I2    2  1PLM 1.019657 -1.780631    NA
-#> 3 I3    2  1PLM 1.019657 -1.563083    NA
-#> 4 I4    2  1PLM 1.019657 -1.412665    NA
-#> 5 I5    2  1PLM 1.019657 -1.112475    NA
-#> 6 I6    2  1PLM 1.019657 -1.083345    NA
+#> 1 I1    2  1PLM 1.018825 -2.095437    NA
+#> 2 I2    2  1PLM 1.018825 -1.782512    NA
+#> 3 I3    2  1PLM 1.018825 -1.564798    NA
+#> 4 I4    2  1PLM 1.018825 -1.414263    NA
+#> 5 I5    2  1PLM 1.018825 -1.113839    NA
+#> 6 I6    2  1PLM 1.018825 -1.084686    NA
 
 # Note: par.1 (discrimination) is the same for all items, but its value
 # is estimated from the data and may differ from 1
 cat("Common discrimination estimate:", unique(par_constrained$par.1), "\n")
-#> Common discrimination estimate: 1.019657
+#> Common discrimination estimate: 1.018825
 
 # ---- Compare difficulty recovery ----
 par(mfrow = c(1, 2))
@@ -537,9 +537,9 @@ summary(mod_bin)
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.57
-#>  Standard error computation: 0.01
-#>  Total computation: 0.59
+#>  EM algorithm: 0.85
+#>  Standard error computation: 0.02
+#>  Total computation: 0.88
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -732,7 +732,7 @@ empirical estimate closely follows the normal overlay.
 
 ------------------------------------------------------------------------
 
-### Example 4: 3PLM Calibration — Priors and Guessing Parameter Options
+### Example 4: 3PLM Calibration with Priors and Guessing Parameter Options
 
 The **3-parameter logistic model (3PLM)** adds a lower-asymptote
 (guessing) parameter $`g`$ to the 2PLM:
@@ -748,10 +748,10 @@ even with large samples), there are two primary options for handling
 $`g`$ in
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md):
 
-1.  **Estimate $`g`$ with a Beta prior** (`use.gprior = TRUE`) —
+1.  **Estimate $`g`$ with a Beta prior** (`use.gprior = TRUE`):
     regularizes $`g`$ toward a plausible range (e.g., $`1/K`$ for a
     $`K`$-option MC item), or
-2.  **Fix $`g`$ at a constant value** (`fix.g = TRUE`, `g.val = ...`) —
+2.  **Fix $`g`$ at a constant value** (`fix.g = TRUE`, `g.val = ...`):
     appropriate when the number of response options is known and
     guessing is assumed uniform.
 
@@ -863,9 +863,9 @@ summary(mod_3pl_gprior)
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.11
+#>  EM algorithm: 1.67
 #>  Standard error computation: 0.03
-#>  Total computation: 1.15
+#>  Total computation: 1.72
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -983,9 +983,9 @@ summary(mod_3pl_fixg)
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.74
+#>  EM algorithm: 1.14
 #>  Standard error computation: 0.02
-#>  Total computation: 0.78
+#>  Total computation: 1.21
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1102,9 +1102,9 @@ summary(mod_3pl_allprior)
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.47
-#>  Standard error computation: 0.02
-#>  Total computation: 1.5
+#>  EM algorithm: 2.2
+#>  Standard error computation: 0.22
+#>  Total computation: 2.45
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1268,15 +1268,14 @@ We now calibrate a **mixed-format test** containing:
 
 - **15 dichotomous items** modeled with 3PLM
 - **5 polytomous items** modeled with GRM (4 categories each, scored
-  0–3)
+  0-3)
 
 #### Understanding GRM Parameters
 
 For a GRM item with **K = 4 score categories** (0, 1, 2, 3), the model
 uses:
 
-- **a**: Discrimination parameter — shared across all category
-  boundaries
+- **a**: Discrimination parameter, shared across all category boundaries
 - **b₁, b₂, b₃**: Boundary threshold parameters for category boundaries
   1, 2, 3, respectively
 
@@ -1385,9 +1384,9 @@ summary(mod_mix)
 #>  Maximum parameter change: 0.0009697275
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.53
+#>  EM algorithm: 0.81
 #>  Standard error computation: 0.02
-#>  Total computation: 0.76
+#>  Total computation: 0.85
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1433,7 +1432,7 @@ summary(mod_mix)
 
 est_mix <- getirt(mod_mix, what = "par.est")
 
-# GRM items are rows 16–20
+# GRM items are rows 16-20
 grm_items <- est_mix[16:20, ]
 print(grm_items)
 #>      id cats model     par.1      par.2      par.3     par.4
@@ -1480,7 +1479,7 @@ print(grm_items)
 
 ------------------------------------------------------------------------
 
-## Part 2: Pretest Calibration — FIPC
+## Part 2: Pretest Calibration (FIPC)
 
 ### Why Fixed Item Parameter Calibration (FIPC)?
 
@@ -1490,10 +1489,10 @@ doing so without disrupting the established measurement scale poses a
 challenge. Traditional concurrent calibration requires re-estimating all
 operational and pretest items together. For large-scale item banks, this
 concurrent approach is not only computationally expensive but also risks
-causing **scale drift**—unwanted shifts in the parameters of already
+causing **scale drift**: unwanted shifts in the parameters of already
 established operational items.
 
-**FIPC** effectively resolves this dilemma by:
+**FIPC** addresses this problem by:
 
 1.  **Fixing** the parameters of operational (anchor) items at their
     bank values during calibration.
@@ -1501,15 +1500,15 @@ established operational items.
 3.  Automatically **placing** the new items directly onto the existing
     measurement scale of the item bank.
 
-This approach is highly essential for:
+This approach is useful for:
 
 - **Pre-equating** new test forms to predict form characteristics before
   operational administration.
-- **Continuous Item Banking**—systematically updating and expanding a
+- **Continuous Item Banking**: systematically updating and expanding a
   measurement pool.
-- **Eliminating Post-hoc Linking**—obviating the need for separate,
+- **Eliminating Post-hoc Linking**: obviating the need for separate,
   labor-intensive equating studies.
-- **Online Pretest Calibration in CAT**—calibrating new items
+- **Online Pretest Calibration in CAT**: calibrating new items
   interspersed within a Computerized Adaptive Testing (CAT) environment
   without taking the operational pool offline or altering its scale.
 
@@ -1537,9 +1536,9 @@ examinee group, thereby establishing the link to the existing scale.
 
 #### Scenario B: Computerized Adaptive Testing (Individual-level Anchoring)
 
-In a CAT environment, FIPC functions as a powerful **online
-calibration** method. Because each examinee receives a unique, adapted
-set of operational items, there is no single fixed “form.” Instead:
+In a CAT environment, FIPC functions as an **online calibration**
+method. Because each examinee receives a unique, adapted set of
+operational items, there is no single fixed “form.” Instead:
 
 - The unique set of operational items encountered by each examinee
   serves as their **personalized anchor set**.
@@ -1560,7 +1559,7 @@ immediately.
 > Note: While FIPC preserves the scale rigorously by integrating out the
 > latent trait distribution through EM iterations, it can be
 > computationally intensive in real-time CAT settings. A computationally
-> streamlined alternative is **FAPC**, which fixes individual ability
+> lighter alternative is **FAPC**, which fixes individual ability
 > estimates instead of item parameters, as detailed in Part 3.
 
 ### Two FIPC Methods in irtQ
@@ -1592,7 +1591,7 @@ mod_old <- est_irt(
   D     = 1.702,
   ...
 )
-# Extract calibrated parameters — these become the anchors
+# Extract calibrated parameters to use as anchors
 meta_anchor <- getirt(mod_old, what = "par.est")
 ```
 
@@ -1646,8 +1645,8 @@ We demonstrate FIPC with a dichotomous test in a realistic pre-equating
 scenario:
 
 - **Old form (Group X)**: 20 items, $`N(0, 1)`$ examinees
-- **New form (Group Y)**: Items 1–15 are anchor items (fixed) + Items
-  16–20 are pretest items (to estimate); $`N(0.3, 1)`$ examinees
+- **New form (Group Y)**: Items 1-15 are anchor items (fixed) + Items
+  16-20 are pretest items (to estimate); $`N(0.3, 1)`$ examinees
 
 ``` r
 
@@ -1683,7 +1682,7 @@ mod_old <- est_irt(
   verbose = FALSE
 )
 
-# Extract calibrated parameters — these serve as anchors
+# Extract calibrated parameters to use as anchors
 meta_anchor_full <- getirt(mod_old, what = "par.est")
 head(meta_anchor_full)
 #>    id cats model     par.1       par.2 par.3
@@ -1698,13 +1697,13 @@ head(meta_anchor_full)
 ``` r
 
 # ---- Step 2: Build new form metadata ----
-# Select 15 anchor items: positions 1–15 in the old form
+# Select 15 anchor items: positions 1-15 in the old form
 fixed_pos   <- 1:15
 meta_anchor <- meta_anchor_full[fixed_pos, ]
 
 # New form layout:
-#   Positions 1–15: anchor items (fixed at old-form estimates)
-#   Positions 16–20: pretest items (to be estimated)
+#   Positions 1-15: anchor items (fixed at old-form estimates)
+#   Positions 16-20: pretest items (to be estimated)
 # Total: 15 anchor + 5 pretest = 20 items
 meta_fipc <- shape_df_fipc(
   x       = meta_anchor,            # Fixed anchor item metadata
@@ -1745,7 +1744,7 @@ print(meta_fipc)
 # Group Y has slightly higher ability: N(0.3, 1)
 theta_new <- rnorm(500, mean = 0.3, sd = 1)
 
-# True parameters for pretest items (for simulation only — unknown in practice)
+# True parameters for pretest items (for simulation only, unknown in practice)
 meta_new_true <- shape_df(
   par.drm = list(
     a = c(1.1, 0.9, 1.2, 0.8, 1.3),
@@ -1757,8 +1756,8 @@ meta_new_true <- shape_df(
 )
 
 # Simulate full new form responses:
-# Columns 1–15: anchor item responses
-# Columns 16–20: pretest item responses
+# Columns 1-15: anchor item responses
+# Columns 16-20: pretest item responses
 resp_anch <- simdat(x = meta_anchor, theta = theta_new, D = 1.702)
 resp_pre  <- simdat(x = meta_new_true, theta = theta_new, D = 1.702)
 resp_new  <- cbind(resp_anch, resp_pre)   # 500 × 20 matrix
@@ -1796,12 +1795,12 @@ summary(mod_fipc)
 #>  Number of free parameters: 12
 #>  Number of fixed items: 15
 #>  Number of E-step cycles completed: 13
-#>  Maximum parameter change: 0.0008186951
+#>  Maximum parameter change: 0.0008186949
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.08
+#>  EM algorithm: 0.11
 #>  Standard error computation: 0
-#>  Total computation: 0.1
+#>  Total computation: 0.14
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1845,7 +1844,7 @@ summary(mod_fipc)
 
 ``` r
 
-# Estimated parameters — pretest items are the last 5 rows
+# Estimated parameters; pretest items are the last 5 rows
 all_par     <- getirt(mod_fipc, what = "par.est")
 pretest_par <- tail(all_par, 5)
 print(pretest_par)
@@ -1889,7 +1888,7 @@ cat("Difficulty RMSE:",
   (Group X) because the anchor items constrain the θ-metric.
 - Group Y’s ability distribution is accurately recovered (mean ≈ 0.3, SD
   ≈ 1.0).
-- Anchor items (positions 1–15) retain their fixed values from
+- Anchor items (positions 1-15) retain their fixed values from
   `meta_anchor`.
 - Pretest items can now be added to the operational item bank.
 
@@ -1904,9 +1903,9 @@ dichotomous and polytomous items.
 
 - **Old form**: 25 dichotomous (3PLM) + 3 polytomous (GRM, 5 categories)
   = 28 items
-- **Anchor items** (to be fixed): Items 1–20 (3PLM) + Items 26–27 (GRM)
+- **Anchor items** (to be fixed): Items 1-20 (3PLM) + Items 26-27 (GRM)
   = 22 items
-- **Pretest items** (to be estimated): Items 21–25 (3PLM) + Item 28
+- **Pretest items** (to be estimated): Items 21-25 (3PLM) + Item 28
   (GRM) = 6 items
 
 This mirrors a realistic scenario where new items of both types are
@@ -1960,7 +1959,7 @@ mod_old_mix <- est_irt(
 # Extract calibrated parameters and select anchor items
 meta_anchor_mix <- getirt(mod_old_mix, what = "par.est")
 
-# Anchor: items 1–20 (3PLM) + items 26–27 (GRM)
+# Anchor: items 1-20 (3PLM) + items 26-27 (GRM)
 fixed_pos_mix   <- c(1:20, 26:27)
 meta_anchor_mix <- meta_anchor_mix[fixed_pos_mix, ]
 
@@ -1976,7 +1975,7 @@ print(table(meta_anchor_mix$model))
 
 # ---- Step 2: Build new form metadata ----
 # Pretest: 5 dichotomous (3PLM) + 1 polytomous (GRM)
-# New form positions: anchor at 1–20, 26–27; pretest at 21–25, 28
+# New form positions: anchor at 1-20, 26-27; pretest at 21-25, 28
 meta_fipc_mix <- shape_df_fipc(
   x       = meta_anchor_mix,
   fix.loc = fixed_pos_mix,
@@ -2062,12 +2061,12 @@ summary(mod_fipc_mix)
 #>  Number of free parameters: 22
 #>  Number of fixed items: 22
 #>  Number of E-step cycles completed: 7
-#>  Maximum parameter change: 0.0008470059
+#>  Maximum parameter change: 0.0008719196
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.13
-#>  Standard error computation: 0
-#>  Total computation: 0.16
+#>  EM algorithm: 0.2
+#>  Standard error computation: 0.01
+#>  Total computation: 0.23
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2205,7 +2204,7 @@ cat("Estimated:    mean=", round(group_par_mix[1, "mu"], 3),
 
 ------------------------------------------------------------------------
 
-## Part 3: Pretest Calibration — FAPC with `est_item()`
+## Part 3: Pretest Calibration (FAPC with `est_item()`)
 
 ### Why Fixed Ability Parameter Calibration (FAPC)?
 
@@ -2226,7 +2225,7 @@ sequence of items:
   test to accumulate response data; their parameters are unknown and
   need to be calibrated.
 
-FAPC leverages the individual $`\hat{\theta}`$ values obtained from the
+FAPC uses the individual $`\hat{\theta}`$ values obtained from the
 operational items to calibrate each pretest item independently.
 
 Compared to FIPC, FAPC is computationally much simpler. Because it
@@ -2308,7 +2307,7 @@ meta_pre <- shape_df(
 )
 
 # Simulate complete pretest responses based on the abilities
-# (Note: est_item() also works perfectly if this matrix contains NA values)
+# (Note: est_item() also accepts NA values in this matrix)
 resp_pre10 <- simdat(x = meta_pre, theta = theta_fapc, D = 1.702)
 
 # ---- Step 3: Calibrate via FAPC ----
@@ -2344,7 +2343,7 @@ summary(mod_fapc)
 #> 10  PRE10  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.04
+#>  Total computation: 0.05
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
@@ -2565,17 +2564,17 @@ and polytomous items.
 #### Test Structure of `simMG`:
 
 - **Group 1**: 50 items (47 3PLM + 3 GRM with 5 categories)
-  - Shares 12 anchor items (**C1**: items `C1I1`–`C1I12`) with Group 2.
+  - Shares 12 anchor items (**C1**: items `C1I1`-`C1I12`) with Group 2.
   - In Group 1’s test form, these **C1** items are located at positions
-    **1–10 and 49–50**.
+    **1-10 and 49-50**.
 - **Group 2**: 50 items (47 3PLM + 3 GRM)
   - Shares 12 anchor items (**C1**) with Group 1, located at positions
-    **1–12**.
-  - Shares 10 anchor items (**C2**: items `C2I1`–`C2I10`) with Group 3,
-    located at positions **41–50**.
+    **1-12**.
+  - Shares 10 anchor items (**C2**: items `C2I1`-`C2I10`) with Group 3,
+    located at positions **41-50**.
 - **Group 3**: 38 items (37 3PLM + 1 GRM)
   - Shares 10 anchor items (**C2**) with Group 2, located at positions
-    **1–10**.
+    **1-10**.
 
 **True ability distributions:**
 
@@ -2673,9 +2672,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 11.25
-#>  Standard error computation: 0.15
-#>  Total computation: 11.97
+#>  EM algorithm: 14.86
+#>  Standard error computation: 0.2
+#>  Total computation: 15.66
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2983,7 +2982,7 @@ head(par_mg)
 #> 3    C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
 #> 4    C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
 #> 5    C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6    C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
+#> 6    C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA
 #> 7    C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
 #> 8    C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
 #> 9    C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
@@ -2991,11 +2990,11 @@ head(par_mg)
 #> 11   G1I1    2  3PLM 0.9359127 -0.548239144  0.12796867         NA         NA
 #> 12   G1I2    2  3PLM 0.8464253  1.172570909  0.08981114         NA         NA
 #> 13   G1I3    2  3PLM 1.4616326  1.305882948  0.18093863         NA         NA
-#> 14   G1I4    2  3PLM 1.4926688  0.238013232  0.28916429         NA         NA
+#> 14   G1I4    2  3PLM 1.4926688  0.238013233  0.28916429         NA         NA
 #> 15   G1I5    2  3PLM 1.2979873 -0.242251772  0.13400726         NA         NA
 #> 16   G1I6    2  3PLM 2.1074476 -0.012948148  0.07444095         NA         NA
 #> 17   G1I7    2  3PLM 1.4082434 -0.118840206  0.18134112         NA         NA
-#> 18   G1I8    2  3PLM 2.4266305  1.180075734  0.32271527         NA         NA
+#> 18   G1I8    2  3PLM 2.4266306  1.180075775  0.32271527         NA         NA
 #> 19   G1I9    2  3PLM 2.3509008 -0.977087363  0.21540341         NA         NA
 #> 20  G1I10    2  3PLM 1.2511555 -1.833025156  0.18382522         NA         NA
 #> 21  G1I11    2  3PLM 1.5207162 -1.185147713  0.16473757         NA         NA
@@ -3017,7 +3016,7 @@ head(par_mg)
 #> 37  G1I27    2  3PLM 1.6038171 -1.629006369  0.20988867         NA         NA
 #> 38  G1I28    2  3PLM 1.2874830  0.532576013  0.13701099         NA         NA
 #> 39  G1I29    2  3PLM 0.8993998 -0.443199401  0.09884639         NA         NA
-#> 40  G1I30    2  3PLM 0.9764149  2.298256707  0.16440818         NA         NA
+#> 40  G1I30    2  3PLM 0.9764149  2.298256708  0.16440818         NA         NA
 #> 41  G1I31    2  3PLM 2.3488846  1.645346469  0.18059777         NA         NA
 #> 42  G1I32    2  3PLM 1.0719102 -0.141789310  0.12290992         NA         NA
 #> 43  G1I33    2  3PLM 1.5612761  0.146268646  0.14565485         NA         NA
@@ -3066,16 +3065,16 @@ head(par_mg)
 #> 86   C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA
 #> 87   C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA
 #> 88  C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA
-#> 89   G3I1    2  3PLM 1.4958521 -1.157480281  0.13021457         NA         NA
-#> 90   G3I2    2  3PLM 0.7408780 -0.735132395  0.15274024         NA         NA
+#> 89   G3I1    2  3PLM 1.4958520 -1.157480281  0.13021457         NA         NA
+#> 90   G3I2    2  3PLM 0.7408780 -0.735132396  0.15274024         NA         NA
 #> 91   G3I3    2  3PLM 1.1082057  0.025301687  0.15302876         NA         NA
 #> 92   G3I4    2  3PLM 1.2502137  1.732480555  0.22122128         NA         NA
 #> 93   G3I5    2  3PLM 0.7484885 -1.246114621  0.22345365         NA         NA
 #> 94   G3I6    2  3PLM 1.1068583 -1.524973978  0.24798634         NA         NA
 #> 95   G3I7    2  3PLM 1.3187121  0.223560460  0.13144430         NA         NA
 #> 96   G3I8    2  3PLM 1.8714736 -0.110985326  0.14002954         NA         NA
-#> 97   G3I9    2  3PLM 1.1037907 -1.301014196  0.16749544         NA         NA
-#> 98  G3I10    2  3PLM 1.4614569  0.970092509  0.28702354         NA         NA
+#> 97   G3I9    2  3PLM 1.1037907 -1.301014197  0.16749544         NA         NA
+#> 98  G3I10    2  3PLM 1.4614569  0.970092510  0.28702354         NA         NA
 #> 99  G3I11    2  3PLM 0.8635917  0.758975315  0.06886835         NA         NA
 #> 100 G3I12    2  3PLM 1.3635440 -0.866226276  0.22745508         NA         NA
 #> 101 G3I13    2  3PLM 1.0739247 -1.216780038  0.18915640         NA         NA
@@ -3115,7 +3114,7 @@ head(par_mg)
 #> 15  G1I5    2  3PLM 1.2979873 -0.24225177  0.13400726         NA         NA
 #> 16  G1I6    2  3PLM 2.1074476 -0.01294815  0.07444095         NA         NA
 #> 17  G1I7    2  3PLM 1.4082434 -0.11884021  0.18134112         NA         NA
-#> 18  G1I8    2  3PLM 2.4266305  1.18007573  0.32271527         NA         NA
+#> 18  G1I8    2  3PLM 2.4266306  1.18007577  0.32271527         NA         NA
 #> 19  G1I9    2  3PLM 2.3509008 -0.97708736  0.21540341         NA         NA
 #> 20 G1I10    2  3PLM 1.2511555 -1.83302516  0.18382522         NA         NA
 #> 21 G1I11    2  3PLM 1.5207162 -1.18514771  0.16473757         NA         NA
@@ -3156,7 +3155,7 @@ head(par_mg)
 #> 3   C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
 #> 4   C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
 #> 5   C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6   C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
+#> 6   C1I6    2  3PLM 1.8443147  0.582432824  0.08027942         NA         NA
 #> 7   C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
 #> 8   C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
 #> 9   C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
@@ -3214,10 +3213,10 @@ head(par_mg)
 #> 8   C2I8    2  3PLM 1.4743622  1.27817927 0.18509527        NA       NA
 #> 9   C2I9    2  3PLM 2.1404797 -1.04893386 0.12403332        NA       NA
 #> 10 C2I10    2  3PLM 1.5576919 -1.41374224 0.22823561        NA       NA
-#> 11  G3I1    2  3PLM 1.4958521 -1.15748028 0.13021457        NA       NA
+#> 11  G3I1    2  3PLM 1.4958520 -1.15748028 0.13021457        NA       NA
 #> 12  G3I2    2  3PLM 0.7408780 -0.73513240 0.15274024        NA       NA
 #> 13  G3I3    2  3PLM 1.1082057  0.02530169 0.15302876        NA       NA
-#> 14  G3I4    2  3PLM 1.2502137  1.73248055 0.22122128        NA       NA
+#> 14  G3I4    2  3PLM 1.2502137  1.73248056 0.22122128        NA       NA
 #> 15  G3I5    2  3PLM 0.7484885 -1.24611462 0.22345365        NA       NA
 #> 16  G3I6    2  3PLM 1.1068583 -1.52497398 0.24798634        NA       NA
 #> 17  G3I7    2  3PLM 1.3187121  0.22356046 0.13144430        NA       NA
@@ -3318,16 +3317,16 @@ Parameter Calibration (Kim & Kolen, 2016).
 - An operational item bank already exists (calibrated on a reference
   scale).
 - New test forms are field-tested across different examinee groups.
-- You want to seamlessly add new items to the bank without
-  re-calibrating or shifting the existing anchors.
+- You want to add new items to the bank without re-calibrating or
+  shifting the existing anchors.
 
 The anchor item positions specified in the `fix.loc` argument must
 accurately reflect each group’s unique test form layout:
 
-- **Group 1**: C1 anchor items located at positions **1–10 and 49–50**.
-- **Group 2**: Contains both **C1** anchor items (at positions **1–12**)
-  and **C2** anchor items (at positions **41–50**).
-- **Group 3**: C2 anchor items located at positions **1–10**.
+- **Group 1**: C1 anchor items located at positions **1-10 and 49-50**.
+- **Group 2**: Contains both **C1** anchor items (at positions **1-12**)
+  and **C2** anchor items (at positions **41-50**).
+- **Group 3**: C2 anchor items located at positions **1-10**.
 
 ``` r
 
@@ -3385,9 +3384,9 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 5.71
-#>  Standard error computation: 0.11
-#>  Total computation: 6.48
+#>  EM algorithm: 8.13
+#>  Standard error computation: 0.16
+#>  Total computation: 9.02
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3656,7 +3655,7 @@ group_par_fipc <- getirt(mod_mg_fipc, what = "group.par")
 print(group_par_fipc)
 #> $Group1
 #>                    mu     sigma2      sigma
-#> estimates -0.01161244 1.00951986 1.00474866
+#> estimates -0.01161244 1.00951987 1.00474866
 #> se         0.02246686 0.03193181 0.01589044
 #> 
 #> $Group2
@@ -3726,7 +3725,7 @@ different structures, `fix.loc` or `fix.id` must always be supplied as a
 
 ``` r
 
-# WRONG — fix.loc must be a list for est_mg(), even if only fixing items in one group
+# WRONG: fix.loc must be a list for est_mg(), even if only fixing items in one group
 est_mg(..., fipc = TRUE, fix.loc = c(1:10))
 
 # CORRECT
@@ -3762,17 +3761,17 @@ number of score categories** across all groups where it appears.
 ### Summary
 
 The [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md)
-function provides a powerful framework that enables:
+function provides a framework that enables:
 
 - ✅ **Simultaneous Calibration** across multiple independent or
   non-equivalent examinee samples.
-- ✅ **Automatic Anchor Constraints** to establish robust scale linking
-  via unique item ID matching.
+- ✅ **Automatic Anchor Constraints** to establish scale linking via
+  unique item ID matching.
 - ✅ **Group-Specific Population Estimation** featuring flexible
   empirical histogram (`EmpHist`) support to track population drifts
   accurately.
-- ✅ **MG-FIPC Execution** for seamlessly appending field-tested items
-  onto an active, pre-scaled item bank.
+- ✅ **MG-FIPC Execution** for appending field-tested items onto an
+  active, pre-scaled item bank.
 - ✅ **Mixed-Format Support** that handles combinations of dichotomous
   and polytomous parameters concurrently.
 

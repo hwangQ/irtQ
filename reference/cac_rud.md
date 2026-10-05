@@ -42,7 +42,11 @@ cac_rud(x = NULL, cutscore, theta = NULL, se = NULL, weights = NULL, D = 1)
   A numeric vector of the same length as `theta` representing the
   standard errors associated with each ability estimate. If `NULL` and
   `x` is supplied, standard errors are computed using the test
-  information function. See the **Details** section for more information
+  information function. See the **Details** section for more
+  information. Standard errors from
+  [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
+  that are set to 99.9999 (ability estimates at a limit of `range`)
+  should be handled before they are supplied.
 
 - weights:
 
@@ -102,11 +106,12 @@ with the associated weights.
 ## References
 
 Rudner, L. M. (2001). Computing the expected proportions of
-misclassified examinees. *Practical Assessment, Research, and
-Evaluation, 7*(1), 14.
+misclassified examinees. *Practical Assessment, Research & Evaluation,
+7*(14). [doi:10.7275/an9m-2035](https://doi.org/10.7275/an9m-2035) .
 
 Rudner, L. M. (2005). Expected classification accuracy. *Practical
-Assessment, Research, and Evaluation, 10*(1), 13.
+Assessment, Research & Evaluation, 10*(13).
+[doi:10.7275/56a5-6b14](https://doi.org/10.7275/56a5-6b14) .
 
 ## See also
 

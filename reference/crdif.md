@@ -173,7 +173,10 @@ crdif(
 - max.iter:
 
   A positive integer specifying the maximum number of iterations allowed
-  for the purification process. Default is `10`.
+  for the purification process. Default is `10`. If the limit is reached
+  while flagged items remain, a warning is issued and the `complete`
+  element of the purification results is `FALSE`; for tests with many
+  items or many DIF items, consider increasing `max.iter`.
 
 - min.resp:
 
@@ -304,8 +307,9 @@ This function returns a list containing four main components:
 
   dif_item
 
-  :   A list of three numeric vectors identifying items flagged as DIF
-      at any iteration, by each statistic.
+  :   A numeric vector of the positions (rows of `x`) of the items
+      flagged as DIF by the `purify.by` statistic across all
+      purification iterations, sorted in ascending order.
 
   n.iter
 
@@ -340,10 +344,11 @@ representing the overall impact of DIF on the item's expected score.
 
 The RDIF framework using categorical residuals (RDIF-CR), implemented in
 `crdif()`, extends the original residual-based DIF framework proposed by
-Lim et al. (2022) to detect global DIF in polytomous items. This
-framework includes three statistics: \\RDIF\_{R}-CR\\, \\RDIF\_{S}-CR\\,
-and \\RDIF\_{RS}-CR\\, each designed to capture different aspects of
-group-level differences in categorical response patterns.
+Lim et al. (2022) to detect global DIF in polytomous items (Jung & Lim,
+2026; Lim, Malatesta, & Lee, 2024). This framework includes three
+statistics: \\RDIF\_{R}-CR\\, \\RDIF\_{S}-CR\\, and \\RDIF\_{RS}-CR\\,
+each designed to capture different aspects of group-level differences in
+categorical response patterns.
 
 To illustrate how the RDIF-CR framework operates, consider an item with
 five ordered score categories (\\k \in \\0,1,2,3,4\\\\). Suppose an
@@ -381,13 +386,24 @@ net DIF evaluations mathematically equivalent.
 
 ## References
 
+Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
+polytomous items using RDIF. Paper presented at the annual meeting of
+the National Council on Measurement in Education, Los Angeles, CA.
+
 Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 item functioning detection framework in item response theory. *Journal
 of Educational Measurement, 59*(1), 80-104.
 [doi:10.1111/jedm.12313](https://doi.org/10.1111/jedm.12313) .
 
+Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
+detection with the residual DIF framework. Paper presented at the annual
+International Meeting of the Psychometric Society, Prague, Czech
+Republic.
+
 Penfield, R. D. (2010). Distinguishing between net and global DIF in
 polytomous items. *Journal of Educational Measurement, 47*(2), 129-149.
+[doi:10.1111/j.1745-3984.2010.00105.x](https://doi.org/10.1111/j.1745-3984.2010.00105.x)
+.
 
 ## See also
 
@@ -469,7 +485,7 @@ fit_mod <- irtQ::est_irt(data = data, D = 1, model = "GRM", cats = 4)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -13079.1582, Max-Change: 0.716758 EM iteration: 2, Loglike: -12041.8257, Max-Change: 0.450889 EM iteration: 3, Loglike: -11967.1516, Max-Change: 0.304131 EM iteration: 4, Loglike: -11944.2648, Max-Change: 0.209059 EM iteration: 5, Loglike: -11935.3740, Max-Change: 0.146712 EM iteration: 6, Loglike: -11931.5055, Max-Change: 0.10458 EM iteration: 7, Loglike: -11929.6966, Max-Change: 0.075403 EM iteration: 8, Loglike: -11928.8066, Max-Change: 0.054821 EM iteration: 9, Loglike: -11928.3510, Max-Change: 0.040101 EM iteration: 10, Loglike: -11928.1100, Max-Change: 0.029467 EM iteration: 11, Loglike: -11927.9790, Max-Change: 0.021725 EM iteration: 12, Loglike: -11927.9059, Max-Change: 0.016058 EM iteration: 13, Loglike: -11927.8642, Max-Change: 0.011891 EM iteration: 14, Loglike: -11927.8399, Max-Change: 0.008818 EM iteration: 15, Loglike: -11927.8254, Max-Change: 0.006545 EM iteration: 16, Loglike: -11927.8167, Max-Change: 0.004862 EM iteration: 17, Loglike: -11927.8113, Max-Change: 0.003614 EM iteration: 18, Loglike: -11927.8080, Max-Change: 0.002687 EM iteration: 19, Loglike: -11927.8058, Max-Change: 0.001998 EM iteration: 20, Loglike: -11927.8045, Max-Change: 0.001486 EM iteration: 21, Loglike: -11927.8036, Max-Change: 0.001105 EM iteration: 22, Loglike: -11927.8030, Max-Change: 0.000822 EM iteration: 23, Loglike: -11927.8026, Max-Change: 0.000611 EM iteration: 24, Loglike: -11927.8024, Max-Change: 0.000454 EM iteration: 25, Loglike: -11927.8022, Max-Change: 0.000338 EM iteration: 26, Loglike: -11927.8021, Max-Change: 0.000251 EM iteration: 27, Loglike: -11927.8020, Max-Change: 0.000186 EM iteration: 28, Loglike: -11927.8019, Max-Change: 0.000138 EM iteration: 29, Loglike: -11927.8019, Max-Change: 0.000103 EM iteration: 30, Loglike: -11927.8019, Max-Change: 7.6e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.29 seconds. 
+#> Estimation is finished in 0.43 seconds. 
 
 # Extract estimated item parameters
 x <- fit_mod$par.est
@@ -583,11 +599,11 @@ print(dif_puri_1)
 #>   - RDIF-CR Statistics: 
 #> 
 #>   id n.iter n.ref n.foc  crdifr df.crdifr p.crdifr      crdifs df.crdifs
-#> 1 V1      1  1000  1000 171.537         4    0.000 *** 144.633         4
+#> 1 V1      1  1000  1000 171.536         4    0.000 *** 144.633         4
 #> 2 V2      2  1000  1000   0.115         4    0.998       3.229         4
 #> 3 V3      2  1000  1000   2.976         4    0.562       2.493         4
 #> 4 V4      2  1000  1000   1.096         4    0.895       0.102         4
-#> 5 V5      0  1000  1000 409.885         4    0.000 *** 606.018         4
+#> 5 V5      0  1000  1000 409.884         4    0.000 *** 606.018         4
 #>   p.crdifs     crdifrs df.crdifrs p.crdifrs    
 #> 1    0.000 ***  182.31          8     0.000 ***
 #> 2    0.520        3.41          8     0.906    
@@ -653,11 +669,11 @@ print(dif_puri_2)
 #>   - RDIF-CR Statistics: 
 #> 
 #>   id n.iter n.ref n.foc  crdifr df.crdifr p.crdifr      crdifs df.crdifs
-#> 1 V1      1  1000  1000 171.537         4    0.000 *** 144.633         4
+#> 1 V1      1  1000  1000 171.536         4    0.000 *** 144.633         4
 #> 2 V2      2  1000  1000   0.115         4    0.998       3.229         4
 #> 3 V3      2  1000  1000   2.976         4    0.562       2.493         4
 #> 4 V4      2  1000  1000   1.096         4    0.895       0.102         4
-#> 5 V5      0  1000  1000 409.885         4    0.000 *** 606.018         4
+#> 5 V5      0  1000  1000 409.884         4    0.000 *** 606.018         4
 #>   p.crdifs     crdifrs df.crdifrs p.crdifrs    
 #> 1    0.000 ***  182.31          8     0.000 ***
 #> 2    0.520        3.41          8     0.906    
@@ -723,11 +739,11 @@ print(dif_puri_3)
 #>   - RDIF-CR Statistics: 
 #> 
 #>   id n.iter n.ref n.foc  crdifr df.crdifr p.crdifr      crdifs df.crdifs
-#> 1 V1      1  1000  1000 171.537         4    0.000 *** 144.633         4
+#> 1 V1      1  1000  1000 171.536         4    0.000 *** 144.633         4
 #> 2 V2      2  1000  1000   0.115         4    0.998       3.229         4
 #> 3 V3      2  1000  1000   2.976         4    0.562       2.493         4
 #> 4 V4      2  1000  1000   1.096         4    0.895       0.102         4
-#> 5 V5      0  1000  1000 409.885         4    0.000 *** 606.018         4
+#> 5 V5      0  1000  1000 409.884         4    0.000 *** 606.018         4
 #>   p.crdifs     crdifrs df.crdifrs p.crdifrs    
 #> 1    0.000 ***  182.31          8     0.000 ***
 #> 2    0.520        3.41          8     0.906    

@@ -101,8 +101,7 @@ Each item's option coding scheme is determined independently from its
 own `key` value, using one of three rules:
 
 - If the key value parses as a number (e.g., `4`), responses to that
-  item are compared numerically, exactly as in earlier versions of this
-  function.
+  item are compared numerically.
 
 - If the key value consists of one or more Latin letters (e.g., `"D"`),
   responses are compared as letters, case-insensitively (`"d"` and `"D"`

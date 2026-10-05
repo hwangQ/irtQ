@@ -16,7 +16,7 @@ suitable for downstream analysis.
 | [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | Compute category response probabilities for polytomous items (GRM / GPCM) |
 | [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item and test information functions (IIF / TIF) |
 | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item and test characteristic curves (ICC / TCC) |
-| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord–Wingersky recursion: conditional summed-score distributions |
+| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord-Wingersky recursion: conditional summed-score distributions |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature nodes and weights from a distribution |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Analytical asymptotic variance-covariance matrices of item parameter estimates |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data (option choices) into a 0/1 matrix |
@@ -72,7 +72,7 @@ theta_grid <- seq(-4, 4, by = 0.1)
 
 ------------------------------------------------------------------------
 
-## `simdat()` — Simulate Item Response Data
+## `simdat()`: Simulate Item Response Data
 
 [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md)
 generates item response matrices from known IRT parameters. It is the
@@ -84,7 +84,7 @@ for polytomous items, including mixed-format tests.
 
 - **Via item metadata** (`x` argument): pass a
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
-  data frame — the simplest and recommended approach.
+  data frame, the simplest and recommended approach.
 - **Via raw parameter vectors** (`a.drm`, `b.drm`, `g.drm`, `a.prm`,
   `d.prm`, `cats`, `pr.model`): useful when the metadata object has not
   yet been created, or when parameters come directly from external
@@ -130,7 +130,7 @@ resp_mix  <- simdat(x = meta_mix, theta = theta_mix, D = 1.702)
 
 dim(resp_mix)
 #> [1] 400   8
-head(resp_mix)    # dichotomous (0/1) and polytomous (0–3) responses
+head(resp_mix)    # dichotomous (0/1) and polytomous (0-3) responses
 #>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]
 #> [1,]    0    1    1    1    1    3    2    3
 #> [2,]    1    0    1    0    0    2    1    1
@@ -208,7 +208,7 @@ resp_mix_raw <- simdat(
 )
 dim(resp_mix_raw)
 #> [1] 300   5
-head(resp_mix_raw)   # columns 3 and 5 are polytomous (0–3 and 0–2)
+head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 #>      [,1] [,2] [,3] [,4] [,5]
 #> [1,]    1    1    3    1    2
 #> [2,]    1    1    2    1    2
@@ -222,7 +222,7 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0–3 and 0–2)
 
 | Argument | Description |
 |----|----|
-| `x` | Item metadata from [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md) — use this when available |
+| `x` | Item metadata from [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md); use this when available |
 | `theta` | Vector of true ability values |
 | `D` | Scaling constant |
 | `a.drm` | Discrimination parameters for dichotomous items (required when `x = NULL`) |
@@ -234,15 +234,14 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0–3 and 0–2)
 | `pr.model` | IRT model per polytomous item: `"GRM"` or `"GPCM"` |
 
 **Note on the `D` constant:** The scaling constant `D` is used to make
-the logistic function closely approximate the normal ogive function. It
-is crucial to use the exact same `D` value (commonly `1.702` or `1.0`)
-that was utilized during the item parameter calibration phase to avoid
-any scaling mismatch in the simulated responses or probability
-computations.
+the logistic function closely approximate the normal ogive function. Use
+the same `D` value (commonly `1.702` or `1.0`) that was used for item
+calibration to avoid any scaling mismatch in the simulated responses or
+probability computations.
 
 ------------------------------------------------------------------------
 
-## `drm()` and `prm()` — Item Response Probability Functions
+## `drm()` and `prm()`: Item Response Probability Functions
 
 [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) and
 [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) are the
@@ -255,7 +254,7 @@ directly from IRT parameters and are useful whenever you need category
 probabilities at a specific set of theta values without constructing a
 full item metadata frame.
 
-### `drm()` — Dichotomous Response Model
+### `drm()`: Dichotomous Response Model
 
 [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) computes
 $`P(\theta)`$, the probability of a correct response, for one or more
@@ -318,7 +317,7 @@ cat("P(theta=b):", round(as.numeric(P_at_b), 6),
 #> P(theta=b): 0.575   Expected: 0.575
 ```
 
-### `prm()` — Polytomous Response Model
+### `prm()`: Polytomous Response Model
 
 [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) computes
 category response probabilities for a **single** polytomous item under
@@ -409,15 +408,15 @@ items), set `a = 1`.
 |----|:--:|:--:|----|
 | `theta` | ✓ | ✓ | Numeric vector of ability values |
 | `a` | ✓ | ✓ | Discrimination (slope) parameter(s) |
-| `b` | ✓ |  | Difficulty parameter(s) — dichotomous items only |
+| `b` | ✓ |  | Difficulty parameter(s), dichotomous items only |
 | `g` | ✓ |  | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
-| `d` |  | ✓ | Vector of $`K-1`$ threshold parameters — polytomous items only |
+| `d` |  | ✓ | Vector of $`K-1`$ threshold parameters, polytomous items only |
 | `D` | ✓ | ✓ | Scaling constant (typically `1.702`) |
 | `pr.model` |  | ✓ | `"GRM"` or `"GPCM"` |
 
 ------------------------------------------------------------------------
 
-## `info()` — Item and Test Information Functions
+## `info()`: Item and Test Information Functions
 
 [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) computes the
 item information function (IIF) and test information function (TIF) at
@@ -449,7 +448,7 @@ names(info_val)
 #> [1] "iif"   "tif"   "theta"
 head(info_val$tif)               # TIF at first few theta points
 #> [1] 0.01818914 0.02441289 0.03260200 0.04329184 0.05712434 0.07485327
-info_val$iif[1:5, 1:6]          # IIF: items 1–5, theta points 1–6
+info_val$iif[1:5, 1:6]          # IIF: items 1-5, theta points 1-6
 #>         theta.1      theta.2      theta.3      theta.4      theta.5
 #> I1 1.390716e-02 1.868643e-02 2.493571e-02 3.301905e-02 4.334884e-02
 #> I2 8.244131e-04 1.226185e-03 1.819214e-03 2.690947e-03 3.966036e-03
@@ -510,7 +509,7 @@ plot(
 
 ![](utilities_files/figure-html/plot-iif-single-1.png)
 
-### Plot: IIFs for multiple items — overlaid and in panels
+### Plot: IIFs for multiple items, overlaid and in panels
 
 ``` r
 
@@ -519,7 +518,7 @@ plot(
   x         = info_val,
   item.loc  = 1:5,
   overlap   = TRUE,
-  main.text = "IIFs for Items 1–5 (overlaid)"
+  main.text = "IIFs for Items 1-5 (overlaid)"
 )
 ```
 
@@ -533,7 +532,7 @@ plot(
   item.loc   = 1:5,
   overlap    = FALSE,
   layout.col = 5,
-  main.text  = "IIFs for Items 1–5 (separate panels)"
+  main.text  = "IIFs for Items 1-5 (separate panels)"
 )
 ```
 
@@ -563,7 +562,7 @@ plot(
 
 #### IIF for a single polytomous item
 
-Items 6–8 in `meta_mix` are the three GRM items. Their IIFs tend to be
+Items 6-8 in `meta_mix` are the three GRM items. Their IIFs tend to be
 broader than those of dichotomous items.
 
 ``` r
@@ -580,7 +579,7 @@ plot(
 
 ![](utilities_files/figure-html/info-mixed-single-poly-1.png)
 
-#### IIFs for multiple items — mixed dichotomous and polytomous
+#### IIFs for multiple items: mixed dichotomous and polytomous
 
 ``` r
 
@@ -589,7 +588,7 @@ plot(
   x         = info_mix,
   item.loc  = c(1, 3, 5, 6, 7, 8),   # 3 DRM + 3 GRM
   overlap   = TRUE,
-  main.text = "IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8) — overlaid"
+  main.text = "IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8), overlaid"
 )
 ```
 
@@ -611,7 +610,7 @@ plot(
 
 ------------------------------------------------------------------------
 
-## `traceline()` — Item and Test Characteristic Curves
+## `traceline()`: Item and Test Characteristic Curves
 
 [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md)
 computes the item characteristic curve (ICC), test characteristic curve
@@ -657,7 +656,7 @@ names(trace_bin)
 #> [1] "prob.cats" "icc"       "tcc"       "theta"
 head(trace_bin$tcc)               # TCC: expected summed score at each theta
 #> [1] 2.309632 2.319809 2.331709 2.345610 2.361831 2.380734
-trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1–5
+trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1-5
 #>             I1        I2        I3        I4        I5
 #> [1,] 0.1773451 0.1551202 0.1640658 0.1502029 0.1521569
 #> [2,] 0.1822264 0.1562718 0.1660788 0.1502575 0.1525129
@@ -684,7 +683,7 @@ plot(
 
 ### Plot: ICCs for a dichotomous item
 
-For a 3PLM item, `score.curve = FALSE` draws two panels — one for each
+For a 3PLM item, `score.curve = FALSE` draws two panels, one for each
 score category (0 = incorrect, 1 = correct); `score.curve = TRUE` shows
 only $`P(\theta)`$ (the probability of a correct response) as a single
 curve.
@@ -697,7 +696,7 @@ plot(
   item.loc    = 2,
   score.curve = FALSE,
   layout.col  = 2,
-  main.text   = "ICCs for Item 2 (3PLM) — by category"
+  main.text   = "ICCs for Item 2 (3PLM), by category"
 )
 ```
 
@@ -728,7 +727,7 @@ plot(
   item.loc    = 1:5,
   score.curve = TRUE,
   overlap     = TRUE,
-  main.text   = "Item Score Curves: Items 1–5 (overlaid)"
+  main.text   = "Item Score Curves: Items 1-5 (overlaid)"
 )
 ```
 
@@ -743,7 +742,7 @@ plot(
   score.curve = TRUE,
   overlap     = FALSE,
   layout.col  = 5,
-  main.text   = "Item Score Curves: Items 1–5 (separate panels)"
+  main.text   = "Item Score Curves: Items 1-5 (separate panels)"
 )
 ```
 
@@ -752,7 +751,7 @@ plot(
 ### Plot: Category response curves and expected score curve for a polytomous item
 
 For a GRM item, `score.curve = FALSE` draws one curve per score category
-(0, 1, 2, 3). Items 6–8 in `meta_mix` are the three GRM items.
+(0, 1, 2, 3). Items 6-8 in `meta_mix` are the three GRM items.
 
 ``` r
 
@@ -802,20 +801,20 @@ plot(
 
 ![](utilities_files/figure-html/plot-icc-poly-score-1.png)
 
-### Plot: Item score curves for multiple items — mixed dichotomous and polytomous
+### Plot: Item score curves for multiple items, mixed dichotomous and polytomous
 
 When `score.curve = TRUE`, items of any format can be plotted together
 because all ICCs are expressed on the same expected-score metric.
 
 ``` r
 
-# Overlaid: DRM items (1–3) and GRM items (6–8) in one panel
+# Overlaid: DRM items (1-3) and GRM items (6-8) in one panel
 plot(
   x           = trace_mix,
   item.loc    = c(1, 2, 3, 6, 7, 8),
   score.curve = TRUE,
   overlap     = TRUE,
-  main.text   = "Item Score Curves: DRM (1–3) and GRM (6–8) — overlaid"
+  main.text   = "Item Score Curves: DRM (1-3) and GRM (6-8), overlaid"
 )
 ```
 
@@ -830,7 +829,7 @@ plot(
   score.curve = TRUE,
   overlap     = FALSE,
   layout.col  = 3,
-  main.text   = "Item Score Curves: DRM (1–3) and GRM (6–8)"
+  main.text   = "Item Score Curves: DRM (1-3) and GRM (6-8)"
 )
 ```
 
@@ -851,7 +850,7 @@ plot(
   score.curve = FALSE,
   overlap     = TRUE,
   layout.col  = 3,
-  main.text   = "Category Response Curves: GRM Items 1–3 (overlaid by category)"
+  main.text   = "Category Response Curves: GRM1-GRM3 (overlaid by category)"
 )
 ```
 
@@ -859,10 +858,10 @@ plot(
 
 ------------------------------------------------------------------------
 
-## `lwrc()` — Lord–Wingersky Recursion
+## `lwrc()`: Lord-Wingersky Recursion
 
 [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) implements
-the Lord–Wingersky recursive algorithm (Lord and Wingersky 1984; Kolen
+the Lord-Wingersky recursive algorithm (Lord and Wingersky 1984; Kolen
 and Brennan 2004), which computes the **conditional distribution of the
 observed summed score given $`\theta`$**:
 ``` math
@@ -981,7 +980,7 @@ sum(score_dist_mix)
 
 ------------------------------------------------------------------------
 
-## `gen.weight()` — Quadrature Weights
+## `gen.weight()`: Quadrature Weights
 
 [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)
 generates a two-column data frame of quadrature nodes and normalised
@@ -1001,9 +1000,9 @@ Three distribution options are available via the `dist` argument:
   [`statmod::gauss.quad.prob()`](https://rdrr.io/pkg/statmod/man/gauss.quad.prob.html).
   When `theta` is given, weights are proportional to the normal density
   evaluated at each node.
-- `"unif"`: uniform distribution — equally spaced nodes over $`[l, u]`$
+- `"unif"`: uniform distribution, equally spaced nodes over $`[l, u]`$
   with equal weights.
-- `"emp"`: empirical distribution — equal weights for user-supplied
+- `"emp"`: empirical distribution, equal weights for user-supplied
   `theta` values.
 
 The returned data frame always has columns named `theta` and `weight`,
@@ -1011,7 +1010,7 @@ and the weights always sum to 1.
 
 ``` r
 
-# 41 Gaussian quadrature points from N(0, 1) — most common usage
+# 41 Gaussian quadrature points from N(0, 1), most common usage
 w_norm <- gen.weight(n = 41, dist = "norm", mu = 0, sigma = 1)
 head(w_norm)
 #>        theta       weight
@@ -1028,7 +1027,7 @@ sum(w_norm$weight)      # always sums to 1
 plot(w_norm$weight ~ w_norm$theta,
      type = "h", lwd = 2,
      xlab = expression(theta), ylab = "Weight",
-     main = "Gaussian Quadrature Approximation of N(0, 1) — 41 nodes")
+     main = "Gaussian Quadrature Approximation of N(0, 1) with 41 nodes")
 ```
 
 ![](utilities_files/figure-html/gen-weight-norm-1.png)
@@ -1071,14 +1070,14 @@ sum(w_emp$weight)        # sums to 1
 
 ------------------------------------------------------------------------
 
-## `covirt()` — Asymptotic Variance-Covariance Matrices of Item Parameters
+## `covirt()`: Asymptotic Variance-Covariance Matrices of Item Parameters
 
 [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) computes
 the analytical asymptotic variance-covariance matrices of item parameter
 estimates using the formulas developed by Thissen and Wainer (1982) and
 extended to polytomous IRT models by Li and Lissitz (2004). These
 matrices provide the asymptotic standard errors (ASEs) of maximum
-likelihood estimates **without requiring examinee response data** — only
+likelihood estimates **without requiring examinee response data**; only
 the item parameters and the sample size used for calibration are needed.
 
 The ASEs obtained analytically represent **lower bounds** of the true
@@ -1145,7 +1144,7 @@ sizes:
 
 ``` r
 
-# Example: items 1–5 calibrated on n=500, items 6–15 on n=2000
+# Example: items 1-5 calibrated on n=500, items 6-15 on n=2000
 n_vec <- c(rep(500, 5), rep(2000, 10))
 cov_bin2 <- covirt(x = meta_bin, D = 1.702, nstd = n_vec,
                    norm.prior = c(0, 1), nquad = 41)
@@ -1161,7 +1160,7 @@ cat("SE(b) for I6 (n=2000):", cov_bin2$se[["I6"]][2], "\n")
 
 ``` r
 
-# GRM items in meta_mix: items 6–8 (DRM1–DRM5 come first)
+# GRM items in meta_mix: items 6-8 (DRM1-DRM5 come first)
 cov_mix <- covirt(
   x          = meta_mix,
   D          = 1.702,
@@ -1178,7 +1177,7 @@ cov_mix$se[["GRM1"]]
 
 ------------------------------------------------------------------------
 
-## `score_resp()` — Score Selected-Response Item Data
+## `score_resp()`: Score Selected-Response Item Data
 
 The functions above all start from item parameters that are either known
 ([`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md),
@@ -1311,7 +1310,7 @@ for a worked example using Korean syllable labels.
 | [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item metadata + θ grid | IIF matrix, TIF vector; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
 | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item metadata + θ grid | ICC matrix, TCC vector, category probs; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | Visualisation |
 | [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + θ, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
-| [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node–weight data frame | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
+| [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node-weight data frame | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
 

@@ -11,7 +11,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,29 +19,24 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/hwangQ/irtQ" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -158,7 +153,10 @@ columns represent quadrature points.</p></dd>
 <dd><p>The number of items included in the dataset.</p></dd>
 
 <dt>Etol</dt>
-<dd><p>The convergence criterion used for the E-step in the EM algorithm.</p></dd>
+<dd><p>The convergence criterion for the E-step of the EM algorithm:
+the largest absolute change in the item parameter estimates between
+consecutive cycles. For FIPC with all items fixed, it applies to the
+change in the mean and variance of the prior distribution.</p></dd>
 
 <dt>MaxE</dt>
 <dd><p>The maximum number of E-steps allowed during EM estimation.</p></dd>
@@ -180,7 +178,7 @@ columns represent quadrature points.</p></dd>
 <dd><p>The number of EM cycles completed.</p></dd>
 
 <dt>maxpar.diff</dt>
-<dd><p>The maximum change in parameter estimates at convergence.</p></dd>
+<dd><p>The largest absolute change in the estimates in the last EM cycle.</p></dd>
 
 <dt>EMtime</dt>
 <dd><p>Computation time (in seconds) for the EM algorithm.</p></dd>
@@ -192,8 +190,8 @@ columns represent quadrature points.</p></dd>
 <dd><p>Total computation time (in seconds) for model estimation.</p></dd>
 
 <dt>test.1</dt>
-<dd><p>Result of the first-order test indicating whether the gradients
-were sufficiently close to zero.</p></dd>
+<dd><p>A message indicating whether the convergence criteria were met
+(M-step convergence and the EM criterion).</p></dd>
 
 <dt>test.2</dt>
 <dd><p>Result of the second-order test indicating whether the
@@ -285,13 +283,20 @@ number of response patterns in each.</p></dd>
 number of items in the respective response sets.</p></dd>
 
 <dt>Etol</dt>
-<dd><p>Convergence criterion used for the E-step in the EM algorithm.</p></dd>
+<dd><p>The convergence criterion for the E-step of the EM algorithm:
+the largest absolute change in the item parameter estimates between
+consecutive cycles. For FIPC with all items fixed, it applies to the
+change in the mean and variance of the prior distribution.</p></dd>
 
 <dt>MaxE</dt>
 <dd><p>Maximum number of E-steps allowed in the EM algorithm.</p></dd>
 
 <dt>aprior</dt>
 <dd><p>A list describing the prior distribution for item slope parameters.</p></dd>
+
+<dt>bprior</dt>
+<dd><p>A list describing the prior distribution for item difficulty
+parameters.</p></dd>
 
 <dt>gprior</dt>
 <dd><p>A list describing the prior distribution for item guessing parameters.</p></dd>
@@ -303,7 +308,7 @@ number of items in the respective response sets.</p></dd>
 <dd><p>Number of EM cycles completed.</p></dd>
 
 <dt>maxpar.diff</dt>
-<dd><p>Maximum change in item parameter estimates at convergence.</p></dd>
+<dd><p>The largest absolute change in the estimates in the last EM cycle.</p></dd>
 
 <dt>EMtime</dt>
 <dd><p>Computation time (in seconds) for EM estimation.</p></dd>
@@ -315,8 +320,8 @@ number of items in the respective response sets.</p></dd>
 <dd><p>Total computation time (in seconds) for model estimation.</p></dd>
 
 <dt>test.1</dt>
-<dd><p>First-order condition test result indicating whether gradients
-converged sufficiently.</p></dd>
+<dd><p>A message indicating whether the convergence criteria were met
+(M-step convergence and the EM criterion).</p></dd>
 
 <dt>test.2</dt>
 <dd><p>Second-order condition test result indicating whether the
@@ -419,52 +424,52 @@ to estimate parameters for each item.</p></dd>
 <span class="r-in"><span><span class="va">mod.2pl</span> <span class="op">&lt;-</span> <span class="fu"><a href="est_irt.html">est_irt</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">LSAT6</span>, D <span class="op">=</span> <span class="fl">1</span>, model <span class="op">=</span> <span class="st">"2PLM"</span>, cats <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parsing input... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating item parameters... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 0.390402 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.00000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.294233 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.58517 EM iteration: 3, Loglike: -2482.8950, Max-Change: 0.323232 EM iteration: 4, Loglike: -2469.4379, Max-Change: 0.180623 EM iteration: 5, Loglike: -2467.2706, Max-Change: 0.106034 EM iteration: 6, Loglike: -2466.8615, Max-Change: 0.066546 EM iteration: 7, Loglike: -2466.7487, Max-Change: 0.044361 EM iteration: 8, Loglike: -2466.7049, Max-Change: 0.030996 EM iteration: 9, Loglike: -2466.6843, Max-Change: 0.022467 EM iteration: 10, Loglike: -2466.6736, Max-Change: 0.016791 EM iteration: 11, Loglike: -2466.6674, Max-Change: 0.012897 EM iteration: 12, Loglike: -2466.6636, Max-Change: 0.010155 EM iteration: 13, Loglike: -2466.6611, Max-Change: 0.008179 EM iteration: 14, Loglike: -2466.6593, Max-Change: 0.00672 EM iteration: 15, Loglike: -2466.6580, Max-Change: 0.005616 EM iteration: 16, Loglike: -2466.6571, Max-Change: 0.00476 EM iteration: 17, Loglike: -2466.6563, Max-Change: 0.004082 EM iteration: 18, Loglike: -2466.6557, Max-Change: 0.003532 EM iteration: 19, Loglike: -2466.6553, Max-Change: 0.003079 EM iteration: 20, Loglike: -2466.6549, Max-Change: 0.00270 EM iteration: 21, Loglike: -2466.6546, Max-Change: 0.002378 EM iteration: 22, Loglike: -2466.6544, Max-Change: 0.002102 EM iteration: 23, Loglike: -2466.6542, Max-Change: 0.001863 EM iteration: 24, Loglike: -2466.6540, Max-Change: 0.001655 EM iteration: 25, Loglike: -2466.6539, Max-Change: 0.001473 EM iteration: 26, Loglike: -2466.6538, Max-Change: 0.001313 EM iteration: 27, Loglike: -2466.6537, Max-Change: 0.001172 EM iteration: 28, Loglike: -2466.6537, Max-Change: 0.001047 EM iteration: 29, Loglike: -2466.6536, Max-Change: 0.000936 EM iteration: 30, Loglike: -2466.6536, Max-Change: 0.000838 EM iteration: 31, Loglike: -2466.6535, Max-Change: 0.000751 EM iteration: 32, Loglike: -2466.6535, Max-Change: 0.000673 EM iteration: 33, Loglike: -2466.6535, Max-Change: 0.000603 EM iteration: 34, Loglike: -2466.6535, Max-Change: 0.000541 EM iteration: 35, Loglike: -2466.6534, Max-Change: 0.000486 EM iteration: 36, Loglike: -2466.6534, Max-Change: 0.000436 EM iteration: 37, Loglike: -2466.6534, Max-Change: 0.000392 EM iteration: 38, Loglike: -2466.6534, Max-Change: 0.000352 EM iteration: 39, Loglike: -2466.6534, Max-Change: 0.000316 EM iteration: 40, Loglike: -2466.6534, Max-Change: 0.000284 EM iteration: 41, Loglike: -2466.6534, Max-Change: 0.000256 EM iteration: 42, Loglike: -2466.6534, Max-Change: 0.00023 EM iteration: 43, Loglike: -2466.6534, Max-Change: 0.000207 EM iteration: 44, Loglike: -2466.6534, Max-Change: 0.000186 EM iteration: 45, Loglike: -2466.6534, Max-Change: 0.000167 EM iteration: 46, Loglike: -2466.6534, Max-Change: 0.000151 EM iteration: 47, Loglike: -2466.6534, Max-Change: 0.000136 EM iteration: 48, Loglike: -2466.6534, Max-Change: 0.000122 EM iteration: 49, Loglike: -2466.6534, Max-Change: 0.00011 EM iteration: 50, Loglike: -2466.6534, Max-Change: 9.9e-05 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Computing item parameter var-covariance matrix... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimation is finished in 0.04 seconds. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Estimation is finished in 0.38 seconds. </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract item parameter estimates</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">est.par</span> <span class="op">&lt;-</span> <span class="fu">getirt</span><span class="op">(</span><span class="va">mod.2pl</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   id cats model     par.1        par.2 par.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 V1    2  2PLM 0.8851380 -2.872384950    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 V2    2  2PLM 0.8780243 -0.890284439    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 V3    2  2PLM 0.9305760  0.003668382    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 V4    2  2PLM 0.8617347 -1.269897767    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 V5    2  2PLM 0.8410096 -2.250964707    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id cats model     par.1      par.2 par.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 V1    2  2PLM 0.8255888 -3.3590452    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 V2    2  2PLM 0.7229138 -1.3697963    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 V3    2  2PLM 0.8904047 -0.2797759    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 V4    2  2PLM 0.6884844 -1.8661188    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 V5    2  2PLM 0.6570762 -3.1250079    NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract standard error estimates</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">est.se</span> <span class="op">&lt;-</span> <span class="fu">getirt</span><span class="op">(</span><span class="va">mod.2pl</span>, what <span class="op">=</span> <span class="st">"se.est"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   id cats model     par.1      par.2 par.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 V1    2  2PLM 0.2452172 0.67487124    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 V2    2  2PLM 0.1905223 0.18450934    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 V3    2  2PLM 0.2020198 0.08146577    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 V4    2  2PLM 0.1919434 0.25426752    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 V5    2  2PLM 0.2087045 0.48313552    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 V1    2  2PLM 0.2538702 0.85483653    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 V2    2  2PLM 0.1879120 0.30935133    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 V3    2  2PLM 0.2298908 0.09951049    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 V4    2  2PLM 0.1862128 0.43815986    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 V5    2  2PLM 0.2027270 0.84271138    NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract the variance-covariance matrix of item parameter estimates</span></span></span>
 <span class="r-in"><span><span class="op">(</span><span class="va">cov.mat</span> <span class="op">&lt;-</span> <span class="fu">getirt</span><span class="op">(</span><span class="va">mod.2pl</span>, what <span class="op">=</span> <span class="st">"covariance"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                [,1]         [,2]          [,3]          [,4]         [,5]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]  0.0601314834  0.161626270 -0.0051257769 -0.0044224511 -0.002071661</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]  0.1616262702  0.455451195 -0.0136565487 -0.0103462255 -0.005500742</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] -0.0051257769 -0.013656549  0.0362987520  0.0305074017 -0.007660103</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] -0.0044224511 -0.010346225  0.0305074017  0.0340436966 -0.005426263</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] -0.0020716614 -0.005500742 -0.0076601034 -0.0054262631  0.040812001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]  0.0003284084  0.001904617  0.0005559771  0.0017297229  0.001821232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] -0.0019311592 -0.003705538 -0.0009465802  0.0006292671 -0.008775219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] -0.0020030971 -0.001814204  0.0008034353  0.0040386727 -0.010316758</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]  0.0015223739  0.006454168 -0.0032010354 -0.0020718830 -0.003243842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]  0.0049990824  0.020820838 -0.0064320092 -0.0026824699 -0.005159683</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                [,6]          [,7]          [,8]          [,9]        [,10]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]  3.284084e-04 -1.931159e-03 -0.0020030971  0.0015223739  0.004999082</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]  1.904617e-03 -3.705538e-03 -0.0018142036  0.0064541684  0.020820838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,]  5.559771e-04 -9.465802e-04  0.0008034353 -0.0032010354 -0.006432009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,]  1.729723e-03  6.292671e-04  0.0040386727 -0.0020718830 -0.002682470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]  1.821232e-03 -8.775219e-03 -0.0103167581 -0.0032438424 -0.005159683</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]  6.636672e-03 -5.923697e-05  0.0011872961  0.0003003195  0.002347453</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] -5.923697e-05  3.684226e-02  0.0450056386 -0.0031576436 -0.007049767</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,]  1.187296e-03  4.500564e-02  0.0646519739 -0.0034621648 -0.006508739</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]  3.003195e-04 -3.157644e-03 -0.0034621648  0.0435575616  0.097528414</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]  2.347453e-03 -7.049767e-03 -0.0065087389  0.0975284136  0.233419935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]  0.0644500663  0.213516110 -0.0059296609 -1.012578e-02 -0.004681038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]  0.2135161095  0.730745496 -0.0205129366 -3.393420e-02 -0.016087744</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] -0.0059296609 -0.020512937  0.0353109379  5.459288e-02 -0.011084779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] -0.0101257773 -0.033934198  0.0545928849  9.569824e-02 -0.016831654</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] -0.0046810378 -0.016087744 -0.0110847789 -1.683165e-02  0.052849776</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] -0.0011271119 -0.003110929 -0.0023765393 -2.603282e-03  0.012397532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] -0.0031463866 -0.010012688 -0.0005355098  4.910666e-06 -0.011308992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] -0.0075724067 -0.022812226  0.0001639620  3.457859e-03 -0.026321355</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]  0.0002965241  0.002494229 -0.0037729160 -5.976366e-03 -0.004409260</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]  0.0023222383  0.015568907 -0.0160475746 -2.471635e-02 -0.015974475</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               [,6]          [,7]         [,8]          [,9]        [,10]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] -0.001127112 -3.146387e-03 -0.007572407  0.0002965241  0.002322238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] -0.003110929 -1.001269e-02 -0.022812226  0.0024942292  0.015568907</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] -0.002376539 -5.355098e-04  0.000163962 -0.0037729160 -0.016047575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] -0.002603282  4.910666e-06  0.003457859 -0.0059763663 -0.024716348</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]  0.012397532 -1.130899e-02 -0.026321355 -0.0044092598 -0.015974475</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]  0.009902337 -2.893417e-03 -0.005765609 -0.0010248799 -0.002351144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] -0.002893417  3.467521e-02  0.078608493 -0.0039184840 -0.017434966</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] -0.005765609  7.860849e-02  0.191984062 -0.0094264375 -0.041401179</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] -0.001024880 -3.918484e-03 -0.009426438  0.0410982364  0.168071445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] -0.002351144 -1.743497e-02 -0.041401179  0.1680714454  0.710162472</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

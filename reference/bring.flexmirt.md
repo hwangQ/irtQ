@@ -56,8 +56,10 @@ bring.mirt(x)
 
 - x:
 
-  An object returned by the function
+  An object returned by
   [`mirt::mirt()`](https://philchalmers.github.io/mirt/reference/mirt.html).
+  The mirt package, listed in Suggests, must be installed to use
+  bring.mirt().
 
 ## Value
 
@@ -132,9 +134,9 @@ Chalmers, R. P. (2012). mirt: A multidimensional item response theory
 package for the R environment. *Journal of Statistical Software, 48*(6),
 1-29.
 
-Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests
-Using IRT-Based Methods. *Journal of Statistical Software, 35*(12),
-1-33. URL http://www.jstatsoft.org/v35/i12/.
+Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
+scoring for rating scale data (Computer software). Chicago, IL:
+Scientific Software International. URL http://www.ssicentral.com
 
 Pritikin, J. (2018). *rpf: Response Probability Functions*. R package
 version 0.59. https://CRAN.R-project.org/package=rpf.
@@ -142,14 +144,17 @@ version 0.59. https://CRAN.R-project.org/package=rpf.
 Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
 environment for item response theory method development. *Applied
 Psychological Measurement, 44*(7-8), 561-562.
+[doi:10.1177/0146621620929431](https://doi.org/10.1177/0146621620929431)
+.
 
-Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-scoring for rating scale data (Computer Software). Chicago, IL:
-Scientific Software International. URL http://www.ssicentral.com
+Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests
+Using IRT-Based Methods. *Journal of Statistical Software, 35*(12),
+1-33. [doi:10.18637/jss.v035.i12](https://doi.org/10.18637/jss.v035.i12)
+.
 
 Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003).
 BILOG-MG 3: Multiple-group IRT analysis and test maintenance for binary
-items (Computer Software). Chicago, IL: Scientific Software
+items (Computer software). Chicago, IL: Scientific Software
 International. URL http://www.ssicentral.com
 
 ## See also
@@ -288,4 +293,19 @@ bring.parscale(file = pscale_sam, "par")$full_df
 #> 53 0053    5   GRM 1.15715 -0.36099  0.21902  0.84214  1.36791
 #> 54 0054    5   GRM 1.25620 -2.03425 -1.31648 -0.68590 -0.10716
 #> 55 0055    5   GRM 0.89213 -0.73461  0.00167  0.66112  1.23362
+
+## Example 3
+# Import the item parameters of a model fitted with the mirt package
+# \donttest{
+if (requireNamespace("mirt", quietly = TRUE)) {
+  fit <- mirt::mirt(as.data.frame(LSAT6), 1, itemtype = "2PL", verbose = FALSE)
+  bring.mirt(fit)$full_df
+}
+#>            id cats model     par.1      par.2 par.3
+#> item.1 item.1    2   DRM 0.8250552 -3.3607460     0
+#> item.2 item.2    2   DRM 0.7230608 -1.3695513     0
+#> item.3 item.3    2   DRM 0.8899989 -0.2798928     0
+#> item.4 item.4    2   DRM 0.6886588 -1.8657302     0
+#> item.5 item.5    2   DRM 0.6575904 -3.1229745     0
+# }
 ```

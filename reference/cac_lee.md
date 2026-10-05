@@ -111,9 +111,11 @@ distribution.
 
 ## References
 
-Lee, W. C. (2010). Classification consistency and accuracy for complex
+Lee, W.-C. (2010). Classification consistency and accuracy for complex
 assessments using item response theory. *Journal of Educational
 Measurement, 47*(1), 1-17.
+[doi:10.1111/j.1745-3984.2009.00096.x](https://doi.org/10.1111/j.1745-3984.2009.00096.x)
+.
 
 ## See also
 

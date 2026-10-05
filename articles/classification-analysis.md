@@ -3,7 +3,7 @@
 ## Overview
 
 In many testing contexts, test scores are used to assign examinees to
-performance categories — for example, pass/fail decisions or placement
+performance categories, for example, pass/fail decisions or placement
 into proficiency levels. Two indices quantify the quality of such
 classification decisions:
 
@@ -22,8 +22,8 @@ on IRT models are commonly used.
 
 | Function | Method | Cut-score scale |
 |----|----|----|
-| [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) | Lee (2010) — conditional summed-score distribution | Observed score or theta |
-| [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) | Rudner (2001); Rudner (2005) — normal approximation via test information function (TIF) | Theta scale only |
+| [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) | Lee (2010): conditional summed-score distribution | Observed score or theta |
+| [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) | Rudner (2001); Rudner (2005): normal approximation via test information function (TIF) | Theta scale only |
 
 Both functions support two estimation approaches:
 
@@ -183,7 +183,7 @@ quad_weights <- gen.weight(dist = "norm", mu = 0, sigma = 1, theta = quad_nodes)
 
 ------------------------------------------------------------------------
 
-## Part 1: Lee’s Method — `cac_lee()`
+## Part 1: Lee’s Method (`cac_lee()`)
 
 ### Method overview
 
@@ -193,7 +193,7 @@ tests consisting of dichotomous items, polytomous items, or a mixture of
 both.
 
 The key quantity is the **conditional summed-score distribution**,
-$`\Pr(X = x \mid \theta)`$, computed using the Lord–Wingersky recursive
+$`\Pr(X = x \mid \theta)`$, computed using the Lord-Wingersky recursive
 algorithm (Lord and Wingersky 1984; Kolen and Brennan 2004). This
 distribution gives the probability that an examinee with ability
 $`\theta`$ obtains each possible observed summed score $`x`$.
@@ -256,7 +256,7 @@ where:
 | `cutscore` | Numeric vector of cut scores; defines $`K + 1`$ performance levels |
 | `weights` | Two-column matrix of quadrature nodes and weights for D-method (use [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)) |
 | `theta` | Numeric vector of individual ability estimates for P-method |
-| `D` | Scaling constant — must match the value used during calibration |
+| `D` | Scaling constant; must match the value used during calibration |
 | `cut.obs` | `TRUE` (default): cut scores on the observed summed-score scale; `FALSE`: on the theta scale (converted internally via TCC) |
 
 Either `theta` or `weights` must be provided (but not both. If both are
@@ -274,7 +274,7 @@ to construct weights from a parametric distribution.
 
 ``` r
 
-# Two cut scores on the observed summed-score scale (range: 0–20)
+# Two cut scores on the observed summed-score scale (range: 0-20)
 # Defines three performance levels: [0,8), [8,14), [14,20]
 cutscore_obs <- c(8, 14)
 
@@ -362,7 +362,7 @@ cac_l_d
 #> 20  0.75 7.528702e-02  14.546417     3 1.896328e-05 2.620147e-01 7.379663e-01
 #> 21  1.00 6.049482e-02  15.555088     3 7.663720e-07 1.002162e-01 8.997831e-01
 #> 22  1.25 4.566389e-02  16.505175     3 1.876512e-08 2.651963e-02 9.734804e-01
-#> 23  1.50 3.238054e-02  17.356735     3 2.855207e-10 4.814701e-03 9.951853e-01
+#> 23  1.50 3.238054e-02  17.356735     3 2.855208e-10 4.814701e-03 9.951853e-01
 #> 24  1.75 2.157009e-02  18.065625     3 2.879399e-12 6.245660e-04 9.993754e-01
 #> 25  2.00 1.349822e-02  18.616683     3 2.112469e-14 6.251190e-05 9.999375e-01
 #> 26  2.25 7.935194e-03  19.026191     3 1.237687e-16 5.238462e-06 9.999948e-01
@@ -465,7 +465,7 @@ items (max 15) + 5 four-category items (max $`3 \times 5 = 15`$) → max =
 
 ``` r
 
-# Cut scores on the observed summed-score scale (range: 0–30)
+# Cut scores on the observed summed-score scale (range: 0-30)
 cutscore_mix <- c(10, 22)
 
 # D-method
@@ -584,7 +584,7 @@ cac_l_mix_p$marginal
 
 ------------------------------------------------------------------------
 
-## Part 2: Rudner’s Method — `cac_rud()`
+## Part 2: Rudner’s Method (`cac_rud()`)
 
 ### Method overview
 
@@ -626,7 +626,7 @@ distribution.
 
 Standard errors can be supplied in two ways:
 
-1.  Pass item metadata via `x` — the function computes SE from the TIF
+1.  Pass item metadata via `x`; the function computes SE from the TIF
     internally.
 2.  Pass a pre-computed SE vector via `se` (same length as `theta` for
     P-method, or same length as the number of quadrature nodes for
@@ -748,8 +748,8 @@ cac_r_d
 #> 29  3.00 1.108001e-03     3 8.953873e-04 0.02392962 9.751750e-01
 #> 30  3.25 5.072800e-04     3 2.878648e-03 0.03273349 9.643879e-01
 #> 31  3.50 2.181784e-04     3 7.651606e-03 0.04316803 9.491804e-01
-#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364464 9.292921e-01
-#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233080 9.050123e-01
+#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364463 9.292921e-01
+#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233079 9.050123e-01
 #> 
 #> $cutscore
 #> [1] -0.5  0.8
@@ -969,16 +969,16 @@ print(cac_r_p$marginal)
 #>  marginal 0.7994807   0.7173665
 ```
 
-The two methods share the same conceptual framework — both estimate CA
+The two methods share the same conceptual framework: both estimate CA
 and CC by computing, for each ability level, the probabilities of being
-assigned to each performance category — but differ in how they model the
+assigned to each performance category, but differ in how they model the
 conditional score distribution and what metric the cut scores operate
 on:
 
 | Aspect | Lee (2010) | Rudner (2001, 2005) |
 |----|----|----|
 | Cut-score metric | Observed summed score (or theta, converted via TCC) | Theta scale only |
-| Conditional distribution | Exact conditional summed-score distribution via Lord–Wingersky recursion | Normal approximation: $`\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)`$ |
+| Conditional distribution | Exact conditional summed-score distribution via Lord-Wingersky recursion | Normal approximation: $`\hat\theta \mid \theta \sim N(\theta, \text{SE}^2)`$ |
 | SE source | Implicit (via IRT-based score distribution) | Explicit: $`\text{SE}(\theta) = 1/\sqrt{I(\theta)}`$ |
 | Typical CA/CC values | Generally similar to Rudner’s method when IRT fits well | Generally similar to Lee’s method when IRT fits well |
 

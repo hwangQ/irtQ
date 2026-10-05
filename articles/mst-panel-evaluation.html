@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,33 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -91,8 +84,8 @@ adaptive testing design that sits between fully adaptive Computerized
 Adaptive Testing (CAT) and traditional linear fixed-form testing. In an
 MST, the test is divided into <em>stages</em>, each containing one or
 more pre-assembled groups of items called <em>modules</em>. Routing
-rules — based on performance on earlier stages — determine which module
-a test taker receives at each subsequent stage.</p>
+rules, based on performance on earlier stages, determine which module a
+test taker receives at each subsequent stage.</p>
 <div class="section level3">
 <h3 id="the-basic-structure">The Basic Structure<a class="anchor" aria-label="anchor" href="#the-basic-structure"></a>
 </h3>
@@ -100,8 +93,8 @@ a test taker receives at each subsequent stage.</p>
 configuration</em>. For example, a <strong>1-3-3 panel</strong> has:</p>
 <ul>
 <li>
-<strong>Stage 1</strong>: 1 routing module — everyone starts with
-the same items</li>
+<strong>Stage 1</strong>: 1 routing module; everyone starts with the
+same items</li>
 <li>
 <strong>Stage 2</strong>: 3 modules of varying difficulty (e.g.,
 easy, medium, hard)</li>
@@ -201,10 +194,10 @@ abilities, route each one through a candidate panel exactly as a real
 test taker would be routed, and examine how closely the resulting
 ability estimates recover the true values.</p>
 <p><strong>irtQ</strong> provides two functions for exactly this
-purpose. <code><a href="../reference/run_mst.html">run_mst()</a></code> simulates a full MST administration —
-examinee by examinee, stage by stage — and reports the resulting ability
+purpose. <code><a href="../reference/run_mst.html">run_mst()</a></code> simulates a full MST administration
+(examinee by examinee, stage by stage) and reports the resulting ability
 estimates and routing pathways. <code><a href="../reference/reval_mst.html">reval_mst()</a></code> conducts the
-MST evaluation analytically, via a recursion-based method<span class="citation">(Lim et al., 2021)</span>, without simulating any
+MST evaluation analytically, via a recursion-based method <span class="citation">(Lim et al., 2021)</span>, without simulating any
 individual examinee. This vignette covers both, starting with
 <code><a href="../reference/run_mst.html">run_mst()</a></code>. They describe an MST panel using the same
 structural inputs, introduced next.</p>
@@ -257,7 +250,7 @@ means test takers can be routed from module
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
 directly to module
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
-<p>For a 1-3-3 panel with 7 modules (M1–M7):</p>
+<p>For a 1-3-3 panel with 7 modules (M1-M7):</p>
 <pre><code>         M1 M2 M3 M4 M5 M6 M7
 M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
 M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
@@ -273,7 +266,7 @@ have all-zero <em>rows</em>.</p>
 <div class="section level4">
 <h4 id="cut-scores-cut_score">4. Cut Scores (<code>cut_score</code>)<a class="anchor" aria-label="anchor" href="#cut-scores-cut_score"></a>
 </h4>
-<p>A list of numeric vectors — one element per routing stage transition.
+<p>A list of numeric vectors, one element per routing stage transition.
 Each vector contains the IRT
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 cut points used to determine which next-stage module a test taker
@@ -313,18 +306,18 @@ values, <code>x</code>, and <code>D</code>.</li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>J</mi></mrow><annotation encoding="application/x-tex">N \times J</annotation></semantics></math>
 item response matrix (e.g., from <code><a href="../reference/simdat.html">simdat()</a></code>, or real observed
 data). <code>theta</code> can still be supplied alongside
-<code>response</code>, purely for RMSE comparison after the fact — it
+<code>response</code>, purely for RMSE comparison after the fact; it
 plays no role in generating the responses themselves.</li>
 </ul>
 <p>How <code>theta</code> is constructed changes what the simulation
 tells you. Drawing it randomly from an assumed population ability
-distribution — <code>rnorm(1000, 0, 1)</code> in the examples below —
+distribution (<code>rnorm(1000, 0, 1)</code> in the examples below)
 evaluates the panel’s <strong>overall</strong> performance across a
 single, population-representative batch of examinees, much as a testing
 program would experience it operationally. Fixing <code>theta</code> at
 one value and simulating many replications at that single point instead
 evaluates the panel’s <strong>conditional</strong> bias and precision at
-that specific ability level — the same quantity <code><a href="../reference/reval_mst.html">reval_mst()</a></code>
+that specific ability level, the same quantity <code><a href="../reference/reval_mst.html">reval_mst()</a></code>
 computes analytically, without any simulation. Repeating that
 single-point simulation across a grid of ability values is exactly the
 traditional Monte Carlo approach described later in this article, and
@@ -339,9 +332,9 @@ decisions at intermediate stages (<code>route_score</code>) from the
 method used to report each examinee’s final score
 (<code>final_score</code>). Both arguments take a named list whose
 <code>method</code> element selects one of <strong>irtQ</strong>’s
-ability estimators — <code>"ML"</code>, <code>"WL"</code>,
+ability estimators: <code>"ML"</code>, <code>"WL"</code>,
 <code>"MAP"</code>, <code>"EAP"</code>, <code>"EAP.SUM"</code>, or
-<code>"INV.TCC"</code> — and whose remaining elements supply that
+<code>"INV.TCC"</code>, and whose remaining elements supply that
 estimator’s own arguments, e.g. <code>range</code> for
 <code>"ML"</code>/<code>"WL"</code>, or <code>norm.prior</code> and
 <code>nquad</code> for <code>"EAP"</code>:</p>
@@ -353,7 +346,7 @@ principled choice runs this way: <code>"EAP"</code> is usually preferred
 for routing, because the intermediate ability estimate must always be
 well-defined, even from a short module. The Stage 1 routing module in
 particular may have so few items that an examinee answers every one
-correctly or every one incorrectly — a pattern for which
+correctly or every one incorrectly, a pattern for which
 <code>"ML"</code> has no finite solution. <code>"EAP"</code>’s prior
 keeps the routing estimate finite and stable no matter the response
 pattern. For the final reported score, <code>"ML"</code> is often
@@ -361,8 +354,8 @@ preferred instead: by the last stage examinees have answered enough
 items that such extreme patterns are rare, and <code>"ML"</code> avoids
 the shrinkage toward the population mean that <code>"EAP"</code>’s prior
 introduces. <code>"INV.TCC"</code> recovers ability from the observed
-sum score via the inverse Test Characteristic Curve — the same method
-<code><a href="../reference/reval_mst.html">reval_mst()</a></code> uses internally — and is useful when a testing
+sum score via the inverse Test Characteristic Curve (the same method
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code> uses internally) and is useful when a testing
 program reports summed scores directly.</p>
 </div>
 </div>
@@ -445,11 +438,11 @@ shared across modules)</li>
 <span><span class="co">#&gt; [7,]  0  0  0  0  0  0  0</span></span></code></pre></div>
 <p>The <code>route_map</code> shows:</p>
 <ul>
-<li>Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 — the three
-Stage 2 modules</li>
-<li>Rows 2–4 (Modules 2–4, Stage 2): each routes to two or three Stage 3
+<li>Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 (the three
+Stage 2 modules)</li>
+<li>Rows 2-4 (Modules 2-4, Stage 2): each routes to two or three Stage 3
 modules</li>
-<li>Rows 5–7 (Modules 5–7, Stage 3): all zeros — terminal modules</li>
+<li>Rows 5-7 (Modules 5-7, Stage 3): all zeros (terminal modules)</li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cut scores: 2 routing transitions for 3 stages</span></span>
@@ -476,7 +469,7 @@ exactly this kind of simulation. Given an item bank, a
 <code>route_map</code>, a <code>module</code> matrix, and a vector of
 true abilities (or a pre-generated response matrix),
 <code><a href="../reference/run_mst.html">run_mst()</a></code> simulates the full MST administration for every
-examinee — stage-by-stage routing and final scoring — and returns the
+examinee (stage-by-stage routing and final scoring) and returns the
 resulting ability estimates together with the module pathway each
 examinee traveled.</p>
 <p>The examples below use the same <code>simMST</code> 1-3-3 panel
@@ -605,7 +598,7 @@ estimate.</p>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
 <span><span class="co">#&gt;   Stage 2: Module 2: 279 (27.9%),  Module 3: 475 (47.5%),  Module 4: 246 (24.6%)</span></span>
 <span><span class="co">#&gt;   Stage 3: Module 5: 334 (33.4%),  Module 6: 359 (35.9%),  Module 7: 307 (30.7%)</span></span></code></pre></div>
-<p>MFI routing assumes each module’s TIF curve behaves as intended —
+<p>MFI routing assumes each module’s TIF curve behaves as intended,
 peaking higher for harder modules as theta increases, and higher for
 easier modules as theta decreases. In practice this assumption can fail:
 a harder module’s TIF curve may unexpectedly peak at a <em>low</em>
@@ -614,10 +607,10 @@ easy module instead get routed into the harder one. This is called an
 <strong>anomalous routing</strong>, or <strong>path reversal</strong>,
 and it is the opposite of what an MST is designed to do.</p>
 <p>Alternatively, setting <code>route_method = NULL</code> switches to
-traditional <strong>cut-score routing</strong> — the design most
-commonly used in operational MST programs — where each examinee’s
-intermediate ability estimate is compared against a fixed set of cut
-scores to decide the next module:</p>
+traditional <strong>cut-score routing</strong> (the design most commonly
+used in operational MST programs), in which each examinee’s intermediate
+ability estimate is compared against a fixed set of cut scores to decide
+the next module:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fixed routing cut scores bundled with simMST</span></span>
 <span><span class="va">cut_score</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span>   <span class="co"># list(c(-0.45, 0.46), c(-0.42, 0.45))</span></span>
@@ -679,11 +672,11 @@ principled choice is to derive them directly from the modules’ TIF
 curves themselves: the natural boundary between an easy and a hard
 module is the theta value at which the hard module’s TIF first overtakes
 the easy module’s TIF. Below that point the easier module is more
-informative; above it, the harder module is. This is also exactly the
-fix for the anomalous-routing problem described above for MFI routing —
-by fixing the cut point at this <em>proper</em> crossing, low-ability
-examinees can never be routed into the harder module no matter how its
-TIF curve behaves at the extremes.</p>
+informative; above it, the harder module is. This is also the fix for
+the anomalous-routing problem described above for MFI routing: by fixing
+the cut point at this <em>proper</em> crossing, low-ability examinees
+can never be routed into the harder module, no matter how its TIF curve
+behaves at the extremes.</p>
 <p><code><a href="../reference/find_cut.html">find_cut()</a></code> automates this search. For every pair of
 adjacent modules at each stage transition, it scans the theta scale for
 crossings between the two modules’ TIF curves, keeps only the “proper”
@@ -697,7 +690,8 @@ them here should reproduce the same values:</p>
 <code class="sourceCode R"><span><span class="va">cut_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_cut.html">find_cut</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  module    <span class="op">=</span> <span class="va">module</span>,</span>
-<span>  route_map <span class="op">=</span> <span class="va">route_map</span></span>
+<span>  route_map <span class="op">=</span> <span class="va">route_map</span>,</span>
+<span>  D         <span class="op">=</span> <span class="fl">1.702</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; MST TIF-Crossing Cut Score Results</span></span>
@@ -826,7 +820,7 @@ compare two routing or scoring strategies fairly, simulation noise in
 the responses themselves should not be allowed to confound the
 comparison. Generating the response matrix once with
 <code><a href="../reference/simdat.html">simdat()</a></code> and feeding it through the <code>response</code>
-argument removes that source of noise — and is also how
+argument removes that source of noise, and is also how
 <code><a href="../reference/run_mst.html">run_mst()</a></code> would be used with real, already-observed
 response data:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -880,7 +874,7 @@ and the module pathway taken by each examinee (<code>path</code>).</p>
 <div class="section level4">
 <h4 id="inspecting-the-run_mst-output">Inspecting the <code>run_mst()</code> Output<a class="anchor" aria-label="anchor" href="#inspecting-the-run_mst-output"></a>
 </h4>
-<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports only aggregated information — the panel
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports only aggregated information: the panel
 structure, the routing and final scoring methods, summary statistics
 (mean, SD, min, max) of the final estimates, and, when true abilities
 are supplied, overall bias and RMSE. Every examinee’s individual results
@@ -913,27 +907,26 @@ live in named components of the returned object itself:</p>
 <span><span class="co">#&gt; [6,]       1       3       7</span></span></code></pre></div>
 <p><code>se.theta</code> in particular never appears in
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> output, so accessing it directly is the only way to
-see how estimation precision varies across examinees — for example, by
+see how estimation precision varies across examinees, for example, by
 the Stage 3 (final) module each examinee landed in:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean standard error by terminal (Stage 3) module</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span>, <span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span><span class="op">]</span>, <span class="va">mean</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         5         6         7 </span></span>
 <span><span class="co">#&gt; 2.1794982 0.2469682 3.0071373</span></span></code></pre></div>
-<p>The full list of return components — including <code>panel</code>
+<p>The full list of return components, including <code>panel</code>
 (reused from <code><a href="../reference/panel_info.html">panel_info()</a></code>), <code>true.theta</code>, and
 <code>full.resp</code> (the complete item-level response matrix,
-populated only when <code>return_full_resp = TRUE</code>) — is
-summarized in the Function Reference section near the end of this
-article.</p>
+populated only when <code>return_full_resp = TRUE</code>), is summarized
+in the Function Reference section near the end of this article.</p>
 <p>All five calls above drew <code>theta_true</code> (or
 <code>theta_true2</code>) from a single population distribution,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0, 1)</annotation></semantics></math>
-— appropriate for an <strong>overall</strong>, population-representative
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(0, 1)</annotation></semantics></math>,
+appropriate for an <strong>overall</strong>, population-representative
 look at how the panel performs across a realistic mix of examinees, the
 way a testing program would experience it operationally. The
-complementary question — how the panel performs
-<strong>conditionally</strong>, at one specific ability level — requires
+complementary question (how the panel performs
+<strong>conditionally</strong>, at one specific ability level) requires
 fixing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 instead of sampling it, and repeating the simulation many times at that
@@ -983,8 +976,8 @@ point:</p>
 <li>For each
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>,
 generate thousands of simulated response patterns</li>
-<li>Route each simulated examinee through the panel — exactly as
-<code><a href="../reference/run_mst.html">run_mst()</a></code> does above — using the chosen routing rule (cut
+<li>Route each simulated examinee through the panel (exactly as
+<code><a href="../reference/run_mst.html">run_mst()</a></code> does above) using the chosen routing rule (cut
 scores, b-matching, or maximum information)</li>
 <li>Estimate ability from each simulated response and compute the mean
 and variance of the estimates</li>
@@ -996,7 +989,7 @@ CSEM =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\text{Var}(\hat\theta)}</annotation></semantics></math>
 </li>
 </ol>
-<p><code><a href="../reference/run_mst.html">run_mst()</a></code> already automates Steps 2–4 for a single
+<p><code><a href="../reference/run_mst.html">run_mst()</a></code> already automates Steps 2-4 for a single
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>
 and a single batch of replications; a full evaluation just wraps it in a
 loop over the ability grid with a sufficiently large number of
@@ -1026,15 +1019,15 @@ distribution of every possible observed score</strong> at every stage
 and pathway using a recursive algorithm.</p>
 <p>The key insight is that the conditional distribution of the observed
 sum score along any pathway can be built up stage by stage using the
-<strong>Lord–Wingersky recursion</strong> <span class="citation">(Lord
+<strong>Lord-Wingersky recursion</strong> <span class="citation">(Lord
 &amp; Wingersky, 1984)</span>. Given the conditional score distribution
 of the modules visited so far, the joint distribution at the next stage
-can be computed exactly — without any random sampling.</p>
+can be computed exactly, without any random sampling.</p>
 <p>Here is the core logic of the recursion:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Stage 1</strong>: Compute
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>1</mn></msub><mo>=</mo><mi>x</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(X_1 = x \mid \theta)</annotation></semantics></math>
-for the routing module using the Lord–Wingersky recursion, where
+for the routing module using the Lord-Wingersky recursion, where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>1</mn></msub><annotation encoding="application/x-tex">X_1</annotation></semantics></math>
 is the total score on Stage 1.</p></li>
 <li><p><strong>Routing</strong>: For each possible score
@@ -1054,11 +1047,11 @@ stages.</p></li>
 sum score to a
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>
 estimate using the <strong>inverse Test Characteristic Curve (TCC)
-method</strong> — the method implied by IRT-based summed scoring.</p>
+method</strong>, the method implied by IRT-based summed scoring.</p>
 <blockquote>
 <p><strong>Note on linear interpolation (<code>intpol</code>)</strong>:
 When items have non-zero guessing parameters (e.g., 3PLM), the minimum
-<em>achievable</em> expected sum score exceeds zero — meaning no valid
+<em>achievable</em> expected sum score exceeds zero, meaning no valid
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>
 exists for very low observed scores (those below the sum of guessing
 parameters). With <code>intpol = TRUE</code> (the default), the inverse
@@ -1088,13 +1081,12 @@ hours</li>
 <strong>Deterministic</strong>: Results are reproducible without any
 simulation noise</li>
 <li>
-<strong>Comprehensive</strong>: Any panel design, cut score
-configuration, or ability grid can be evaluated in a single function
-call</li>
+<strong>General</strong>: Any panel design, cut score configuration,
+or ability grid can be evaluated in a single function call</li>
 </ul>
 <p>The <code><a href="../reference/reval_mst.html">reval_mst()</a></code> function in <strong>irtQ</strong>
 implements this recursion-based method, computing the same conditional
-bias and CSEM that the Monte Carlo loop above estimates by simulation —
+bias and CSEM that the Monte Carlo loop above estimates by simulation,
 but analytically, in a single function call and without any simulation
 noise.</p>
 <hr>
@@ -1426,13 +1418,13 @@ mappings used for routing and final ability reporting.</p>
 <code class="sourceCode R"><span><span class="co"># eq.theta[[stage]][[path]] gives a vector of theta estimates,</span></span>
 <span><span class="co"># one per possible observed sum score on that partial path</span></span>
 <span></span>
-<span><span class="co"># Stage 1, Path 1 (routing module only — 8 items, scores 0-8)</span></span>
+<span><span class="co"># Stage 1, Path 1 (routing module only, 8 items, scores 0-8)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Theta estimates for Stage 1 (8 items, scores 0-8):\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Theta estimates for Stage 1 (8 items, scores 0-8):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eq.theta</span><span class="op">$</span><span class="va">stage.1</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -7.000 -2.013 -1.249 -0.676 -0.150  0.373  0.913  1.534  7.000</span></span></code></pre></div>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Stage 3 has multiple columns — one per complete pathway</span></span>
+<code class="sourceCode R"><span><span class="co"># Stage 3 has multiple columns, one per complete pathway</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eq.theta</span><span class="op">$</span><span class="va">stage.3</span><span class="op">)</span></span>
@@ -1483,8 +1475,8 @@ panel.
 </div>
 <p>The low-ability pathway peaks at negative
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-values, while the high-ability pathway peaks at positive values —
-exactly what good MST design achieves.</p>
+values, while the high-ability pathway peaks at positive values, exactly
+what good MST design achieves.</p>
 <hr>
 </div>
 </div>
@@ -1628,7 +1620,7 @@ have higher difficulty. We use the 3PLM for all items.</p>
 </h3>
 <p>The <code>module</code> matrix has the same number of rows as
 <code>item_bank_122</code> and one column per module. Each row has
-exactly one 1 — in the column for the module that item belongs to.</p>
+exactly one 1, in the column for the module that item belongs to.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_mods</span>  <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">n_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>   <span class="co"># 30</span></span>
@@ -1764,7 +1756,7 @@ Conditional bias and CSEM for the custom 1-2-2 MST panel.
 <span><span class="co">#&gt; path.2       1       2       5</span></span>
 <span><span class="co">#&gt; path.3       1       3       4</span></span>
 <span><span class="co">#&gt; path.4       1       3       5</span></span></code></pre></div>
-<p>The 1-2-2 panel has 4 pathways — considerably fewer than the 1-3-3
+<p>The 1-2-2 panel has 4 pathways, considerably fewer than the 1-3-3
 panel’s 7 pathways. The simpler branching structure is appropriate for
 smaller-scale tests or when fewer stage-3 difficulty levels are
 needed.</p>
@@ -1851,25 +1843,25 @@ centre but may increase CSEM at the ability extremes.</p>
 <code><a href="../reference/run_mst.html">run_mst()</a></code> and noted that turning a single simulation run
 into a full panel evaluation means looping it over a
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-grid with many replications per point — the traditional Monte Carlo
+grid with many replications per point, the traditional Monte Carlo
 approach. <span class="citation">Lim et al. (2021)</span> validated
 their recursion-based analytical method against exactly this kind of
 simulation, and the closeness of the agreement they found depended on
-the scoring method used. When the simulation used the same scoring the
-recursion assumes throughout — an equated-number-correct (ENC) score, a
-deterministic
+the scoring method used. When the simulation used the same scoring as
+the recursion throughout, the simulated and analytical results matched
+closely at every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+and converged further as replications increased. That scoring was
+equated-number-correct (ENC) scoring, a deterministic
 score-to-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-transformation conceptually analogous to <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s
-internal inverse-TCC scoring — the simulated and analytical results
-matched closely at every
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
-and converged further as replications increased. When the simulation
-instead used a combination more common in practice — EAP for routing,
-maximum likelihood (MLE) for the final score — the two methods still
-agreed closely in the central ability range, but diverged toward the
-extremes, where the item pool carries little information and MLE behaves
-quite differently from the inverse-TCC-based recursion. That region of
-close central agreement widens as test length increases.</p>
+transformation analogous to the inverse-TCC scoring inside
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code>. When the simulation instead used a combination
+more common in practice (EAP for routing and MLE for the final score),
+the two methods still agreed closely in the central ability range, but
+diverged toward the extremes, where the item pool carries little
+information and MLE behaves quite differently from the inverse-TCC-based
+recursion. That region of close central agreement widens as test length
+increases.</p>
 <p>We reproduce that second condition directly here for the
 <code>simMST</code> panel, using the same scoring combination <span class="citation">Lim et al. (2021)</span> used in their own validation:
 <code>route_score = "EAP"</code> for routing at each interim stage, and
@@ -1890,12 +1882,12 @@ guaranteed to line up point-for-point:</p>
 <span><span class="co"># Repeat each grid point n_reps times into one long vector of true abilities</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="va">true_theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">theta_grid</span>, each <span class="op">=</span> <span class="va">n_reps</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Step 1 — Monte Carlo simulation with
+<p><strong>Step 1: Monte Carlo simulation with
 <code><a href="../reference/run_mst.html">run_mst()</a></code>.</strong> All <code>n_reps</code> replications at
 every grid point are simulated in a single call by passing the full
 <code>true_theta</code> vector. Routing uses the panel’s fixed cut
 scores (matching the routing rule <code><a href="../reference/reval_mst.html">reval_mst()</a></code> assumes),
-with <code>EAP</code> routing scores and <code>ML</code> final scores —
+with <code>EAP</code> routing scores and <code>ML</code> final scores,
 the scoring combination <span class="citation">Lim et al. (2021)</span>
 used in their own Monte Carlo validation:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
@@ -1925,7 +1917,7 @@ used in their own Monte Carlo validation:</p>
 <span>  rmse  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">rmse_mc</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">mc_result</span> <span class="op">&lt;-</span> <span class="va">mc_result</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
-<p><strong>Step 2 — Analytical computation with
+<p><strong>Step 2: Analytical computation with
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code></strong> on the <em>same</em>
 <code>theta_grid</code>, so the comparison is point-for-point:</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
@@ -1941,7 +1933,7 @@ used in their own Monte Carlo validation:</p>
 <span></span>
 <span><span class="va">tb_grid</span>      <span class="op">&lt;-</span> <span class="va">eval_grid</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">sigma2</span> <span class="op">+</span> <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Step 3 — Overlay the two results:</strong></p>
+<p><strong>Step 3: Overlay the two results:</strong></p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1982,10 +1974,10 @@ overlaid on the analytical reval_mst() curve (line).
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>In the central ability range — which <span class="citation">Lim et
-al. (2021)</span> reported as roughly
+<p>In the central ability range (which <span class="citation">Lim et al.
+(2021)</span> reported as roughly
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.5</mn><mo>≤</mo><mi>θ</mi><mo>≤</mo><mn>1.5</mn></mrow><annotation encoding="application/x-tex">-1.5 \le \theta \le 1.5</annotation></semantics></math>
-for this scoring combination, widening for longer tests — the Monte
+for this scoring combination, widening for longer tests), the Monte
 Carlo points should track the analytical curve closely, with the small
 remaining deviations attributable to sampling error at
 <code>n_reps = 300</code> replications per grid point (these shrink
@@ -1997,16 +1989,16 @@ carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
 pattern <span class="citation">Lim et al. (2021)</span> reported for
 this identical EAP-routing/MLE-final condition. Matching the recursion’s
-own scoring exactly — <code>route_score = "INV.TCC"</code> and
+own scoring exactly (<code>route_score = "INV.TCC"</code> and
 <code>final_score = "INV.TCC"</code> instead of
-<code>"EAP"</code>/<code>"ML"</code> — would close most of this gap.
+<code>"EAP"</code>/<code>"ML"</code>) would close most of this gap.
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code> is therefore best read as predicting the
 performance of a panel routed and scored via inverse-TCC; whenever a
 program uses a different scoring approach operationally, a
 <code><a href="../reference/run_mst.html">run_mst()</a></code> simulation like this one remains the more direct
 check, particularly for ability levels far from the panel’s region of
 peak information.</p>
-<p><strong>Step 4 — Confirm the gap closes under matched
+<p><strong>Step 4: Confirm the gap closes under matched
 scoring.</strong> As a final check, re-run the same simulation with
 <code>route_score = "INV.TCC"</code> and
 <code>final_score = "INV.TCC"</code>, matching
@@ -2147,7 +2139,7 @@ condition diverged.</p>
 <tr class="odd">
 <td><code>x</code></td>
 <td>data.frame</td>
-<td>—</td>
+<td>-</td>
 <td>Item bank metadata (irtQ format)</td>
 </tr>
 <tr class="even">
@@ -2159,19 +2151,19 @@ condition diverged.</p>
 <tr class="odd">
 <td><code>route_map</code></td>
 <td>matrix</td>
-<td>—</td>
+<td>-</td>
 <td>Binary square matrix of module transitions</td>
 </tr>
 <tr class="even">
 <td><code>module</code></td>
 <td>matrix</td>
-<td>—</td>
+<td>-</td>
 <td>Binary matrix mapping items to modules</td>
 </tr>
 <tr class="odd">
 <td><code>cut_score</code></td>
 <td>list</td>
-<td>—</td>
+<td>-</td>
 <td>List of routing cut score vectors (one per stage transition)</td>
 </tr>
 <tr class="even">
@@ -2277,25 +2269,25 @@ and stage</td>
 <tr class="odd">
 <td><code>x</code></td>
 <td>data.frame</td>
-<td>—</td>
+<td>-</td>
 <td>Item bank metadata (irtQ format)</td>
 </tr>
 <tr class="even">
 <td><code>route_map</code></td>
 <td>matrix</td>
-<td>—</td>
+<td>-</td>
 <td>Binary square matrix of module transitions</td>
 </tr>
 <tr class="odd">
 <td><code>module</code></td>
 <td>matrix</td>
-<td>—</td>
+<td>-</td>
 <td>Binary matrix mapping items to modules</td>
 </tr>
 <tr class="even">
 <td><code>theta</code></td>
 <td>numeric</td>
-<td>—</td>
+<td>-</td>
 <td>True ability for each simulated examinee (or supply
 <code>response</code> instead)</td>
 </tr>
@@ -2339,7 +2331,7 @@ fixed cut-score routing</td>
 <tr class="even">
 <td><code>route_score</code></td>
 <td>list</td>
-<td>—</td>
+<td>-</td>
 <td>Scoring method used at intermediate stages (<code>ML</code>,
 <code>WL</code>, <code>MAP</code>, <code>EAP</code>,
 <code>EAP.SUM</code>, <code>INV.TCC</code>, …)</td>
@@ -2347,7 +2339,7 @@ fixed cut-score routing</td>
 <tr class="odd">
 <td><code>final_score</code></td>
 <td>list</td>
-<td>—</td>
+<td>-</td>
 <td>Scoring method used for the final reported score</td>
 </tr>
 <tr class="even">

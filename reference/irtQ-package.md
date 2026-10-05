@@ -71,8 +71,8 @@ scoring selected-response item data.
 |          |             |
 |----------|-------------|
 | Package: | irtQ        |
-| Version: | 1.2.1       |
-| Date:    | 2026-08-01  |
+| Version: | 1.3.0       |
+| Date:    | 2026-10-05  |
 | Depends: | R (\>= 4.5) |
 | License: | GPL (\>= 2) |
 
@@ -584,35 +584,46 @@ scale of the old form by using FIPC and FAPC procedures, respectively.
 
 ## References
 
-Ames, A. J., & Penfield, R. D. (2015). An NCME Instructional Module on
-Item-Fit Statistics for Item Response Theory Models. *Educational
+Ames, A. J., & Penfield, R. D. (2015). An NCME instructional module on
+item-fit statistics for item response theory models. *Educational
 Measurement: Issues and Practice, 34*(3), 39-48.
 
 Baker, F. B., & Kim, S. H. (2004). *Item response theory: Parameter
 estimation techniques.* CRC Press.
 
-Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001) A
+Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001). A
 comparative study of on-line pretest item calibration/scaling methods in
 computerized adaptive testing. *Journal of Educational Measurement,
 38*(3), 191-212.
+[doi:10.1111/j.1745-3984.2001.tb01123.x](https://doi.org/10.1111/j.1745-3984.2001.tb01123.x)
+.
 
 Birnbaum, A. (1968). Some latent trait models and their use in inferring
 an examinee's ability. In F. M. Lord & M. R. Novick (Eds.), *Statistical
 theories of mental test scores* (pp. 397-479). Reading, MA:
 Addison-Wesley.
 
-Bock, R.D. (1960), *Methods and applications of optimal scaling*. Chapel
-Hill, NC: L.L. Thurstone Psychometric Laboratory.
+Bock, R. D. (1960). *Methods and applications of optimal scaling*.
+Chapel Hill, NC: L. L. Thurstone Psychometric Laboratory.
 
 Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation
 of item parameters: Application of an EM algorithm. *Psychometrika, 46*,
 443-459.
 
 Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability
-in a microcomputer environment. *Psychometrika, 47*(4), 179-198.
+in a microcomputer environment. *Applied Psychological Measurement,
+6*(4), 431-444.
+[doi:10.1177/014662168200600405](https://doi.org/10.1177/014662168200600405)
+.
+
+Bock, R. D., & Zimowski, M. F. (1997). Multiple group IRT. In W. J. van
+der Linden & R. K. Hambleton (Eds.), *Handbook of modern item response
+theory* (pp. 433-448). Springer.
+[doi:10.1007/978-1-4757-2691-6_25](https://doi.org/10.1007/978-1-4757-2691-6_25)
+.
 
 Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional item
-analysis and test scoring (Computer Software). Chapel Hill, NC: Vector
+analysis and test scoring (Computer software). Chapel Hill, NC: Vector
 Psychometric Group.
 
 Cappaert, K. J., Wen, Y., & Chang, Y. F. (2018). Evaluating CAT-adjusted
@@ -636,20 +647,26 @@ tests. *Psychometrika, 16*(3), 297-334.
 
 Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical
 models and methods for test equating. *Journal of Statistical Software,
-59*, 1-30.
+59*(7), 1-30.
 
-Hambleton, R. K., & Swaminathan, H. (1985) *Item response theory:
+Hambleton, R. K., & Swaminathan, H. (1985). *Item response theory:
 Principles and applications*. Boston, MA: Kluwer.
 
-Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991) *Fundamentals
+Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals
 of item response theory*. Newbury Park, CA: Sage.
 
 Han, K. T. (2016). Maximum likelihood score estimation method with
 fences for short-length tests and computerized adaptive tests. *Applied
-psychological measurement, 40*(4), 289-301.
+Psychological Measurement, 40*(4), 289-301.
+[doi:10.1177/0146621616631317](https://doi.org/10.1177/0146621616631317)
+.
 
 Howard, J. P. (2017). *Computational methods for numerical analysis with
 R*. New York: Chapman and Hall/CRC.
+
+Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
+polytomous items using RDIF. Paper presented at the annual meeting of
+the National Council on Measurement in Education, Los Angeles, CA.
 
 Kang, T., & Chen, T. T. (2008). Performance of the generalized S-X2 item
 fit index for polytomous IRT models. *Journal of Educational
@@ -662,19 +679,29 @@ Kim, S., & Kolen, M. J. (2016). Multiple group IRT fixed-parameter
 estimation for maintaining an established ability scale. *Center for
 Advanced Studies in Measurement and Assessment Report, 49.*
 
-Kolen, M. J. & Brennan, R. L. (2004) *Test Equating, Scaling, and
-Linking* (2nd ed.). New York: Springer.
+Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling, and
+linking* (2nd ed.). Springer.
 
-Kolen, M. J. & Tong, Y. (2010). Psychometric properties of IRT
+Kolen, M. J., & Tong, Y. (2010). Psychometric properties of IRT
 proficiency estimates. *Educational Measurement: Issues and Practice,
 29*(3), 8-14.
 
 Laplace, P. S. (1820). *Theorie analytique des probabilites* (in
 French). Courcier.
 
-Li, Y. & Lissitz, R. (2004). Applications of the analytically derived
+Lee, W.-C. (2010). Classification consistency and accuracy for complex
+assessments using item response theory. *Journal of Educational
+Measurement, 47*(1), 1-17.
+[doi:10.1111/j.1745-3984.2009.00096.x](https://doi.org/10.1111/j.1745-3984.2009.00096.x)
+.
+
+Li, H.-H., & Stout, W. (1996). A new procedure for detection of crossing
+DIF. *Psychometrika, 61*(4), 647-677.
+[doi:10.1007/BF02294041](https://doi.org/10.1007/BF02294041) .
+
+Li, Y., & Lissitz, R. (2004). Applications of the analytically derived
 asymptotic standard errors of item response theory item parameter
-estimates. *Journal of educational measurement, 41*(2), 85-117.
+estimates. *Journal of Educational Measurement, 41*(2), 85-117.
 
 Lim, H., & Choe, E. M. (2023). Detecting differential item functioning
 in CAT using IRT residual DIF approach. *Journal of Educational
@@ -686,19 +713,27 @@ item functioning detection framework in item response theory. *Journal
 of Educational Measurement, 59*(1), 80-104.
 [doi:10.1111/jedm.12313](https://doi.org/10.1111/jedm.12313) .
 
-Lim, H., & Han, K. T. (in press). IRT residual-based approach to
-detecting item parameter drift in CAT *Journal of Educational and
-Behavioral Statistics*.
+Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
+approach to evaluate the performance of MST. *Journal of Educational
+Measurement, 58*(2), 154-178.
+[doi:10.1111/jedm.12276](https://doi.org/10.1111/jedm.12276) .
+
+Lim, H., & Han, K. T. (2026). IRT residual-based approach to detecting
+item parameter drift in CAT. *Journal of Educational and Behavioral
+Statistics*.
+[doi:10.3102/10769986261460852](https://doi.org/10.3102/10769986261460852)
+.
+
+Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
+detection with the residual DIF framework. Paper presented at the annual
+International Meeting of the Psychometric Society, Prague, Czech
+Republic.
 
 Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
 differential item functioning among multiple groups using IRT residual
 DIF framework. *Journal of Educational Measurement, 61*(4), 656-681.
 
-Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
-approach to evaluate the performance of MST. *Journal of Educational
-Measurement, 58*(2), 154-178.
-
-Lord, F. & Wingersky, M. (1984). Comparison of IRT true score and
+Lord, F., & Wingersky, M. (1984). Comparison of IRT true score and
 equipercentile observed score equatings. *Applied Psychological
 Measurement, 8*(4), 453-461.
 
@@ -706,8 +741,10 @@ Magis, D., & Barrada, J. R. (2017). Computerized adaptive testing with
 R: Recent updates of the package catR. *Journal of Statistical Software,
 76*, 1-19.
 
-Magis, D., Yan, D., & Von Davier, A. A. (2017). *Computerized adaptive
+Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive
 and multistage testing with R: Using packages catR and mstR*. Springer.
+[doi:10.1007/978-3-319-69218-0](https://doi.org/10.1007/978-3-319-69218-0)
+.
 
 McKinley, R., & Mills, C. (1985). A comparison of several
 goodness-of-fit statistics. *Applied Psychological Measurement, 9*,
@@ -717,12 +754,18 @@ Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
 terms. *Journal of the Royal Statistical Society: Series B
 (Methodological), 51*, 127-138.
 
-Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-scoring for rating scale data (Computer Software). Chicago, IL:
+Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
+scoring for rating scale data (Computer software). Chicago, IL:
 Scientific Software International. URL http://www.ssicentral.com
 
+Nandakumar, R., & Roussos, L. (2004). Evaluation of the CATSIB DIF
+procedure in a pretest setting. *Journal of Educational and Behavioral
+Statistics, 29*(2), 177-199.
+[doi:10.3102/10769986029002177](https://doi.org/10.3102/10769986029002177)
+.
+
 Newcombe, R. G. (1998). Two-sided confidence intervals for the single
-proportion: comparison of seven methods. *Statistics in medicine,
+proportion: comparison of seven methods. *Statistics in Medicine,
 17*(8), 857-872.
 
 Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for
@@ -739,49 +782,73 @@ reliability coefficients. *Psychological Methods, 5*(3), 343-355.
 [doi:10.1037/1082-989X.5.3.343](https://doi.org/10.1037/1082-989X.5.3.343)
 .
 
+Penfield, R. D. (2010). Distinguishing between net and global DIF in
+polytomous items. *Journal of Educational Measurement, 47*(2), 129-149.
+[doi:10.1111/j.1745-3984.2010.00105.x](https://doi.org/10.1111/j.1745-3984.2010.00105.x)
+.
+
 Pritikin, J. (2018). *rpf: Response Probability Functions*. R package
 version 0.59. https://CRAN.R-project.org/package=rpf.
 
 Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
-environment for item response theory method development. Applied
-Psychological Measurement, 44(7-8), 561-562.
+environment for item response theory method development. *Applied
+Psychological Measurement, 44*(7-8), 561-562.
+[doi:10.1177/0146621620929431](https://doi.org/10.1177/0146621620929431)
+.
+
+Rudner, L. M. (2001). Computing the expected proportions of
+misclassified examinees. *Practical Assessment, Research & Evaluation,
+7*(14). [doi:10.7275/an9m-2035](https://doi.org/10.7275/an9m-2035) .
+
+Rudner, L. M. (2005). Expected classification accuracy. *Practical
+Assessment, Research & Evaluation, 10*(13).
+[doi:10.7275/56a5-6b14](https://doi.org/10.7275/56a5-6b14) .
+
+Shealy, R., & Stout, W. (1993). A model-based standardization approach
+that separates true bias/DIF from group ability differences and detects
+test bias/DTF as well as item bias/DIF. *Psychometrika, 58*(2), 159-194.
+[doi:10.1007/BF02294572](https://doi.org/10.1007/BF02294572) .
+
+Stocking, M. L. (1988). *Scale drift in on-line calibration* (Research
+Rep. 88-28). Princeton, NJ: ETS.
 
 Stocking, M. L. (1996). An alternative method for scoring adaptive
 tests. *Journal of Educational and Behavioral Statistics, 21*(4),
 365-389.
 
-Stocking, M. L. (1988). *Scale drift in on-line calibration* (Research
-Rep. 88-28). Princeton, NJ: ETS.
-
 Stone, C. A. (2000). Monte Carlo based null distribution for an
 alternative goodness-of-fit test statistic in IRT models. *Journal of
-educational measurement, 37*(1), 58-75.
+Educational Measurement, 37*(1), 58-75.
 
 Thissen, D. (1982). Marginal maximum likelihood estimation for the
 one-parameter logistic model. *Psychometrika, 47*, 175-186.
 
-Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. (1995). Item
-Response Theory for Scores on Tests Including Polytomous Items with
-Ordered Responses. *Applied Psychological Measurement, 19*(1), 39-49.
+Thissen, D., & Orlando, M. (2001). Item response theory for items scored
+in two categories. In D. Thissen & H. Wainer (Eds.), *Test scoring* (pp.
+73-140). Mahwah, NJ: Lawrence Erlbaum.
 
-Thissen, D. & Orlando, M. (2001). Item response theory for items scored
-in two categories. In D. Thissen & H. Wainer (Eds.), *Test scoring*
-(pp.73-140). Mahwah, NJ: Lawrence Erlbaum.
+Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995).
+Item response theory for scores on tests including polytomous items with
+ordered responses. *Applied Psychological Measurement, 19*(1), 39-49.
+[doi:10.1177/014662169501900105](https://doi.org/10.1177/014662169501900105)
+.
 
-Thissen, D. & Wainer, H. (1982). Some standard errors in item response
+Thissen, D., & Wainer, H. (1982). Some standard errors in item response
 theory. *Psychometrika, 47*, 397-412.
 
 Wainer, H., & Mislevy, R. J. (1990). Item response theory, item
 calibration, and proficiency estimation. In H. Wainer (Ed.), *Computer
-adaptive testing: A primer* (Chap. 4, pp.65-102). Hillsdale, NJ:
+adaptive testing: A primer* (Chap. 4, pp. 65-102). Hillsdale, NJ:
 Lawrence Erlbaum.
 
 Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 response theory. *Psychometrika, 54*(3), 427-450.
+[doi:10.1007/BF02294627](https://doi.org/10.1007/BF02294627) .
 
 Weeks, J. P. (2010). plink: An R Package for Linking Mixed-Format Tests
 Using IRT-Based Methods. *Journal of Statistical Software, 35*(12),
-1-33. URL http://www.jstatsoft.org/v35/i12/.
+1-33. [doi:10.18637/jss.v035.i12](https://doi.org/10.18637/jss.v035.i12)
+.
 
 Wells, C. S., & Bolt, D. M. (2008). Investigation of a nonparametric
 procedure for assessing goodness-of-fit in item response theory.
@@ -799,7 +866,7 @@ model. *Applied Psychological Measurement, 5*, 245-262.
 
 Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003).
 BILOG-MG 3: Multiple-group IRT analysis and test maintenance for binary
-items (Computer Software). Chicago, IL: Scientific Software
+items (Computer software). Chicago, IL: Scientific Software
 International. URL http://www.ssicentral.com
 
 ## Author

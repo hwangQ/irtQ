@@ -54,13 +54,37 @@ module contains 8 dichotomously scored items calibrated under the IRT
 
 ## References
 
-Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive
-and multistage testing with R: Using packages catR and mstR*. Springer.
-
 Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. *Journal of Educational
 Measurement, 58*(2), 154-178.
+[doi:10.1111/jedm.12276](https://doi.org/10.1111/jedm.12276) .
+
+Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive
+and multistage testing with R: Using packages catR and mstR*. Springer.
+[doi:10.1007/978-3-319-69218-0](https://doi.org/10.1007/978-3-319-69218-0)
+.
 
 ## Author
 
 Hwanggyu Lim <hglim83@gmail.com>
+
+## Examples
+
+``` r
+# structure of the data
+str(simMST, max.level = 1)
+#> List of 5
+#>  $ item_bank:'data.frame':   56 obs. of  6 variables:
+#>  $ module   : int [1:56, 1:7] 0 0 0 1 0 0 0 0 0 0 ...
+#>  $ route_map: int [1:7, 1:7] 0 0 0 0 0 0 0 1 0 0 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>  $ cut_score:List of 2
+#>  $ theta    : num [1:81] -4 -3.9 -3.8 -3.7 -3.6 -3.5 -3.4 -3.3 -3.2 -3.1 ...
+
+# item metadata of the first three items
+head(simMST$item_bank, 3)
+#>   id cats model     par.1     par.2      par.3
+#> 1  1    2  3PLM 0.8046689 0.8887742 0.07111049
+#> 2  2    2  3PLM 1.1698814 1.9293569 0.09127957
+#> 3  3    2  3PLM 1.0684706 0.4136401 0.11193439
+```

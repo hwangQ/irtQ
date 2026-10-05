@@ -6,8 +6,8 @@ A **Multistage-Adaptive Test (MST)** is a computer-based adaptive
 testing design that sits between fully adaptive Computerized Adaptive
 Testing (CAT) and traditional linear fixed-form testing. In an MST, the
 test is divided into *stages*, each containing one or more pre-assembled
-groups of items called *modules*. Routing rules — based on performance
-on earlier stages — determine which module a test taker receives at each
+groups of items called *modules*. Routing rules, based on performance on
+earlier stages, determine which module a test taker receives at each
 subsequent stage.
 
 ### The Basic Structure
@@ -15,7 +15,7 @@ subsequent stage.
 A typical MST panel is described by its *stage-module configuration*.
 For example, a **1-3-3 panel** has:
 
-- **Stage 1**: 1 routing module — everyone starts with the same items
+- **Stage 1**: 1 routing module; everyone starts with the same items
 - **Stage 2**: 3 modules of varying difficulty (e.g., easy, medium,
   hard)
 - **Stage 3**: 3 modules of varying difficulty (e.g., easy, medium,
@@ -78,13 +78,12 @@ values.
 
 **irtQ** provides two functions for exactly this purpose.
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
-simulates a full MST administration — examinee by examinee, stage by
-stage — and reports the resulting ability estimates and routing
-pathways.
+simulates a full MST administration (examinee by examinee, stage by
+stage) and reports the resulting ability estimates and routing pathways.
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-conducts the MST evaluation analytically, via a recursion-based
-method(Lim et al., 2021), without simulating any individual examinee.
-This vignette covers both, starting with
+conducts the MST evaluation analytically, via a recursion-based method
+(Lim et al., 2021), without simulating any individual examinee. This
+vignette covers both, starting with
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md). They
 describe an MST panel using the same structural inputs, introduced next.
 
@@ -124,7 +123,7 @@ A binary **square matrix** of dimension (total modules × total modules).
 An entry of 1 in row $`i`$, column $`j`$ means test takers can be routed
 from module $`i`$ directly to module $`j`$.
 
-For a 1-3-3 panel with 7 modules (M1–M7):
+For a 1-3-3 panel with 7 modules (M1-M7):
 
              M1 M2 M3 M4 M5 M6 M7
     M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
@@ -141,7 +140,7 @@ Stage 1 modules are identified automatically as those with all-zero
 
 #### 4. Cut Scores (`cut_score`)
 
-A list of numeric vectors — one element per routing stage transition.
+A list of numeric vectors, one element per routing stage transition.
 Each vector contains the IRT $`\theta`$ cut points used to determine
 which next-stage module a test taker receives.
 
@@ -186,17 +185,17 @@ instead uses `theta` (or `response`) to simulate individual examinees:
   response matrix (e.g., from
   [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), or
   real observed data). `theta` can still be supplied alongside
-  `response`, purely for RMSE comparison after the fact — it plays no
+  `response`, purely for RMSE comparison after the fact; it plays no
   role in generating the responses themselves.
 
 How `theta` is constructed changes what the simulation tells you.
-Drawing it randomly from an assumed population ability distribution —
-`rnorm(1000, 0, 1)` in the examples below — evaluates the panel’s
+Drawing it randomly from an assumed population ability distribution
+(`rnorm(1000, 0, 1)` in the examples below) evaluates the panel’s
 **overall** performance across a single, population-representative batch
 of examinees, much as a testing program would experience it
 operationally. Fixing `theta` at one value and simulating many
 replications at that single point instead evaluates the panel’s
-**conditional** bias and precision at that specific ability level — the
+**conditional** bias and precision at that specific ability level, the
 same quantity
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
 computes analytically, without any simulation. Repeating that
@@ -211,8 +210,8 @@ Example 6 demonstrates it directly with
 separates the scoring method used for routing decisions at intermediate
 stages (`route_score`) from the method used to report each examinee’s
 final score (`final_score`). Both arguments take a named list whose
-`method` element selects one of **irtQ**’s ability estimators — `"ML"`,
-`"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"` — and whose
+`method` element selects one of **irtQ**’s ability estimators: `"ML"`,
+`"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`, and whose
 remaining elements supply that estimator’s own arguments, e.g. `range`
 for `"ML"`/`"WL"`, or `norm.prior` and `nquad` for `"EAP"`:
 
@@ -227,16 +226,16 @@ principled choice runs this way: `"EAP"` is usually preferred for
 routing, because the intermediate ability estimate must always be
 well-defined, even from a short module. The Stage 1 routing module in
 particular may have so few items that an examinee answers every one
-correctly or every one incorrectly — a pattern for which `"ML"` has no
+correctly or every one incorrectly, a pattern for which `"ML"` has no
 finite solution. `"EAP"`’s prior keeps the routing estimate finite and
 stable no matter the response pattern. For the final reported score,
 `"ML"` is often preferred instead: by the last stage examinees have
 answered enough items that such extreme patterns are rare, and `"ML"`
 avoids the shrinkage toward the population mean that `"EAP"`’s prior
 introduces. `"INV.TCC"` recovers ability from the observed sum score via
-the inverse Test Characteristic Curve — the same method
+the inverse Test Characteristic Curve (the same method
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-uses internally — and is useful when a testing program reports summed
+uses internally) and is useful when a testing program reports summed
 scores directly.
 
 ### The `simMST` Dataset
@@ -329,11 +328,11 @@ simMST$route_map
 
 The `route_map` shows:
 
-- Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 — the three Stage
-  2 modules
-- Rows 2–4 (Modules 2–4, Stage 2): each routes to two or three Stage 3
+- Row 1 (Module 1, Stage 1): routes to columns 2, 3, 4 (the three Stage
+  2 modules)
+- Rows 2-4 (Modules 2-4, Stage 2): each routes to two or three Stage 3
   modules
-- Rows 5–7 (Modules 5–7, Stage 3): all zeros — terminal modules
+- Rows 5-7 (Modules 5-7, Stage 3): all zeros (terminal modules)
 
 ``` r
 
@@ -365,10 +364,9 @@ carry out exactly this kind of simulation. Given an item bank, a
 `route_map`, a `module` matrix, and a vector of true abilities (or a
 pre-generated response matrix),
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
-simulates the full MST administration for every examinee —
-stage-by-stage routing and final scoring — and returns the resulting
-ability estimates together with the module pathway each examinee
-traveled.
+simulates the full MST administration for every examinee (stage-by-stage
+routing and final scoring) and returns the resulting ability estimates
+together with the module pathway each examinee traveled.
 
 The examples below use the same `simMST` 1-3-3 panel introduced above: a
 routing module at Stage 1, followed by three modules of varying
@@ -503,18 +501,18 @@ print(sim_mfi)
 #>   Stage 3: Module 5: 334 (33.4%),  Module 6: 359 (35.9%),  Module 7: 307 (30.7%)
 ```
 
-MFI routing assumes each module’s TIF curve behaves as intended —
-peaking higher for harder modules as theta increases, and higher for
-easier modules as theta decreases. In practice this assumption can fail:
-a harder module’s TIF curve may unexpectedly peak at a *low* theta
-value, so that low-ability examinees who should be routed to an easy
-module instead get routed into the harder one. This is called an
-**anomalous routing**, or **path reversal**, and it is the opposite of
-what an MST is designed to do.
+MFI routing assumes each module’s TIF curve behaves as intended, peaking
+higher for harder modules as theta increases, and higher for easier
+modules as theta decreases. In practice this assumption can fail: a
+harder module’s TIF curve may unexpectedly peak at a *low* theta value,
+so that low-ability examinees who should be routed to an easy module
+instead get routed into the harder one. This is called an **anomalous
+routing**, or **path reversal**, and it is the opposite of what an MST
+is designed to do.
 
 Alternatively, setting `route_method = NULL` switches to traditional
-**cut-score routing** — the design most commonly used in operational MST
-programs — where each examinee’s intermediate ability estimate is
+**cut-score routing** (the design most commonly used in operational MST
+programs), in which each examinee’s intermediate ability estimate is
 compared against a fixed set of cut scores to decide the next module:
 
 ``` r
@@ -580,11 +578,11 @@ principled choice is to derive them directly from the modules’ TIF
 curves themselves: the natural boundary between an easy and a hard
 module is the theta value at which the hard module’s TIF first overtakes
 the easy module’s TIF. Below that point the easier module is more
-informative; above it, the harder module is. This is also exactly the
-fix for the anomalous-routing problem described above for MFI routing —
-by fixing the cut point at this *proper* crossing, low-ability examinees
-can never be routed into the harder module no matter how its TIF curve
-behaves at the extremes.
+informative; above it, the harder module is. This is also the fix for
+the anomalous-routing problem described above for MFI routing: by fixing
+the cut point at this *proper* crossing, low-ability examinees can never
+be routed into the harder module, no matter how its TIF curve behaves at
+the extremes.
 
 [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md)
 automates this search. For every pair of adjacent modules at each stage
@@ -603,7 +601,8 @@ should reproduce the same values:
 cut_result <- find_cut(
   x         = x,
   module    = module,
-  route_map = route_map
+  route_map = route_map,
+  D         = 1.702
 )
 print(cut_result)
 #> MST TIF-Crossing Cut Score Results
@@ -742,8 +741,8 @@ compare two routing or scoring strategies fairly, simulation noise in
 the responses themselves should not be allowed to confound the
 comparison. Generating the response matrix once with
 [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) and
-feeding it through the `response` argument removes that source of noise
-— and is also how
+feeding it through the `response` argument removes that source of noise,
+and is also how
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) would
 be used with real, already-observed response data:
 
@@ -801,9 +800,9 @@ taken by each examinee (`path`).
 #### Inspecting the `run_mst()` Output
 
 [`print()`](https://rdrr.io/r/base/print.html) reports only aggregated
-information — the panel structure, the routing and final scoring
-methods, summary statistics (mean, SD, min, max) of the final estimates,
-and, when true abilities are supplied, overall bias and RMSE. Every
+information: the panel structure, the routing and final scoring methods,
+summary statistics (mean, SD, min, max) of the final estimates, and,
+when true abilities are supplied, overall bias and RMSE. Every
 examinee’s individual results live in named components of the returned
 object itself:
 
@@ -839,7 +838,7 @@ head(sim_bmat$path)
 `se.theta` in particular never appears in
 [`print()`](https://rdrr.io/r/base/print.html) output, so accessing it
 directly is the only way to see how estimation precision varies across
-examinees — for example, by the Stage 3 (final) module each examinee
+examinees, for example, by the Stage 3 (final) module each examinee
 landed in:
 
 ``` r
@@ -850,18 +849,18 @@ tapply(sim_bmat$se.theta, sim_bmat$path[, ncol(sim_bmat$path)], mean)
 #> 2.1794982 0.2469682 3.0071373
 ```
 
-The full list of return components — including `panel` (reused from
+The full list of return components, including `panel` (reused from
 [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)),
 `true.theta`, and `full.resp` (the complete item-level response matrix,
-populated only when `return_full_resp = TRUE`) — is summarized in the
+populated only when `return_full_resp = TRUE`), is summarized in the
 Function Reference section near the end of this article.
 
 All five calls above drew `theta_true` (or `theta_true2`) from a single
-population distribution, $`N(0, 1)`$ — appropriate for an **overall**,
+population distribution, $`N(0, 1)`$, appropriate for an **overall**,
 population-representative look at how the panel performs across a
 realistic mix of examinees, the way a testing program would experience
-it operationally. The complementary question — how the panel performs
-**conditionally**, at one specific ability level — requires fixing
+it operationally. The complementary question (how the panel performs
+**conditionally**, at one specific ability level) requires fixing
 $`\theta`$ instead of sampling it, and repeating the simulation many
 times at that single point. Doing this across a whole grid of ability
 levels is exactly the traditional approach described next.
@@ -895,9 +894,9 @@ levels, with many replications at each grid point:
 1.  Fix a set of true ability levels $`\theta_1, \theta_2, \ldots`$
 2.  For each $`\theta_k`$, generate thousands of simulated response
     patterns
-3.  Route each simulated examinee through the panel — exactly as
+3.  Route each simulated examinee through the panel (exactly as
     [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
-    does above — using the chosen routing rule (cut scores, b-matching,
+    does above) using the chosen routing rule (cut scores, b-matching,
     or maximum information)
 4.  Estimate ability from each simulated response and compute the mean
     and variance of the estimates
@@ -905,7 +904,7 @@ levels, with many replications at each grid point:
     $`\sqrt{\text{Var}(\hat\theta)}`$
 
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
-already automates Steps 2–4 for a single $`\theta_k`$ and a single batch
+already automates Steps 2-4 for a single $`\theta_k`$ and a single batch
 of replications; a full evaluation just wraps it in a loop over the
 ability grid with a sufficiently large number of replications per grid
 point (Example 6 below demonstrates exactly this). This approach is
@@ -928,15 +927,15 @@ every stage and pathway using a recursive algorithm.
 
 The key insight is that the conditional distribution of the observed sum
 score along any pathway can be built up stage by stage using the
-**Lord–Wingersky recursion** (Lord & Wingersky, 1984). Given the
+**Lord-Wingersky recursion** (Lord & Wingersky, 1984). Given the
 conditional score distribution of the modules visited so far, the joint
-distribution at the next stage can be computed exactly — without any
+distribution at the next stage can be computed exactly, without any
 random sampling.
 
 Here is the core logic of the recursion:
 
 1.  **Stage 1**: Compute $`P(X_1 = x \mid \theta)`$ for the routing
-    module using the Lord–Wingersky recursion, where $`X_1`$ is the
+    module using the Lord-Wingersky recursion, where $`X_1`$ is the
     total score on Stage 1.
 
 2.  **Routing**: For each possible score $`x`$ on Stage 1, determine
@@ -953,12 +952,12 @@ Here is the core logic of the recursion:
 
 5.  **Ability estimation**: Convert each possible final sum score to a
     $`\hat\theta`$ estimate using the **inverse Test Characteristic
-    Curve (TCC) method** — the method implied by IRT-based summed
+    Curve (TCC) method**, the method implied by IRT-based summed
     scoring.
 
     > **Note on linear interpolation (`intpol`)**: When items have
     > non-zero guessing parameters (e.g., 3PLM), the minimum
-    > *achievable* expected sum score exceeds zero — meaning no valid
+    > *achievable* expected sum score exceeds zero, meaning no valid
     > $`\hat\theta`$ exists for very low observed scores (those below
     > the sum of guessing parameters). With `intpol = TRUE` (the
     > default), the inverse TCC method applies **linear interpolation**
@@ -977,15 +976,15 @@ This method is:
 - **Fast**: Computation takes seconds, not minutes or hours
 - **Deterministic**: Results are reproducible without any simulation
   noise
-- **Comprehensive**: Any panel design, cut score configuration, or
-  ability grid can be evaluated in a single function call
+- **General**: Any panel design, cut score configuration, or ability
+  grid can be evaluated in a single function call
 
 The
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
 function in **irtQ** implements this recursion-based method, computing
 the same conditional bias and CSEM that the Monte Carlo loop above
-estimates by simulation — but analytically, in a single function call
-and without any simulation noise.
+estimates by simulation, but analytically, in a single function call and
+without any simulation noise.
 
 ------------------------------------------------------------------------
 
@@ -1306,7 +1305,7 @@ routing and final ability reporting.
 # eq.theta[[stage]][[path]] gives a vector of theta estimates,
 # one per possible observed sum score on that partial path
 
-# Stage 1, Path 1 (routing module only — 8 items, scores 0-8)
+# Stage 1, Path 1 (routing module only, 8 items, scores 0-8)
 cat("Theta estimates for Stage 1 (8 items, scores 0-8):\n")
 #> Theta estimates for Stage 1 (8 items, scores 0-8):
 round(eval_result$eq.theta$stage.1[, 1], 3)
@@ -1315,7 +1314,7 @@ round(eval_result$eq.theta$stage.1[, 1], 3)
 
 ``` r
 
-# Stage 3 has multiple columns — one per complete pathway
+# Stage 3 has multiple columns, one per complete pathway
 cat("Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):\n")
 #> Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):
 dim(eval_result$eq.theta$stage.3)
@@ -1370,7 +1369,7 @@ Test information functions for two contrasting pathways in the 1-3-3
 panel.
 
 The low-ability pathway peaks at negative $`\theta`$ values, while the
-high-ability pathway peaks at positive values — exactly what good MST
+high-ability pathway peaks at positive values, exactly what good MST
 design achieves.
 
 ------------------------------------------------------------------------
@@ -1508,8 +1507,8 @@ print(item_bank_122)
 ### Step 2: Build the Module Matrix
 
 The `module` matrix has the same number of rows as `item_bank_122` and
-one column per module. Each row has exactly one 1 — in the column for
-the module that item belongs to.
+one column per module. Each row has exactly one 1, in the column for the
+module that item belongs to.
 
 ``` r
 
@@ -1659,7 +1658,7 @@ eval_122$panel.info$pathway
 #> path.4       1       3       5
 ```
 
-The 1-2-2 panel has 4 pathways — considerably fewer than the 1-3-3
+The 1-2-2 panel has 4 pathways, considerably fewer than the 1-3-3
 panel’s 7 pathways. The simpler branching structure is appropriate for
 smaller-scale tests or when fewer stage-3 difficulty levels are needed.
 
@@ -1751,24 +1750,23 @@ but may increase CSEM at the ability extremes.
 The “Why Simulate MST Panel Performance?” section introduced
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) and
 noted that turning a single simulation run into a full panel evaluation
-means looping it over a $`\theta`$ grid with many replications per point
-— the traditional Monte Carlo approach. Lim et al. (2021) validated
+means looping it over a $`\theta`$ grid with many replications per
+point, the traditional Monte Carlo approach. Lim et al. (2021) validated
 their recursion-based analytical method against exactly this kind of
 simulation, and the closeness of the agreement they found depended on
-the scoring method used. When the simulation used the same scoring the
-recursion assumes throughout — an equated-number-correct (ENC) score, a
-deterministic score-to-$`\theta`$ transformation conceptually analogous
-to
-[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)’s
-internal inverse-TCC scoring — the simulated and analytical results
-matched closely at every $`\theta`$, and converged further as
-replications increased. When the simulation instead used a combination
-more common in practice — EAP for routing, maximum likelihood (MLE) for
-the final score — the two methods still agreed closely in the central
-ability range, but diverged toward the extremes, where the item pool
-carries little information and MLE behaves quite differently from the
-inverse-TCC-based recursion. That region of close central agreement
-widens as test length increases.
+the scoring method used. When the simulation used the same scoring as
+the recursion throughout, the simulated and analytical results matched
+closely at every $`\theta`$ and converged further as replications
+increased. That scoring was equated-number-correct (ENC) scoring, a
+deterministic score-to-$`\theta`$ transformation analogous to the
+inverse-TCC scoring inside
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md).
+When the simulation instead used a combination more common in practice
+(EAP for routing and MLE for the final score), the two methods still
+agreed closely in the central ability range, but diverged toward the
+extremes, where the item pool carries little information and MLE behaves
+quite differently from the inverse-TCC-based recursion. That region of
+close central agreement widens as test length increases.
 
 We reproduce that second condition directly here for the `simMST` panel,
 using the same scoring combination Lim et al. (2021) used in their own
@@ -1797,13 +1795,13 @@ set.seed(2026)
 true_theta <- rep(theta_grid, each = n_reps)
 ```
 
-**Step 1 — Monte Carlo simulation with
+**Step 1: Monte Carlo simulation with
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md).** All
 `n_reps` replications at every grid point are simulated in a single call
 by passing the full `true_theta` vector. Routing uses the panel’s fixed
 cut scores (matching the routing rule
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-assumes), with `EAP` routing scores and `ML` final scores — the scoring
+assumes), with `EAP` routing scores and `ML` final scores, the scoring
 combination Lim et al. (2021) used in their own Monte Carlo validation:
 
 ``` r
@@ -1836,7 +1834,7 @@ mc_result <- data.frame(
 mc_result <- mc_result[order(mc_result$theta), ]
 ```
 
-**Step 2 — Analytical computation with
+**Step 2: Analytical computation with
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)**
 on the *same* `theta_grid`, so the comparison is point-for-point:
 
@@ -1856,7 +1854,7 @@ tb_grid      <- eval_grid$eval.tb
 tb_grid$rmse <- sqrt(tb_grid$sigma2 + tb_grid$bias^2)
 ```
 
-**Step 3 — Overlay the two results:**
+**Step 3: Overlay the two results:**
 
 ``` r
 
@@ -1905,9 +1903,9 @@ overlaid on the analytical reval_mst() curve (line).
 par(mfrow = c(1, 1))
 ```
 
-In the central ability range — which Lim et al. (2021) reported as
+In the central ability range (which Lim et al. (2021) reported as
 roughly $`-1.5 \le \theta \le 1.5`$ for this scoring combination,
-widening for longer tests — the Monte Carlo points should track the
+widening for longer tests), the Monte Carlo points should track the
 analytical curve closely, with the small remaining deviations
 attributable to sampling error at `n_reps = 300` replications per grid
 point (these shrink further as `n_reps` increases). Toward the extremes,
@@ -1919,8 +1917,8 @@ carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
 pattern Lim et al. (2021) reported for this identical
 EAP-routing/MLE-final condition. Matching the recursion’s own scoring
-exactly — `route_score = "INV.TCC"` and `final_score = "INV.TCC"`
-instead of `"EAP"`/`"ML"` — would close most of this gap.
+exactly (`route_score = "INV.TCC"` and `final_score = "INV.TCC"` instead
+of `"EAP"`/`"ML"`) would close most of this gap.
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) is
 therefore best read as predicting the performance of a panel routed and
 scored via inverse-TCC; whenever a program uses a different scoring
@@ -1929,7 +1927,7 @@ approach operationally, a
 simulation like this one remains the more direct check, particularly for
 ability levels far from the panel’s region of peak information.
 
-**Step 4 — Confirm the gap closes under matched scoring.** As a final
+**Step 4: Confirm the gap closes under matched scoring.** As a final
 check, re-run the same simulation with `route_score = "INV.TCC"` and
 `final_score = "INV.TCC"`, matching
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)’s
@@ -2067,11 +2065,11 @@ the `EAP`/`ML` condition diverged.
 
 | Argument | Type | Default | Description |
 |----|----|----|----|
-| `x` | data.frame | — | Item bank metadata (irtQ format) |
+| `x` | data.frame | \- | Item bank metadata (irtQ format) |
 | `D` | numeric | 1 | Scaling constant (use 1.702 for normal-ogive approximation) |
-| `route_map` | matrix | — | Binary square matrix of module transitions |
-| `module` | matrix | — | Binary matrix mapping items to modules |
-| `cut_score` | list | — | List of routing cut score vectors (one per stage transition) |
+| `route_map` | matrix | \- | Binary square matrix of module transitions |
+| `module` | matrix | \- | Binary matrix mapping items to modules |
+| `cut_score` | list | \- | List of routing cut score vectors (one per stage transition) |
 | `theta` | numeric | `seq(-5, 5, 1)` | Ability grid for evaluation |
 | `intpol` | logical | TRUE | Linear interpolation for out-of-range TCC scores |
 | `range.tcc` | numeric(2) | `c(-7, 7)` | Ability range for inverse TCC scoring |
@@ -2093,17 +2091,17 @@ the `EAP`/`ML` condition diverged.
 
 | Argument | Type | Default | Description |
 |----|----|----|----|
-| `x` | data.frame | — | Item bank metadata (irtQ format) |
-| `route_map` | matrix | — | Binary square matrix of module transitions |
-| `module` | matrix | — | Binary matrix mapping items to modules |
-| `theta` | numeric | — | True ability for each simulated examinee (or supply `response` instead) |
+| `x` | data.frame | \- | Item bank metadata (irtQ format) |
+| `route_map` | matrix | \- | Binary square matrix of module transitions |
+| `module` | matrix | \- | Binary matrix mapping items to modules |
+| `theta` | numeric | \- | True ability for each simulated examinee (or supply `response` instead) |
 | `response` | matrix | `NULL` | Pre-generated response matrix, used instead of simulating from `theta` |
 | `D` | numeric | 1 | Scaling constant (use 1.702 for normal-ogive approximation) |
 | `ini_mod` | integer | `NULL` | Fixed Stage-1 module for all examinees; `NULL` assigns each independently at random |
 | `route_method` | character | `"bmat"` | `"bmat"`, `"mfi"`, or `NULL` for fixed cut-score routing |
 | `cut_score` | list | `NULL` | List of routing cut score vectors; used only when `route_method = NULL` |
-| `route_score` | list | — | Scoring method used at intermediate stages (`ML`, `WL`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
-| `final_score` | list | — | Scoring method used for the final reported score |
+| `route_score` | list | \- | Scoring method used at intermediate stages (`ML`, `WL`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
+| `final_score` | list | \- | Scoring method used for the final reported score |
 | `se` | logical | `TRUE` | Whether to compute standard errors of the final score |
 | `missing` | scalar | `NA` | Value representing a not-administered response in `response` |
 | `verbose` | logical | `TRUE` | Whether to print simulation progress messages to the console |

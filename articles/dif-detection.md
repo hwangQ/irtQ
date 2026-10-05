@@ -47,17 +47,17 @@ set.seed(2026)
 We simulate a 40-item dichotomous test (3PLM) with 1,000 examinees per
 group. DIF is introduced into six items:
 
-- **Items 1–2**: Uniform DIF — the focal group has a higher difficulty
-  parameter ($`b + 0.5`$) while the discrimination parameter is
-  unchanged.
-- **Items 3–4**: Nonuniform DIF — the focal group has a lower
+- **Items 1-2**: Uniform DIF, in which the focal group has a higher
+  difficulty parameter ($`b + 0.5`$) while the discrimination parameter
+  is unchanged.
+- **Items 3-4**: Nonuniform DIF, in which the focal group has a lower
   discrimination parameter ($`a \times 0.5`$) while the difficulty
   parameter is unchanged.
-- **Items 5–6**: Mixed DIF — the focal group has both a lower
+- **Items 5-6**: Mixed DIF, in which the focal group has both a lower
   discrimination parameter ($`a \times 0.5`$) and a higher difficulty
   parameter ($`b + 0.5`$), making these items both less discriminating
   and harder for the focal group.
-- **Items 7–40**: No DIF.
+- **Items 7-40**: No DIF.
 
 The focal group has a slightly lower mean ability ($`\mu = -0.3`$) than
 the reference group ($`\mu = 0`$), representing a realistic impact
@@ -82,7 +82,7 @@ meta_ref <- shape_df(
   model   = "3PLM"
 )
 
-# Focal group item metadata: DIF injected into items 1–6
+# Focal group item metadata: DIF injected into items 1-6
 a_focal      <- a_base
 b_focal      <- b_base
 b_focal[1:2] <- b_base[1:2] + 0.5          # uniform DIF: harder for focal
@@ -148,13 +148,13 @@ score_pool <- est_score(
 
 ------------------------------------------------------------------------
 
-## Part 1: RDIF — Residual-Based DIF (`rdif()`)
+## Part 1: Residual-Based DIF Detection (RDIF, `rdif()`)
 
 ### Statistical Framework
 
 The RDIF framework (Lim et al. 2022) detects DIF by comparing item-level
-residuals—defined as the difference between observed and model-expected
-item scores—between the reference and focal groups. For a dichotomously
+residuals, defined as the difference between observed and model-expected
+item scores, between the reference and focal groups. For a dichotomously
 scored item, the residual for examinee $`h`$ is:
 
 ``` math
@@ -165,7 +165,7 @@ where $`x_h \in \{0, 1\}`$ is the observed response and
 $`P_h(\hat{\theta}_h)`$ is the IRT model-predicted probability of a
 correct response. Three statistics are computed from these residuals:
 
-**RDIF$`_R`$** — targets **uniform DIF** via differences in mean raw
+**RDIF$`_R`$**: targets **uniform DIF** via differences in mean raw
 residuals:
 
 ``` math
@@ -176,7 +176,7 @@ Under the null hypothesis of no DIF, $`\text{RDIF}_R`$ asymptotically
 follows a normal distribution
 $`\mathcal{N}(\mu_{\text{RDIF}_R},\, \sigma^2_{\text{RDIF}_R})`$.
 
-**RDIF$`_S`$** — targets **nonuniform DIF** via differences in mean
+**RDIF$`_S`$**: targets **nonuniform DIF** via differences in mean
 squared residuals:
 
 ``` math
@@ -187,7 +187,7 @@ Under the null hypothesis, $`\text{RDIF}_S`$ also asymptotically follows
 a normal distribution
 $`\mathcal{N}(\mu_{\text{RDIF}_S},\, \sigma^2_{\text{RDIF}_S})`$.
 
-**RDIF$`_{RS}`$** — a joint Wald-type statistic that detects **both
+**RDIF$`_{RS}`$**: a joint Wald-type statistic that detects **both
 uniform and nonuniform DIF** simultaneously. It is based on the
 bivariate normality of $`(\text{RDIF}_R, \text{RDIF}_S)`$ and under the
 null hypothesis asymptotically follows a $`\chi^2`$ distribution with 2
@@ -297,7 +297,7 @@ print(rdif_npur)
 #> 31 V31  1000  1000 -0.024   0.153      0.036   0.197      2.586    0.274    
 #> 32 V32  1000  1000  0.005   0.679      0.027   0.757      0.569    0.752    
 #> 33 V33  1000  1000  0.029   0.123      0.009   0.342      2.527    0.283    
-#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.101    0.951    
+#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.102    0.951    
 #> 35 V35  1000  1000  0.020   0.255     -0.003   0.370      1.296    0.523    
 #> 36 V36  1000  1000  0.001   0.968     -0.007   0.667      0.367    0.832    
 #> 37 V37  1000  1000  0.022   0.204      0.003   0.441      5.755    0.056   .
@@ -352,7 +352,7 @@ rdif_npur$no_purify$dif_stat
 #> 31 V31 -0.0241 -1.4284  0.0361  1.2901  2.5857  0.1532  0.1970   0.2745  1000
 #> 32 V32  0.0051  0.4134  0.0267  0.3092  0.5686  0.6793  0.7571   0.7525  1000
 #> 33 V33  0.0295  1.5423  0.0085  0.9498  2.5272  0.1230  0.3422   0.2826  1000
-#> 34 V34  0.0050  0.3187  0.0036  0.3187  0.1007  0.7499  0.7499   0.9509  1000
+#> 34 V34  0.0050  0.3187  0.0036  0.3187  0.1016  0.7499  0.7499   0.9505  1000
 #> 35 V35  0.0199  1.1381 -0.0032  0.8975  1.2958  0.2551  0.3695   0.5231  1000
 #> 36 V36  0.0007  0.0398 -0.0075 -0.4307  0.3669  0.9683  0.6667   0.8324  1000
 #> 37 V37  0.0216  1.2710  0.0030  0.7698  5.7549  0.2037  0.4414   0.0563  1000
@@ -501,7 +501,7 @@ print(rdif_pur)
 #> 31 V31  1000  1000 -0.024   0.153      0.036   0.197      2.586    0.274    
 #> 32 V32  1000  1000  0.005   0.679      0.027   0.757      0.569    0.752    
 #> 33 V33  1000  1000  0.029   0.123      0.009   0.342      2.527    0.283    
-#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.101    0.951    
+#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.102    0.951    
 #> 35 V35  1000  1000  0.020   0.255     -0.003   0.370      1.296    0.523    
 #> 36 V36  1000  1000  0.001   0.968     -0.007   0.667      0.367    0.832    
 #> 37 V37  1000  1000  0.022   0.204      0.003   0.441      5.755    0.056   .
@@ -556,7 +556,7 @@ print(rdif_pur)
 #> 31 V31      5  1000  1000 -0.031   0.062   .  0.035   0.151      3.959    0.138
 #> 32 V32      5  1000  1000  0.000   0.995      0.026   0.494      0.659    0.719
 #> 33 V33      5  1000  1000  0.021   0.274      0.009   0.278      1.721    0.423
-#> 34 V34      5  1000  1000  0.005   0.750      0.004   0.750      0.102    0.950
+#> 34 V34      5  1000  1000  0.005   0.750      0.004   0.750      0.103    0.950
 #> 35 V35      5  1000  1000  0.014   0.432     -0.001   0.311      1.025    0.599
 #> 36 V36      5  1000  1000 -0.008   0.637     -0.007   0.680      0.243    0.886
 #> 37 V37      5  1000  1000  0.020   0.245      0.003   0.454      4.469    0.107
@@ -620,14 +620,14 @@ achieved before reaching `max.iter`.
 
 ------------------------------------------------------------------------
 
-## Part 2: GRDIF — Multiple-Group DIF Detection (`grdif()`)
+## Part 2: Multiple-Group DIF Detection (GRDIF, `grdif()`)
 
 ### Statistical Framework
 
 The GRDIF framework (Lim et al. 2024) generalizes the two-group RDIF
 approach to simultaneously detect DIF across $`G \geq 2`$ groups. Three
-statistics— $`\text{GRDIF}_R`$, $`\text{GRDIF}_S`$, and
-$`\text{GRDIF}_{RS}`$—are constructed by applying a contrast matrix
+statistics, $`\text{GRDIF}_R`$, $`\text{GRDIF}_S`$, and
+$`\text{GRDIF}_{RS}`$, are constructed by applying a contrast matrix
 $`\mathbf{C}`$ to the stacked vector of per-group mean raw residuals
 (MRR) and mean squared residuals (MSR), exploiting their asymptotic
 multivariate normality.
@@ -671,7 +671,7 @@ specific pairs of groups exhibit DIF.
 ### Example 1: GRDIF without purification
 
 We extend the simulation to a three-group scenario by adding a second
-focal group. Items 1–2 exhibit uniform DIF (b-parameters shifted upward)
+focal group. Items 1-2 exhibit uniform DIF (b-parameters shifted upward)
 in both focal groups, with a larger shift for Focal Group 2.
 
 ``` r
@@ -764,7 +764,7 @@ print(grdif_npur)
 #>   - DIF Items identified by GRDIF(S): 
 #>     1 
 #>   - DIF Items identified by GRDIF(RS): 
-#>     1, 23 
+#>     1 
 #>   - GRDIF Statistics: 
 #> 
 #>     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs
@@ -790,7 +790,7 @@ print(grdif_npur)
 #> 20 V20   700    700    700  0.410    0.815      0.206    0.902       0.456
 #> 21 V21   700    700    700  3.410    0.182      2.712    0.258       5.286
 #> 22 V22   700    700    700  3.489    0.175      1.971    0.373       5.564
-#> 23 V23   700    700    700  3.126    0.210      3.126    0.210      26.016
+#> 23 V23   700    700    700  3.126    0.210      3.126    0.210       4.466
 #> 24 V24   700    700    700  1.639    0.441      2.002    0.368       2.198
 #> 25 V25   700    700    700  2.298    0.317      0.870    0.647       2.677
 #> 26 V26   700    700    700  1.769    0.413      0.235    0.889       2.721
@@ -801,7 +801,7 @@ print(grdif_npur)
 #> 31 V31   700    700    700  1.200    0.549      0.005    0.997       1.401
 #> 32 V32   700    700    700  1.118    0.572      2.196    0.334       2.363
 #> 33 V33   700    700    700  3.952    0.139      0.043    0.979       4.593
-#> 34 V34   700    700    700  0.453    0.797      0.453    0.797       0.307
+#> 34 V34   700    700    700  0.453    0.797      0.453    0.797     -10.980
 #> 35 V35   700    700    700  1.978    0.372      0.600    0.741       6.069
 #> 36 V36   700    700    700  2.111    0.348      1.043    0.594       2.119
 #> 37 V37   700    700    700  1.405    0.495      0.809    0.667       4.549
@@ -831,7 +831,7 @@ print(grdif_npur)
 #> 20     0.978    
 #> 21     0.259    
 #> 22     0.234    
-#> 23     0.000 ***
+#> 23     0.347    
 #> 24     0.699    
 #> 25     0.613    
 #> 26     0.606    
@@ -842,7 +842,7 @@ print(grdif_npur)
 #> 31     0.844    
 #> 32     0.669    
 #> 33     0.332    
-#> 34     0.989    
+#> 34     1.000    
 #> 35     0.194    
 #> 36     0.714    
 #> 37     0.337    
@@ -867,7 +867,7 @@ grdif_npur$no_purify$dif_item
 #> [1] 1
 #> 
 #> $grdifrs
-#> [1]  1 23
+#> [1] 1
 ```
 
 ``` r
@@ -902,20 +902,14 @@ grdif_npur$no_purify$post.hoc
 #> 3   700   700    1400
 #> 
 #> $by.grdifrs
-#>    id group.pair   rdifr z.rdifr   rdifs z.rdifs  rdifrs p.rdifr p.rdifs
-#> 1  V1    G1 & G2 -0.0898 -4.5465  0.0426  3.3077 21.4911  0.0000  0.0009
-#> 2  V1    G1 & G3 -0.1578 -7.8153  0.0658  4.5342 61.7211  0.0000  0.0000
-#> 3  V1    G2 & G3 -0.0680 -3.3093  0.0232  1.1267 11.2517  0.0009  0.2598
-#> 4 V23    G1 & G2  0.0329  1.7629  0.0235  1.7629  3.1079  0.0779  0.0779
-#> 5 V23    G1 & G3  0.0143  0.7665  0.0102  0.7665  0.5840  0.4434  0.4434
-#> 6 V23    G2 & G3 -0.0186 -0.9964 -0.0133 -0.9964  0.9908  0.3190  0.3190
-#>   p.rdifrs n.ref n.foc n.total
-#> 1   0.0000   700   700    1400
-#> 2   0.0000   700   700    1400
-#> 3   0.0036   700   700    1400
-#> 4   0.2114   700   700    1400
-#> 5   0.7468   700   700    1400
-#> 6   0.6093   700   700    1400
+#>   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs
+#> 1 V1    G1 & G2 -0.0898 -4.5465 0.0426  3.3077 21.4911   0e+00  0.0009   0.0000
+#> 2 V1    G1 & G3 -0.1578 -7.8153 0.0658  4.5342 61.7211   0e+00  0.0000   0.0000
+#> 3 V1    G2 & G3 -0.0680 -3.3093 0.0232  1.1267 11.2517   9e-04  0.2598   0.0036
+#>   n.ref n.foc n.total
+#> 1   700   700    1400
+#> 2   700   700    1400
+#> 3   700   700    1400
 ```
 
 The `post.hoc` component reports pairwise RDIF$`_R`$, RDIF$`_S`$, and
@@ -963,7 +957,7 @@ print(grdif_pur)
 #>   - DIF Items identified by GRDIF(S): 
 #>     1 
 #>   - DIF Items identified by GRDIF(RS): 
-#>     1, 23 
+#>     1 
 #>   - GRDIF Statistics: 
 #> 
 #>     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs
@@ -989,7 +983,7 @@ print(grdif_pur)
 #> 20 V20   700    700    700  0.410    0.815      0.206    0.902       0.456
 #> 21 V21   700    700    700  3.410    0.182      2.712    0.258       5.286
 #> 22 V22   700    700    700  3.489    0.175      1.971    0.373       5.564
-#> 23 V23   700    700    700  3.126    0.210      3.126    0.210      26.016
+#> 23 V23   700    700    700  3.126    0.210      3.126    0.210       4.466
 #> 24 V24   700    700    700  1.639    0.441      2.002    0.368       2.198
 #> 25 V25   700    700    700  2.298    0.317      0.870    0.647       2.677
 #> 26 V26   700    700    700  1.769    0.413      0.235    0.889       2.721
@@ -1000,7 +994,7 @@ print(grdif_pur)
 #> 31 V31   700    700    700  1.200    0.549      0.005    0.997       1.401
 #> 32 V32   700    700    700  1.118    0.572      2.196    0.334       2.363
 #> 33 V33   700    700    700  3.952    0.139      0.043    0.979       4.593
-#> 34 V34   700    700    700  0.453    0.797      0.453    0.797       0.307
+#> 34 V34   700    700    700  0.453    0.797      0.453    0.797     -10.980
 #> 35 V35   700    700    700  1.978    0.372      0.600    0.741       6.069
 #> 36 V36   700    700    700  2.111    0.348      1.043    0.594       2.119
 #> 37 V37   700    700    700  1.405    0.495      0.809    0.667       4.549
@@ -1030,7 +1024,7 @@ print(grdif_pur)
 #> 20     0.978    
 #> 21     0.259    
 #> 22     0.234    
-#> 23     0.000 ***
+#> 23     0.347    
 #> 24     0.699    
 #> 25     0.613    
 #> 26     0.606    
@@ -1041,7 +1035,7 @@ print(grdif_pur)
 #> 31     0.844    
 #> 32     0.669    
 #> 33     0.332    
-#> 34     0.989    
+#> 34     1.000    
 #> 35     0.194    
 #> 36     0.714    
 #> 37     0.337    
@@ -1126,7 +1120,7 @@ print(grdif_pur)
 #> 20   0.597     0.963    
 #> 21   6.634     0.156    
 #> 22   5.463     0.243    
-#> 23  91.654     0.000 ***
+#> 23  53.467     0.000 ***
 #> 24   2.470     0.650    
 #> 25   3.264     0.515    
 #> 26   2.090     0.719    
@@ -1137,7 +1131,7 @@ print(grdif_pur)
 #> 31   1.543     0.819    
 #> 32   1.658     0.798    
 #> 33   3.861     0.425    
-#> 34   0.476     0.976    
+#> 34   6.276     0.180    
 #> 35   5.881     0.208    
 #> 36   1.819     0.769    
 #> 37   4.744     0.315    
@@ -1229,7 +1223,7 @@ standard normal distribution.
 > regression correction uses the measurement error variance. Supply
 > these via the `se` argument. When `score` and `se` are provided
 > externally, `x` (item metadata) is not required (`x = NULL`), unless
-> purification is applied — in which case `x` must be provided for
+> purification is applied, in which case `x` must be provided for
 > internal ability re-estimation.
 
 ### Key arguments of `catsib()`
@@ -1519,9 +1513,9 @@ catsib_pur$with_purify$dif_item
 
 **Sensitivity to DIF type.** CATSIB, like its predecessor SIBTEST
 (Shealy and Stout 1993), was originally designed and validated for
-detecting **uniform DIF** — the condition in which the direction of
-group differences in item performance is consistent across all ability
-levels. The $`\hat{\beta}`$ statistic accumulates the signed difference
+detecting **uniform DIF**, the condition in which the direction of group
+differences in item performance is consistent across all ability levels.
+The $`\hat{\beta}`$ statistic accumulates the signed difference
 $`\hat{P}_{R,k} - \hat{P}_{F,k}`$ across all ability bins, which means
 that positive and negative bin-level differences cancel each other out.
 As a result, CATSIB has limited sensitivity to **nonuniform DIF** (where
@@ -1549,8 +1543,8 @@ substantially reduced discrimination are present, their large IRT
 standard errors may inflate $`\hat{\sigma}^2_{e,G}`$ for the focal
 group, causing $`\hat{\rho}^2_G`$ to approach or fall below zero. A
 negative $`\hat{\rho}^2_G`$ would reverse the direction of the
-regression correction — compressing scores away from the group mean
-rather than toward it — which severely distorts the bin-level matching
+regression correction, compressing scores away from the group mean
+rather than toward it, which severely distorts the bin-level matching
 and leads to inflated Type I error rates.
 
 To prevent this,
@@ -1567,7 +1561,7 @@ When the unclamped value falls below 0.05, a warning is issued. This
 situation is most likely to occur during purification, when the removal
 of DIF-flagged items reduces the number of items used for ability
 re-estimation, causing standard errors to grow. If a warning is
-triggered, results should be interpreted with caution — or
+triggered, results should be interpreted with caution, or
 `purify = FALSE` should be considered.
 
 ------------------------------------------------------------------------

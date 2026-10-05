@@ -11,8 +11,8 @@ method, which differ in the information they use from the response data.
 ### IRT Pattern-Based Scoring
 
 Pattern-based scoring uses each examinee’s *full item-response pattern*
-— the complete vector of correct/incorrect (or polytomous) responses
-across all items — to estimate $`\theta`$. Because it conditions on the
+(the complete vector of correct/incorrect or polytomous responses across
+all items) to estimate $`\theta`$. Because it conditions on the
 individual responses rather than only their sum, pattern-based scoring
 can distinguish examinees who have the same total score but answered
 different items correctly. In principle, this makes better use of the
@@ -34,7 +34,7 @@ likelihood in different ways:
 |----|----|----|
 | Maximum Likelihood (ML) | `"ML"` | Finds the $`\theta`$ maximising $`L(\theta \mid \mathbf{U})`$. Unbiased in large samples but undefined for all-correct or all-incorrect response patterns (Kolen & Tong, 2010). |
 | ML with Fences (MLF) | `"MLF"` | Augments the likelihood with imaginary “fence” items (a lower fence with a fixed correct response and an upper fence with a fixed incorrect response) to resolve the boundary-score problem while avoiding the shrinkage of Bayesian methods (Han, 2016). |
-| Weighted Likelihood (WL) | `"WL"` | Multiplies the likelihood by a weighting function derived from the square root of test information before maximizing, yielding estimates that are nearly unbiased to order $`O(n^{-1})`$ — substantially less biased than both ML and Bayesian modal estimation over the full $`\theta`$ scale (Warm, 1989). |
+| Weighted Likelihood (WL) | `"WL"` | Multiplies the likelihood by a weighting function derived from the square root of test information before maximizing, yielding estimates that are nearly unbiased to order $`O(n^{-1})`$, substantially less biased than both ML and Bayesian modal estimation over the full $`\theta`$ scale (Warm, 1989). |
 | Maximum A Posteriori (MAP) | `"MAP"` | Returns the mode of the posterior $`p(\theta \mid \mathbf{U}) \propto L(\theta \mid \mathbf{U})\,g(\theta)`$, where $`g(\theta)`$ is a normal prior. Handles boundary scores but shrinks estimates toward the prior mean. |
 | Expected A Posteriori (EAP) | `"EAP"` | Returns the mean of the posterior distribution via Gaussian quadrature integration over $`\theta`$. Also handles boundary scores; has the smallest conditional error variance among pattern-based methods but introduces the most shrinkage (Kolen & Tong, 2010). |
 
@@ -53,7 +53,7 @@ transparent and easy for test users to understand (Kolen & Tong, 2010).
 In particular, Kolen and Tong (2010) note that the statistical
 difference between summed-score and pattern-score estimators is
 typically smaller in practice than the difference between Bayesian and
-non-Bayesian estimators — so the choice between summed-score and
+non-Bayesian estimators, so the choice between summed-score and
 pattern-score scoring need not be driven primarily by accuracy concerns.
 
 An important practical consideration when using these methods is the
@@ -65,8 +65,8 @@ the total raw score.
 
 | Method | Key | Description |
 |----|----|----|
-| EAP for Summed Scores | `"EAP.SUM"` | Computes the Bayesian EAP estimate $`\hat{\theta}_{sEAP} = E(\theta \mid X_s)`$ for each possible summed-score value using the Lord–Wingersky recursive algorithm (Thissen et al., 1995; Thissen & Orlando, 2001). Returns a score table mapping every feasible raw score to a $`\theta`$ estimate and its SE. |
-| Inverse TCC | `"INV.TCC"` | Solves $`\hat{\theta}_{TCF}`$ from the test characteristic function (TCF) equation $`\tau_s(\theta) = X_s`$ numerically. A non-Bayesian estimator that is monotonically related to $`X_s`$ and does not depend on the prior distribution (Kolen & Tong, 2010; Stocking, 1996). Standard errors are computed using a recursion-based analytical approach (**lim2020?**). Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
+| EAP for Summed Scores | `"EAP.SUM"` | Computes the Bayesian EAP estimate $`\hat{\theta}_{sEAP} = E(\theta \mid X_s)`$ for each possible summed-score value using the Lord-Wingersky recursive algorithm (Thissen et al., 1995; Thissen & Orlando, 2001). Returns a score table mapping every feasible raw score to a $`\theta`$ estimate and its SE. |
+| Inverse TCC | `"INV.TCC"` | Solves $`\hat{\theta}_{TCF}`$ from the test characteristic function (TCF) equation $`\tau_s(\theta) = X_s`$ numerically. A non-Bayesian estimator that is monotonically related to $`X_s`$ and does not depend on the prior distribution (Kolen & Tong, 2010; Stocking, 1996). Standard errors are computed using a recursion-based analytical approach (Lim et al., 2021). Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
 
 ``` r
 
@@ -94,7 +94,7 @@ most important arguments of
 | `fence.a` | Discrimination parameter of the virtual fence items added in `"MLF"`. Default `3`. |
 | `fence.b` | Location of the fence items on the $`\theta`$ scale in `"MLF"`. Defaults to the `range` bounds when `NULL`. |
 | `tol` | Convergence tolerance for iterative methods. Default `1e-4`. |
-| `max.iter` | Maximum Newton–Raphson iterations. Default `100`. |
+| `max.iter` | Maximum Newton-Raphson iterations. Default `100`. |
 | `se` | Logical; compute standard errors? Always returned for `"EAP.SUM"` and `"INV.TCC"`. Default `TRUE`. |
 | `intpol` | Logical; apply linear interpolation in `"INV.TCC"` for extreme scores? Default `TRUE`. |
 | `range.tcc` | Ability range used for the `"INV.TCC"` interpolation grid. Default `c(-7, 7)`. |
@@ -103,7 +103,7 @@ most important arguments of
 
 - `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, `"EAP"`: a two-column data frame
   with columns `est.theta` and `se.theta` (one row per examinee).
-- `"EAP.SUM"`, `"INV.TCC"`: a list with two elements — `$est.par`
+- `"EAP.SUM"`, `"INV.TCC"`: a list with two elements: `$est.par`
   (examinee-level estimates including observed sum scores) and
   `$score.table` (the complete raw-score-to-$`\theta`$ mapping table).
 
@@ -159,9 +159,9 @@ dim(resp_mixed)   # 800 examinees × 25 items
 
 ### Dichotomous-Only Test (30 Items, 3PLM)
 
-For examples where a simpler, purely dichotomous test is informative —
+For examples where a simpler, purely dichotomous test is informative,
 particularly for summed-score scoring methods where the score table is
-easiest to interpret — we additionally prepare a 30-item test with 3PLM
+easiest to interpret, we additionally prepare a 30-item test with 3PLM
 items.
 
 ``` r
@@ -197,7 +197,7 @@ This section demonstrates all five pattern-based methods. For each
 method, examples are shown for both the **mixed-format test** and the
 **dichotomous-only test**.
 
-### ML — Maximum Likelihood
+### ML: Maximum Likelihood
 
 ML estimation finds the $`\theta`$ that maximizes the log-likelihood of
 the observed response pattern. It does not use a prior distribution,
@@ -253,12 +253,12 @@ head(score_ml_dich)
 #> 6  0.1899347 0.3190865
 ```
 
-### MLF — ML with Fences (Han, 2016)
+### MLF: ML with Fences (Han, 2016)
 
 MLF adds imaginary “fence” items with fixed responses at both ends of
 the $`\theta`$ scale. This makes the log-likelihood unimodal,
 eliminating the boundary-score problem of plain ML while producing
-estimates that are not shrunk toward a prior mean — unlike MAP or EAP
+estimates that are not shrunk toward a prior mean, unlike MAP or EAP
 (Han, 2016).
 
 ``` r
@@ -309,14 +309,14 @@ head(score_mlf_dich)
 #> 6  0.1899347 0.3190865
 ```
 
-### WL — Weighted Likelihood (Warm, 1989)
+### WL: Weighted Likelihood (Warm, 1989)
 
 WL multiplies the likelihood by a weighting function $`w(\theta)`$
 derived from the square root of test information before maximizing. The
-resulting estimates are nearly unbiased to order $`O(n^{-1})`$ —
+resulting estimates are nearly unbiased to order $`O(n^{-1})`$,
 substantially less biased than both plain ML ($`O(n^{-1})`$ bias with a
 positive correlation with $`\theta`$) and Bayesian estimators (also
-$`O(n^{-1})`$ but with negative correlation) — across the entire
+$`O(n^{-1})`$ but with negative correlation), across the entire
 $`\theta`$ scale, making WL generally preferable to plain ML when an
 unbiased non-Bayesian estimate is desired (Warm, 1989).
 
@@ -364,7 +364,7 @@ head(score_wl_dich)
 #> 6  0.1768412 0.3191358
 ```
 
-### MAP — Maximum A Posteriori
+### MAP: Maximum A Posteriori
 
 MAP incorporates a normal prior $`g(\theta)`$ and returns the **mode**
 of the posterior distribution. Compared with EAP, MAP shrinks estimates
@@ -417,7 +417,7 @@ head(score_map_dich)
 #> 6  0.1717731 0.3040467
 ```
 
-### EAP — Expected A Posteriori
+### EAP: Expected A Posteriori
 
 EAP returns the **mean** of the posterior distribution, integrating over
 a Gaussian quadrature grid. It has the smallest conditional error
@@ -534,7 +534,7 @@ item parameters) or item metadata and response data provided separately.
 When an `est_irt` object is passed to the `x` argument,
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
 automatically extracts both the item parameters and the embedded
-response data. This streamlines the post-calibration scoring workflow by
+response data. This simplifies the post-calibration scoring workflow by
 eliminating the need to explicitly supply a separate `data` matrix.
 
 Both workflows produce identical results:
@@ -580,16 +580,16 @@ head(score_from_obj)
 
 Summed-score methods assign the same $`\theta`$ estimate to all
 examinees with the same total raw score. They are computationally
-efficient, straightforward to communicate to test users, and — per Kolen
-and Tong (2010) — typically give results that are statistically
+efficient, straightforward to communicate to test users, and, per Kolen
+and Tong (2010), typically give results that are statistically
 comparable to pattern-based methods when the key choice is between
 Bayesian and non-Bayesian estimation rather than between summed-score
 and pattern-score approaches.
 
-### EAP.SUM — EAP Based on Summed Scores
+### EAP.SUM: EAP Based on Summed Scores
 
 `"EAP.SUM"` computes the Bayesian EAP estimate $`\hat{\theta}_{sEAP}`$
-for each possible summed-score value using the Lord–Wingersky recursive
+for each possible summed-score value using the Lord-Wingersky recursive
 algorithm (Thissen et al., 1995; Thissen & Orlando, 2001), then maps
 each examinee’s observed sum score to the corresponding table entry.
 
@@ -727,7 +727,7 @@ score_eapsum_dich$score.table
 #> 31        30  2.37111990 0.5231270
 ```
 
-### INV.TCC — Inverse Test Characteristic Curve
+### INV.TCC: Inverse Test Characteristic Curve
 
 `"INV.TCC"` solves numerically for the $`\hat{\theta}_{TCF}`$ that
 satisfies $`\tau_s(\hat{\theta}_{TCF}) = X_s`$, where $`\tau_s(\theta)`$
@@ -879,6 +879,10 @@ Psychological Measurement*, *40*(4), 289–301.
 Kolen, M. J., & Tong, Y. (2010). Psychometric properties of IRT
 proficiency estimates. *Educational Measurement: Issues and Practice*,
 *29*(3), 8–14. <https://doi.org/10.1111/j.1745-3992.2010.00185.x>
+
+Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
+approach to evaluate the performance of MST. *Journal of Educational
+Measurement*, *58*(2), 154–178. <https://doi.org/10.1111/jedm.12276>
 
 Stocking, M. L. (1996). An alternative method for scoring adaptive
 tests. *Journal of Educational and Behavioral Statistics*, *21*(4),

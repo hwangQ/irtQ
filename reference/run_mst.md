@@ -415,29 +415,33 @@ Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability
 in a microcomputer environment. *Applied Psychological Measurement,
 6*(4), 431-444.
 [doi:10.1177/014662168200600405](https://doi.org/10.1177/014662168200600405)
+.
 
 Han, K. T. (2016). Maximum likelihood score estimation method with
 fences for short-length tests and computerized adaptive tests. *Applied
 Psychological Measurement, 40*(4), 289-301.
 [doi:10.1177/0146621616631317](https://doi.org/10.1177/0146621616631317)
+.
 
 Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. *Journal of Educational
 Measurement, 58*(2), 154-178.
-[doi:10.1111/jedm.12276](https://doi.org/10.1111/jedm.12276)
+[doi:10.1111/jedm.12276](https://doi.org/10.1111/jedm.12276) .
 
 Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive
 and multistage testing with R: Using packages catR and mstR*. Springer.
 [doi:10.1007/978-3-319-69218-0](https://doi.org/10.1007/978-3-319-69218-0)
+.
 
 Thissen, D., Pommerich, M., Billeaud, K., & Williams, V. S. L. (1995).
 Item response theory for scores on tests including polytomous items with
 ordered responses. *Applied Psychological Measurement, 19*(1), 39-49.
 [doi:10.1177/014662169501900105](https://doi.org/10.1177/014662169501900105)
+.
 
 Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 response theory. *Psychometrika, 54*(3), 427-450.
-[doi:10.1007/BF02294627](https://doi.org/10.1007/BF02294627)
+[doi:10.1007/BF02294627](https://doi.org/10.1007/BF02294627) .
 
 ## See also
 
@@ -706,7 +710,8 @@ cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
 cut_result <- find_cut(
   x         = x,
   module    = module,
-  route_map = route_map
+  route_map = route_map,
+  D         = 1.702
 )
 
 # Inspect the derived cut scores
@@ -827,7 +832,7 @@ plot(cut_result)
 # Before the examinee loop, run_mst() pre-computes a sum_score -> theta
 # lookup table for every module (routing) and for every unique complete
 # pathway (final scoring), consistent with the reval_mst() approach.
-# SE is now returned correctly for INV.TCC (posterior SD from the table).
+# SE is taken from the pre-computed lookup table.
 
 result_inv <- run_mst(
   x            = x,
@@ -894,7 +899,7 @@ print(result_inv)
 #>   Stage 3: Module 5: 168 (33.6%),  Module 6: 166 (33.2%),  Module 7: 166 (33.2%)
 #> 
 
-# SE is now populated (posterior SD from the pre-computed table)
+# standard errors from the lookup table
 head(result_inv$se.theta)
 #> [1] 0.5213622 0.2798838 0.2659026 0.2692910 0.2692910 0.2739662
 

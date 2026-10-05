@@ -69,9 +69,9 @@ Hwanggyu Lim <hglim83@gmail.com>
 fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE)
 #> Parsing input... 
 #> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 0.385069 EM iteration: 2, Loglike: -2561.3380, Max-Change: 0.00000 
+#>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.293929 EM iteration: 2, Loglike: -2561.3380, Max-Change: 0.58111 EM iteration: 3, Loglike: -2483.1811, Max-Change: 0.31473 EM iteration: 4, Loglike: -2469.6884, Max-Change: 0.171175 EM iteration: 5, Loglike: -2467.5148, Max-Change: 0.096225 EM iteration: 6, Loglike: -2467.1096, Max-Change: 0.056965 EM iteration: 7, Loglike: -2467.0029, Max-Change: 0.035311 EM iteration: 8, Loglike: -2466.9648, Max-Change: 0.022579 EM iteration: 9, Loglike: -2466.9493, Max-Change: 0.014699 EM iteration: 10, Loglike: -2466.9427, Max-Change: 0.009659 EM iteration: 11, Loglike: -2466.9398, Max-Change: 0.006377 EM iteration: 12, Loglike: -2466.9386, Max-Change: 0.004219 EM iteration: 13, Loglike: -2466.9380, Max-Change: 0.002795 EM iteration: 14, Loglike: -2466.9378, Max-Change: 0.001852 EM iteration: 15, Loglike: -2466.9377, Max-Change: 0.001228 EM iteration: 16, Loglike: -2466.9376, Max-Change: 0.000814 EM iteration: 17, Loglike: -2466.9376, Max-Change: 0.000539 EM iteration: 18, Loglike: -2466.9376, Max-Change: 0.000358 EM iteration: 19, Loglike: -2466.9376, Max-Change: 0.000237 EM iteration: 20, Loglike: -2466.9376, Max-Change: 0.000157 EM iteration: 21, Loglike: -2466.9376, Max-Change: 0.000104 EM iteration: 22, Loglike: -2466.9376, Max-Change: 6.9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.02 seconds. 
+#> Estimation is finished in 0.1 seconds. 
 
 # Display the calibration summary
 summary(fit.1pl)
@@ -90,13 +90,13 @@ summary(fit.1pl)
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 6
 #>  Number of fixed items: 0
-#>  Number of E-step cycles completed: 2
-#>  Maximum parameter change: 0
+#>  Number of E-step cycles completed: 22
+#>  Maximum parameter change: 6.905886e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.01
+#>  EM algorithm: 0.09
 #>  Standard error computation: 0
-#>  Total computation: 0.02
+#>  Total computation: 0.1
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -105,16 +105,16 @@ summary(fit.1pl)
 #>   Variance-covariance matrix of item parameter estimates is obtainable.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 4966.362
-#>  Akaike Information Criterion (AIC): 4978.362
-#>  Bayesian Information Criterion (BIC): 5007.809
+#>  -2loglikelihood: 4933.875
+#>  Akaike Information Criterion (AIC): 4945.875
+#>  Bayesian Information Criterion (BIC): 4975.322
 #>  Item Parameters: 
 #>    id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3
-#> 1  V1     2   1PLM   0.88  0.07  -2.88  0.25     NA    NA
-#> 2  V2     2   1PLM   0.88    NA  -0.88  0.11     NA    NA
-#> 3  V3     2   1PLM   0.88    NA  -0.01  0.08     NA    NA
-#> 4  V4     2   1PLM   0.88    NA  -1.24  0.13     NA    NA
-#> 5  V5     2   1PLM   0.88    NA  -2.15  0.20     NA    NA
+#> 1  V1     2   1PLM   0.76  0.07  -3.62  0.32     NA    NA
+#> 2  V2     2   1PLM   0.76    NA  -1.32  0.14     NA    NA
+#> 3  V3     2   1PLM   0.76    NA  -0.32  0.10     NA    NA
+#> 4  V4     2   1PLM   0.76    NA  -1.73  0.17     NA    NA
+#> 5  V5     2   1PLM   0.76    NA  -2.78  0.25     NA    NA
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
 #> estimates   0       1      1

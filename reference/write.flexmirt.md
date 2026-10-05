@@ -71,12 +71,14 @@ path.
 ## References
 
 Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional item
-analysis and test scoring (Computer Software). Chapel Hill, NC: Vector
+analysis and test scoring (Computer software). Chapel Hill, NC: Vector
 Psychometric Group.
 
 Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
 environment for item response theory method development. *Applied
 Psychological Measurement, 44*(7-8), 561-562.
+[doi:10.1177/0146621620929431](https://doi.org/10.1177/0146621620929431)
+.
 
 ## Author
 

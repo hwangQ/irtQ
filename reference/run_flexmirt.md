@@ -83,7 +83,7 @@ two files:
 ## References
 
 Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional item
-analysis and test scoring (Computer Software). Chapel Hill, NC: Vector
+analysis and test scoring (Computer software). Chapel Hill, NC: Vector
 Psychometric Group.
 
 ## Author

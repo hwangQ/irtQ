@@ -10,8 +10,10 @@
   Analysis](https://hwangQ.github.io/irtQ/articles/ctt-analysis.md):
 - [DIF
   Detection](https://hwangQ.github.io/irtQ/articles/dif-detection.md):
-- [Getting Started with
-  irtQ](https://hwangQ.github.io/irtQ/articles/getting-started.md):
+- [Getting Started: A Detailed
+  Guide](https://hwangQ.github.io/irtQ/articles/getting-started.md):
+- [Introduction to
+  irtQ](https://hwangQ.github.io/irtQ/articles/irtQ.md):
 - [Item Parameter
   Estimation](https://hwangQ.github.io/irtQ/articles/item-parameter-estimation.md):
 - [Model-Data Fit

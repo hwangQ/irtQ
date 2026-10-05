@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,33 +29,26 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/irtQ.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><h6 class="dropdown-header" data-toc-skip>--- Core Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="../articles/irtQ.html">Introduction to irtQ</a></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started: A Detailed Guide</a></li>
     <li><a class="dropdown-item" href="../articles/item-parameter-estimation.html">Item Parameter Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/ability-estimation.html">Ability Estimation</a></li>
     <li><a class="dropdown-item" href="../articles/model-fit-evaluation.html">Model-Data Fit Evaluation</a></li>
     <li><a class="dropdown-item" href="../articles/dif-detection.html">DIF Detection</a></li>
-    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy &amp; Consistency</a></li>
+    <li><a class="dropdown-item" href="../articles/classification-analysis.html">Classification Accuracy and Consistency</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>--- Extra Articles ---</h6></li>
-    <li><a class="dropdown-item" href="../articles/utilities.html">Utilities</a></li>
+    <li><a class="dropdown-item" href="../articles/utilities.html">Utility Functions</a></li>
     <li><a class="dropdown-item" href="../articles/ctt-analysis.html">Classical Test Theory (CTT) Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/mst-panel-evaluation.html">MST Panel Evaluation and Simulation</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/hwangQ/irtQ/blob/main/NEWS.md">v1.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -126,7 +119,7 @@ GPCM)</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/lwrc.html">lwrc()</a></code></td>
-<td>Lord–Wingersky recursion: conditional summed-score
+<td>Lord-Wingersky recursion: conditional summed-score
 distributions</td>
 </tr>
 <tr class="odd">
@@ -191,7 +184,7 @@ below.</p>
 </div>
 <div class="section level2">
 <h2 id="simdat-simulate-item-response-data">
-<code>simdat()</code> — Simulate Item Response Data<a class="anchor" aria-label="anchor" href="#simdat-simulate-item-response-data"></a>
+<code>simdat()</code>: Simulate Item Response Data<a class="anchor" aria-label="anchor" href="#simdat-simulate-item-response-data"></a>
 </h2>
 <p><code><a href="../reference/simdat.html">simdat()</a></code> generates item response matrices from known IRT
 parameters. It is the primary tool for producing synthetic data for
@@ -202,7 +195,7 @@ mixed-format tests.</p>
 <ul>
 <li>
 <strong>Via item metadata</strong> (<code>x</code> argument): pass a
-<code><a href="../reference/shape_df.html">shape_df()</a></code> data frame — the simplest and recommended
+<code><a href="../reference/shape_df.html">shape_df()</a></code> data frame, the simplest and recommended
 approach.</li>
 <li>
 <strong>Via raw parameter vectors</strong> (<code>a.drm</code>,
@@ -254,7 +247,7 @@ is the number of score categories for item
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resp_mix</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 400   8</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resp_mix</span><span class="op">)</span>    <span class="co"># dichotomous (0/1) and polytomous (0–3) responses</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resp_mix</span><span class="op">)</span>    <span class="co"># dichotomous (0/1) and polytomous (0-3) responses</span></span>
 <span><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]</span></span>
 <span><span class="co">#&gt; [1,]    0    1    1    1    1    3    2    3</span></span>
 <span><span class="co">#&gt; [2,]    1    0    1    0    0    2    1    1</span></span>
@@ -333,7 +326,7 @@ polytomous items in the same order.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resp_mix_raw</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 300   5</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resp_mix_raw</span><span class="op">)</span>   <span class="co"># columns 3 and 5 are polytomous (0–3 and 0–2)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resp_mix_raw</span><span class="op">)</span>   <span class="co"># columns 3 and 5 are polytomous (0-3 and 0-2)</span></span>
 <span><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5]</span></span>
 <span><span class="co">#&gt; [1,]    1    1    3    1    2</span></span>
 <span><span class="co">#&gt; [2,]    1    1    2    1    2</span></span>
@@ -358,7 +351,7 @@ polytomous items in the same order.</p>
 <tbody>
 <tr class="odd">
 <td><code>x</code></td>
-<td>Item metadata from <code><a href="../reference/shape_df.html">shape_df()</a></code> — use this when
+<td>Item metadata from <code><a href="../reference/shape_df.html">shape_df()</a></code>; use this when
 available</td>
 </tr>
 <tr class="even">
@@ -409,18 +402,17 @@ when <code>x = NULL</code>
 </table>
 <p><strong>Note on the <code>D</code> constant:</strong> The scaling
 constant <code>D</code> is used to make the logistic function closely
-approximate the normal ogive function. It is crucial to use the exact
-same <code>D</code> value (commonly <code>1.702</code> or
-<code>1.0</code>) that was utilized during the item parameter
-calibration phase to avoid any scaling mismatch in the simulated
-responses or probability computations.</p>
+approximate the normal ogive function. Use the same <code>D</code> value
+(commonly <code>1.702</code> or <code>1.0</code>) that was used for item
+calibration to avoid any scaling mismatch in the simulated responses or
+probability computations.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="drm-and-prm-item-response-probability-functions">
-<code>drm()</code> and <code>prm()</code> — Item Response
-Probability Functions<a class="anchor" aria-label="anchor" href="#drm-and-prm-item-response-probability-functions"></a>
+<code>drm()</code> and <code>prm()</code>: Item Response Probability
+Functions<a class="anchor" aria-label="anchor" href="#drm-and-prm-item-response-probability-functions"></a>
 </h2>
 <p><code><a href="../reference/drm.html">drm()</a></code> and <code><a href="../reference/prm.html">prm()</a></code> are the low-level
 probability engines underlying <code><a href="../reference/simdat.html">simdat()</a></code>,
@@ -431,7 +423,7 @@ probabilities at a specific set of theta values without constructing a
 full item metadata frame.</p>
 <div class="section level3">
 <h3 id="drm-dichotomous-response-model">
-<code>drm()</code> — Dichotomous Response Model<a class="anchor" aria-label="anchor" href="#drm-dichotomous-response-model"></a>
+<code>drm()</code>: Dichotomous Response Model<a class="anchor" aria-label="anchor" href="#drm-dichotomous-response-model"></a>
 </h3>
 <p><code><a href="../reference/drm.html">drm()</a></code> computes
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\theta)</annotation></semantics></math>,
@@ -498,7 +490,7 @@ values and columns = items.</p>
 </div>
 <div class="section level3">
 <h3 id="prm-polytomous-response-model">
-<code>prm()</code> — Polytomous Response Model<a class="anchor" aria-label="anchor" href="#prm-polytomous-response-model"></a>
+<code>prm()</code>: Polytomous Response Model<a class="anchor" aria-label="anchor" href="#prm-polytomous-response-model"></a>
 </h3>
 <p><code><a href="../reference/prm.html">prm()</a></code> computes category response probabilities for a
 <strong>single</strong> polytomous item under the GRM or GPCM. It
@@ -619,7 +611,7 @@ items), set <code>a = 1</code>.</p>
 <td><code>b</code></td>
 <td align="center">✓</td>
 <td align="center"></td>
-<td>Difficulty parameter(s) — dichotomous items only</td>
+<td>Difficulty parameter(s), dichotomous items only</td>
 </tr>
 <tr class="even">
 <td><code>g</code></td>
@@ -633,7 +625,7 @@ items), set <code>a = 1</code>.</p>
 <td align="center">✓</td>
 <td>Vector of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K-1</annotation></semantics></math>
-threshold parameters — polytomous items only</td>
+threshold parameters, polytomous items only</td>
 </tr>
 <tr class="even">
 <td><code>D</code></td>
@@ -656,7 +648,7 @@ threshold parameters — polytomous items only</td>
 </div>
 <div class="section level2">
 <h2 id="info-item-and-test-information-functions">
-<code>info()</code> — Item and Test Information Functions<a class="anchor" aria-label="anchor" href="#info-item-and-test-information-functions"></a>
+<code>info()</code>: Item and Test Information Functions<a class="anchor" aria-label="anchor" href="#info-item-and-test-information-functions"></a>
 </h2>
 <p><code><a href="../reference/info.html">info()</a></code> computes the item information function (IIF) and
 test information function (TIF) at specified ability values. The TIF is
@@ -690,7 +682,7 @@ conditional standard error of estimation (CSEE =
 <span><span class="co">#&gt; [1] "iif"   "tif"   "theta"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">info_val</span><span class="op">$</span><span class="va">tif</span><span class="op">)</span>               <span class="co"># TIF at first few theta points</span></span>
 <span><span class="co">#&gt; [1] 0.01818914 0.02441289 0.03260200 0.04329184 0.05712434 0.07485327</span></span>
-<span><span class="va">info_val</span><span class="op">$</span><span class="va">iif</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>          <span class="co"># IIF: items 1–5, theta points 1–6</span></span>
+<span><span class="va">info_val</span><span class="op">$</span><span class="va">iif</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>          <span class="co"># IIF: items 1-5, theta points 1-6</span></span>
 <span><span class="co">#&gt;         theta.1      theta.2      theta.3      theta.4      theta.5</span></span>
 <span><span class="co">#&gt; I1 1.390716e-02 1.868643e-02 2.493571e-02 3.301905e-02 4.334884e-02</span></span>
 <span><span class="co">#&gt; I2 8.244131e-04 1.226185e-03 1.819214e-03 2.690947e-03 3.966036e-03</span></span>
@@ -744,7 +736,7 @@ conditional standard error of estimation (CSEE =
 <p><img src="utilities_files/figure-html/plot-iif-single-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
-<h3 id="plot-iifs-for-multiple-items-overlaid-and-in-panels">Plot: IIFs for multiple items — overlaid and in panels<a class="anchor" aria-label="anchor" href="#plot-iifs-for-multiple-items-overlaid-and-in-panels"></a>
+<h3 id="plot-iifs-for-multiple-items-overlaid-and-in-panels">Plot: IIFs for multiple items, overlaid and in panels<a class="anchor" aria-label="anchor" href="#plot-iifs-for-multiple-items-overlaid-and-in-panels"></a>
 </h3>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Overlaid in one panel</span></span>
@@ -752,7 +744,7 @@ conditional standard error of estimation (CSEE =
 <span>  x         <span class="op">=</span> <span class="va">info_val</span>,</span>
 <span>  item.loc  <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
 <span>  overlap   <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  main.text <span class="op">=</span> <span class="st">"IIFs for Items 1–5 (overlaid)"</span></span>
+<span>  main.text <span class="op">=</span> <span class="st">"IIFs for Items 1-5 (overlaid)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-iif-overlap-1.png" class="r-plt" alt="" width="864" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -762,7 +754,7 @@ conditional standard error of estimation (CSEE =
 <span>  item.loc   <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
 <span>  overlap    <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  layout.col <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  main.text  <span class="op">=</span> <span class="st">"IIFs for Items 1–5 (separate panels)"</span></span>
+<span>  main.text  <span class="op">=</span> <span class="st">"IIFs for Items 1-5 (separate panels)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-iif-panels-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -787,7 +779,7 @@ contribute information.</p>
 <div class="section level4">
 <h4 id="iif-for-a-single-polytomous-item">IIF for a single polytomous item<a class="anchor" aria-label="anchor" href="#iif-for-a-single-polytomous-item"></a>
 </h4>
-<p>Items 6–8 in <code>meta_mix</code> are the three GRM items. Their
+<p>Items 6-8 in <code>meta_mix</code> are the three GRM items. Their
 IIFs tend to be broader than those of dichotomous items.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># IIF for GRM item 1 (item 6 in meta_mix)</span></span>
@@ -801,7 +793,7 @@ IIFs tend to be broader than those of dichotomous items.</p>
 <p><img src="utilities_files/figure-html/info-mixed-single-poly-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
-<h4 id="iifs-for-multiple-items-mixed-dichotomous-and-polytomous">IIFs for multiple items — mixed dichotomous and polytomous<a class="anchor" aria-label="anchor" href="#iifs-for-multiple-items-mixed-dichotomous-and-polytomous"></a>
+<h4 id="iifs-for-multiple-items-mixed-dichotomous-and-polytomous">IIFs for multiple items: mixed dichotomous and polytomous<a class="anchor" aria-label="anchor" href="#iifs-for-multiple-items-mixed-dichotomous-and-polytomous"></a>
 </h4>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Overlaid: compare DRM items vs. GRM items</span></span>
@@ -809,7 +801,7 @@ IIFs tend to be broader than those of dichotomous items.</p>
 <span>  x         <span class="op">=</span> <span class="va">info_mix</span>,</span>
 <span>  item.loc  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span><span class="op">)</span>,   <span class="co"># 3 DRM + 3 GRM</span></span>
 <span>  overlap   <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  main.text <span class="op">=</span> <span class="st">"IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8) — overlaid"</span></span>
+<span>  main.text <span class="op">=</span> <span class="st">"IIFs: DRM Items (1,3,5) vs. GRM Items (6,7,8), overlaid"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/info-mixed-multi-overlap-1.png" class="r-plt" alt="" width="864" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -828,7 +820,7 @@ IIFs tend to be broader than those of dichotomous items.</p>
 </div>
 <div class="section level2">
 <h2 id="traceline-item-and-test-characteristic-curves">
-<code>traceline()</code> — Item and Test Characteristic Curves<a class="anchor" aria-label="anchor" href="#traceline-item-and-test-characteristic-curves"></a>
+<code>traceline()</code>: Item and Test Characteristic Curves<a class="anchor" aria-label="anchor" href="#traceline-item-and-test-characteristic-curves"></a>
 </h2>
 <p><code><a href="../reference/traceline.html">traceline()</a></code> computes the item characteristic curve
 (ICC), test characteristic curve (TCC), and category response
@@ -878,7 +870,7 @@ panel per item, categories overlaid within each panel).</p>
 <span><span class="co">#&gt; [1] "prob.cats" "icc"       "tcc"       "theta"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">trace_bin</span><span class="op">$</span><span class="va">tcc</span><span class="op">)</span>               <span class="co"># TCC: expected summed score at each theta</span></span>
 <span><span class="co">#&gt; [1] 2.309632 2.319809 2.331709 2.345610 2.361831 2.380734</span></span>
-<span><span class="va">trace_bin</span><span class="op">$</span><span class="va">icc</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>          <span class="co"># ICC: expected item scores, items 1–5</span></span>
+<span><span class="va">trace_bin</span><span class="op">$</span><span class="va">icc</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>          <span class="co"># ICC: expected item scores, items 1-5</span></span>
 <span><span class="co">#&gt;             I1        I2        I3        I4        I5</span></span>
 <span><span class="co">#&gt; [1,] 0.1773451 0.1551202 0.1640658 0.1502029 0.1521569</span></span>
 <span><span class="co">#&gt; [2,] 0.1822264 0.1562718 0.1660788 0.1502575 0.1525129</span></span>
@@ -902,7 +894,7 @@ panel per item, categories overlaid within each panel).</p>
 <div class="section level3">
 <h3 id="plot-iccs-for-a-dichotomous-item">Plot: ICCs for a dichotomous item<a class="anchor" aria-label="anchor" href="#plot-iccs-for-a-dichotomous-item"></a>
 </h3>
-<p>For a 3PLM item, <code>score.curve = FALSE</code> draws two panels —
+<p>For a 3PLM item, <code>score.curve = FALSE</code> draws two panels,
 one for each score category (0 = incorrect, 1 = correct);
 <code>score.curve = TRUE</code> shows only
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\theta)</annotation></semantics></math>
@@ -914,7 +906,7 @@ one for each score category (0 = incorrect, 1 = correct);
 <span>  item.loc    <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  score.curve <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  layout.col  <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"ICCs for Item 2 (3PLM) — by category"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"ICCs for Item 2 (3PLM), by category"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-icc-binary-cats-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
@@ -939,7 +931,7 @@ one for each score category (0 = incorrect, 1 = correct);
 <span>  item.loc    <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
 <span>  score.curve <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overlap     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: Items 1–5 (overlaid)"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: Items 1-5 (overlaid)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-icc-multi-overlap-1.png" class="r-plt" alt="" width="864" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
@@ -950,7 +942,7 @@ one for each score category (0 = incorrect, 1 = correct);
 <span>  score.curve <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overlap     <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  layout.col  <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: Items 1–5 (separate panels)"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: Items 1-5 (separate panels)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-icc-multi-panels-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -959,7 +951,7 @@ one for each score category (0 = incorrect, 1 = correct);
 polytomous item<a class="anchor" aria-label="anchor" href="#plot-category-response-curves-and-expected-score-curve-for-a-polytomous-item"></a>
 </h3>
 <p>For a GRM item, <code>score.curve = FALSE</code> draws one curve per
-score category (0, 1, 2, 3). Items 6–8 in <code>meta_mix</code> are the
+score category (0, 1, 2, 3). Items 6-8 in <code>meta_mix</code> are the
 three GRM items.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trace_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/traceline.html">traceline</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_mix</span>, theta <span class="op">=</span> <span class="va">theta_grid</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span></code></pre></div>
@@ -996,20 +988,20 @@ three GRM items.</p>
 <p><img src="utilities_files/figure-html/plot-icc-poly-score-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
-<h3 id="plot-item-score-curves-for-multiple-items-mixed-dichotomous-and-polytomous">Plot: Item score curves for multiple items — mixed dichotomous and
+<h3 id="plot-item-score-curves-for-multiple-items-mixed-dichotomous-and-polytomous">Plot: Item score curves for multiple items, mixed dichotomous and
 polytomous<a class="anchor" aria-label="anchor" href="#plot-item-score-curves-for-multiple-items-mixed-dichotomous-and-polytomous"></a>
 </h3>
 <p>When <code>score.curve = TRUE</code>, items of any format can be
 plotted together because all ICCs are expressed on the same
 expected-score metric.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Overlaid: DRM items (1–3) and GRM items (6–8) in one panel</span></span>
+<code class="sourceCode R"><span><span class="co"># Overlaid: DRM items (1-3) and GRM items (6-8) in one panel</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x           <span class="op">=</span> <span class="va">trace_mix</span>,</span>
 <span>  item.loc    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span><span class="op">)</span>,</span>
 <span>  score.curve <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overlap     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: DRM (1–3) and GRM (6–8) — overlaid"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: DRM (1-3) and GRM (6-8), overlaid"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-mix-multi-overlap-1.png" class="r-plt" alt="" width="864" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
@@ -1020,7 +1012,7 @@ expected-score metric.</p>
 <span>  score.curve <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overlap     <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  layout.col  <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: DRM (1–3) and GRM (6–8)"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"Item Score Curves: DRM (1-3) and GRM (6-8)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-mix-multi-panels-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -1040,17 +1032,17 @@ colours.</p>
 <span>  score.curve <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  overlap     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  layout.col  <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  main.text   <span class="op">=</span> <span class="st">"Category Response Curves: GRM Items 1–3 (overlaid by category)"</span></span>
+<span>  main.text   <span class="op">=</span> <span class="st">"Category Response Curves: GRM1-GRM3 (overlaid by category)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/plot-poly-multi-cats-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="lwrc-lordwingersky-recursion">
-<code>lwrc()</code> — Lord–Wingersky Recursion<a class="anchor" aria-label="anchor" href="#lwrc-lordwingersky-recursion"></a>
+<h2 id="lwrc-lord-wingersky-recursion">
+<code>lwrc()</code>: Lord-Wingersky Recursion<a class="anchor" aria-label="anchor" href="#lwrc-lord-wingersky-recursion"></a>
 </h2>
-<p><code><a href="../reference/lwrc.html">lwrc()</a></code> implements the Lord–Wingersky recursive algorithm
+<p><code><a href="../reference/lwrc.html">lwrc()</a></code> implements the Lord-Wingersky recursive algorithm
 <span class="citation">(Lord and Wingersky 1984; Kolen and Brennan
 2004)</span>, which computes the <strong>conditional distribution of the
 observed summed score given
@@ -1167,7 +1159,7 @@ level at which the probabilities were computed.</p>
 </div>
 <div class="section level2">
 <h2 id="gen-weight-quadrature-weights">
-<code>gen.weight()</code> — Quadrature Weights<a class="anchor" aria-label="anchor" href="#gen-weight-quadrature-weights"></a>
+<code>gen.weight()</code>: Quadrature Weights<a class="anchor" aria-label="anchor" href="#gen-weight-quadrature-weights"></a>
 </h2>
 <p><code><a href="../reference/gen.weight.html">gen.weight()</a></code> generates a two-column data frame of
 quadrature nodes and normalised weights to be used in numerical
@@ -1185,18 +1177,17 @@ are computed via <code><a href="https://rdrr.io/pkg/statmod/man/gauss.quad.prob.
 <code>theta</code> is given, weights are proportional to the normal
 density evaluated at each node.</li>
 <li>
-<code>"unif"</code>: uniform distribution — equally spaced nodes
-over
+<code>"unif"</code>: uniform distribution, equally spaced nodes over
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>l</mi><mo>,</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l, u]</annotation></semantics></math>
 with equal weights.</li>
 <li>
-<code>"emp"</code>: empirical distribution — equal weights for
+<code>"emp"</code>: empirical distribution, equal weights for
 user-supplied <code>theta</code> values.</li>
 </ul>
 <p>The returned data frame always has columns named <code>theta</code>
 and <code>weight</code>, and the weights always sum to 1.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 41 Gaussian quadrature points from N(0, 1) — most common usage</span></span>
+<code class="sourceCode R"><span><span class="co"># 41 Gaussian quadrature points from N(0, 1), most common usage</span></span>
 <span><span class="va">w_norm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen.weight.html">gen.weight</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">41</span>, dist <span class="op">=</span> <span class="st">"norm"</span>, mu <span class="op">=</span> <span class="fl">0</span>, sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">w_norm</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        theta       weight</span></span>
@@ -1213,7 +1204,7 @@ and <code>weight</code>, and the weights always sum to 1.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">w_norm</span><span class="op">$</span><span class="va">weight</span> <span class="op">~</span> <span class="va">w_norm</span><span class="op">$</span><span class="va">theta</span>,</span>
 <span>     type <span class="op">=</span> <span class="st">"h"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Weight"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Gaussian Quadrature Approximation of N(0, 1) — 41 nodes"</span><span class="op">)</span></span></code></pre></div>
+<span>     main <span class="op">=</span> <span class="st">"Gaussian Quadrature Approximation of N(0, 1) with 41 nodes"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="utilities_files/figure-html/gen-weight-norm-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Normal weights on a user-defined evenly spaced grid</span></span>
@@ -1246,7 +1237,7 @@ and <code>weight</code>, and the weights always sum to 1.</p>
 </div>
 <div class="section level2">
 <h2 id="covirt-asymptotic-variance-covariance-matrices-of-item-parameters">
-<code>covirt()</code> — Asymptotic Variance-Covariance Matrices of
+<code>covirt()</code>: Asymptotic Variance-Covariance Matrices of
 Item Parameters<a class="anchor" aria-label="anchor" href="#covirt-asymptotic-variance-covariance-matrices-of-item-parameters"></a>
 </h2>
 <p><code><a href="../reference/covirt.html">covirt()</a></code> computes the analytical asymptotic
@@ -1254,8 +1245,8 @@ variance-covariance matrices of item parameter estimates using the
 formulas developed by <span class="citation">Thissen and Wainer
 (1982)</span> and extended to polytomous IRT models by <span class="citation">Li and Lissitz (2004)</span>. These matrices provide
 the asymptotic standard errors (ASEs) of maximum likelihood estimates
-<strong>without requiring examinee response data</strong> — only the
-item parameters and the sample size used for calibration are needed.</p>
+<strong>without requiring examinee response data</strong>; only the item
+parameters and the sample size used for calibration are needed.</p>
 <p>The ASEs obtained analytically represent <strong>lower
 bounds</strong> of the true standard errors <span class="citation">(Thissen and Wainer 1982)</span>, so they are best used
 as approximations when empirical standard errors from calibration
@@ -1320,7 +1311,7 @@ argument.</p>
 <p>When items were calibrated on different samples, pass a vector of
 sample sizes:</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Example: items 1–5 calibrated on n=500, items 6–15 on n=2000</span></span>
+<code class="sourceCode R"><span><span class="co"># Example: items 1-5 calibrated on n=500, items 6-15 on n=2000</span></span>
 <span><span class="va">n_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cov_bin2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/covirt.html">covirt</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_bin</span>, D <span class="op">=</span> <span class="fl">1.702</span>, nstd <span class="op">=</span> <span class="va">n_vec</span>,</span>
 <span>                   norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span></span>
@@ -1335,7 +1326,7 @@ sample sizes:</p>
 <h3 id="mixed-format-test-3">Mixed-format test<a class="anchor" aria-label="anchor" href="#mixed-format-test-3"></a>
 </h3>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># GRM items in meta_mix: items 6–8 (DRM1–DRM5 come first)</span></span>
+<code class="sourceCode R"><span><span class="co"># GRM items in meta_mix: items 6-8 (DRM1-DRM5 come first)</span></span>
 <span><span class="va">cov_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/covirt.html">covirt</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_mix</span>,</span>
 <span>  D          <span class="op">=</span> <span class="fl">1.702</span>,</span>
@@ -1353,7 +1344,7 @@ sample sizes:</p>
 </div>
 <div class="section level2">
 <h2 id="score_resp-score-selected-response-item-data">
-<code>score_resp()</code> — Score Selected-Response Item Data<a class="anchor" aria-label="anchor" href="#score_resp-score-selected-response-item-data"></a>
+<code>score_resp()</code>: Score Selected-Response Item Data<a class="anchor" aria-label="anchor" href="#score_resp-score-selected-response-item-data"></a>
 </h2>
 <p>The functions above all start from item parameters that are either
 known (<code><a href="../reference/drm.html">drm()</a></code>, <code><a href="../reference/prm.html">prm()</a></code>, <code><a href="../reference/info.html">info()</a></code>,
@@ -1523,7 +1514,7 @@ syllable labels.</p>
 <tr class="odd">
 <td><code><a href="../reference/gen.weight.html">gen.weight()</a></code></td>
 <td>Distribution spec</td>
-<td>Node–weight data frame</td>
+<td>Node-weight data frame</td>
 <td>
 <code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>,
 <code><a href="../reference/est_score.html">est_score()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>
