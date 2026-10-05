@@ -183,7 +183,11 @@ used. Default is \code{FALSE}.}
 \item{Etol}{A positive numeric value specifying the convergence criterion for
 the E-step of the EM algorithm. Default is 1e-4.
 Specifically, the EM algorithm terminates when the largest absolute difference
-in item parameter estimates between consecutive iterations is smaller than this value.}
+in item parameter estimates between consecutive iterations is less than or
+equal to this value. When FIPC is used and all items are fixed, so that only
+the latent ability distribution is estimated, the criterion is applied to
+the largest absolute change in the mean and variance of the prior
+distribution.}
 
 \item{MaxE}{A positive integer specifying the maximum number of iterations
 for the E-step in the EM algorithm. Default is \code{500}.}
@@ -311,11 +315,16 @@ convergence.}
 
 \item{TotalTime}{Total computation time (in seconds).}
 
-\item{test.1}{First-order test result indicating whether the gradient
-sufficiently vanished for solution stability.}
+\item{test.1}{A message indicating whether the convergence criteria were
+met: the M-step optimization converged for every item and the largest
+absolute change in the parameter estimates between two consecutive EM
+cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"}, which
+runs a single EM cycle, only the M-step check applies.}
 
 \item{test.2}{Second-order test result indicating whether the information matrix
-is positive definite, a necessary condition for identifying a local maximum.}
+is positive definite, a necessary condition for identifying a local maximum.
+The message reports a possible local maximum only when the first-order test
+is also satisfied.}
 
 \item{var.note}{A note indicating whether the variance-covariance matrix
 was successfully obtained from the information matrix.}

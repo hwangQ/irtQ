@@ -116,8 +116,12 @@
 #'   Item calibration is then performed relative to the estimated empirical priors.
 #' @param Etol A positive numeric value specifying the convergence criterion for
 #'   the E-step of the EM algorithm. Default is 1e-3. 
-#'   Specifically, the EM algorithm terminates when the largest absolute difference 
-#'   in item parameter estimates between consecutive iterations is smaller than this value.
+#'   Specifically, the EM algorithm terminates when the largest absolute difference
+#'   in item parameter estimates between consecutive iterations is less than or
+#'   equal to this value. When MG-FIPC is used and all items are fixed, so that
+#'   only the latent ability distributions are estimated, the criterion is
+#'   applied to the largest absolute change in the means and variances of the
+#'   prior distributions.
 #' @param fipc Logical. If `TRUE`, multiple-group fixed item parameter
 #'   calibration (MG-FIPC) is applied during item parameter estimation.
 #'   When `fipc = TRUE`, the information on which items are fixed
@@ -335,11 +339,16 @@
 #'
 #' \item{TotalTime}{Total computation time (in seconds).}
 #'
-#' \item{test.1}{First-order test result indicating whether the gradient
-#'   sufficiently vanished for solution stability.}
+#' \item{test.1}{A message indicating whether the convergence criteria were
+#'   met: the M-step optimization converged for every item and the largest
+#'   absolute change in the parameter estimates between two consecutive EM
+#'   cycles was less than or equal to `Etol`. When `fipc.method = "OEM"`, which
+#'   runs a single EM cycle, only the M-step check applies.}
 #'
 #' \item{test.2}{Second-order test result indicating whether the information matrix
-#'   is positive definite, a necessary condition for identifying a local maximum.}
+#'   is positive definite, a necessary condition for identifying a local maximum.
+#'   The message reports a possible local maximum only when the first-order test
+#'   is also satisfied.}
 #'
 #' \item{var.note}{A note indicating whether the variance-covariance matrix
 #'   was successfully obtained from the information matrix.}
@@ -1962,7 +1971,7 @@ est_mg_fipc <- function(x = NULL,
       diff_par <- mstep$elm_item$pars - elm_item_new$pars
       max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
     } else {
-      # compute the mean and sd of the updated prior distribution
+      # compute the mean and variance of the updated prior distribution
       mmt_dist_new <-
         as.matrix(purrr::map_dfc(.x = mstep$weights, ~ {
           cal_moment(node = .x$theta, weight = .x$weight)

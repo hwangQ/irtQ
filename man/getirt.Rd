@@ -73,8 +73,8 @@ columns represent quadrature points.}
 \item{EMtime}{Computation time (in seconds) for the EM algorithm.}
 \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 \item{TotalTime}{Total computation time (in seconds) for model estimation.}
-\item{test.1}{Result of the first-order test indicating whether the gradients
-were sufficiently close to zero.}
+\item{test.1}{A message indicating whether the convergence criteria were met
+(M-step convergence and the EM criterion).}
 \item{test.2}{Result of the second-order test indicating whether the
 information matrix was positive definite (a condition for maximum likelihood).}
 \item{var.note}{A note indicating whether the variance-covariance matrix was
@@ -141,8 +141,8 @@ number of items in the respective response sets.}
 \item{EMtime}{Computation time (in seconds) for EM estimation.}
 \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 \item{TotalTime}{Total computation time (in seconds) for model estimation.}
-\item{test.1}{First-order condition test result indicating whether gradients
-converged sufficiently.}
+\item{test.1}{A message indicating whether the convergence criteria were met
+(M-step convergence and the EM criterion).}
 \item{test.2}{Second-order condition test result indicating whether the
 information matrix is positive definite.}
 \item{var.note}{A note indicating whether the variance-covariance matrix
