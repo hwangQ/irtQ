@@ -76,8 +76,7 @@
 #' `key` value, using one of three rules:
 #' \itemize{
 #'   \item If the key value parses as a number (e.g., `4`), responses to
-#'     that item are compared numerically, exactly as in earlier versions of
-#'     this function.
+#'     that item are compared numerically.
 #'   \item If the key value consists of one or more Latin letters (e.g.,
 #'     `"D"`), responses are compared as letters, case-insensitively (`"d"`
 #'     and `"D"` are treated as the same option), and a response must itself
