@@ -3,7 +3,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
                         fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1, g.val = .2, n.1PLM = NULL,
                         aprior = list(dist = "lnorm", params = c(1, 0.5)),
                         bprior = list(dist = "norm", params = c(0.0, 1.0)),
-                        gprior = list(dist = "beta", params = c(5, 17)),
+                        gprior = list(dist = "beta", params = c(5, 16)),
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                         control, startval = NULL, lower, upper) {
   # build the cached (objective, gradient, hessian) trio once per call
@@ -241,7 +241,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
                         fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1, g.val = .2, n.1PLM = NULL,
                         aprior = list(dist = "lnorm", params = c(1, 0.5)),
                         bprior = list(dist = "norm", params = c(0.0, 1.0)),
-                        gprior = list(dist = "beta", params = c(5, 17)),
+                        gprior = list(dist = "beta", params = c(5, 16)),
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                         control, startval = NULL, lower, upper, iter = NULL) {
   # build the cached (objective, gradient, hessian) trio once per call

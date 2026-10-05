@@ -4,7 +4,7 @@ hess_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM"
                           nstd, fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
                           aprior = list(dist = "lnorm", params = c(1, 0.5)),
                           bprior = list(dist = "norm", params = c(0.0, 1.0)),
-                          gprior = list(dist = "beta", params = c(5, 17)),
+                          gprior = list(dist = "beta", params = c(5, 16)),
                           use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                           adjust = TRUE,
                           p_cache = NULL) {
@@ -55,7 +55,7 @@ hess_item_drm_inner <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", 
                                 nstd, fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
                                 aprior = list(dist = "lnorm", params = c(1, 0.5)),
                                 bprior = list(dist = "norm", params = c(0.0, 1.0)),
-                                gprior = list(dist = "beta", params = c(5, 17)),
+                                gprior = list(dist = "beta", params = c(5, 16)),
                                 use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                                 p_cache = NULL) {
   # `p_cache`, when non-NULL, is the drm() probability matrix for the
