@@ -180,7 +180,7 @@
 #'   [irtQ::gen.weight()]
 #'
 #' @references Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of
-#'   ability in a microcomputer environment. *Psychometrika, 35*, 179-198.
+#'   ability in a microcomputer environment. *Applied Psychological Measurement, 6*(4), 431-444.
 #'
 #'   Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 #'   and methods for test equating.

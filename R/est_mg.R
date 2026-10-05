@@ -151,7 +151,7 @@
 #'   Note that if the `fix.id` argument is not NULL, the information provided in
 #'   `fix.loc` is ignored. See below for details.
 #'
-#' @details Multiple-group (MG) item calibration (Bock & Zimowski, 1996)
+#' @details Multiple-group (MG) item calibration (Bock & Zimowski, 1997)
 #' provides a unified framework for handling testing scenarios involving
 #' multiple groups, such as nonequivalent groups equating, vertical scaling,
 #' and the identification of differential item functioning (DIF). In such
@@ -159,7 +159,7 @@
 #' the same test form or to different forms that share common (anchor) items.
 #'
 #' The goal of MG item calibration is to estimate both item parameters and
-#' latent ability distributions for all groups simultaneously (Bock & Zimowski, 1996).
+#' latent ability distributions for all groups simultaneously (Bock & Zimowski, 1997).
 #' The \pkg{irtQ} package implements MG calibration via the [irtQ::est_mg()] function,
 #' which uses marginal maximum likelihood estimation through the
 #' expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981).
@@ -241,7 +241,7 @@
 #' Note that when both `fix.loc` and `fix.id` are provided, the information
 #' in `fix.id` takes precedence and overrides `fix.loc`.
 #'
-#' @return This function returns an object of class `est_irt`. The returned
+#' @return This function returns an object of class `est_mg`. The returned
 #'   object contains the following components:
 #'
 #' \item{estimates}{A list containing two internal elements: `overall` and `group`.

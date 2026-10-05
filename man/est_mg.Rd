@@ -307,7 +307,7 @@ information about the EM algorithm process, are suppressed. Default is
 \code{TRUE}.}
 }
 \value{
-This function returns an object of class \code{est_irt}. The returned
+This function returns an object of class \code{est_mg}. The returned
 object contains the following components:
 
 \item{estimates}{A list containing two internal elements: \code{overall} and \code{group}.
@@ -432,7 +432,7 @@ logistic IRT models. For polytomous items, the graded response model (GRM)
 and the (generalized) partial credit model (GPCM) are available.
 }
 \details{
-Multiple-group (MG) item calibration (Bock & Zimowski, 1996)
+Multiple-group (MG) item calibration (Bock & Zimowski, 1997)
 provides a unified framework for handling testing scenarios involving
 multiple groups, such as nonequivalent groups equating, vertical scaling,
 and the identification of differential item functioning (DIF). In such
@@ -440,7 +440,7 @@ applications, examinees from different groups typically respond to either
 the same test form or to different forms that share common (anchor) items.
 
 The goal of MG item calibration is to estimate both item parameters and
-latent ability distributions for all groups simultaneously (Bock & Zimowski, 1996).
+latent ability distributions for all groups simultaneously (Bock & Zimowski, 1997).
 The \pkg{irtQ} package implements MG calibration via the \code{\link[=est_mg]{est_mg()}} function,
 which uses marginal maximum likelihood estimation through the
 expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981).

@@ -510,7 +510,7 @@
 #' *Psychometrika, 46*, 443-459.
 #'
 #'   Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in
-#'   a microcomputer environment. *Psychometrika, 47*(4), 179-198.
+#'   a microcomputer environment. *Applied Psychological Measurement, 6*(4), 431-444.
 #'
 #'   Cai, L. (2017). flexMIRT 3.5 Flexible multilevel multidimensional item
 #'   analysis and test scoring (Computer Software). Chapel Hill, NC: Vector
