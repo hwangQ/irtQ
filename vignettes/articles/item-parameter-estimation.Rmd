@@ -71,7 +71,7 @@ The `est_irt()` function implements the **Marginal Maximum Likelihood Estimation
 
 To avoid the incidental parameter problem (where estimating individual ability $\theta$ leads to inconsistent item parameter estimates as the sample size grows), the algorithm treats $\theta$ as a random variable following a specific prior distribution, typically $g(\theta) \sim N(0, 1)$.
 
-> Note on Item Types: For clarity and simplicity, the mathematical formulation and explanations below are presented using dichotomous (binary) items, although the underlying logic seamlessly extends to polytomous item response models.
+> Note on Item Types: For clarity and simplicity, the mathematical formulation and explanations below are presented using dichotomous (binary) items, although the underlying logic extends to polytomous item response models.
 
 By integrating the latent variable $\theta$ out of the joint likelihood, we obtain the **marginal log-likelihood** of the observed data, where the item parameters ($\boldsymbol{\Delta}$) are the only parameters to be estimated:
 
@@ -174,7 +174,7 @@ This two-step cycle (E and M) repeats. The algorithm terminates when the maximum
 | `use.gprior` | Apply beta prior to guessing parameters (recommended for 3PLM) |
 | `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
 | `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
-| `gprior` | e.g., `list(dist = "beta", params = c(4, 16))` — mean = 4/(4+16) = 0.2 |
+| `gprior` | e.g., `list(dist = "beta", params = c(4, 16))`, mean = 4/(4+16) = 0.2 |
 
 **Convergence Settings:**
 
@@ -452,7 +452,7 @@ estimate closely follows the normal overlay.
 
 ---
 
-### Example 4: 3PLM Calibration — Priors and Guessing Parameter Options
+### Example 4: 3PLM Calibration with Priors and Guessing Parameter Options
 
 The **3-parameter logistic model (3PLM)** adds a lower-asymptote (guessing)
 parameter $g$ to the 2PLM:
@@ -466,9 +466,9 @@ correct response even at very low ability levels. Because $g$ can be poorly
 identified with small samples (sometimes even with large samples), there are two 
 primary options for handling $g$ in `est_irt()`:
 
-1. **Estimate $g$ with a Beta prior** (`use.gprior = TRUE`) — regularizes $g$
+1. **Estimate $g$ with a Beta prior** (`use.gprior = TRUE`): regularizes $g$
    toward a plausible range (e.g., $1/K$ for a $K$-option MC item), or
-2. **Fix $g$ at a constant value** (`fix.g = TRUE`, `g.val = ...`) — appropriate when the
+2. **Fix $g$ at a constant value** (`fix.g = TRUE`, `g.val = ...`): appropriate when the
    number of response options is known and guessing is assumed uniform.
 
 In addition, **priors on discrimination ($a$) and difficulty ($b$)** can be
@@ -723,13 +723,13 @@ cat(sprintf("%-25s %8.4f %8.4f %8.4f\n", "C: All priors",
 We now calibrate a **mixed-format test** containing:
 
 - **15 dichotomous items** modeled with 3PLM
-- **5 polytomous items** modeled with GRM (4 categories each, scored 0–3)
+- **5 polytomous items** modeled with GRM (4 categories each, scored 0-3)
 
 #### Understanding GRM Parameters
 
 For a GRM item with **K = 4 score categories** (0, 1, 2, 3), the model uses:
 
-- **a**: Discrimination parameter — shared across all category boundaries
+- **a**: Discrimination parameter, shared across all category boundaries
 - **b₁, b₂, b₃**: Boundary threshold parameters for category boundaries 1, 2, 3,
   respectively
 
@@ -817,7 +817,7 @@ summary(mod_mix)
 ```{r estirt-mixed-grm}
 est_mix <- getirt(mod_mix, what = "par.est")
 
-# GRM items are rows 16–20
+# GRM items are rows 16-20
 grm_items <- est_mix[16:20, ]
 print(grm_items)
 
@@ -855,11 +855,11 @@ print(grm_items)
 
 ---
 
-## Part 2: Pretest Calibration — FIPC
+## Part 2: Pretest Calibration (FIPC)
 
 ### Why Fixed Item Parameter Calibration (FIPC)?
 
-In operational testing, introducing **new items** (pretest items) into an existing, calibrated item bank is a continuous necessity. However, doing so without disrupting the established measurement scale poses a challenge. Traditional concurrent calibration requires re-estimating all operational and pretest items together. For large-scale item banks, this concurrent approach is not only computationally expensive but also risks causing **scale drift**—unwanted shifts in the parameters of already established operational items.
+In operational testing, introducing **new items** (pretest items) into an existing, calibrated item bank is a continuous necessity. However, doing so without disrupting the established measurement scale poses a challenge. Traditional concurrent calibration requires re-estimating all operational and pretest items together. For large-scale item banks, this concurrent approach is not only computationally expensive but also risks causing **scale drift**: unwanted shifts in the parameters of already established operational items.
 
 **FIPC** effectively resolves this dilemma by:
 
@@ -870,9 +870,9 @@ In operational testing, introducing **new items** (pretest items) into an existi
 This approach is highly essential for:
 
 * **Pre-equating** new test forms to predict form characteristics before operational administration.
-* **Continuous Item Banking**—systematically updating and expanding a measurement pool.
-* **Eliminating Post-hoc Linking**—obviating the need for separate, labor-intensive equating studies.
-* **Online Pretest Calibration in CAT**—calibrating new items interspersed within a Computerized Adaptive Testing (CAT) environment without taking the operational pool offline or altering its scale.
+* **Continuous Item Banking**: systematically updating and expanding a measurement pool.
+* **Eliminating Post-hoc Linking**: obviating the need for separate, labor-intensive equating studies.
+* **Online Pretest Calibration in CAT**: calibrating new items interspersed within a Computerized Adaptive Testing (CAT) environment without taking the operational pool offline or altering its scale.
 
 ---
 
@@ -890,7 +890,7 @@ FIPC utilizes the response data from the **fixed operational items to estimate t
 
 #### Scenario B: Computerized Adaptive Testing (Individual-level Anchoring)
 
-In a CAT environment, FIPC functions as a powerful **online calibration** method. Because each examinee receives a unique, adapted set of operational items, there is no single fixed "form." Instead:
+In a CAT environment, FIPC functions as an **online calibration** method. Because each examinee receives a unique, adapted set of operational items, there is no single fixed "form." Instead:
 
 * The unique set of operational items encountered by each examinee serves as their **personalized anchor set**.
 * While the examinee population distribution is estimated via the EM algorithm using these fixed operational items, the interspersed pretest items (which are administered randomly and do not affect the examinee's score) accumulate responses.
@@ -898,7 +898,7 @@ In a CAT environment, FIPC functions as a powerful **online calibration** method
 
 **Key Insight:** Whether through a fixed linear anchor form or a personalized CAT path, the operational items "tell" the calibration system exactly how the new examinee sample compares to the original population. This allows pretest items to inherit the item bank scale immediately. 
 
-> Note: While FIPC preserves the scale rigorously by integrating out the latent trait distribution through EM iterations, it can be computationally intensive in real-time CAT settings. A computationally streamlined alternative is **FAPC**, which fixes individual ability estimates instead of item parameters, as detailed in Part 3.
+> Note: While FIPC preserves the scale rigorously by integrating out the latent trait distribution through EM iterations, it can be computationally intensive in real-time CAT settings. A computationally lighter alternative is **FAPC**, which fixes individual ability estimates instead of item parameters, as detailed in Part 3.
 
 ### Two FIPC Methods in irtQ
 
@@ -926,7 +926,7 @@ mod_old <- est_irt(
   D     = 1.702,
   ...
 )
-# Extract calibrated parameters — these become the anchors
+# Extract calibrated parameters, these become the anchors
 meta_anchor <- getirt(mod_old, what = "par.est")
 ```
 
@@ -975,7 +975,7 @@ mod_fipc <- est_irt(
 We demonstrate FIPC with a dichotomous test in a realistic pre-equating scenario:
 
 - **Old form (Group X)**: 20 items, $N(0, 1)$ examinees
-- **New form (Group Y)**: Items 1–15 are anchor items (fixed) + Items 16–20 are
+- **New form (Group Y)**: Items 1-15 are anchor items (fixed) + Items 16-20 are
   pretest items (to estimate); $N(0.3, 1)$ examinees
 
 ```{r fipc-step1, cache=FALSE}
@@ -1011,20 +1011,20 @@ mod_old <- est_irt(
   verbose = FALSE
 )
 
-# Extract calibrated parameters — these serve as anchors
+# Extract calibrated parameters, these serve as anchors
 meta_anchor_full <- getirt(mod_old, what = "par.est")
 head(meta_anchor_full)
 ```
 
 ```{r fipc-step2, cache=FALSE}
 # ---- Step 2: Build new form metadata ----
-# Select 15 anchor items: positions 1–15 in the old form
+# Select 15 anchor items: positions 1-15 in the old form
 fixed_pos   <- 1:15
 meta_anchor <- meta_anchor_full[fixed_pos, ]
 
 # New form layout:
-#   Positions 1–15: anchor items (fixed at old-form estimates)
-#   Positions 16–20: pretest items (to be estimated)
+#   Positions 1-15: anchor items (fixed at old-form estimates)
+#   Positions 16-20: pretest items (to be estimated)
 # Total: 15 anchor + 5 pretest = 20 items
 meta_fipc <- shape_df_fipc(
   x       = meta_anchor,            # Fixed anchor item metadata
@@ -1043,7 +1043,7 @@ print(meta_fipc)
 # Group Y has slightly higher ability: N(0.3, 1)
 theta_new <- rnorm(500, mean = 0.3, sd = 1)
 
-# True parameters for pretest items (for simulation only — unknown in practice)
+# True parameters for pretest items (for simulation only, unknown in practice)
 meta_new_true <- shape_df(
   par.drm = list(
     a = c(1.1, 0.9, 1.2, 0.8, 1.3),
@@ -1055,8 +1055,8 @@ meta_new_true <- shape_df(
 )
 
 # Simulate full new form responses:
-# Columns 1–15: anchor item responses
-# Columns 16–20: pretest item responses
+# Columns 1-15: anchor item responses
+# Columns 16-20: pretest item responses
 resp_anch <- simdat(x = meta_anchor, theta = theta_new, D = 1.702)
 resp_pre  <- simdat(x = meta_new_true, theta = theta_new, D = 1.702)
 resp_new  <- cbind(resp_anch, resp_pre)   # 500 × 20 matrix
@@ -1081,7 +1081,7 @@ summary(mod_fipc)
 **Extract and verify results:**
 
 ```{r fipc-results}
-# Estimated parameters — pretest items are the last 5 rows
+# Estimated parameters, pretest items are the last 5 rows
 all_par     <- getirt(mod_fipc, what = "par.est")
 pretest_par <- tail(all_par, 5)
 print(pretest_par)
@@ -1108,7 +1108,7 @@ cat("Difficulty RMSE:",
 - Pretest items are successfully calibrated on the **old form scale** (Group X)
   because the anchor items constrain the θ-metric.
 - Group Y's ability distribution is accurately recovered (mean ≈ 0.3, SD ≈ 1.0).
-- Anchor items (positions 1–15) retain their fixed values from `meta_anchor`.
+- Anchor items (positions 1-15) retain their fixed values from `meta_anchor`.
 - Pretest items can now be added to the operational item bank.
 
 ---
@@ -1121,8 +1121,8 @@ polytomous items.
 **Scenario:**
 
 - **Old form**: 25 dichotomous (3PLM) + 3 polytomous (GRM, 5 categories) = 28 items
-- **Anchor items** (to be fixed): Items 1–20 (3PLM) + Items 26–27 (GRM) = 22 items
-- **Pretest items** (to be estimated): Items 21–25 (3PLM) + Item 28 (GRM) = 6 items
+- **Anchor items** (to be fixed): Items 1-20 (3PLM) + Items 26-27 (GRM) = 22 items
+- **Pretest items** (to be estimated): Items 21-25 (3PLM) + Item 28 (GRM) = 6 items
 
 This mirrors a realistic scenario where new items of both types are simultaneously
 field-tested.
@@ -1174,7 +1174,7 @@ mod_old_mix <- est_irt(
 # Extract calibrated parameters and select anchor items
 meta_anchor_mix <- getirt(mod_old_mix, what = "par.est")
 
-# Anchor: items 1–20 (3PLM) + items 26–27 (GRM)
+# Anchor: items 1-20 (3PLM) + items 26-27 (GRM)
 fixed_pos_mix   <- c(1:20, 26:27)
 meta_anchor_mix <- meta_anchor_mix[fixed_pos_mix, ]
 
@@ -1185,7 +1185,7 @@ print(table(meta_anchor_mix$model))
 ```{r fipc-mixed-step2, cache=FALSE}
 # ---- Step 2: Build new form metadata ----
 # Pretest: 5 dichotomous (3PLM) + 1 polytomous (GRM)
-# New form positions: anchor at 1–20, 26–27; pretest at 21–25, 28
+# New form positions: anchor at 1-20, 26-27; pretest at 21-25, 28
 meta_fipc_mix <- shape_df_fipc(
   x       = meta_anchor_mix,
   fix.loc = fixed_pos_mix,
@@ -1295,7 +1295,7 @@ cat("Estimated:    mean=", round(group_par_mix[1, "mu"], 3),
 
 ---
 
-## Part 3: Pretest Calibration — FAPC with `est_item()`
+## Part 3: Pretest Calibration (FAPC with `est_item()`)
 
 ### Why Fixed Ability Parameter Calibration (FAPC)?
 
@@ -1313,7 +1313,7 @@ For instance, in a CAT system, each examinee encounters a personalized sequence 
 * **Pretest items** (interspersed but unscored): Embedded within the test to 
     accumulate response data; their parameters are unknown and need to be calibrated.
 
-FAPC leverages the individual $\hat{\theta}$ values obtained from the operational items 
+FAPC uses the individual $\hat{\theta}$ values obtained from the operational items 
 to calibrate each pretest item independently. 
 
 Compared to FIPC, FAPC is computationally much simpler. Because it eliminates 
@@ -1539,13 +1539,13 @@ The built-in `simMG` dataset provides a ready-to-use CINEG example with three gr
 #### Test Structure of `simMG`:
 
 * **Group 1**: 50 items (47 3PLM + 3 GRM with 5 categories)
-    * Shares 12 anchor items (**C1**: items `C1I1`–`C1I12`) with Group 2.
-    * In Group 1's test form, these **C1** items are located at positions **1–10 and 49–50**.
+    * Shares 12 anchor items (**C1**: items `C1I1`-`C1I12`) with Group 2.
+    * In Group 1's test form, these **C1** items are located at positions **1-10 and 49-50**.
 * **Group 2**: 50 items (47 3PLM + 3 GRM)
-    * Shares 12 anchor items (**C1**) with Group 1, located at positions **1–12**.
-    * Shares 10 anchor items (**C2**: items `C2I1`–`C2I10`) with Group 3, located at positions **41–50**.
+    * Shares 12 anchor items (**C1**) with Group 1, located at positions **1-12**.
+    * Shares 10 anchor items (**C2**: items `C2I1`-`C2I10`) with Group 3, located at positions **41-50**.
 * **Group 3**: 38 items (37 3PLM + 1 GRM)
-    * Shares 10 anchor items (**C2**) with Group 2, located at positions **1–10**.
+    * Shares 10 anchor items (**C2**) with Group 2, located at positions **1-10**.
 
 **True ability distributions:**
 
@@ -1685,13 +1685,13 @@ This approach is known as **MG-FIPC**: Multiple-Group Fixed Item Parameter Calib
 
 * An operational item bank already exists (calibrated on a reference scale).
 * New test forms are field-tested across different examinee groups.
-* You want to seamlessly add new items to the bank without re-calibrating or shifting the existing anchors.
+* You want to add new items to the bank without re-calibrating or shifting the existing anchors.
 
 The anchor item positions specified in the `fix.loc` argument must accurately reflect each group's unique test form layout:
 
-* **Group 1**: C1 anchor items located at positions **1–10 and 49–50**.
-* **Group 2**: Contains both **C1** anchor items (at positions **1–12**) and **C2** anchor items (at positions **41–50**).
-* **Group 3**: C2 anchor items located at positions **1–10**.
+* **Group 1**: C1 anchor items located at positions **1-10 and 49-50**.
+* **Group 2**: Contains both **C1** anchor items (at positions **1-12**) and **C2** anchor items (at positions **41-50**).
+* **Group 3**: C2 anchor items located at positions **1-10**.
 
 ```{r estmg-fipc, cache=FALSE}
 # Define anchor positions per group
@@ -1779,7 +1779,7 @@ data       = list(groupA_data, groupB_data, groupC_data)
 Because each group represents a distinct test form with potentially different structures, `fix.loc` or `fix.id` must always be supplied as a **list**, containing one element per group.
 
 ```r
-# WRONG — fix.loc must be a list for est_mg(), even if only fixing items in one group
+# WRONG: fix.loc must be a list for est_mg(), even if only fixing items in one group
 est_mg(..., fipc = TRUE, fix.loc = c(1:10))
 
 # CORRECT
@@ -1804,12 +1804,12 @@ which(x$Group2$id %in% anchor_ids)  # Group 2 positions (often differs!)
 
 ### Summary
 
-The `est_mg()` function provides a powerful framework that enables:
+The `est_mg()` function provides a framework that enables:
 
 * ✅ **Simultaneous Calibration** across multiple independent or non-equivalent examinee samples.
-* ✅ **Automatic Anchor Constraints** to establish robust scale linking via unique item ID matching.
+* ✅ **Automatic Anchor Constraints** to establish scale linking via unique item ID matching.
 * ✅ **Group-Specific Population Estimation** featuring flexible empirical histogram (`EmpHist`) support to track population drifts accurately.
-* ✅ **MG-FIPC Execution** for seamlessly appending field-tested items onto an active, pre-scaled item bank.
+* ✅ **MG-FIPC Execution** for appending field-tested items onto an active, pre-scaled item bank.
 * ✅ **Mixed-Format Support** that handles combinations of dichotomous and polytomous parameters concurrently.
 
 These functionalities serve as the computational backbone for vertical scaling, concurrent form equating, international large-scale assessments, and longitudinal growth studies. The theoretical foundation for multiple-group IRT was established by @bock_zimowski1997.
