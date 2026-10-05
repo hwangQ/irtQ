@@ -58,25 +58,25 @@ attitude) and item parameters. Key advantages are:
 
 **Primary functions:**
 
-- Estimating item parameters — fixed-form calibration, pretest calibration using
+- Estimating item parameters: fixed-form calibration, pretest calibration using
   Fixed Item Parameter Calibration (FIPC) and Fixed Ability Parameter Calibration
   (FAPC) approaches, and multiple-group calibration
   (`est_irt()`, `est_mg()`, `est_item()`)
-- Estimating examinee abilities — maximum likelihood (ML), weighted likelihood (WLE),
+- Estimating examinee abilities: maximum likelihood (ML), weighted likelihood (WLE),
   maximum a posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
   inverse test characteristic curve (TCC) scoring (`est_score()`)
-- Evaluating item-level model–data fit — $\chi^2$, $G^2$, infit/outfit, $S$-$X^2$
+- Evaluating item-level model-data fit: $\chi^2$, $G^2$, infit/outfit, $S$-$X^2$
   (`irtfit()`, `sx2_fit()`)
-- Detecting differential item functioning (DIF) — residual-based DIF (RDIF),
+- Detecting differential item functioning (DIF): residual-based DIF (RDIF),
   generalized residual-based DIF (GRDIF), and simultaneous item bias test 
   modified for CAT (CATSIB) (`rdif()`, `grdif()`, `catsib()`)
 - Computing classification accuracy and consistency indices
   (`cac_lee()`, `cac_rud()`)
 
 **Beyond these IRT-based analyses**, irtQ also provides a small set of
-classical test theory (CTT) functions — item difficulty, item-total
+classical test theory (CTT) functions (item difficulty, item-total
 correlation, Cronbach's alpha, option/distractor response distributions, and
-total-score frequency distributions — for scoring and analyzing
+total-score frequency distributions) for scoring and analyzing
 selected-response item data without fitting an IRT model
 (`ctt()`, `freq_score()`, `ctt_distr()`, `score_resp()`).
 
@@ -87,7 +87,7 @@ selected-response item data without fitting an IRT model
 | `simdat()` | Simulate IRT item response data |
 | `info()` | Item and test information functions |
 | `traceline()` | Item and test characteristic curves |
-| `lwrc()` | Lord–Wingersky recursion (summed-score distributions) |
+| `lwrc()` | Lord-Wingersky recursion (summed-score distributions) |
 | `gen.weight()` | Generate quadrature weights from a distribution |
 | `covirt()` | IRT-based covariance between items |
 | `run_flexmirt()` | Run flexMIRT directly from R |
@@ -137,32 +137,32 @@ $$P(Y = 1 \mid \theta) = g + \frac{1 - g}{1 + \exp(-D\,a\,(\theta - b))}$$
 
 The four quantities in this equation each have a concrete interpretation:
 
-**$\theta$ — Latent ability (person parameter)**  
+**$\theta$: Latent ability (person parameter)**  
 The unobserved trait being measured. The $\theta$ scale is typically standardized so
 that $\theta \sim N(0, 1)$ in the reference population: $\theta = 0$ is average
 ability, $\theta = 1$ is one standard deviation above average, and so on.
 
-**$a$ — Discrimination (item parameter)**  
+**$a$: Discrimination (item parameter)**  
 Controls how steeply the item characteristic curve (ICC) rises. A highly
 discriminating item (large $a$) sharply separates examinees just below and just above
 the item's difficulty; a weakly discriminating item (small $a$) produces a nearly
 flat ICC and provides little information about $\theta$. In practice, $a$ typically
 ranges from about 0.5 to 2.5.
 
-**$b$ — Difficulty (item parameter)**  
+**$b$: Difficulty (item parameter)**  
 The point on the $\theta$ scale where the probability of a correct response is
 halfway between $g$ and 1, i.e. $P = g + (1-g)/2$. For the 2PLM (where $g = 0$),
 this simplifies to the $\theta$ value where $P = 0.5$. Items with $b < 0$ are easy
 (most examinees answer correctly); items with $b > 0$ are hard. Values typically
 range from about $-3$ to $+3$.
 
-**$g$ — Pseudo-guessing (item parameter)**  
-The lower asymptote of the ICC — the probability of a correct response as
+**$g$: Pseudo-guessing (item parameter)**  
+The lower asymptote of the ICC: the probability of a correct response as
 $\theta \to -\infty$. For a 5-option multiple-choice item with pure random guessing,
 $g = 0.2$. When $g = 0$ the ICC passes through the origin and the model reduces to
 the 2PLM or 1PLM.
 
-**$D$ — Scaling constant**  
+**$D$: Scaling constant**  
 $D = 1.702$ is a constant that makes the logistic function closely approximate the
 normal ogive used in the original IRT formulation. Using $D = 1.702$ is conventional
 when working with logistic models; set $D = 1$ to work on the purely logistic scale.
@@ -177,7 +177,7 @@ All irtQ functions accept `D` as an argument with default `1.702`.
 | **3PLM** | Freely estimated, varies across items | Freely estimated | $a$, $b$, $g$ |
 
 > **Note on 1PLM in irtQ.** When `fix.a.1pl = TRUE` (in `est_irt()`), the
-> discrimination is *fixed* to the value `a.val.1pl` (default 1) — this is the
+> discrimination is *fixed* to the value `a.val.1pl` (default 1); this is the
 > strict **Rasch model**. When `fix.a.1pl = FALSE` (the default), the common
 > discrimination is *estimated* from the data but constrained to be equal across all
 > 1PLM items. Both specifications produce only $b$ as the item-differentiating
@@ -189,7 +189,7 @@ All irtQ functions accept `D` as an argument with default `1.702`.
 ### Polytomous Models: GRM and GPCM
 
 For items with $K$ **ordered** response categories scored $0, 1, \ldots, K-1$
-(e.g., a 4-point rating scale scored 0–3), irtQ supports two models.
+(e.g., a 4-point rating scale scored 0-3), irtQ supports two models.
 
 #### Graded Response Model (GRM)
 
@@ -283,8 +283,8 @@ $b_0 = 0$ is handled internally; you do not supply $b_0$.
 Nearly every **irtQ** function accepts a data frame `x` as its first argument.
 This **item metadata** frame is a standardized, row-per-item table that encodes
 the IRT model and parameter values for each item in a test form. It serves as the
-single input format shared across all analyses — calibration, scoring, fit
-evaluation, DIF detection, and more — so you only need to build it once.
+single input format shared across all analyses (calibration, scoring, fit
+evaluation, DIF detection, and more), so you only need to build it once.
 
 ### Column Structure
 
@@ -328,9 +328,9 @@ meta_demo
 
 Reading across the columns:
 
-- Items I1–I3 are 2PLM: `par.1` = $a$, `par.2` = $b$, `par.3` = `NA` (no guessing),
+- Items I1-I3 are 2PLM: `par.1` = $a$, `par.2` = $b$, `par.3` = `NA` (no guessing),
   `par.4` = `NA` (no third threshold)
-- Items I4–I5 are GRM with 4 categories: `par.1` = $a$, `par.2`–`par.4` =
+- Items I4-I5 are GRM with 4 categories: `par.1` = $a$, `par.2`-`par.4` =
   $b_1, b_2, b_3$
 
 ---
@@ -401,7 +401,7 @@ meta_ex2
 - For a **GPCM** item, the values in `d` are step parameters $b_1, \ldots, b_{K-1}$,
   which need *not* be ordered.
 - The `d` vectors for GRM and GPCM items can be mixed within the same `par.prm`
-  list — the `model` argument determines which model applies to each item.
+  list; the `model` argument determines which model applies to each item.
 
 ### Example 3: Uniform model, auto-assigned IDs
 
@@ -488,7 +488,7 @@ meta_pscale
 ### Importing from BILOG-MG
 
 ```r
-# Import from a BILOG-MG .PAR output file (not run — replace with your path)
+# Import from a BILOG-MG .PAR output file (not run, replace with your path)
 meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 ```
 
@@ -526,7 +526,7 @@ You can also prepare item metadata in a spreadsheet and read it into R as a CSV
 file, as long as the column structure matches the **irtQ** specification.
 
 ```r
-# Read item metadata from a CSV file (not run — replace with your path)
+# Read item metadata from a CSV file (not run, replace with your path)
 meta_csv <- read.csv("my_item_parameters.csv", stringsAsFactors = FALSE)
 
 # Verify the structure
@@ -545,7 +545,7 @@ Ensure that:
 
 ## A Complete End-to-End Workflow
 
-This vignette has focused on **item metadata** — the central data structure that
+This vignette has focused on **item metadata**, the central data structure that
 connects all **irtQ** functions. To show how metadata fits into the broader analysis
 pipeline, the example below walks through a minimal end-to-end workflow: define item
 metadata → simulate responses → estimate item parameters → estimate abilities →
@@ -654,7 +654,7 @@ you are ready to explore each analysis in depth:
 |-------|----------|---------------|
 | Item parameter estimation | `vignette("item-parameter-estimation")` | `est_irt()`, `est_mg()`, `est_item()` |
 | Ability estimation | `vignette("ability-estimation")` | `est_score()` |
-| Model–data fit | `vignette("model-fit-evaluation")` | `irtfit()`, `sx2_fit()` |
+| Model-data fit | `vignette("model-fit-evaluation")` | `irtfit()`, `sx2_fit()` |
 | DIF detection | `vignette("dif-detection")` | `rdif()`, `grdif()`, `catsib()` |
 | Classification accuracy | `vignette("classification-analysis")` | `cac_lee()`, `cac_rud()` |
 | Utilities | `vignette("utilities")` | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()`, `score_resp()` |
