@@ -53,20 +53,21 @@ argument, or a fitted object that contains one. Each row describes one item.
 | `model` | IRT model of the item: `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, or `"GPCM"` |
 | `par.1` | Slope (discrimination) parameter |
 | `par.2` | Difficulty for a dichotomous item, or the first threshold for a polytomous item |
-| `par.3` | Guessing parameter for a 3PLM item, or the second threshold for a polytomous item |
+| `par.3` | Guessing parameter for a 3PLM item, or the second threshold for a polytomous item; `NA` for 1PLM and 2PLM items |
 | `par.4`, ... | Further thresholds of a polytomous item; `NA` for dichotomous items |
 
 Item metadata can be read from the output of other IRT software with the
 `bring.*()` functions (`bring.flexmirt()`, `bring.bilog()`,
-`bring.parscale()`, `bring.mirt()`) or created with `shape_df()`. The example
-below reads the flexMIRT parameter file that ships with the package and keeps
-the first 25 items, all of which follow the 3PLM.
+`bring.parscale()`, and `bring.mirt()`, which requires the suggested **mirt**
+package) or created with `shape_df()`. The example below reads the flexMIRT
+parameter file that ships with the package and keeps the first 25 items, all of
+which follow the 3PLM.
 
 ```{r metadata}
 library(irtQ)
 
 flex_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
-x <- bring.flexmirt(file = flex_file, "par")$Group1$full_df
+x <- bring.flexmirt(file = flex_file, type = "par")$Group1$full_df
 x <- x[1:25, ]
 head(x)
 ```
@@ -95,8 +96,9 @@ dim(resp)
 ## Estimating item parameters
 
 `est_irt()` calibrates the items. The model and the number of score categories
-are given for all items at once, and a Beta prior on the guessing parameters
-stabilizes the 3PLM estimates.
+are given for all items at once. A Beta(5, 16) prior on the guessing parameters,
+which is the default, stabilizes the 3PLM estimates; it is written out here for
+clarity.
 
 ```{r calibrate}
 fit <- est_irt(
@@ -107,9 +109,9 @@ fit <- est_irt(
 fit
 ```
 
-Printing the fitted object reports the number of EM cycles and the quadrature
-points that were used. A fuller estimation summary is available from
-`summary(fit)`.
+Printing the fitted object reports the number of EM cycles, the number of
+quadrature points, the first- and second-order convergence checks, and the
+log-likelihood. A fuller estimation summary is available from `summary(fit)`.
 
 `getirt()` extracts parts of the fitted object, such as the item parameter
 estimates.
@@ -124,7 +126,9 @@ head(par_est)
 `est_score()` estimates the abilities of the examinees. A fitted `est_irt`
 object can be passed directly, and the response data stored in the object are
 used. The code below uses maximum likelihood estimation (ML) and compares the
-estimates with the abilities used to simulate the data.
+estimates with the abilities used to simulate the data. The `range` argument
+keeps the ML estimates within [-4, 4], which matters for examinees who answer
+all items correctly or all incorrectly.
 
 ```{r score}
 scores <- est_score(fit, method = "ML", range = c(-4, 4))
@@ -143,12 +147,15 @@ sx2 <- sx2_fit(fit)
 head(sx2$fit_stat)
 ```
 
+`irtfit()` groups the examinees by the ML estimates from the previous section,
+and the plot shows the raw and standardized residuals of the first item.
+
 ```{r irtfit-plot}
-fit_stat <- irtfit(
+fit_irt <- irtfit(
   x = fit, score = scores$est.theta, group.method = "equal.width",
   n.width = 10, loc.theta = "middle"
 )
-plot(fit_stat, item.loc = 1, type = "both", ci.method = "wald",
+plot(fit_irt, item.loc = 1, type = "both", ci.method = "wald",
      show.table = FALSE, ylim.sr.adjust = TRUE)
 ```
 
