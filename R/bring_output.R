@@ -742,6 +742,11 @@ bring.parscale.ph2 <- function(file) {
 #' @importFrom utils count.fields read.delim read.fwf read.table
 #' @export
 bring.mirt <- function(x) {
+  # bring.mirt() needs the mirt package, which is only suggested
+  if (!requireNamespace("mirt", quietly = TRUE)) {
+    stop("Package 'mirt' is required for bring.mirt(). Please install it.", call. = FALSE)
+  }
+
   # read paramter estimates from an object of mirt
   prm_all <- mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
   cats <- x@Data$K

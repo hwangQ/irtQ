@@ -41,8 +41,7 @@ Imports:
     gridExtra,
     parallel,
     Matrix,
-    Rfast,
-    mirt
+    Rfast
 Authors@R: c(person("Hwanggyu", "Lim", email="hglim83@gmail.com", role=c("aut", "cre")), 
     person("Craig S.", "Wells", email="cswells@educ.umass.edu", role="ctb"), 
     person("James", "Howard", email="jh@jameshoward.us", role="ctb"),
@@ -56,7 +55,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     pkgdown,
-    RhpcBLASctl
+    RhpcBLASctl,
+    mirt
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
