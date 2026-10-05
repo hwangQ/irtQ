@@ -831,6 +831,17 @@ print.find_cut <- function(x, digits = 4L, ...) {
 #'
 #' @seealso [ctt()], [summary.ctt()]
 #'
+#' @examples
+#' # simulate the responses of 300 examinees to 8 dichotomous items
+#' set.seed(1)
+#' dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+#'
+#' # run the CTT analysis
+#' out <- ctt(data = dat)
+#'
+#' # print the condensed report
+#' print(out)
+#'
 #' @export
 print.ctt <- function(x, digits = 3, ...) {
 
@@ -885,6 +896,17 @@ print.ctt <- function(x, digits = 3, ...) {
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @seealso [ctt()], [summary.ctt()]
+#'
+#' @examples
+#' # simulate the responses of 300 examinees to 8 dichotomous items
+#' set.seed(1)
+#' dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+#'
+#' # run the CTT analysis
+#' out <- ctt(data = dat)
+#'
+#' # print the full report with values rounded to 2 decimal places
+#' print(summary(out), digits = 2)
 #'
 #' @export
 print.summary.ctt <- function(x, digits = 3, ...) {

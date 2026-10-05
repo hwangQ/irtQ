@@ -47,4 +47,11 @@
 #' approach to evaluate the performance of MST. *Journal of Educational
 #' Measurement, 58*(2), 154-178.
 #'
+#' @examples
+#' # structure of the data
+#' str(simMST, max.level = 1)
+#'
+#' # item metadata of the first three items
+#' head(simMST$item_bank, 3)
+#'
 "simMST"

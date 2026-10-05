@@ -25,6 +25,18 @@ class \code{"summary.ctt"} whose own \code{print.summary.ctt()} method displays 
 complete item-level table, test-level reliability summary, and total-score
 frequency distribution.
 }
+\examples{
+# simulate the responses of 300 examinees to 8 dichotomous items
+set.seed(1)
+dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+
+# run the CTT analysis
+out <- ctt(data = dat)
+
+# create the full report object and print it
+summary(out)
+
+}
 \seealso{
 \code{\link[=ctt]{ctt()}}, \code{\link[=print.ctt]{print.ctt()}}
 }

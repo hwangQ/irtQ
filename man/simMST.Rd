@@ -44,6 +44,14 @@ structure, assembled using module-level target test information functions
 (TIFs) and design constraints similar to those used in the simulation study
 by Lim et al. (2021).
 }
+\examples{
+# structure of the data
+str(simMST, max.level = 1)
+
+# item metadata of the first three items
+head(simMST$item_bank, 3)
+
+}
 \references{
 Magis, D., Yan, D., & von Davier, A. A. (2017). \emph{Computerized
 adaptive and multistage testing with R: Using packages catR and mstR}.

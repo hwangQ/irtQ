@@ -152,6 +152,17 @@ summary.est_item <- function(object, ...) {
 #'
 #' @seealso [ctt()], [print.ctt()]
 #'
+#' @examples
+#' # simulate the responses of 300 examinees to 8 dichotomous items
+#' set.seed(1)
+#' dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+#'
+#' # run the CTT analysis
+#' out <- ctt(data = dat)
+#'
+#' # create the full report object and print it
+#' summary(out)
+#'
 #' @export
 summary.ctt <- function(object, ...) {
 

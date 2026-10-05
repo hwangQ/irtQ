@@ -29,6 +29,22 @@ A simulated dataset for computerized adaptive testing (CAT), containing an
 item pool, sparse response data, and examinee ability estimates. The item
 pool includes both dichotomous and polytomous items.
 }
+\examples{
+# structure of the data
+str(simCAT_MX, max.level = 1)
+
+\donttest{
+# item fit of three dichotomous items and two polytomous items
+loc <- c(1:3, 201:202)
+x <- simCAT_MX$item.prm[loc, ]
+data <- simCAT_MX$res.dat[, loc]
+irtfit(
+  x = x, score = simCAT_MX$score, data = data, group.method = "equal.freq",
+  n.width = 10, loc.theta = "average", range.score = c(-4, 4), D = 1
+)
+}
+
+}
 \author{
 Hwanggyu Lim \email{hglim83@gmail.com}
 }

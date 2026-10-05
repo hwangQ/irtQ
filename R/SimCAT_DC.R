@@ -19,4 +19,18 @@
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
+#' @examples
+#' # structure of the data
+#' str(simCAT_DC, max.level = 1)
+#'
+#' \donttest{
+#' # item fit of the first five items, using the ability estimates as scores
+#' x <- simCAT_DC$item.prm[1:5, ]
+#' data <- simCAT_DC$res.dat[, 1:5]
+#' irtfit(
+#'   x = x, score = simCAT_DC$score, data = data, group.method = "equal.freq",
+#'   n.width = 10, loc.theta = "average", range.score = c(-4, 4), D = 1
+#' )
+#' }
+#'
 "simCAT_DC"

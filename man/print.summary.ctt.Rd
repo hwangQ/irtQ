@@ -31,6 +31,18 @@ test-level reliability summary, and the total-score frequency
 distribution, following the sectioned reporting style used by
 \code{print.summary.est_irt()} in irtQ.
 }
+\examples{
+# simulate the responses of 300 examinees to 8 dichotomous items
+set.seed(1)
+dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+
+# run the CTT analysis
+out <- ctt(data = dat)
+
+# print the full report with values rounded to 2 decimal places
+print(summary(out), digits = 2)
+
+}
 \seealso{
 \code{\link[=ctt]{ctt()}}, \code{\link[=summary.ctt]{summary.ctt()}}
 }

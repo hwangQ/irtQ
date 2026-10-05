@@ -27,6 +27,18 @@ returned by \code{\link[=ctt]{ctt()}}, following the same brief/full print-summa
 used by \code{\link[=est_irt]{est_irt()}} (compare \code{print.est_irt()} vs.
 \code{summary.est_irt()}/\code{print.summary.est_irt()}).
 }
+\examples{
+# simulate the responses of 300 examinees to 8 dichotomous items
+set.seed(1)
+dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+
+# run the CTT analysis
+out <- ctt(data = dat)
+
+# print the condensed report
+print(out)
+
+}
 \seealso{
 \code{\link[=ctt]{ctt()}}, \code{\link[=summary.ctt]{summary.ctt()}}
 }
