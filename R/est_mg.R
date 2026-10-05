@@ -1119,7 +1119,8 @@ est_mg_em <- function(x = NULL,
 
     # compute the difference between previous and updated item parameter estimates
     diff_par <- mstep$elm_item$pars - elm_item$pars
-    max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
+    # use the largest absolute change over all item parameters as the convergence statistic
+    max.diff <- max(abs(diff_par), na.rm = TRUE)
 
     # loglikelihood value
     llike <- do.call(what = "sum", args = mstep$loglike)
@@ -1157,7 +1158,8 @@ est_mg_em <- function(x = NULL,
   est_time1 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
 
   # the first order test: check convergence-criteria test
-  test_1st <- all(mstep$convergence == 0L) && converge # M-step converged and EM criterion met
+  # require M-step convergence for every item and the EM criterion
+  test_1st <- all(mstep$convergence == 0L) && converge
   if (test_1st) {
     memo3 <- "Convergence criteria are satisfied."
   } else {
@@ -1969,7 +1971,8 @@ est_mg_fipc <- function(x = NULL,
     if (!is.null(x_new)) {
       # compute the difference between previous and updated item parameter estimates
       diff_par <- mstep$elm_item$pars - elm_item_new$pars
-      max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
+      # use the largest absolute change over all item parameters as the convergence statistic
+      max.diff <- max(abs(diff_par), na.rm = TRUE)
     } else {
       # compute the mean and variance of the updated prior distribution
       mmt_dist_new <-
@@ -1977,7 +1980,8 @@ est_mg_fipc <- function(x = NULL,
           cal_moment(node = .x$theta, weight = .x$weight)
         }))
       diff_par <- mmt_dist_new - mmt_dist_old
-      max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
+      # use the largest absolute change in the prior mean and variance as the convergence statistic
+      max.diff <- max(abs(diff_par), na.rm = TRUE)
     }
 
     # loglikelihood value
@@ -2023,7 +2027,8 @@ est_mg_fipc <- function(x = NULL,
   est_time1 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
 
   # the first order test: check convergence-criteria test
-  test_1st <- all(mstep$convergence == 0L) && (converge || fipc.method == "OEM") # OEM runs one cycle by design
+  # OEM runs a single EM cycle by design, so only the M-step check applies
+  test_1st <- all(mstep$convergence == 0L) && (converge || fipc.method == "OEM")
   if (test_1st) {
     memo3 <- "Convergence criteria are satisfied."
   } else {
