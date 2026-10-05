@@ -205,7 +205,7 @@ test_that("est_item() mixed DRM + GRM: covariance is finite + symmetric", {
   expect_lt(max(abs(fit$covariance - t(fit$covariance))), 1e-10)
 })
 
-test_that("est_item() handles cats = 3 GRM without diag<- crash", {
+test_that("est_item() handles cats = 3 GRM items", {
   # cats == 3 GRM has m == 2, so the off-diagonal b-block of
   # hess_item_prm_inner() is a single cell; it is filled by 2-column
   # index-matrix assignment, which treats this case the same as the

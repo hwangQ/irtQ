@@ -144,7 +144,7 @@ test_that("score_resp() flags a numeric response on a letter-coded item as inval
   expect_equal(out$resp_summary$n_invalid, 1L)
 })
 
-test_that("score_resp() treats a non-Latin, non-numeric key as a general label instead of erroring", {
+test_that("score_resp() treats a non-Latin, non-numeric key as a general label", {
   # a mixed alphanumeric key value like "1A" is accepted as a general option
   # label (matched by exact, case-insensitive string comparison), since
   # score_resp() does not restrict option labels to plain numbers or

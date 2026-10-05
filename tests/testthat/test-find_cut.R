@@ -196,7 +196,7 @@ test_that("plot.find_cut() returns a ggplot object for all layout options", {
   expect_s3_class(p_no_label, "ggplot")
 })
 
-test_that("find_cut() tif_data now includes stage 1", {
+test_that("find_cut() tif_data includes stage 1", {
   x         <- simMST$item_bank
   module    <- simMST$module
   route_map <- simMST$route_map
