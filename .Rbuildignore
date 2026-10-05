@@ -18,6 +18,7 @@
 ^revdep$
 
 # Git and GitHub configuration files
+^\.git$
 ^\.gitignore$
 ^\.github$
 ^\.positai$
