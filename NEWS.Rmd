@@ -52,30 +52,35 @@ knitr::opts_chunk$set(
   by `psych::alpha()` (`raw.r` / `r.drop`).
 
 ## Bug Fixes
-* Fixed the EM convergence check in `est_irt()` and `est_mg()`. The maximum
-  change in parameter estimates between two EM cycles was computed as the
-  absolute value of the largest signed change, so a larger change in the
-  negative direction was ignored and the EM could stop before the documented
-  criterion (largest absolute change <= `Etol`) was met. It is now the largest
-  absolute change, and `maxpar.diff` and the Max-Change printed when
-  `verbose = TRUE` report this value. The problem was most likely when some
-  parameters are held constant, such as the guessing parameter of 1PLM and
-  2PLM items or slopes fixed by `fix.a.1pl` or `fix.a.gpcm`, because those
-  entries made the reported change exactly zero whenever all free parameters
-  decreased in a cycle. Short tests were most affected. In simulated tests
-  (20 replications per condition, 1,000 examinees; Rasch with 20 and 5 items,
-  1PLM with a common slope, 2PLM, and a mixed 2PLM and GPCM test with 24
-  items), the EM stopped early in 7 to 11 of the 20 replications in every
-  condition, and the estimates of the affected replications changed by up to
-  0.38 (median 0.06 to 0.09). In the `est_irt()` examples that use the
-  `LSAT6` data (1PLM with a common or fixed slope, 2PLM with and without an
-  empirical histogram, 3PLM with fixed guessing parameters, and the mixed
-  1PLM, 2PLM, and 3PLM model), the EM had stopped after 2 cycles and now runs
-  12 to 65 cycles, with slope estimates changing by up to 0.19 and difficulty
-  estimates by up to 0.90. The mixed-format 3PLM and GRM example changed from
-  16 to 18 cycles, with estimates changing by about 0.0002 at most. The 3PLM
-  fit to `LSAT6` with the default settings, and the FIPC and multiple-group
-  examples that were compared, gave identical results.
+* Fixed the EM convergence check in `est_irt()` and `est_mg()`. The change in
+  parameter estimates between two EM cycles was summarized by the absolute
+  value of the largest signed change, so larger changes in the negative
+  direction were ignored and the EM could stop before the documented
+  criterion (largest absolute change <= `Etol`) was met. The check now uses
+  the largest absolute change, which is also the value reported by
+  `maxpar.diff` and by the Max-Change printed when `verbose = TRUE`. Early
+  stopping was most likely when some parameters were held constant, such as
+  the guessing parameter of 1PLM and 2PLM items or slopes fixed by
+  `fix.a.1pl` or `fix.a.gpcm`, because those entries made the reported change
+  exactly zero whenever all free parameters decreased in a cycle. A fit from
+  an earlier version that reported a `maxpar.diff` of exactly 0 may have
+  stopped early. When such a model is refitted, the estimates, their standard
+  errors, and any statistics based on them can change, the EM can take more
+  cycles, and a fit with a small `MaxE` may now end with a "Convergence
+  criteria are not satisfied" warning.
+
+  In simulated data (20 replications per condition, 1,000 examinees; Rasch
+  with 5 and 20 items, 1PLM with a common slope, 2PLM with 20 items, and a
+  mixed test of 18 2PLM and 6 GPCM items), the EM stopped early in 7 to 11
+  of the 20 replications in every condition, including the 5-item test, and
+  the estimates of the affected replications changed by up to 0.38 (median
+  0.06 to 0.08). In the `est_irt()` examples that use the `LSAT6` data,
+  the EM had stopped after 2 cycles and now runs 12 to 65 cycles, with
+  slope estimates changing by up to 0.19 and difficulty estimates by up to
+  0.90. The mixed-format 3PLM and GRM example changed from 16 to 18 cycles,
+  with estimates changing by about 0.0002 at most. The 3PLM fit to `LSAT6`
+  with the default settings and the FIPC and multiple-group examples that
+  were compared gave identical estimates.
 
 * `est_irt()` and `est_mg()` no longer issue a spurious "Convergence criteria
   are not satisfied" warning when `fipc.method = "OEM"`, which runs a single
@@ -95,6 +100,13 @@ knitr::opts_chunk$set(
 ## Documentation
 * Corrected the documented return class of `est_mg()` and the references to
   Bock and Mislevy (1982) and Bock and Zimowski (1997).
+
+* Corrected the descriptions of `Etol`, `test.1`, and `test.2` in `est_irt()`,
+  `est_mg()`, and `getirt()`, and of `maxpar.diff` in `getirt()`. `test.1`
+  reports whether the M-step converged for every item and the largest
+  absolute change was less than or equal to `Etol`; for FIPC with all items
+  fixed, the criterion applies to the mean and variance of the prior
+  distribution.
 
 # irtQ 1.2.0
 
