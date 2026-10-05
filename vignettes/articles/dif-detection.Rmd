@@ -57,11 +57,11 @@ set.seed(2026)
 We simulate a 40-item dichotomous test (3PLM) with 1,000 examinees per group.
 DIF is introduced into six items:
 
-- **Items 1-2**: Uniform DIF: the focal group has a higher difficulty parameter
+- **Items 1-2**: Uniform DIF, in which the focal group has a higher difficulty parameter
   ($b + 0.5$) while the discrimination parameter is unchanged.
-- **Items 3-4**: Nonuniform DIF: the focal group has a lower discrimination
+- **Items 3-4**: Nonuniform DIF, in which the focal group has a lower discrimination
   parameter ($a \times 0.5$) while the difficulty parameter is unchanged.
-- **Items 5-6**: Mixed DIF: the focal group has both a lower discrimination
+- **Items 5-6**: Mixed DIF, in which the focal group has both a lower discrimination
   parameter ($a \times 0.5$) and a higher difficulty parameter ($b + 0.5$),
   making these items both less discriminating and harder for the focal group.
 - **Items 7-40**: No DIF.
@@ -150,7 +150,7 @@ score_pool <- est_score(
 
 ---
 
-## Part 1: RDIF, Residual-Based DIF (`rdif()`)
+## Part 1: Residual-Based DIF Detection (RDIF, `rdif()`)
 
 ### Statistical Framework
 
@@ -284,7 +284,7 @@ converged. The `n.iter` field reports how many iterations were performed, and
 
 ---
 
-## Part 2: GRDIF, Multiple-Group DIF Detection (`grdif()`)
+## Part 2: Multiple-Group DIF Detection (GRDIF, `grdif()`)
 
 ### Statistical Framework
 

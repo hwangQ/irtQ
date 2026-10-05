@@ -174,7 +174,7 @@ This two-step cycle (E and M) repeats. The algorithm terminates when the maximum
 | `use.gprior` | Apply beta prior to guessing parameters (recommended for 3PLM) |
 | `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
 | `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
-| `gprior` | e.g., `list(dist = "beta", params = c(4, 16))`, mean = 4/(4+16) = 0.2 |
+| `gprior` | e.g., `list(dist = "beta", params = c(5, 16))` (default), mean = 5/(5+16) = 0.24 |
 
 **Convergence Settings:**
 
@@ -861,13 +861,13 @@ print(grm_items)
 
 In operational testing, introducing **new items** (pretest items) into an existing, calibrated item bank is a continuous necessity. However, doing so without disrupting the established measurement scale poses a challenge. Traditional concurrent calibration requires re-estimating all operational and pretest items together. For large-scale item banks, this concurrent approach is not only computationally expensive but also risks causing **scale drift**: unwanted shifts in the parameters of already established operational items.
 
-**FIPC** effectively resolves this dilemma by:
+**FIPC** addresses this problem by:
 
 1.  **Fixing** the parameters of operational (anchor) items at their bank values during calibration.
 2.  **Estimating** only the parameters of the new pretest items.
 3.  Automatically **placing** the new items directly onto the existing measurement scale of the item bank.
 
-This approach is highly essential for:
+This approach is useful for:
 
 * **Pre-equating** new test forms to predict form characteristics before operational administration.
 * **Continuous Item Banking**: systematically updating and expanding a measurement pool.
@@ -1385,7 +1385,7 @@ meta_pre <- shape_df(
 )
 
 # Simulate complete pretest responses based on the abilities
-# (Note: est_item() also works perfectly if this matrix contains NA values)
+# (Note: est_item() also accepts NA values in this matrix)
 resp_pre10 <- simdat(x = meta_pre, theta = theta_fapc, D = 1.702)
 
 # ---- Step 3: Calibrate via FAPC ----

@@ -83,7 +83,7 @@ recover the true values.
 **irtQ** provides two functions for exactly this purpose. `run_mst()`
 simulates a full MST administration (examinee by examinee, stage by stage)
 and reports the resulting ability estimates and routing pathways. `reval_mst()`
-conducts the MST evaluation analytically, via a recursion-based method[@lim_etal2021], 
+conducts the MST evaluation analytically, via a recursion-based method [@lim_etal2021], 
 without simulating any individual examinee. This vignette covers both, starting with
 `run_mst()`. They describe an MST panel using the same structural inputs,
 introduced next.
@@ -353,7 +353,7 @@ and it is the opposite of what an MST is designed to do.
 
 Alternatively, setting `route_method = NULL` switches to traditional
 **cut-score routing** (the design most commonly used in operational MST
-programs) where each examinee's intermediate ability estimate is compared
+programs), in which each examinee's intermediate ability estimate is compared
 against a fixed set of cut scores to decide the next module:
 
 ```{r run-mst-cutscore}
@@ -382,10 +382,10 @@ choice is to derive them directly from the modules' TIF curves themselves:
 the natural boundary between an easy and a hard module is the theta value
 at which the hard module's TIF first overtakes the easy module's TIF. Below
 that point the easier module is more informative; above it, the harder
-module is. This is also exactly the fix for the anomalous-routing problem
-described above for MFI routing, by fixing the cut point at this *proper*
-crossing, low-ability examinees can never be routed into the harder module
-no matter how its TIF curve behaves at the extremes.
+module is. This is also the fix for the anomalous-routing problem described
+above for MFI routing: by fixing the cut point at this *proper* crossing,
+low-ability examinees can never be routed into the harder module, no matter
+how its TIF curve behaves at the extremes.
 
 `find_cut()` automates this search. For every pair of adjacent modules at
 each stage transition, it scans the theta scale for crossings between the
@@ -1146,13 +1146,13 @@ looping it over a $\theta$ grid with many replications per point, the
 traditional Monte Carlo approach. @lim_etal2021 validated their
 recursion-based analytical method against exactly this kind of simulation,
 and the closeness of the agreement they found depended on the scoring method
-used. When the simulation used the same scoring as the recursion
-throughout, that is, equated-number-correct (ENC) scoring, a deterministic
-score-to-$\theta$ transformation conceptually analogous to the inverse-TCC
-scoring inside `reval_mst()`, the simulated and analytical results matched
-closely at every $\theta$ and converged further as replications increased.
+used. When the simulation used the same scoring as the recursion throughout,
+the simulated and analytical results matched closely at every $\theta$ and
+converged further as replications increased. That scoring was
+equated-number-correct (ENC) scoring, a deterministic score-to-$\theta$
+transformation analogous to the inverse-TCC scoring inside `reval_mst()`.
 When the simulation instead used a combination more common in practice
-(EAP for routing, maximum likelihood (MLE) for the final score), the two
+(EAP for routing and MLE for the final score), the two
 methods still agreed closely in the central ability range, but diverged
 toward the extremes, where the item pool carries little information and
 MLE behaves quite differently from the inverse-TCC-based recursion. That

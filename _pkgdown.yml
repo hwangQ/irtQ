@@ -39,10 +39,10 @@ navbar:
           href: articles/model-fit-evaluation.html
         - text: "DIF Detection"
           href: articles/dif-detection.html
-        - text: "Classification Accuracy & Consistency"
+        - text: "Classification Accuracy and Consistency"
           href: articles/classification-analysis.html
         - text: "--- Extra Articles ---"
-        - text: "Utilities"
+        - text: "Utility Functions"
           href: articles/utilities.html
         - text: "Classical Test Theory (CTT) Analysis"
           href: articles/ctt-analysis.html
@@ -162,8 +162,3 @@ reference:
       - simIPD
       - simMG
       - simMST
-
-news:
-  releases:
-    - text: "v1.1.0"
-      href: https://github.com/hwangQ/irtQ/blob/main/NEWS.md

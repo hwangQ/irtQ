@@ -1,5 +1,5 @@
 ---
-title: "Getting Started with irtQ"
+title: "Getting Started: A Detailed Guide"
 output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
@@ -22,8 +22,9 @@ knitr::opts_chunk$set(
 **irtQ** is an R package for unidimensional **Item Response Theory (IRT)** analyses.
 It supports mixed-format tests containing both dichotomous and polytomous items, and
 provides a unified interface for the most common psychometric tasks in educational
-and psychological measurement. For a short overview of the package, see the
-"Introduction to irtQ" vignette (`vignette("irtQ")`).
+and psychological measurement. For a short overview of the package, see
+[Introduction to irtQ](irtQ.html), also available in R as
+`vignette("irtQ", package = "irtQ")`.
 
 ### Why IRT? A Brief Motivation
 
@@ -94,7 +95,7 @@ selected-response item data without fitting an IRT model
 | `run_flexmirt()` | Run flexMIRT directly from R |
 | `score_resp()` | Score raw selected-response data into a 0/1 matrix |
 
-This vignette introduces the **IRT models** supported by **irtQ** and the **item
+This article introduces the **IRT models** supported by **irtQ** and the **item
 metadata** data structure that connects all functions. At the end, a minimal
 end-to-end workflow ties everything together.
 
@@ -167,7 +168,9 @@ the 2PLM or 1PLM.
 $D = 1.702$ is a constant that makes the logistic function closely approximate the
 normal ogive used in the original IRT formulation. Using $D = 1.702$ is conventional
 when working with logistic models; set $D = 1$ to work on the purely logistic scale.
-All irtQ functions accept `D` as an argument with default `1.702`.
+irtQ functions that take `D` use `D = 1` by default (`find_cut()` is the exception,
+with a default of `1.702`); set `D = 1.702` explicitly to approximate the
+normal-ogive metric.
 
 #### Special cases: 1PLM and 2PLM
 
@@ -546,16 +549,12 @@ Ensure that:
 
 ## A Complete End-to-End Workflow
 
-This vignette has focused on **item metadata**, the central data structure that
+This article has focused on **item metadata**, the central data structure that
 connects all **irtQ** functions. To show how metadata fits into the broader analysis
 pipeline, the example below walks through a minimal end-to-end workflow: define item
 metadata → simulate responses → estimate item parameters → estimate abilities →
 check recovery. Each step beyond metadata creation is covered in depth in its own
-dedicated vignette (see **What's Next?** at the end of this page).
-
-The following example walks through the core **irtQ** workflow from start to finish:
-define item metadata → simulate responses → **estimate item parameters** → estimate
-abilities → check recovery.
+dedicated article (see **What's Next?** at the end of this page).
 
 ```{r workflow-demo}
 set.seed(2026)
@@ -651,16 +650,16 @@ confirms that the item calibration and scoring steps are working correctly.
 Now that you understand irtQ's item metadata structure and the supported IRT models,
 you are ready to explore each analysis in depth:
 
-| Topic | Vignette | Key Functions |
-|-------|----------|---------------|
-| Item parameter estimation | `vignette("item-parameter-estimation")` | `est_irt()`, `est_mg()`, `est_item()` |
-| Ability estimation | `vignette("ability-estimation")` | `est_score()` |
-| Model-data fit | `vignette("model-fit-evaluation")` | `irtfit()`, `sx2_fit()` |
-| DIF detection | `vignette("dif-detection")` | `rdif()`, `grdif()`, `catsib()` |
-| Classification accuracy | `vignette("classification-analysis")` | `cac_lee()`, `cac_rud()` |
-| Utilities | `vignette("utilities")` | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()`, `score_resp()` |
-| Classical test theory (CTT) analysis | `vignette("ctt-analysis")` | `ctt()`, `freq_score()`, `ctt_distr()` |
-| MST panel evaluation | `vignette("mst-panel-evaluation")` | `reval_mst()` |
+| Topic | Article | Key Functions |
+|-------|---------|---------------|
+| Item parameter estimation | [Item Parameter Estimation](item-parameter-estimation.html) | `est_irt()`, `est_mg()`, `est_item()` |
+| Ability estimation | [Ability Estimation](ability-estimation.html) | `est_score()` |
+| Model-data fit | [Model-Data Fit Evaluation](model-fit-evaluation.html) | `irtfit()`, `sx2_fit()` |
+| DIF detection | [DIF Detection](dif-detection.html) | `rdif()`, `grdif()`, `catsib()` |
+| Classification accuracy | [Classification Accuracy and Consistency](classification-analysis.html) | `cac_lee()`, `cac_rud()` |
+| Utilities | [Utility Functions](utilities.html) | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()`, `score_resp()` |
+| Classical test theory (CTT) analysis | [Classical Test Theory (CTT) Analysis](ctt-analysis.html) | `ctt()`, `freq_score()`, `ctt_distr()` |
+| MST panel evaluation | [MST Panel Evaluation and Simulation](mst-panel-evaluation.html) | `reval_mst()` |
 
 ---
 

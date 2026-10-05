@@ -26,7 +26,7 @@ IRT scoring method, which differ in the information they use from the response d
 ### IRT Pattern-Based Scoring
 
 Pattern-based scoring uses each examinee's *full item-response pattern* (the
-complete vector of correct/incorrect (or polytomous) responses across all items)
+complete vector of correct/incorrect or polytomous responses across all items)
 to estimate $\theta$. Because it conditions on the individual responses rather than
 only their sum, pattern-based scoring can distinguish examinees who have the same
 total score but answered different items correctly. In principle, this makes better

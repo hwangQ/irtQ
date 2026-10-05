@@ -207,7 +207,7 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 | `cats`      | Number of score categories per item (2 for dichotomous); required when `x = NULL` |
 | `pr.model`  | IRT model per polytomous item: `"GRM"` or `"GPCM"` |
 
-**Note on the `D` constant:** The scaling constant `D` is used to make the logistic function closely approximate the normal ogive function. It is crucial to use the exact same `D` value (commonly `1.702` or `1.0`) that was utilized during the item parameter calibration phase to avoid any scaling mismatch in the simulated responses or probability computations.
+**Note on the `D` constant:** The scaling constant `D` is used to make the logistic function closely approximate the normal ogive function. Use the same `D` value (commonly `1.702` or `1.0`) that was used for item calibration to avoid any scaling mismatch in the simulated responses or probability computations.
 
 ---
 
@@ -672,7 +672,7 @@ plot(
   score.curve = FALSE,
   overlap     = TRUE,
   layout.col  = 3,
-  main.text   = "Category Response Curves: GRM Items 1-3 (overlaid by category)"
+  main.text   = "Category Response Curves: GRM1-GRM3 (overlaid by category)"
 )
 ```
 

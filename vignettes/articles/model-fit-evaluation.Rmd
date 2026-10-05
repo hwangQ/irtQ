@@ -400,7 +400,6 @@ plot(
 | Method | Description |
 |--------|-------------|
 | `"wald"` | Normal-approximation (Wald) interval, simplest but can be unreliable for small $N_h$ |
-| `"cp"` | Clopper-Pearson exact interval, conservative but exact |
 | `"wilson"` | Wilson score interval, good coverage even for small $N_h$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
 
@@ -589,10 +588,10 @@ fit_sx2_mix$obs_prop[[16]]
   specification; the interpretation is "mean squared residual relative to
   expectation."
 - Common decision rules [@ames_etal2015]:
-  - Values **> 1.5** (sometimes > 2.0): unacceptable *overfit*: the item is
-    less predictable than the model expects (noise, guessing inconsistency).
-  - Values **< 0.5**: *underfit*: the item is more predictable than the model
-    expects (overly narrow ICC, item dependency).
+  - Values **> 1.5** (sometimes > 2.0): *underfit*, meaning the item is less
+    predictable than the model expects (noise, inconsistent guessing).
+  - Values **< 0.5**: *overfit*, meaning the item is more predictable than the
+    model expects (overly steep ICC, item dependency).
 - **Infit vs. Outfit**: prefer infit for detecting misfit near the item's
   difficulty; outfit is more sensitive to extreme-ability aberrant responses
   (e.g., very able examinees missing an easy item due to carelessness).
