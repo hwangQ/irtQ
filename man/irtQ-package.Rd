@@ -534,7 +534,7 @@ estimation techniques.} CRC Press.
 Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001). A
 comparative study of on-line pretest item calibration/scaling methods in
 computerized adaptive testing. \emph{Journal of Educational Measurement, 38}(3),
-191-212.
+191-212. \doi{10.1111/j.1745-3984.2001.tb01123.x}.
 
 Birnbaum, A. (1968). Some latent trait models and their use in inferring an
 examinee's ability. In F. M. Lord & M. R. Novick (Eds.),
@@ -677,7 +677,7 @@ terms.
 \emph{Journal of the Royal Statistical Society: Series B (Methodological), 51}, 127-138.
 
 Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-scoring for rating scale data (Computer Software). Chicago, IL: Scientific
+scoring for rating scale data (Computer software). Chicago, IL: Scientific
 Software International. URL http://www.ssicentral.com
 
 Nandakumar, R., & Roussos, L. (2004). Evaluation of the CATSIB DIF
@@ -710,6 +710,7 @@ version 0.59. https://CRAN.R-project.org/package=rpf.
 Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
 environment for item response theory method development. \emph{Applied
 Psychological Measurement, 44}(7-8), 561-562.
+\doi{10.1177/0146621620929431}.
 
 Rudner, L. M. (2001). Computing the expected proportions of misclassified
 examinees. \emph{Practical Assessment, Research & Evaluation, 7}(14).
@@ -776,7 +777,7 @@ Yen, W. M. (1981). Using simulation results to choose a latent trait model.
 
 Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003). BILOG-MG
 3: Multiple-group IRT analysis and test maintenance for binary items
-(Computer Software). Chicago, IL: Scientific Software International. URL
+(Computer software). Chicago, IL: Scientific Software International. URL
 http://www.ssicentral.com
 }
 \author{

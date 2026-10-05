@@ -395,7 +395,7 @@
 #' @references Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J.
 #'   (2001). A comparative study of on-line pretest item calibration/scaling
 #'   methods in computerized adaptive testing. *Journal of Educational
-#'   Measurement, 38*(3), 191-212.
+#'   Measurement, 38*(3), 191-212. \doi{10.1111/j.1745-3984.2001.tb01123.x}.
 #'
 #'   Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of
 #'   item parameters: Application of an EM algorithm. *Psychometrika, 46*,

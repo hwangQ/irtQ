@@ -120,7 +120,7 @@
 #'   Ban, J. C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001). A
 #'   comparative study of on-line pretest item calibration/scaling methods in
 #'   computerized adaptive testing. *Journal of Educational Measurement, 38*(3),
-#'   191-212.
+#'   191-212. \doi{10.1111/j.1745-3984.2001.tb01123.x}.
 #'
 #'   Birnbaum, A. (1968). Some latent trait models and their use in inferring an
 #'   examinee's ability. In F. M. Lord & M. R. Novick (Eds.),

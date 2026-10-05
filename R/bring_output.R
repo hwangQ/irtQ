@@ -91,17 +91,18 @@
 #' Pritikin, J. (2018). *rpf: Response Probability Functions*. R package version
 #' 0.59. https://CRAN.R-project.org/package=rpf.
 #'
-#' Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research environment
-#' for item response theory method development. *Applied Psychological
-#' Measurement, 44*(7-8), 561-562.
+#'   Pritikin, J. N., & Falk, C. F. (2020). OpenMx: A modular research
+#'   environment for item response theory method development. *Applied
+#'   Psychological Measurement, 44*(7-8), 561-562.
+#'   \doi{10.1177/0146621620929431}.
 #'
 #' Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-#' scoring for rating scale data (Computer Software). Chicago, IL: Scientific
+#' scoring for rating scale data (Computer software). Chicago, IL: Scientific
 #' Software International. URL http://www.ssicentral.com
 #'
 #' Zimowski, M. F., Muraki, E., Mislevy, R. J., & Bock, R. D. (2003). BILOG-MG
 #' 3: Multiple-group IRT analysis and test maintenance for binary items
-#' (Computer Software). Chicago, IL: Scientific Software International. URL
+#' (Computer software). Chicago, IL: Scientific Software International. URL
 #' http://www.ssicentral.com
 #'
 #' @examples

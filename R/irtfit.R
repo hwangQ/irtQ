@@ -153,7 +153,7 @@
 #' *Applied Psychological Measurement, 9*, 49-57.
 #'
 #' Muraki, E. & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
-#' scoring for rating scale data (Computer Software). Chicago, IL: Scientific
+#' scoring for rating scale data (Computer software). Chicago, IL: Scientific
 #' Software International. URL http://www.ssicentral.com
 #'
 #' Wells, C. S., & Bolt, D. M. (2008). Investigation of a nonparametric
