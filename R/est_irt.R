@@ -1049,7 +1049,7 @@ est_irt_em <- function(x = NULL,
     
     # compute the difference between previous and updated item parameter estimates
     diff_par <- mstep$elm_item$pars - elm_item$pars
-    max.diff <- abs(max(diff_par, na.rm = TRUE))
+    max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
     
     # loglikelihood value
     llike <- mstep$loglike
@@ -1677,12 +1677,12 @@ est_irt_fipc <- function(x = NULL,
     if (!is.null(x_new)) {
       # compute the difference between previous and updated item parameter estimates
       diff_par <- mstep$elm_item$pars - elm_item_new$pars
-      max.diff <- abs(max(diff_par, na.rm = TRUE))
+      max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
     } else {
       # compute the mean and sd of the updated prior distribution
       mmt_dist_new <- cal_moment(node = mstep$weights$theta, weight = mstep$weights$weight)
       diff_par <- mmt_dist_new - mmt_dist_old
-      max.diff <- abs(max(diff_par, na.rm = TRUE))
+      max.diff <- max(abs(diff_par), na.rm = TRUE) # largest absolute change over all parameters
     }
     
     # log-likelihood value
