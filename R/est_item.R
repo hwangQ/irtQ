@@ -661,23 +661,8 @@ est_item <- function(x = NULL,
   llike <- -sum(objective)
 
   ## ---------------------------------------------------------------
-  # bind the per-item parameter and SE estimates into data.frames,
-  # then permute the rows from estimation order back into natural
-  # item order.
-  #
-  # The estimation loops above append rows in the order
-  #   [loc_1p_const items first, then loc_else items],
-  # but the downstream cbind data.frame(x[, 1:3], par_df) attaches
-  # x's natural-order id / cats / model columns row-by-row, so par_df
-  # must be permuted back into natural order or every (id, parameter)
-  # pair is wrong whenever the bank mixes 1PLM-constrained items
-  # with other-model items (fix.a.1pl = FALSE).
-  #
-  # order(c(loc_1p_const, loc_else)) is the inverse of the
-  # construction order: c(loc_1p_const, loc_else) lists the natural-
-  # order item indices in the order they were appended, and the
-  # order() of that vector gives the row positions to pick out so
-  # that natural item k ends up in row k of the result.
+  # bind per-item estimates and permute rows from estimation order
+  # [loc_1p_const, loc_else] back to natural item order
   ord    <- order(c(loc_1p_const, loc_else))
   par_df <- data.frame(bind.fill(est_par, type = "rbind")[ord, , drop = FALSE])
   se_df  <- data.frame(bind.fill(est_se,  type = "rbind")[ord, , drop = FALSE])

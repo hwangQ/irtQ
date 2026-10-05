@@ -200,9 +200,9 @@ getirt.est_irt <- function(x, what, ...) {
     bic = x$bic,
     group.par = x$group.par,
     weights = x$weights,
-    posterior.dist = x$posterior.dist, # normalized posterior densities of examinees
+    posterior.dist = x$posterior.dist,
     data = x$data,
-    scale.D = x$scale.D, # scaling constant used in the IRT model
+    scale.D = x$scale.D,
     ncase = x$ncase,
     nitem = x$nitem,
     Etol = x$Etol,
@@ -242,9 +242,9 @@ getirt.est_mg <- function(x, what, ...) {
     bic = x$bic,
     group.par = x$group.par,
     weights = x$weights,
-    posterior.dist = x$posterior.dist, # normalized posterior densities of examinees
+    posterior.dist = x$posterior.dist,
     data = x$data,
-    scale.D = x$scale.D, # scaling constant used in the IRT model
+    scale.D = x$scale.D,
     ncase = x$ncase,
     nitem = x$nitem,
     Etol = x$Etol,

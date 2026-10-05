@@ -2,9 +2,8 @@
 # nlminb-based item parameter estimation. The factory captures the data
 # arguments once and returns three closures that share a single P(theta)
 # cache, so each nlminb evaluation point computes drm()/prm() at most
-# once instead of three times (once per closure). The cache is bit-exact
-# - the cached P matrix is the unmodified return value of drm()/prm()
-# for the active model branch.
+# once instead of three times (once per closure). The cached P is the
+# return value of drm()/prm() for the active model branch.
 #
 # Cache hits in practice. nlminb (PORT) typically evaluates objective,
 # then gradient, then hessian at the same accepted iterate, with line
@@ -26,9 +25,7 @@ make_drm_optim_fns <- function(f_i, r_i, s_i, theta, mod, D, nstd,
                                aprior, bprior, gprior,
                                use.aprior, use.bprior, use.gprior) {
   # cache state: last item_par for which P was computed and the
-  # corresponding probability matrix returned by drm(). identical()
-  # comparison is bit-exact, so a cache hit guarantees the returned
-  # P is the same object loglike/grad/hess would have computed.
+  # corresponding drm() matrix; identical() requires an exact match of item_par.
   cache_par <- NULL
   cache_p <- NULL
 

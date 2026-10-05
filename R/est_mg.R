@@ -1118,7 +1118,7 @@ est_mg_em <- function(x = NULL,
 
     # compute the difference between previous and updated item parameter estimates
     diff_par <- mstep$elm_item$pars - elm_item$pars
-    # use the largest absolute change over all item parameters as the convergence statistic
+    # convergence statistic: largest absolute parameter change
     max.diff <- max(abs(diff_par), na.rm = TRUE)
 
     # loglikelihood value
@@ -1947,7 +1947,7 @@ est_mg_fipc <- function(x = NULL,
     if (!is.null(x_new)) {
       # compute the difference between previous and updated item parameter estimates
       diff_par <- mstep$elm_item$pars - elm_item_new$pars
-      # use the largest absolute change over all item parameters as the convergence statistic
+      # convergence statistic: largest absolute parameter change
       max.diff <- max(abs(diff_par), na.rm = TRUE)
     } else {
       # compute the mean and variance of the updated prior distribution
@@ -1956,7 +1956,7 @@ est_mg_fipc <- function(x = NULL,
           cal_moment(node = .x$theta, weight = .x$weight)
         }))
       diff_par <- mmt_dist_new - mmt_dist_old
-      # use the largest absolute change in the prior mean and variance as the convergence statistic
+      # convergence statistic: largest absolute change in prior mean and variance
       max.diff <- max(abs(diff_par), na.rm = TRUE)
     }
 

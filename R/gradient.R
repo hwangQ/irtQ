@@ -172,8 +172,7 @@ grad_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM"
     b <- item_par[-1]
 
     # compute the probabilities of correct and incorrect
-    # (reuse the cached P matrix when available; bit-exact equivalent
-    # to recomputing drm() with the same (a, b, g) parameters)
+    # use the cached P matrix when supplied
     p <- if (is.null(p_cache)) drm(theta = theta, a = a, b = b, g = 0, D = D) else p_cache
 
     # compute the component values
@@ -446,7 +445,7 @@ grad_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FAL
   #   GPCM -> $theta_d, $numer, $denom, $P
   # Using the cache skips the most expensive matrix operations (drm() for GRM;
   # exp(cumsum) + rowsums for GPCM) that loglike_prm already paid for.
-  #   # count the number of item parameters to be estimated
+  # count the number of item parameters to be estimated
   n.par <- length(item_par)
 
   ## -------------------------------------------------------------------------
@@ -461,7 +460,7 @@ grad_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FAL
     m <- length(d)
 
     # calculate all the probabilities greater than equal to each threshold;
-    # reuse cached allPst when supplied - bit-exact equivalent to drm()
+    # reuse cached allPst when supplied
     if (is.null(prob_cache)) {
       allPst <- drm(theta = theta, a = rep(a, m), b = d, g = 0, D = D)
       allQst <- 1 - allPst[, , drop = FALSE]

@@ -4,7 +4,7 @@
       md_extensions: -smart
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
