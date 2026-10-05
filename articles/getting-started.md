@@ -832,9 +832,9 @@ summary(mod)
 #>  Maximum parameter change: 0.0009162516
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.84
-#>  Standard error computation: 0.02
-#>  Total computation: 0.9
+#>  EM algorithm: 0.45
+#>  Standard error computation: 0.01
+#>  Total computation: 0.48
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -896,7 +896,7 @@ scores <- est_score(
 )
 
 head(scores$est.theta)   # EAP point estimates
-#> [1]  0.329351295 -0.821716552 -0.001138609  0.012362376 -0.681457328
+#> [1]  0.329351295 -0.821716551 -0.001138609  0.012362376 -0.681457328
 #> [6] -1.825776845
 head(scores$se.theta)    # posterior standard deviations
 #> [1] 0.2630482 0.2642191 0.2154156 0.2272038 0.2598002 0.3685849

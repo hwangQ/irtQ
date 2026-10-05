@@ -915,7 +915,7 @@ fit_sx2_mix$obs_prop[[16]]
 
 Ames, A. J., & Penfield, R. D. (2015). An NCME instructional module on
 item-fit statistics for item response theory models. *Educational
-Measurement: Issues and Practice*, *34*(3), 37–48.
+Measurement: Issues and Practice*, *34*(3), 39–48.
 <https://doi.org/10.1111/emip.12067>
 
 Bock, R. D. (1960). *Methods and applications of optimal scaling* (No.

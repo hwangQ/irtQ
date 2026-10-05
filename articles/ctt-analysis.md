@@ -11,7 +11,7 @@ difficulty, item discrimination, and test reliability that require no
 IRT model fitting at all. irtQ provides a small set of CTT functions for
 exactly this purpose, working directly from raw selected-response data
 or an already-scored item response matrix. For a fuller treatment of
-classical test theory, see Crocker and Algina (1986).
+classical test theory, see Crocker & Algina (1986).
 
 | Function | Purpose |
 |----|----|
@@ -392,7 +392,7 @@ element. Raw alpha uses the standard variance-based formula
 ```
 and reflects the reliability of the actual (unweighted) total score
 obtained by simply summing the item scores - the score most tests
-actually use for reporting and decisions (Cronbach 1951). Standardized
+actually use for reporting and decisions (Cronbach, 1951). Standardized
 alpha instead first standardizes every item to unit variance before
 combining them,
 ``` math
@@ -401,7 +401,7 @@ combining them,
 where $`\bar{r}`$ is the average pairwise inter-item correlation; it
 differs meaningfully from raw alpha mainly when items vary substantially
 in scale or format, such as the mix of dichotomous and polytomous items
-in `dat_mixed` (Osburn 2000):
+in `dat_mixed` (Osburn, 2000):
 
 ``` r
 
@@ -511,13 +511,13 @@ summary(out_bin)     # summary.ctt(): full report
 
 ## References
 
-Crocker, Linda, and James Algina. 1986. *Introduction to Classical and
-Modern Test Theory*. Holt, Rinehart; Winston.
+Crocker, L., & Algina, J. (1986). *Introduction to classical and modern
+test theory*. Holt, Rinehart; Winston.
 
-Cronbach, Lee J. 1951. “Coefficient Alpha and the Internal Structure of
-Tests.” *Psychometrika* 16 (3): 297–334.
-<https://doi.org/10.1007/BF02310555>.
+Cronbach, L. J. (1951). Coefficient alpha and the internal structure of
+tests. *Psychometrika*, *16*(3), 297–334.
+<https://doi.org/10.1007/BF02310555>
 
-Osburn, H. G. 2000. “Coefficient Alpha and Related Internal Consistency
-Reliability Coefficients.” *Psychological Methods* 5 (3): 343–55.
-<https://doi.org/10.1037/1082-989X.5.3.343>.
+Osburn, H. G. (2000). Coefficient alpha and related internal consistency
+reliability coefficients. *Psychological Methods*, *5*(3), 343–355.
+<https://doi.org/10.1037/1082-989X.5.3.343>

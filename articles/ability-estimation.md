@@ -878,7 +878,7 @@ Psychological Measurement*, *40*(4), 289–301.
 
 Kolen, M. J., & Tong, Y. (2010). Psychometric properties of IRT
 proficiency estimates. *Educational Measurement: Issues and Practice*,
-*29*(3), 8–14. <https://doi.org/10.1111/j.1745-3992.2010.00185.x>
+*29*(3), 8–14. <https://doi.org/10.1111/j.1745-3992.2010.00179.x>
 
 Lim, H., Davey, T., & Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. *Journal of Educational

@@ -116,7 +116,7 @@ Next, we calibrate item parameters using the pooled data and estimate
 ability scores. Because the RDIF framework requires ability estimates
 based on pooled (aggregate) item parameters, both calibration and
 scoring must be performed on the combined data regardless of group
-membership (Lim et al. 2022).
+membership (Lim et al., 2022).
 
 ``` r
 
@@ -152,10 +152,10 @@ score_pool <- est_score(
 
 ### Statistical Framework
 
-The RDIF framework (Lim et al. 2022) detects DIF by comparing item-level
-residuals, defined as the difference between observed and model-expected
-item scores, between the reference and focal groups. For a dichotomously
-scored item, the residual for examinee $`h`$ is:
+The RDIF framework (Lim et al., 2022) detects DIF by comparing
+item-level residuals, defined as the difference between observed and
+model-expected item scores, between the reference and focal groups. For
+a dichotomously scored item, the residual for examinee $`h`$ is:
 
 ``` math
 r_h = x_h - P_h(\hat{\theta}_h)
@@ -201,7 +201,7 @@ empirically, the RDIF framework is highly computationally efficient.
 
 > **Practical guidance:** $`\text{RDIF}_{RS}`$ is the recommended
 > primary detection criterion because it is sensitive to both types of
-> DIF simultaneously (Lim et al. 2022). Use $`\text{RDIF}_R`$ and
+> DIF simultaneously (Lim et al., 2022). Use $`\text{RDIF}_R`$ and
 > $`\text{RDIF}_S`$ to characterize the *type* of DIF after a
 > significant $`\text{RDIF}_{RS}`$ flag.
 
@@ -297,7 +297,7 @@ print(rdif_npur)
 #> 31 V31  1000  1000 -0.024   0.153      0.036   0.197      2.586    0.274    
 #> 32 V32  1000  1000  0.005   0.679      0.027   0.757      0.569    0.752    
 #> 33 V33  1000  1000  0.029   0.123      0.009   0.342      2.527    0.283    
-#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.102    0.951    
+#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.101    0.951    
 #> 35 V35  1000  1000  0.020   0.255     -0.003   0.370      1.296    0.523    
 #> 36 V36  1000  1000  0.001   0.968     -0.007   0.667      0.367    0.832    
 #> 37 V37  1000  1000  0.022   0.204      0.003   0.441      5.755    0.056   .
@@ -352,7 +352,7 @@ rdif_npur$no_purify$dif_stat
 #> 31 V31 -0.0241 -1.4284  0.0361  1.2901  2.5857  0.1532  0.1970   0.2745  1000
 #> 32 V32  0.0051  0.4134  0.0267  0.3092  0.5686  0.6793  0.7571   0.7525  1000
 #> 33 V33  0.0295  1.5423  0.0085  0.9498  2.5272  0.1230  0.3422   0.2826  1000
-#> 34 V34  0.0050  0.3187  0.0036  0.3187  0.1016  0.7499  0.7499   0.9505  1000
+#> 34 V34  0.0050  0.3187  0.0036  0.3187  0.1007  0.7499  0.7499   0.9509  1000
 #> 35 V35  0.0199  1.1381 -0.0032  0.8975  1.2958  0.2551  0.3695   0.5231  1000
 #> 36 V36  0.0007  0.0398 -0.0075 -0.4307  0.3669  0.9683  0.6667   0.8324  1000
 #> 37 V37  0.0216  1.2710  0.0030  0.7698  5.7549  0.2037  0.4414   0.0563  1000
@@ -426,7 +426,7 @@ When DIF items are present in the test, they can contaminate the ability
 estimates used to compute the RDIF statistics, inflating Type I error
 rates for DIF-free items. Iterative purification addresses this by
 progressively removing flagged DIF items from ability re-estimation
-until the set of flagged items stabilizes (Lim et al. 2022).
+until the set of flagged items stabilizes (Lim et al., 2022).
 
 ``` r
 
@@ -501,7 +501,7 @@ print(rdif_pur)
 #> 31 V31  1000  1000 -0.024   0.153      0.036   0.197      2.586    0.274    
 #> 32 V32  1000  1000  0.005   0.679      0.027   0.757      0.569    0.752    
 #> 33 V33  1000  1000  0.029   0.123      0.009   0.342      2.527    0.283    
-#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.102    0.951    
+#> 34 V34  1000  1000  0.005   0.750      0.004   0.750      0.101    0.951    
 #> 35 V35  1000  1000  0.020   0.255     -0.003   0.370      1.296    0.523    
 #> 36 V36  1000  1000  0.001   0.968     -0.007   0.667      0.367    0.832    
 #> 37 V37  1000  1000  0.022   0.204      0.003   0.441      5.755    0.056   .
@@ -556,7 +556,7 @@ print(rdif_pur)
 #> 31 V31      5  1000  1000 -0.031   0.062   .  0.035   0.151      3.959    0.138
 #> 32 V32      5  1000  1000  0.000   0.995      0.026   0.494      0.659    0.719
 #> 33 V33      5  1000  1000  0.021   0.274      0.009   0.278      1.721    0.423
-#> 34 V34      5  1000  1000  0.005   0.750      0.004   0.750      0.103    0.950
+#> 34 V34      5  1000  1000  0.005   0.750      0.004   0.750      0.102    0.950
 #> 35 V35      5  1000  1000  0.014   0.432     -0.001   0.311      1.025    0.599
 #> 36 V36      5  1000  1000 -0.008   0.637     -0.007   0.680      0.243    0.886
 #> 37 V37      5  1000  1000  0.020   0.245      0.003   0.454      4.469    0.107
@@ -624,7 +624,7 @@ achieved before reaching `max.iter`.
 
 ### Statistical Framework
 
-The GRDIF framework (Lim et al. 2024) generalizes the two-group RDIF
+The GRDIF framework (Lim et al., 2024) generalizes the two-group RDIF
 approach to simultaneously detect DIF across $`G \geq 2`$ groups. Three
 statistics, $`\text{GRDIF}_R`$, $`\text{GRDIF}_S`$, and
 $`\text{GRDIF}_{RS}`$, are constructed by applying a contrast matrix
@@ -764,7 +764,7 @@ print(grdif_npur)
 #>   - DIF Items identified by GRDIF(S): 
 #>     1 
 #>   - DIF Items identified by GRDIF(RS): 
-#>     1 
+#>     1, 23 
 #>   - GRDIF Statistics: 
 #> 
 #>     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs
@@ -790,7 +790,7 @@ print(grdif_npur)
 #> 20 V20   700    700    700  0.410    0.815      0.206    0.902       0.456
 #> 21 V21   700    700    700  3.410    0.182      2.712    0.258       5.286
 #> 22 V22   700    700    700  3.489    0.175      1.971    0.373       5.564
-#> 23 V23   700    700    700  3.126    0.210      3.126    0.210       4.466
+#> 23 V23   700    700    700  3.126    0.210      3.126    0.210      26.016
 #> 24 V24   700    700    700  1.639    0.441      2.002    0.368       2.198
 #> 25 V25   700    700    700  2.298    0.317      0.870    0.647       2.677
 #> 26 V26   700    700    700  1.769    0.413      0.235    0.889       2.721
@@ -801,7 +801,7 @@ print(grdif_npur)
 #> 31 V31   700    700    700  1.200    0.549      0.005    0.997       1.401
 #> 32 V32   700    700    700  1.118    0.572      2.196    0.334       2.363
 #> 33 V33   700    700    700  3.952    0.139      0.043    0.979       4.593
-#> 34 V34   700    700    700  0.453    0.797      0.453    0.797     -10.980
+#> 34 V34   700    700    700  0.453    0.797      0.453    0.797       0.307
 #> 35 V35   700    700    700  1.978    0.372      0.600    0.741       6.069
 #> 36 V36   700    700    700  2.111    0.348      1.043    0.594       2.119
 #> 37 V37   700    700    700  1.405    0.495      0.809    0.667       4.549
@@ -831,7 +831,7 @@ print(grdif_npur)
 #> 20     0.978    
 #> 21     0.259    
 #> 22     0.234    
-#> 23     0.347    
+#> 23     0.000 ***
 #> 24     0.699    
 #> 25     0.613    
 #> 26     0.606    
@@ -842,7 +842,7 @@ print(grdif_npur)
 #> 31     0.844    
 #> 32     0.669    
 #> 33     0.332    
-#> 34     1.000    
+#> 34     0.989    
 #> 35     0.194    
 #> 36     0.714    
 #> 37     0.337    
@@ -867,7 +867,7 @@ grdif_npur$no_purify$dif_item
 #> [1] 1
 #> 
 #> $grdifrs
-#> [1] 1
+#> [1]  1 23
 ```
 
 ``` r
@@ -902,14 +902,20 @@ grdif_npur$no_purify$post.hoc
 #> 3   700   700    1400
 #> 
 #> $by.grdifrs
-#>   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs
-#> 1 V1    G1 & G2 -0.0898 -4.5465 0.0426  3.3077 21.4911   0e+00  0.0009   0.0000
-#> 2 V1    G1 & G3 -0.1578 -7.8153 0.0658  4.5342 61.7211   0e+00  0.0000   0.0000
-#> 3 V1    G2 & G3 -0.0680 -3.3093 0.0232  1.1267 11.2517   9e-04  0.2598   0.0036
-#>   n.ref n.foc n.total
-#> 1   700   700    1400
-#> 2   700   700    1400
-#> 3   700   700    1400
+#>    id group.pair   rdifr z.rdifr   rdifs z.rdifs  rdifrs p.rdifr p.rdifs
+#> 1  V1    G1 & G2 -0.0898 -4.5465  0.0426  3.3077 21.4911  0.0000  0.0009
+#> 2  V1    G1 & G3 -0.1578 -7.8153  0.0658  4.5342 61.7211  0.0000  0.0000
+#> 3  V1    G2 & G3 -0.0680 -3.3093  0.0232  1.1267 11.2517  0.0009  0.2598
+#> 4 V23    G1 & G2  0.0329  1.7629  0.0235  1.7629  3.1079  0.0779  0.0779
+#> 5 V23    G1 & G3  0.0143  0.7665  0.0102  0.7665  0.5840  0.4434  0.4434
+#> 6 V23    G2 & G3 -0.0186 -0.9964 -0.0133 -0.9964  0.9908  0.3190  0.3190
+#>   p.rdifrs n.ref n.foc n.total
+#> 1   0.0000   700   700    1400
+#> 2   0.0000   700   700    1400
+#> 3   0.0036   700   700    1400
+#> 4   0.2114   700   700    1400
+#> 5   0.7468   700   700    1400
+#> 6   0.6093   700   700    1400
 ```
 
 The `post.hoc` component reports pairwise RDIF$`_R`$, RDIF$`_S`$, and
@@ -957,7 +963,7 @@ print(grdif_pur)
 #>   - DIF Items identified by GRDIF(S): 
 #>     1 
 #>   - DIF Items identified by GRDIF(RS): 
-#>     1 
+#>     1, 23 
 #>   - GRDIF Statistics: 
 #> 
 #>     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs
@@ -983,7 +989,7 @@ print(grdif_pur)
 #> 20 V20   700    700    700  0.410    0.815      0.206    0.902       0.456
 #> 21 V21   700    700    700  3.410    0.182      2.712    0.258       5.286
 #> 22 V22   700    700    700  3.489    0.175      1.971    0.373       5.564
-#> 23 V23   700    700    700  3.126    0.210      3.126    0.210       4.466
+#> 23 V23   700    700    700  3.126    0.210      3.126    0.210      26.016
 #> 24 V24   700    700    700  1.639    0.441      2.002    0.368       2.198
 #> 25 V25   700    700    700  2.298    0.317      0.870    0.647       2.677
 #> 26 V26   700    700    700  1.769    0.413      0.235    0.889       2.721
@@ -994,7 +1000,7 @@ print(grdif_pur)
 #> 31 V31   700    700    700  1.200    0.549      0.005    0.997       1.401
 #> 32 V32   700    700    700  1.118    0.572      2.196    0.334       2.363
 #> 33 V33   700    700    700  3.952    0.139      0.043    0.979       4.593
-#> 34 V34   700    700    700  0.453    0.797      0.453    0.797     -10.980
+#> 34 V34   700    700    700  0.453    0.797      0.453    0.797       0.307
 #> 35 V35   700    700    700  1.978    0.372      0.600    0.741       6.069
 #> 36 V36   700    700    700  2.111    0.348      1.043    0.594       2.119
 #> 37 V37   700    700    700  1.405    0.495      0.809    0.667       4.549
@@ -1024,7 +1030,7 @@ print(grdif_pur)
 #> 20     0.978    
 #> 21     0.259    
 #> 22     0.234    
-#> 23     0.347    
+#> 23     0.000 ***
 #> 24     0.699    
 #> 25     0.613    
 #> 26     0.606    
@@ -1035,7 +1041,7 @@ print(grdif_pur)
 #> 31     0.844    
 #> 32     0.669    
 #> 33     0.332    
-#> 34     1.000    
+#> 34     0.989    
 #> 35     0.194    
 #> 36     0.714    
 #> 37     0.337    
@@ -1120,7 +1126,7 @@ print(grdif_pur)
 #> 20   0.597     0.963    
 #> 21   6.634     0.156    
 #> 22   5.463     0.243    
-#> 23  53.467     0.000 ***
+#> 23  91.654     0.000 ***
 #> 24   2.470     0.650    
 #> 25   3.264     0.515    
 #> 26   2.090     0.719    
@@ -1131,7 +1137,7 @@ print(grdif_pur)
 #> 31   1.543     0.819    
 #> 32   1.658     0.798    
 #> 33   3.861     0.425    
-#> 34   6.276     0.180    
+#> 34   0.476     0.976    
 #> 35   5.881     0.208    
 #> 36   1.819     0.769    
 #> 37   4.744     0.315    
@@ -1164,8 +1170,8 @@ grdif_pur$with_purify$post.hoc
 
 ### Statistical Framework
 
-CATSIB (Nandakumar and Roussos 2004) is a modified version of SIBTEST
-(Shealy and Stout 1993) adapted for computerized adaptive testing (CAT)
+CATSIB (Nandakumar & Roussos, 2004) is a modified version of SIBTEST
+(Shealy & Stout, 1993) adapted for computerized adaptive testing (CAT)
 environments. The procedure estimates the DIF effect size
 $`\hat{\beta}`$ by comparing the observed proportions of correct
 responses between the reference and focal groups across matched ability
@@ -1178,7 +1184,7 @@ $`\hat{\theta}`$ inflates Type I error. To address this, CATSIB first
 transforms each examinee’s ability estimate into a regression-corrected
 score $`\hat{\theta}^*_G`$, which estimates the conditional expectation
 $`E_G[\theta \mid \hat{\theta}]`$ separately for each group $`G`$(Shealy
-and Stout 1993):
+& Stout, 1993):
 
 ``` math
 \hat{\theta}^*_G = \bar{\theta}_G + \hat{\rho}^2_G\left(\hat{\theta} - \bar{\hat{\theta}}_G\right)
@@ -1206,7 +1212,7 @@ respectively. The DIF effect size is estimated as:
 where $`\hat{p}_k`$ is the weight for bin $`k`$. By default
 (`weight.group = "comb"`), $`\hat{p}_k`$ is the observed proportion of
 all examinees (both groups combined) classified into bin $`k`$,
-following the recommendation of Nandakumar and Roussos (2004).
+following the recommendation of Nandakumar & Roussos (2004).
 Alternatively, $`\hat{p}_k`$ can be defined using only the focal group
 distribution (`weight.group = "foc"`) or only the reference group
 distribution (`weight.group = "ref"`).
@@ -1512,7 +1518,7 @@ catsib_pur$with_purify$dif_item
 ### Important Considerations for CATSIB
 
 **Sensitivity to DIF type.** CATSIB, like its predecessor SIBTEST
-(Shealy and Stout 1993), was originally designed and validated for
+(Shealy & Stout, 1993), was originally designed and validated for
 detecting **uniform DIF**, the condition in which the direction of group
 differences in item performance is consistent across all ability levels.
 The $`\hat{\beta}`$ statistic accumulates the signed difference
@@ -1528,7 +1534,7 @@ mixed DIF is suspected,
 RDIF$`_S`$ or RDIF$`_{RS}`$ is recommended instead.
 
 **Numerical instability of the regression correction under nonuniform or
-mixed DIF.** The regression correction (Equation 7 of Nandakumar and
+mixed DIF.** The regression correction (Equation 7 of Nandakumar &
 Roussos (2004)) computes, for each group $`G`$, the reliability
 estimate:
 
@@ -1593,22 +1599,22 @@ all items) and `$no_purify$dif_item` (indices of flagged items). When
 
 ## References
 
-Lim, Hwanggyu, Edison M. Choe, and Kyung T. Han. 2022. “A Residual-Based
-Differential Item Functioning Detection Framework in Item Response
-Theory.” *Journal of Educational Measurement* 59 (1): 80–104.
-<https://doi.org/10.1111/jedm.12313>.
+Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
+item functioning detection framework in item response theory. *Journal
+of Educational Measurement*, *59*(1), 80–104.
+<https://doi.org/10.1111/jedm.12313>
 
-Lim, Hwanggyu, Danqi Zhu, Edison M. Choe, and Kyung T. Han. 2024.
-“Detecting Differential Item Functioning Among Multiple Groups Using IRT
-Residual DIF Framework.” *Journal of Educational Measurement* 61 (4):
-656–81. <https://doi.org/10.1111/jedm.12415>.
+Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
+differential item functioning among multiple groups using IRT residual
+DIF framework. *Journal of Educational Measurement*, *61*(4), 656–681.
+<https://doi.org/10.1111/jedm.12415>
 
-Nandakumar, Ratna, and Louis Roussos. 2004. “Evaluation of the CATSIB
-DIF Procedure in a Pretest Setting.” *Journal of Educational and
-Behavioral Statistics* 29 (2): 177–99.
-<https://doi.org/10.3102/10769986029002177>.
+Nandakumar, R., & Roussos, L. (2004). Evaluation of the CATSIB DIF
+procedure in a pretest setting. *Journal of Educational and Behavioral
+Statistics*, *29*(2), 177–199.
+<https://doi.org/10.3102/10769986029002177>
 
-Shealy, Robin T., and William F. Stout. 1993. “A Model-Based
-Standardization Approach That Separates True Bias/DIF from Group Ability
-Differences and Detects Test Bias/DIF as Well as Item Bias/DIF.”
-*Psychometrika* 58 (2): 159–94. <https://doi.org/10.1007/BF02294572>.
+Shealy, R. T., & Stout, W. F. (1993). A model-based standardization
+approach that separates true bias/DIF from group ability differences and
+detects test bias/DTF as well as item bias/DIF. *Psychometrika*,
+*58*(2), 159–194. <https://doi.org/10.1007/BF02294572>

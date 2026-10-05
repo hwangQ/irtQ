@@ -861,8 +861,8 @@ plot(
 ## `lwrc()`: Lord-Wingersky Recursion
 
 [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) implements
-the Lord-Wingersky recursive algorithm (Lord and Wingersky 1984; Kolen
-and Brennan 2004), which computes the **conditional distribution of the
+the Lord-Wingersky recursive algorithm (Kolen & Brennan, 2004; Lord &
+Wingersky, 1984), which computes the **conditional distribution of the
 observed summed score given $`\theta`$**:
 ``` math
 \Pr(X = s \mid \theta), \quad s = 0, 1, \ldots, \sum_j (K_j - 1).
@@ -1074,14 +1074,14 @@ sum(w_emp$weight)        # sums to 1
 
 [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) computes
 the analytical asymptotic variance-covariance matrices of item parameter
-estimates using the formulas developed by Thissen and Wainer (1982) and
-extended to polytomous IRT models by Li and Lissitz (2004). These
-matrices provide the asymptotic standard errors (ASEs) of maximum
-likelihood estimates **without requiring examinee response data**; only
-the item parameters and the sample size used for calibration are needed.
+estimates using the formulas developed by Thissen & Wainer (1982) and
+extended to polytomous IRT models by Li & Lissitz (2004). These matrices
+provide the asymptotic standard errors (ASEs) of maximum likelihood
+estimates **without requiring examinee response data**; only the item
+parameters and the sample size used for calibration are needed.
 
 The ASEs obtained analytically represent **lower bounds** of the true
-standard errors (Thissen and Wainer 1982), so they are best used as
+standard errors (Thissen & Wainer, 1982), so they are best used as
 approximations when empirical standard errors from calibration software
 are unavailable.
 
@@ -1318,19 +1318,19 @@ for a worked example using Korean syllable labels.
 
 ## References
 
-Kolen, Michael J., and Robert L. Brennan. 2004. *Test Equating, Scaling,
-and Linking*. 2nd ed. Springer.
+Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling, and
+linking* (2nd ed.). Springer.
 
-Li, Yuan H., and Robert W. Lissitz. 2004. “Applications of the
-Analytically Derived Asymptotic Standard Errors of Item Response Theory
-Item Parameter Estimates.” *Journal of Educational Measurement* 41 (2):
-85–117. <https://doi.org/10.1111/j.1745-3984.2004.tb01109.x>.
+Li, Y. H., & Lissitz, R. W. (2004). Applications of the analytically
+derived asymptotic standard errors of item response theory item
+parameter estimates. *Journal of Educational Measurement*, *41*(2),
+85–117. <https://doi.org/10.1111/j.1745-3984.2004.tb01109.x>
 
-Lord, Frederic M., and Marilyn S. Wingersky. 1984. “Comparison of IRT
-True-Score and Equipercentile Observed-Score Equatings.” *Applied
-Psychological Measurement* 8 (4): 453–61.
-<https://doi.org/10.1177/014662168400800409>.
+Lord, F. M., & Wingersky, M. S. (1984). Comparison of IRT true-score and
+equipercentile observed-score equatings. *Applied Psychological
+Measurement*, *8*(4), 453–461.
+<https://doi.org/10.1177/014662168400800409>
 
-Thissen, David, and Howard Wainer. 1982. “Some Standard Errors in Item
-Response Theory.” *Psychometrika* 47 (4): 397–412.
-<https://doi.org/10.1007/BF02293705>.
+Thissen, D., & Wainer, H. (1982). Some standard errors in item response
+theory. *Psychometrika*, *47*(4), 397–412.
+<https://doi.org/10.1007/BF02293705>

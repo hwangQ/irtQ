@@ -1043,8 +1043,8 @@ colours.</p>
 <code>lwrc()</code>: Lord-Wingersky Recursion<a class="anchor" aria-label="anchor" href="#lwrc-lord-wingersky-recursion"></a>
 </h2>
 <p><code><a href="../reference/lwrc.html">lwrc()</a></code> implements the Lord-Wingersky recursive algorithm
-<span class="citation">(Lord and Wingersky 1984; Kolen and Brennan
-2004)</span>, which computes the <strong>conditional distribution of the
+<span class="citation">(Kolen &amp; Brennan, 2004; Lord &amp; Wingersky,
+1984)</span>, which computes the <strong>conditional distribution of the
 observed summed score given
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math></strong>:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><mi>s</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>s</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><munder><mo>∑</mo><mi>j</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>K</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
@@ -1242,14 +1242,14 @@ Item Parameters<a class="anchor" aria-label="anchor" href="#covirt-asymptotic-va
 </h2>
 <p><code><a href="../reference/covirt.html">covirt()</a></code> computes the analytical asymptotic
 variance-covariance matrices of item parameter estimates using the
-formulas developed by <span class="citation">Thissen and Wainer
-(1982)</span> and extended to polytomous IRT models by <span class="citation">Li and Lissitz (2004)</span>. These matrices provide
+formulas developed by <span class="citation">Thissen &amp; Wainer
+(1982)</span> and extended to polytomous IRT models by <span class="citation">Li &amp; Lissitz (2004)</span>. These matrices provide
 the asymptotic standard errors (ASEs) of maximum likelihood estimates
 <strong>without requiring examinee response data</strong>; only the item
 parameters and the sample size used for calibration are needed.</p>
 <p>The ASEs obtained analytically represent <strong>lower
-bounds</strong> of the true standard errors <span class="citation">(Thissen and Wainer 1982)</span>, so they are best used
-as approximations when empirical standard errors from calibration
+bounds</strong> of the true standard errors <span class="citation">(Thissen &amp; Wainer, 1982)</span>, so they are best
+used as approximations when empirical standard errors from calibration
 software are unavailable.</p>
 <p>The function returns a named list with two components:</p>
 <ul>
@@ -1542,26 +1542,25 @@ syllable labels.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0" line-spacing="2">
 <div id="ref-kolen_brennan2004" class="csl-entry">
-Kolen, Michael J., and Robert L. Brennan. 2004. <em>Test Equating,
-Scaling, and Linking</em>. 2nd ed. Springer.
+Kolen, M. J., &amp; Brennan, R. L. (2004). <em>Test equating, scaling,
+and linking</em> (2nd ed.). Springer.
 </div>
 <div id="ref-li_lissitz2004" class="csl-entry">
-Li, Yuan H., and Robert W. Lissitz. 2004. <span>“Applications of the
-Analytically Derived Asymptotic Standard Errors of Item Response Theory
-Item Parameter Estimates.”</span> <em>Journal of Educational
-Measurement</em> 41 (2): 85–117. <a href="https://doi.org/10.1111/j.1745-3984.2004.tb01109.x" class="external-link">https://doi.org/10.1111/j.1745-3984.2004.tb01109.x</a>.
+Li, Y. H., &amp; Lissitz, R. W. (2004). Applications of the analytically
+derived asymptotic standard errors of item response theory item
+parameter estimates. <em>Journal of Educational Measurement</em>,
+<em>41</em>(2), 85–117. <a href="https://doi.org/10.1111/j.1745-3984.2004.tb01109.x" class="external-link">https://doi.org/10.1111/j.1745-3984.2004.tb01109.x</a>
 </div>
 <div id="ref-lord_wingersky1984" class="csl-entry">
-Lord, Frederic M., and Marilyn S. Wingersky. 1984. <span>“Comparison of
-<span>IRT</span> True-Score and Equipercentile Observed-Score
-Equatings.”</span> <em>Applied Psychological Measurement</em> 8 (4):
-453–61. <a href="https://doi.org/10.1177/014662168400800409" class="external-link">https://doi.org/10.1177/014662168400800409</a>.
+Lord, F. M., &amp; Wingersky, M. S. (1984). Comparison of
+<span>IRT</span> true-score and equipercentile observed-score equatings.
+<em>Applied Psychological Measurement</em>, <em>8</em>(4), 453–461. <a href="https://doi.org/10.1177/014662168400800409" class="external-link">https://doi.org/10.1177/014662168400800409</a>
 </div>
 <div id="ref-thissen_wainer1982" class="csl-entry">
-Thissen, David, and Howard Wainer. 1982. <span>“Some Standard Errors in
-Item Response Theory.”</span> <em>Psychometrika</em> 47 (4): 397–412. <a href="https://doi.org/10.1007/BF02293705" class="external-link">https://doi.org/10.1007/BF02293705</a>.
+Thissen, D., &amp; Wainer, H. (1982). Some standard errors in item
+response theory. <em>Psychometrika</em>, <em>47</em>(4), 397–412. <a href="https://doi.org/10.1007/BF02293705" class="external-link">https://doi.org/10.1007/BF02293705</a>
 </div>
 </div>
 </div>

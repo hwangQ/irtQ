@@ -480,7 +480,7 @@ mod.2pl <- est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.294233 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.58517 EM iteration: 3, Loglike: -2482.8950, Max-Change: 0.323232 EM iteration: 4, Loglike: -2469.4379, Max-Change: 0.180623 EM iteration: 5, Loglike: -2467.2706, Max-Change: 0.106034 EM iteration: 6, Loglike: -2466.8615, Max-Change: 0.066546 EM iteration: 7, Loglike: -2466.7487, Max-Change: 0.044361 EM iteration: 8, Loglike: -2466.7049, Max-Change: 0.030996 EM iteration: 9, Loglike: -2466.6843, Max-Change: 0.022467 EM iteration: 10, Loglike: -2466.6736, Max-Change: 0.016791 EM iteration: 11, Loglike: -2466.6674, Max-Change: 0.012897 EM iteration: 12, Loglike: -2466.6636, Max-Change: 0.010155 EM iteration: 13, Loglike: -2466.6611, Max-Change: 0.008179 EM iteration: 14, Loglike: -2466.6593, Max-Change: 0.00672 EM iteration: 15, Loglike: -2466.6580, Max-Change: 0.005616 EM iteration: 16, Loglike: -2466.6571, Max-Change: 0.00476 EM iteration: 17, Loglike: -2466.6563, Max-Change: 0.004082 EM iteration: 18, Loglike: -2466.6557, Max-Change: 0.003532 EM iteration: 19, Loglike: -2466.6553, Max-Change: 0.003079 EM iteration: 20, Loglike: -2466.6549, Max-Change: 0.00270 EM iteration: 21, Loglike: -2466.6546, Max-Change: 0.002378 EM iteration: 22, Loglike: -2466.6544, Max-Change: 0.002102 EM iteration: 23, Loglike: -2466.6542, Max-Change: 0.001863 EM iteration: 24, Loglike: -2466.6540, Max-Change: 0.001655 EM iteration: 25, Loglike: -2466.6539, Max-Change: 0.001473 EM iteration: 26, Loglike: -2466.6538, Max-Change: 0.001313 EM iteration: 27, Loglike: -2466.6537, Max-Change: 0.001172 EM iteration: 28, Loglike: -2466.6537, Max-Change: 0.001047 EM iteration: 29, Loglike: -2466.6536, Max-Change: 0.000936 EM iteration: 30, Loglike: -2466.6536, Max-Change: 0.000838 EM iteration: 31, Loglike: -2466.6535, Max-Change: 0.000751 EM iteration: 32, Loglike: -2466.6535, Max-Change: 0.000673 EM iteration: 33, Loglike: -2466.6535, Max-Change: 0.000603 EM iteration: 34, Loglike: -2466.6535, Max-Change: 0.000541 EM iteration: 35, Loglike: -2466.6534, Max-Change: 0.000486 EM iteration: 36, Loglike: -2466.6534, Max-Change: 0.000436 EM iteration: 37, Loglike: -2466.6534, Max-Change: 0.000392 EM iteration: 38, Loglike: -2466.6534, Max-Change: 0.000352 EM iteration: 39, Loglike: -2466.6534, Max-Change: 0.000316 EM iteration: 40, Loglike: -2466.6534, Max-Change: 0.000284 EM iteration: 41, Loglike: -2466.6534, Max-Change: 0.000256 EM iteration: 42, Loglike: -2466.6534, Max-Change: 0.00023 EM iteration: 43, Loglike: -2466.6534, Max-Change: 0.000207 EM iteration: 44, Loglike: -2466.6534, Max-Change: 0.000186 EM iteration: 45, Loglike: -2466.6534, Max-Change: 0.000167 EM iteration: 46, Loglike: -2466.6534, Max-Change: 0.000151 EM iteration: 47, Loglike: -2466.6534, Max-Change: 0.000136 EM iteration: 48, Loglike: -2466.6534, Max-Change: 0.000122 EM iteration: 49, Loglike: -2466.6534, Max-Change: 0.00011 EM iteration: 50, Loglike: -2466.6534, Max-Change: 9.9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.38 seconds. 
+#> Estimation is finished in 0.18 seconds. 
 
 # Extract item parameter estimates
 (est.par <- getirt(mod.2pl, what = "par.est"))
@@ -504,12 +504,12 @@ mod.2pl <- est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
 (cov.mat <- getirt(mod.2pl, what = "covariance"))
 #>                [,1]         [,2]          [,3]          [,4]         [,5]
 #>  [1,]  0.0644500663  0.213516110 -0.0059296609 -1.012578e-02 -0.004681038
-#>  [2,]  0.2135161095  0.730745496 -0.0205129366 -3.393420e-02 -0.016087744
+#>  [2,]  0.2135161096  0.730745497 -0.0205129366 -3.393420e-02 -0.016087743
 #>  [3,] -0.0059296609 -0.020512937  0.0353109379  5.459288e-02 -0.011084779
 #>  [4,] -0.0101257773 -0.033934198  0.0545928849  9.569824e-02 -0.016831654
-#>  [5,] -0.0046810378 -0.016087744 -0.0110847789 -1.683165e-02  0.052849776
+#>  [5,] -0.0046810378 -0.016087743 -0.0110847789 -1.683165e-02  0.052849776
 #>  [6,] -0.0011271119 -0.003110929 -0.0023765393 -2.603282e-03  0.012397532
-#>  [7,] -0.0031463866 -0.010012688 -0.0005355098  4.910666e-06 -0.011308992
+#>  [7,] -0.0031463866 -0.010012688 -0.0005355098  4.910653e-06 -0.011308992
 #>  [8,] -0.0075724067 -0.022812226  0.0001639620  3.457859e-03 -0.026321355
 #>  [9,]  0.0002965241  0.002494229 -0.0037729160 -5.976366e-03 -0.004409260
 #> [10,]  0.0023222383  0.015568907 -0.0160475746 -2.471635e-02 -0.015974475
@@ -517,12 +517,12 @@ mod.2pl <- est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
 #>  [1,] -0.001127112 -3.146387e-03 -0.007572407  0.0002965241  0.002322238
 #>  [2,] -0.003110929 -1.001269e-02 -0.022812226  0.0024942292  0.015568907
 #>  [3,] -0.002376539 -5.355098e-04  0.000163962 -0.0037729160 -0.016047575
-#>  [4,] -0.002603282  4.910666e-06  0.003457859 -0.0059763663 -0.024716348
+#>  [4,] -0.002603282  4.910653e-06  0.003457859 -0.0059763663 -0.024716348
 #>  [5,]  0.012397532 -1.130899e-02 -0.026321355 -0.0044092598 -0.015974475
 #>  [6,]  0.009902337 -2.893417e-03 -0.005765609 -0.0010248799 -0.002351144
 #>  [7,] -0.002893417  3.467521e-02  0.078608493 -0.0039184840 -0.017434966
 #>  [8,] -0.005765609  7.860849e-02  0.191984062 -0.0094264375 -0.041401179
 #>  [9,] -0.001024880 -3.918484e-03 -0.009426438  0.0410982364  0.168071445
-#> [10,] -0.002351144 -1.743497e-02 -0.041401179  0.1680714454  0.710162472
+#> [10,] -0.002351144 -1.743497e-02 -0.041401179  0.1680714453  0.710162471
 # }
 ```

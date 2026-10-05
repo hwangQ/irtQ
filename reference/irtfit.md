@@ -3,9 +3,9 @@
 This function computes traditional IRT item fit statistics, including
 the \\\chi^{2}\\ fit statistic (e.g., Bock, 1960; Yen, 1981), the
 log-likelihood ratio \\\chi^{2}\\ fit statistic (\\G^{2}\\; McKinley &
-Mills, 1985), and the infit and outfit statistics (Ames et al., 2015).
-It also returns contingency tables used to compute the \\\chi^{2}\\ and
-\\G^{2}\\ statistics.
+Mills, 1985), and the infit and outfit statistics (Ames & Penfield,
+2015). It also returns contingency tables used to compute the
+\\\chi^{2}\\ and \\G^{2}\\ statistics.
 
 ## Usage
 
@@ -258,11 +258,11 @@ Regarding degrees of freedom (*df*):
 
 - The \\\chi^2\\ statistic is approximately chi-square distributed with
   degrees of freedom equal to the number of ability groups minus the
-  number of item parameters (Ames et al., 2015).
+  number of item parameters (Ames & Penfield, 2015).
 
 - The \\G^2\\ statistic is approximately chi-square distributed with
-  degrees of freedom equal to the number of ability groups (Ames et al.,
-  2015; Muraki & Bock, 2003).
+  degrees of freedom equal to the number of ability groups (Ames &
+  Penfield, 2015; Muraki & Bock, 2003).
 
   Note that if `"DRM"` is specified for an item in the item metadata
   set, the item is treated as a `"3PLM"` when computing the degrees of
