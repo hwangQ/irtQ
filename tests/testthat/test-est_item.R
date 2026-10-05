@@ -259,6 +259,19 @@ test_that("est_item() recovers 2PLM b parameters within loose tolerance", {
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# 5b. Default guessing prior
+# ══════════════════════════════════════════════════════════════════════════════
+
+test_that("est_item() default gprior is Beta(5, 16), as in est_irt() and est_mg()", {
+  expect_equal(eval(formals(est_item)$gprior),
+               list(dist = "beta", params = c(5, 16)))
+  # the default must agree with the other calibration functions
+  expect_equal(eval(formals(est_item)$gprior), eval(formals(est_irt)$gprior))
+  expect_equal(eval(formals(est_item)$gprior), eval(formals(est_mg)$gprior))
+})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # 6. summary() and print() do not error
 # ══════════════════════════════════════════════════════════════════════════════
 
