@@ -2,6 +2,7 @@
 title: "Classical Test Theory (CTT) Analysis"
 output: rmarkdown::html_vignette
 bibliography: references.bib
+csl: apa.csl
 ---
 
 ```{r setup, include=FALSE}

@@ -2,6 +2,7 @@
 title: "Utility Functions"
 output: rmarkdown::html_vignette
 bibliography: references.bib
+csl: apa.csl
 ---
 
 ```{r setup, include=FALSE}

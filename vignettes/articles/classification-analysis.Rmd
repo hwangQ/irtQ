@@ -2,6 +2,7 @@
 title: "Classification Accuracy and Consistency"
 output: rmarkdown::html_vignette
 bibliography: references.bib
+csl: apa.csl
 ---
 
 ```{r setup, include=FALSE}
