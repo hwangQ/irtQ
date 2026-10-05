@@ -815,10 +815,11 @@ catsib_item <- function(crscore_ref, crscore_foc, resp.ref, resp.foc,
       subset(n.ref >= min.binsize & n.foc >= min.binsize) %>%
       transform(n.total = n.ref + n.foc) %>%
       dplyr::mutate(
-        weight = dplyr::case_when(
-          weight.group == "comb" ~ .data$n.total / sum(.data$n.total),
-          weight.group == "foc" ~ .data$n.foc / sum(.data$n.foc),
-          weight.group == "ref" ~ .data$n.ref / sum(.data$n.ref)
+        # weight each bin by the group whose ability distribution is the target
+        weight = switch(weight.group,
+          comb = .data$n.total / sum(.data$n.total),
+          foc = .data$n.foc / sum(.data$n.foc),
+          ref = .data$n.ref / sum(.data$n.ref)
         )
       ) %>%
       transform(
