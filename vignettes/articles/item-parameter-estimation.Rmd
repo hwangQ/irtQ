@@ -926,7 +926,7 @@ mod_old <- est_irt(
   D     = 1.702,
   ...
 )
-# Extract calibrated parameters, these become the anchors
+# Extract calibrated parameters to use as anchors
 meta_anchor <- getirt(mod_old, what = "par.est")
 ```
 
@@ -1011,7 +1011,7 @@ mod_old <- est_irt(
   verbose = FALSE
 )
 
-# Extract calibrated parameters, these serve as anchors
+# Extract calibrated parameters to use as anchors
 meta_anchor_full <- getirt(mod_old, what = "par.est")
 head(meta_anchor_full)
 ```
@@ -1081,7 +1081,7 @@ summary(mod_fipc)
 **Extract and verify results:**
 
 ```{r fipc-results}
-# Estimated parameters, pretest items are the last 5 rows
+# Estimated parameters; pretest items are the last 5 rows
 all_par     <- getirt(mod_fipc, what = "par.est")
 pretest_par <- tail(all_par, 5)
 print(pretest_par)

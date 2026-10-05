@@ -834,7 +834,7 @@ sum(w_emp$weight)        # sums to 1
 item parameter estimates using the formulas developed by @thissen_wainer1982
 and extended to polytomous IRT models by @li_lissitz2004. These matrices
 provide the asymptotic standard errors (ASEs) of maximum likelihood estimates
-**without requiring examinee response data**, only the item parameters and the
+**without requiring examinee response data**; only the item parameters and the
 sample size used for calibration are needed.
 
 The ASEs obtained analytically represent **lower bounds** of the true standard

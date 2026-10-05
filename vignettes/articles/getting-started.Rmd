@@ -488,7 +488,7 @@ meta_pscale
 ### Importing from BILOG-MG
 
 ```r
-# Import from a BILOG-MG .PAR output file (not run, replace with your path)
+# Import from a BILOG-MG .PAR output file (not run; replace with your path)
 meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 ```
 
@@ -526,7 +526,7 @@ You can also prepare item metadata in a spreadsheet and read it into R as a CSV
 file, as long as the column structure matches the **irtQ** specification.
 
 ```r
-# Read item metadata from a CSV file (not run, replace with your path)
+# Read item metadata from a CSV file (not run; replace with your path)
 meta_csv <- read.csv("my_item_parameters.csv", stringsAsFactors = FALSE)
 
 # Verify the structure
