@@ -234,6 +234,31 @@ test_that("est_irt() FIPC (OEM) does not warn about convergence criteria", {
   expect_identical(fit$test.1, "Convergence criteria are satisfied.")
 })
 
+test_that("est_irt() FIPC (MEM) with all items fixed iterates until the prior converges", {
+  x_fixed <- x_true[1:6, ]
+  data    <- gen_data(x_fixed, n = 500, seed = 5)
+  fit <- est_irt(
+    x = x_fixed, data = data, D = 1, EmpHist = FALSE, Etol = 1e-3, MaxE = 100L,
+    fipc = TRUE, fipc.method = "MEM", fix.loc = 1:6, se = FALSE, verbose = FALSE
+  )
+  # the change in the prior mean and variance must reach Etol
+  expect_gt(fit$niter, 1L)
+  expect_lte(fit$maxpar.diff, fit$Etol)
+  expect_identical(fit$test.1, "Convergence criteria are satisfied.")
+})
+
+test_that("est_irt() FIPC (OEM) with all items fixed does not report convergence", {
+  x_fixed <- x_true[1:6, ]
+  data    <- gen_data(x_fixed, n = 500, seed = 5)
+  # a single EM cycle cannot meet the criterion for the prior moments
+  fit <- suppressWarnings(est_irt(
+    x = x_fixed, data = data, D = 1, EmpHist = FALSE, Etol = 1e-3, MaxE = 100L,
+    fipc = TRUE, fipc.method = "OEM", fix.loc = 1:6, se = FALSE, verbose = FALSE
+  ))
+  expect_equal(fit$niter, 1L)
+  expect_false(identical(fit$test.1, "Convergence criteria are satisfied."))
+})
+
 
 # ── 6. Parameter recovery ─────────────────────────────────────────────────────
 

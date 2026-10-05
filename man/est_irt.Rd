@@ -318,9 +318,9 @@ convergence.}
 \item{test.1}{A message indicating whether the convergence criteria were
 met: the M-step optimization converged for every item and the largest
 absolute change in the parameter estimates between two consecutive EM
-cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"}, which
-runs a single EM cycle, only the M-step check applies. For FIPC with all
-items fixed, see \code{Etol}.}
+cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"} with
+new items to calibrate, the single EM cycle is not judged by \code{Etol} and
+only the M-step check applies. For FIPC with all items fixed, see \code{Etol}.}
 
 \item{test.2}{Second-order test result indicating whether the information matrix
 is positive definite, a necessary condition for identifying a local maximum.

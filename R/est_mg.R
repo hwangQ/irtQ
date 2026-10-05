@@ -342,9 +342,9 @@
 #' \item{test.1}{A message indicating whether the convergence criteria were
 #'   met: the M-step optimization converged for every item and the largest
 #'   absolute change in the parameter estimates between two consecutive EM
-#'   cycles was less than or equal to `Etol`. When `fipc.method = "OEM"`, which
-#'   runs a single EM cycle, only the M-step check applies. For FIPC with all
-#'   items fixed, see `Etol`.}
+#'   cycles was less than or equal to `Etol`. When `fipc.method = "OEM"` with
+#'   new items to calibrate, the single EM cycle is not judged by `Etol` and
+#'   only the M-step check applies. For FIPC with all items fixed, see `Etol`.}
 #'
 #' \item{test.2}{Second-order test result indicating whether the information matrix
 #'   is positive definite, a necessary condition for identifying a local maximum.
@@ -1119,7 +1119,7 @@ est_mg_em <- function(x = NULL,
     # compute the difference between previous and updated item parameter estimates
     diff_par <- mstep$elm_item$pars - elm_item$pars
     # convergence statistic: largest absolute parameter change
-    max.diff <- max(abs(diff_par), na.rm = TRUE)
+    max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
 
     # loglikelihood value
     llike <- do.call(what = "sum", args = mstep$loglike)
@@ -1133,8 +1133,8 @@ est_mg_em <- function(x = NULL,
       ))
     }
 
-    # check the convergence of EM algorithm
-    converge <- max.diff <= Etol
+    # check the convergence of EM algorithm; a non-finite change is not converged
+    converge <- is.finite(max.diff) && max.diff <= Etol
 
     # extract the updated item parameter estimates
     elm_item$pars <- mstep$elm_item$pars
@@ -1948,7 +1948,7 @@ est_mg_fipc <- function(x = NULL,
       # compute the difference between previous and updated item parameter estimates
       diff_par <- mstep$elm_item$pars - elm_item_new$pars
       # convergence statistic: largest absolute parameter change
-      max.diff <- max(abs(diff_par), na.rm = TRUE)
+      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
     } else {
       # compute the mean and variance of the updated prior distribution
       mmt_dist_new <-
@@ -1957,7 +1957,7 @@ est_mg_fipc <- function(x = NULL,
         }))
       diff_par <- mmt_dist_new - mmt_dist_old
       # convergence statistic: largest absolute change in prior mean and variance
-      max.diff <- max(abs(diff_par), na.rm = TRUE)
+      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
     }
 
     # loglikelihood value
@@ -1972,8 +1972,8 @@ est_mg_fipc <- function(x = NULL,
       ))
     }
 
-    # check the convergence of EM algorithm
-    converge <- max.diff <= Etol
+    # check the convergence of EM algorithm; a non-finite change is not converged
+    converge <- is.finite(max.diff) && max.diff <= Etol
 
     # extract the updated item (or group) parameter estimates
     # and update the new and all item parameters
@@ -2003,8 +2003,10 @@ est_mg_fipc <- function(x = NULL,
   est_time1 <- round(as.numeric(difftime(time2, time1, units = "secs")), 2)
 
   # the first order test: check convergence-criteria test
-  # OEM runs a single EM cycle by design, so only the M-step check applies
-  test_1st <- all(mstep$convergence == 0L) && (converge || fipc.method == "OEM")
+  # OEM runs a single EM cycle by design, so only the M-step check applies;
+  # with all items fixed (no new items), the EM criterion must still be met
+  test_1st <- all(mstep$convergence == 0L) &&
+    (converge || (fipc.method == "OEM" && !is.null(x_new)))
   if (test_1st) {
     memo3 <- "Convergence criteria are satisfied."
   } else {
