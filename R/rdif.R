@@ -84,8 +84,9 @@
 #'   The [irtQ::rdif()] function computes all three RDIF statistics:
 #'   \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and \eqn{RDIF_{RS}}. The current version of
 #'   [irtQ::rdif()] supports both dichotomous and polytomous item response data.
-#'   Note that for polytomous items, net DIF are assessed. To evaluate global
-#'   DIF for polytomous items, use [irtQ::crdif()] function.
+#'   Note that for polytomous items, net DIF is assessed (Jung & Lim, 2026;
+#'   Lim et al., 2024). To evaluate global DIF for polytomous items, use
+#'   [irtQ::crdif()] function.
 #'
 #'   To compute the RDIF statistics, the [irtQ::rdif()] function requires:
 #'   (1) item parameter estimates obtained from aggregate data (regardless
@@ -187,13 +188,21 @@
 #' @seealso [irtQ::est_irt()], [irtQ::est_item()], [irtQ::simdat()],
 #'   [irtQ::shape_df()], [irtQ::est_score()]
 #'
-#' @references Lim, H., & Choe, E. M. (2023). Detecting differential item
+#' @references Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
+#'   polytomous items using RDIF. Paper presented at the annual meeting of the
+#'   National Council on Measurement in Education, Los Angeles, CA.
+#'
+#'   Lim, H., & Choe, E. M. (2023). Detecting differential item
 #'   functioning in CAT using IRT residual DIF approach.
 #'  *Journal of Educational Measurement, 60*(4), 626-650. \doi{doi:10.1111/jedm.12366}.
 #'
 #'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 #'   item functioning detection framework in item response theory. *Journal of
 #'   Educational Measurement, 59*(1), 80-104. \doi{doi:10.1111/jedm.12313}.
+#'
+#'   Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
+#'   detection with the residual DIF framework. Paper presented at the annual
+#'   International Meeting of the Psychometric Society, Prague, Czech Republic.
 #'
 #' @examples
 #' \donttest{
