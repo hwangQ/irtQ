@@ -1146,11 +1146,11 @@ looping it over a $\theta$ grid with many replications per point, the
 traditional Monte Carlo approach. @lim_etal2021 validated their
 recursion-based analytical method against exactly this kind of simulation,
 and the closeness of the agreement they found depended on the scoring method
-used. When the simulation used the same scoring the recursion assumes
-throughout (an equated-number-correct (ENC) score, a deterministic
-score-to-$\theta$ transformation conceptually analogous to `reval_mst()`'s
-internal inverse-TCC scoring), the simulated and analytical results matched
-closely at every $\theta$, and converged further as replications increased.
+used. When the simulation used the same scoring as the recursion
+throughout, that is, equated-number-correct (ENC) scoring, a deterministic
+score-to-$\theta$ transformation conceptually analogous to the inverse-TCC
+scoring inside `reval_mst()`, the simulated and analytical results matched
+closely at every $\theta$ and converged further as replications increased.
 When the simulation instead used a combination more common in practice
 (EAP for routing, maximum likelihood (MLE) for the final score), the two
 methods still agreed closely in the central ability range, but diverged
