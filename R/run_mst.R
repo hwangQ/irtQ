@@ -409,7 +409,8 @@
 #' cut_result <- find_cut(
 #'   x         = x,
 #'   module    = module,
-#'   route_map = route_map
+#'   route_map = route_map,
+#'   D         = 1.702
 #' )
 #'
 #' # Inspect the derived cut scores

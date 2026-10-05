@@ -168,9 +168,8 @@ the 2PLM or 1PLM.
 $D = 1.702$ is a constant that makes the logistic function closely approximate the
 normal ogive used in the original IRT formulation. Using $D = 1.702$ is conventional
 when working with logistic models; set $D = 1$ to work on the purely logistic scale.
-irtQ functions that take `D` use `D = 1` by default (`find_cut()` is the exception,
-with a default of `1.702`); set `D = 1.702` explicitly to approximate the
-normal-ogive metric.
+irtQ functions that take `D` use `D = 1` by default; set `D = 1.702` explicitly
+to approximate the normal-ogive metric.
 
 #### Special cases: 1PLM and 2PLM
 
