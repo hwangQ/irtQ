@@ -134,7 +134,7 @@ cac_rud <- function(x = NULL,
   
   # check if the provided inputs are correct
   if (is.null(theta) & is.null(weights)) {
-    stop("Eighter of `theta` or `weights` argument must not be NULL; both cannot be NULL",
+    stop("Either of `theta` or `weights` argument must not be NULL; both cannot be NULL",
          call. = FALSE
     )
   }
