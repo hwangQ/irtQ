@@ -104,8 +104,12 @@ fit <- est_irt(
   use.gprior = TRUE, gprior = list(dist = "beta", params = c(5, 16)),
   verbose = FALSE
 )
-summary(fit)
+fit
 ```
+
+Printing the fitted object reports the number of EM cycles and the quadrature
+points that were used. A fuller estimation summary is available from
+`summary(fit)`.
 
 `getirt()` extracts parts of the fitted object, such as the item parameter
 estimates.
