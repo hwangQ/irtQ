@@ -22,7 +22,6 @@
 ^\.gitignore$
 ^\.github$
 ^\.positai$
-^\.claude($|/)
 ^TODO\.md$
 ^check_result\.log$
 ^CRAN-SUBMISSION$
@@ -33,3 +32,4 @@
 ^_pkgdown\.yml$
 ^docs$
 ^vignettes/articles$
+^\.claude$
