@@ -70,7 +70,7 @@ An important practical consideration when using these methods is the treatment o
 | Method | Key | Description |
 |--------|-----|-------------|
 | EAP for Summed Scores | `"EAP.SUM"` | Computes the Bayesian EAP estimate $\hat{\theta}_{sEAP} = E(\theta \mid X_s)$ for each possible summed-score value using the Lord–Wingersky recursive algorithm [@thissen1995; @thissen_orlando_2001]. Returns a score table mapping every feasible raw score to a $\theta$ estimate and its SE. |
-| Inverse TCC | `"INV.TCC"` | Solves $\hat{\theta}_{TCF}$ from the test characteristic function (TCF) equation $\tau_s(\theta) = X_s$ numerically. A non-Bayesian estimator that is monotonically related to $X_s$ and does not depend on the prior distribution [@stocking1996; @kolen_tong_2010]. Standard errors are computed using a recursion-based analytical approach [@lim2020]. Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
+| Inverse TCC | `"INV.TCC"` | Solves $\hat{\theta}_{TCF}$ from the test characteristic function (TCF) equation $\tau_s(\theta) = X_s$ numerically. A non-Bayesian estimator that is monotonically related to $X_s$ and does not depend on the prior distribution [@stocking1996; @kolen_tong_2010]. Standard errors are computed using a recursion-based analytical approach [@lim_etal2021]. Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
 
 ```{r load-pkg}
 library(irtQ)
