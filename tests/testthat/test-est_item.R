@@ -258,9 +258,9 @@ test_that("est_item() recovers 2PLM b parameters within loose tolerance", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ------------------------------------------------------------------------------
 # 5b. Default guessing prior
-# ══════════════════════════════════════════════════════════════════════════════
+# ------------------------------------------------------------------------------
 
 test_that("est_item() default gprior is Beta(5, 16), as in est_irt() and est_mg()", {
   expect_equal(eval(formals(est_item)$gprior),
