@@ -202,9 +202,8 @@ make_prm_optim_fns <- function(r_i, theta, pr.mod, D, nstd,
 
   # the trio: each closure retrieves the cached prob list and forwards it
   # to the corresponding function via prob_cache. The hessian closure
-  # routes through hess_item_prm() so the singularity-adjust loop keeps
-  # its current behavior. SE-only hess_item_prm() call sites outside the
-  # factory remain unchanged (prob_cache defaults to NULL there).
+  # routes through hess_item_prm() so the singularity-adjust loop runs
+  # inside nlminb; other callers pass no prob_cache.
   list(
     objective = function(item_par) {
       prob_cache <- get_prob(item_par)
