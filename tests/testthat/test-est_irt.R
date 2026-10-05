@@ -264,3 +264,13 @@ test_that("est_irt() output contains expected slots", {
   expect_type(fit$loglikelihood, "double")
   expect_type(fit$niter, "integer")
 })
+
+test_that("getirt() returns the documented posterior.dist and scale.D for est_irt objects", {
+  fit <- est_irt(
+    data = LSAT6, D = 1, model = "2PLM", cats = 2,
+    Etol = 1e-3, se = FALSE, verbose = FALSE
+  )
+  expect_identical(getirt(fit, what = "posterior.dist"), fit$posterior.dist)
+  expect_identical(getirt(fit, what = "scale.D"), fit$scale.D)
+  expect_identical(getirt(fit, what = "scale.D"), 1)
+})

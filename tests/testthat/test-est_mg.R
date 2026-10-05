@@ -64,6 +64,14 @@ test_that("est_mg() top-level slots are present", {
   expect_true(all(expected_slots %in% names(fit)))
 })
 
+test_that("getirt() returns the documented posterior.dist and scale.D for est_mg objects", {
+  dat <- make_two_groups(x_drm10)
+  fit <- run_mg(x_drm10, dat)
+  expect_identical(getirt(fit, what = "posterior.dist"), fit$posterior.dist)
+  expect_identical(getirt(fit, what = "scale.D"), fit$scale.D)
+  expect_identical(getirt(fit, what = "scale.D"), 1)
+})
+
 test_that("est_mg() par.est is a list with 'overall' and per-group elements", {
   dat <- make_two_groups(x_drm10)
   fit <- run_mg(x_drm10, dat)

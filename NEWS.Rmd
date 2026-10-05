@@ -88,6 +88,10 @@ knitr::opts_chunk$set(
   parameter, consistent with `est_irt()` and `est_mg()` (previously
   Beta(5, 17)).
 
+* `getirt()` now returns `posterior.dist` and `scale.D` for objects from
+  `est_irt()` and `est_mg()`, as documented; previously these requests raised
+  an error.
+
 ## Documentation
 * Corrected the documented return class of `est_mg()` and the references to
   Bock and Mislevy (1982) and Bock and Zimowski (1997).
