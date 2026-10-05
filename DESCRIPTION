@@ -13,7 +13,7 @@ Description: Fit unidimensional item response theory (IRT) models to test
     correlation, and Cronbach's alpha) and for scoring and analyzing selected-response
     item data.
     The bring.flexmirt() and write.flexmirt() functions were written by modifying
-    the read.flexmirt() function (Pritikin & Falk (2022) <doi:10.1177/0146621620929431>).
+    the read.flexmirt() function (Pritikin & Falk (2020) <doi:10.1177/0146621620929431>).
     The bring.bilog() and bring.parscale() functions were written by modifying the read.bilog() 
     and read.parscale() functions, respectively (Weeks (2010) <doi:10.18637/jss.v035.i12>).
     The bisection() function was written by modifying the bisection() function 
