@@ -8,9 +8,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
                         control, startval = NULL, lower, upper) {
   # build the cached (objective, gradient, hessian) trio once per call
   # for DRM models - see make_drm_optim_fns() for the cache mechanics.
-  # n.1PLM only matters for the (!fix.a & mod=="1PLM") branch; force NULL
-  # otherwise so the factory's get_p() dispatch matches the original
-  # nlminb call sites byte-for-byte.
+  # n.1PLM only matters for the (!fix.a & mod=="1PLM") branch, so it is NULL otherwise
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
     drm_fns <- make_drm_optim_fns(
       f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D, nstd = nstd,
@@ -50,7 +48,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
     }
 
     # estimate the standard error of estimates
-    # (single call, p_cache not needed - keeps existing behavior)
+    # (single call, so no p_cache is passed)
     hess <- hess_item_drm(est$par,
       f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D, nstd = nstd,
       fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val, n.1PLM = n.1PLM,

@@ -773,7 +773,7 @@ run_mst <- function(x,
 
   # --- Pre-compute sum_score -> theta/SE lookup tables for EAP.SUM/INV.TCC final scoring ---
   # One table per unique complete pathway; cost is O(n_unique_pathways), independent of N.
-  # Both theta AND SE are stored and returned from the table.
+  # Both theta and SE are returned from the table.
   #
   # Key format: paste(module_indices_stage1_to_stageN, collapse = "_")  e.g. "1_3_6"
   # final_tables[["1_3_6"]]$theta  named numeric: sum_score -> theta

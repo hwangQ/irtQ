@@ -126,10 +126,7 @@ build_freqcat <- function(data, cats) {
     freq[[k]] <- m
   }
 
-  # preserve list names to match the original purrr::map output:
-  # - if `data` has column names, reuse them
-  # - otherwise emit X1..Xn (the convention `data.frame(matrix)` applies
-  #   to an unnamed matrix, which is what the previous chain produced)
+  # name the list by the column names of data, or X1..Xn when there are none
   cn <- colnames(data)
   if (is.null(cn)) cn <- paste0("X", seq_len(nitem))
   names(freq) <- cn

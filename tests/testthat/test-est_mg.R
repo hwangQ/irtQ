@@ -277,10 +277,7 @@ test_that("est_mg() EmpHist=TRUE produces non-uniform weights for G2", {
 # This section exercises the est_mg() FIPC code path -- the multi-group
 # analogue of the FIPC branch tested for est_irt().  est_mg_fipc()
 # calls the same divide_data() / Estep_fipc() / Mstep / info_xpd()
-# pipeline as est_irt_fipc(), so the test guards regression in any of
-# the shared helpers when they are exercised through the multi-group
-# code path (e.g. the freq.cat construction at est_mg.R lines ~1797-
-# 1803, which is otherwise uncovered by the test suite).
+# pipeline as est_irt_fipc() through the multi-group code path.
 
 test_that("est_mg() FIPC (MEM) estimates pretest items on fixed-item scale", {
   # build a small fixed-item bank: 8 dichotomous (3PLM) items taken

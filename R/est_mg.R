@@ -1220,10 +1220,7 @@ est_mg_em <- function(x = NULL,
     }
     time1 <- Sys.time()
 
-    # compute the information matrix of item parameters; info_xpd()
-    # works on the original ntheta-length quadrature grid (no
-    # nstd*ntheta expansion), so the caller does not need to
-    # construct quadpt.vec
+    # compute the information matrix of item parameters on the quadrature grid
     info.data <- info_xpd(
       elm_item = elm_item, freq.cat = freq.cat, post_dist = post_dist,
       quadpt = quadpt, nstd = nstd,
@@ -1246,11 +1243,8 @@ est_mg_em <- function(x = NULL,
 
     # second-order test + variance-covariance matrix in one Cholesky:
     # chol(info.mat) succeeds iff info.mat is positive-definite, and the
-    # cached factor R lets chol2inv(R) compute the inverse cheaply (one
-    # Cholesky pass instead of an O(n^3) eigen-decomposition followed by
-    # an O(n^3) LU-based solve).  When chol() fails (rare for converged
-    # solutions), fall back to the original eigen + solve path so that
-    # near-singular cases keep their previous behavior bit-for-bit.
+    # cached factor R lets chol2inv(R) compute the inverse.  When chol() fails
+    # (rare for converged solutions), fall back to an eigenvalue check and solve().
     chol_R <- suppressWarnings(tryCatch(chol(info.mat), error = function(e) NULL))
     if (!is.null(chol_R)) {
       test_2nd <- TRUE
@@ -1311,10 +1305,8 @@ est_mg_em <- function(x = NULL,
     data.frame(x[, 1:3], elm_item$pars) %>%
     confirm_df(g2na = TRUE)
 
-  # deploy the standard errors on the location of matrix as the item parameter estimates
   # deploy the standard errors into the same row/column layout that
-  # holds the item parameter estimates; see est_irt.R linear-form
-  # branch for the rationale of the logical-mask assignment
+  # holds the item parameter estimates (see est_irt_em())
   se_df <- loc.par <- param_loc$loc.par
   mask  <- !is.na(loc.par)
   if (se) {
@@ -1804,24 +1796,10 @@ est_mg_fipc <- function(x = NULL,
   weights.gr <- replicate(n = ngroup, expr = weights, simplify = FALSE)
   names(weights.gr) <- group.name
 
-  # build the per-item one-hot frequency-category list ONCE on the
-  # combined response matrix.  By construction (lines 1644-1730),
-  #   data_fix == data_all[, fix.loc]
-  #   data_new == data_all[, nofix.loc]
-  #   x_all$cats[fix.loc]   == x_fix$cats
-  #   x_all$cats[nofix.loc] == cats   (= x_new$cats)
-  # so the per-item integer matrices freq_all.cat[fix.loc] and
-  # freq_all.cat[nofix.loc] are bit-for-bit identical to what the
-  # previous code produced via separate build_freqcat() calls on
-  # data_fix and data_new.  R lists hold their elements by reference,
-  # so list-subsetting creates view-style aliases without copying any
-  # of the underlying nstd x cats[k] matrices -- saving roughly 50%
-  # of the freq.cat peak memory during the FIPC busy window and
-  # cutting build_freqcat() runtime by ~2x.  All downstream consumers
-  # (divide_data, info_xpd) index freq.cat with integer locations
-  # only, never element names, so the subsetting is observationally
-  # identical to the previous separate-build pattern.  Mirrors the
-  # equivalent rewrite in est_irt.R lines 1517-1531.
+  # build the per-item one-hot frequency-category list once on the combined
+  # response matrix; data_fix and data_new are the fix.loc and nofix.loc
+  # columns of data_all, so list subsetting gives their freq.cat without
+  # copying the underlying matrices
   freq_all.cat <- build_freqcat(data_all, x_all$cats)
   if (!is.null(x_new)) {
     freq_fix.cat <- freq_all.cat[fix.loc]
@@ -2100,8 +2078,7 @@ est_mg_fipc <- function(x = NULL,
       }
       time1 <- Sys.time()
 
-      # compute the information matrix of item parameters; see linear-
-      # form branch above -- info_xpd() now consumes quadpt directly
+      # compute the information matrix of item parameters
       info.data <- info_xpd(
         elm_item = elm_item_new, freq.cat = freq_new.cat, post_dist = post_dist,
         quadpt = quadpt, nstd = nstd,
@@ -2123,7 +2100,7 @@ est_mg_fipc <- function(x = NULL,
       info.mat <- info.data + info.prior
 
       # second-order test + variance-covariance matrix in one Cholesky:
-      # see est_mg() linear-form branch above for the full rationale.
+      # see est_mg_em()
       chol_R <- suppressWarnings(tryCatch(chol(info.mat), error = function(e) NULL))
       if (!is.null(chol_R)) {
         test_2nd <- TRUE
@@ -2187,8 +2164,7 @@ est_mg_fipc <- function(x = NULL,
 
     # deploy the standard errors into the same row/column layout that
     # holds the item parameter estimates.
-    # 1) for the only new items.  See est_irt.R linear-form branch
-    #    for the rationale of the logical-mask assignment.
+    # 1) for the only new items (see est_irt_em() for the loc.par layout).
     se_df <- loc.par <- param_loc$loc.par
     mask  <- !is.na(loc.par)
     if (se) {

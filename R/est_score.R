@@ -467,8 +467,7 @@ est_score.default <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # export pre-populated elm_item, pre-computed popdist, and required functions;
-      # x and max.col are not exported because the workers do not need them
+      # export pre-populated elm_item, pre-computed popdist, and required functions.
       parallel::clusterExport(cl, c(
         "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
@@ -479,8 +478,7 @@ est_score.default <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      # pre-load Rfast on workers (used in ll_score, info_drm, etc.);
-      # reshape2 is not loaded because est_score_1core does not use melt
+      # pre-load Rfast on workers (used in ll_score, info_drm, etc.)
       parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
@@ -714,8 +712,7 @@ est_score.est_irt <- function(x,
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
 
-      # export pre-populated elm_item, pre-computed popdist, and required functions;
-      # x and max.col are not exported because the workers do not need them
+      # export pre-populated elm_item, pre-computed popdist, and required functions.
       parallel::clusterExport(cl, c(
         "elm_item", "popdist", "D", "method",
         "max.cats", "range", "norm.prior", "nquad",
@@ -726,8 +723,7 @@ est_score.est_irt <- function(x,
         "info_score", "info_drm", "info_prm",
         "gen.weight"
       ), envir = environment())
-      # pre-load Rfast on workers (used in ll_score, info_drm, etc.);
-      # reshape2 is not loaded because est_score_1core does not use melt
+      # pre-load Rfast on workers (used in ll_score, info_drm, etc.)
       parallel::clusterEvalQ(cl, library(Rfast))
 
       # set a function for scoring
@@ -870,7 +866,6 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
   n.resp <- nrow(elm_item$pars)
 
   # build the n.resp x max.cats one-hot freq.cat via direct matrix indexing
-  # (direct indexing avoids the formula overhead of stats::xtabs())
   freq.cat <- matrix(0L, nrow = n.resp, ncol = max.cats)
   resp_int  <- as.integer(resp_vec)          # 0-based integer responses (no NAs: caller subsets)
   freq.cat[cbind(seq_len(n.resp), resp_int + 1L)] <- 1L

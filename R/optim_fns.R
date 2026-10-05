@@ -86,11 +86,9 @@ make_drm_optim_fns <- function(f_i, r_i, s_i, theta, mod, D, nstd,
   }
 
   # the trio: each closure asks get_p() for the cached P, then forwards
-  # all original arguments plus p_cache to the underlying function. The
-  # `hessian` closure routes through hess_item_drm() so the singularity
-  # adjustment loop (adjust = TRUE) keeps its current behavior inside
-  # nlminb - the SE-only hess_item_drm() call sites elsewhere remain
-  # unchanged because p_cache defaults to NULL.
+  # all arguments plus p_cache to the underlying function. The hessian
+  # closure goes through hess_item_drm() so the singularity adjustment
+  # (adjust = TRUE) runs inside nlminb; other callers pass no p_cache.
   list(
     objective = function(item_par) {
       p_cache <- get_p(item_par)

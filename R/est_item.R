@@ -412,9 +412,6 @@ est_item <- function(x = NULL,
     prm = idx.prm
   )
 
-  # f_i = s_i + r_i is computed at the point of use (see the loops below),
-  # so freq.cat is not augmented with a total column
-
   # create the lower and upper bounds of the item parameters
   parbd <- lubound(model, cats, n.1PLM, idx4est, fix.a.1pl, fix.g, fix.a.gpcm)
 
@@ -509,7 +506,7 @@ est_item <- function(x = NULL,
         s_i <- as.double(fc_i[, 1])
         r_i <- as.double(fc_i[, 2])
         # f_i (total response indicator: 1 if examinee answered the
-        # item, 0 otherwise) is arithmetically identical to s_i + r_i
+        # item, 0 otherwise)
         f_i <- s_i + r_i
 
         # set the starting values

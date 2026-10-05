@@ -21,7 +21,7 @@
 # We extract gamma without re-deriving it model-by-model: for each
 # category c we feed grad_llike() a SYNTHETIC freq pattern that is 1
 # in category c (and 0 elsewhere), at theta = quadpt.  The returned
-# gradient row IS gamma_p(q, c) because the same gradient routine is called.
+# gradient row is gamma_p(q, c).
 #' @importFrom Rfast rowsums
 info_xpd <- function(elm_item, freq.cat, post_dist, quadpt, nstd,
                      D = 1, loc_1p_const, loc_else, n.1PLM, fix.a.1pl, fix.a.gpcm, fix.g, a.val.1pl,
@@ -121,8 +121,7 @@ info_xpd <- function(elm_item, freq.cat, post_dist, quadpt, nstd,
       mod       <- model[k]
       score.cat <- cats[k]
 
-      # extract the final item parameters for this single item using
-      # the same set_startval() call shape as the previous code path
+      # extract the final item parameters for this single item with set_startval()
       if (score.cat == 2L) {
         item_par <- set_startval(
           pars = elm_item$pars, item = k,

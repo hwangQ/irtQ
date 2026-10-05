@@ -345,8 +345,7 @@ score_resp <- function(data, key, missing = NA) {
     if (is_key_numeric[j]) {
 
       # numeric-coded item: parse each response as a number and compare
-      # numerically to the key, exactly as in earlier versions of this
-      # function
+      # numerically to the key
       resp_num <- suppressWarnings(as.numeric(resp_chr))
       is_single <- !is_blank & !is_double & !is.na(resp_num)
       item_score[is_single & resp_num == as.numeric(key_vec[j])] <- 1L

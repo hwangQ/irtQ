@@ -302,7 +302,7 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
       uniq_tokens <- unique(all_tokens)
       if (length(uniq_tokens) > 0L && all(is_key_numeric)) {
         # every item is numeric-coded: sort as numbers and keep `opt`
-        # numeric, exactly as in earlier versions of this function
+        # numeric
         opt <- sort(as.numeric(uniq_tokens))
       } else {
         # at least one item is letter- or general-label-coded: sort as

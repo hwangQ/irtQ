@@ -392,7 +392,7 @@ lw_extend <- function(p, prob_item, cats_item, n.theta) {
 # "lwrc_noitem" function
 # Compute lkhd_noitem for all J items using a single forward-backward pass instead
 # of J separate lwRecurive() calls.  Reduces the dominant cost in sx2_fit() from
-# O(J^3 K^2 Q) to approximately O(J^2 K^2 Q / 6) while preserving exact results.
+# O(J^3 K^2 Q) to approximately O(J^2 K^2 Q / 6).
 #
 # Algorithm:
 #   Forward pass  : fwd[[i]] = score distribution for items 1 ... (i-1)
