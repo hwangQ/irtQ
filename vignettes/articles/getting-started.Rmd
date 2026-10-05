@@ -22,7 +22,8 @@ knitr::opts_chunk$set(
 **irtQ** is an R package for unidimensional **Item Response Theory (IRT)** analyses.
 It supports mixed-format tests containing both dichotomous and polytomous items, and
 provides a unified interface for the most common psychometric tasks in educational
-and psychological measurement.
+and psychological measurement. For a short overview of the package, see the
+"Introduction to irtQ" vignette (`vignette("irtQ")`).
 
 ### Why IRT? A Brief Motivation
 

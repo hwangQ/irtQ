@@ -57,6 +57,7 @@ Suggests:
     testthat (>= 3.0.0),
     pkgdown,
     RhpcBLASctl
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 URL: https://hwangQ.github.io/irtQ/, https://github.com/hwangQ/irtQ
