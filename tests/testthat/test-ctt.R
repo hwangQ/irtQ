@@ -168,3 +168,56 @@ test_that("ctt() works on the bundled LSAT6 dataset without error", {
   expect_s3_class(out, "ctt")
   expect_true(out$alpha$alpha >= 0 && out$alpha$alpha <= 1)
 })
+
+# ── score and cats validation ───────────────────────────────────────────────
+
+test_that("the CTT functions stop when an item score is out of range", {
+  dat <- data.frame(I1 = c(0, 1, 1, 0, 1), I2 = c(1, 0, 3, 1, 0),
+                    I3 = c(1, 1, 0, 0, 1))
+
+  # a score above cats - 1
+  expect_error(ctt_item(data = dat, cats = c(2, 2, 2)), "between 0 and cats - 1")
+  expect_error(ctt_alpha(data = dat, cats = c(2, 2, 2)), "V2")
+  expect_error(ctt(data = dat, cats = c(2, 2, 2)), "between 0 and cats - 1")
+
+  # a negative score
+  dat_neg <- dat
+  dat_neg$I2[3] <- -1
+  expect_error(ctt_item(data = dat_neg), "V2")
+  expect_error(ctt(data = dat_neg), "between 0 and cats - 1")
+
+  # a non-integer score
+  dat_frac <- dat
+  dat_frac$I2[3] <- 0.5
+  expect_error(ctt_item(data = dat_frac), "whole numbers")
+  expect_error(ctt_alpha(data = dat_frac), "whole numbers")
+
+  # a character column
+  dat_chr <- dat
+  dat_chr$I2 <- as.character(dat_chr$I2)
+  expect_error(ctt_item(data = dat_chr), "numeric")
+  expect_error(ctt(data = dat_chr), "V2")
+})
+
+test_that("the CTT functions stop when cats is not a whole number of at least 2", {
+  dat <- data.frame(I1 = c(0, 1, 1, 0, 1), I2 = c(1, 0, 1, 1, 0),
+                    I3 = c(1, 1, 0, 0, 1))
+  expect_error(ctt_item(data = dat, cats = c(1, 1, 1)), "at least 2")
+  expect_error(ctt_alpha(data = dat, cats = c(2, 2, 1)), "at least 2")
+  expect_error(ctt(data = dat, cats = c(2, 2.5, 2)), "whole numbers")
+  expect_error(ctt_item(data = dat, cats = c(2, 2)), "length(cats)",
+               fixed = TRUE)
+})
+
+test_that("an item that every examinee scores 0 on has two inferred categories", {
+  dat <- data.frame(I1 = c(0, 1, 1, 0, 1, 1), I2 = c(0, 0, 0, 0, 0, 0),
+                    I3 = c(1, 1, 0, 0, 1, 0))
+  out <- ctt_item(data = dat)$item
+  expect_equal(out$cats[2], 2)
+  expect_equal(out$difficulty[2], 0)
+  expect_match(out$flag[2], "difficulty too low")
+
+  # the all-zero item enters the mean difficulty as 0
+  alpha_out <- ctt_alpha(data = dat)
+  expect_equal(alpha_out$mean_difficulty, round(mean(out$difficulty), 3))
+})
