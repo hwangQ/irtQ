@@ -153,6 +153,51 @@ test_that("routing estimates use only the observed responses when some are missi
   expect_lt(max_diff_cum(fit, x_mst, mod_mst, resp_na, 1.702, "ML"), 1e-6)
 })
 
+test_that("final estimates use the parameters of the observed items when some responses are missing", {
+  resp_na <- resp_mst
+  # set about 10 percent of the responses to missing at fixed positions
+  set.seed(2033)
+  resp_na[sample(length(resp_na), size = round(0.10 * length(resp_na)))] <- NA
+  for (meth in c("ML", "EAP", "MLF")) {
+    fit <- run_mst(
+      x = x_mst, route_map = map_mst, module = mod_mst,
+      theta = theta_mst, response = resp_na, D = 1.702,
+      route_method = "bmat",
+      route_score = list(method = "EAP"),
+      final_score = list(method = meth), verbose = FALSE
+    )
+    # est_score() on the observed items of the administered modules
+    ref <- vapply(seq_len(nrow(fit$path)), function(i) {
+      it <- items_upto(fit$path[i, ], mod_mst, 3L)
+      est_score(x = x_mst[it, ], data = resp_na[i, it, drop = FALSE],
+                D = 1.702, method = meth)$est.theta
+    }, numeric(1L))
+    expect_equal(fit$est.theta, ref, tolerance = 1e-6)
+  }
+})
+
+test_that("final sum-score estimates count missing responses as zero, as est_score() does", {
+  resp_na <- resp_mst
+  set.seed(2034)
+  resp_na[sample(length(resp_na), size = round(0.10 * length(resp_na)))] <- NA
+  for (meth in c("EAP.SUM", "INV.TCC")) {
+    fit <- run_mst(
+      x = x_mst, route_map = map_mst, module = mod_mst,
+      theta = theta_mst, response = resp_na, D = 1.702,
+      route_method = "bmat",
+      route_score = list(method = "EAP"),
+      final_score = list(method = meth), verbose = FALSE
+    )
+    # est_score() replaces missing responses with zeros and warns
+    ref <- suppressWarnings(vapply(seq_len(nrow(fit$path)), function(i) {
+      it <- items_upto(fit$path[i, ], mod_mst, 3L)
+      est_score(x = x_mst[it, ], data = resp_na[i, it, drop = FALSE],
+                D = 1.702, method = meth)$est.par$est.theta
+    }, numeric(1L)))
+    expect_equal(fit$est.theta, ref, tolerance = 1e-6)
+  }
+})
+
 test_that("INV.TCC routing estimates equal the inverse TCC lookup of the cumulative sum score", {
   fit <- run_mst(
     x = x_mst, route_map = map_mst, module = mod_mst,

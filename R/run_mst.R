@@ -1189,11 +1189,11 @@ run_mst <- function(x,
             } else NULL
           }
 
-          # Subset elm_item to observed items
+          # subset elm_item to the observed items (and the fence items for MLF)
           elm_sub_p       <- elm_path
-          elm_sub_p$pars  <- elm_path$pars[seq_along(resp_sub_acc), , drop = FALSE]
-          elm_sub_p$model <- elm_path$model[seq_along(resp_sub_acc)]
-          elm_sub_p$cats  <- elm_path$cats[seq_along(resp_sub_acc)]
+          elm_sub_p$pars  <- elm_path$pars[na_pos_acc, , drop = FALSE]
+          elm_sub_p$model <- elm_path$model[na_pos_acc]
+          elm_sub_p$cats  <- elm_path$cats[na_pos_acc]
 
           final_result <- est_score_indiv(
             resp_vec   = resp_sub_acc,
