@@ -81,8 +81,9 @@
 #' `raw.r` and the corrected version as `r.drop`).
 #'
 #' Alpha-with-item-removed for item j is Cronbach's alpha (see below)
-#' recomputed using only the remaining items, so that a low value flags an
-#' item whose removal would increase the overall reliability of the test.
+#' recomputed using only the remaining items, so that a value above the
+#' overall alpha identifies an item whose removal would increase the
+#' reliability of the test.
 #'
 #' At the test level, two forms of Cronbach's alpha are always computed and
 #' reported. Raw alpha uses the standard variance-based formula
@@ -151,9 +152,15 @@
 #'   \doi{10.1037/1082-989X.5.3.343}.
 #'
 #' @examples
-#' # A small dichotomous example
+#' # A dichotomous example: simulate the responses of 300 examinees to 15
+#' # 3PLM items, then run ctt() on the simulated data
 #' set.seed(1)
-#' dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+#' x_bin <- shape_df(
+#'   par.drm = list(a = rep(1.5, 15), b = seq(-1.5, 1.5, length.out = 15),
+#'                  g = rep(0.2, 15)),
+#'   cats = 2, model = "3PLM"
+#' )
+#' dat <- simdat(x = x_bin, theta = rnorm(300), D = 1)
 #' out <- ctt(data = dat)
 #' out
 #' summary(out)
