@@ -300,7 +300,9 @@ stage is reachable, all cut scores are used.
 
 \strong{Final scoring}: Responses from all administered stages are
 concatenated, and the final ability estimate is computed using the
-\code{final_score} method.
+\code{final_score} method. With \code{"EAP.SUM"} or \code{"INV.TCC"}, a
+missing response is counted as 0 in the sum score, as in
+\code{\link{est_score}}, but no warning is issued.
 
 \strong{Relation to \code{reval_mst()}}: With \code{route_method = NULL}, a
 \code{cut_score} list, and \code{route_score = list(method = "INV.TCC")},
