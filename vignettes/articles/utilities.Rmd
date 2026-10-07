@@ -1002,7 +1002,7 @@ using Korean syllable labels.
 | `lwrc()`       | Item metadata + θ, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `sx2_fit()`, `est_score()` |
 | `gen.weight()` | Distribution spec | Node-weight data frame               | `cac_lee()`, `cac_rud()`, `est_score()`, `covirt()` |
 | `covirt()`     | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
-| `score_resp()` | Raw option choices + answer key | 0/1 scored response matrix | `est_irt()`, `est_score()`, `ctt()`, `ctt_distr()` |
+| `score_resp()` | Raw option choices + answer key | 0/1 scored response matrix | Output feeds `ctt()`, `est_irt()`, `est_score()`; called by `ctt_distr()` (selected-response mode) |
 
 ---
 
