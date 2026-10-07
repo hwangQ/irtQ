@@ -91,9 +91,9 @@
 #'   contains the cut scores for routing from stage \emph{s} to stage
 #'   \emph{s}+1. For example, in a 1-3-3 MST, \code{cut_score = list(c(-0.5,
 #'   0.5), c(-0.6, 0.6))} routes examinees whose stage-1 score is below
-#'   \eqn{-0.5} to the easiest stage-2 module, between \eqn{-0.5} and
-#'   \eqn{0.5} to the medium module, and above \eqn{0.5} to the hardest
-#'   module. Ignored when \code{route_method} is \code{"bmat"} or
+#'   \eqn{-0.5} to the easiest stage-2 module, from \eqn{-0.5} up to but not
+#'   including \eqn{0.5} to the medium module, and \eqn{0.5} or above to the
+#'   hardest module. Ignored when \code{route_method} is \code{"bmat"} or
 #'   \code{"mfi"}. Default is \code{NULL}.
 #'
 #' @param route_score A named list specifying the scoring method and options
@@ -226,7 +226,7 @@
 #'     module, only the cut scores that separate the reachable modules are
 #'     used, as in \code{\link{reval_mst}}, and the module whose interval
 #'     contains the estimate is administered. An estimate equal to a cut
-#'     score is assigned to the lower module. When every module of the next
+#'     score is assigned to the higher module. When every module of the next
 #'     stage is reachable, all cut scores are used.
 #' }
 #'
