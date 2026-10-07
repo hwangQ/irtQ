@@ -221,3 +221,44 @@ test_that("an item that every examinee scores 0 on has two inferred categories",
   alpha_out <- ctt_alpha(data = dat)
   expect_equal(alpha_out$mean_difficulty, round(mean(out$difficulty), 3))
 })
+
+# ── listwise deletion, row names, and constant items ────────────────────────
+
+test_that("ctt() reports listwise deletion once and matches the result on complete data", {
+  set.seed(21)
+  dat <- data.frame(matrix(rbinom(120 * 6, 1, 0.6), nrow = 120))
+  dat[c(3, 10), 2] <- NA
+  dat[7, 5] <- 9
+
+  # one warning that names ctt()
+  w <- testthat::capture_warnings(out <- ctt(data = dat, missing = 9))
+  expect_length(w, 1)
+  expect_match(w, "3 examinee(s) with missing item responses were excluded listwise from ctt().",
+               fixed = TRUE)
+
+  # same item, alpha, and frequency results as on the complete rows
+  dat_complete <- dat[-c(3, 7, 10), ]
+  out_complete <- ctt(data = dat_complete)
+  expect_identical(out$item, out_complete$item)
+  expect_identical(out$alpha, out_complete$alpha)
+  expect_identical(out$freq, out_complete$freq)
+})
+
+test_that("ctt() stops when no examinee has complete responses", {
+  dat <- data.frame(I1 = c(0, NA, 1), I2 = c(NA, 1, 1), I3 = c(1, 0, NA))
+  expect_error(suppressWarnings(ctt(data = dat)), "No examinee has complete")
+})
+
+test_that("ctt_item() returns default row names when cats is inferred", {
+  set.seed(22)
+  dat <- data.frame(matrix(rbinom(80 * 4, 1, 0.5), nrow = 80))
+  out <- ctt_item(data = dat)$item
+  expect_identical(rownames(out), as.character(1:4))
+})
+
+test_that("ctt_alpha() gives no warning for a constant item", {
+  dat <- data.frame(I1 = c(0, 1, 1, 0, 1, 1), I2 = c(1, 1, 1, 1, 1, 1),
+                    I3 = c(1, 1, 0, 0, 1, 0))
+  expect_no_warning(out <- ctt_alpha(data = dat))
+  expect_false(is.na(out$alpha_std))
+})

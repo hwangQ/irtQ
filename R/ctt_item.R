@@ -224,7 +224,7 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # assemble the per-item result data frame, rounding for readable reporting
   item_df <- data.frame(
     item = item_names,
-    cats = cats,
+    cats = unname(cats),
     difficulty = round(difficulty, 3),
     discrimination_raw = round(discrimination_raw, 3),
     discrimination_corrected = round(discrimination_corrected, 3),

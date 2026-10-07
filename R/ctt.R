@@ -180,33 +180,43 @@ ctt <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   call <- match.call()
 
   # coerce to a plain data frame so column-wise access behaves consistently
-  # for matrix/tibble/data.frame input alike, and so the local re-derivation
-  # of the total score below matches what ctt_item()/ctt_alpha() operate on
+  # for matrix/tibble/data.frame input alike
   data <- as.data.frame(data, stringsAsFactors = FALSE)
 
+  # recode a user-specified missing-value sentinel to NA before analysis
+  if (!is.na(missing)) {
+    data[data == missing] <- NA
+  }
+
+  # listwise-delete any examinee with a remaining missing response, warning
+  # once, so every statistic below uses the same set of examinees
+  complete_rows <- stats::complete.cases(data)
+  n_dropped <- sum(!complete_rows)
+  if (n_dropped > 0L) {
+    warning(n_dropped, " examinee(s) with missing item responses were ",
+            "excluded listwise from ctt().", call. = FALSE)
+  }
+  data <- data[complete_rows, , drop = FALSE]
+
+  # at least one examinee with complete responses is required
+  if (nrow(data) == 0L) {
+    stop("No examinee has complete item responses.", call. = FALSE)
+  }
+
   # item-level statistics: difficulty, raw/corrected discrimination,
-  # alpha-with-item-removed, and flagging
+  # alpha-with-item-removed, and flagging; `data` has no missing values left
   item_out <- ctt_item(data = data, item.id = item.id, cats = cats,
-                        correct = correct, missing = missing, flag = flag,
+                        correct = correct, missing = NA, flag = flag,
                         crit.p = crit.p, crit.dis = crit.dis)
 
   # test-level reliability summary (alpha, SEM, mean difficulty/discrimination)
   alpha_out <- ctt_alpha(data = data, item.id = item.id, cats = cats,
-                          correct = correct, missing = missing)
+                          correct = correct, missing = NA)
 
-  # re-derive the total score using the same missing-recode + listwise-
-  # deletion steps used inside ctt_item()/ctt_alpha(), so freq_score() below
-  # tabulates the identical set of examinees and the identical score
-  # definition as the rest of this function's output
-  data_clean <- data
-  if (!is.na(missing)) {
-    data_clean[data_clean == missing] <- NA
-  }
-  data_clean <- data_clean[stats::complete.cases(data_clean), , drop = FALSE]
-  total <- rowSums(data_clean)
+  # total score of the retained examinees, which freq_score() tabulates
+  total <- rowSums(data)
 
-  # total-score frequency distribution (no further missing values remain,
-  # since data_clean has already been listwise-deleted above)
+  # total-score frequency distribution (no missing values remain)
   freq_out <- freq_score(score = total, missing = NA)
 
   # bundle all three module results together under a single S3-classed object

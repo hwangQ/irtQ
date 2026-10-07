@@ -401,8 +401,8 @@ score_resp <- function(data, key, missing = NA) {
     # comma strings; anything else likely signals a data-quality issue
     if (n_invalid > 0L) {
       warning("Item '", item_names[j], "' has ", n_invalid,
-              " response(s) that are neither a valid option number, blank, ",
-              "nor double-marked; these are scored 0 but flagged as ",
+              " response(s) that are neither a valid option for this item, ",
+              "blank, nor double-marked; these are scored 0 but flagged as ",
               "n_invalid in resp_summary.", call. = FALSE)
     }
 

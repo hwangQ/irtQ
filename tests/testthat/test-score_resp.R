@@ -213,3 +213,11 @@ test_that("score_resp() matches a key data frame by item number for any item col
   expect_identical(score_resp(data = raw, key = key_chr)$scored, out_vec$scored)
   expect_identical(score_resp(data = raw, key = key_fct)$scored, out_vec$scored)
 })
+
+test_that("score_resp() invalid-response warning does not refer to option numbers", {
+  # a letter-coded item with an unrecognized token
+  raw <- data.frame(V1 = c("A", "B", "7", "A"))
+  expect_warning(out <- score_resp(data = raw, key = "A"),
+                 "neither a valid option for this item")
+  expect_equal(out$resp_summary$n_invalid, 1L)
+})

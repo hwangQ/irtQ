@@ -159,7 +159,9 @@ ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # if every pairwise correlation is NA (e.g., all items constant), r_bar and
   # therefore alpha_std are NaN, mirroring alpha's own NA-when-undefined
   # behavior above.
-  item_cor <- stats::cor(data)                       # k x k item correlation matrix
+  # the zero-standard-deviation warning for a constant item is suppressed
+  # because its NA correlations are handled by na.rm = TRUE below
+  item_cor <- suppressWarnings(stats::cor(data))     # k x k item correlation matrix
   r_bar <- mean(item_cor[upper.tri(item_cor)], na.rm = TRUE)  # mean off-diagonal r
   alpha_std <- (n_item * r_bar) / (1 + (n_item - 1) * r_bar)
 
