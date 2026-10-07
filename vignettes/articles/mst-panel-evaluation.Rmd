@@ -131,7 +131,7 @@ For a 1-3-3 panel with 7 modules (M1-M7):
          M1 M2 M3 M4 M5 M6 M7
 M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
 M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
-M3  ──→ [  0  0  0  0  0  1  1 ]   M3 routes to M6 or M7
+M3  ──→ [  0  0  0  0  1  1  1 ]   M3 routes to M5, M6, or M7
 M4  ──→ [  0  0  0  0  0  1  1 ]   M4 routes to M6 or M7
 M5  ──→ [  0  0  0  0  0  0  0 ]   terminal (Stage 3)
 M6  ──→ [  0  0  0  0  0  0  0 ]   terminal
@@ -159,6 +159,14 @@ cut_score = list(
                   #                    θ̂ ≥ 0.6 → hard module
 )
 ```
+
+The cut scores of a transition are tied to the modules of the next stage in
+order: the first cut score separates the first and second modules, the second
+separates the second and third. When a module can reach only some of the
+next-stage modules, only the cut scores that separate those modules apply. In
+the route map above, a test taker in M4 can reach only M6 or M7, so the second
+Stage 3 cut score alone decides between them (θ̂ below it goes to M6, above it
+to M7). `reval_mst()` and `run_mst()` use the same rule.
 
 `cut_score` is required by `reval_mst()`, which always uses inverse-TCC
 scoring internally, and by `run_mst()` whenever `route_method = NULL`. When
