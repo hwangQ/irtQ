@@ -115,7 +115,9 @@ item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
 ```
 
 Each item belongs to exactly one module, so each row has exactly one 1 and all
-other entries are 0.
+other entries are 0. `reval_mst()` additionally requires that all modules in
+the same stage have the same maximum sum score (for dichotomous items, the
+same number of items); it stops with an error otherwise.
 
 #### 3. Route Map (`route_map`)
 
@@ -295,8 +297,10 @@ the reachable module whose mean item difficulty is closest to their current
 ability estimate, and `route_method = "mfi"` routes to the reachable module
 with the highest test information function (TIF) value at their current
 estimate. The third, cut-score routing (`route_method = NULL`), compares the
-current estimate against a fixed set of cut scores. Start with the default,
-`bmat`:
+current estimate against a fixed set of cut scores. In all three, the current
+estimate at the end of a stage is computed from the responses to all modules
+the examinee has taken so far, not only the module just completed. Start with
+the default, `bmat`:
 
 ```{r run-mst-bmat}
 # Item bank and panel structure from simMST
@@ -1440,7 +1444,7 @@ across the *entire* ability range, including the extremes where the
 |-----------|-------------|
 | `est.theta` | Final ability estimate for each simulated examinee |
 | `se.theta` | Standard error of the final ability estimate |
-| `theta.route` | Intermediate ability estimate used for routing at each stage |
+| `theta.route` | Cumulative ability estimate used for routing after each stage (from all modules taken so far); the last column is the final estimate |
 | `path` | Module pathway taken by each examinee |
 | `true.theta` | True ability supplied as input (`NA` when `response` was supplied instead) |
 | `panel` | Panel structure information (from `panel_info()`) |
