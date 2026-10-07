@@ -54,7 +54,9 @@
 #'   freely mixed within the same vector or data frame; letter (and other
 #'   case-bearing) values are matched case-insensitively. When a data frame
 #'   is supplied, it is internally sorted by `item` before use, so its row
-#'   order does not need to match the column order of `data`.
+#'   order does not need to match the column order of `data`. The `item`
+#'   column may be numeric, character, or factor; it is matched by item
+#'   number.
 #' @param missing A value indicating missing (omitted) responses in `data`,
 #'   analogous to the `missing` argument in [irtQ::est_irt()] and
 #'   [irtQ::est_score()]. Any cell equal to `missing` is recoded to `NA`
@@ -254,10 +256,16 @@ score_resp <- function(data, key, missing = NA) {
            "its correct option).", call. = FALSE)
     }
 
+    # convert the item numbers through character so that a character or
+    # factor `item` column is matched by item number, not by string order or
+    # factor level code
+    item_num <- suppressWarnings(as.integer(as.character(key$item)))
+
     # sort by item number so the row order in the file need not match the
     # column order of `data`
-    key <- key[order(key$item), ]
+    key <- key[order(item_num), ]
     key_vec <- trimws(as.character(key$key))
+    item_num <- sort(item_num)
 
     # the key's item numbers must be exactly 1, 2, ..., n_item with no
     # duplicates and no gaps; otherwise key values could silently misalign
@@ -266,7 +274,7 @@ score_resp <- function(data, key, missing = NA) {
     # compare as integer (not identical() on raw `key$item`) so that numeric
     # vs. integer storage mode never causes a false mismatch; only the
     # actual item numbers matter here
-    if (!identical(sort(as.integer(key$item)), seq_len(n_item))) {
+    if (!identical(item_num, seq_len(n_item))) {
       stop("`key$item` must contain exactly the integers 1:ncol(data), ",
            "with no duplicates or gaps. Check the answer key for a ",
            "mistyped or missing item number.", call. = FALSE)

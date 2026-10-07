@@ -128,3 +128,24 @@ test_that("ctt_distr() respects an explicit character opt= for a letter-coded it
   expect_equal(sort(unique(out$distr$option[out$distr$item == "V1"])),
                c("A", "B", "C", "D"))
 })
+
+test_that("ctt_distr() matches a key data frame by item number for a character item column", {
+  # twelve items so that string order differs from numeric order
+  set.seed(12)
+  n_item <- 12
+  raw <- as.data.frame(
+    matrix(sample(as.character(1:4), 30 * n_item, replace = TRUE), 30, n_item)
+  )
+  key_vec <- rep(c(1, 4, 3, 2), length.out = n_item)
+  out_vec <- ctt_distr(data = raw, key = key_vec)
+
+  # the same key rows in a shuffled order, with character and factor item
+  # columns
+  shuffled <- c(5, 12, 1, 9, 3, 11, 7, 2, 10, 6, 8, 4)
+  key_chr <- data.frame(item = as.character(shuffled), key = key_vec[shuffled])
+  key_fct <- data.frame(item = factor(shuffled), key = key_vec[shuffled])
+  expect_identical(ctt_distr(data = raw, key = key_chr)$distr$is_key,
+                   out_vec$distr$is_key)
+  expect_identical(ctt_distr(data = raw, key = key_fct)$distr$is_key,
+                   out_vec$distr$is_key)
+})

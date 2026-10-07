@@ -256,7 +256,10 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
     # to item column order - mirrors irtQ::score_resp()'s own key resolution
     # exactly, so both functions agree on what a given `key` means
     if (is.data.frame(key)) {
-      key_vec <- trimws(as.character(key[order(key$item), ]$key))
+      # order by the numeric item number so character or factor item columns
+      # are matched by item number, as in score_resp()
+      item_order <- order(as.integer(as.character(key$item)))
+      key_vec <- trimws(as.character(key$key[item_order]))
     } else {
       key_vec <- trimws(as.character(key))
     }
