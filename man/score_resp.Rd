@@ -34,7 +34,9 @@ values are matched case-insensitively. When a data frame is supplied, its
 \code{item} column (numeric, character, or factor) must contain each of the
 integers 1 to \code{ncol(data)} exactly once; the rows are sorted by item
 number before use, so their order need not match the column order of
-\code{data}.}
+\code{data}. A key value that contains a comma names more than one option, and
+\code{score_resp()} stops with an error because every item must have exactly
+one correct option.}
 
 \item{missing}{A value indicating missing (omitted) responses in \code{data},
 analogous to the \code{missing} argument in \code{\link[=est_irt]{est_irt()}} and

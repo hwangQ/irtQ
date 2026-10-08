@@ -230,3 +230,16 @@ test_that("score_resp() treats a missing code with surrounding spaces as missing
   expect_equal(out$resp_summary$n_invalid, 0)
   expect_equal(out$scored$V1, c(1L, 0L, 0L, 0L))
 })
+
+test_that("score_resp() and ctt_distr() stop when a key value contains a comma", {
+  raw <- data.frame(V1 = c("1", "5", "1,5", "2"), V2 = c("1", "2", "1", "2"))
+  expect_error(score_resp(data = raw, key = c("1,5", "2")),
+               "exactly one correct option")
+  expect_error(score_resp(data = raw, key = c("1,5", "2")), "position(s): 1",
+               fixed = TRUE)
+  expect_error(ctt_distr(data = raw, key = c("1", "2,3")),
+               "exactly one correct option")
+  expect_error(score_resp(data = raw,
+                          key = data.frame(item = 1:2, key = c("1", "2,3"))),
+               "exactly one correct option")
+})

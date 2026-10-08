@@ -53,7 +53,9 @@
 #'   `item` column (numeric, character, or factor) must contain each of the
 #'   integers 1 to `ncol(data)` exactly once; the rows are sorted by item
 #'   number before use, so their order need not match the column order of
-#'   `data`.
+#'   `data`. A key value that contains a comma names more than one option, and
+#'   `score_resp()` stops with an error because every item must have exactly
+#'   one correct option.
 #' @param missing A value indicating missing (omitted) responses in `data`,
 #'   analogous to the `missing` argument in [irtQ::est_irt()] and
 #'   [irtQ::est_score()]. Any cell equal to `missing` is recoded to `NA`
@@ -285,15 +287,23 @@ score_resp <- function(data, key, missing = NA) {
          call. = FALSE)
   }
 
-  # a key value must not be blank or NA; this is the only requirement on
-  # `key` itself, since every non-blank value (a number, a Latin letter, a
-  # Korean syllable, or any other label) is a valid option identifier for the
-  # per-item scheme detection below
+  # a key value must not be blank or NA; apart from the comma check below,
+  # this is the only requirement on `key` itself, since every non-blank value
+  # (a number, a Latin letter, a Korean syllable, or any other label) is a
+  # valid option identifier for the per-item scheme detection below
   if (any(is.na(key_vec) | key_vec == "")) {
     bad_pos <- which(is.na(key_vec) | key_vec == "")
     stop("`key` contains missing or blank value(s) at position(s): ",
          paste(bad_pos, collapse = ", "), ". Every item must have a ",
          "non-blank correct-option value.", call. = FALSE)
+  }
+
+  # a key value with a comma names more than one option, which cannot be scored
+  if (any(grepl(",", key_vec, fixed = TRUE))) {
+    bad_pos <- which(grepl(",", key_vec, fixed = TRUE))
+    stop("`key` contains more than one option at position(s): ",
+         paste(bad_pos, collapse = ", "), ". Every item must have exactly ",
+         "one correct option.", call. = FALSE)
   }
 
   # classify each item's key value into one of three option-coding schemes,
