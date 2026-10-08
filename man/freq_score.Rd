@@ -8,7 +8,8 @@ freq_score(score, missing = NA)
 }
 \arguments{
 \item{score}{A numeric vector of integer total (raw) scores, one value per
-examinee.}
+examinee. A factor is converted through its labels (for example, the
+level \code{"12"} becomes the score 12), not through its level codes.}
 
 \item{missing}{A value indicating missing scores in \code{score}, analogous to
 the \code{missing} argument in \code{\link[=est_irt]{est_irt()}} and \code{\link[=score_resp]{score_resp()}}. Any

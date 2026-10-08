@@ -8,7 +8,8 @@
 #' for any vector of integer total scores.
 #'
 #' @param score A numeric vector of integer total (raw) scores, one value per
-#'   examinee.
+#'   examinee. A factor is converted through its labels (for example, the
+#'   level `"12"` becomes the score 12), not through its level codes.
 #' @param missing A value indicating missing scores in `score`, analogous to
 #'   the `missing` argument in [irtQ::est_irt()] and [irtQ::score_resp()]. Any
 #'   element equal to `missing` is recoded to `NA` before tabulation. Default
@@ -55,8 +56,11 @@
 #' @export
 freq_score <- function(score, missing = NA) {
 
-  # coerce to a plain numeric vector so factor/character input does not
-  # silently break the arithmetic below
+  # a factor is converted through its labels, not its level codes
+  if (is.factor(score)) score <- as.character(score)
+
+  # coerce to a plain numeric vector; a character score such as "12" becomes
+  # a number
   score <- as.numeric(score)
 
   # recode a user-specified missing-value sentinel to NA before tabulation,

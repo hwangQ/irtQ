@@ -57,3 +57,11 @@ test_that("freq_score() stops on an infinite or non-integer score", {
   expect_error(freq_score(c(1, 2, Inf)), "integer-valued scores")
   expect_error(freq_score(c(1, 2, 2 + 1e-6)), "integer-valued scores")
 })
+
+test_that("freq_score() converts a factor through its labels", {
+  out <- freq_score(factor(c(10, 20, 20, 30)))
+  expect_equal(out$score, 10:30)
+  expect_equal(sum(out$freq), 4)
+  expect_equal(out$freq[out$score %in% c(10, 20, 30)], c(1L, 2L, 1L))
+  expect_identical(out, freq_score(c(10, 20, 20, 30)))
+})
