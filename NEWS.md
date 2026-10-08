@@ -99,6 +99,16 @@
   obtained with `find_cut()` and softened the statement about path
   reversals.
 
+- Corrected the probability matrix of the first example in `?lwrc`, the
+  GPCM formula note in `?irtQ`, and the class of `prob.cats` in
+  `?traceline`. Corrected statements in the README, the vignette
+  overview, and the articles (shrinkage of MAP and EAP, `range.score` in
+  `irtfit()`, `fix.id` in `est_mg()`, the effect of `EmpHist` in FIPC,
+  the fixed-slope 1PLM, fixed guessing, the CATSIB regression
+  correction, the purification procedure, and the usage notes of the
+  utility functions). The DIF article now simulates item difficulties in
+  a narrower range so that the pooled calibrations converge.
+
 # irtQ 1.3.0
 
 ## New Features
