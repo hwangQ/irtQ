@@ -137,7 +137,7 @@ mod_pool <- est_irt(
   use.gprior = TRUE,
   gprior     = list(dist = "beta", params = c(4, 16)),
   EmpHist    = TRUE,
-  MaxE       = 1000,    # enough EM cycles for the empirical histogram to converge
+  MaxE       = 1000,    # allow extra EM cycles
   verbose    = FALSE
 )
 
@@ -257,11 +257,13 @@ p-values), and group sample sizes. Items with p-values below `alpha` are
 flagged as DIF.
 
 In this simulation, RDIF$_{RS}$ flags all six items with injected DIF (items
-1-6) and four DIF-free items (8, 9, 23, and 32). RDIF$_R$ flags the items with a
-difficulty shift (items 1, 2, 5, and 6), and RDIF$_S$ flags the items with a
-lower focal discrimination (items 3, 4, 5, and 6) together with item 1. The
-DIF-free items that are flagged are false positives, which the purification in
-the next example is designed to remove.
+1-6) and four DIF-free items (8, 9, 23, and 32). Among the items with injected
+DIF, RDIF$_R$ flags the items with a difficulty shift (items 1, 2, 5, and 6), and
+RDIF$_S$ flags the items with a lower focal discrimination (items 3, 4, 5, and 6)
+together with item 1. Each of these two statistics also flags some DIF-free items
+(RDIF$_R$: 8, 9, and 32; RDIF$_S$: 9, 19, 23, and 32). The DIF-free items that are
+flagged are false positives, which the purification in the next example is
+designed to remove.
 
 ### Example 2: RDIF with purification
 
@@ -269,9 +271,10 @@ When DIF items are present in the test, they can contaminate the ability
 estimates used to compute the RDIF statistics, inflating Type I error rates
 for DIF-free items. Iterative purification addresses this by progressively
 removing flagged DIF items from ability re-estimation. At each iteration, the
-flagged item with the largest value of the `purify.by` statistic is removed, the
-abilities are re-estimated from the remaining items, and the DIF tests are
-repeated. The procedure stops when no further item is flagged or when `max.iter`
+most significant flagged item (the item with the largest absolute standardized
+statistic for `"rdifr"` and `"rdifs"`, the largest statistic for `"rdifrs"` and
+for the GRDIF statistics, and the largest absolute `z.beta` for `catsib()`) is removed, the abilities are
+re-estimated from the remaining items, and the DIF tests are repeated. The procedure stops when no further item is flagged or when `max.iter`
 is reached [@lim_etal2022].
 
 ```{r rdif-purify}
@@ -400,7 +403,7 @@ mod_3g <- est_irt(
   use.gprior = TRUE,
   gprior     = list(dist = "beta", params = c(4, 16)),
   EmpHist    = TRUE,
-  MaxE       = 1000,    # enough EM cycles for the empirical histogram to converge
+  MaxE       = 1000,    # allow extra EM cycles
   verbose    = FALSE
 )
 
@@ -653,12 +656,30 @@ print(catsib_pur)
 catsib_pur$with_purify$dif_item
 ```
 
-In this run, the purification finishes after 10 iterations. It flags items 1, 2,
-4, 5, and 6 but not item 3, and it also flags five DIF-free items (8, 16, 19, 32,
-and 34). The warning printed above comes from the regression correction: after
-some items were removed, the estimated reliability of the focal group fell below
-0.05 and was floored (see the considerations below). Purification does not
-make the CATSIB results cleaner here, so they should be interpreted with caution.
+```{r catsib-summary, include=FALSE}
+# summarize the flagged items with and without purification (items 1-6 have DIF)
+dif_true  <- 1:6
+flag_npur <- catsib_npur$no_purify$dif_item
+flag_pur  <- catsib_pur$with_purify$dif_item
+fp_npur   <- setdiff(flag_npur, dif_true)
+fp_pur    <- setdiff(flag_pur, dif_true)
+fp_new    <- setdiff(fp_pur, fp_npur)
+miss_pur  <- setdiff(dif_true, flag_pur)
+```
+
+In this run, the purification finishes after `r catsib_pur$with_purify$n.iter`
+iterations. Of the six items with injected DIF, it flags items
+`r paste(intersect(dif_true, flag_pur), collapse = ", ")` (without purification:
+items `r paste(intersect(dif_true, flag_npur), collapse = ", ")`) and misses
+`r if (length(miss_pur) > 0) paste("item", paste(miss_pur, collapse = ", ")) else "none"`.
+The number of flagged DIF-free items changes from `r length(fp_npur)` (items
+`r paste(fp_npur, collapse = ", ")`) to `r length(fp_pur)` (items
+`r paste(fp_pur, collapse = ", ")`)`r if (length(fp_new) > 0) paste0("; item", if (length(fp_new) > 1) "s " else " ", paste(fp_new, collapse = ", "), " ", if (length(fp_new) > 1) "are" else "is", " new false positive", if (length(fp_new) > 1) "s" else "", " that did not appear without purification")`.
+Purification therefore changes the CATSIB results but does not remove all false
+positives, so they should be interpreted with caution. Depending on the platform,
+`catsib()` may also warn during purification that the estimated reliability of
+a group fell below 0.05 and was floored (see the considerations below); the
+warning is displayed above when it occurs.
 
 ### Important Considerations for CATSIB
 
