@@ -41,6 +41,27 @@ knitr::opts_chunk$set(
   Before, keys for tests with 10 or more items could be assigned to the
   wrong items.
 
+* `shape_df()` with `default.par = TRUE` now repeats a single value of
+  `cats` or `model` for all items. Before, a single `cats` value gave item
+  IDs of "V1" for every item and a guessing parameter of 0 instead of 0.2
+  for 3PLM items.
+
+* `irtfit()` now computes the observed category proportions directly from
+  the frequencies. Before, they came from `janitor::adorn_percentages()`,
+  which can include the total column in the denominator in some
+  environments and halve the proportions, the residuals, and `overSR.prop`.
+  Results are unchanged when the proportions were computed correctly.
+
+* `catsib()` no longer overwrites `score` with `se` when `se` is given as a
+  matrix or data frame.
+
+* `cac_rud()` no longer stops with a dimnames error when a performance
+  level has no examinees, and the label of the total row of `marginal` is
+  now "marginal", as in `cac_lee()`.
+
+* `simdat()` treats NA values in `g.drm` as zeros, as the item metadata
+  input does. Before, the responses to those items were all NA.
+
 ## Minor Improvements
 * `reval_mst()` now stops with an informative message when the modules in
   a stage differ in maximum sum score.
