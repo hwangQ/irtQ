@@ -134,8 +134,9 @@
 #'   "difficulty too high", "discrimination too low", and "discrimination
 #'   undefined", separated by "; ", or `""` when none). Statistics are
 #'   rounded to three decimal places.}
-#' \item{crit}{A list with elements `crit.p` and `crit.dis`, the thresholds
-#'   used for flagging.}
+#' \item{crit}{A list with elements `crit.p`, `crit.dis`, and `correct`, the
+#'   thresholds and the correlation used for flagging (`correct = TRUE` for
+#'   the corrected item-total correlation, `FALSE` for the raw one).}
 #' \item{alpha}{A one-row test-level summary data frame containing
 #'   `n_examinee`, `n_item`, `alpha`, `alpha_std`, `sem`, `mean_difficulty`,
 #'   `mean_discrimination_raw`, and `mean_discrimination_corrected`. Both the

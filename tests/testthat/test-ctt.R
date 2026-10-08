@@ -369,3 +369,32 @@ test_that("ctt_item() flags an item whose discrimination is undefined", {
   expect_equal(ctt_item(data = dat_zero)$item$flag[2],
                "difficulty too low; discrimination undefined")
 })
+
+# ---- correlation used for flagging -------------------------------------------
+
+test_that("ctt() records which item-total correlation is used for flagging", {
+  set.seed(32)
+  dat <- data.frame(matrix(rbinom(50 * 5, 1, 0.6), nrow = 50))
+
+  expect_identical(names(ctt(data = dat)$crit), c("crit.p", "crit.dis", "correct"))
+  expect_identical(ctt(data = dat)$crit$correct, FALSE)
+  expect_identical(ctt(data = dat, correct = TRUE)$crit$correct, TRUE)
+  expect_identical(summary(ctt(data = dat, correct = TRUE))$crit$correct, TRUE)
+  expect_identical(ctt_item(data = dat, flag = FALSE)$crit$correct, FALSE)
+  expect_identical(ctt_item(data = dat)$crit$crit.dis, 0.2)
+
+  # the full report names the correlation
+  expect_output(print(summary(ctt(data = dat))),
+                "discrimination >= 0.2 (raw item-total correlation)",
+                fixed = TRUE)
+  expect_output(print(summary(ctt(data = dat, correct = TRUE))),
+                "discrimination >= 0.2 (corrected item-total correlation)",
+                fixed = TRUE)
+
+  # an object saved without the element prints the threshold line as before
+  smry <- summary(ctt(data = dat))
+  smry$crit$correct <- NULL
+  lines <- utils::capture.output(print(smry))
+  expect_true(any(grepl("discrimination >= 0.2$", lines)))
+  expect_false(any(grepl("item-total correlation)", lines, fixed = TRUE)))
+})

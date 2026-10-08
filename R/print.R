@@ -931,9 +931,19 @@ print.summary.ctt <- function(x, digits = 3, ...) {
 
   if ("flag" %in% names(x$item)) {
     n_flagged <- sum(x$item$flag != "")
+
+    # name the correlation used for flagging; nothing is added for an object
+    # that does not record it
+    cor_txt <- if (is.null(x$crit$correct)) {
+      ""
+    } else if (isTRUE(x$crit$correct)) {
+      " (corrected item-total correlation)"
+    } else {
+      " (raw item-total correlation)"
+    }
     cat("Flagging thresholds: difficulty in [", x$crit$crit.p[1], ", ",
-        x$crit$crit.p[2], "], discrimination >= ", x$crit$crit.dis, "\n",
-        sep = "")
+        x$crit$crit.p[2], "], discrimination >= ", x$crit$crit.dis, cor_txt,
+        "\n", sep = "")
     cat(n_flagged, " of ", nrow(x$item), " item(s) flagged.\n\n", sep = "")
   }
 

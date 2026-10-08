@@ -94,8 +94,9 @@
 #'   and "discrimination undefined", separated by "; ", or `""` when none).
 #'   Discrimination is flagged using the column selected by `correct`.
 #'   Statistics are rounded to three decimal places.}
-#' \item{crit}{A list with elements `crit.p` and `crit.dis`, the thresholds
-#'   used for flagging.}
+#' \item{crit}{A list with elements `crit.p`, `crit.dis`, and `correct`, the
+#'   thresholds and the correlation used for flagging (`correct = TRUE` for
+#'   the corrected item-total correlation, `FALSE` for the raw one).}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -274,8 +275,11 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
     item_df$flag <- flag_txt
   }
 
-  # return the per-item statistics and the thresholds used to flag them
-  list(item = item_df, crit = list(crit.p = crit.p, crit.dis = crit.dis))
+  # return the per-item statistics, the thresholds used to flag them, and the
+  # item-total correlation used for flagging (TRUE = corrected)
+  list(item = item_df,
+       crit = list(crit.p = crit.p, crit.dis = crit.dis,
+                   correct = as.logical(correct)))
 }
 
 # validates scored item responses and the `cats` vector for the CTT functions.

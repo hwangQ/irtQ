@@ -80,8 +80,9 @@ An object of class \code{"ctt"}, a list with elements:
 "difficulty too high", "discrimination too low", and "discrimination
 undefined", separated by "; ", or \code{""} when none). Statistics are
 rounded to three decimal places.}
-\item{crit}{A list with elements \code{crit.p} and \code{crit.dis}, the thresholds
-used for flagging.}
+\item{crit}{A list with elements \code{crit.p}, \code{crit.dis}, and \code{correct}, the
+thresholds and the correlation used for flagging (\code{correct = TRUE} for
+the corrected item-total correlation, \code{FALSE} for the raw one).}
 \item{alpha}{A one-row test-level summary data frame containing
 \code{n_examinee}, \code{n_item}, \code{alpha}, \code{alpha_std}, \code{sem}, \code{mean_difficulty},
 \code{mean_discrimination_raw}, and \code{mean_discrimination_corrected}. Both the

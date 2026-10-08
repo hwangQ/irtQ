@@ -83,8 +83,9 @@ A list with two elements:
 and "discrimination undefined", separated by "; ", or \code{""} when none).
 Discrimination is flagged using the column selected by \code{correct}.
 Statistics are rounded to three decimal places.}
-\item{crit}{A list with elements \code{crit.p} and \code{crit.dis}, the thresholds
-used for flagging.}
+\item{crit}{A list with elements \code{crit.p}, \code{crit.dis}, and \code{correct}, the
+thresholds and the correlation used for flagging (\code{correct = TRUE} for
+the corrected item-total correlation, \code{FALSE} for the raw one).}
 }
 \description{
 Computes classical test theory (CTT) item statistics for dichotomous or
