@@ -153,6 +153,9 @@ out_distr$distr   # one row per item x option: freq, pct, pb_raw, pb_corrected, 
 out_distr$omit    # one row per item: pct_blank, pct_double
 ```
 
+With only two items, the corrected total is the score on the other item
+alone, so `pb_corrected` is unstable here; use a full-length test in practice.
+
 Each item's option-coding scheme (numeric, Latin-letter, or general label) is
 inferred independently from its own `key` value, using exactly the same rule
 as `score_resp()` - so a letter-coded or Korean-syllable-coded test form is
