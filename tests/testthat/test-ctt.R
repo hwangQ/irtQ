@@ -4,7 +4,7 @@
 ctt_item <- irtQ:::ctt_item
 ctt_alpha <- irtQ:::ctt_alpha
 
-# ── ctt_item(): dichotomous ─────────────────────────────────────────────────
+# ---- ctt_item(): dichotomous -------------------------------------------------
 
 test_that("ctt_item() computes difficulty and item-total correlations matching a from-scratch calculation", {
   set.seed(1)
@@ -78,7 +78,7 @@ test_that("ctt_item() errors with fewer than two items", {
   expect_error(ctt_item(data = dat), "at least two items")
 })
 
-# ── ctt_alpha() ──────────────────────────────────────────────────────────────
+# ---- ctt_alpha() --------------------------------------------------------------
 
 test_that("ctt_alpha() raw alpha matches the standard variance-based formula", {
   set.seed(4)
@@ -127,7 +127,7 @@ test_that("ctt_alpha() returns NA alpha when total score has zero variance", {
   expect_true(is.na(out$sem))
 })
 
-# ── ctt(): combined wrapper + print/summary S3 methods ──────────────────────
+# ---- ctt(): combined wrapper + print/summary S3 methods ----------------------
 
 test_that("ctt() bundles the same item/alpha content as calling the pieces separately", {
   set.seed(7)
@@ -169,7 +169,7 @@ test_that("ctt() works on the bundled LSAT6 dataset without error", {
   expect_true(out$alpha$alpha >= 0 && out$alpha$alpha <= 1)
 })
 
-# ── score and cats validation ───────────────────────────────────────────────
+# ---- score and cats validation -----------------------------------------------
 
 test_that("the CTT functions stop when an item score is out of range", {
   dat <- data.frame(I1 = c(0, 1, 1, 0, 1), I2 = c(1, 0, 3, 1, 0),
@@ -222,7 +222,7 @@ test_that("an item that every examinee scores 0 on has two inferred categories",
   expect_equal(alpha_out$mean_difficulty, round(mean(out$difficulty), 3))
 })
 
-# ── listwise deletion, row names, and constant items ────────────────────────
+# ---- listwise deletion, row names, and constant items ------------------------
 
 test_that("ctt() reports listwise deletion once and matches the result on complete data", {
   set.seed(21)

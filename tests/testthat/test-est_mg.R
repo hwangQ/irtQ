@@ -1,15 +1,15 @@
-# ── Common EM settings ────────────────────────────────────────────────────────
+# ---- Common EM settings --------------------------------------------------------
 MG_ARGS <- list(D = 1, Etol = 1e-3, MaxE = 100L, se = FALSE, verbose = FALSE)
 
-# ── Fixtures ──────────────────────────────────────────────────────────────────
+# ---- Fixtures ------------------------------------------------------------------
 
 prm_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
 x_full   <- bring.flexmirt(file = prm_file, "par")$Group1$full_df  # 55 items
 
-## Dichotomous: 10 × 3PLM common items
+## Dichotomous: 10 x 3PLM common items
 x_drm10 <- x_full[1:10, ]
 
-## GRM: 2 × GRM (5 categories) from the sample file
+## GRM: 2 x GRM (5 categories) from the sample file
 x_grm2  <- x_full[39:40, ]
 
 ## GPCM: 2 items created with shape_df
@@ -21,7 +21,7 @@ x_gpcm2 <- shape_df(
   cats = c(4L, 4L), model = "GPCM"
 )
 
-## Mixed: 6 × 3PLM + 2 × GRM (from sample)
+## Mixed: 6 x 3PLM + 2 x GRM (from sample)
 x_mixed8 <- x_full[c(1:6, 39:40), ]
 
 # Helper: simulate two groups from the same item bank with different theta distributions
@@ -46,9 +46,9 @@ run_mg <- function(x_items, data_list, ...) {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 1. Output class and structure
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() returns class 'est_mg'", {
   dat <- make_two_groups(x_drm10)
@@ -132,9 +132,9 @@ test_that("est_mg() niter is a positive integer", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 2. Dichotomous-only (3PLM)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() 3PLM: converges and returns 10 item rows", {
   dat <- make_two_groups(x_drm10, seed = 10)
@@ -172,9 +172,9 @@ test_that("est_mg() 3PLM model with x = NULL (model/cats/item.id specified direc
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 3. Polytomous-only (GRM)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() GRM-only: converges with 2 items", {
   dat <- make_two_groups(x_grm2, seed = 30, n = 400)
@@ -197,9 +197,9 @@ test_that("est_mg() GRM-only: par.est has same structure for both groups", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 4. Polytomous-only (GPCM)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() GPCM-only: converges with 2 items", {
   dat <- make_two_groups(x_gpcm2, seed = 40, n = 400)
@@ -215,9 +215,9 @@ test_that("est_mg() GPCM-only: par.est$overall has GPCM model column", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 5. Mixed format (3PLM + GRM)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() mixed (3PLM+GRM): converges with 8 items", {
   dat <- make_two_groups(x_mixed8, seed = 50, n = 500)
@@ -237,12 +237,12 @@ test_that("est_mg() mixed: par.est$overall contains both 3PLM and GRM rows", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 6. Common-item linking: shared IDs constrain to same parameters
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() anchor items: group-specific par.est agree for common items", {
-  # Both groups have the same 10 items (same IDs) → all items are anchors
+  # Both groups have the same 10 items (same IDs) -> all items are anchors
   dat <- make_two_groups(x_drm10, seed = 60)
   fit <- run_mg(x_drm10, dat, use.gprior = TRUE,
                 gprior = list(dist = "beta", params = c(5, 16)))
@@ -253,9 +253,9 @@ test_that("est_mg() anchor items: group-specific par.est agree for common items"
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 7. EmpHist = TRUE
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("est_mg() EmpHist=TRUE produces non-uniform weights for G2", {
   dat <- make_two_groups(x_drm10, seed = 70)
@@ -271,9 +271,9 @@ test_that("est_mg() EmpHist=TRUE produces non-uniform weights for G2", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 8. FIPC (multiple-group fixed item parameter calibration)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # This section exercises the est_mg() FIPC code path -- the multi-group
 # analogue of the FIPC branch tested for est_irt().  est_mg_fipc()
 # calls the same divide_data() / Estep_fipc() / Mstep / info_xpd()
@@ -383,9 +383,9 @@ test_that("est_mg() FIPC (OEM) does not warn about convergence criteria", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 9. summary() and print() do not error
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 test_that("summary.est_mg() runs without error", {
   dat <- make_two_groups(x_drm10, seed = 80)

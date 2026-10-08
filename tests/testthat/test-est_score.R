@@ -1,4 +1,4 @@
-# ── Fixtures ──────────────────────────────────────────────────────────────────
+# ---- Fixtures ------------------------------------------------------------------
 
 prm_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
 x_full   <- bring.flexmirt(file = prm_file, "par")$Group1$full_df  # 55 items
@@ -9,7 +9,7 @@ set.seed(99)
 theta_drm  <- rnorm(200)
 resp_drm   <- simdat(x = x_drm, theta = theta_drm, D = 1)
 
-## 2. GRM-only: 5 items, 4 categories (scored 0–3)
+## 2. GRM-only: 5 items, 4 categories (scored 0-3)
 x_grm <- shape_df(
   par.prm = list(
     a = c(0.9, 1.1, 1.2, 1.0, 0.8),
@@ -37,7 +37,7 @@ set.seed(22)
 theta_gpcm <- rnorm(300)
 resp_gpcm  <- simdat(x = x_gpcm, theta = theta_gpcm, D = 1)
 
-## 4. Mixed: 5 × 3PLM + 2 × GRM (4 cats)  → max sum score = 5 + 6 = 11
+## 4. Mixed: 5 x 3PLM + 2 x GRM (4 cats)  -> max sum score = 5 + 6 = 11
 x_mix_grm <- shape_df(
   par.drm = list(a = c(1.0,1.2,0.9,1.1,1.0),
                  b = c(-1.0,-0.5,0.0,0.5,1.0),
@@ -51,7 +51,7 @@ set.seed(33)
 theta_mix_grm  <- rnorm(300)
 resp_mix_grm   <- simdat(x = x_mix_grm, theta = theta_mix_grm, D = 1)
 
-## 5. Mixed: 5 × 3PLM + 2 × GPCM (4 cats) → max sum score = 5 + 6 = 11
+## 5. Mixed: 5 x 3PLM + 2 x GPCM (4 cats) -> max sum score = 5 + 6 = 11
 x_mix_gpcm <- shape_df(
   par.drm = list(a = c(1.0,1.2,0.9,1.1,1.0),
                  b = c(-1.0,-0.5,0.0,0.5,1.0),
@@ -66,7 +66,7 @@ theta_mix_gpcm  <- rnorm(300)
 resp_mix_gpcm   <- simdat(x = x_mix_gpcm, theta = theta_mix_gpcm, D = 1)
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ---- Helpers -------------------------------------------------------------------
 
 check_pointwise <- function(result, n = 200) {
   expect_s3_class(result, "data.frame")
@@ -86,9 +86,9 @@ check_sumtable <- function(result, max_ss) {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # 1. 3PLM ONLY (10 dichotomous items, max sum = 10)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 
 base_drm <- list(x = x_drm, data = resp_drm, D = 1)
 
@@ -123,7 +123,7 @@ test_that("3PLM | EAP: estimates within quadrature range", {
   expect_true(all(res$est.theta >= -4 & res$est.theta <= 4))
 })
 
-test_that("3PLM | EAP.SUM: list structure, score.table has 11 rows (0–10)", {
+test_that("3PLM | EAP.SUM: list structure, score.table has 11 rows (0-10)", {
   res <- do.call(est_score, c(base_drm, list(method = "EAP.SUM",
                                               norm.prior = c(0,1), nquad = 41L)))
   check_sumtable(res, max_ss = 10L)
@@ -161,9 +161,9 @@ test_that("3PLM | ML/WL/MAP/EAP rank-correlate > 0.95", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# 2. GRM ONLY (5 items, 4 cats → max sum = 15)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# 2. GRM ONLY (5 items, 4 cats -> max sum = 15)
+# ==============================================================================
 
 base_grm <- list(x = x_grm, data = resp_grm, D = 1)
 
@@ -189,7 +189,7 @@ test_that("GRM | EAP: returns correct data frame structure", {
   check_pointwise(res, n = 300L)
 })
 
-test_that("GRM | EAP.SUM: list structure, score.table has 16 rows (0–15)", {
+test_that("GRM | EAP.SUM: list structure, score.table has 16 rows (0-15)", {
   res <- do.call(est_score, c(base_grm, list(method = "EAP.SUM",
                                               norm.prior = c(0,1), nquad = 41L)))
   check_sumtable(res, max_ss = 15L)
@@ -203,14 +203,14 @@ test_that("GRM | INV.TCC: list structure, score.table monotone (16 rows)", {
 
 test_that("GRM | ML estimates correlate with true theta", {
   res <- do.call(est_score, c(base_grm, list(method = "ML", range = c(-6,6))))
-  # 5 polytomous items: lower information than 10 dichotomous → threshold 0.65
+  # 5 polytomous items: lower information than 10 dichotomous -> threshold 0.65
   expect_gt(cor(res$est.theta, theta_grm), 0.65)
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# 3. GPCM ONLY (5 items, 4 cats → max sum = 15)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# 3. GPCM ONLY (5 items, 4 cats -> max sum = 15)
+# ==============================================================================
 
 base_gpcm <- list(x = x_gpcm, data = resp_gpcm, D = 1)
 
@@ -236,7 +236,7 @@ test_that("GPCM | EAP: returns correct data frame structure", {
   check_pointwise(res, n = 300L)
 })
 
-test_that("GPCM | EAP.SUM: list structure, score.table has 16 rows (0–15)", {
+test_that("GPCM | EAP.SUM: list structure, score.table has 16 rows (0-15)", {
   res <- do.call(est_score, c(base_gpcm, list(method = "EAP.SUM",
                                                norm.prior = c(0,1), nquad = 41L)))
   check_sumtable(res, max_ss = 15L)
@@ -254,9 +254,9 @@ test_that("GPCM | ML estimates correlate with true theta", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# 4. MIXED: 5 × 3PLM + 2 × GRM (max sum = 5*1 + 2*3 = 11)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# 4. MIXED: 5 x 3PLM + 2 x GRM (max sum = 5*1 + 2*3 = 11)
+# ==============================================================================
 
 base_mix_grm <- list(x = x_mix_grm, data = resp_mix_grm, D = 1)
 
@@ -282,7 +282,7 @@ test_that("Mixed(3PLM+GRM) | EAP: returns correct data frame structure", {
   check_pointwise(res, n = 300L)
 })
 
-test_that("Mixed(3PLM+GRM) | EAP.SUM: list structure, score.table has 12 rows (0–11)", {
+test_that("Mixed(3PLM+GRM) | EAP.SUM: list structure, score.table has 12 rows (0-11)", {
   res <- do.call(est_score, c(base_mix_grm, list(method = "EAP.SUM",
                                                   norm.prior = c(0,1), nquad = 41L)))
   check_sumtable(res, max_ss = 11L)
@@ -300,9 +300,9 @@ test_that("Mixed(3PLM+GRM) | ML estimates correlate with true theta", {
 })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# 5. MIXED: 5 × 3PLM + 2 × GPCM (max sum = 5*1 + 2*3 = 11)
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# 5. MIXED: 5 x 3PLM + 2 x GPCM (max sum = 5*1 + 2*3 = 11)
+# ==============================================================================
 
 base_mix_gpcm <- list(x = x_mix_gpcm, data = resp_mix_gpcm, D = 1)
 
@@ -328,7 +328,7 @@ test_that("Mixed(3PLM+GPCM) | EAP: returns correct data frame structure", {
   check_pointwise(res, n = 300L)
 })
 
-test_that("Mixed(3PLM+GPCM) | EAP.SUM: list structure, score.table has 12 rows (0–11)", {
+test_that("Mixed(3PLM+GPCM) | EAP.SUM: list structure, score.table has 12 rows (0-11)", {
   res <- do.call(est_score, c(base_mix_gpcm, list(method = "EAP.SUM",
                                                    norm.prior = c(0,1), nquad = 41L)))
   check_sumtable(res, max_ss = 11L)

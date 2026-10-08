@@ -43,7 +43,7 @@ test_that("drm() single theta scalar input works", {
   expect_equal(dim(P), c(1L, 1L))
 })
 
-# ── prm() ──────────────────────────────────────────────────────────────────────
+# ---- prm() ----------------------------------------------------------------------
 
 test_that("prm() GRM: category probabilities sum to 1", {
   P <- prm(theta = c(-1, 0, 1), a = 1.2, d = c(-1, 0, 1), D = 1, pr.model = "GRM")

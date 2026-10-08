@@ -1,7 +1,7 @@
 # confirm_df() is not exported; access via :::
 confirm_df <- irtQ:::confirm_df
 
-# ── helpers ───────────────────────────────────────────────────────────────────
+# ---- helpers -------------------------------------------------------------------
 
 make_drm_df <- function(model = "3PLM") {
   data.frame(
@@ -28,7 +28,7 @@ make_grm_df <- function() {
   )
 }
 
-# ── valid inputs ──────────────────────────────────────────────────────────────
+# ---- valid inputs --------------------------------------------------------------
 
 test_that("confirm_df() accepts a valid 3PLM data frame", {
   x <- make_drm_df("3PLM")
@@ -115,7 +115,7 @@ test_that("confirm_df() accepts a factor model column and converts it", {
   expect_true(is.character(result$model))
 })
 
-# ── invalid inputs ────────────────────────────────────────────────────────────
+# ---- invalid inputs ------------------------------------------------------------
 
 test_that("confirm_df() errors on unknown model name", {
   x <- make_drm_df("4PLM")

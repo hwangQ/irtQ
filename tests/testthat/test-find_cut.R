@@ -3,23 +3,23 @@
 
 test_that("find_cut() returns correct structure with simMST 1-3-3 panel", {
 
-  # ── Setup ────────────────────────────────────────────────────────────────
+  # ---- Setup ----------------------------------------------------------------
   x         <- simMST$item_bank
   module    <- simMST$module
   route_map <- simMST$route_map
 
   result    <- find_cut(x = x, module = module, route_map = route_map, D = 1.702)
 
-  # ── Class and top-level structure ────────────────────────────────────────
+  # ---- Class and top-level structure ----------------------------------------
   expect_s3_class(result, "find_cut")
   expect_named(result, c("cut_score", "details", "tif_data"))
 
-  # ── cut_score: list of length n_stg - 1 ──────────────────────────────────
-  # simMST is a 1-3-3 panel (3 stages) → cut_score has 2 elements
+  # ---- cut_score: list of length n_stg - 1 ----------------------------------
+  # simMST is a 1-3-3 panel (3 stages) -> cut_score has 2 elements
   expect_type(result$cut_score, "list")
   expect_length(result$cut_score, 2L)
 
-  # Stage 2 has 3 modules → 2 cut scores
+  # Stage 2 has 3 modules -> 2 cut scores
   expect_length(result$cut_score[[1L]], 2L)
   expect_true(all(is.numeric(result$cut_score[[1L]])))
 
@@ -168,7 +168,7 @@ test_that("find_cut() ref_theta selects the closest proper crossing", {
   expect_length(result_2$cut_score, 2L)
 })
 
-# ── plot.find_cut() tests ──────────────────────────────────────────────────
+# ---- plot.find_cut() tests --------------------------------------------------
 
 test_that("plot.find_cut() returns a ggplot object for all layout options", {
   skip_if_not_installed("ggplot2")
