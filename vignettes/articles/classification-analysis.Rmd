@@ -56,7 +56,8 @@ Both functions return a list with five elements:
 - `$conditional`: a data frame of conditional CA and CC for each theta (or node),
 - `$prob.level`: a data frame of the probability of being assigned to each level
   for each theta (or node),
-- `$cutscore`: the cut scores used in the analysis (on the observed score scale).
+- `$cutscore`: the cut scores used in the analysis (on the observed score scale
+  for `cac_lee()` and on the theta scale for `cac_rud()`).
 
 ```{r load-pkg}
 library(irtQ)
@@ -200,7 +201,7 @@ This distribution gives the probability that an examinee with ability $\theta$ o
 each possible observed summed score $x$.
 
 **Cut scores** partition the range of observed summed scores into $K$ performance
-levels. The probability that an examinee at ability $\theta$ is assigned to level $k$
+levels ($K - 1$ cut scores define $K$ levels). The probability that an examinee at ability $\theta$ is assigned to level $k$
 is:
 $$
 p_\theta(k) = \sum_{x \in \text{level } k} \Pr(X = x \mid \theta).
@@ -246,7 +247,7 @@ where:
 | Argument   | Description |
 |------------|-------------|
 | `x`        | Item metadata data frame |
-| `cutscore` | Numeric vector of cut scores; defines $K + 1$ performance levels |
+| `cutscore` | Numeric vector of $K - 1$ cut scores defining $K$ performance levels |
 | `weights`  | Two-column matrix of quadrature nodes and weights for D-method (use `gen.weight()`) |
 | `theta`    | Numeric vector of individual ability estimates for P-method |
 | `D`        | Scaling constant; must match the value used during calibration |
@@ -414,7 +415,7 @@ Either `x` or `se` must be provided.
 | Argument   | Description |
 |------------|-------------|
 | `x`        | Item metadata data frame (optional if `se` is provided; used to compute SE from TIF) |
-| `cutscore` | Numeric vector of cut scores on the **theta scale** |
+| `cutscore` | Numeric vector of $K - 1$ cut scores on the **theta scale**, defining $K$ performance levels |
 | `theta`    | Numeric vector of individual ability estimates (P-method) |
 | `se`       | Numeric vector of standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
 | `weights`  | Two-column matrix of quadrature nodes and weights (D-method) |
@@ -471,15 +472,17 @@ cac_r_p$marginal
 cac_r_p2$marginal
 ```
 
-Note that `cac_r_p` and `cac_r_p2` yield **nearly** identical results because ML-based SEs 
-are theoretically equivalent to $1/\sqrt{I(\hat\theta)}$. **However, slight discrepancies 
-may occur in practice due to how extreme boundary values are handled.** When using `est_score()` 
-with ML estimation, the SEs for extreme ability estimates (e.g., artificially bounded 
-at -5 or 5 for all-correct or all-incorrect responses)are internally capped at an arbitrary 
-large value (e.g., 99.99999) to prevent computational errors. In contrast, computing 
-the SE internally from the test information function (TIF) using `cac_rud()` calculates 
-the exact analytical value at those bounded thetas. Therefore, if the sample includes 
-examinees with extreme scores, minor differences in the final marginal indices might be observed.
+Note that `cac_r_p` and `cac_r_p2` yield similar but not identical results. ML-based
+SEs are theoretically equivalent to $1/\sqrt{I(\hat\theta)}$, but `est_score()` sets
+the SE to 99.9999 when an ML estimate equals a limit of `range` (here -5 or 5). Such
+estimates occur for all-correct or all-incorrect response patterns and, with 3PLM
+items, for some low-score patterns. In `cac_r_p2` these SEs are passed on as they are,
+whereas `cac_r_p` computes the SE from the test information function (TIF) at every
+ability estimate, including the bounded ones. The help page of `cac_rud()` advises
+handling the 99.9999 values before they are supplied through `se`; this example
+supplies them unchanged to show the effect. When examinees with such estimates are
+present, the marginal indices differ slightly between the two calls. Supplying `x`
+instead of `se` avoids the problem.
 
 ---
 
@@ -513,13 +516,19 @@ cac_r_mix_p$marginal
 ## Comparing Lee's and Rudner's Methods
 
 ```{r method-compare}
-# Side-by-side comparison of marginal CA and CC (binary test, P-method)
-cat("=== Lee's method (P-method) ===\n")
-print(cac_l_p$marginal)
+# Side-by-side comparison of marginal CA and CC (binary test, P-method,
+# the same theta-scale cut scores for both methods)
+cat("=== Lee's method (P-method, theta-scale cut scores) ===\n")
+print(cac_l_theta$marginal)
 
 cat("\n=== Rudner's method (P-method, SE from TIF) ===\n")
 print(cac_r_p$marginal)
 ```
+
+Both calls use the same cut scores on the theta scale ($-0.5$ and $0.8$), so the
+marginal indices are directly comparable. The overall marginal CA and CC differ by
+less than 0.01 here; the level-specific values differ more (up to about 0.03 for
+level 2).
 
 The two methods share the same conceptual framework: both estimate CA and CC
 by computing, for each ability level, the probabilities of being assigned to each

@@ -64,16 +64,22 @@ attitude) and item parameters. Key advantages are:
   Fixed Item Parameter Calibration (FIPC) and Fixed Ability Parameter Calibration
   (FAPC) approaches, and multiple-group calibration
   (`est_irt()`, `est_mg()`, `est_item()`)
-- Estimating examinee abilities: maximum likelihood (ML), weighted likelihood (WLE),
-  maximum a posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
-  inverse test characteristic curve (TCC) scoring (`est_score()`)
+- Estimating examinee abilities: maximum likelihood (ML), maximum likelihood with
+  fences (MLF), weighted likelihood (WLE), maximum a posteriori (MAP), expected a
+  posteriori (EAP), EAP summed scoring, and inverse test characteristic curve (TCC)
+  scoring (`est_score()`)
 - Evaluating item-level model-data fit: $\chi^2$, $G^2$, infit/outfit, $S$-$X^2$
   (`irtfit()`, `sx2_fit()`)
 - Detecting differential item functioning (DIF): residual-based DIF (RDIF),
   generalized residual-based DIF (GRDIF), and simultaneous item bias test 
   modified for CAT (CATSIB) (`rdif()`, `grdif()`, `catsib()`)
+- Detecting item parameter drift (IPD): residual-based IPD (RIPD) and the
+  pseudo-count $D^2$ statistic (`ripd()`, `pcd2()`)
 - Computing classification accuracy and consistency indices
   (`cac_lee()`, `cac_rud()`)
+- Evaluating and simulating multistage-adaptive test (MST) panels: panel
+  structure, routing cut scores, recursion-based evaluation, and simulation
+  (`panel_info()`, `find_cut()`, `reval_mst()`, `run_mst()`)
 
 **Beyond these IRT-based analyses**, irtQ also provides a small set of
 classical test theory (CTT) functions (item difficulty, item-total
@@ -91,7 +97,7 @@ selected-response item data without fitting an IRT model
 | `traceline()` | Item and test characteristic curves |
 | `lwrc()` | Lord-Wingersky recursion (summed-score distributions) |
 | `gen.weight()` | Generate quadrature weights from a distribution |
-| `covirt()` | IRT-based covariance between items |
+| `covirt()` | Asymptotic variance-covariance matrices of item parameter estimates |
 | `run_flexmirt()` | Run flexMIRT directly from R |
 | `score_resp()` | Score raw selected-response data into a 0/1 matrix |
 
@@ -161,8 +167,8 @@ range from about $-3$ to $+3$.
 **$g$: Pseudo-guessing (item parameter)**  
 The lower asymptote of the ICC: the probability of a correct response as
 $\theta \to -\infty$. For a 5-option multiple-choice item with pure random guessing,
-$g = 0.2$. When $g = 0$ the ICC passes through the origin and the model reduces to
-the 2PLM or 1PLM.
+$g = 0.2$. When $g = 0$, the lower asymptote is 0 and the model reduces to the
+2PLM (or the 1PLM).
 
 **$D$: Scaling constant**  
 $D = 1.702$ is a constant that makes the logistic function closely approximate the
@@ -180,12 +186,14 @@ to approximate the normal-ogive metric.
 | **3PLM** | Freely estimated, varies across items | Freely estimated | $a$, $b$, $g$ |
 
 > **Note on 1PLM in irtQ.** When `fix.a.1pl = TRUE` (in `est_irt()`), the
-> discrimination is *fixed* to the value `a.val.1pl` (default 1); this is the
-> strict **Rasch model**. When `fix.a.1pl = FALSE` (the default), the common
-> discrimination is *estimated* from the data but constrained to be equal across all
-> 1PLM items. Both specifications produce only $b$ as the item-differentiating
-> parameter, but the second is more flexible when the Rasch assumption of $a = 1$
-> does not exactly hold.
+> discrimination is *fixed* to the value `a.val.1pl` (default 1). The latent
+> variance is also fixed (at 1 by default), so this is a 1PLM with a fixed common
+> slope rather than the usual Rasch identification, in which the slope is fixed and
+> the latent variance is estimated. When `fix.a.1pl = FALSE` (the default), the
+> common discrimination is *estimated* from the data but constrained to be equal
+> across all 1PLM items. Both specifications produce only $b$ as the
+> item-differentiating parameter, but the second is more flexible when a common
+> slope of $a = 1$ does not exactly hold.
 
 ---
 
@@ -242,8 +250,8 @@ $$P(Y = k \mid \theta) =
 \frac{\exp\!\left(\displaystyle\sum_{v=0}^{k} D\,a\,(\theta - b_v)\right)}
      {\displaystyle\sum_{h=0}^{K-1} \exp\!\left(\displaystyle\sum_{v=0}^{h} D\,a\,(\theta - b_v)\right)}$$
 
-where the convention $b_0 = 0$ is used so that the numerator for $k = 0$
-simplifies to $\exp(0) = 1$.
+where the $v = 0$ term is defined as 0 ($b_0$ is not a free parameter), so the
+numerator for $k = 0$ is $\exp(0) = 1$.
 
 **Parameters:**
 
@@ -257,10 +265,14 @@ simplifies to $\exp(0) = 1$.
 - Setting $a = 1$ for all items gives the **Partial Credit Model (PCM)** [@masters1982]
 - The GPCM is therefore a generalization of the PCM that allows item-varying
   discrimination
+- In irtQ, a PCM item is specified as `model = "GPCM"` with `fix.a.gpcm = TRUE`
+  (`a.val.gpcm = 1`) in the estimation functions; with `D = 1` and the latent
+  variance fixed at 1 (the default), this is the PCM.
+  There is no separate `"PCM"` model string.
 
 **How to specify in irtQ:** For an item with $K$ categories, provide a vector of
-$K - 1$ step parameters as the `d` argument in `shape_df()`. The convention
-$b_0 = 0$ is handled internally; you do not supply $b_0$.
+$K - 1$ step parameters as the `d` argument in `shape_df()`. The $v = 0$ term is
+handled internally; you do not supply $b_0$.
 
 ---
 
@@ -273,7 +285,7 @@ $b_0 = 0$ is handled internally; you do not supply $b_0$.
 | **3PLM** | Dichotomous | $a,\, b,\, g$ | All three parameters free |
 | **GRM**  | Polytomous  | $a,\, b_1, \ldots, b_{K-1}$ | Thresholds must be ordered |
 | **GPCM** | Polytomous  | $a,\, b_1, \ldots, b_{K-1}$ | Step params need not be ordered |
-| **PCM**  | Polytomous  | $b_1, \ldots, b_{K-1}$ | GPCM with $a = 1$ |
+| **PCM**  | Polytomous  | $b_1, \ldots, b_{K-1}$ | GPCM with $a = 1$; use `"GPCM"` with `fix.a.gpcm = TRUE` |
 
 > **Alias:** `"DRM"` is accepted as a model string for any dichotomous item
 > (1PLM, 2PLM, or 3PLM) in contexts where the model is already encoded in the
@@ -497,6 +509,8 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 
 ### Importing from the mirt package
 
+`bring.mirt()` requires the suggested **mirt** package.
+
 ```r
 # Fit a model with mirt (not run)
 # mirt_mod <- mirt::mirt(data = my_data, model = 1, itemtype = "2PL")
@@ -507,7 +521,7 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 
 ### Common Arguments for `bring.*()` Functions
 
-All `bring.*()` functions share two main arguments:
+All `bring.*()` functions except `bring.mirt()` share two main arguments:
 
 | Argument | Description |
 |----------|-------------|
@@ -658,7 +672,7 @@ you are ready to explore each analysis in depth:
 | Classification accuracy | [Classification Accuracy and Consistency](classification-analysis.html) | `cac_lee()`, `cac_rud()` |
 | Utilities | [Utility Functions](utilities.html) | `simdat()`, `drm()`, `prm()`, `info()`, `traceline()`, `lwrc()`, `gen.weight()`, `covirt()`, `score_resp()` |
 | Classical test theory (CTT) analysis | [Classical Test Theory (CTT) Analysis](ctt-analysis.html) | `ctt()`, `freq_score()`, `ctt_distr()` |
-| MST panel evaluation | [MST Panel Evaluation and Simulation](mst-panel-evaluation.html) | `reval_mst()` |
+| MST panel evaluation | [MST Panel Evaluation and Simulation](mst-panel-evaluation.html) | `panel_info()`, `find_cut()`, `reval_mst()`, `run_mst()` |
 
 ---
 

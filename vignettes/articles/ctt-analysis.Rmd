@@ -42,15 +42,16 @@ library(irtQ)
 
 ### From Raw Responses to a Scored Matrix
 
-Both `ctt()` and `freq_score()` expect an already-scored item response matrix
-(0/1 for a dichotomous item, or 0, 1, 2, ... for a polytomous item), the same
-convention used throughout irtQ (e.g., by `est_irt()`). Raw testing data,
+`ctt()` expects an already-scored item response matrix (0/1 for a
+dichotomous item, or 0, 1, 2, ... for a polytomous item), the same convention
+used throughout irtQ (e.g., by `est_irt()`), and `freq_score()` expects a
+vector of total scores, such as the `rowSums()` of a scored matrix. Raw testing data,
 however, usually records the option each examinee actually chose. The
 *Utility Functions* article covers `score_resp()` in full - including its
 support for numeric, Latin-letter, and general-label (e.g., Korean-syllable)
 option-coding schemes - but a short example is worth repeating here, since it
-is the natural first step before calling `ctt()` or `freq_score()` on raw
-data:
+is the natural first step before calling `ctt()` on raw data (or computing
+the total scores that `freq_score()` tabulates):
 
 ```{r score-resp-bridge}
 # Raw responses for 5 examinees on 3 letter-coded items; item 2 has one
@@ -63,7 +64,7 @@ raw3 <- data.frame(
 key3 <- c("A", "D", "C")
 
 scored3 <- score_resp(data = raw3, key = key3)
-scored3$scored          # 0/1 matrix - the input format ctt()/freq_score() expect
+scored3$scored          # 0/1 matrix - the input format ctt() expects
 scored3$resp_summary     # per-item blank/double-mark/invalid counts
 ```
 
@@ -89,11 +90,17 @@ dat_mixed <- simdat(x = x, theta = theta, D = 1)
 dim(dat_mixed)   # 1,000 examinees x 55 items
 table(x$cats)    # 50 items with cats = 2 (dichotomous), 5 items with cats = 5 (GRM)
 
-# Data set 2: a small dichotomous-only response matrix, used for a simpler,
-# easier-to-read walk-through of ctt()'s item- and test-level output
+# Data set 2: a small dichotomous-only response matrix (300 examinees on 15
+# simulated 3PLM items), used for a simpler, easier-to-read walk-through of
+# ctt()'s item- and test-level output
 set.seed(1)
-dat_bin <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
-dim(dat_bin)     # 300 examinees x 8 items
+x_bin <- shape_df(
+  par.drm = list(a = rep(1.5, 15), b = seq(-1.5, 1.5, length.out = 15),
+                 g = rep(0.2, 15)),
+  cats = 2, model = "3PLM"
+)
+dat_bin <- simdat(x = x_bin, theta = rnorm(300), D = 1)
+dim(dat_bin)     # 300 examinees x 15 items
 ```
 
 ---
@@ -145,6 +152,9 @@ out_distr <- ctt_distr(data = raw, key = key)
 out_distr$distr   # one row per item x option: freq, pct, pb_raw, pb_corrected, flag
 out_distr$omit    # one row per item: pct_blank, pct_double
 ```
+
+With only two items, the corrected total is the score on the other item
+alone, so `pb_corrected` is unstable here; use a full-length test in practice.
 
 Each item's option-coding scheme (numeric, Latin-letter, or general label) is
 inferred independently from its own `key` value, using exactly the same rule
@@ -318,7 +328,7 @@ summary(out_bin)     # summary.ctt(): full report
 
 | Function       | Input                                   | Key output                                                   | Used by |
 |----------------|------------------------------------------|----------------------------------------------------------------|---------|
-| `score_resp()` | Raw option choices + answer key         | 0/1 scored response matrix                                      | `ctt()`, `ctt_distr()` (selected-response mode), `est_irt()`, `est_score()` |
+| `score_resp()` | Raw option choices + answer key         | 0/1 scored response matrix                                      | Output feeds `ctt()`, `est_irt()`, `est_score()`; called by `ctt_distr()` (selected-response mode) |
 | `freq_score()` | Vector of total (raw) scores            | Frequency / percentage / cumulative-percentage table            | `ctt()` |
 | `ctt_distr()`  | Raw option data + key, or a scored matrix | Option/category response distribution, point-biserial correlations, distractor flags | Item and distractor review |
 | `ctt()`        | Scored item response matrix             | Item-level statistics, test-level reliability (alpha/SEM), total-score frequency distribution | `print.ctt()`, `summary.ctt()` |
