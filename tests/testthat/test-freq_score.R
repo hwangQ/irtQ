@@ -65,3 +65,10 @@ test_that("freq_score() converts a factor through its labels", {
   expect_equal(out$freq[out$score %in% c(10, 20, 30)], c(1L, 2L, 1L))
   expect_identical(out, freq_score(c(10, 20, 20, 30)))
 })
+
+test_that("freq_score() handles negative scores", {
+  out <- freq_score(c(-2, -1, -1, 1))
+  expect_equal(out$score, -2:1)
+  expect_equal(out$freq, c(1L, 2L, 0L, 1L))
+  expect_equal(out$cum_pct, c(25, 75, 75, 100))
+})

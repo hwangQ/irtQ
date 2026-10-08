@@ -238,3 +238,60 @@ test_that("ctt_distr() treats a missing code with surrounding spaces as an omiss
   expect_equal(out$distr$option[out$distr$item == "V1"], c(1, 2))
   expect_equal(out$distr$freq[out$distr$item == "V1"], c(1L, 1L))
 })
+
+# ---- hand-checked values for the selected-response mode ----------------------
+
+raw_hand <- data.frame(
+  V1 = c("1", "2", "1", "1", "3", "2", "1", "4"),
+  V2 = c("4", "4", "2", "2,4", "4", "1", "4", "4")
+)
+
+test_that("ctt_distr() selected-response mode reproduces the point-biserial correlations", {
+  out <- ctt_distr(data = raw_hand, key = c(1, 4))$distr
+  pick <- function(item, option) out[out$item == item & out$option == option, ]
+
+  expect_equal(pick("V1", 1)$pb_raw, 0.626)
+  expect_equal(pick("V1", 1)$pb_corrected, -0.258)
+  expect_equal(pick("V1", 2)$pb_raw, -0.602)
+  expect_equal(pick("V1", 2)$pb_corrected, -0.149)
+  expect_equal(pick("V2", 4)$pb_raw, 0.592)
+  expect_equal(pick("V2", 4)$pb_corrected, -0.258)
+
+  # an option chosen by no one has an undefined correlation
+  expect_true(is.na(pick("V2", 3)$pb_raw))
+  expect_true(is.na(pick("V2", 3)$pb_corrected))
+})
+
+test_that("correct selects the correlation used for the distractor flag", {
+  flag_raw <- ctt_distr(data = raw_hand, key = c(1, 4))$distr$flag
+  flag_corrected <- ctt_distr(data = raw_hand, key = c(1, 4),
+                              correct = TRUE)$distr$flag
+  expect_equal(flag_raw, rep("", 8))
+  expect_equal(which(flag_corrected != ""), c(3L, 4L, 6L))
+  expect_equal(unique(flag_corrected[flag_corrected != ""]),
+               "distractor more attractive to high scorers")
+})
+
+test_that("ctt_distr() counts a missing code as an omission in selected-response mode", {
+  raw9 <- raw_hand
+  raw9$V1[c(2, 5)] <- "9"
+  out <- ctt_distr(data = raw9, key = c(1, 4), missing = "9")
+  expect_equal(out$omit$pct_blank, c(25, 0))
+  v1 <- out$distr[out$distr$item == "V1", ]
+  expect_equal(v1$option, c(1, 2, 4))
+  expect_equal(v1$freq, c(4L, 1L, 1L))
+})
+
+test_that("ctt_distr() scored-category mode aligns total with the retained rows", {
+  dat <- data.frame(I1 = c(0, 1, 2, 1, -9, 2), I2 = c(1, 0, 1, 1, 0, 1))
+  expect_warning(
+    out <- ctt_distr(data = dat, total = c(5, 3, 6, 4, 1, 7), missing = -9),
+    "1 examinee(s) with missing item responses were excluded listwise",
+    fixed = TRUE
+  )
+  row <- out$distr[out$distr$item == "V1" & out$distr$option == 2, ]
+  expect_equal(row$freq, 2L)
+  expect_equal(row$pct, 40)
+  expect_equal(row$pb_raw, 0.866)
+  expect_equal(row$pb_corrected, 0.490)
+})

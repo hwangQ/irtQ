@@ -398,3 +398,53 @@ test_that("ctt() records which item-total correlation is used for flagging", {
   expect_true(any(grepl("discrimination >= 0.2$", lines)))
   expect_false(any(grepl("item-total correlation)", lines, fixed = TRUE)))
 })
+
+# ---- hand-checked values for a mixed-format data set -------------------------
+
+dat_mixed <- data.frame(
+  I1 = c(1, 1, 1, 0, 1, 0, 1, 0, 0, 1),
+  I2 = c(1, 1, 0, 1, 1, 0, 0, 0, 0, 1),
+  I3 = c(2, 1, 2, 0, 1, 0, 1, 1, 0, 2),
+  I4 = c(1, 0, 1, 0, 1, 1, 0, 0, 0, 1)
+)
+
+test_that("ctt_item() gives alpha with the item removed and both discrimination columns", {
+  out <- ctt_item(data = dat_mixed, flag = FALSE)$item
+
+  # values agree with psych::alpha() (alpha.drop$raw_alpha, raw.r, r.drop)
+  expect_equal(out$alpha_removed, c(0.583, 0.786, 0.605, 0.718))
+  expect_equal(out$discrimination_raw, c(0.866, 0.574, 0.889, 0.688))
+  expect_equal(out$discrimination_corrected, c(0.761, 0.330, 0.696, 0.484))
+})
+
+test_that("ctt_alpha() summarizes a mixed-format data set", {
+  out <- ctt_alpha(data = dat_mixed)
+  expect_equal(out$alpha, 0.746)
+  expect_equal(out$alpha_std, 0.751)
+  expect_equal(out$sem, 0.927)
+  expect_equal(out$mean_difficulty, 0.525)
+  expect_equal(out$mean_discrimination_raw, 0.754)
+  expect_equal(out$mean_discrimination_corrected, 0.568)
+})
+
+test_that("correct selects the correlation used for the discrimination flag", {
+  raw_flag <- ctt_item(data = dat_mixed, crit.dis = 0.5)$item$flag
+  corrected_flag <- ctt_item(data = dat_mixed, crit.dis = 0.5,
+                             correct = TRUE)$item$flag
+  expect_equal(raw_flag, rep("", 4))
+  expect_equal(corrected_flag,
+               c("", "discrimination too low", "", "discrimination too low"))
+})
+
+test_that("print.ctt() omits the flagged items line when flag is FALSE", {
+  out <- ctt(data = dat_mixed, flag = FALSE)
+  lines <- utils::capture.output(print(out))
+  expect_false(any(grepl("Flagged items", lines, fixed = TRUE)))
+  expect_true(any(grepl("Flagged items: 0 of 4", utils::capture.output(print(ctt(data = dat_mixed))),
+                        fixed = TRUE)))
+})
+
+test_that("print.summary.ctt() applies digits to the item table", {
+  lines <- utils::capture.output(print(summary(ctt(data = dat_mixed)), digits = 2))
+  expect_true("    V1     2         0.6                0.87                      0.76" %in% lines)
+})
