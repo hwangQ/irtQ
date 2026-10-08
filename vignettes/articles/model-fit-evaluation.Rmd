@@ -455,6 +455,9 @@ plot(
 | `"wilson"` | Wilson score interval, good coverage even for small $N_h$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
 
+All three methods give two-sided $(1 - \alpha)$ intervals, where $\alpha$ is the
+`alpha` argument of `irtfit()` (95% intervals by default).
+
 ---
 
 ## Part 3: Traditional Fit for Mixed-Format Tests
