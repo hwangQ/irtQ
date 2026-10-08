@@ -348,7 +348,11 @@ catsib <- function(x = NULL,
 
   # stop when the ability estimates are given without their standard errors
   if (!is.null(score) && is.null(se)) {
-    stop("The standard errors of the ability estimates must be supplied in the argument 'se' when 'score' is supplied.", call. = FALSE)
+    stop(
+      "The standard errors of the ability estimates must be supplied in the argument 'se' ",
+      "when 'score' is supplied.",
+      call. = FALSE
+    )
   }
 
   # create an item id
