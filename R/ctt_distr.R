@@ -273,16 +273,9 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
       stop("At least two examinees are required.", call. = FALSE)
     }
 
-    # resolve the correct-option key into a trimmed character vector in item
-    # column order, as score_resp() does, so both functions read `key` alike
-    if (is.data.frame(key)) {
-      # order by the numeric item number so character or factor item columns
-      # are matched by item number, as in score_resp()
-      item_order <- order(as.integer(as.character(key$item)))
-      key_vec <- trimws(as.character(key$key[item_order]))
-    } else {
-      key_vec <- trimws(as.character(key))
-    }
+    # take the key as a trimmed character vector in item column order, as
+    # resolved by score_resp(), so both functions read `key` alike
+    key_vec <- scored_out$resp_summary$key
 
     # classify each item's key value into the same three option-coding
     # schemes used by irtQ::score_resp(): numeric, Latin-letter

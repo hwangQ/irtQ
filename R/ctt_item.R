@@ -180,9 +180,9 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
     item_score <- data[[j]]     # this item's scored responses
     max_score <- cats[j] - 1    # maximum attainable score for this item
 
-    # difficulty = mean score / max score; NA when the item has no possible
-    # score range (max_score <= 0, i.e., a single-category/constant item)
-    difficulty[j] <- if (max_score > 0) mean(item_score) / max_score else NA_real_
+    # difficulty = mean score / max score; max_score is at least 1 because
+    # every item has at least two categories
+    difficulty[j] <- mean(item_score) / max_score
 
     # reference total scores for the raw (item-included) and corrected
     # (item-excluded) item-total correlations; both are always computed
@@ -254,10 +254,10 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
     flag_txt <- character(n_item)
     for (j in seq_len(n_item)) {
       msgs <- character(0)
-      if (!is.na(difficulty[j]) && difficulty[j] < crit.p[1]) {
+      if (difficulty[j] < crit.p[1]) {
         msgs <- c(msgs, "difficulty too low")
       }
-      if (!is.na(difficulty[j]) && difficulty[j] > crit.p[2]) {
+      if (difficulty[j] > crit.p[2]) {
         msgs <- c(msgs, "difficulty too high")
       }
       if (!is.na(discrimination_for_flag[j]) && discrimination_for_flag[j] < crit.dis) {

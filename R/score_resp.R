@@ -304,10 +304,9 @@ score_resp <- function(data, key, missing = NA) {
   is_key_numeric <- grepl("^[0-9]+(\\.[0-9]+)?$", key_vec)
   is_key_latin <- grepl("^[A-Za-z]+$", key_vec)
 
-  # column names to carry over to the scored output; fall back to V1, V2, ...
-  # when the input has no column names (mirrors irtQ's default item labeling)
+  # column names to carry over to the scored output; as.data.frame() above
+  # gives unnamed input the names V1, V2, ...
   item_names <- colnames(data)
-  if (is.null(item_names)) item_names <- paste0("V", seq_len(n_item))
 
   # pre-allocate the scored (0/1) matrix and a list to collect per-item
   # summary rows (filled in the loop below)
