@@ -283,3 +283,42 @@ test_that("ctt_item() checks the flagging thresholds only when flagging", {
   expect_error(ctt(data = dat, crit.p = 0.1), "crit.p")
   expect_no_error(ctt_item(data = dat, flag = FALSE, crit.p = 0.1))
 })
+
+# ---- standardized alpha with a constant item ---------------------------------
+
+test_that("ctt_alpha() keeps a constant item in the item count of the standardized alpha", {
+  set.seed(3)
+  th <- rnorm(200)
+  dat <- data.frame(sapply(1:6, function(j) as.integer(th + rnorm(200) > (j - 3) / 2)))
+  dat$K <- 1L
+  out <- ctt_alpha(data = dat)
+
+  # raw alpha of the standardized items, with the constant item at zero variance
+  z <- as.data.frame(scale(dat[, 1:6]))
+  z$K <- 0
+  alpha_ref <- 7 / 6 * (1 - 6 / stats::var(rowSums(z)))
+  expect_equal(out$alpha_std, round(alpha_ref, 3))
+  expect_equal(out$alpha_std, 0.674)
+  expect_equal(ctt(dat)$alpha$alpha_std, 0.674)
+})
+
+test_that("ctt_alpha() standardized alpha is at most 1 and NA when undefined", {
+  a <- c(0, 0, 1, 1, 1, 0, 1, 0, 1, 0)
+  b <- 1 - a
+  b[1] <- 0
+  out <- ctt_alpha(data = data.frame(a = a, b = b, c = 1))
+  expect_equal(out$alpha, -6.667)
+  expect_equal(out$alpha_std, -6.674)
+
+  # a zero denominator of the standardized form
+  dat_zero <- data.frame(a = c(1, NA, 0), b = c(0, 1, 1))
+  out_zero <- suppressWarnings(ctt(data = dat_zero))
+  expect_true(is.na(out_zero$alpha$alpha_std))
+
+  # every item constant: all summaries are NA, not NaN
+  out_const <- ctt_alpha(data = data.frame(a = c(1, 1, 1), b = c(0, 0, 0)))
+  expect_true(is.na(out_const$alpha_std))
+  expect_false(is.nan(out_const$mean_discrimination_raw))
+  expect_true(is.na(out_const$mean_discrimination_raw))
+  expect_true(is.na(out_const$mean_discrimination_corrected))
+})

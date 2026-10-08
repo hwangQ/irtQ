@@ -161,19 +161,31 @@ ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # standard error of measurement: SD(total score) * sqrt(1 - alpha)
   sem <- if (!is.na(alpha)) stats::sd(total) * sqrt(1 - alpha) else NA_real_
 
-  # standardized alpha: equivalent to raw alpha computed after standardizing
-  # every item to unit variance, via the average-inter-item-correlation form
-  # alpha_std = (k * r_bar) / (1 + (k - 1) * r_bar); r_bar is the mean of all
-  # off-diagonal (item, item) correlations. A constant item yields NA
-  # correlations with every other item, so na.rm = TRUE excludes those pairs;
-  # if every pairwise correlation is NA (e.g., all items constant), r_bar and
-  # therefore alpha_std are NaN, mirroring alpha's own NA-when-undefined
-  # behavior above.
-  # the zero-standard-deviation warning for a constant item is suppressed
-  # because its NA correlations are handled by na.rm = TRUE below
-  item_cor <- suppressWarnings(stats::cor(data))     # k x k item correlation matrix
-  r_bar <- mean(item_cor[upper.tri(item_cor)], na.rm = TRUE)  # mean off-diagonal r
-  alpha_std <- (n_item * r_bar) / (1 + (n_item - 1) * r_bar)
+  # standardized alpha: raw alpha computed after standardizing every item
+  # with nonzero variance to unit variance; a constant item stays in the item
+  # count with zero variance, as in raw alpha above
+  # flag the items with nonzero variance, since only these can be standardized
+  vary <- item_var > 0
+  k_vary <- sum(vary)    # number of items that vary
+
+  # mean off-diagonal correlation among the items that vary; NA when fewer
+  # than two items vary
+  r_bar <- NA_real_
+  if (k_vary >= 2L) {
+    item_cor <- stats::cor(data[vary])
+    r_bar <- mean(item_cor[upper.tri(item_cor)])
+  }
+
+  # denominator of the standardized form; zero when the standardized total
+  # score is constant
+  denom_std <- 1 + (k_vary - 1) * r_bar
+
+  # standardized alpha, or NA when it is undefined
+  alpha_std <- if (!is.na(r_bar) && denom_std > sqrt(.Machine$double.eps)) {
+    (n_item / (n_item - 1)) * ((k_vary - 1) * r_bar) / denom_std
+  } else {
+    NA_real_
+  }
 
   # average item difficulty/discrimination, obtained by calling ctt_item()
   # on the same (already missing-recoded and listwise-deleted) data, so the
@@ -181,10 +193,12 @@ ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # is left at its default (NA) here since recoding already happened above
   item_stats <- ctt_item(data = data, item.id = item.id, cats = cats,
                           correct = correct, missing = NA, flag = FALSE)$item
-  mean_difficulty <- mean(item_stats$difficulty, na.rm = TRUE)
-  mean_discrimination_raw <- mean(item_stats$discrimination_raw, na.rm = TRUE)
-  mean_discrimination_corrected <- mean(item_stats$discrimination_corrected,
-                                        na.rm = TRUE)
+
+  # average of the defined values, or NA when none is defined
+  mean_or_na <- function(x) if (all(is.na(x))) NA_real_ else mean(x, na.rm = TRUE)
+  mean_difficulty <- mean_or_na(item_stats$difficulty)
+  mean_discrimination_raw <- mean_or_na(item_stats$discrimination_raw)
+  mean_discrimination_corrected <- mean_or_na(item_stats$discrimination_corrected)
 
   # assemble the one-row test-level summary, rounded for readable reporting
   data.frame(

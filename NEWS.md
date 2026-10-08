@@ -1,6 +1,15 @@
 
 <!-- NEWS.md is generated from NEWS.Rmd. Please edit that file -->
 
+# irtQ 1.4.0
+
+## Bug Fixes
+
+- `ctt_alpha()` and `ctt()` computed the standardized alpha with an
+  inflated value when a test included a constant item. A constant item
+  is now kept in the item count as in the raw alpha, and the
+  standardized alpha is `NA` when it is undefined.
+
 # irtQ 1.3.1
 
 ## Bug Fixes
