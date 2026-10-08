@@ -162,6 +162,9 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # total score across all items (row sums), used for item-total correlations
   total <- rowSums(data)
 
+  # variance of each item, reused for alpha with the item removed
+  item_var <- vapply(data, stats::var, numeric(1))
+
   # pre-allocate per-item result vectors, filled in the loop below; both the
   # raw and corrected item-total correlations are always computed (see
   # @param correct), so both get their own vector regardless of `correct`
@@ -202,11 +205,10 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
 
     # alpha-with-item-removed: Cronbach's alpha recomputed using only the
     # remaining items (same variance-based formula as the test-level alpha)
-    rest <- data[, -j, drop = FALSE]     # all items except item j
-    k_rest <- ncol(rest)                  # number of remaining items
+    k_rest <- n_item - 1L                 # number of remaining items
     if (k_rest >= 2L) {
-      item_var_rest <- vapply(rest, stats::var, numeric(1))  # per-item variances
-      total_var_rest <- stats::var(rowSums(rest))            # remaining total var
+      item_var_rest <- item_var[-j]       # per-item variances without item j
+      total_var_rest <- stats::var(ref_total_corrected)  # remaining total var
       alpha_removed[j] <- if (total_var_rest > 0) {
         (k_rest / (k_rest - 1)) * (1 - sum(item_var_rest) / total_var_rest)
       } else {
