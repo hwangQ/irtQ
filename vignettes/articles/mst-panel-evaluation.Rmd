@@ -538,14 +538,30 @@ examinees, for example, by the Stage 3 (final) module each examinee landed
 in:
 
 ```{r se-theta-by-path}
-# Mean standard error by terminal (Stage 3) module, leaving out examinees
-# whose ML estimate reaches a limit of `range` (standard error 99.9999)
-ok_se <- sim_bmat$se.theta < 99
-tapply(sim_bmat$se.theta[ok_se], sim_bmat$path[ok_se, ncol(sim_bmat$path)], mean)
+# final (Stage 3) module of each examinee
+final_mod <- sim_bmat$path[, ncol(sim_bmat$path)]
+
+# ML estimates at a limit of `range` (c(-4, 4) in `final_score` above) have
+# no finite SE (reported as 99.9999)
+at_limit <- abs(sim_bmat$est.theta) >= 4
+
+# per final module: examinees, estimates at a limit, and mean SE of the rest
+data.frame(
+  module   = sort(unique(final_mod)),
+  n        = as.vector(table(final_mod)),
+  n_limit  = as.vector(tapply(at_limit, final_mod, sum)),
+  mean_se  = as.vector(tapply(sim_bmat$se.theta[!at_limit],
+                              final_mod[!at_limit], mean))
+)
 ```
 
-Examinees whose ML estimate reaches a limit of `range` get a standard error
-of 99.9999 (see `?est_score`), so they are excluded from this average.
+When an ML estimate reaches a limit of `range` (here -4 or 4, for example
+after all-correct or all-incorrect responses), its standard error is not
+finite and `run_mst()` reports 99.9999, as `est_score()` does. These values
+are flags rather than standard errors, so they are counted separately and
+left out of the mean. Examinees routed to the easy or hard final module
+(modules 5 and 7) have larger standard errors than those in the medium
+module, and they are the only ones whose estimates reach the limits.
 
 The full list of return components, including `panel` (reused from
 `panel_info()`), `true.theta`, and `full.resp` (the complete item-level
