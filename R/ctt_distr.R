@@ -455,8 +455,8 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
     }
     data <- data[complete_rows, , drop = FALSE]
 
-    # stop when a score or a `cats` value is not valid
-    check_ctt_scores(data, cats, item_names)
+    # stop when a score or a `cats` value is not valid, and round the scores
+    data <- check_ctt_scores(data, cats, item_names)
 
     # resolve the total score: use the caller-supplied vector (subset to the
     # same complete rows, so it stays aligned with `data` after deletion) if

@@ -28,7 +28,8 @@
 #'
 #' This function requires integer scores, as is standard for a raw total
 #' score. It does not bin or group values, and it stops with an error when a
-#' score is not a whole number.
+#' score is not a whole number. A score within 1e-8 of a whole number, such as
+#' the result of a floating-point sum, is counted as that whole number.
 #'
 #' The output table always spans `min(score)` to `max(score)`, so its size
 #' scales with the observed score *range*, not the sample size; a single
@@ -78,12 +79,15 @@ freq_score <- function(score, missing = NA) {
   }
 
   # this function only supports integer-valued scores (see @details); a
-  # non-integer score would silently fall outside the seq.int()-based bins
-  # below and be dropped without any other warning, so check explicitly here
-  if (!isTRUE(all.equal(score, round(score)))) {
+  # non-integer score would fall outside the integer bins below, so check
+  # every score explicitly here
+  if (any(!is.finite(score) | abs(score - round(score)) > 1e-8)) {
     stop("`score` must contain only integer-valued scores; freq_score() ",
          "does not bin or group non-integer values.", call. = FALSE)
   }
+
+  # round each score so that it matches its integer bin exactly
+  score <- round(score)
 
   # full range of integer score values (including any with zero observed
   # frequency), from the observed minimum to the observed maximum

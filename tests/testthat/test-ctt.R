@@ -322,3 +322,20 @@ test_that("ctt_alpha() standardized alpha is at most 1 and NA when undefined", {
   expect_true(is.na(out_const$mean_discrimination_raw))
   expect_true(is.na(out_const$mean_discrimination_corrected))
 })
+
+# ---- scores close to whole numbers -------------------------------------------
+
+test_that("ctt() treats scores within tolerance of whole numbers as whole numbers", {
+  dat <- data.frame(a = c(1, 0, 1, 1, 0, 1), b = c(1, 1, 0, 1, 0, 1),
+                    c = c(1, 0, 1, 1, 0, 1))
+  dat_near <- dat
+  dat_near$c[1] <- 1 + 3e-9
+
+  out <- ctt(data = dat_near)
+  out_exact <- ctt(data = dat)
+  expect_equal(sum(out$freq$freq), nrow(dat))
+  expect_equal(out$freq$cum_pct[nrow(out$freq)], 100)
+  expect_identical(out$freq, out_exact$freq)
+  expect_identical(out$item, out_exact$item)
+  expect_identical(out$alpha, out_exact$alpha)
+})

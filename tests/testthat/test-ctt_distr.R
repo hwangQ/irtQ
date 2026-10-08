@@ -210,3 +210,12 @@ test_that("ctt_distr() checks crit.distractor in selected-response mode", {
   expect_error(ctt_distr(data = raw, key = 1, crit.distractor = c(0, 0.1)),
                "crit.distractor")
 })
+
+test_that("ctt_distr() scored-category mode counts near-integer scores in their category", {
+  dat <- data.frame(I1 = c(0, 1, 2, (0.1 + 0.2) * 10 - 1, 1, 1),
+                    I2 = c(1, 0, 1, 1, 0, 1))
+  out <- ctt_distr(data = dat)$distr
+  out_i1 <- out[out$item == "V1", ]
+  expect_equal(sum(out_i1$freq), 6)
+  expect_equal(out_i1$freq, c(1L, 3L, 2L))
+})

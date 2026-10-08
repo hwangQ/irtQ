@@ -43,3 +43,17 @@ test_that("freq_score() errors on non-integer scores", {
   expect_error(freq_score(c(1, 2.5, 3)),
                "integer-valued scores")
 })
+
+test_that("freq_score() counts a score within tolerance of a whole number as that number", {
+  x3 <- (0.1 + 0.2) * 10
+  out <- freq_score(c(1, 2, x3, 3, 2))
+  expect_equal(out$score, 1:3)
+  expect_equal(out$freq, c(1L, 2L, 2L))
+  expect_equal(out$cum_pct[nrow(out)], 100)
+  expect_identical(out, freq_score(c(1, 2, 3, 3, 2)))
+})
+
+test_that("freq_score() stops on an infinite or non-integer score", {
+  expect_error(freq_score(c(1, 2, Inf)), "integer-valued scores")
+  expect_error(freq_score(c(1, 2, 2 + 1e-6)), "integer-valued scores")
+})

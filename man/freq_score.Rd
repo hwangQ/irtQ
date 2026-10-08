@@ -45,7 +45,8 @@ accumulate and the last cumulative percentage is 100.
 
 This function requires integer scores, as is standard for a raw total
 score. It does not bin or group values, and it stops with an error when a
-score is not a whole number.
+score is not a whole number. A score within 1e-8 of a whole number, such as
+the result of a floating-point sum, is counted as that whole number.
 
 The output table always spans \code{min(score)} to \code{max(score)}, so its size
 scales with the observed score \emph{range}, not the sample size; a single

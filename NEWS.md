@@ -10,6 +10,11 @@
   is now kept in the item count as in the raw alpha, and the
   standardized alpha is `NA` when it is undefined.
 
+- `ctt()`, `freq_score()`, and `ctt_distr()` left out of the frequency
+  tables a score that was within rounding error of a whole number, such
+  as `(0.1 + 0.2) * 10`, without a warning. Such a score is now counted
+  as the whole number.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

@@ -149,8 +149,8 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
     data <- data[complete_rows, , drop = FALSE]
   }
 
-  # stop when a score or a `cats` value is not valid
-  check_ctt_scores(data, cats, item_names)
+  # stop when a score or a `cats` value is not valid, and round the scores
+  data <- check_ctt_scores(data, cats, item_names)
 
   # infer the number of score categories per item from the observed maximum
   # score, when not supplied explicitly (cats[j] = observed max score + 1,
@@ -275,7 +275,8 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
 # validates scored item responses and the `cats` vector for the CTT functions.
 # `data` is a data frame with missing values already removed, `cats` is NULL
 # or one number of categories per item, and `item_names` labels the items in
-# the error messages. returns NULL invisibly and stops on the first problem
+# the error messages. returns the scores rounded to whole numbers invisibly and
+# stops on the first problem
 check_ctt_scores <- function(data, cats = NULL, item_names = NULL) {
 
   # number of items and default item labels for the messages
@@ -313,9 +314,12 @@ check_ctt_scores <- function(data, cats = NULL, item_names = NULL) {
          paste(item_names[not_whole], collapse = ", "), ".", call. = FALSE)
   }
 
+  # round each score to the whole number it was checked against
+  data[] <- lapply(data, function(x) round(as.numeric(x)))
+
   # nothing more to check when `cats` is not supplied
   if (is.null(cats)) {
-    return(invisible(NULL))
+    return(invisible(data))
   }
 
   # one `cats` value per item, each a whole number of at least 2
@@ -339,5 +343,5 @@ check_ctt_scores <- function(data, cats = NULL, item_names = NULL) {
          paste(item_names[too_high], collapse = ", "), ".", call. = FALSE)
   }
 
-  invisible(NULL)
+  invisible(data)
 }

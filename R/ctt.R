@@ -226,8 +226,9 @@ ctt <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   alpha_out <- ctt_alpha(data = data, item.id = item.id, cats = cats,
                           correct = correct, missing = NA)
 
-  # total score of the retained examinees, which freq_score() tabulates
-  total <- rowSums(data)
+  # total score of the retained examinees, which freq_score() tabulates;
+  # rounding gives scores within tolerance of whole numbers their whole total
+  total <- round(rowSums(data))
 
   # total-score frequency distribution (no missing values remain)
   freq_out <- freq_score(score = total, missing = NA)

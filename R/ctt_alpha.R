@@ -140,8 +140,8 @@ ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
     data <- data[complete_rows, , drop = FALSE]
   }
 
-  # stop when a score or a `cats` value is not valid
-  check_ctt_scores(data, cats, item.id)
+  # stop when a score or a `cats` value is not valid, and round the scores
+  data <- check_ctt_scores(data, cats, item.id)
   n_examinee <- nrow(data)
 
   # per-item variances and the total-score variance, used in the alpha
