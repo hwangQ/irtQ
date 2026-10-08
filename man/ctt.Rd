@@ -65,7 +65,9 @@ item with difficulty above the second value is flagged as too easy
 \item{crit.dis}{A single numeric value giving the minimum acceptable
 discrimination (item-total correlation); an item whose discrimination is
 strictly below this value is flagged as poorly discriminating
-("discrimination too low"). Default is \code{0.20}.}
+("discrimination too low"). An item whose discrimination is undefined
+(a constant item, or a constant reference total score) is flagged
+"discrimination undefined". Default is \code{0.20}.}
 }
 \value{
 An object of class \code{"ctt"}, a list with elements:
@@ -74,8 +76,10 @@ An object of class \code{"ctt"}, a list with elements:
 \code{discrimination_raw} (raw item-total correlation),
 \code{discrimination_corrected} (corrected item-total correlation),
 \code{alpha_removed} (alpha with the item removed), and, if \code{flag = TRUE},
-\code{flag} (the criteria the item meets, separated by "; ", or \code{""} when
-none). Statistics are rounded to three decimal places.}
+\code{flag} (the criteria the item meets, among "difficulty too low",
+"difficulty too high", "discrimination too low", and "discrimination
+undefined", separated by "; ", or \code{""} when none). Statistics are
+rounded to three decimal places.}
 \item{crit}{A list with elements \code{crit.p} and \code{crit.dis}, the thresholds
 used for flagging.}
 \item{alpha}{A one-row test-level summary data frame containing

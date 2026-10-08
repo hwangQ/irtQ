@@ -57,7 +57,9 @@
 #' @param crit.dis A single numeric value giving the minimum acceptable
 #'   discrimination (item-total correlation); an item whose discrimination is
 #'   strictly below this value is flagged as poorly discriminating
-#'   ("discrimination too low"). Default is `0.20`.
+#'   ("discrimination too low"). An item whose discrimination is undefined
+#'   (a constant item, or a constant reference total score) is flagged
+#'   "discrimination undefined". Default is `0.20`.
 #'
 #' @details
 #' Difficulty for item j is the mean observed item score divided by the
@@ -128,8 +130,10 @@
 #'   `discrimination_raw` (raw item-total correlation),
 #'   `discrimination_corrected` (corrected item-total correlation),
 #'   `alpha_removed` (alpha with the item removed), and, if `flag = TRUE`,
-#'   `flag` (the criteria the item meets, separated by "; ", or `""` when
-#'   none). Statistics are rounded to three decimal places.}
+#'   `flag` (the criteria the item meets, among "difficulty too low",
+#'   "difficulty too high", "discrimination too low", and "discrimination
+#'   undefined", separated by "; ", or `""` when none). Statistics are
+#'   rounded to three decimal places.}
 #' \item{crit}{A list with elements `crit.p` and `crit.dis`, the thresholds
 #'   used for flagging.}
 #' \item{alpha}{A one-row test-level summary data frame containing

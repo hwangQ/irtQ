@@ -44,6 +44,11 @@ knitr::opts_chunk$set(
   `"1,5"`. They now stop with an error, because every item must have exactly
   one correct option.
 
+* `ctt()` and `ctt_item()` now flag an item whose discrimination is undefined,
+  such as an item that every examinee answers alike, with the new flag
+  `"discrimination undefined"`. Such an item received no flag before when its
+  difficulty was within the bounds `crit.p`.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

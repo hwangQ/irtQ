@@ -49,7 +49,9 @@
 #' @param crit.dis A single numeric value giving the minimum acceptable
 #'   discrimination (item-total correlation); an item whose discrimination is
 #'   strictly below this value is flagged as poorly discriminating
-#'   ("discrimination too low"). Default is `0.20`.
+#'   ("discrimination too low"). An item whose discrimination is undefined
+#'   (a constant item, or a constant reference total score) is flagged
+#'   "discrimination undefined". Default is `0.20`.
 #'
 #' @details
 #' Difficulty for item j is defined generally as the mean observed score
@@ -88,8 +90,8 @@
 #'   `discrimination_corrected` (corrected item-total correlation),
 #'   `alpha_removed` (alpha with the item removed), and, only when
 #'   `flag = TRUE`, `flag` (the criteria the item meets, among
-#'   "difficulty too low", "difficulty too high", and
-#'   "discrimination too low", separated by "; ", or `""` when none).
+#'   "difficulty too low", "difficulty too high", "discrimination too low",
+#'   and "discrimination undefined", separated by "; ", or `""` when none).
 #'   Discrimination is flagged using the column selected by `correct`.
 #'   Statistics are rounded to three decimal places.}
 #' \item{crit}{A list with elements `crit.p` and `crit.dis`, the thresholds
@@ -260,7 +262,11 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
       if (difficulty[j] > crit.p[2]) {
         msgs <- c(msgs, "difficulty too high")
       }
-      if (!is.na(discrimination_for_flag[j]) && discrimination_for_flag[j] < crit.dis) {
+      # an item with no variance, or a constant reference total score, has an
+      # undefined discrimination and cannot separate examinees
+      if (is.na(discrimination_for_flag[j])) {
+        msgs <- c(msgs, "discrimination undefined")
+      } else if (discrimination_for_flag[j] < crit.dis) {
         msgs <- c(msgs, "discrimination too low")
       }
       flag_txt[j] <- paste(msgs, collapse = "; ")

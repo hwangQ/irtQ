@@ -339,3 +339,33 @@ test_that("ctt() treats scores within tolerance of whole numbers as whole number
   expect_identical(out$item, out_exact$item)
   expect_identical(out$alpha, out_exact$alpha)
 })
+
+# ---- flag for an undefined discrimination ------------------------------------
+
+test_that("ctt_item() flags an item whose discrimination is undefined", {
+  set.seed(1)
+  dat <- data.frame(matrix(rbinom(40 * 4, 1, 0.5), nrow = 40))
+  dat$P <- 1
+  out <- ctt_item(data = dat, cats = c(2, 2, 2, 2, 3))$item
+  expect_equal(out$difficulty[5], 0.5)
+  expect_true(is.na(out$discrimination_raw[5]))
+  expect_equal(out$flag[5], "discrimination undefined")
+  expect_false(any(grepl("undefined", out$flag[1:4])))
+
+  # the flag does not depend on which correlation is used for flagging
+  out_corr <- ctt_item(data = dat, cats = c(2, 2, 2, 2, 3), correct = TRUE)$item
+  expect_equal(out_corr$flag[5], "discrimination undefined")
+
+  # no flag column when flagging is off
+  expect_false("flag" %in% names(ctt_item(data = dat, flag = FALSE)$item))
+
+  # the undefined item counts in the number of flagged items
+  expect_output(print(ctt(data = dat, cats = c(2, 2, 2, 2, 3))),
+                "Flagged items: 1 of 5")
+
+  # an extreme item can carry both a difficulty and an undefined flag
+  dat_zero <- data.frame(I1 = c(0, 1, 1, 0, 1, 1), I2 = c(0, 0, 0, 0, 0, 0),
+                         I3 = c(1, 1, 0, 0, 1, 0))
+  expect_equal(ctt_item(data = dat_zero)$item$flag[2],
+               "difficulty too low; discrimination undefined")
+})
