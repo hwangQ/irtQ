@@ -302,7 +302,7 @@ fit_bin1 <- irtfit(
   data         = resp_bin,
   D            = 1.702,
   group.method = "equal.freq",   # ~equal number of examinees per bin
-  n.width      = 11,             # 11 bins; df = (bins left after collapsing) - 3 for 3PLM (χ²)
+  n.width      = 11,             # 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)
   loc.theta    = "middle",       # bin midpoint as representative θ
   range.score  = c(-4, 4),       # truncate ML estimates to [-4, 4]
   alpha        = 0.05,
@@ -334,22 +334,39 @@ fit_bin2$fit_stat
 
 **Why Example 1 flags many items.** The responses were generated from the same
 3PLM that was fitted, so the items should fit. Yet the $\chi^2$ test flags 12 of
-the 20 items in Example 1 and 4 items in Example 2 (counts below). Two features
-of the grouping explain this, not misfit of the model. The ability estimates
-contain error, and some ML estimates sit at a limit of the `range` (here 23
-examinees, reported with a standard error of 99.9999) and are truncated to $\pm 4$
-by `range.score`. In addition, with `equal.freq` and `loc.theta = "middle"`, the
-outer bins are wide (for ITEM1, $[-4, -1.49)$ and $[1.51, 4]$), so the bin
-midpoints can lie far from where the examinees in those bins actually are, so
-the expected probabilities are evaluated at points that do not represent the
-bins well. Example 2 uses equal-width bins with the mean ability estimate in each
-bin and flags fewer items. The $S$-$X^2$ statistic in Part 4 flags 2 of the 20
-items for the same calibration.
+the 20 items in Example 1. The main cause is `loc.theta = "middle"` combined with
+wide outer bins. Some ML estimates sit at a limit of the `range` (here 23
+examinees, reported with a standard error of 99.9999), and `range.score` truncates
+them to $\pm 4$, so the outer equal-frequency bins extend to $\pm 4$ (for ITEM1,
+$[-4, -1.49)$ and $[1.51, 4]$). The midpoint of such a bin can lie far from where
+most of its examinees are, and the expected probabilities are evaluated at a point
+that does not represent the bin. With the same equal-frequency bins and
+`loc.theta = "average"` (the mean ability estimate in each bin), far fewer items
+are flagged (counts below), and Example 2 (equal-width bins and mean ability
+estimates) flags the same number. Error in the ability estimates is not the main
+cause: in a separate check that used the true abilities instead of the ML
+estimates, the `"middle"` option still flagged 13 items. The $S$-$X^2$ statistic
+in Part 4 flags only 2 of the 20 items for the same calibration.
 
 ```{r irtfit-flag-counts}
+# Same equal-frequency bins, with the mean ability estimate as the bin location
+fit_bin3 <- irtfit(
+  x            = meta_cal_bin,
+  score        = score_bin$est.theta,
+  data         = resp_bin,
+  D            = 1.702,
+  group.method = "equal.freq",
+  n.width      = 11,
+  loc.theta    = "average",
+  range.score  = c(-4, 4),
+  alpha        = 0.05,
+  overSR       = 2
+)
+
 # Number of items with p < alpha for the chi-square statistic
 c(
   equal.freq_middle   = sum(fit_bin1$fit_stat$p.X2 < 0.05),
+  equal.freq_average  = sum(fit_bin3$fit_stat$p.X2 < 0.05),
   equal.width_average = sum(fit_bin2$fit_stat$p.X2 < 0.05)
 )
 
@@ -369,7 +386,7 @@ This is the table used to compute $\chi^2$ and $G^2$ after collapsing bins
 with sparse expected frequencies.
 
 ```{r irtfit-contingency}
-# Collapsed contingency table used for χ² and G² of Item 1
+# Collapsed contingency table used for chi-square and G2 of Item 1
 fit_bin1$contingency.fitstat[[1]]
 ```
 
@@ -625,9 +642,11 @@ fit_sx2_mix$obs_prop[[16]]
   signals a meaningful pattern worth investigating.
 - **Check the grouping first**: significant p-values can result from the grouping
   choices rather than from model misfit. In Example 1, the data were generated
-  from the fitted model, yet many items have p-values below `alpha` while the
-  `overSR.prop` values stay modest (at most about 0.27). Compare the results across
-  grouping options and with $S$-$X^2$ before dropping items.
+  from the fitted model, yet many items have p-values below `alpha`. Most items
+  have one to three of the 11 bins beyond the threshold (`overSR.prop` between
+  0.09 and 0.27), and these bins are mostly the outer ones, where the wide bins
+  and the midpoint location matter most. Compare the results across grouping
+  options and with $S$-$X^2$ before dropping items.
 
 ### Infit and Outfit
 

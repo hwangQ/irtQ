@@ -526,7 +526,9 @@ print(cac_r_p$marginal)
 ```
 
 Both calls use the same cut scores on the theta scale ($-0.5$ and $0.8$), so the
-marginal indices are directly comparable. They differ by less than 0.01 here.
+marginal indices are directly comparable. The overall marginal CA and CC differ by
+less than 0.01 here; the level-specific values differ more (up to about 0.03 for
+level 2).
 
 The two methods share the same conceptual framework: both estimate CA and CC
 by computing, for each ability level, the probabilities of being assigned to each

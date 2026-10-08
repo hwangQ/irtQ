@@ -266,7 +266,8 @@ numerator for $k = 0$ is $\exp(0) = 1$.
 - The GPCM is therefore a generalization of the PCM that allows item-varying
   discrimination
 - In irtQ, a PCM item is specified as `model = "GPCM"` with `fix.a.gpcm = TRUE`
-  (`a.val.gpcm = 1`) in the estimation functions; with `D = 1` this is the PCM.
+  (`a.val.gpcm = 1`) in the estimation functions; with `D = 1` and the latent
+  variance fixed at 1 (the default), this is the PCM.
   There is no separate `"PCM"` model string.
 
 **How to specify in irtQ:** For an item with $K$ categories, provide a vector of

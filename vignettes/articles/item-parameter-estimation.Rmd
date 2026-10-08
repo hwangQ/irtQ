@@ -117,7 +117,7 @@ $$
 \ell_j(\boldsymbol{\delta}_j) = \sum_{k=1}^{K} \left[ r_{jk} \ln P_j(\theta_k) + (n_k - r_{jk}) \ln (1 - P_j(\theta_k)) \right]
 $$
 
-where $\boldsymbol{\delta}_j$ denotes the item parameter vector (e.g., slope $a_j$ and difficulty $b_j$ for the 2PL model) and $P_j(\theta_k)$ is the item response function. `est_irt()` maximizes this function for each item with `stats::nlminb()` using analytic gradients.
+where $\boldsymbol{\delta}_j$ denotes the item parameter vector (e.g., slope $a_j$ and difficulty $b_j$ for the 2PL model) and $P_j(\theta_k)$ is the item response function. `est_irt()` maximizes this function for each item with `stats::nlminb()` using analytic gradients and Hessians.
 
 > Extension to Polytomous Items: While the formulation above uses dichotomous items for ease of illustration, the same underlying MMLE-EM framework generalizes to polytomous item response models (e.g., Graded Response Model, Generalized Partial Credit Model). For polytomous items, the expected complete-data log-likelihood incorporates multinomial category response probabilities $P_{jv}(\theta_k)$ and corresponding expected category frequencies $r_{jvk}$ for each category $v$, maintaining the identical decoupling optimization structure.
 

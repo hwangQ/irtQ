@@ -580,7 +580,8 @@ dichotomous-only test below). The first value of `range.tcc` is the estimate for
 a raw score of 0, and the second value is the estimate for the maximum raw score.
 The examples use `range.tcc = c(-7, 5)`: the lower bound is the default, and the
 upper bound is the same as the upper limit of `range` used for the pattern-based
-methods above.
+methods above. With the default upper bound of 7, the maximum raw score would be
+assigned a $\theta$ of 7, well above the values of the other estimates.
 
 #### Mixed-format test
 
