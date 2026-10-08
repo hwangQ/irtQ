@@ -36,8 +36,9 @@ IRT software output. The function calls \code{confirm_df(x)} internally
 to validate and normalise the metadata.}
 
 \item{route_map}{A binary square matrix defining the MST transition
-structure. A 1 at row \emph{i}, column \emph{j} means that a test taker
-can be routed from module \emph{i} to module \emph{j}. Equivalent to the
+structure. An entry of 1 in row \emph{i} and column \emph{j} means that a
+test taker can be routed from module \emph{i} to module \emph{j}.
+Equivalent to the
 \code{transMatrix} argument in \code{randomMST()} from \pkg{mstR}
 (Magis et al., 2017). See \code{\link{reval_mst}} for details.}
 
