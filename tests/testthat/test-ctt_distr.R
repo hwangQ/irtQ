@@ -219,3 +219,14 @@ test_that("ctt_distr() scored-category mode counts near-integer scores in their 
   expect_equal(sum(out_i1$freq), 6)
   expect_equal(out_i1$freq, c(1L, 3L, 2L))
 })
+
+test_that("ctt_distr() lists an option written as 1 and 01 once", {
+  raw <- data.frame(V1 = c("1", "01", "2", "1", "3"),
+                    V2 = c("2", "2", "1", "2", "2"))
+  out <- ctt_distr(data = raw, key = c(1, 2))$distr
+  expect_equal(nrow(out), 6)
+  expect_equal(out$option[out$item == "V1"], c(1, 2, 3))
+  expect_equal(out$freq[out$item == "V1"], c(3L, 1L, 1L))
+  expect_equal(out$pct[out$item == "V1"], c(60, 20, 20))
+  expect_equal(sum(out$pct[out$item == "V2"]), 100)
+})
