@@ -236,6 +236,19 @@ ctt_item <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   # optional flagging based on the difficulty/discrimination thresholds;
   # each item's flag column lists every criterion it triggered, or "" if none
   if (flag) {
+
+    # the difficulty bounds must be two ordered numbers
+    if (!is.numeric(crit.p) || length(crit.p) != 2L || anyNA(crit.p) ||
+        crit.p[1] > crit.p[2]) {
+      stop("`crit.p` must be two numbers with crit.p[1] <= crit.p[2].",
+           call. = FALSE)
+    }
+
+    # the discrimination threshold must be a single number
+    if (!is.numeric(crit.dis) || length(crit.dis) != 1L || is.na(crit.dis)) {
+      stop("`crit.dis` must be a single number.", call. = FALSE)
+    }
+
     flag_txt <- character(n_item)
     for (j in seq_len(n_item)) {
       msgs <- character(0)
@@ -280,6 +293,12 @@ check_ctt_scores <- function(data, cats = NULL, item_names = NULL) {
   # at least one examinee must remain after the missing-data handling
   if (nrow(data) == 0L) {
     stop("No examinee has complete item responses.", call. = FALSE)
+  }
+
+  # variances and correlations need at least two examinees
+  if (nrow(data) < 2L) {
+    stop("At least two examinees with complete item responses are required.",
+         call. = FALSE)
   }
 
   # every score must be a finite whole number of at least 0

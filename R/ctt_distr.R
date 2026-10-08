@@ -70,7 +70,9 @@
 #'   total score is computed internally: via [irtQ::score_resp()] in
 #'   selected-response mode, or as `rowSums(data)` in scored-category mode
 #'   (see **Details** for how `total` interacts with `missing`/listwise
-#'   deletion in scored-category mode).
+#'   deletion in scored-category mode). A supplied `total` must be numeric
+#'   with no missing values for the examinees analyzed, and it should include the item scores, since
+#'   `pb_corrected` subtracts each item's score from it.
 #' @param missing A value indicating missing responses, analogous to the
 #'   `missing` argument in [irtQ::est_irt()] and [irtQ::score_resp()]. Its
 #'   effect differs by mode (see **Details**): in selected-response mode, a
@@ -101,9 +103,11 @@
 #' item's frequency table) is a single vector shared across all items,
 #' `ctt_distr()` is intended for a test form that uses one consistent
 #' option-coding scheme throughout (e.g., every item numbered 1-5, or every
-#' item lettered A-E); mixing schemes across items within a single call is
-#' not well-supported, since the shared `opt` cannot represent two different
-#' option universes at once.
+#' item lettered A-E). Mixing schemes across items in a single call is not
+#' supported, since the shared `opt` cannot represent two different option
+#' sets at once; for example, mixing numeric-coded items with letter- or
+#' label-coded items stops with an error. Analyze such items in separate
+#' calls.
 #'
 #' The two modes handle missing responses differently because they represent
 #' different kinds of data. In selected-response mode, an omitted response is
@@ -226,6 +230,12 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
 
     # ---- Selected-response (raw option / distractor analysis) mode -------
 
+    # the distractor threshold must be a single number
+    if (!is.numeric(crit.distractor) || length(crit.distractor) != 1L ||
+        is.na(crit.distractor)) {
+      stop("`crit.distractor` must be a single number.", call. = FALSE)
+    }
+
     # convert every column to character up front, then recode a
     # user-specified missing sentinel to NA (mirrors score_resp()); blanks
     # remain in the sample here rather than triggering row deletion, since an
@@ -253,6 +263,16 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
       stop("length(total) must equal nrow(data).", call. = FALSE)
     }
 
+    # correlations need a numeric total score for every examinee
+    if (!is.numeric(total) || anyNA(total)) {
+      stop("`total` must be numeric with no missing values.", call. = FALSE)
+    }
+
+    # correlations need at least two examinees
+    if (nrow(data) < 2L) {
+      stop("At least two examinees are required.", call. = FALSE)
+    }
+
     # resolve the correct-option key into a trimmed character vector in item
     # column order, as score_resp() does, so both functions read `key` alike
     if (is.data.frame(key)) {
@@ -273,6 +293,13 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
     # compared further down
     is_key_numeric <- grepl("^[0-9]+(\\.[0-9]+)?$", key_vec)
     is_key_latin <- grepl("^[A-Za-z]+$", key_vec)
+
+    # one shared `opt` cannot hold numeric and non-numeric options at once
+    if (any(is_key_numeric) && !all(is_key_numeric)) {
+      stop("In selected-response mode, `key` must be numeric for every item ",
+           "or for none of them, since `opt` is shared across items.",
+           call. = FALSE)
+    }
 
     # the full set of possible option values, applied to every item (see
     # @details for the single-shared-scheme assumption this implies). If the
@@ -449,6 +476,11 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
              call. = FALSE)
       }
       total <- total[complete_rows]
+    }
+
+    # correlations need a numeric total score for every examinee
+    if (!is.numeric(total) || anyNA(total)) {
+      stop("`total` must be numeric with no missing values.", call. = FALSE)
     }
 
     # infer the number of score categories per item, when not supplied

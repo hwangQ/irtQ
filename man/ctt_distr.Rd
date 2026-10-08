@@ -68,7 +68,9 @@ examinee, aligned with the rows of \code{data}. If \code{NULL} (default), the
 total score is computed internally: via \code{\link[=score_resp]{score_resp()}} in
 selected-response mode, or as \code{rowSums(data)} in scored-category mode
 (see \strong{Details} for how \code{total} interacts with \code{missing}/listwise
-deletion in scored-category mode).}
+deletion in scored-category mode). A supplied \code{total} must be numeric
+with no missing values for the examinees analyzed, and it should include the item scores, since
+\code{pb_corrected} subtracts each item's score from it.}
 
 \item{correct}{Logical. Both the raw item-total correlation (the item
 score, or in \code{\link[=ctt_distr]{ctt_distr()}} an option or category indicator, correlated
@@ -145,9 +147,11 @@ response is accepted as a single valid option and compared to the key
 item's frequency table) is a single vector shared across all items,
 \code{ctt_distr()} is intended for a test form that uses one consistent
 option-coding scheme throughout (e.g., every item numbered 1-5, or every
-item lettered A-E); mixing schemes across items within a single call is
-not well-supported, since the shared \code{opt} cannot represent two different
-option universes at once.
+item lettered A-E). Mixing schemes across items in a single call is not
+supported, since the shared \code{opt} cannot represent two different option
+sets at once; for example, mixing numeric-coded items with letter- or
+label-coded items stops with an error. Analyze such items in separate
+calls.
 
 The two modes handle missing responses differently because they represent
 different kinds of data. In selected-response mode, an omitted response is

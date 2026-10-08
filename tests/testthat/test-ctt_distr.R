@@ -168,3 +168,45 @@ test_that("ctt_distr() scored-category mode gives an all-zero item two categorie
   expect_equal(out_i2$option, c(0, 1))
   expect_equal(out_i2$freq, c(6L, 0L))
 })
+
+# ---- input checks ------------------------------------------------------------
+
+test_that("ctt_distr() stops when numeric and non-numeric keys are mixed", {
+  raw <- data.frame(V1 = c("1", "2", "1", "3"), V2 = c("A", "B", "A", "C"))
+  expect_error(ctt_distr(data = raw, key = c(1, "A")), "numeric for every item")
+})
+
+test_that("ctt_distr() stops when total is not numeric or has missing values", {
+  raw <- data.frame(V1 = c("1", "2", "1", "3"))
+  expect_error(ctt_distr(data = raw, key = 1, total = c(3, NA, 2, 1)),
+               "no missing values")
+  expect_error(ctt_distr(data = raw, key = 1, total = c("3", "2", "2", "1")),
+               "numeric")
+
+  dat <- data.frame(a = c(0, 1, 1, 0), b = c(1, 1, 0, 0))
+  expect_error(ctt_distr(data = dat, total = c(1, NA, 1, 0)),
+               "no missing values")
+
+  # a missing total for an examinee deleted listwise is allowed
+  dat_na <- data.frame(a = c(0, 1, 1, 0, NA), b = c(1, 1, 0, 0, 1))
+  expect_warning(
+    out <- ctt_distr(data = dat_na, total = c(1, 2, 1, 0, NA)),
+    "excluded listwise"
+  )
+  expect_s3_class(out$distr, "data.frame")
+})
+
+test_that("ctt_distr() stops when fewer than two examinees are analyzed", {
+  expect_error(ctt_distr(data = data.frame(V1 = "1", V2 = "2"), key = c(1, 2)),
+               "two examinees")
+  expect_error(ctt_distr(data = data.frame(a = 1, b = 0, c = 1)),
+               "two examinees")
+})
+
+test_that("ctt_distr() checks crit.distractor in selected-response mode", {
+  raw <- data.frame(V1 = c("1", "2", "1", "3"))
+  expect_error(ctt_distr(data = raw, key = 1, crit.distractor = NA_real_),
+               "crit.distractor")
+  expect_error(ctt_distr(data = raw, key = 1, crit.distractor = c(0, 0.1)),
+               "crit.distractor")
+})

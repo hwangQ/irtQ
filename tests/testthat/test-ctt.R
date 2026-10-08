@@ -262,3 +262,24 @@ test_that("ctt_alpha() gives no warning for a constant item", {
   expect_no_warning(out <- ctt_alpha(data = dat))
   expect_false(is.na(out$alpha_std))
 })
+
+# ---- input checks ------------------------------------------------------------
+
+test_that("the CTT functions stop when fewer than two examinees remain", {
+  dat <- data.frame(a = 1, b = 0, c = 1)
+  expect_error(ctt(data = dat), "two examinees")
+  expect_error(ctt_item(data = dat), "two examinees")
+  expect_error(ctt_alpha(data = dat), "two examinees")
+})
+
+test_that("ctt_item() checks the flagging thresholds only when flagging", {
+  set.seed(31)
+  dat <- data.frame(matrix(rbinom(30 * 4, 1, 0.5), nrow = 30))
+  expect_error(ctt_item(data = dat, crit.p = 0.1), "crit.p")
+  expect_error(ctt_item(data = dat, crit.p = c(0.95, 0.1)), "crit.p")
+  expect_error(ctt_item(data = dat, crit.p = c(0.1, NA)), "crit.p")
+  expect_error(ctt_item(data = dat, crit.dis = NA_real_), "crit.dis")
+  expect_error(ctt_item(data = dat, crit.dis = c(0.2, 0.3)), "crit.dis")
+  expect_error(ctt(data = dat, crit.p = 0.1), "crit.p")
+  expect_no_error(ctt_item(data = dat, flag = FALSE, crit.p = 0.1))
+})
