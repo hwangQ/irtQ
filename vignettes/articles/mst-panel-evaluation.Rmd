@@ -1206,8 +1206,9 @@ region of close central agreement widens as test length increases.
 
 We reproduce that second condition directly here for the `simMST` panel,
 using the same scoring combination @lim_etal2021 used in their own
-validation: `route_score = "EAP"` for routing at each interim stage, and
-`final_score = "ML"` for the reported final score. Neither method matches
+validation: `route_score = list(method = "EAP")` for routing at each interim
+stage, and `final_score = list(method = "ML")` for the reported final score.
+Neither method matches
 `reval_mst()`'s internal inverse-TCC logic, so the two results are not
 expected to coincide everywhere; the comparison below should reproduce the
 same central-agreement-with-tail-divergence pattern @lim_etal2021 reported.
@@ -1329,17 +1330,19 @@ internal inverse-TCC logic, and that departure grows where the item pool
 carries little information and EAP/MLE estimates behave quite differently
 from the inverse-TCC-based recursion. This mirrors the pattern
 @lim_etal2021 reported for this identical EAP-routing/MLE-final condition.
-Matching the recursion's own scoring exactly (`route_score = "INV.TCC"`
-and `final_score = "INV.TCC"` instead of `"EAP"`/`"ML"`) would close most
-of this gap. `reval_mst()` is therefore best read as predicting the performance
+Matching the recursion's own scoring exactly
+(`route_score = list(method = "INV.TCC")` and
+`final_score = list(method = "INV.TCC")` instead of the EAP and ML methods)
+would close most of this gap. `reval_mst()` is therefore best read as predicting the performance
 of a panel routed and scored via inverse-TCC; whenever a program uses a
 different scoring approach operationally, a `run_mst()` simulation like
 this one remains the more direct check, particularly for ability levels
 far from the panel's region of peak information.
 
 **Step 4: Confirm the gap closes under matched scoring.** As a final check,
-re-run the same simulation with `route_score = "INV.TCC"` and
-`final_score = "INV.TCC"`, matching `reval_mst()`'s internal logic exactly:
+re-run the same simulation with `route_score = list(method = "INV.TCC")` and
+`final_score = list(method = "INV.TCC")`, matching `reval_mst()`'s internal
+logic exactly:
 
 ```{r mc-simulate-matched, cache=FALSE}
 sim_mc_matched <- run_mst(
