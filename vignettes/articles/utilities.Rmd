@@ -202,7 +202,7 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 | `D`         | Scaling constant |
 | `a.drm`     | Discrimination parameters for dichotomous items (required when `x = NULL`) |
 | `b.drm`     | Difficulty parameters for dichotomous items (required when `x = NULL`) |
-| `g.drm`     | Guessing parameters; omit for 1PLM/2PLM, use `NA` for mixed 1/2/3PLM tests |
+| `g.drm`     | Guessing parameters; omit for 1PLM/2PLM, use `NA` (treated as 0) for 1PLM and 2PLM items in mixed 1/2/3PLM tests |
 | `a.prm`     | Discrimination parameters for polytomous items |
 | `d.prm`     | List of threshold parameter vectors, one element per polytomous item |
 | `cats`      | Number of score categories per item (2 for dichotomous); required when `x = NULL` |
@@ -214,9 +214,10 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 
 ## `drm()` and `prm()`: Item Response Probability Functions
 
-`drm()` and `prm()` are the low-level probability engines underlying
-`simdat()`, `traceline()`, `info()`, and the internal estimation routines.
-They compute item response probabilities directly from IRT parameters and are
+`drm()` and `prm()` are the low-level probability functions behind
+`traceline()` (`drm()`), `simdat()` (`prm()`), and the internal likelihood and
+estimation routines. They compute item response probabilities directly from IRT
+parameters and are
 useful whenever you need category probabilities at a specific set of theta
 values without constructing a full item metadata frame.
 
@@ -277,9 +278,10 @@ The `d` argument contains $K - 1$ threshold parameters for a $K$-category item:
 - **GRM**: `d` holds the $K - 1$ difficulty thresholds $b_k$ at which
   $P(U \geq k \mid \theta) = 0.5$. The categories are ordered so that higher
   theta values yield higher expected scores.
-- **GPCM**: `d` holds the $K - 1$ threshold parameters expressed as the item
-  location minus the step parameter for each category boundary. The first
-  threshold is fixed at 0 internally, so provide $K - 1$ values.
+- **GPCM**: `d` holds the $K - 1$ threshold parameters $b_1, \ldots, b_{K-1}$,
+  each expressed as the item location minus the step parameter for a category
+  boundary. The $v = 0$ term of the model is defined as 0 internally ($b_0$ is
+  not supplied), so provide $K - 1$ values.
 
 ```{r prm-grm}
 # GRM: 4-category item (d has K-1 = 3 thresholds)
@@ -332,7 +334,7 @@ set `a = 1`.
 | `b`        | ✓ |   | Difficulty parameter(s), dichotomous items only |
 | `g`        | ✓ |   | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
 | `d`        |   | ✓ | Vector of $K-1$ threshold parameters, polytomous items only |
-| `D`        | ✓ | ✓ | Scaling constant (typically `1.702`) |
+| `D`        | ✓ | ✓ | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
 | `pr.model` |   | ✓ | `"GRM"` or `"GPCM"` |
 
 ---
@@ -493,7 +495,7 @@ ability grid.
 
 The function returns an object of class `"traceline"` with four components:
 
-- `$prob.cats`: a named list of data frames, one per item, containing category
+- `$prob.cats`: a named list of matrices, one per item, containing category
   response probabilities (columns `resp.0`, `resp.1`, ...) at each theta value,
 - `$icc`: matrix of expected item scores (rows = theta, columns = items),
 - `$tcc`: numeric vector of expected total (summed) scores at each theta,
@@ -689,20 +691,20 @@ $$
 $$
 
 This distribution is the foundation of IRT-based score equating and is used
-internally by `sx2_fit()`, `cac_lee()`, and `est_score()` (EAP summed-score
-method). For tests with polytomous items, the algorithm generalizes
+internally by `cac_lee()`, `reval_mst()`, and `est_score()` (the `"EAP.SUM"` and
+`"INV.TCC"` methods). For tests with polytomous items, the algorithm generalizes
 straightforwardly to ordered response categories.
 
 The function supports **two input modes**:
 
 - **`x` argument** (item metadata): computes the conditional distribution at
   each specified `theta` value; returns a matrix with rows = summed scores
-  ($0, 1, \ldots, J$) and columns = theta levels.
+  ($0, 1, \ldots, \sum_j (K_j - 1)$) and columns = theta levels.
 - **`prob` argument** (`x = NULL`): the user provides a category probability
-  matrix already evaluated at a particular theta (or a single marginal weight),
-  together with a `cats` vector; returns a **named vector** of summed-score
-  probabilities. This is useful when category probabilities come from an external
-  source or when computing the marginal distribution at a single fixed ability level.
+  matrix already evaluated at a particular theta, together with a `cats` vector;
+  returns a **named vector** of summed-score probabilities. This is useful when
+  category probabilities come from an external source or when computing the
+  conditional distribution at a single fixed ability level.
 
 ### Mode 1: Using item metadata (`x` argument)
 
@@ -735,8 +737,8 @@ The two results agree, confirming that the expected summed score derived from
 
 When `x = NULL`, the user supplies `prob` (rows = items, columns = score
 categories) and `cats`. **Importantly, the columns in the `prob` matrix strictly correspond to the ordered score categories (i.e., column 1 is for score 0, column 2 is for score 1, column 3 is for score 2, and so forth).** Empty cells for items with fewer categories should be
-filled with `0` or `NA`. This mode returns the **marginal** score distribution
-for the single ability level at which the probabilities were computed.
+filled with `0` or `NA`. This mode returns the **conditional** score distribution
+at the single ability level at which the probabilities were computed.
 
 ```{r lwrc-prob-binary}
 ## Example from Kolen & Brennan (2004, p. 183): 3 dichotomous items at a fixed theta
@@ -775,8 +777,9 @@ sum(score_dist_mix)
 
 `gen.weight()` generates a two-column data frame of quadrature nodes and
 normalised weights to be used in numerical integration over the ability scale.
-It is used by `est_score()` (EAP), `sx2_fit()`, `cac_lee()`, `cac_rud()`,
-and `covirt()`.
+It is used internally by `est_irt()`, `est_mg()`, `est_score()`, `sx2_fit()`,
+`covirt()`, `pcd2()`, and `run_mst()`, and its output can be passed as the
+`weights` argument of `cac_lee()` and `cac_rud()`.
 
 Three distribution options are available via the `dist` argument:
 
@@ -995,12 +998,12 @@ using Korean syllable labels.
 | Function       | Input             | Key output                           | Used by |
 |----------------|-------------------|--------------------------------------|---------|
 | `simdat()`     | Item metadata or raw params + θ | Response matrix       | Testing, demos |
-| `drm()`        | a, b, g, θ        | P(correct) matrix (θ × items)        | `simdat()`, `traceline()`, `info()`, `covirt()` |
-| `prm()`        | a, d, θ, model    | Category prob. matrix (θ × cats)     | `simdat()`, `traceline()`, `info()`, `covirt()` |
-| `info()`       | Item metadata + θ grid | IIF matrix, TIF vector; `plot()` | `est_score()` |
-| `traceline()`  | Item metadata + θ grid | ICC matrix, TCC vector, category probs; `plot()` | Visualisation |
-| `lwrc()`       | Item metadata + θ, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `sx2_fit()`, `est_score()` |
-| `gen.weight()` | Distribution spec | Node-weight data frame               | `cac_lee()`, `cac_rud()`, `est_score()`, `covirt()` |
+| `drm()`        | a, b, g, θ        | P(correct) matrix (θ × items)        | `traceline()`, internal likelihood and estimation routines |
+| `prm()`        | a, d, θ, model    | Category prob. matrix (θ × cats)     | `simdat()`, internal likelihood and estimation routines |
+| `info()`       | Item metadata + θ grid | IIF matrix, TIF vector; `plot()` | `cac_rud()`, `find_cut()`, `run_mst()` |
+| `traceline()`  | Item metadata + θ grid | ICC matrix, TCC vector, category probs; `plot()` | `cac_lee()`, `plot.irtfit()`; visualisation |
+| `lwrc()`       | Item metadata + θ, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `reval_mst()`, `est_score()` (`"EAP.SUM"`, `"INV.TCC"`) |
+| `gen.weight()` | Distribution spec | Node-weight data frame               | `est_irt()`, `est_mg()`, `est_score()`, `sx2_fit()`, `covirt()`, `pcd2()`, `run_mst()`; input to `cac_lee()` and `cac_rud()` |
 | `covirt()`     | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
 | `score_resp()` | Raw option choices + answer key | 0/1 scored response matrix | Output feeds `ctt()`, `est_irt()`, `est_score()`; called by `ctt_distr()` (selected-response mode) |
 
