@@ -242,7 +242,12 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
     # omission is itself a meaningful response category in this mode
     data[] <- lapply(data, as.character)
     if (!is.na(missing)) {
-      data[data == as.character(missing)] <- NA
+      # compare after trimming so that " 9" or "9 " also counts as missing
+      missing_chr <- trimws(as.character(missing))
+      data[] <- lapply(data, function(x) {
+        x[which(trimws(x) == missing_chr)] <- NA
+        x
+      })
     }
 
     # score the raw responses against the key to get the 0/1 item scores

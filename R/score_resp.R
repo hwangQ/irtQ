@@ -229,7 +229,12 @@ score_resp <- function(data, key, missing = NA) {
   # `missing = NA` means the input already uses R's native NA (or an empty
   # string) for omitted responses, so nothing is recoded here
   if (!is.na(missing)) {
-    data[data == as.character(missing)] <- NA
+    # compare after trimming so that " 9" or "9 " also counts as missing
+    missing_chr <- trimws(as.character(missing))
+    data[] <- lapply(data, function(x) {
+      x[which(trimws(x) == missing_chr)] <- NA
+      x
+    })
   }
 
   # resolve the `key` argument into a character vector of correct options

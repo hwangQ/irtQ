@@ -230,3 +230,11 @@ test_that("ctt_distr() lists an option written as 1 and 01 once", {
   expect_equal(out$pct[out$item == "V1"], c(60, 20, 20))
   expect_equal(sum(out$pct[out$item == "V2"]), 100)
 })
+
+test_that("ctt_distr() treats a missing code with surrounding spaces as an omission", {
+  raw <- data.frame(V1 = c("1", " 9", "9 ", "2"), V2 = c("1", "2", "1", "2"))
+  out <- ctt_distr(data = raw, key = c(1, 2), missing = "9")
+  expect_equal(out$omit$pct_blank, c(50, 0))
+  expect_equal(out$distr$option[out$distr$item == "V1"], c(1, 2))
+  expect_equal(out$distr$freq[out$distr$item == "V1"], c(1L, 1L))
+})

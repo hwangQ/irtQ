@@ -23,6 +23,10 @@
   which inflated the frequencies and percentages. The option is now
   listed once.
 
+- `score_resp()` and `ctt_distr()` did not recognize a missing-response
+  code that had surrounding spaces, such as `" 9"`, so it was not
+  counted as an omission. Codes are now compared after trimming spaces.
+
 # irtQ 1.3.1
 
 ## Bug Fixes
