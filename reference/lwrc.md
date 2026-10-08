@@ -90,8 +90,9 @@ Hwanggyu Lim <hglim83@gmail.com>
 ``` r
 ## Example 1: Using a matrix of category probabilities
 ## This example is from Kolen and Brennan (2004, p. 183)
-# Create a matrix of probabilities for correct and incorrect responses to three items
-probs <- matrix(c(.74, .73, .82, .26, .27, .18), nrow = 3, ncol = 2, byrow = FALSE)
+# Create a matrix of probabilities for three items
+# (column 1: incorrect responses, column 2: correct responses)
+probs <- matrix(c(.26, .27, .18, .74, .73, .82), nrow = 3, ncol = 2, byrow = FALSE)
 
 # Create a vector specifying the number of score categories for each item
 cats <- c(2, 2, 2)
@@ -99,7 +100,7 @@ cats <- c(2, 2, 2)
 # Compute the conditional distribution of observed scores
 lwrc(prob = probs, cats = cats)
 #>  score.0  score.1  score.2  score.3 
-#> 0.442964 0.416708 0.127692 0.012636 
+#> 0.012636 0.127692 0.416708 0.442964 
 
 ## Example 2: Using a matrix of category probabilities for a mixed-format test
 # Category probabilities for a dichotomous item

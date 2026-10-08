@@ -25,8 +25,11 @@ detecting differential item functioning
 ([`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md),
 [`crdif()`](https://hwangQ.github.io/irtQ/reference/crdif.md),
 [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md),
-[`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md)). It
-also provides functions for item and test information
+[`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md)) and
+item parameter drift
+([`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md),
+[`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md)). It also
+provides functions for item and test information
 ([`info()`](https://hwangQ.github.io/irtQ/reference/info.md)), item
 response curves
 ([`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md)),
@@ -35,10 +38,14 @@ classification accuracy and consistency
 [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md)),
 multistage test panels
 ([`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md),
+[`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)), and
 classical test theory
-([`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md)).
+([`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md),
+[`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md),
+[`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md),
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)).
 
 This vignette walks through a short workflow: read item parameters,
 simulate responses, calibrate the items, estimate abilities, check fit,

@@ -61,11 +61,10 @@ containing the following components:
 
 - prob.cats:
 
-  A list of data frames containing the category response probabilities
-  for each item across the specified theta values. Each data frame
-  corresponds to an item, with rows representing theta values and
-  columns representing response categories (e.g., `"resp.0"`,
-  `"resp.1"`, ...).
+  A list of matrices containing the category response probabilities for
+  each item across the specified theta values. Each matrix corresponds
+  to an item, with rows representing theta values and columns
+  representing response categories (e.g., `"resp.0"`, `"resp.1"`, ...).
 
 - icc:
 

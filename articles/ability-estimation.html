@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -129,8 +129,8 @@ ways:</p>
 maximising
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>∣</mo><mi>𝐔</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">L(\theta \mid \mathbf{U})</annotation></semantics></math>.
 Unbiased in large samples but undefined for all-correct or all-incorrect
-response patterns <span class="citation">(Kolen &amp; Tong,
-2010)</span>.</td>
+response patterns, and, with 3PLM items, for some low-score patterns
+<span class="citation">(Kolen &amp; Tong, 2010)</span>.</td>
 </tr>
 <tr class="even">
 <td>ML with Fences (MLF)</td>
@@ -169,16 +169,17 @@ the prior mean.</td>
 <td>Returns the mean of the posterior distribution via Gaussian
 quadrature integration over
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>.
-Also handles boundary scores; has the smallest conditional error
-variance among pattern-based methods but introduces the most shrinkage
-<span class="citation">(Kolen &amp; Tong, 2010)</span>.</td>
+Also handles boundary scores; has smaller conditional error variance
+than ML but is shrunk toward the prior mean <span class="citation">(Kolen &amp; Tong, 2010)</span>.</td>
 </tr>
 </tbody>
 </table>
 <p>A key practical limitation of plain ML is that it yields no finite
 solution when all responses to the scored items are correct or all are
-incorrect (perfect and zero scores). MLF, WL, MAP, and EAP all handle
-these boundary patterns, each through a different mechanism <span class="citation">(Han, 2016)</span>.</p>
+incorrect (perfect and zero scores). With 3PLM items, some low-score
+patterns have no finite solution either, so the ML estimate is placed at
+a limit of <code>range</code>. MLF, WL, MAP, and EAP all handle these
+boundary patterns, each through a different mechanism <span class="citation">(Han, 2016)</span>.</p>
 </div>
 <div class="section level3">
 <h3 id="irt-summed-score-scoring">IRT Summed-Score Scoring<a class="anchor" aria-label="anchor" href="#irt-summed-score-scoring"></a>
@@ -241,8 +242,8 @@ and does not depend on the prior distribution <span class="citation">(Kolen &amp
 Standard errors are computed using a recursion-based analytical approach
 <span class="citation">(Lim et al., 2021)</span>. Linear interpolation
 (<code>intpol = TRUE</code>) handles scores outside the range where the
-TCC is invertible (e.g., scores below the sum of guessing parameters in
-3PLM).</td>
+TCC is invertible (e.g., scores at or below the sum of guessing
+parameters in 3PLM).</td>
 </tr>
 </tbody>
 </table>
@@ -345,8 +346,9 @@ extreme scores? Default <code>TRUE</code>.</td>
 </tr>
 <tr class="even">
 <td><code>range.tcc</code></td>
-<td>Ability range used for the <code>"INV.TCC"</code> interpolation
-grid. Default <code>c(-7, 7)</code>.</td>
+<td>Lower and upper bounds of the <code>"INV.TCC"</code> estimates; the
+upper bound is assigned to the maximum raw score. Default
+<code>c(-7, 7)</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -460,7 +462,9 @@ that maximizes the log-likelihood of the observed response pattern. It
 does not use a prior distribution, making it purely data-driven. A
 <code>range</code> bound is required to prevent
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">|\hat{\theta}| \to \infty</annotation></semantics></math>
-for all-correct or all-incorrect response patterns <span class="citation">(Kolen &amp; Tong, 2010)</span>.</p>
+for all-correct or all-incorrect response patterns and, with 3PLM items,
+for some low-score patterns <span class="citation">(Kolen &amp; Tong,
+2010)</span>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test (3PLM + GRM) ---</span></span>
 <span><span class="va">score_ml_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
@@ -503,6 +507,18 @@ for all-correct or all-incorrect response patterns <span class="citation">(Kolen
 <span><span class="co">#&gt; 4  1.0747667 0.3502389</span></span>
 <span><span class="co">#&gt; 5 -0.9934755 0.3510865</span></span>
 <span><span class="co">#&gt; 6  0.1899347 0.3190865</span></span></code></pre></div>
+<p>When an ML estimate equals a limit of <code>range</code>,
+<code><a href="../reference/est_score.html">est_score()</a></code> returns it with a standard error of 99.9999.
+The following code counts these examinees in each test. Perfect-score
+patterns and, with 3PLM items, low-score patterns can both be among
+them. They stay in the recovery statistics of the comparison below,
+which lowers the correlation and raises the mean absolute error of
+ML.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># --- Number of ML estimates at a limit of range (SE = 99.9999) ---</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">score_ml_mixed</span><span class="op">$</span><span class="va">se.theta</span> <span class="op">&gt;</span> <span class="fl">99</span><span class="op">)</span>, dich <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">score_ml_dich</span><span class="op">$</span><span class="va">se.theta</span> <span class="op">&gt;</span> <span class="fl">99</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; mixed  dich </span></span>
+<span><span class="co">#&gt;     5    11</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="mlf-ml-with-fences-han-2016">MLF: ML with Fences (Han, 2016)<a class="anchor" aria-label="anchor" href="#mlf-ml-with-fences-han-2016"></a>
@@ -513,7 +529,7 @@ the
 scale. This makes the log-likelihood unimodal, eliminating the
 boundary-score problem of plain ML while producing estimates that are
 not shrunk toward a prior mean, unlike MAP or EAP <span class="citation">(Han, 2016)</span>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test ---</span></span>
 <span><span class="va">score_mlf_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x        <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
@@ -534,7 +550,7 @@ not shrunk toward a prior mean, unlike MAP or EAP <span class="citation">(Han, 2
 <span><span class="co">#&gt; 4 -0.2368663 0.2544738</span></span>
 <span><span class="co">#&gt; 5 -0.3956027 0.2566540</span></span>
 <span><span class="co">#&gt; 6 -3.9498209 1.7591919</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Dichotomous-only test ---</span></span>
 <span><span class="va">score_mlf_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x        <span class="op">=</span> <span class="va">meta_dich</span>,</span>
@@ -575,7 +591,7 @@ but with negative correlation), across the entire
 scale, making WL generally preferable to plain ML when an unbiased
 non-Bayesian estimate is desired <span class="citation">(Warm,
 1989)</span>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test ---</span></span>
 <span><span class="va">score_wl_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x        <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
@@ -594,7 +610,7 @@ non-Bayesian estimate is desired <span class="citation">(Warm,
 <span><span class="co">#&gt; 4 -0.2374576 0.2544800</span></span>
 <span><span class="co">#&gt; 5 -0.3945439 0.2566360</span></span>
 <span><span class="co">#&gt; 6 -2.7427809 0.6990180</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Dichotomous-only test ---</span></span>
 <span><span class="va">score_wl_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x        <span class="op">=</span> <span class="va">meta_dich</span>,</span>
@@ -620,10 +636,9 @@ non-Bayesian estimate is desired <span class="citation">(Warm,
 <p>MAP incorporates a normal prior
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(\theta)</annotation></semantics></math>
 and returns the <strong>mode</strong> of the posterior distribution.
-Compared with EAP, MAP shrinks estimates less strongly toward the prior
-mean, and it can still produce estimates outside the bulk of the prior
-when the data are informative enough.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+Both MAP and EAP shrink estimates toward the prior mean; how much
+depends on test length and the shape of the posterior.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test ---</span></span>
 <span><span class="va">score_map_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
@@ -643,7 +658,7 @@ when the data are informative enough.</p>
 <span><span class="co">#&gt; 4 -0.2232262 0.2464886</span></span>
 <span><span class="co">#&gt; 5 -0.3723269 0.2482450</span></span>
 <span><span class="co">#&gt; 6 -2.2728080 0.4234079</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Dichotomous-only test ---</span></span>
 <span><span class="va">score_map_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_dich</span>,</span>
@@ -668,13 +683,11 @@ when the data are informative enough.</p>
 <h3 id="eap-expected-a-posteriori">EAP: Expected A Posteriori<a class="anchor" aria-label="anchor" href="#eap-expected-a-posteriori"></a>
 </h3>
 <p>EAP returns the <strong>mean</strong> of the posterior distribution,
-integrating over a Gaussian quadrature grid. It has the smallest
-conditional error variance among pattern-based estimators, but it
-introduces the most shrinkage toward the prior mean and is sensitive to
-the choice of prior distribution, particularly for short or less
-reliable tests <span class="citation">(Kolen &amp; Tong,
-2010)</span>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+integrating over a Gaussian quadrature grid. It has smaller conditional
+error variance than ML, but its estimates are shrunk toward the prior
+mean and it is sensitive to the choice of prior distribution,
+particularly for short or less reliable tests <span class="citation">(Kolen &amp; Tong, 2010)</span>.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test ---</span></span>
 <span><span class="va">score_eap_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
@@ -694,7 +707,7 @@ reliable tests <span class="citation">(Kolen &amp; Tong,
 <span><span class="co">#&gt; 4 -0.2249379 0.2601181</span></span>
 <span><span class="co">#&gt; 5 -0.3916921 0.2436289</span></span>
 <span><span class="co">#&gt; 6 -2.3955969 0.4613010</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Dichotomous-only test ---</span></span>
 <span><span class="va">score_eap_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_dich</span>,</span>
@@ -720,9 +733,16 @@ reliable tests <span class="citation">(Kolen &amp; Tong,
 </h3>
 <p>The following code computes correlations with the true
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-values and mean absolute errors for both datasets, summarising the
-practical differences among the four pattern-based methods.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+values, mean absolute errors, and the standard deviation of the
+estimates for both datasets, summarising the practical differences among
+the four pattern-based methods. The ML estimates at a limit of
+<code>range</code> (see the ML section) are included. The spread of the
+estimates shows the shrinkage: the standard deviations of the MAP and
+EAP estimates are smaller than those of the ML and WL estimates, and
+below the standard deviation of the true
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+values.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Mixed-format test: recovery statistics ---</span></span>
 <span><span class="va">cors_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  ML  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">score_ml_mixed</span><span class="op">$</span><span class="va">est.theta</span>,  <span class="va">theta_mixed</span><span class="op">)</span>,</span>
@@ -742,8 +762,19 @@ practical differences among the four pattern-based methods.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mae_mixed</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     ML     WL    MAP    EAP </span></span>
-<span><span class="co">#&gt; 0.2318 0.2121 0.2083 0.2074</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; 0.2318 0.2121 0.2083 0.2074</span></span>
+<span></span>
+<span><span class="va">sd_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  ML   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_ml_mixed</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  WL   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_wl_mixed</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  MAP  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_map_mixed</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  EAP  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_eap_mixed</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  True <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">theta_mixed</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">sd_mixed</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     ML     WL    MAP    EAP   True </span></span>
+<span><span class="co">#&gt; 1.0957 1.0144 0.9336 0.9521 0.9868</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Dichotomous-only test: recovery statistics ---</span></span>
 <span><span class="va">cors_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  ML  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">score_ml_dich</span><span class="op">$</span><span class="va">est.theta</span>,  <span class="va">theta_dich</span><span class="op">)</span>,</span>
@@ -763,7 +794,18 @@ practical differences among the four pattern-based methods.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mae_dich</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     ML     WL    MAP    EAP </span></span>
-<span><span class="co">#&gt; 0.3346 0.2703 0.2463 0.2478</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.3346 0.2703 0.2463 0.2478</span></span>
+<span></span>
+<span><span class="va">sd_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  ML   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_ml_dich</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  WL   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_wl_dich</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  MAP  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_map_dich</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  EAP  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_eap_dich</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
+<span>  True <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">theta_dich</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">sd_dich</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     ML     WL    MAP    EAP   True </span></span>
+<span><span class="co">#&gt; 1.2944 1.0726 0.9328 0.9664 1.0165</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="providing-an-est_irt-object-vs--separate-metadata">Providing an <code>est_irt</code> Object vs. Separate Metadata<a class="anchor" aria-label="anchor" href="#providing-an-est_irt-object-vs--separate-metadata"></a>
@@ -776,8 +818,11 @@ metadata and response data provided separately. When an
 and the embedded response data. This simplifies the post-calibration
 scoring workflow by eliminating the need to explicitly supply a separate
 <code>data</code> matrix.</p>
-<p>Both workflows produce identical results:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<p>Both workflows produce identical results. The estimates differ from
+the EAP estimates in Part 1 because they use the item parameters
+estimated by <code><a href="../reference/est_irt.html">est_irt()</a></code> instead of the generating item
+parameters:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- Calibrate the mixed-format test first ---</span></span>
 <span><span class="va">mod_cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">resp_mixed</span>,</span>
@@ -808,7 +853,21 @@ scoring workflow by eliminating the need to explicitly supply a separate
 <span><span class="co">#&gt; 3  0.3497562 0.2414748</span></span>
 <span><span class="co">#&gt; 4 -0.2758520 0.2581984</span></span>
 <span><span class="co">#&gt; 5 -0.4236150 0.2376667</span></span>
-<span><span class="co">#&gt; 6 -2.4311991 0.4608047</span></span></code></pre></div>
+<span><span class="co">#&gt; 6 -2.4311991 0.4608047</span></span>
+<span></span>
+<span><span class="co"># Score from the estimated item parameters and the response data given separately</span></span>
+<span><span class="va">score_from_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
+<span>  x          <span class="op">=</span> <span class="va">mod_cal</span><span class="op">$</span><span class="va">par.est</span>,   <span class="co"># item metadata with the estimated parameters</span></span>
+<span>  data       <span class="op">=</span> <span class="va">resp_mixed</span>,</span>
+<span>  D          <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  method     <span class="op">=</span> <span class="st">"EAP"</span>,</span>
+<span>  norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  nquad      <span class="op">=</span> <span class="fl">41</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The two workflows give the same estimates</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">score_from_obj</span>, <span class="va">score_from_par</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -835,7 +894,7 @@ the corresponding table entry.</p>
 <div class="section level4">
 <h4 id="mixed-format-test">Mixed-format test<a class="anchor" aria-label="anchor" href="#mixed-format-test"></a>
 </h4>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">score_eapsum_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
 <span>  data       <span class="op">=</span> <span class="va">resp_mixed</span>,</span>
@@ -912,7 +971,7 @@ the corresponding table entry.</p>
 test, because the possible raw scores are simple number-correct values
 from 0 to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">score_eapsum_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_dich</span>,</span>
 <span>  data       <span class="op">=</span> <span class="va">resp_dich</span>,</span>
@@ -980,14 +1039,23 @@ estimator, it does not depend on a prior distribution and the resulting
 scores are monotonically related to raw scores. Linear interpolation
 (<code>intpol = TRUE</code>) handles raw scores that fall outside the
 invertible range of the TCC (for example, when 3PLM items have nonzero
-guessing parameters, a raw score equal to the sum of all guessing
+guessing parameters, raw scores at or below the sum of the guessing
 parameters
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
-cannot be mapped without interpolation).</p>
+cannot be mapped without interpolation: 2.25 for the mixed-format test
+and 4.5 for the dichotomous-only test below). The first value of
+<code>range.tcc</code> is the estimate for a raw score of 0, and the
+second value is the estimate for the maximum raw score. The examples use
+<code>range.tcc = c(-7, 5)</code>: the lower bound is the default, and
+the upper bound is the same as the upper limit of <code>range</code>
+used for the pattern-based methods above. With the default upper bound
+of 7, the maximum raw score would be assigned a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+of 7, well above the values of the other estimates.</p>
 <div class="section level4">
 <h4 id="mixed-format-test-1">Mixed-format test<a class="anchor" aria-label="anchor" href="#mixed-format-test-1"></a>
 </h4>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">score_invtcc_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">meta_mixed</span>,</span>
 <span>  data      <span class="op">=</span> <span class="va">resp_mixed</span>,</span>
@@ -1057,7 +1125,7 @@ cannot be mapped without interpolation).</p>
 <div class="section level4">
 <h4 id="dichotomous-only-test-1">Dichotomous-only test<a class="anchor" aria-label="anchor" href="#dichotomous-only-test-1"></a>
 </h4>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">score_invtcc_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">meta_dich</span>,</span>
 <span>  data      <span class="op">=</span> <span class="va">resp_dich</span>,</span>

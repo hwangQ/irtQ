@@ -74,7 +74,7 @@ mod_bin <- est_irt(
 )
 meta_cal_bin <- mod_bin$par.est
 
-# ML ability estimates (required by irtfit())
+# ML ability estimates (irtfit() needs ability estimates; EAP estimates also work)
 score_bin <- est_score(
   x      = meta_cal_bin,
   data   = resp_bin,
@@ -203,10 +203,12 @@ proportion correct in that bin.
 
 > **Key difference between $`\chi^2`$ and $`G^2`$ df:** For the
 > $`\chi^2`$ statistic, the number of estimated item parameters is
-> subtracted from the df (e.g., for a 3PLM item with $`H = 11`$ bins,
-> $`df = 11 - 3 = 8`$). For $`G^2`$, no such subtraction is made
-> ($`df = H = 11`$). This means $`G^2`$ uses more degrees of freedom and
-> tends to be more conservative.
+> subtracted from the df (e.g., for a 3PLM item with $`H = 11`$ bins
+> left after any cell collapsing, $`df = 11 - 3 = 8`$). For $`G^2`$, no
+> such subtraction is made ($`df = H = 11`$). Here $`H`$ is the number
+> of groups that remain after cell collapsing, so it can be smaller than
+> `n.width` and differs across items. $`G^2`$ uses more degrees of
+> freedom and tends to be more conservative.
 
 **Infit and Outfit: Individual-level statistics**
 
@@ -224,11 +226,12 @@ The key difference is *weighting*:
   sensitive to unexpected responses at *extreme* ability levels (far
   from item difficulty), where $`P_{ni}(1-P_{ni})`$ is small and a
   single aberrant response inflates the statistic dramatically.
-- **Infit** weights each residual by $`P_{ni}(1-P_{ni})`$, the item
-  information at that ability level. This down-weights extreme responses
-  and makes infit more sensitive to misfit *near* the item difficulty,
-  where most measurement information resides. For this reason, infit is
-  generally preferred in practice.
+- **Infit** weights each residual by $`P_{ni}(1-P_{ni})`$, the response
+  variance at that ability level (for the 3PLM this is not the item
+  information). This down-weights extreme responses and makes infit more
+  sensitive to misfit *near* the item difficulty, where most measurement
+  information resides. For this reason, infit is generally preferred in
+  practice.
 
 > **Caution for non-Rasch models.** Infit and outfit were developed in
 > the Rasch measurement tradition (Wright & Panchapakesan, 1969) and
@@ -260,8 +263,8 @@ grouping choices materially affect the statistics:
   automatically collapsed by
   [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) before
   computing $`\chi^2`$ and $`G^2`$.
-- `range.score` trims extreme ability estimates before grouping;
-  examinees outside the range are excluded from the fit analysis.
+- `range.score` truncates ability estimates outside the range to its
+  bounds before grouping; no examinee is removed from the analysis.
 
 ### Key `irtfit()` Arguments
 
@@ -274,9 +277,9 @@ grouping choices materially affect the statistics:
 | `group.method` | `"equal.width"` (default) or `"equal.freq"` |
 | `n.width` | Number of ability bins (default `10`) |
 | `loc.theta` | `"average"` (default) or `"middle"` |
-| `range.score` | `c(lower, upper)` for trimming extreme $`\hat{\theta}`$ values. Default is `NULL`, which automatically uses the minimum and maximum of the observed `score` vector. |
-| `alpha` | Significance level for flagging items (default `0.05`) |
-| `overSR` | Standardized-residual threshold for flagging individual bins (default `2`) |
+| `range.score` | `c(lower, upper)`; $`\hat{\theta}`$ values outside the range are truncated to its bounds (no examinee is removed). Default is `NULL`, which leaves the scores unchanged. |
+| `alpha` | Significance level used for the critical values (default `0.05`); an item is flagged when its p-value is below `alpha` |
+| `overSR` | Standardized-residual threshold used to count cells in `overSR.prop` (default `2`) |
 
 ### Return value of `irtfit()`
 
@@ -285,11 +288,13 @@ an object of class `irtfit` with the following components:
 
 | Component | Description |
 |----|----|
-| `fit_stat` | Data frame with $`\chi^2`$, $`G^2`$, infit, outfit statistics and flags for all items |
+| `fit_stat` | Data frame with $`\chi^2`$, $`G^2`$, infit, outfit statistics, critical values, and p-values for all items (compare the p-values with `alpha` to flag items) |
 | `contingency.fitstat` | Collapsed contingency tables used for $`\chi^2`$ and $`G^2`$ computation (one per item) |
 | `contingency.plot` | Uncollapsed contingency tables used for residual plots |
 | `individual.info` | Individual residuals and variances used for infit/outfit |
 | `item_df` | Copy of the item metadata provided in `x` |
+| `ancillary` | List with `range.score`, `alpha`, `overSR`, and `scale.D` |
+| `call` | The matched function call |
 
 The `fit_stat` columns include (one row per item, plus an `id` column):
 
@@ -298,9 +303,11 @@ The `fit_stat` columns include (one row per item, plus an `id` column):
 - `G2` / `df.G2` / `crit.val.G2` / `p.G2`: $`G^2`$ statistic, degrees of
   freedom, critical value, and p-value
 - `outfit` / `infit`: mean-square outfit and infit statistics
-- `N`: number of examinees used (after `range.score` trimming)
-- `overSR.prop`: proportion of ability bins (prior to cell collapsing)
-  whose standardized residuals exceed `overSR`
+- `N`: number of non-missing responses to the item
+- `overSR.prop`: proportion of (ability bin x response category) cells,
+  prior to cell collapsing, whose absolute standardized residuals exceed
+  `overSR`; for a dichotomous item the two categories mirror each other,
+  so this equals the proportion of bins
 
 ------------------------------------------------------------------------
 
@@ -314,9 +321,9 @@ fit_bin1 <- irtfit(
   data         = resp_bin,
   D            = 1.702,
   group.method = "equal.freq",   # ~equal number of examinees per bin
-  n.width      = 11,             # 11 bins → df = 11 - 3 = 8 for 3PLM (χ²)
+  n.width      = 11,             # 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)
   loc.theta    = "middle",       # bin midpoint as representative θ
-  range.score  = c(-4, 4),       # trim extreme ML estimates
+  range.score  = c(-4, 4),       # truncate ML estimates to [-4, 4]
   alpha        = 0.05,
   overSR       = 2
 )
@@ -429,12 +436,61 @@ fit_bin2$fit_stat
 #> 20 0.973 1000         0.0
 ```
 
+**Why Example 1 flags many items.** The responses were generated from
+the same 3PLM that was fitted, so the items should fit. Yet the
+$`\chi^2`$ test flags 12 of the 20 items in Example 1. The main cause is
+`loc.theta = "middle"` combined with wide outer bins. Some ML estimates
+sit at a limit of the `range` (here 23 examinees, reported with a
+standard error of 99.9999), and `range.score` truncates them to
+$`\pm 4`$, so the outer equal-frequency bins extend to $`\pm 4`$ (for
+ITEM1, $`[-4, -1.49)`$ and $`[1.51, 4]`$). The midpoint of such a bin
+can lie far from where most of its examinees are, and the expected
+probabilities are evaluated at a point that does not represent the bin.
+With the same equal-frequency bins and `loc.theta = "average"` (the mean
+ability estimate in each bin), far fewer items are flagged (counts
+below), and Example 2 (equal-width bins and mean ability estimates)
+flags the same number. Error in the ability estimates is not the main
+cause: in a separate check that used the true abilities instead of the
+ML estimates, the `"middle"` option still flagged 13 items. The
+$`S`$-$`X^2`$ statistic in Part 4 flags only 2 of the 20 items for the
+same calibration.
+
+``` r
+
+# Same equal-frequency bins, with the mean ability estimate as the bin location
+fit_bin3 <- irtfit(
+  x            = meta_cal_bin,
+  score        = score_bin$est.theta,
+  data         = resp_bin,
+  D            = 1.702,
+  group.method = "equal.freq",
+  n.width      = 11,
+  loc.theta    = "average",
+  range.score  = c(-4, 4),
+  alpha        = 0.05,
+  overSR       = 2
+)
+
+# Number of items with p < alpha for the chi-square statistic
+c(
+  equal.freq_middle   = sum(fit_bin1$fit_stat$p.X2 < 0.05),
+  equal.freq_average  = sum(fit_bin3$fit_stat$p.X2 < 0.05),
+  equal.width_average = sum(fit_bin2$fit_stat$p.X2 < 0.05)
+)
+#>   equal.freq_middle  equal.freq_average equal.width_average 
+#>                  12                   4                   4
+
+# Number of ML estimates at a limit of range (SE = 99.9999)
+sum(score_bin$se.theta > 99)
+#> [1] 23
+```
+
 ### Example 3: Inspect the contingency table for one item
 
 The collapsed contingency table for a single item shows, for each
 ability bin: the bin size (`total`), observed and expected frequencies
 per response category (`obs.freq.*`, `exp.freq.*`), observed and
-expected proportions (`obs.prop.*`, `exp.prop.*`), and the raw residual
+expected proportions (`obs.prop.*`, `exp.prob.*`), and the raw residual
 (`raw.rsd.*` = observed proportion minus expected proportion). Note that
 this table contains **raw residuals**, not standardized residuals, and
 does not include a per-bin flag column. This is the table used to
@@ -443,7 +499,7 @@ expected frequencies.
 
 ``` r
 
-# Collapsed contingency table used for χ² and G² of Item 1
+# Collapsed contingency table used for chi-square and G2 of Item 1
 fit_bin1$contingency.fitstat[[1]]
 #>   total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1  obs.prop.0 obs.prop.1
 #> 1    91         34         57  56.111045   34.88896 0.373626374  0.6263736
@@ -484,6 +540,11 @@ item at a time. Two complementary displays are available:
   model fits poorly.
 - **`type = "both"`**: Side-by-side display of both views.
 
+By default the axis of the standardized residual plot spans $`-4`$ to
+$`4`$ (`ylim.sr`). A residual beyond these limits is dropped from the
+plot with a warning; set `ylim.sr.adjust = TRUE` to extend the axis to
+the largest residual.
+
 These plots use the *uncollapsed* contingency tables stored in
 `fit$contingency.plot`, so every original bin is visible even if
 adjacent cells were merged during the statistical computation.
@@ -496,7 +557,8 @@ plot(
   item.loc   = 1,          # item index (row number in the metadata)
   type       = "both",
   ci.method  = "wald",     # confidence interval method for proportion-correct CI
-  show.table = FALSE
+  show.table = FALSE,
+  ylim.sr.adjust = TRUE    # extend the residual axis to the largest residual
 )
 ```
 
@@ -536,6 +598,11 @@ plot(
 | `"wald"` | Normal-approximation (Wald) interval, simplest but can be unreliable for small $`N_h`$ |
 | `"wilson"` | Wilson score interval, good coverage even for small $`N_h`$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
+
+All three methods give two-sided $`(1 - \alpha)`$ intervals, where
+$`\alpha`$ is the `alpha` argument of
+[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) (95%
+intervals by default).
 
 ------------------------------------------------------------------------
 
@@ -655,10 +722,11 @@ $`\bar{x}_s`$ is the observed proportion correct on item $`i`$ among
 those examinees, and $`\hat{P}_s`$ is the model-based expected
 proportion.
 
-Degrees of freedom equal the number of feasible summed-score values
-(excluding 0 and the maximum, where responses to the item are
-deterministic) minus the number of estimated item parameters:
-$`df = (I - 1) - p`$(Ames & Penfield, 2015).
+Degrees of freedom equal the number of summed-score groups that remain
+after cell collapsing minus the number of estimated item parameters.
+Before any collapsing, the feasible summed-score values exclude 0 and
+the maximum, where responses to the item are deterministic, so
+$`df \le (I - 1) - p`$(Ames & Penfield, 2015).
 
 **Extension to polytomous items.** Kang & Chen (2008) generalized
 $`S`$-$`X^2`$ to polytomous IRT models (GRM, GPCM). The generalization
@@ -738,6 +806,10 @@ fit_sx2_bin$fit_stat
 #> 18 ITEM18 10.636 14   23.685 0.714
 #> 19 ITEM19  6.603 10   18.307 0.762
 #> 20 ITEM20  9.000 14   23.685 0.831
+
+# Number of items with p < alpha
+sum(fit_sx2_bin$fit_stat$p < 0.05)
+#> [1] 2
 ```
 
 ``` r
@@ -822,7 +894,8 @@ fit_sx2_mix$fit_stat
 ``` r
 
 # Inspect observed proportions for GRM item 16 (polytomous)
-# Rows = summed-score groups; columns = response categories (0, 1, 2, 3)
+# Rows = summed-score groups; columns = the cells that remain after category
+# collapsing, which match categories 0-3 only in rows without NA
 cat("--- Observed proportions for GRM item 1 (item 16) ---\n")
 #> --- Observed proportions for GRM item 1 (item 16) ---
 fit_sx2_mix$obs_prop[[16]]
@@ -863,18 +936,28 @@ fit_sx2_mix$obs_prop[[16]]
 - Under correct model specification, these statistics follow an
   *approximate* $`\chi^2`$ distribution; items with `p.X2 < alpha` or
   `p.G2 < alpha` are flagged for misfit.
-- $`\chi^2`$ has df = $`H - p`$ (number of bins minus number of item
-  parameters); $`G^2`$ has df = $`H`$.
+- $`\chi^2`$ has df = $`H - p`$ (number of bins left after cell
+  collapsing minus number of item parameters); $`G^2`$ has df = $`H`$.
 - **Sample-size sensitivity**: with large samples, even trivial
   deviations from the model produce significant $`p`$-values. With small
   samples, power is low. Interpret p-values alongside the `overSR.prop`
-  column (proportion of bins with large standardized residuals) and the
+  column (proportion of cells with large standardized residuals) and the
   residual plots.
 - **Practical guideline**: use `overSR.prop` as a supplementary
-  indicator. An item with a marginally significant p-value but low
+  indicator. With `overSR = 2`, about 5% of the cells are expected to
+  exceed the threshold when the model holds and the ability estimates
+  were exact. An item with a marginally significant p-value but low
   `overSR.prop` may not warrant deletion; an item with high
   `overSR.prop` concentrated at a specific ability range signals a
   meaningful pattern worth investigating.
+- **Check the grouping first**: significant p-values can result from the
+  grouping choices rather than from model misfit. In Example 1, the data
+  were generated from the fitted model, yet many items have p-values
+  below `alpha`. Most items have one to three of the 11 bins beyond the
+  threshold (`overSR.prop` between 0.09 and 0.27), and these bins are
+  mostly the outer ones, where the wide bins and the midpoint location
+  matter most. Compare the results across grouping options and with
+  $`S`$-$`X^2`$ before dropping items.
 
 ### Infit and Outfit
 

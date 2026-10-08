@@ -71,8 +71,8 @@ scoring selected-response item data.
 |          |             |
 |----------|-------------|
 | Package: | irtQ        |
-| Version: | 1.3.0       |
-| Date:    | 2026-10-05  |
+| Version: | 1.3.1       |
+| Date:    | 2026-10-08  |
 | Depends: | R (\>= 4.5) |
 | License: | GPL (\>= 2) |
 
@@ -152,10 +152,11 @@ ability \\\theta\\ on an item, and suppose that each polytomous item has
   \tau_v\\, where \\\beta\\ is the overall location (difficulty)
   parameter of the item, and \\\tau_v\\ is the threshold for score
   category \\v\\. In the irtQ package, an item with \\K\\ unique score
-  categories requires \\K - 1\\ threshold parameters, as \\b_0 = 0\\ is
-  fixed by convention and thus \\\sum\_{v=0}^{0} Da(\theta - b_v) = 0\\
-  for the lowest category. When fitting the partial credit model, the
-  item discrimination parameter \\a\\ is fixed to 1.
+  categories requires \\K - 1\\ threshold parameters. The \\v = 0\\ term
+  of the sums is defined as 0 (\\b_0\\ is not a free parameter), so the
+  numerator for the lowest category is \\\exp(0) = 1\\. When fitting the
+  partial credit model, the item discrimination parameter \\a\\ is fixed
+  to 1.
 
 ## Item Calibration for a Linear Test Form
 

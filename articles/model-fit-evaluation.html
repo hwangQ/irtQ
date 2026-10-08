@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,7 +169,7 @@ pass to the fit functions throughout this vignette.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">meta_cal_bin</span> <span class="op">&lt;-</span> <span class="va">mod_bin</span><span class="op">$</span><span class="va">par.est</span></span>
 <span></span>
-<span><span class="co"># ML ability estimates (required by irtfit())</span></span>
+<span><span class="co"># ML ability estimates (irtfit() needs ability estimates; EAP estimates also work)</span></span>
 <span><span class="va">score_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_score.html">est_score</a></span><span class="op">(</span></span>
 <span>  x      <span class="op">=</span> <span class="va">meta_cal_bin</span>,</span>
 <span>  data   <span class="op">=</span> <span class="va">resp_bin</span>,</span>
@@ -327,13 +327,16 @@ df:</strong> For the
 statistic, the number of estimated item parameters is subtracted from
 the df (e.g., for a 3PLM item with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mn>11</mn></mrow><annotation encoding="application/x-tex">H = 11</annotation></semantics></math>
-bins,
+bins left after any cell collapsing,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mn>11</mn><mo>−</mo><mn>3</mn><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">df = 11 - 3 = 8</annotation></semantics></math>).
 For
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>,
 no such subtraction is made
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mi>H</mi><mo>=</mo><mn>11</mn></mrow><annotation encoding="application/x-tex">df = H = 11</annotation></semantics></math>).
-This means
+Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
+is the number of groups that remain after cell collapsing, so it can be
+smaller than <code>n.width</code> and differs across items.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
 uses more degrees of freedom and tends to be more conservative.</p>
 </blockquote>
@@ -357,10 +360,11 @@ dramatically.</li>
 <li>
 <strong>Infit</strong> weights each residual by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>P</mi><mrow><mi>n</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_{ni}(1-P_{ni})</annotation></semantics></math>,
-the item information at that ability level. This down-weights extreme
-responses and makes infit more sensitive to misfit <em>near</em> the
-item difficulty, where most measurement information resides. For this
-reason, infit is generally preferred in practice.</li>
+the response variance at that ability level (for the 3PLM this is not
+the item information). This down-weights extreme responses and makes
+infit more sensitive to misfit <em>near</em> the item difficulty, where
+most measurement information resides. For this reason, infit is
+generally preferred in practice.</li>
 </ul>
 <blockquote>
 <p><strong>Caution for non-Rasch models.</strong> Infit and outfit were
@@ -450,8 +454,8 @@ automatically collapsed by <code><a href="../reference/irtfit.html">irtfit()</a>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>.</li>
 <li>
-<code>range.score</code> trims extreme ability estimates before
-grouping; examinees outside the range are excluded from the fit
+<code>range.score</code> truncates ability estimates outside the
+range to its bounds before grouping; no examinee is removed from the
 analysis.</li>
 </ul>
 </div>
@@ -507,20 +511,23 @@ analysis.</li>
 <tr class="even">
 <td><code>range.score</code></td>
 <td>
-<code>c(lower, upper)</code> for trimming extreme
+<code>c(lower, upper)</code>;
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
-values. Default is <code>NULL</code>, which automatically uses the
-minimum and maximum of the observed <code>score</code> vector.</td>
+values outside the range are truncated to its bounds (no examinee is
+removed). Default is <code>NULL</code>, which leaves the scores
+unchanged.</td>
 </tr>
 <tr class="odd">
 <td><code>alpha</code></td>
-<td>Significance level for flagging items (default
-<code>0.05</code>)</td>
+<td>Significance level used for the critical values (default
+<code>0.05</code>); an item is flagged when its p-value is below
+<code>alpha</code>
+</td>
 </tr>
 <tr class="even">
 <td><code>overSR</code></td>
-<td>Standardized-residual threshold for flagging individual bins
-(default <code>2</code>)</td>
+<td>Standardized-residual threshold used to count cells in
+<code>overSR.prop</code> (default <code>2</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -545,7 +552,8 @@ with the following components:</p>
 <td>Data frame with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>,
-infit, outfit statistics and flags for all items</td>
+infit, outfit statistics, critical values, and p-values for all items
+(compare the p-values with <code>alpha</code> to flag items)</td>
 </tr>
 <tr class="even">
 <td><code>contingency.fitstat</code></td>
@@ -568,6 +576,16 @@ computation (one per item)</td>
 <td>Copy of the item metadata provided in <code>x</code>
 </td>
 </tr>
+<tr class="even">
+<td><code>ancillary</code></td>
+<td>List with <code>range.score</code>, <code>alpha</code>,
+<code>overSR</code>, and <code>scale.D</code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>call</code></td>
+<td>The matched function call</td>
+</tr>
 </tbody>
 </table>
 <p>The <code>fit_stat</code> columns include (one row per item, plus an
@@ -587,12 +605,12 @@ statistic, degrees of freedom, critical value, and p-value</li>
 <code>outfit</code> / <code>infit</code>: mean-square outfit and
 infit statistics</li>
 <li>
-<code>N</code>: number of examinees used (after
-<code>range.score</code> trimming)</li>
+<code>N</code>: number of non-missing responses to the item</li>
 <li>
-<code>overSR.prop</code>: proportion of ability bins (prior to cell
-collapsing) whose standardized residuals exceed <code>overSR</code>
-</li>
+<code>overSR.prop</code>: proportion of (ability bin x response
+category) cells, prior to cell collapsing, whose absolute standardized
+residuals exceed <code>overSR</code>; for a dichotomous item the two
+categories mirror each other, so this equals the proportion of bins</li>
 </ul>
 <hr>
 </div>
@@ -606,9 +624,9 @@ collapsing) whose standardized residuals exceed <code>overSR</code>
 <span>  data         <span class="op">=</span> <span class="va">resp_bin</span>,</span>
 <span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
 <span>  group.method <span class="op">=</span> <span class="st">"equal.freq"</span>,   <span class="co"># ~equal number of examinees per bin</span></span>
-<span>  n.width      <span class="op">=</span> <span class="fl">11</span>,             <span class="co"># 11 bins → df = 11 - 3 = 8 for 3PLM (χ²)</span></span>
+<span>  n.width      <span class="op">=</span> <span class="fl">11</span>,             <span class="co"># 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)</span></span>
 <span>  loc.theta    <span class="op">=</span> <span class="st">"middle"</span>,       <span class="co"># bin midpoint as representative θ</span></span>
-<span>  range.score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,       <span class="co"># trim extreme ML estimates</span></span>
+<span>  range.score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,       <span class="co"># truncate ML estimates to [-4, 4]</span></span>
 <span>  alpha        <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  overSR       <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
@@ -718,6 +736,61 @@ collapsing) whose standardized residuals exceed <code>overSR</code>
 <span><span class="co">#&gt; 18 0.976 1000         0.0</span></span>
 <span><span class="co">#&gt; 19 0.915 1000         0.0</span></span>
 <span><span class="co">#&gt; 20 0.973 1000         0.0</span></span></code></pre></div>
+<p><strong>Why Example 1 flags many items.</strong> The responses were
+generated from the same 3PLM that was fitted, so the items should fit.
+Yet the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
+test flags 12 of the 20 items in Example 1. The main cause is
+<code>loc.theta = "middle"</code> combined with wide outer bins. Some ML
+estimates sit at a limit of the <code>range</code> (here 23 examinees,
+reported with a standard error of 99.9999), and <code>range.score</code>
+truncates them to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">\pm 4</annotation></semantics></math>,
+so the outer equal-frequency bins extend to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">\pm 4</annotation></semantics></math>
+(for ITEM1,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>4</mn><mo>,</mo><mi>−</mi><mn>1.49</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">[-4, -1.49)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>1.51</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[1.51, 4]</annotation></semantics></math>).
+The midpoint of such a bin can lie far from where most of its examinees
+are, and the expected probabilities are evaluated at a point that does
+not represent the bin. With the same equal-frequency bins and
+<code>loc.theta = "average"</code> (the mean ability estimate in each
+bin), far fewer items are flagged (counts below), and Example 2
+(equal-width bins and mean ability estimates) flags the same number.
+Error in the ability estimates is not the main cause: in a separate
+check that used the true abilities instead of the ML estimates, the
+<code>"middle"</code> option still flagged 13 items. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
+statistic in Part 4 flags only 2 of the 20 items for the same
+calibration.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Same equal-frequency bins, with the mean ability estimate as the bin location</span></span>
+<span><span class="va">fit_bin3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/irtfit.html">irtfit</a></span><span class="op">(</span></span>
+<span>  x            <span class="op">=</span> <span class="va">meta_cal_bin</span>,</span>
+<span>  score        <span class="op">=</span> <span class="va">score_bin</span><span class="op">$</span><span class="va">est.theta</span>,</span>
+<span>  data         <span class="op">=</span> <span class="va">resp_bin</span>,</span>
+<span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
+<span>  group.method <span class="op">=</span> <span class="st">"equal.freq"</span>,</span>
+<span>  n.width      <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>  loc.theta    <span class="op">=</span> <span class="st">"average"</span>,</span>
+<span>  range.score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>  alpha        <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  overSR       <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Number of items with p &lt; alpha for the chi-square statistic</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  equal.freq_middle   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fit_bin1</span><span class="op">$</span><span class="va">fit_stat</span><span class="op">$</span><span class="va">p.X2</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  equal.freq_average  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fit_bin3</span><span class="op">$</span><span class="va">fit_stat</span><span class="op">$</span><span class="va">p.X2</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  equal.width_average <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fit_bin2</span><span class="op">$</span><span class="va">fit_stat</span><span class="op">$</span><span class="va">p.X2</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;   equal.freq_middle  equal.freq_average equal.width_average </span></span>
+<span><span class="co">#&gt;                  12                   4                   4</span></span>
+<span></span>
+<span><span class="co"># Number of ML estimates at a limit of range (SE = 99.9999)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">score_bin</span><span class="op">$</span><span class="va">se.theta</span> <span class="op">&gt;</span> <span class="fl">99</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 23</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-3-inspect-the-contingency-table-for-one-item">Example 3: Inspect the contingency table for one item<a class="anchor" aria-label="anchor" href="#example-3-inspect-the-contingency-table-for-one-item"></a>
@@ -726,7 +799,7 @@ collapsing) whose standardized residuals exceed <code>overSR</code>
 ability bin: the bin size (<code>total</code>), observed and expected
 frequencies per response category (<code>obs.freq.*</code>,
 <code>exp.freq.*</code>), observed and expected proportions
-(<code>obs.prop.*</code>, <code>exp.prop.*</code>), and the raw residual
+(<code>obs.prop.*</code>, <code>exp.prob.*</code>), and the raw residual
 (<code>raw.rsd.*</code> = observed proportion minus expected
 proportion). Note that this table contains <strong>raw
 residuals</strong>, not standardized residuals, and does not include a
@@ -735,8 +808,8 @@ per-bin flag column. This is the table used to compute
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
 after collapsing bins with sparse expected frequencies.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Collapsed contingency table used for χ² and G² of Item 1</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Collapsed contingency table used for chi-square and G2 of Item 1</span></span>
 <span><span class="va">fit_bin1</span><span class="op">$</span><span class="va">contingency.fitstat</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   total obs.freq.0 obs.freq.1 exp.freq.0 exp.freq.1  obs.prop.0 obs.prop.1</span></span>
 <span><span class="co">#&gt; 1    91         34         57  56.111045   34.88896 0.373626374  0.6263736</span></span>
@@ -785,20 +858,28 @@ bins where the model fits poorly.</li>
 <strong><code>type = "both"</code></strong>: Side-by-side display of
 both views.</li>
 </ul>
+<p>By default the axis of the standardized residual plot spans
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">-4</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4</mn><annotation encoding="application/x-tex">4</annotation></semantics></math>
+(<code>ylim.sr</code>). A residual beyond these limits is dropped from
+the plot with a warning; set <code>ylim.sr.adjust = TRUE</code> to
+extend the axis to the largest residual.</p>
 <p>These plots use the <em>uncollapsed</em> contingency tables stored in
 <code>fit$contingency.plot</code>, so every original bin is visible even
 if adjacent cells were merged during the statistical computation.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Side-by-side: ICC overlay (raw residuals) + standardized residual plot</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">fit_bin1</span>,</span>
 <span>  item.loc   <span class="op">=</span> <span class="fl">1</span>,          <span class="co"># item index (row number in the metadata)</span></span>
 <span>  type       <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  ci.method  <span class="op">=</span> <span class="st">"wald"</span>,     <span class="co"># confidence interval method for proportion-correct CI</span></span>
-<span>  show.table <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  show.table <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  ylim.sr.adjust <span class="op">=</span> <span class="cn">TRUE</span>    <span class="co"># extend the residual axis to the largest residual</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="model-fit-evaluation_files/figure-html/plot-irtfit-both-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ICC overlay for Item 3, Wilson score CI (recommended for proportions)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">fit_bin1</span>,</span>
@@ -808,7 +889,7 @@ if adjacent cells were merged during the statistical computation.</p>
 <span>  show.table <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="model-fit-evaluation_files/figure-html/plot-irtfit-icc-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Standardized residual plot for Item 5</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">fit_bin1</span>,</span>
@@ -848,6 +929,12 @@ for small
 </tr>
 </tbody>
 </table>
+<p>All three methods give two-sided
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1 - \alpha)</annotation></semantics></math>
+intervals, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+is the <code>alpha</code> argument of <code><a href="../reference/irtfit.html">irtfit()</a></code> (95%
+intervals by default).</p>
 <hr>
 </div>
 <div class="section level2">
@@ -857,7 +944,7 @@ for small
 Simply provide the mixed-format item metadata and the ability estimates;
 the function computes the appropriate statistics for each item according
 to its model type.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/irtfit.html">irtfit</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">meta_cal_mix</span>,</span>
 <span>  score        <span class="op">=</span> <span class="va">score_mix</span><span class="op">$</span><span class="va">est.theta</span>,</span>
@@ -914,7 +1001,7 @@ to its model type.</p>
 <span><span class="co">#&gt; 18 0.920 1000       0.025</span></span>
 <span><span class="co">#&gt; 19 0.869 1000       0.125</span></span>
 <span><span class="co">#&gt; 20 0.942 1000       0.000</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Residual diagnostics for a GRM item (item 16 in the mixed form)</span></span>
 <span><span class="co"># For polytomous items, the ICC overlay shows the observed and expected</span></span>
 <span><span class="co"># *category* proportions rather than a single proportion-correct curve.</span></span>
@@ -981,10 +1068,12 @@ is the observed proportion correct on item
 among those examinees, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>P</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><annotation encoding="application/x-tex">\hat{P}_s</annotation></semantics></math>
 is the model-based expected proportion.</p>
-<p>Degrees of freedom equal the number of feasible summed-score values
-(excluding 0 and the maximum, where responses to the item are
-deterministic) minus the number of estimated item parameters:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">df = (I - 1) - p</annotation></semantics></math><span class="citation">(Ames &amp; Penfield, 2015)</span>.</p>
+<p>Degrees of freedom equal the number of summed-score groups that
+remain after cell collapsing minus the number of estimated item
+parameters. Before any collapsing, the feasible summed-score values
+exclude 0 and the maximum, where responses to the item are
+deterministic, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">df \le (I - 1) - p</annotation></semantics></math><span class="citation">(Ames &amp; Penfield, 2015)</span>.</p>
 <p><strong>Extension to polytomous items.</strong> <span class="citation">Kang &amp; Chen (2008)</span> generalized
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
 to polytomous IRT models (GRM, GPCM). The generalization uses the same
@@ -1113,7 +1202,7 @@ per item</td>
 <div class="section level3">
 <h3 id="example-1-binary-test">Example 1: Binary test<a class="anchor" aria-label="anchor" href="#example-1-binary-test"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sx2_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sx2_fit.html">sx2_fit</a></span><span class="op">(</span></span>
 <span>  x     <span class="op">=</span> <span class="va">meta_cal_bin</span>,</span>
 <span>  data  <span class="op">=</span> <span class="va">resp_bin</span>,</span>
@@ -1143,8 +1232,12 @@ per item</td>
 <span><span class="co">#&gt; 17 ITEM17 17.892 14   23.685 0.212</span></span>
 <span><span class="co">#&gt; 18 ITEM18 10.636 14   23.685 0.714</span></span>
 <span><span class="co">#&gt; 19 ITEM19  6.603 10   18.307 0.762</span></span>
-<span><span class="co">#&gt; 20 ITEM20  9.000 14   23.685 0.831</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; 20 ITEM20  9.000 14   23.685 0.831</span></span>
+<span></span>
+<span><span class="co"># Number of items with p &lt; alpha</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fit_sx2_bin</span><span class="op">$</span><span class="va">fit_stat</span><span class="op">$</span><span class="va">p</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect collapsed observed vs. expected frequency table for Item 1</span></span>
 <span><span class="co"># Rows = summed-score bins; columns = item score categories (0 / 1)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"--- Expected frequencies (Item 1) ---\n"</span><span class="op">)</span></span>
@@ -1188,7 +1281,7 @@ per item</td>
 </h3>
 <p>For polytomous items, the Kang-Chen <span class="citation">(2008)</span> extension is applied automatically when
 GRM or GPCM items are detected.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sx2_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sx2_fit.html">sx2_fit</a></span><span class="op">(</span></span>
 <span>  x     <span class="op">=</span> <span class="va">meta_cal_mix</span>,</span>
 <span>  data  <span class="op">=</span> <span class="va">resp_mix</span>,</span>
@@ -1218,9 +1311,10 @@ GRM or GPCM items are detected.</p>
 <span><span class="co">#&gt; 18  GRM3 39.143 53   70.993 0.922</span></span>
 <span><span class="co">#&gt; 19  GRM4 55.282 51   68.669 0.316</span></span>
 <span><span class="co">#&gt; 20  GRM5 57.007 56   74.468 0.437</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect observed proportions for GRM item 16 (polytomous)</span></span>
-<span><span class="co"># Rows = summed-score groups; columns = response categories (0, 1, 2, 3)</span></span>
+<span><span class="co"># Rows = summed-score groups; columns = the cells that remain after category</span></span>
+<span><span class="co"># collapsing, which match categories 0-3 only in rows without NA</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"--- Observed proportions for GRM item 1 (item 16) ---\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; --- Observed proportions for GRM item 1 (item 16) ---</span></span>
 <span><span class="va">fit_sx2_mix</span><span class="op">$</span><span class="va">obs_prop</span><span class="op">[[</span><span class="fl">16</span><span class="op">]</span><span class="op">]</span></span>
@@ -1272,7 +1366,8 @@ distribution; items with <code>p.X2 &lt; alpha</code> or
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
 has df =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">H - p</annotation></semantics></math>
-(number of bins minus number of item parameters);
+(number of bins left after cell collapsing minus number of item
+parameters);
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
 has df =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>.</li>
@@ -1281,14 +1376,27 @@ has df =
 trivial deviations from the model produce significant
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-values.
 With small samples, power is low. Interpret p-values alongside the
-<code>overSR.prop</code> column (proportion of bins with large
+<code>overSR.prop</code> column (proportion of cells with large
 standardized residuals) and the residual plots.</li>
 <li>
 <strong>Practical guideline</strong>: use <code>overSR.prop</code>
-as a supplementary indicator. An item with a marginally significant
+as a supplementary indicator. With <code>overSR = 2</code>, about 5% of
+the cells are expected to exceed the threshold when the model holds and
+the ability estimates were exact. An item with a marginally significant
 p-value but low <code>overSR.prop</code> may not warrant deletion; an
 item with high <code>overSR.prop</code> concentrated at a specific
 ability range signals a meaningful pattern worth investigating.</li>
+<li>
+<strong>Check the grouping first</strong>: significant p-values can
+result from the grouping choices rather than from model misfit. In
+Example 1, the data were generated from the fitted model, yet many items
+have p-values below <code>alpha</code>. Most items have one to three of
+the 11 bins beyond the threshold (<code>overSR.prop</code> between 0.09
+and 0.27), and these bins are mostly the outer ones, where the wide bins
+and the midpoint location matter most. Compare the results across
+grouping options and with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
+before dropping items.</li>
 </ul>
 </div>
 <div class="section level3">

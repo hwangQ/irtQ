@@ -1,6 +1,167 @@
 # Changelog
 
+## irtQ 1.3.1
+
+### Bug Fixes
+
+- Fixed the routing in
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md). The
+  ability estimate used to choose the next module was computed from the
+  responses to the current module only. It is now computed from the
+  responses to all modules administered so far, as intended. This
+  applies to every routing method (`"bmat"`, `"mfi"`, and cut scores)
+  and every `route_score` method, so simulated paths and results can
+  differ from earlier versions, in particular from stage 3 onward.
+
+- Fixed cut-score routing in
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) for
+  route maps in which a module reaches only some modules of the next
+  stage. The examinee could be sent to a module that did not match the
+  cut scores. Only the cut scores that separate the reachable modules
+  are now used, which is the rule applied by
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md).
+  Results are unchanged when every module of a stage can be reached.
+
+- Fixed the final estimate of
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) for
+  responses with missing values (`response` argument). The ML, WL, MLF,
+  MAP, and EAP estimates used the parameters of other items instead of
+  those of the observed items.
+
+- [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
+  and
+  [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
+  now match a data frame `key` to the item columns by item number when
+  its `item` column is character or factor. Before, keys for tests with
+  10 or more items could be assigned to the wrong items.
+
+- [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
+  with `default.par = TRUE` now repeats a single value of `cats` or
+  `model` for all items. Before, a single `cats` value gave item IDs of
+  “V1” for every item and a guessing parameter of 0 instead of 0.2 for
+  3PLM items.
+
+- [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) now
+  computes the observed category proportions directly from the
+  frequencies. Before, they came from
+  [`janitor::adorn_percentages()`](https://sfirke.github.io/janitor/reference/adorn_percentages.html),
+  which can include the total column in the denominator in some
+  environments and halve the proportions, the residuals, and
+  `overSR.prop`. Results are unchanged when the proportions were
+  computed correctly.
+
+- [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) no
+  longer overwrites `score` with `se` when `se` is given as a matrix or
+  data frame.
+
+- [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) no
+  longer stops with a dimnames error when a performance level has no
+  examinees, and the label of the total row of `marginal` is now
+  “marginal”, as in
+  [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md).
+
+- [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) treats
+  NA values in `g.drm` as zeros, as the item metadata input does.
+  Before, the responses to those items were all NA.
+
+- The Wald confidence intervals in
+  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md)
+  now use the two-sided critical value, `qnorm(1 - alpha / 2)`. Before,
+  they used `qnorm(1 - alpha)` and were 90% intervals at the default
+  `alpha = 0.05`, while the Wilson intervals were 95% intervals.
+
+### Minor Improvements
+
+- [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+  now stops with an informative message when the modules in a stage
+  differ in maximum sum score.
+
+- In [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+  and
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+  an ability estimate equal to a cut score is now routed to the higher
+  module, as in the classification rule of
+  [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) and
+  [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md).
+  Results change only when an estimate equals a cut score exactly.
+
+- [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md),
+  [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
+  (scored-category mode), and the CTT helper functions now stop with an
+  informative error when an item score is not a whole number between 0
+  and `cats - 1`. When `cats` is inferred, every item has at least two
+  categories, so an item that every examinee scores 0 on gets a
+  difficulty of 0 and is flagged.
+
+- [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) reports the
+  listwise deletion of incomplete rows once, and the item table has
+  default row names.
+
+- [`plot.find_cut()`](https://hwangQ.github.io/irtQ/reference/plot.find_cut.md)
+  no longer passes an unused `inherit.aes` argument to
+  [`geom_vline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html),
+  which caused warnings with some ggplot2 versions.
+
+- [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) now
+  stops with an informative message when `score` is supplied without
+  `se`. Before, it failed with a “missing value where TRUE/FALSE needed”
+  error.
+
+### Documentation
+
+- Stated in
+  [`?reval_mst`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+  that the recursion is based on inverse TCC estimates, that only
+  inverse TCC scoring with cut-score routing is supported, and that
+  modules in a stage must have the same maximum sum score; corrected the
+  documented default of `theta` and the description of the returned
+  list.
+
+- In [`?run_mst`](https://hwangQ.github.io/irtQ/reference/run_mst.md),
+  described the cumulative routing estimate and the relation to
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+  and stated that `"EAP.SUM"` and `"INV.TCC"` count a missing response
+  as 0 in the final sum score.
+
+- Corrected the interpretation of alpha with the item removed in
+  [`?ctt`](https://hwangQ.github.io/irtQ/reference/ctt.md). The
+  [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) examples and
+  the CTT article now use simulated IRT data.
+
+- Corrected the description of the expected frequencies in
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md) and stated
+  that `crit.val = NULL` flags no items.
+
+- Reworded the motivation of
+  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md).
+
+- In [`?simMST`](https://hwangQ.github.io/irtQ/reference/simMST.md),
+  noted that the item parameters are on the D = 1.702 scale. In
+  [`?find_cut`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
+  clarified that the cut scores in `simMST` were obtained with
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md)
+  and softened the statement about path reversals.
+
+- Corrected the probability matrix of the first example in
+  [`?lwrc`](https://hwangQ.github.io/irtQ/reference/lwrc.md), the GPCM
+  formula note in
+  [`?irtQ`](https://hwangQ.github.io/irtQ/reference/irtQ-package.md),
+  and the class of `prob.cats` in
+  [`?traceline`](https://hwangQ.github.io/irtQ/reference/traceline.md).
+  Corrected statements in the README, the vignette overview, and the
+  articles (shrinkage of MAP and EAP, `range.score` in
+  [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md),
+  `fix.id` in
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), the
+  effect of `EmpHist` in FIPC, the fixed-slope 1PLM, fixed guessing, the
+  CATSIB regression correction, the purification procedure, and the
+  usage notes of the utility functions). The DIF article now simulates
+  item difficulties in a narrower range so that the pooled calibrations
+  converge.
+
 ## irtQ 1.3.0
+
+CRAN release: 2026-10-05
 
 ### New Features
 

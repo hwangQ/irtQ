@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,42 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.3.0" id="irtq-130">irtQ 1.3.0<a class="anchor" aria-label="anchor" href="#irtq-130"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.3.1" id="irtq-131">irtQ 1.3.1<a class="anchor" aria-label="anchor" href="#irtq-131"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-1"></a></h3>
+<ul><li><p>Fixed the routing in <code><a href="../reference/run_mst.html">run_mst()</a></code>. The ability estimate used to choose the next module was computed from the responses to the current module only. It is now computed from the responses to all modules administered so far, as intended. This applies to every routing method (<code>"bmat"</code>, <code>"mfi"</code>, and cut scores) and every <code>route_score</code> method, so simulated paths and results can differ from earlier versions, in particular from stage 3 onward.</p></li>
+<li><p>Fixed cut-score routing in <code><a href="../reference/run_mst.html">run_mst()</a></code> for route maps in which a module reaches only some modules of the next stage. The examinee could be sent to a module that did not match the cut scores. Only the cut scores that separate the reachable modules are now used, which is the rule applied by <code><a href="../reference/reval_mst.html">reval_mst()</a></code>. Results are unchanged when every module of a stage can be reached.</p></li>
+<li><p>Fixed the final estimate of <code><a href="../reference/run_mst.html">run_mst()</a></code> for responses with missing values (<code>response</code> argument). The ML, WL, MLF, MAP, and EAP estimates used the parameters of other items instead of those of the observed items.</p></li>
+<li><p><code><a href="../reference/score_resp.html">score_resp()</a></code> and <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code> now match a data frame <code>key</code> to the item columns by item number when its <code>item</code> column is character or factor. Before, keys for tests with 10 or more items could be assigned to the wrong items.</p></li>
+<li><p><code><a href="../reference/shape_df.html">shape_df()</a></code> with <code>default.par = TRUE</code> now repeats a single value of <code>cats</code> or <code>model</code> for all items. Before, a single <code>cats</code> value gave item IDs of “V1” for every item and a guessing parameter of 0 instead of 0.2 for 3PLM items.</p></li>
+<li><p><code><a href="../reference/irtfit.html">irtfit()</a></code> now computes the observed category proportions directly from the frequencies. Before, they came from <code><a href="https://sfirke.github.io/janitor/reference/adorn_percentages.html" class="external-link">janitor::adorn_percentages()</a></code>, which can include the total column in the denominator in some environments and halve the proportions, the residuals, and <code>overSR.prop</code>. Results are unchanged when the proportions were computed correctly.</p></li>
+<li><p><code><a href="../reference/catsib.html">catsib()</a></code> no longer overwrites <code>score</code> with <code>se</code> when <code>se</code> is given as a matrix or data frame.</p></li>
+<li><p><code><a href="../reference/cac_rud.html">cac_rud()</a></code> no longer stops with a dimnames error when a performance level has no examinees, and the label of the total row of <code>marginal</code> is now “marginal”, as in <code><a href="../reference/cac_lee.html">cac_lee()</a></code>.</p></li>
+<li><p><code><a href="../reference/simdat.html">simdat()</a></code> treats NA values in <code>g.drm</code> as zeros, as the item metadata input does. Before, the responses to those items were all NA.</p></li>
+<li><p>The Wald confidence intervals in <code><a href="../reference/plot.irtfit.html">plot.irtfit()</a></code> now use the two-sided critical value, <code>qnorm(1 - alpha / 2)</code>. Before, they used <code>qnorm(1 - alpha)</code> and were 90% intervals at the default <code>alpha = 0.05</code>, while the Wilson intervals were 95% intervals.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-1-3-1">Minor Improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-1-3-1"></a></h3>
+<ul><li><p><code><a href="../reference/reval_mst.html">reval_mst()</a></code> now stops with an informative message when the modules in a stage differ in maximum sum score.</p></li>
+<li><p>In <code><a href="../reference/run_mst.html">run_mst()</a></code> and <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, an ability estimate equal to a cut score is now routed to the higher module, as in the classification rule of <code><a href="../reference/cac_lee.html">cac_lee()</a></code> and <code><a href="../reference/cac_rud.html">cac_rud()</a></code>. Results change only when an estimate equals a cut score exactly.</p></li>
+<li><p><code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code> (scored-category mode), and the CTT helper functions now stop with an informative error when an item score is not a whole number between 0 and <code>cats - 1</code>. When <code>cats</code> is inferred, every item has at least two categories, so an item that every examinee scores 0 on gets a difficulty of 0 and is flagged.</p></li>
+<li><p><code><a href="../reference/ctt.html">ctt()</a></code> reports the listwise deletion of incomplete rows once, and the item table has default row names.</p></li>
+<li><p><code><a href="../reference/plot.find_cut.html">plot.find_cut()</a></code> no longer passes an unused <code>inherit.aes</code> argument to <code><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline()</a></code>, which caused warnings with some ggplot2 versions.</p></li>
+<li><p><code><a href="../reference/catsib.html">catsib()</a></code> now stops with an informative message when <code>score</code> is supplied without <code>se</code>. Before, it failed with a “missing value where TRUE/FALSE needed” error.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-1-3-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-3-1"></a></h3>
+<ul><li><p>Stated in <code><a href="../reference/reval_mst.html">?reval_mst</a></code> that the recursion is based on inverse TCC estimates, that only inverse TCC scoring with cut-score routing is supported, and that modules in a stage must have the same maximum sum score; corrected the documented default of <code>theta</code> and the description of the returned list.</p></li>
+<li><p>In <code><a href="../reference/run_mst.html">?run_mst</a></code>, described the cumulative routing estimate and the relation to <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, and stated that <code>"EAP.SUM"</code> and <code>"INV.TCC"</code> count a missing response as 0 in the final sum score.</p></li>
+<li><p>Corrected the interpretation of alpha with the item removed in <code><a href="../reference/ctt.html">?ctt</a></code>. The <code><a href="../reference/ctt.html">ctt()</a></code> examples and the CTT article now use simulated IRT data.</p></li>
+<li><p>Corrected the description of the expected frequencies in <code><a href="../reference/pcd2.html">pcd2()</a></code> and stated that <code>crit.val = NULL</code> flags no items.</p></li>
+<li><p>Reworded the motivation of <code><a href="../reference/ripd.html">ripd()</a></code>.</p></li>
+<li><p>In <code><a href="../reference/simMST.html">?simMST</a></code>, noted that the item parameters are on the D = 1.702 scale. In <code><a href="../reference/find_cut.html">?find_cut</a></code>, clarified that the cut scores in <code>simMST</code> were obtained with <code><a href="../reference/find_cut.html">find_cut()</a></code> and softened the statement about path reversals.</p></li>
+<li><p>Corrected the probability matrix of the first example in <code><a href="../reference/lwrc.html">?lwrc</a></code>, the GPCM formula note in <code><a href="../reference/irtQ-package.html">?irtQ</a></code>, and the class of <code>prob.cats</code> in <code><a href="../reference/traceline.html">?traceline</a></code>. Corrected statements in the README, the vignette overview, and the articles (shrinkage of MAP and EAP, <code>range.score</code> in <code><a href="../reference/irtfit.html">irtfit()</a></code>, <code>fix.id</code> in <code><a href="../reference/est_mg.html">est_mg()</a></code>, the effect of <code>EmpHist</code> in FIPC, the fixed-slope 1PLM, fixed guessing, the CATSIB regression correction, the purification procedure, and the usage notes of the utility functions). The DIF article now simulates item difficulties in a narrower range so that the pooled calibrations converge.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.0" id="irtq-130">irtQ 1.3.0<a class="anchor" aria-label="anchor" href="#irtq-130"></a></h2><p class="text-muted">CRAN release: 2026-10-05</p>
 <div class="section level3">
 <h3 id="new-features-1-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-3-0"></a></h3>
 <ul><li><p>New classical test theory (CTT) functions: <code><a href="../reference/ctt.html">ctt()</a></code> for item- and test-level statistics, with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="../reference/summary.html">summary()</a></code> methods; <code><a href="../reference/freq_score.html">freq_score()</a></code> for a total-score frequency table; <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code> for option or score-category distributions with point-biserial correlations; and <code><a href="../reference/score_resp.html">score_resp()</a></code> for scoring raw selected-response data with an answer key. Item-total and option-total correlations are reported both with and without the item.</p></li>

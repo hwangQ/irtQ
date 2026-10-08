@@ -27,22 +27,25 @@ library(irtQ)
 
 ### From Raw Responses to a Scored Matrix
 
-Both [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) and
+[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) expects an
+already-scored item response matrix (0/1 for a dichotomous item, or 0,
+1, 2, … for a polytomous item), the same convention used throughout irtQ
+(e.g., by
+[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)), and
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
-expect an already-scored item response matrix (0/1 for a dichotomous
-item, or 0, 1, 2, … for a polytomous item), the same convention used
-throughout irtQ (e.g., by
-[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)). Raw
-testing data, however, usually records the option each examinee actually
-chose. The *Utility Functions* article covers
+expects a vector of total scores, such as the
+[`rowSums()`](https://rdrr.io/r/base/colSums.html) of a scored matrix.
+Raw testing data, however, usually records the option each examinee
+actually chose. The *Utility Functions* article covers
 [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
 in full - including its support for numeric, Latin-letter, and
 general-label (e.g., Korean-syllable) option-coding schemes - but a
 short example is worth repeating here, since it is the natural first
 step before calling
-[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) or
+[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) on raw data
+(or computing the total scores that
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
-on raw data:
+tabulates):
 
 ``` r
 
@@ -56,7 +59,7 @@ raw3 <- data.frame(
 key3 <- c("A", "D", "C")
 
 scored3 <- score_resp(data = raw3, key = key3)
-scored3$scored          # 0/1 matrix - the input format ctt()/freq_score() expect
+scored3$scored          # 0/1 matrix - the input format ctt() expects
 #>   V1 V2 V3
 #> 1  1  1  0
 #> 2  0  1  0
@@ -99,12 +102,18 @@ table(x$cats)    # 50 items with cats = 2 (dichotomous), 5 items with cats = 5 (
 #>  2  5 
 #> 50  5
 
-# Data set 2: a small dichotomous-only response matrix, used for a simpler,
-# easier-to-read walk-through of ctt()'s item- and test-level output
+# Data set 2: a small dichotomous-only response matrix (300 examinees on 15
+# simulated 3PLM items), used for a simpler, easier-to-read walk-through of
+# ctt()'s item- and test-level output
 set.seed(1)
-dat_bin <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
-dim(dat_bin)     # 300 examinees x 8 items
-#> [1] 300   8
+x_bin <- shape_df(
+  par.drm = list(a = rep(1.5, 15), b = seq(-1.5, 1.5, length.out = 15),
+                 g = rep(0.2, 15)),
+  cats = 2, model = "3PLM"
+)
+dat_bin <- simdat(x = x_bin, theta = rnorm(300), D = 1)
+dim(dat_bin)     # 300 examinees x 15 items
+#> [1] 300  15
 ```
 
 ------------------------------------------------------------------------
@@ -191,6 +200,10 @@ out_distr$omit    # one row per item: pct_blank, pct_double
 #> 1   V1         0        0.0
 #> 2   V2         0       12.5
 ```
+
+With only two items, the corrected total is the score on the other item
+alone, so `pb_corrected` is unstable here; use a full-length test in
+practice.
 
 Each item’s option-coding scheme (numeric, Latin-letter, or general
 label) is inferred independently from its own `key` value, using exactly
@@ -321,28 +334,42 @@ out_bin <- ctt(data = dat_bin)
 
 out_bin$item    # difficulty, discrimination_raw/corrected, alpha-with-item-removed, flag
 #>    item cats difficulty discrimination_raw discrimination_corrected
-#> X1   V1    2      0.630              0.344                    0.007
-#> X2   V2    2      0.587              0.346                    0.001
-#> X3   V3    2      0.603              0.403                    0.066
-#> X4   V4    2      0.620              0.365                    0.027
-#> X5   V5    2      0.620              0.389                    0.054
-#> X6   V6    2      0.590              0.385                    0.044
-#> X7   V7    2      0.623              0.337                   -0.002
-#> X8   V8    2      0.630              0.364                    0.028
+#> 1    V1    2      0.887              0.309                    0.205
+#> 2    V2    2      0.837              0.369                    0.250
+#> 3    V3    2      0.813              0.479                    0.365
+#> 4    V4    2      0.763              0.489                    0.364
+#> 5    V5    2      0.790              0.329                    0.195
+#> 6    V6    2      0.697              0.403                    0.257
+#> 7    V7    2      0.637              0.514                    0.375
+#> 8    V8    2      0.630              0.498                    0.356
+#> 9    V9    2      0.560              0.376                    0.215
+#> 10  V10    2      0.500              0.497                    0.349
+#> 11  V11    2      0.467              0.470                    0.319
+#> 12  V12    2      0.457              0.459                    0.307
+#> 13  V13    2      0.407              0.382                    0.223
+#> 14  V14    2      0.313              0.395                    0.247
+#> 15  V15    2      0.323              0.386                    0.236
 #>    alpha_removed flag
-#> X1         0.088     
-#> X2         0.093     
-#> X3         0.041     
-#> X4         0.072     
-#> X5         0.051     
-#> X6         0.059     
-#> X7         0.095     
-#> X8         0.072
+#> 1          0.668     
+#> 2          0.664     
+#> 3          0.651     
+#> 4          0.649     
+#> 5          0.670     
+#> 6          0.663     
+#> 7          0.646     
+#> 8          0.649     
+#> 9          0.669     
+#> 10         0.650     
+#> 11         0.654     
+#> 12         0.656     
+#> 13         0.668     
+#> 14         0.664     
+#> 15         0.666
 out_bin$alpha   # test-level alpha, alpha_std, sem, mean difficulty/discrimination
 #>   n_examinee n_item alpha alpha_std   sem mean_difficulty
-#> 1        300      8 0.081     0.081 1.372           0.613
+#> 1        300     15 0.675     0.675 1.648           0.605
 #>   mean_discrimination_raw mean_discrimination_corrected
-#> 1                   0.367                         0.028
+#> 1                   0.424                         0.284
 ```
 
 Difficulty for item $`j`$ is the mean item score divided by its maximum
@@ -407,7 +434,7 @@ in `dat_mixed` (Osburn, 2000):
 
 out_bin$alpha[, c("alpha", "alpha_std")]     # dichotomous-only: close together
 #>   alpha alpha_std
-#> 1 0.081     0.081
+#> 1 0.675     0.675
 out_mixed$alpha[, c("alpha", "alpha_std")]   # mixed-format: can differ more
 #>   alpha alpha_std
 #> 1 0.882     0.901
@@ -441,13 +468,13 @@ out_bin              # print.ctt(): condensed report
 #> ctt(data = dat_bin)
 #> 
 #> Classical Test Theory (CTT) Analysis
-#>  Number of items: 8
+#>  Number of items: 15
 #>  Number of examinees: 300
-#>  Cronbach's alpha: 0.081
-#>  SEM: 1.372
-#>  Mean difficulty: 0.613
-#>  Mean discrimination (raw / corrected): 0.367 / 0.028
-#>  Flagged items: 0 of 8
+#>  Cronbach's alpha: 0.675
+#>  SEM: 1.648
+#>  Mean difficulty: 0.605
+#>  Mean discrimination (raw / corrected): 0.424 / 0.284
+#>  Flagged items: 0 of 15
 #> 
 #> Use summary() for the full item-level and frequency-distribution report.
 summary(out_bin)     # summary.ctt(): full report
@@ -457,43 +484,62 @@ summary(out_bin)     # summary.ctt(): full report
 #> 
 #> Item-Level Statistics
 #>   item  cats  difficulty  discrimination_raw  discrimination_corrected
-#>     V1     2       0.630               0.344                     0.007
-#>     V2     2       0.587               0.346                     0.001
-#>     V3     2       0.603               0.403                     0.066
-#>     V4     2       0.620               0.365                     0.027
-#>     V5     2       0.620               0.389                     0.054
-#>     V6     2       0.590               0.385                     0.044
-#>     V7     2       0.623               0.337                    -0.002
-#>     V8     2       0.630               0.364                     0.028
+#>     V1     2       0.887               0.309                     0.205
+#>     V2     2       0.837               0.369                     0.250
+#>     V3     2       0.813               0.479                     0.365
+#>     V4     2       0.763               0.489                     0.364
+#>     V5     2       0.790               0.329                     0.195
+#>     V6     2       0.697               0.403                     0.257
+#>     V7     2       0.637               0.514                     0.375
+#>     V8     2       0.630               0.498                     0.356
+#>     V9     2       0.560               0.376                     0.215
+#>    V10     2       0.500               0.497                     0.349
+#>    V11     2       0.467               0.470                     0.319
+#>    V12     2       0.457               0.459                     0.307
+#>    V13     2       0.407               0.382                     0.223
+#>    V14     2       0.313               0.395                     0.247
+#>    V15     2       0.323               0.386                     0.236
 #>   alpha_removed  flag
-#>           0.088      
-#>           0.093      
-#>           0.041      
-#>           0.072      
-#>           0.051      
-#>           0.059      
-#>           0.095      
-#>           0.072      
+#>           0.668      
+#>           0.664      
+#>           0.651      
+#>           0.649      
+#>           0.670      
+#>           0.663      
+#>           0.646      
+#>           0.649      
+#>           0.669      
+#>           0.650      
+#>           0.654      
+#>           0.656      
+#>           0.668      
+#>           0.664      
+#>           0.666      
 #> 
 #> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
-#> 0 of 8 item(s) flagged.
+#> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary
 #>   n_examinee  n_item  alpha  alpha_std    sem  mean_difficulty
-#>          300       8  0.081      0.081  1.372            0.613
+#>          300      15  0.675      0.675  1.648            0.605
 #>   mean_discrimination_raw  mean_discrimination_corrected
-#>                     0.367                          0.028
+#>                     0.424                          0.284
 #> 
 #> Total-Score Frequency Distribution
 #>   score  freq    pct  cum_pct
-#>       1     4   1.33     1.33
-#>       2    11   3.67     5.00
-#>       3    34  11.33    16.33
-#>       4    61  20.33    36.67
-#>       5    87  29.00    65.67
-#>       6    64  21.33    87.00
-#>       7    32  10.67    97.67
-#>       8     7   2.33   100.00
+#>       3     6   2.00     2.00
+#>       4    16   5.33     7.33
+#>       5    16   5.33    12.67
+#>       6    24   8.00    20.67
+#>       7    32  10.67    31.33
+#>       8    27   9.00    40.33
+#>       9    37  12.33    52.67
+#>      10    42  14.00    66.67
+#>      11    38  12.67    79.33
+#>      12    23   7.67    87.00
+#>      13    22   7.33    94.33
+#>      14    10   3.33    97.67
+#>      15     7   2.33   100.00
 ```
 
 ------------------------------------------------------------------------
@@ -502,7 +548,7 @@ summary(out_bin)     # summary.ctt(): full report
 
 | Function | Input | Key output | Used by |
 |----|----|----|----|
-| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) (selected-response mode), [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
+| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | Output feeds [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md); called by [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) (selected-response mode) |
 | [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md) | Vector of total (raw) scores | Frequency / percentage / cumulative-percentage table | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) |
 | [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) | Raw option data + key, or a scored matrix | Option/category response distribution, point-biserial correlations, distractor flags | Item and distractor review |
 | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) | Scored item response matrix | Item-level statistics, test-level reliability (alpha/SEM), total-score frequency distribution | [`print.ctt()`](https://hwangQ.github.io/irtQ/reference/print.ctt.md), [`summary.ctt()`](https://hwangQ.github.io/irtQ/reference/summary.ctt.md) |

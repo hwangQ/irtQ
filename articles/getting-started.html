@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,10 +143,11 @@ calibration using Fixed Item Parameter Calibration (FIPC) and Fixed
 Ability Parameter Calibration (FAPC) approaches, and multiple-group
 calibration (<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_mg.html">est_mg()</a></code>,
 <code><a href="../reference/est_item.html">est_item()</a></code>)</li>
-<li>Estimating examinee abilities: maximum likelihood (ML), weighted
-likelihood (WLE), maximum a posteriori (MAP), expected a posteriori
-(EAP), EAP summed scoring, and inverse test characteristic curve (TCC)
-scoring (<code><a href="../reference/est_score.html">est_score()</a></code>)</li>
+<li>Estimating examinee abilities: maximum likelihood (ML), maximum
+likelihood with fences (MLF), weighted likelihood (WLE), maximum a
+posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
+inverse test characteristic curve (TCC) scoring
+(<code><a href="../reference/est_score.html">est_score()</a></code>)</li>
 <li>Evaluating item-level model-data fit:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>,
@@ -157,8 +158,16 @@ infit/outfit,
 (RDIF), generalized residual-based DIF (GRDIF), and simultaneous item
 bias test modified for CAT (CATSIB) (<code><a href="../reference/rdif.html">rdif()</a></code>,
 <code><a href="../reference/grdif.html">grdif()</a></code>, <code><a href="../reference/catsib.html">catsib()</a></code>)</li>
+<li>Detecting item parameter drift (IPD): residual-based IPD (RIPD) and
+the pseudo-count
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>D</mi><mn>2</mn></msup><annotation encoding="application/x-tex">D^2</annotation></semantics></math>
+statistic (<code><a href="../reference/ripd.html">ripd()</a></code>, <code><a href="../reference/pcd2.html">pcd2()</a></code>)</li>
 <li>Computing classification accuracy and consistency indices
 (<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>)</li>
+<li>Evaluating and simulating multistage-adaptive test (MST) panels:
+panel structure, routing cut scores, recursion-based evaluation, and
+simulation (<code><a href="../reference/panel_info.html">panel_info()</a></code>, <code><a href="../reference/find_cut.html">find_cut()</a></code>,
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code>, <code><a href="../reference/run_mst.html">run_mst()</a></code>)</li>
 </ul>
 <p><strong>Beyond these IRT-based analyses</strong>, irtQ also provides
 a small set of classical test theory (CTT) functions (item difficulty,
@@ -169,6 +178,10 @@ analyzing selected-response item data without fitting an IRT model
 <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>, <code><a href="../reference/score_resp.html">score_resp()</a></code>).</p>
 <p><strong>Utilities:</strong></p>
 <table class="table">
+<colgroup>
+<col width="52%">
+<col width="47%">
+</colgroup>
 <thead><tr class="header">
 <th>Function</th>
 <th>Purpose</th>
@@ -196,7 +209,8 @@ analyzing selected-response item data without fitting an IRT model
 </tr>
 <tr class="even">
 <td><code><a href="../reference/covirt.html">covirt()</a></code></td>
-<td>IRT-based covariance between items</td>
+<td>Asymptotic variance-covariance matrices of item parameter
+estimates</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/run_flexmirt.html">run_flexmirt()</a></code></td>
@@ -301,9 +315,9 @@ The lower asymptote of the ICC: the probability of a correct response as
 For a 5-option multiple-choice item with pure random guessing,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mn>0.2</mn></mrow><annotation encoding="application/x-tex">g = 0.2</annotation></semantics></math>.
 When
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">g = 0</annotation></semantics></math>
-the ICC passes through the origin and the model reduces to the 2PLM or
-1PLM.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">g = 0</annotation></semantics></math>,
+the lower asymptote is 0 and the model reduces to the 2PLM (or the
+1PLM).</p>
 <p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:
 Scaling constant</strong><br><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mn>1.702</mn></mrow><annotation encoding="application/x-tex">D = 1.702</annotation></semantics></math>
 is a constant that makes the logistic function closely approximate the
@@ -365,13 +379,15 @@ only</td>
 <p><strong>Note on 1PLM in irtQ.</strong> When
 <code>fix.a.1pl = TRUE</code> (in <code><a href="../reference/est_irt.html">est_irt()</a></code>), the
 discrimination is <em>fixed</em> to the value <code>a.val.1pl</code>
-(default 1); this is the strict <strong>Rasch model</strong>. When
-<code>fix.a.1pl = FALSE</code> (the default), the common discrimination
-is <em>estimated</em> from the data but constrained to be equal across
-all 1PLM items. Both specifications produce only
+(default 1). The latent variance is also fixed (at 1 by default), so
+this is a 1PLM with a fixed common slope rather than the usual Rasch
+identification, in which the slope is fixed and the latent variance is
+estimated. When <code>fix.a.1pl = FALSE</code> (the default), the common
+discrimination is <em>estimated</em> from the data but constrained to be
+equal across all 1PLM items. Both specifications produce only
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
 as the item-differentiating parameter, but the second is more flexible
-when the Rasch assumption of
+when a common slope of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>
 does not exactly hold.</p>
 </blockquote>
@@ -462,11 +478,13 @@ is:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>k</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>v</mi><mo>=</mo><mn>0</mn></mrow><mi>k</mi></munderover><mi>D</mi><mspace width="0.167em"></mspace><mi>a</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>−</mo><msub><mi>b</mi><mi>v</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow></munderover><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>v</mi><mo>=</mo><mn>0</mn></mrow><mi>h</mi></munderover><mi>D</mi><mspace width="0.167em"></mspace><mi>a</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>−</mo><msub><mi>b</mi><mi>v</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(Y = k \mid \theta) =
 \frac{\exp\!\left(\displaystyle\sum_{v=0}^{k} D\,a\,(\theta - b_v)\right)}
      {\displaystyle\sum_{h=0}^{K-1} \exp\!\left(\displaystyle\sum_{v=0}^{h} D\,a\,(\theta - b_v)\right)}</annotation></semantics></math></p>
-<p>where the convention
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b_0 = 0</annotation></semantics></math>
-is used so that the numerator for
+<p>where the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">v = 0</annotation></semantics></math>
+term is defined as 0
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mn>0</mn></msub><annotation encoding="application/x-tex">b_0</annotation></semantics></math>
+is not a free parameter), so the numerator for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">k = 0</annotation></semantics></math>
-simplifies to
+is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\exp(0) = 1</annotation></semantics></math>.</p>
 <p><strong>Parameters:</strong></p>
 <ul>
@@ -494,15 +512,20 @@ for all items gives the <strong>Partial Credit Model (PCM)</strong>
 </li>
 <li>The GPCM is therefore a generalization of the PCM that allows
 item-varying discrimination</li>
+<li>In irtQ, a PCM item is specified as <code>model = "GPCM"</code> with
+<code>fix.a.gpcm = TRUE</code> (<code>a.val.gpcm = 1</code>) in the
+estimation functions; with <code>D = 1</code> and the latent variance
+fixed at 1 (the default), this is the PCM. There is no separate
+<code>"PCM"</code> model string.</li>
 </ul>
 <p><strong>How to specify in irtQ:</strong> For an item with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
 categories, provide a vector of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
 step parameters as the <code>d</code> argument in
-<code><a href="../reference/shape_df.html">shape_df()</a></code>. The convention
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b_0 = 0</annotation></semantics></math>
-is handled internally; you do not supply
+<code><a href="../reference/shape_df.html">shape_df()</a></code>. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">v = 0</annotation></semantics></math>
+term is handled internally; you do not supply
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mn>0</mn></msub><annotation encoding="application/x-tex">b_0</annotation></semantics></math>.</p>
 <hr>
 </div>
@@ -563,7 +586,8 @@ fixed or equal-constrained;
 <td>Polytomous</td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>b</mi><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">b_1, \ldots, b_{K-1}</annotation></semantics></math></td>
 <td>GPCM with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>;
+use <code>"GPCM"</code> with <code>fix.a.gpcm = TRUE</code>
 </td>
 </tr>
 </tbody>
@@ -848,10 +872,10 @@ default to all zeros.</p>
 <span><span class="va">meta_ex4</span></span>
 <span><span class="co">#&gt;   id cats model par.1 par.2 par.3</span></span>
 <span><span class="co">#&gt; 1 V1    2  1PLM     1     0    NA</span></span>
-<span><span class="co">#&gt; 2 V1    2  2PLM     1     0    NA</span></span>
-<span><span class="co">#&gt; 3 V1    2  2PLM     1     0    NA</span></span>
-<span><span class="co">#&gt; 4 V1    2  3PLM     1     0     0</span></span>
-<span><span class="co">#&gt; 5 V1    2  3PLM     1     0     0</span></span></code></pre></div>
+<span><span class="co">#&gt; 2 V2    2  2PLM     1     0    NA</span></span>
+<span><span class="co">#&gt; 3 V3    2  2PLM     1     0    NA</span></span>
+<span><span class="co">#&gt; 4 V4    2  3PLM     1     0   0.2</span></span>
+<span><span class="co">#&gt; 5 V5    2  3PLM     1     0   0.2</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="shape_df-argument-summary">
@@ -1058,6 +1082,8 @@ keyed by group name. Use <code>$Group1$full_df</code>,
 <div class="section level3">
 <h3 id="importing-from-the-mirt-package">Importing from the mirt package<a class="anchor" aria-label="anchor" href="#importing-from-the-mirt-package"></a>
 </h3>
+<p><code><a href="../reference/bring.flexmirt.html">bring.mirt()</a></code> requires the suggested
+<strong>mirt</strong> package.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit a model with mirt (not run)</span></span>
 <span><span class="co"># mirt_mod &lt;- mirt::mirt(data = my_data, model = 1, itemtype = "2PL")</span></span>
@@ -1068,7 +1094,8 @@ keyed by group name. Use <code>$Group1$full_df</code>,
 <div class="section level3">
 <h3 id="common-arguments-for-bring--functions">Common Arguments for <code>bring.*()</code> Functions<a class="anchor" aria-label="anchor" href="#common-arguments-for-bring--functions"></a>
 </h3>
-<p>All <code>bring.*()</code> functions share two main arguments:</p>
+<p>All <code>bring.*()</code> functions except <code><a href="../reference/bring.flexmirt.html">bring.mirt()</a></code>
+share two main arguments:</p>
 <table class="table">
 <colgroup>
 <col width="43%">
@@ -1212,9 +1239,9 @@ Next?</strong> at the end of this page).</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009162516</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.45</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.48</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.84</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.9</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1273,7 +1300,7 @@ Next?</strong> at the end of this page).</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">scores</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>   <span class="co"># EAP point estimates</span></span>
-<span><span class="co">#&gt; [1]  0.329351295 -0.821716551 -0.001138609  0.012362376 -0.681457328</span></span>
+<span><span class="co">#&gt; [1]  0.329351295 -0.821716552 -0.001138609  0.012362376 -0.681457328</span></span>
 <span><span class="co">#&gt; [6] -1.825776845</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">scores</span><span class="op">$</span><span class="va">se.theta</span><span class="op">)</span>    <span class="co"># posterior standard deviations</span></span>
 <span><span class="co">#&gt; [1] 0.2630482 0.2642191 0.2154156 0.2272038 0.2598002 0.3685849</span></span></code></pre></div>
@@ -1374,7 +1401,10 @@ Analysis</a></td>
 <td>MST panel evaluation</td>
 <td><a href="mst-panel-evaluation.html">MST Panel Evaluation and
 Simulation</a></td>
-<td><code><a href="../reference/reval_mst.html">reval_mst()</a></code></td>
+<td>
+<code><a href="../reference/panel_info.html">panel_info()</a></code>, <code><a href="../reference/find_cut.html">find_cut()</a></code>,
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code>, <code><a href="../reference/run_mst.html">run_mst()</a></code>
+</td>
 </tr>
 </tbody>
 </table>

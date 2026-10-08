@@ -32,16 +32,18 @@ likelihood in different ways:
 
 | Method | Key | Description |
 |----|----|----|
-| Maximum Likelihood (ML) | `"ML"` | Finds the $`\theta`$ maximising $`L(\theta \mid \mathbf{U})`$. Unbiased in large samples but undefined for all-correct or all-incorrect response patterns (Kolen & Tong, 2010). |
+| Maximum Likelihood (ML) | `"ML"` | Finds the $`\theta`$ maximising $`L(\theta \mid \mathbf{U})`$. Unbiased in large samples but undefined for all-correct or all-incorrect response patterns, and, with 3PLM items, for some low-score patterns (Kolen & Tong, 2010). |
 | ML with Fences (MLF) | `"MLF"` | Augments the likelihood with imaginary “fence” items (a lower fence with a fixed correct response and an upper fence with a fixed incorrect response) to resolve the boundary-score problem while avoiding the shrinkage of Bayesian methods (Han, 2016). |
 | Weighted Likelihood (WL) | `"WL"` | Multiplies the likelihood by a weighting function derived from the square root of test information before maximizing, yielding estimates that are nearly unbiased to order $`O(n^{-1})`$, substantially less biased than both ML and Bayesian modal estimation over the full $`\theta`$ scale (Warm, 1989). |
 | Maximum A Posteriori (MAP) | `"MAP"` | Returns the mode of the posterior $`p(\theta \mid \mathbf{U}) \propto L(\theta \mid \mathbf{U})\,g(\theta)`$, where $`g(\theta)`$ is a normal prior. Handles boundary scores but shrinks estimates toward the prior mean. |
-| Expected A Posteriori (EAP) | `"EAP"` | Returns the mean of the posterior distribution via Gaussian quadrature integration over $`\theta`$. Also handles boundary scores; has the smallest conditional error variance among pattern-based methods but introduces the most shrinkage (Kolen & Tong, 2010). |
+| Expected A Posteriori (EAP) | `"EAP"` | Returns the mean of the posterior distribution via Gaussian quadrature integration over $`\theta`$. Also handles boundary scores; has smaller conditional error variance than ML but is shrunk toward the prior mean (Kolen & Tong, 2010). |
 
 A key practical limitation of plain ML is that it yields no finite
 solution when all responses to the scored items are correct or all are
-incorrect (perfect and zero scores). MLF, WL, MAP, and EAP all handle
-these boundary patterns, each through a different mechanism (Han, 2016).
+incorrect (perfect and zero scores). With 3PLM items, some low-score
+patterns have no finite solution either, so the ML estimate is placed at
+a limit of `range`. MLF, WL, MAP, and EAP all handle these boundary
+patterns, each through a different mechanism (Han, 2016).
 
 ### IRT Summed-Score Scoring
 
@@ -66,7 +68,7 @@ the total raw score.
 | Method | Key | Description |
 |----|----|----|
 | EAP for Summed Scores | `"EAP.SUM"` | Computes the Bayesian EAP estimate $`\hat{\theta}_{sEAP} = E(\theta \mid X_s)`$ for each possible summed-score value using the Lord-Wingersky recursive algorithm (Thissen et al., 1995; Thissen & Orlando, 2001). Returns a score table mapping every feasible raw score to a $`\theta`$ estimate and its SE. |
-| Inverse TCC | `"INV.TCC"` | Solves $`\hat{\theta}_{TCF}`$ from the test characteristic function (TCF) equation $`\tau_s(\theta) = X_s`$ numerically. A non-Bayesian estimator that is monotonically related to $`X_s`$ and does not depend on the prior distribution (Kolen & Tong, 2010; Stocking, 1996). Standard errors are computed using a recursion-based analytical approach (Lim et al., 2021). Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores below the sum of guessing parameters in 3PLM). |
+| Inverse TCC | `"INV.TCC"` | Solves $`\hat{\theta}_{TCF}`$ from the test characteristic function (TCF) equation $`\tau_s(\theta) = X_s`$ numerically. A non-Bayesian estimator that is monotonically related to $`X_s`$ and does not depend on the prior distribution (Kolen & Tong, 2010; Stocking, 1996). Standard errors are computed using a recursion-based analytical approach (Lim et al., 2021). Linear interpolation (`intpol = TRUE`) handles scores outside the range where the TCC is invertible (e.g., scores at or below the sum of guessing parameters in 3PLM). |
 
 ``` r
 
@@ -97,7 +99,7 @@ most important arguments of
 | `max.iter` | Maximum Newton-Raphson iterations. Default `100`. |
 | `se` | Logical; compute standard errors? Always returned for `"EAP.SUM"` and `"INV.TCC"`. Default `TRUE`. |
 | `intpol` | Logical; apply linear interpolation in `"INV.TCC"` for extreme scores? Default `TRUE`. |
-| `range.tcc` | Ability range used for the `"INV.TCC"` interpolation grid. Default `c(-7, 7)`. |
+| `range.tcc` | Lower and upper bounds of the `"INV.TCC"` estimates; the upper bound is assigned to the maximum raw score. Default `c(-7, 7)`. |
 
 **Return values** differ by method:
 
@@ -203,7 +205,8 @@ ML estimation finds the $`\theta`$ that maximizes the log-likelihood of
 the observed response pattern. It does not use a prior distribution,
 making it purely data-driven. A `range` bound is required to prevent
 $`|\hat{\theta}| \to \infty`$ for all-correct or all-incorrect response
-patterns (Kolen & Tong, 2010).
+patterns and, with 3PLM items, for some low-score patterns (Kolen &
+Tong, 2010).
 
 ``` r
 
@@ -251,6 +254,22 @@ head(score_ml_dich)
 #> 4  1.0747667 0.3502389
 #> 5 -0.9934755 0.3510865
 #> 6  0.1899347 0.3190865
+```
+
+When an ML estimate equals a limit of `range`,
+[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
+returns it with a standard error of 99.9999. The following code counts
+these examinees in each test. Perfect-score patterns and, with 3PLM
+items, low-score patterns can both be among them. They stay in the
+recovery statistics of the comparison below, which lowers the
+correlation and raises the mean absolute error of ML.
+
+``` r
+
+# --- Number of ML estimates at a limit of range (SE = 99.9999) ---
+c(mixed = sum(score_ml_mixed$se.theta > 99), dich = sum(score_ml_dich$se.theta > 99))
+#> mixed  dich 
+#>     5    11
 ```
 
 ### MLF: ML with Fences (Han, 2016)
@@ -367,9 +386,9 @@ head(score_wl_dich)
 ### MAP: Maximum A Posteriori
 
 MAP incorporates a normal prior $`g(\theta)`$ and returns the **mode**
-of the posterior distribution. Compared with EAP, MAP shrinks estimates
-less strongly toward the prior mean, and it can still produce estimates
-outside the bulk of the prior when the data are informative enough.
+of the posterior distribution. Both MAP and EAP shrink estimates toward
+the prior mean; how much depends on test length and the shape of the
+posterior.
 
 ``` r
 
@@ -420,11 +439,10 @@ head(score_map_dich)
 ### EAP: Expected A Posteriori
 
 EAP returns the **mean** of the posterior distribution, integrating over
-a Gaussian quadrature grid. It has the smallest conditional error
-variance among pattern-based estimators, but it introduces the most
-shrinkage toward the prior mean and is sensitive to the choice of prior
-distribution, particularly for short or less reliable tests (Kolen &
-Tong, 2010).
+a Gaussian quadrature grid. It has smaller conditional error variance
+than ML, but its estimates are shrunk toward the prior mean and it is
+sensitive to the choice of prior distribution, particularly for short or
+less reliable tests (Kolen & Tong, 2010).
 
 ``` r
 
@@ -474,9 +492,14 @@ head(score_eap_dich)
 
 ### Comparison: ML vs WL vs MAP vs EAP
 
-The following code computes correlations with the true $`\theta`$ values
-and mean absolute errors for both datasets, summarising the practical
-differences among the four pattern-based methods.
+The following code computes correlations with the true $`\theta`$
+values, mean absolute errors, and the standard deviation of the
+estimates for both datasets, summarising the practical differences among
+the four pattern-based methods. The ML estimates at a limit of `range`
+(see the ML section) are included. The spread of the estimates shows the
+shrinkage: the standard deviations of the MAP and EAP estimates are
+smaller than those of the ML and WL estimates, and below the standard
+deviation of the true $`\theta`$ values.
 
 ``` r
 
@@ -500,6 +523,17 @@ mae_mixed <- c(
 round(mae_mixed, 4)
 #>     ML     WL    MAP    EAP 
 #> 0.2318 0.2121 0.2083 0.2074
+
+sd_mixed <- c(
+  ML   = sd(score_ml_mixed$est.theta),
+  WL   = sd(score_wl_mixed$est.theta),
+  MAP  = sd(score_map_mixed$est.theta),
+  EAP  = sd(score_eap_mixed$est.theta),
+  True = sd(theta_mixed)
+)
+round(sd_mixed, 4)
+#>     ML     WL    MAP    EAP   True 
+#> 1.0957 1.0144 0.9336 0.9521 0.9868
 ```
 
 ``` r
@@ -524,6 +558,17 @@ mae_dich <- c(
 round(mae_dich, 4)
 #>     ML     WL    MAP    EAP 
 #> 0.3346 0.2703 0.2463 0.2478
+
+sd_dich <- c(
+  ML   = sd(score_ml_dich$est.theta),
+  WL   = sd(score_wl_dich$est.theta),
+  MAP  = sd(score_map_dich$est.theta),
+  EAP  = sd(score_eap_dich$est.theta),
+  True = sd(theta_dich)
+)
+round(sd_dich, 4)
+#>     ML     WL    MAP    EAP   True 
+#> 1.2944 1.0726 0.9328 0.9664 1.0165
 ```
 
 ### Providing an `est_irt` Object vs. Separate Metadata
@@ -537,7 +582,10 @@ automatically extracts both the item parameters and the embedded
 response data. This simplifies the post-calibration scoring workflow by
 eliminating the need to explicitly supply a separate `data` matrix.
 
-Both workflows produce identical results:
+Both workflows produce identical results. The estimates differ from the
+EAP estimates in Part 1 because they use the item parameters estimated
+by [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
+instead of the generating item parameters:
 
 ``` r
 
@@ -572,6 +620,20 @@ head(score_from_obj)
 #> 4 -0.2758520 0.2581984
 #> 5 -0.4236150 0.2376667
 #> 6 -2.4311991 0.4608047
+
+# Score from the estimated item parameters and the response data given separately
+score_from_par <- est_score(
+  x          = mod_cal$par.est,   # item metadata with the estimated parameters
+  data       = resp_mixed,
+  D          = 1.702,
+  method     = "EAP",
+  norm.prior = c(0, 1),
+  nquad      = 41
+)
+
+# The two workflows give the same estimates
+all.equal(score_from_obj, score_from_par)
+#> [1] TRUE
 ```
 
 ------------------------------------------------------------------------
@@ -736,9 +798,16 @@ is the test characteristic function (Kolen & Tong, 2010; Stocking,
 prior distribution and the resulting scores are monotonically related to
 raw scores. Linear interpolation (`intpol = TRUE`) handles raw scores
 that fall outside the invertible range of the TCC (for example, when
-3PLM items have nonzero guessing parameters, a raw score equal to the
-sum of all guessing parameters $`g`$ cannot be mapped without
-interpolation).
+3PLM items have nonzero guessing parameters, raw scores at or below the
+sum of the guessing parameters $`g`$ cannot be mapped without
+interpolation: 2.25 for the mixed-format test and 4.5 for the
+dichotomous-only test below). The first value of `range.tcc` is the
+estimate for a raw score of 0, and the second value is the estimate for
+the maximum raw score. The examples use `range.tcc = c(-7, 5)`: the
+lower bound is the default, and the upper bound is the same as the upper
+limit of `range` used for the pattern-based methods above. With the
+default upper bound of 7, the maximum raw score would be assigned a
+$`\theta`$ of 7, well above the values of the other estimates.
 
 #### Mixed-format test
 

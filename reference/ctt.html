@@ -33,7 +33,7 @@ est_irt() pairs with print.est_irt()/summary.est_irt()."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,7 +113,8 @@ a condensed and a full report, respectively, analogous to how
 <dd><p>A data frame or matrix of already-scored item responses, with
 examinees in rows and items in columns. Item scores must range from 0 to
 <code>cats[j] - 1</code> for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
-for a polytomous/partial-credit item).</p></dd>
+for a polytomous/partial-credit item). An error is raised when a score
+is not a whole number between 0 and <code>cats[j] - 1</code>.</p></dd>
 
 
 <dt id="arg-item-id">item.id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
@@ -131,8 +132,10 @@ any other identifier scheme.</p></dd>
 each item (e.g., 2 for a dichotomous item), following the <code>cats</code>
 convention used elsewhere in irtQ (see, e.g., <code><a href="shape_df.html">shape_df()</a></code>). If
 <code>NULL</code> (default), the number of categories for each item is inferred
-from the observed maximum score in <code>data</code> (i.e., <code>max(data[, j], na.rm = TRUE) + 1</code>); supply <code>cats</code> explicitly whenever the maximum possible score
-may not have been observed in the sample.</p></dd>
+from the observed maximum score in <code>data</code> plus one, with a minimum of
+two (i.e., <code>max(max(data[, j]) + 1, 2)</code>); supply <code>cats</code> explicitly
+whenever the maximum possible score may not have been observed in the
+sample. Each value must be a whole number of at least 2.</p></dd>
 
 
 <dt id="arg-correct">correct<a class="anchor" aria-label="anchor" href="#arg-correct"></a></dt>
@@ -226,8 +229,9 @@ always reported as separate columns regardless of <code>correct</code> (this mir
 how, e.g., <code>psych::alpha()</code> reports the raw item-total correlation as
 <code>raw.r</code> and the corrected version as <code>r.drop</code>).</p>
 <p>Alpha-with-item-removed for item j is Cronbach's alpha (see below)
-recomputed using only the remaining items, so that a low value flags an
-item whose removal would increase the overall reliability of the test.</p>
+recomputed using only the remaining items, so that a value above the
+overall alpha identifies an item whose removal would increase the
+reliability of the test.</p>
 <p>At the test level, two forms of Cronbach's alpha are always computed and
 reported. Raw alpha uses the standard variance-based formula
 $$\alpha = \frac{k}{k - 1}\left(1 - \frac{\sum_{j} \sigma_j^2}{\sigma_X^2}\right),$$
@@ -281,9 +285,15 @@ reliability coefficients. <em>Psychological Methods, 5</em>(3), 343-355.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A small dichotomous example</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A dichotomous example: simulate the responses of 300 examinees to 15</span></span></span>
+<span class="r-in"><span><span class="co"># 3PLM items, then run ctt() on the simulated data</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">300</span> <span class="op">*</span> <span class="fl">8</span>, <span class="fl">1</span>, <span class="fl">0.6</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">300</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="shape_df.html">shape_df</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  par.drm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">15</span><span class="op">)</span>, b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, length.out <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cats <span class="op">=</span> <span class="fl">2</span>, model <span class="op">=</span> <span class="st">"3PLM"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x_bin</span>, theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span>, D <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">ctt</span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -291,13 +301,13 @@ reliability coefficients. <em>Psychological Methods, 5</em>(3), 343-355.
 <span class="r-out co"><span class="r-pr">#&gt;</span> ctt(data = dat)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Classical Test Theory (CTT) Analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Number of items: 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Number of items: 15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Number of examinees: 300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Cronbach's alpha: 0.081</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  SEM: 1.372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean difficulty: 0.613</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean discrimination (raw / corrected): 0.367 / 0.028</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Flagged items: 0 of 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Cronbach's alpha: 0.675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  SEM: 1.648</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean difficulty: 0.605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Mean discrimination (raw / corrected): 0.424 / 0.284</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Flagged items: 0 of 15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use summary() for the full item-level and frequency-distribution report.</span>
 <span class="r-in"><span><span class="fu"><a href="summary.html">summary</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
@@ -307,43 +317,62 @@ reliability coefficients. <em>Psychological Methods, 5</em>(3), 343-355.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Item-Level Statistics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   item  cats  difficulty  discrimination_raw  discrimination_corrected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V1     2       0.630               0.344                     0.007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V2     2       0.587               0.346                     0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V3     2       0.603               0.403                     0.066</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V4     2       0.620               0.365                     0.027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V5     2       0.620               0.389                     0.054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V6     2       0.590               0.385                     0.044</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V7     2       0.623               0.337                    -0.002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     V8     2       0.630               0.364                     0.028</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V1     2       0.887               0.309                     0.205</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V2     2       0.837               0.369                     0.250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V3     2       0.813               0.479                     0.365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V4     2       0.763               0.489                     0.364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V5     2       0.790               0.329                     0.195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V6     2       0.697               0.403                     0.257</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V7     2       0.637               0.514                     0.375</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V8     2       0.630               0.498                     0.356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     V9     2       0.560               0.376                     0.215</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V10     2       0.500               0.497                     0.349</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V11     2       0.467               0.470                     0.319</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V12     2       0.457               0.459                     0.307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V13     2       0.407               0.382                     0.223</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V14     2       0.313               0.395                     0.247</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    V15     2       0.323               0.386                     0.236</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   alpha_removed  flag</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.088      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.093      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.041      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.072      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.051      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.059      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.095      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.072      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.668      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.664      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.651      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.649      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.670      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.663      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.646      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.649      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.669      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.650      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.654      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.656      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.668      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.664      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.666      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0 of 8 item(s) flagged.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0 of 15 item(s) flagged.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Test-Level Reliability Summary</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_examinee  n_item  alpha  alpha_std    sem  mean_difficulty</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          300       8  0.081      0.081  1.372            0.613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          300      15  0.675      0.675  1.648            0.605</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean_discrimination_raw  mean_discrimination_corrected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     0.367                          0.028</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                     0.424                          0.284</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Total-Score Frequency Distribution</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   score  freq    pct  cum_pct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       1     4   1.33     1.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       2    11   3.67     5.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       3    34  11.33    16.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       4    61  20.33    36.67</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       5    87  29.00    65.67</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       6    64  21.33    87.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       7    32  10.67    97.67</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       8     7   2.33   100.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       3     6   2.00     2.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       4    16   5.33     7.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       5    16   5.33    12.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       6    24   8.00    20.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       7    32  10.67    31.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       8    27   9.00    40.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       9    37  12.33    52.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      10    42  14.00    66.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      11    38  12.67    79.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      12    23   7.67    87.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      13    22   7.33    94.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      14    10   3.33    97.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      15     7   2.33   100.00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A more realistic, mixed-format example: simulate response data for a</span></span></span>

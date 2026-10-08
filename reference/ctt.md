@@ -43,7 +43,8 @@ ctt(
   A data frame or matrix of already-scored item responses, with
   examinees in rows and items in columns. Item scores must range from 0
   to `cats[j] - 1` for each item j (0/1 for a dichotomous item; 0, 1, 2,
-  ... for a polytomous/partial-credit item).
+  ... for a polytomous/partial-credit item). An error is raised when a
+  score is not a whole number between 0 and `cats[j] - 1`.
 
 - item.id:
 
@@ -64,9 +65,11 @@ ctt(
   elsewhere in irtQ (see, e.g.,
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)).
   If `NULL` (default), the number of categories for each item is
-  inferred from the observed maximum score in `data` (i.e.,
-  `max(data[, j], na.rm = TRUE) + 1`); supply `cats` explicitly whenever
-  the maximum possible score may not have been observed in the sample.
+  inferred from the observed maximum score in `data` plus one, with a
+  minimum of two (i.e., `max(max(data[, j]) + 1, 2)`); supply `cats`
+  explicitly whenever the maximum possible score may not have been
+  observed in the sample. Each value must be a whole number of at least
+  2.
 
 - correct:
 
@@ -169,8 +172,9 @@ mirrors how, e.g., `psych::alpha()` reports the raw item-total
 correlation as `raw.r` and the corrected version as `r.drop`).
 
 Alpha-with-item-removed for item j is Cronbach's alpha (see below)
-recomputed using only the remaining items, so that a low value flags an
-item whose removal would increase the overall reliability of the test.
+recomputed using only the remaining items, so that a value above the
+overall alpha identifies an item whose removal would increase the
+reliability of the test.
 
 At the test level, two forms of Cronbach's alpha are always computed and
 reported. Raw alpha uses the standard variance-based formula \$\$\alpha
@@ -233,9 +237,15 @@ Hwanggyu Lim <hglim83@gmail.com>
 ## Examples
 
 ``` r
-# A small dichotomous example
+# A dichotomous example: simulate the responses of 300 examinees to 15
+# 3PLM items, then run ctt() on the simulated data
 set.seed(1)
-dat <- data.frame(matrix(rbinom(300 * 8, 1, 0.6), nrow = 300))
+x_bin <- shape_df(
+  par.drm = list(a = rep(1.5, 15), b = seq(-1.5, 1.5, length.out = 15),
+                 g = rep(0.2, 15)),
+  cats = 2, model = "3PLM"
+)
+dat <- simdat(x = x_bin, theta = rnorm(300), D = 1)
 out <- ctt(data = dat)
 out
 #> 
@@ -243,13 +253,13 @@ out
 #> ctt(data = dat)
 #> 
 #> Classical Test Theory (CTT) Analysis
-#>  Number of items: 8
+#>  Number of items: 15
 #>  Number of examinees: 300
-#>  Cronbach's alpha: 0.081
-#>  SEM: 1.372
-#>  Mean difficulty: 0.613
-#>  Mean discrimination (raw / corrected): 0.367 / 0.028
-#>  Flagged items: 0 of 8
+#>  Cronbach's alpha: 0.675
+#>  SEM: 1.648
+#>  Mean difficulty: 0.605
+#>  Mean discrimination (raw / corrected): 0.424 / 0.284
+#>  Flagged items: 0 of 15
 #> 
 #> Use summary() for the full item-level and frequency-distribution report.
 summary(out)
@@ -259,43 +269,62 @@ summary(out)
 #> 
 #> Item-Level Statistics
 #>   item  cats  difficulty  discrimination_raw  discrimination_corrected
-#>     V1     2       0.630               0.344                     0.007
-#>     V2     2       0.587               0.346                     0.001
-#>     V3     2       0.603               0.403                     0.066
-#>     V4     2       0.620               0.365                     0.027
-#>     V5     2       0.620               0.389                     0.054
-#>     V6     2       0.590               0.385                     0.044
-#>     V7     2       0.623               0.337                    -0.002
-#>     V8     2       0.630               0.364                     0.028
+#>     V1     2       0.887               0.309                     0.205
+#>     V2     2       0.837               0.369                     0.250
+#>     V3     2       0.813               0.479                     0.365
+#>     V4     2       0.763               0.489                     0.364
+#>     V5     2       0.790               0.329                     0.195
+#>     V6     2       0.697               0.403                     0.257
+#>     V7     2       0.637               0.514                     0.375
+#>     V8     2       0.630               0.498                     0.356
+#>     V9     2       0.560               0.376                     0.215
+#>    V10     2       0.500               0.497                     0.349
+#>    V11     2       0.467               0.470                     0.319
+#>    V12     2       0.457               0.459                     0.307
+#>    V13     2       0.407               0.382                     0.223
+#>    V14     2       0.313               0.395                     0.247
+#>    V15     2       0.323               0.386                     0.236
 #>   alpha_removed  flag
-#>           0.088      
-#>           0.093      
-#>           0.041      
-#>           0.072      
-#>           0.051      
-#>           0.059      
-#>           0.095      
-#>           0.072      
+#>           0.668      
+#>           0.664      
+#>           0.651      
+#>           0.649      
+#>           0.670      
+#>           0.663      
+#>           0.646      
+#>           0.649      
+#>           0.669      
+#>           0.650      
+#>           0.654      
+#>           0.656      
+#>           0.668      
+#>           0.664      
+#>           0.666      
 #> 
 #> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
-#> 0 of 8 item(s) flagged.
+#> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary
 #>   n_examinee  n_item  alpha  alpha_std    sem  mean_difficulty
-#>          300       8  0.081      0.081  1.372            0.613
+#>          300      15  0.675      0.675  1.648            0.605
 #>   mean_discrimination_raw  mean_discrimination_corrected
-#>                     0.367                          0.028
+#>                     0.424                          0.284
 #> 
 #> Total-Score Frequency Distribution
 #>   score  freq    pct  cum_pct
-#>       1     4   1.33     1.33
-#>       2    11   3.67     5.00
-#>       3    34  11.33    16.33
-#>       4    61  20.33    36.67
-#>       5    87  29.00    65.67
-#>       6    64  21.33    87.00
-#>       7    32  10.67    97.67
-#>       8     7   2.33   100.00
+#>       3     6   2.00     2.00
+#>       4    16   5.33     7.33
+#>       5    16   5.33    12.67
+#>       6    24   8.00    20.67
+#>       7    32  10.67    31.33
+#>       8    27   9.00    40.33
+#>       9    37  12.33    52.67
+#>      10    42  14.00    66.67
+#>      11    38  12.67    79.33
+#>      12    23   7.67    87.00
+#>      13    22   7.33    94.33
+#>      14    10   3.33    97.67
+#>      15     7   2.33   100.00
 #> 
 
 # A more realistic, mixed-format example: simulate response data for a

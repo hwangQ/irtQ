@@ -33,7 +33,7 @@ distractors against."><meta property="og:image" content="https://hwangQ.github.i
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,8 +117,9 @@ of <code><a href="score_resp.html">score_resp()</a></code> (a selected option nu
 indicator, or a comma-separated string such as <code>"1,5"</code> for a
 double-marked response). In scored-category mode (<code>key = NULL</code>), a data
 frame or matrix of already-scored item responses with scores 0 to
-<code>cats[j] - 1</code> for each item j. Either way, examinees are rows and items
-are columns.</p></dd>
+<code>cats[j] - 1</code> for each item j; an error is raised when a score is not a
+whole number between 0 and <code>cats[j] - 1</code>. Either way, examinees are rows
+and items are columns.</p></dd>
 
 
 <dt id="arg-item-id">item.id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
@@ -161,7 +162,8 @@ for what happens if items actually differ.</p></dd>
 item, following the same convention as <code><a href="ctt.html">ctt()</a></code>. Only used in
 scored-category mode (<code>key = NULL</code>); silently ignored when <code>key</code> is
 supplied. If <code>NULL</code> (default), inferred per item as the observed maximum
-score plus one.</p></dd>
+score plus one, with a minimum of two. Each value must be a whole number
+of at least 2.</p></dd>
 
 
 <dt id="arg-total">total<a class="anchor" aria-label="anchor" href="#arg-total"></a></dt>

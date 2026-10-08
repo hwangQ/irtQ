@@ -17,7 +17,7 @@ without extensive simulations."><meta property="og:image" content="https://hwang
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,8 +136,8 @@ on performance. Further examples and explanations are available below.</p></dd>
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A vector of ability levels (theta) at which the MST panel's
 performance is assessed. This allows for the evaluation of measurement
-precision and bias across a continuum of ability levels. The default range
-is <code>theta = seq(-5, 5, 0.1)</code>.</p></dd>
+precision and bias across a continuum of ability levels. The default is
+<code>theta = seq(-5, 5, 1)</code>.</p></dd>
 
 
 <dt id="arg-intpol">intpol<a class="anchor" aria-label="anchor" href="#arg-intpol"></a></dt>
@@ -164,8 +164,7 @@ optimization. Default is 1e-4.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>This function returns a list of seven internal objects. The four
-objects are:</p>
+    <p>This function returns a list of seven internal objects. These are:</p>
 <dl><dt>panel.info</dt>
 <dd><p>A list of several sub-objects containing detailed information
 about the MST panel configuration, including:</p><dl><dt>config</dt>
@@ -277,6 +276,21 @@ across IRT ability levels. This approach, detailed in Lim et al. (2021),
 enables the computation of conditional biases and CSEMs efficiently,
 bypassing the need for extensive simulations traditionally required for MST
 evaluation.</p>
+<p>The recursion of Lim et al. (2021) is built on inverse TCC ability
+estimates. At each stage, the sum score accumulated over all modules
+administered so far is converted to an ability estimate by inverse TCC
+scoring, this estimate is compared with the cut scores to route the test
+taker to the next module, and the final ability estimate is also the
+inverse TCC estimate of the total sum score. Accordingly, the function
+supports inverse TCC scoring with cut-score routing only. To evaluate
+other scoring or routing methods, use <code><a href="run_mst.html">run_mst()</a></code>, which runs a
+Monte Carlo simulation. With <code>route_method = NULL</code>, a <code>cut_score</code> list, and
+<code>route_score = list(method = "INV.TCC")</code>, <code><a href="run_mst.html">run_mst()</a></code> follows the
+same design that this function evaluates analytically.</p>
+<p>All modules in the same stage must have the same maximum sum score (the
+sum of the maximum item scores), for example the same number of items when
+all items are dichotomous. The function stops with an error when this
+condition is not met.</p>
 <p>The <code>module</code> argument, used in conjunction with the item bank metadata <code>x</code>,
 systematically organizes items into modules for MST panel evaluation. Each
 row of <code>x</code> corresponds to an item, detailing its characteristics like score
@@ -303,9 +317,9 @@ MST configuration, the list <code>cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))</
 operates as a decision guide at each stage. Initially, all test takers
 start in the first module. Upon completion, their scores determine their
 next stage module: scores below -0.5 route to the first module of the next
-stage, between -0.5 and 0.5 to the second, and above 0.5 to the third. This
-pattern allows for dynamic adaptation, tailoring the test path to
-individual performance levels.</p>
+stage, scores from -0.5 up to but not including 0.5 to the second, and
+scores of 0.5 or above to the third. This pattern allows for dynamic
+adaptation, tailoring the test path to individual performance levels.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

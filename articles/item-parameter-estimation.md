@@ -141,8 +141,9 @@ where $`\boldsymbol{\delta}_j`$ denotes the item parameter vector (e.g.,
 slope $`a_j`$ and difficulty $`b_j`$ for the 2PL model) and
 $`P_j(\theta_k)`$ is the item response function.
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
-numerically optimizes this function for each item using Newton-Raphson
-or other root-finding techniques.
+maximizes this function for each item with
+[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) using analytic
+gradients and Hessians.
 
 > Extension to Polytomous Items: While the formulation above uses
 > dichotomous items for ease of illustration, the same underlying
@@ -208,7 +209,7 @@ by the `Etol` argument.
 |----|----|
 | `use.aprior` | Apply log-normal prior to discrimination parameters |
 | `use.bprior` | Apply normal prior to difficulty parameters |
-| `use.gprior` | Apply beta prior to guessing parameters (recommended for 3PLM) |
+| `use.gprior` | Apply beta prior to guessing parameters (default `TRUE`; recommended for 3PLM) |
 | `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
 | `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
 | `gprior` | e.g., `list(dist = "beta", params = c(5, 16))` (default), mean = 5/(5+16) = 0.24 |
@@ -223,10 +224,10 @@ by the `Etol` argument.
 
 ------------------------------------------------------------------------
 
-### Example 1: Rasch Model (1PLM) Calibration
+### Example 1: 1PLM Calibration (Rasch-Type Model)
 
-The **1-parameter logistic model (1PLM)**, also known as the **Rasch
-model**, is the simplest IRT model for dichotomous items. It assumes:
+The **1-parameter logistic model (1PLM)** is the simplest IRT model for
+dichotomous items. It assumes:
 
 - All items have **equal discrimination** (slopes)
 - Items differ only in **difficulty** (location)
@@ -240,12 +241,19 @@ P(Y = 1 \mid \theta) = \frac{1}{1 + \exp(-D \cdot a \cdot (\theta - b))}
 
 where $`a`$ is constrained to be equal across all items (or fixed to 1).
 
-**Two ways to fit the Rasch model in irtQ:**
+**Two ways to fit the 1PLM in irtQ:**
 
-1.  **`fix.a.1pl = TRUE`**: Fix $`a = 1`$ for all 1PLM items (strict
-    Rasch)
+1.  **`fix.a.1pl = TRUE`**: Fix $`a`$ at `a.val.1pl` (here 1) for all
+    1PLM items
 2.  **`fix.a.1pl = FALSE`** (default): Constrain $`a`$ to be equal
     across 1PLM items but estimate the common value from the data
+
+In both cases the latent distribution is fixed to N(0, 1)
+(`group.mean = 0`, `group.var = 1`). The Rasch model fixes the slope at
+1 and leaves the latent variance free, so `fix.a.1pl = TRUE` is a 1PLM
+with the common slope fixed at `a.val.1pl` (and the latent variance
+fixed at 1) rather than the usual Rasch identification. With
+`D = 1.702`, the slope on the logit scale is $`D \times a = 1.702`$.
 
 We demonstrate both approaches:
 
@@ -269,7 +277,7 @@ theta_1pl <- rnorm(500, mean = 0, sd = 1)
 resp_1pl  <- simdat(x = meta_1pl, theta = theta_1pl, D = 1.702)
 
 # ---- Step 3a: Estimate with FIXED discrimination (a = 1) ----
-# Strict Rasch: D×a×(θ−b) = 1.702×1×(θ−b)
+# Fixed slope: D×a×(θ−b) = 1.702×1×(θ−b)
 mod_1pl_fixed <- est_irt(
   data       = resp_1pl,
   D          = 1.702,
@@ -277,7 +285,7 @@ mod_1pl_fixed <- est_irt(
   cats       = 2,
   item.id    = paste0("I", 1:20),
   fix.a.1pl  = TRUE,       # ← Fix discrimination to a.val.1pl (= 1)
-  a.val.1pl  = 1,          # ← a = 1 (strict Rasch parameterization)
+  a.val.1pl  = 1,          # ← a = 1
   EmpHist    = FALSE,      # Use fixed N(0,1) prior
   Etol       = 0.001,
   MaxE       = 200,
@@ -307,9 +315,9 @@ summary(mod_1pl_fixed)
 #>  Maximum parameter change: 0.000937656
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.29
-#>  Standard error computation: 0.01
-#>  Total computation: 0.4
+#>  EM algorithm: 0.4
+#>  Standard error computation: 0.02
+#>  Total computation: 0.52
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -397,9 +405,9 @@ summary(mod_1pl_constrained)
 #>  Maximum parameter change: 0.0009438272
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.09
-#>  Standard error computation: 0
-#>  Total computation: 0.11
+#>  EM algorithm: 0.16
+#>  Standard error computation: 0.01
+#>  Total computation: 0.18
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -458,13 +466,13 @@ par(mfrow = c(1, 2))
 
 plot(meta_1pl$par.2, par_fixed$par.2,
      xlab = "True b", ylab = "Estimated b",
-     main = "Rasch: Fixed a = 1",
+     main = "1PLM: Fixed a = 1",
      pch = 19, col = "steelblue")
 abline(0, 1, col = "red", lty = 2, lwd = 2)
 
 plot(meta_1pl$par.2, par_constrained$par.2,
      xlab = "True b", ylab = "Estimated b",
-     main = "Rasch: Constrained a",
+     main = "1PLM: Constrained a",
      pch = 19, col = "coral")
 abline(0, 1, col = "red", lty = 2, lwd = 2)
 ```
@@ -537,9 +545,9 @@ summary(mod_bin)
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.41
-#>  Standard error computation: 0.01
-#>  Total computation: 0.43
+#>  EM algorithm: 0.84
+#>  Standard error computation: 0.02
+#>  Total computation: 0.87
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -674,9 +682,10 @@ distribution is estimated freely from the data.
 
 **When to use `EmpHist = TRUE`:**
 
-✅ Sample size is sufficiently **large** ✅ You suspect the ability
-distribution is **non-normal** (e.g., bimodal, skewed)  
-✅ You want to **avoid strong distributional assumptions** \`
+- Sample size is sufficiently **large**
+- You suspect the ability distribution is **non-normal** (e.g., bimodal,
+  skewed)
+- You want to **avoid strong distributional assumptions**
 
 ``` r
 
@@ -863,9 +872,9 @@ summary(mod_3pl_gprior)
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.81
-#>  Standard error computation: 0.01
-#>  Total computation: 0.83
+#>  EM algorithm: 1.66
+#>  Standard error computation: 0.03
+#>  Total computation: 1.72
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -939,7 +948,10 @@ cat("Guessing parameter mean:", round(mean(par_gprior$par.3), 3), "\n")
 
 When the number of response options is fixed and uniform guessing is
 assumed, fixing $`g`$ simplifies the model and can improve the stability
-of $`a`$ and $`b`$ estimates, especially with smaller samples.
+of $`a`$ and $`b`$ estimates, especially with smaller samples, provided
+that the fixed value is close to the true guessing levels. The simulated
+items here have $`g`$ between 0.10 and 0.25, so fixing $`g`$ at 0.20 is
+a deliberate misspecification.
 
 ``` r
 
@@ -983,9 +995,9 @@ summary(mod_3pl_fixg)
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.54
-#>  Standard error computation: 0.01
-#>  Total computation: 0.58
+#>  EM algorithm: 1.1
+#>  Standard error computation: 0.02
+#>  Total computation: 1.15
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1102,9 +1114,9 @@ summary(mod_3pl_allprior)
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.1
-#>  Standard error computation: 0.2
-#>  Total computation: 1.31
+#>  EM algorithm: 2.17
+#>  Standard error computation: 0.21
+#>  Total computation: 2.41
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1245,9 +1257,13 @@ cat(sprintf("%-25s %8.4f %8.4f %8.4f\n", "C: All priors",
   variation in $`g`$. This is the **recommended default** for 5-option
   multiple-choice tests.
 - **Strategy B** (`fix.g = TRUE`): Fixing $`g`$ reduces the number of
-  free parameters by 30 (one per item), which can improve $`a`$ and
-  $`b`$ recovery when samples are moderate. Use when you are confident
-  all items have the same guessing probability.
+  free parameters by 30 (one per item), which can stabilize $`a`$ and
+  $`b`$ when samples are small, but only if the fixed value is close to
+  the true guessing levels. Here the generating $`g`$ values range from
+  0.10 to 0.25 and are fixed at 0.20, so the misspecification biases the
+  slopes: RMSE(a) is clearly larger than in Strategy A, while RMSE(b) is
+  similar. Use this strategy only when you are confident all items have
+  the same guessing probability.
 - **Strategy C** (all priors): Providing priors on $`a`$ and $`b`$ as
   well adds additional regularization. This is most beneficial when item
   parameters are expected to be extreme (e.g., very easy or very hard
@@ -1384,9 +1400,9 @@ summary(mod_mix)
 #>  Maximum parameter change: 0.0009697275
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.41
-#>  Standard error computation: 0.01
-#>  Total computation: 0.43
+#>  EM algorithm: 0.79
+#>  Standard error computation: 0.02
+#>  Total computation: 0.83
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1467,8 +1483,9 @@ print(grm_items)
 3.  **Check your data**: Are there items with extreme proportions
     ($`p < 0.05`$ or $`p > 0.95`$)? Very easy or very hard items may
     cause instability.
-4.  **Use priors**: Enable `use.aprior = TRUE`, `use.bprior = TRUE`, or
-    `use.gprior = TRUE`
+4.  **Use priors**: Enable `use.aprior = TRUE` and `use.bprior = TRUE`;
+    the Beta prior on $`g`$ is already on by default
+    (`use.gprior = TRUE`)
 
 **Q: Should I use `EmpHist = TRUE` or `FALSE`?**
 
@@ -1626,7 +1643,7 @@ mod_fipc <- est_irt(
   fipc        = TRUE,          # ← Enable FIPC
   fipc.method = "MEM",         # ← Multiple EM cycles
   fix.loc     = 1:12,          # ← Positions of anchor items
-  EmpHist     = TRUE,          # ← Estimate Group Y's ability distribution
+  EmpHist     = TRUE,          # ← Estimate Group Y's distribution shape as a histogram
   verbose     = FALSE
 )
 ```
@@ -1767,7 +1784,7 @@ mod_fipc <- est_irt(
   x           = meta_fipc,
   data        = resp_new,
   D           = 1.702,
-  EmpHist     = TRUE,         # Estimate Group Y's ability distribution
+  EmpHist     = TRUE,         # Estimate the shape of Group Y's distribution as a histogram
   Etol        = 0.001,
   MaxE        = 150,
   fipc        = TRUE,         # ← Enable FIPC
@@ -1795,12 +1812,12 @@ summary(mod_fipc)
 #>  Number of free parameters: 12
 #>  Number of fixed items: 15
 #>  Number of E-step cycles completed: 13
-#>  Maximum parameter change: 0.0008186951
+#>  Maximum parameter change: 0.0008186949
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.06
+#>  EM algorithm: 0.12
 #>  Standard error computation: 0
-#>  Total computation: 0.07
+#>  Total computation: 0.14
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2017,7 +2034,7 @@ meta_pre_true_mix <- shape_df(
 resp_anch_mix <- simdat(x = meta_anchor_mix, theta = theta_new_mix, D = 1.702)
 resp_pre_mix  <- simdat(x = meta_pre_true_mix, theta = theta_new_mix, D = 1.702)
 
-# Combine responses to match new form column order (anchors first, pretest after)
+# Combine responses to match the new form column order (anchors at fix.loc, pretest items elsewhere)
 # Since shape_df_fipc() places fixed items at fix.loc positions and new items
 # at remaining positions, we need to assemble the response matrix accordingly.
 # Here, fixed_pos_mix = c(1:20, 26:27); remaining positions = 21:25, 28.
@@ -2064,9 +2081,9 @@ summary(mod_fipc_mix)
 #>  Maximum parameter change: 0.0008719196
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.1
-#>  Standard error computation: 0
-#>  Total computation: 0.12
+#>  EM algorithm: 0.19
+#>  Standard error computation: 0.01
+#>  Total computation: 0.23
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2196,7 +2213,7 @@ cat("Estimated:    mean=", round(group_par_mix[1, "mu"], 3),
 | `fipc.method` | `"OEM"` (one EM cycle) or `"MEM"` (multiple EM cycles; recommended) |
 | `fix.loc` | Integer vector of anchor item row positions in `x` |
 | `fix.id` | Character vector of anchor item IDs (alternative to `fix.loc`) |
-| `EmpHist` | If `TRUE`, estimate Group Y’s ability distribution (recommended) |
+| `EmpHist` | If `TRUE`, the shape of Group Y’s distribution is estimated as an empirical histogram; with `FALSE`, a normal distribution with estimated mean and variance is used |
 
 > **Note:** Use either `fix.loc` (positions) or `fix.id` (item IDs) to
 > specify anchor items, but not both simultaneously. If `fix.id` is
@@ -2279,12 +2296,14 @@ administration for pretest items.
 > is fully capable of handling sparse data matrices containing `NA`
 > values, which is typical for real-world CAT pretest data.
 
-The calibration process follows three main steps: 1. **Obtain ability
-estimates** $`\hat{\theta}`$ (here, simulated from a standard normal
-distribution). 2. **Collect responses** to the pretest items. 3.
-**Calibrate** the pretest items using
-[`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md) by
-fixing the ability estimates.
+The calibration process follows three main steps:
+
+1.  **Obtain ability estimates** $`\hat{\theta}`$ (here, simulated from
+    a standard normal distribution).
+2.  **Collect responses** to the pretest items.
+3.  **Calibrate** the pretest items using
+    [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)
+    by fixing the ability estimates.
 
 ``` r
 
@@ -2343,7 +2362,7 @@ summary(mod_fapc)
 #> 10  PRE10  500
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.03
+#>  Total computation: 0.05
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
@@ -2420,22 +2439,28 @@ cat("Difficulty r:",     round(cor(meta_pre$par.2, est_fapc$par.2), 4), "\n")
 
 ### Key Advantages and Limitations of FAPC
 
-✅ **Simple**: Direct MLE conditional on $`\hat{\theta}`$, requiring no
-complex latent distribution assumptions. ✅ **Fast**: No EM iterations
-needed, making it computationally trivial. ✅ **Scalable**: Each item is
-calibrated independently; ideal for large-scale item pools or real-time
-distributed computing. ✅ **Flexible**: Compatible with any ability
-estimation method (MLE, EAP, MAP) derived from the operational test.
+- ✅ **Simple**: Direct MLE conditional on $`\hat{\theta}`$, requiring
+  no complex latent distribution assumptions.
 
-⚠️ **Assumes $`\theta`$ is known without error**: Treating
-$`\hat{\theta}`$ as a fixed constant ignores measurement error. This
-measurement error propagates into calibration, causing a slight downward
-bias (attenuation) in item discrimination estimates, especially if the
-operational form is short.  
-⚠️ **No population distribution estimation**: Unlike FIPC, FAPC cannot
-estimate or recover the group-level latent trait distribution
-($`\mu_{\theta}, \sigma_{\theta}`$) because abilities are treated as
-fixed data rather than a random effect.
+- ✅ **Fast**: No EM iterations needed, making it computationally
+  trivial.
+
+- ✅ **Scalable**: Each item is calibrated independently; ideal for
+  large-scale item pools or real-time distributed computing.
+
+- ✅ **Flexible**: Compatible with any ability estimation method (MLE,
+  EAP, MAP) derived from the operational test.
+
+- ⚠️ **Assumes $`\theta`$ is known without error**: Treating
+  $`\hat{\theta}`$ as a fixed constant ignores measurement error. This
+  measurement error propagates into calibration, causing a slight
+  downward bias (attenuation) in item discrimination estimates,
+  especially if the operational form is short.
+
+- ⚠️ **No population distribution estimation**: Unlike FIPC, FAPC cannot
+  estimate or recover the group-level latent trait distribution
+  ($`\mu_{\theta}, \sigma_{\theta}`$) because abilities are treated as
+  fixed data rather than a random effect.
 
 ------------------------------------------------------------------------
 
@@ -2494,7 +2519,7 @@ For example, consider three groups sharing items as follows:
 
     Group 1:  [Item A1 ... Common items (C1) ... Item A2 ...]
     Group 2:  [Item B1 ... Common items (C1, C2) ... Item B2 ...]
-    Group 3:  [Item C1 ... Common items (C2) ... Item C2 ...]
+    Group 3:  [Item D1 ... Common items (C2) ... Item D2 ...]
 
 [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md)
 automatically constrains the parameters of C1 items to be identical
@@ -2672,9 +2697,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 7.75
-#>  Standard error computation: 0.1
-#>  Total computation: 8.38
+#>  EM algorithm: 15.3
+#>  Standard error computation: 0.2
+#>  Total computation: 15.94
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2972,275 +2997,16 @@ cat("Group 3: True μ=-0.3, σ=1.3 | Est. μ=",
     round(group_par_mg$Group3[1, "sigma"], 3), "\n")
 #> Group 3: True μ=-0.3, σ=1.3 | Est. μ= -0.349 , σ= 1.364
 
-# Item parameter estimates for all items across groups ((first 6 items))
+# Item parameter estimates for all items across groups (first 6 items of the overall table)
 par_mg <- getirt(mod_mg, what = "par.est")
-head(par_mg)
-#> $overall
-#>        id cats model     par.1        par.2       par.3      par.4      par.5
-#> 1    C1I1    2  3PLM 0.8200242  1.318713757  0.25841706         NA         NA
-#> 2    C1I2    2  3PLM 2.0980879 -1.038422479  0.15218504         NA         NA
-#> 3    C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
-#> 4    C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
-#> 5    C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6    C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
-#> 7    C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
-#> 8    C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
-#> 9    C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
-#> 10  C1I10    2  3PLM 1.4311778  0.087980173  0.13646371         NA         NA
-#> 11   G1I1    2  3PLM 0.9359127 -0.548239144  0.12796867         NA         NA
-#> 12   G1I2    2  3PLM 0.8464253  1.172570909  0.08981114         NA         NA
-#> 13   G1I3    2  3PLM 1.4616326  1.305882948  0.18093863         NA         NA
-#> 14   G1I4    2  3PLM 1.4926688  0.238013232  0.28916429         NA         NA
-#> 15   G1I5    2  3PLM 1.2979873 -0.242251772  0.13400726         NA         NA
-#> 16   G1I6    2  3PLM 2.1074476 -0.012948148  0.07444095         NA         NA
-#> 17   G1I7    2  3PLM 1.4082434 -0.118840206  0.18134112         NA         NA
-#> 18   G1I8    2  3PLM 2.4266305  1.180075734  0.32271527         NA         NA
-#> 19   G1I9    2  3PLM 2.3509008 -0.977087363  0.21540341         NA         NA
-#> 20  G1I10    2  3PLM 1.2511555 -1.833025156  0.18382522         NA         NA
-#> 21  G1I11    2  3PLM 1.5207162 -1.185147713  0.16473757         NA         NA
-#> 22  G1I12    2  3PLM 0.7319287 -0.949068503  0.15414085         NA         NA
-#> 23  G1I13    2  3PLM 0.9962639 -0.233390945  0.16956608         NA         NA
-#> 24  G1I14    2  3PLM 1.4325980  1.770247838  0.29384714         NA         NA
-#> 25  G1I15    2  3PLM 0.8514660 -1.555773213  0.16752977         NA         NA
-#> 26  G1I16    2  3PLM 1.0495106 -2.029009529  0.17866810         NA         NA
-#> 27  G1I17    2  3PLM 1.0038192  0.182951364  0.13096757         NA         NA
-#> 28  G1I18    2  3PLM 2.0489907 -0.110884639  0.23047857         NA         NA
-#> 29  G1I19    2  3PLM 1.3130791 -1.455928197  0.15856273         NA         NA
-#> 30  G1I20    2  3PLM 0.9585798  0.433963565  0.20095980         NA         NA
-#> 31  G1I21    2  3PLM 0.8736611  0.704957357  0.11168893         NA         NA
-#> 32  G1I22    2  3PLM 1.7043931 -0.719471905  0.32551625         NA         NA
-#> 33  G1I23    2  3PLM 1.2733406 -1.278168141  0.20090537         NA         NA
-#> 34  G1I24    2  3PLM 1.5925036  0.288859365  0.21942351         NA         NA
-#> 35  G1I25    2  3PLM 1.5315792 -0.174914214  0.23326945         NA         NA
-#> 36  G1I26    2  3PLM 1.8351423  0.645101932  0.24918150         NA         NA
-#> 37  G1I27    2  3PLM 1.6038171 -1.629006369  0.20988867         NA         NA
-#> 38  G1I28    2  3PLM 1.2874830  0.532576013  0.13701099         NA         NA
-#> 39  G1I29    2  3PLM 0.8993998 -0.443199401  0.09884639         NA         NA
-#> 40  G1I30    2  3PLM 0.9764149  2.298256707  0.16440818         NA         NA
-#> 41  G1I31    2  3PLM 2.3488846  1.645346469  0.18059777         NA         NA
-#> 42  G1I32    2  3PLM 1.0719102 -0.141789310  0.12290992         NA         NA
-#> 43  G1I33    2  3PLM 1.5612761  0.146268646  0.14565485         NA         NA
-#> 44  G1I34    2  3PLM 1.2917326  0.204106661  0.09394302         NA         NA
-#> 45  G1I35    2  3PLM 1.2853134  1.287056625  0.06023247         NA         NA
-#> 46  G1I36    2  3PLM 1.4133363 -1.310815371  0.17461007         NA         NA
-#> 47  G1I37    2  3PLM 1.0033906 -0.746607205  0.21592694         NA         NA
-#> 48  G1I38    5   GRM 1.0610370 -0.370616565  0.21016901  0.8565983  1.4247754
-#> 49  C1I11    5   GRM 1.1918010 -2.203999118 -1.44976236 -0.7501574 -0.1231657
-#> 50  C1I12    5   GRM 0.9081917 -0.697151405  0.02199070  0.6791225  1.2532162
-#> 51   G2I1    2  3PLM 1.7090937 -0.945459280  0.19002945         NA         NA
-#> 52   G2I2    2  3PLM 0.8047999 -0.591187583  0.16910082         NA         NA
-#> 53   G2I3    2  3PLM 1.0335057 -0.005386015  0.14981835         NA         NA
-#> 54   G2I4    2  3PLM 1.4126589  1.456969538  0.16976522         NA         NA
-#> 55   G2I5    2  3PLM 0.6960546 -1.803740318  0.15691190         NA         NA
-#> 56   G2I6    2  3PLM 1.0734316 -1.699563872  0.17121906         NA         NA
-#> 57   G2I7    2  3PLM 1.2750904  0.207772100  0.10660801         NA         NA
-#> 58   G2I8    2  3PLM 2.1494419 -0.130339030  0.11647749         NA         NA
-#> 59   G2I9    2  3PLM 1.0657750 -1.656851791  0.16330371         NA         NA
-#> 60  G2I10    2  3PLM 1.5342410  0.850182846  0.27310868         NA         NA
-#> 61  G2I11    2  3PLM 0.9142407  0.808067550  0.09232400         NA         NA
-#> 62  G2I12    2  3PLM 1.6169550 -0.784688595  0.20535605         NA         NA
-#> 63  G2I13    2  3PLM 1.1505653 -1.400268822  0.16577464         NA         NA
-#> 64  G2I14    2  3PLM 1.3743305  0.164347103  0.10718159         NA         NA
-#> 65  G2I15    2  3PLM 1.4769165 -0.044939230  0.23084126         NA         NA
-#> 66  G2I16    2  3PLM 1.6758848  0.717001136  0.20622285         NA         NA
-#> 67  G2I17    2  3PLM 2.0846254 -1.258853096  0.15889136         NA         NA
-#> 68  G2I18    2  3PLM 1.6949896  0.600499352  0.12602851         NA         NA
-#> 69  G2I19    2  3PLM 1.0611990 -0.063742105  0.17109186         NA         NA
-#> 70  G2I20    2  3PLM 1.5813732  2.215649117  0.15598112         NA         NA
-#> 71  G2I21    2  3PLM 2.3728046  1.557275467  0.11499215         NA         NA
-#> 72  G2I22    2  3PLM 1.4130415  0.168939571  0.18743568         NA         NA
-#> 73  G2I23    2  3PLM 2.0886177  0.414684503  0.27046462         NA         NA
-#> 74  G2I24    2  3PLM 1.3839526  0.323687559  0.05755514         NA         NA
-#> 75  G2I25    2  3PLM 1.7067194  1.381915975  0.06514173         NA         NA
-#> 76  G2I26    2  3PLM 1.8430926 -0.963583581  0.19395885         NA         NA
-#> 77  G2I27    2  3PLM 0.9555100 -0.700065276  0.15891668         NA         NA
-#> 78  G2I28    5   GRM 1.1250412 -0.388696109  0.13170295  0.7782003  1.4533151
-#> 79   C2I1    2  3PLM 1.0434870 -0.352570990  0.10601903         NA         NA
-#> 80   C2I2    2  3PLM 0.9632989  1.228199394  0.05218138         NA         NA
-#> 81   C2I3    2  3PLM 1.5670851  1.386732985  0.12306915         NA         NA
-#> 82   C2I4    2  3PLM 1.5090851  0.215498274  0.17670489         NA         NA
-#> 83   C2I5    2  3PLM 1.3880431 -0.107008292  0.10553705         NA         NA
-#> 84   C2I6    2  3PLM 1.9974654 -0.081160756  0.04056956         NA         NA
-#> 85   C2I7    2  3PLM 1.5176344 -0.029562852  0.16718502         NA         NA
-#> 86   C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA
-#> 87   C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA
-#> 88  C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA
-#> 89   G3I1    2  3PLM 1.4958521 -1.157480281  0.13021457         NA         NA
-#> 90   G3I2    2  3PLM 0.7408780 -0.735132395  0.15274024         NA         NA
-#> 91   G3I3    2  3PLM 1.1082057  0.025301687  0.15302876         NA         NA
-#> 92   G3I4    2  3PLM 1.2502137  1.732480555  0.22122128         NA         NA
-#> 93   G3I5    2  3PLM 0.7484885 -1.246114621  0.22345365         NA         NA
-#> 94   G3I6    2  3PLM 1.1068583 -1.524973978  0.24798634         NA         NA
-#> 95   G3I7    2  3PLM 1.3187121  0.223560460  0.13144430         NA         NA
-#> 96   G3I8    2  3PLM 1.8714736 -0.110985326  0.14002954         NA         NA
-#> 97   G3I9    2  3PLM 1.1037907 -1.301014196  0.16749544         NA         NA
-#> 98  G3I10    2  3PLM 1.4614569  0.970092509  0.28702354         NA         NA
-#> 99  G3I11    2  3PLM 0.8635917  0.758975315  0.06886835         NA         NA
-#> 100 G3I12    2  3PLM 1.3635440 -0.866226276  0.22745508         NA         NA
-#> 101 G3I13    2  3PLM 1.0739247 -1.216780038  0.18915640         NA         NA
-#> 102 G3I14    2  3PLM 1.3335233  0.274945126  0.15754280         NA         NA
-#> 103 G3I15    2  3PLM 1.2528475 -0.095304761  0.18029262         NA         NA
-#> 104 G3I16    2  3PLM 1.5342037  0.731446180  0.19833440         NA         NA
-#> 105 G3I17    2  3PLM 1.6069625 -1.598226313  0.14676682         NA         NA
-#> 106 G3I18    2  3PLM 1.3342736  0.695788071  0.11240270         NA         NA
-#> 107 G3I19    2  3PLM 0.9464045  0.013806645  0.14158197         NA         NA
-#> 108 G3I20    2  3PLM 1.1090358  2.315077726  0.11500685         NA         NA
-#> 109 G3I21    2  3PLM 2.9584494  1.655508212  0.13968286         NA         NA
-#> 110 G3I22    2  3PLM 1.1275978  0.034439985  0.08480644         NA         NA
-#> 111 G3I23    2  3PLM 1.7401665  0.300800501  0.14515489         NA         NA
-#> 112 G3I24    2  3PLM 1.0967884  0.289853463  0.04381579         NA         NA
-#> 113 G3I25    2  3PLM 1.3271448  1.358693168  0.04687473         NA         NA
-#> 114 G3I26    2  3PLM 1.6100308 -1.071850355  0.18520610         NA         NA
-#> 115 G3I27    2  3PLM 0.8934562 -0.726951436  0.14955323         NA         NA
-#> 116 G3I28    5   GRM 0.9523168 -0.372121962  0.15027071  0.8090432  1.5444770
-#> 
-#> $group
-#> $group$Group1
-#>       id cats model     par.1       par.2       par.3      par.4      par.5
-#> 1   C1I1    2  3PLM 0.8200242  1.31871376  0.25841706         NA         NA
-#> 2   C1I2    2  3PLM 2.0980879 -1.03842248  0.15218504         NA         NA
-#> 3   C1I3    2  3PLM 0.9966003  0.55114572  0.16098712         NA         NA
-#> 4   C1I4    2  3PLM 1.0093509 -0.32045149  0.23567127         NA         NA
-#> 5   C1I5    2  3PLM 0.8338492 -0.27183781  0.14448391         NA         NA
-#> 6   C1I6    2  3PLM 1.8443147  0.58243282  0.08027942         NA         NA
-#> 7   C1I7    2  3PLM 1.0424670  1.08507187  0.13731578         NA         NA
-#> 8   C1I8    2  3PLM 0.8848007  0.83180259  0.13784092         NA         NA
-#> 9   C1I9    2  3PLM 0.8350649  0.53838164  0.18075574         NA         NA
-#> 10 C1I10    2  3PLM 1.4311778  0.08798017  0.13646371         NA         NA
-#> 11  G1I1    2  3PLM 0.9359127 -0.54823914  0.12796867         NA         NA
-#> 12  G1I2    2  3PLM 0.8464253  1.17257091  0.08981114         NA         NA
-#> 13  G1I3    2  3PLM 1.4616326  1.30588295  0.18093863         NA         NA
-#> 14  G1I4    2  3PLM 1.4926688  0.23801323  0.28916429         NA         NA
-#> 15  G1I5    2  3PLM 1.2979873 -0.24225177  0.13400726         NA         NA
-#> 16  G1I6    2  3PLM 2.1074476 -0.01294815  0.07444095         NA         NA
-#> 17  G1I7    2  3PLM 1.4082434 -0.11884021  0.18134112         NA         NA
-#> 18  G1I8    2  3PLM 2.4266305  1.18007573  0.32271527         NA         NA
-#> 19  G1I9    2  3PLM 2.3509008 -0.97708736  0.21540341         NA         NA
-#> 20 G1I10    2  3PLM 1.2511555 -1.83302516  0.18382522         NA         NA
-#> 21 G1I11    2  3PLM 1.5207162 -1.18514771  0.16473757         NA         NA
-#> 22 G1I12    2  3PLM 0.7319287 -0.94906850  0.15414085         NA         NA
-#> 23 G1I13    2  3PLM 0.9962639 -0.23339095  0.16956608         NA         NA
-#> 24 G1I14    2  3PLM 1.4325980  1.77024784  0.29384714         NA         NA
-#> 25 G1I15    2  3PLM 0.8514660 -1.55577321  0.16752977         NA         NA
-#> 26 G1I16    2  3PLM 1.0495106 -2.02900953  0.17866810         NA         NA
-#> 27 G1I17    2  3PLM 1.0038192  0.18295136  0.13096757         NA         NA
-#> 28 G1I18    2  3PLM 2.0489907 -0.11088464  0.23047857         NA         NA
-#> 29 G1I19    2  3PLM 1.3130791 -1.45592820  0.15856273         NA         NA
-#> 30 G1I20    2  3PLM 0.9585798  0.43396357  0.20095980         NA         NA
-#> 31 G1I21    2  3PLM 0.8736611  0.70495736  0.11168893         NA         NA
-#> 32 G1I22    2  3PLM 1.7043931 -0.71947191  0.32551625         NA         NA
-#> 33 G1I23    2  3PLM 1.2733406 -1.27816814  0.20090537         NA         NA
-#> 34 G1I24    2  3PLM 1.5925036  0.28885936  0.21942351         NA         NA
-#> 35 G1I25    2  3PLM 1.5315792 -0.17491421  0.23326945         NA         NA
-#> 36 G1I26    2  3PLM 1.8351423  0.64510193  0.24918150         NA         NA
-#> 37 G1I27    2  3PLM 1.6038171 -1.62900637  0.20988867         NA         NA
-#> 38 G1I28    2  3PLM 1.2874830  0.53257601  0.13701099         NA         NA
-#> 39 G1I29    2  3PLM 0.8993998 -0.44319940  0.09884639         NA         NA
-#> 40 G1I30    2  3PLM 0.9764149  2.29825671  0.16440818         NA         NA
-#> 41 G1I31    2  3PLM 2.3488846  1.64534647  0.18059777         NA         NA
-#> 42 G1I32    2  3PLM 1.0719102 -0.14178931  0.12290992         NA         NA
-#> 43 G1I33    2  3PLM 1.5612761  0.14626865  0.14565485         NA         NA
-#> 44 G1I34    2  3PLM 1.2917326  0.20410666  0.09394302         NA         NA
-#> 45 G1I35    2  3PLM 1.2853134  1.28705662  0.06023247         NA         NA
-#> 46 G1I36    2  3PLM 1.4133363 -1.31081537  0.17461007         NA         NA
-#> 47 G1I37    2  3PLM 1.0033906 -0.74660720  0.21592694         NA         NA
-#> 48 G1I38    5   GRM 1.0610370 -0.37061656  0.21016901  0.8565983  1.4247754
-#> 49 C1I11    5   GRM 1.1918010 -2.20399912 -1.44976236 -0.7501574 -0.1231657
-#> 50 C1I12    5   GRM 0.9081917 -0.69715140  0.02199070  0.6791225  1.2532162
-#> 
-#> $group$Group2
-#>       id cats model     par.1        par.2       par.3      par.4      par.5
-#> 1   C1I1    2  3PLM 0.8200242  1.318713757  0.25841706         NA         NA
-#> 2   C1I2    2  3PLM 2.0980879 -1.038422479  0.15218504         NA         NA
-#> 3   C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA
-#> 4   C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA
-#> 5   C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA
-#> 6   C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA
-#> 7   C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA
-#> 8   C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA
-#> 9   C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA
-#> 10 C1I10    2  3PLM 1.4311778  0.087980173  0.13646371         NA         NA
-#> 11 C1I11    5   GRM 1.1918010 -2.203999118 -1.44976236 -0.7501574 -0.1231657
-#> 12 C1I12    5   GRM 0.9081917 -0.697151405  0.02199070  0.6791225  1.2532162
-#> 13  G2I1    2  3PLM 1.7090937 -0.945459280  0.19002945         NA         NA
-#> 14  G2I2    2  3PLM 0.8047999 -0.591187583  0.16910082         NA         NA
-#> 15  G2I3    2  3PLM 1.0335057 -0.005386015  0.14981835         NA         NA
-#> 16  G2I4    2  3PLM 1.4126589  1.456969538  0.16976522         NA         NA
-#> 17  G2I5    2  3PLM 0.6960546 -1.803740318  0.15691190         NA         NA
-#> 18  G2I6    2  3PLM 1.0734316 -1.699563872  0.17121906         NA         NA
-#> 19  G2I7    2  3PLM 1.2750904  0.207772100  0.10660801         NA         NA
-#> 20  G2I8    2  3PLM 2.1494419 -0.130339030  0.11647749         NA         NA
-#> 21  G2I9    2  3PLM 1.0657750 -1.656851791  0.16330371         NA         NA
-#> 22 G2I10    2  3PLM 1.5342410  0.850182846  0.27310868         NA         NA
-#> 23 G2I11    2  3PLM 0.9142407  0.808067550  0.09232400         NA         NA
-#> 24 G2I12    2  3PLM 1.6169550 -0.784688595  0.20535605         NA         NA
-#> 25 G2I13    2  3PLM 1.1505653 -1.400268822  0.16577464         NA         NA
-#> 26 G2I14    2  3PLM 1.3743305  0.164347103  0.10718159         NA         NA
-#> 27 G2I15    2  3PLM 1.4769165 -0.044939230  0.23084126         NA         NA
-#> 28 G2I16    2  3PLM 1.6758848  0.717001136  0.20622285         NA         NA
-#> 29 G2I17    2  3PLM 2.0846254 -1.258853096  0.15889136         NA         NA
-#> 30 G2I18    2  3PLM 1.6949896  0.600499352  0.12602851         NA         NA
-#> 31 G2I19    2  3PLM 1.0611990 -0.063742105  0.17109186         NA         NA
-#> 32 G2I20    2  3PLM 1.5813732  2.215649117  0.15598112         NA         NA
-#> 33 G2I21    2  3PLM 2.3728046  1.557275467  0.11499215         NA         NA
-#> 34 G2I22    2  3PLM 1.4130415  0.168939571  0.18743568         NA         NA
-#> 35 G2I23    2  3PLM 2.0886177  0.414684503  0.27046462         NA         NA
-#> 36 G2I24    2  3PLM 1.3839526  0.323687559  0.05755514         NA         NA
-#> 37 G2I25    2  3PLM 1.7067194  1.381915975  0.06514173         NA         NA
-#> 38 G2I26    2  3PLM 1.8430926 -0.963583581  0.19395885         NA         NA
-#> 39 G2I27    2  3PLM 0.9555100 -0.700065276  0.15891668         NA         NA
-#> 40 G2I28    5   GRM 1.1250412 -0.388696109  0.13170295  0.7782003  1.4533151
-#> 41  C2I1    2  3PLM 1.0434870 -0.352570990  0.10601903         NA         NA
-#> 42  C2I2    2  3PLM 0.9632989  1.228199394  0.05218138         NA         NA
-#> 43  C2I3    2  3PLM 1.5670851  1.386732985  0.12306915         NA         NA
-#> 44  C2I4    2  3PLM 1.5090851  0.215498274  0.17670489         NA         NA
-#> 45  C2I5    2  3PLM 1.3880431 -0.107008292  0.10553705         NA         NA
-#> 46  C2I6    2  3PLM 1.9974654 -0.081160756  0.04056956         NA         NA
-#> 47  C2I7    2  3PLM 1.5176344 -0.029562852  0.16718502         NA         NA
-#> 48  C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA
-#> 49  C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA
-#> 50 C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA
-#> 
-#> $group$Group3
-#>       id cats model     par.1       par.2      par.3     par.4    par.5
-#> 1   C2I1    2  3PLM 1.0434870 -0.35257099 0.10601903        NA       NA
-#> 2   C2I2    2  3PLM 0.9632989  1.22819939 0.05218138        NA       NA
-#> 3   C2I3    2  3PLM 1.5670851  1.38673299 0.12306915        NA       NA
-#> 4   C2I4    2  3PLM 1.5090851  0.21549827 0.17670489        NA       NA
-#> 5   C2I5    2  3PLM 1.3880431 -0.10700829 0.10553705        NA       NA
-#> 6   C2I6    2  3PLM 1.9974654 -0.08116076 0.04056956        NA       NA
-#> 7   C2I7    2  3PLM 1.5176344 -0.02956285 0.16718502        NA       NA
-#> 8   C2I8    2  3PLM 1.4743622  1.27817927 0.18509527        NA       NA
-#> 9   C2I9    2  3PLM 2.1404797 -1.04893386 0.12403332        NA       NA
-#> 10 C2I10    2  3PLM 1.5576919 -1.41374224 0.22823561        NA       NA
-#> 11  G3I1    2  3PLM 1.4958521 -1.15748028 0.13021457        NA       NA
-#> 12  G3I2    2  3PLM 0.7408780 -0.73513240 0.15274024        NA       NA
-#> 13  G3I3    2  3PLM 1.1082057  0.02530169 0.15302876        NA       NA
-#> 14  G3I4    2  3PLM 1.2502137  1.73248055 0.22122128        NA       NA
-#> 15  G3I5    2  3PLM 0.7484885 -1.24611462 0.22345365        NA       NA
-#> 16  G3I6    2  3PLM 1.1068583 -1.52497398 0.24798634        NA       NA
-#> 17  G3I7    2  3PLM 1.3187121  0.22356046 0.13144430        NA       NA
-#> 18  G3I8    2  3PLM 1.8714736 -0.11098533 0.14002954        NA       NA
-#> 19  G3I9    2  3PLM 1.1037907 -1.30101420 0.16749544        NA       NA
-#> 20 G3I10    2  3PLM 1.4614569  0.97009251 0.28702354        NA       NA
-#> 21 G3I11    2  3PLM 0.8635917  0.75897531 0.06886835        NA       NA
-#> 22 G3I12    2  3PLM 1.3635440 -0.86622628 0.22745508        NA       NA
-#> 23 G3I13    2  3PLM 1.0739247 -1.21678004 0.18915640        NA       NA
-#> 24 G3I14    2  3PLM 1.3335233  0.27494513 0.15754280        NA       NA
-#> 25 G3I15    2  3PLM 1.2528475 -0.09530476 0.18029262        NA       NA
-#> 26 G3I16    2  3PLM 1.5342037  0.73144618 0.19833440        NA       NA
-#> 27 G3I17    2  3PLM 1.6069625 -1.59822631 0.14676682        NA       NA
-#> 28 G3I18    2  3PLM 1.3342736  0.69578807 0.11240270        NA       NA
-#> 29 G3I19    2  3PLM 0.9464045  0.01380665 0.14158197        NA       NA
-#> 30 G3I20    2  3PLM 1.1090358  2.31507773 0.11500685        NA       NA
-#> 31 G3I21    2  3PLM 2.9584494  1.65550821 0.13968286        NA       NA
-#> 32 G3I22    2  3PLM 1.1275978  0.03443998 0.08480644        NA       NA
-#> 33 G3I23    2  3PLM 1.7401665  0.30080050 0.14515489        NA       NA
-#> 34 G3I24    2  3PLM 1.0967884  0.28985346 0.04381579        NA       NA
-#> 35 G3I25    2  3PLM 1.3271448  1.35869317 0.04687473        NA       NA
-#> 36 G3I26    2  3PLM 1.6100308 -1.07185035 0.18520610        NA       NA
-#> 37 G3I27    2  3PLM 0.8934562 -0.72695144 0.14955323        NA       NA
-#> 38 G3I28    5   GRM 0.9523168 -0.37212196 0.15027071 0.8090432 1.544477
+head(par_mg$overall)
+#>     id cats model     par.1      par.2      par.3 par.4 par.5
+#> 1 C1I1    2  3PLM 0.8200242  1.3187138 0.25841706    NA    NA
+#> 2 C1I2    2  3PLM 2.0980879 -1.0384225 0.15218504    NA    NA
+#> 3 C1I3    2  3PLM 0.9966003  0.5511457 0.16098712    NA    NA
+#> 4 C1I4    2  3PLM 1.0093509 -0.3204515 0.23567127    NA    NA
+#> 5 C1I5    2  3PLM 0.8338492 -0.2718378 0.14448391    NA    NA
+#> 6 C1I6    2  3PLM 1.8443147  0.5824328 0.08027942    NA    NA
 ```
 
 ------------------------------------------------------------------------
@@ -3384,9 +3150,9 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 4.38
-#>  Standard error computation: 0.08
-#>  Total computation: 4.87
+#>  EM algorithm: 8.02
+#>  Standard error computation: 0.17
+#>  Total computation: 8.67
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3655,7 +3421,7 @@ group_par_fipc <- getirt(mod_mg_fipc, what = "group.par")
 print(group_par_fipc)
 #> $Group1
 #>                    mu     sigma2      sigma
-#> estimates -0.01161244 1.00951986 1.00474866
+#> estimates -0.01161244 1.00951987 1.00474866
 #> se         0.02246686 0.03193181 0.01589044
 #> 
 #> $Group2
@@ -3691,7 +3457,8 @@ print(group_par_fipc)
 | `model` / `cats` / `item.id` | **Lists** specifying the IRT models, category counts, and unique item IDs for each group. |
 | `free.group` | Integer vector indicating which groups have freely estimated latent trait ($`\theta`$) distributions. |
 | `fipc` | Logical indicator to enable Multiple-Group Fixed Item Parameter Calibration (`TRUE` or `FALSE`). |
-| `fix.loc` / `fix.id` | **List** (one per group) specifying the exact row positions or item IDs of the anchor items to be fixed. |
+| `fix.loc` | **List** with one integer vector per group giving the row positions of the anchor items to be fixed. |
+| `fix.id` | A **single character vector** of the IDs of all fixed items across groups (not a list). |
 | `EmpHist` | Logical; if `TRUE`, estimates empirical histogram shapes for the latent distributions instead of assuming normality. |
 | `group.mean` / `group.var` | Numeric values setting the latent trait mean and variance for the fixed reference group. |
 
@@ -3720,8 +3487,9 @@ data       = list(groupA_data, groupB_data, groupC_data)
 MG-FIPC**
 
 Because each group represents a distinct test form with potentially
-different structures, `fix.loc` or `fix.id` must always be supplied as a
-**list**, containing one element per group.
+different structures, `fix.loc` must always be supplied as a **list**,
+containing one integer vector per group. (`fix.id`, in contrast, is a
+single character vector of the IDs of all fixed items across groups.)
 
 ``` r
 

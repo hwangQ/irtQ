@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,7 +156,8 @@ each theta (or node),</li>
 assigned to each level for each theta (or node),</li>
 <li>
 <code>$cutscore</code>: the cut scores used in the analysis (on the
-observed score scale).</li>
+observed score scale for <code><a href="../reference/cac_lee.html">cac_lee()</a></code> and on the theta scale
+for <code><a href="../reference/cac_rud.html">cac_rud()</a></code>).</li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hwangQ.github.io/irtQ/">irtQ</a></span><span class="op">)</span></span>
@@ -301,7 +302,11 @@ obtains each possible observed summed score
 <p><strong>Cut scores</strong> partition the range of observed summed
 scores into
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-performance levels. The probability that an examinee at ability
+performance levels
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
+cut scores define
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+levels). The probability that an examinee at ability
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is assigned to level
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
@@ -398,8 +403,10 @@ GRM).</li>
 </tr>
 <tr class="even">
 <td><code>cutscore</code></td>
-<td>Numeric vector of cut scores; defines
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K + 1</annotation></semantics></math>
+<td>Numeric vector of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
+cut scores defining
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
 performance levels</td>
 </tr>
 <tr class="odd">
@@ -528,7 +535,7 @@ distribution.</p>
 <span><span class="co">#&gt; 20  0.75 7.528702e-02  14.546417     3 1.896328e-05 2.620147e-01 7.379663e-01</span></span>
 <span><span class="co">#&gt; 21  1.00 6.049482e-02  15.555088     3 7.663720e-07 1.002162e-01 8.997831e-01</span></span>
 <span><span class="co">#&gt; 22  1.25 4.566389e-02  16.505175     3 1.876512e-08 2.651963e-02 9.734804e-01</span></span>
-<span><span class="co">#&gt; 23  1.50 3.238054e-02  17.356735     3 2.855207e-10 4.814701e-03 9.951853e-01</span></span>
+<span><span class="co">#&gt; 23  1.50 3.238054e-02  17.356735     3 2.855208e-10 4.814701e-03 9.951853e-01</span></span>
 <span><span class="co">#&gt; 24  1.75 2.157009e-02  18.065625     3 2.879399e-12 6.245660e-04 9.993754e-01</span></span>
 <span><span class="co">#&gt; 25  2.00 1.349822e-02  18.616683     3 2.112469e-14 6.251190e-05 9.999375e-01</span></span>
 <span><span class="co">#&gt; 26  2.25 7.935194e-03  19.026191     3 1.237687e-16 5.238462e-06 9.999948e-01</span></span>
@@ -825,9 +832,11 @@ used to compute SE from TIF)</td>
 </tr>
 <tr class="even">
 <td><code>cutscore</code></td>
-<td>Numeric vector of cut scores on the <strong>theta
-scale</strong>
-</td>
+<td>Numeric vector of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
+cut scores on the <strong>theta scale</strong>, defining
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+performance levels</td>
 </tr>
 <tr class="odd">
 <td><code>theta</code></td>
@@ -952,8 +961,8 @@ scale</strong>
 <span><span class="co">#&gt; 29  3.00 1.108001e-03     3 8.953873e-04 0.02392962 9.751750e-01</span></span>
 <span><span class="co">#&gt; 30  3.25 5.072800e-04     3 2.878648e-03 0.03273349 9.643879e-01</span></span>
 <span><span class="co">#&gt; 31  3.50 2.181784e-04     3 7.651606e-03 0.04316803 9.491804e-01</span></span>
-<span><span class="co">#&gt; 32  3.75 8.815204e-05     3 1.706328e-02 0.05364464 9.292921e-01</span></span>
-<span><span class="co">#&gt; 33  4.00 3.345874e-05     3 3.265689e-02 0.06233080 9.050123e-01</span></span>
+<span><span class="co">#&gt; 32  3.75 8.815204e-05     3 1.706328e-02 0.05364463 9.292921e-01</span></span>
+<span><span class="co">#&gt; 33  4.00 3.345874e-05     3 3.265689e-02 0.06233079 9.050123e-01</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $cutscore</span></span>
 <span><span class="co">#&gt; [1] -0.5  0.8</span></span></code></pre></div>
@@ -1008,20 +1017,21 @@ averages conditional indices over the sample of examinees.</p>
 <span><span class="co">#&gt;         3 0.1887617   0.1745779</span></span>
 <span><span class="co">#&gt;  marginal 0.7959568   0.7157905</span></span></code></pre></div>
 <p>Note that <code>cac_r_p</code> and <code>cac_r_p2</code> yield
-<strong>nearly</strong> identical results because ML-based SEs are
-theoretically equivalent to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msqrt><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msqrt></mrow><annotation encoding="application/x-tex">1/\sqrt{I(\hat\theta)}</annotation></semantics></math>.
-<strong>However, slight discrepancies may occur in practice due to how
-extreme boundary values are handled.</strong> When using
-<code><a href="../reference/est_score.html">est_score()</a></code> with ML estimation, the SEs for extreme ability
-estimates (e.g., artificially bounded at -5 or 5 for all-correct or
-all-incorrect responses)are internally capped at an arbitrary large
-value (e.g., 99.99999) to prevent computational errors. In contrast,
-computing the SE internally from the test information function (TIF)
-using <code><a href="../reference/cac_rud.html">cac_rud()</a></code> calculates the exact analytical value at
-those bounded thetas. Therefore, if the sample includes examinees with
-extreme scores, minor differences in the final marginal indices might be
-observed.</p>
+similar but not identical results. ML-based SEs are theoretically
+equivalent to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msqrt><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msqrt></mrow><annotation encoding="application/x-tex">1/\sqrt{I(\hat\theta)}</annotation></semantics></math>,
+but <code><a href="../reference/est_score.html">est_score()</a></code> sets the SE to 99.9999 when an ML estimate
+equals a limit of <code>range</code> (here -5 or 5). Such estimates
+occur for all-correct or all-incorrect response patterns and, with 3PLM
+items, for some low-score patterns. In <code>cac_r_p2</code> these SEs
+are passed on as they are, whereas <code>cac_r_p</code> computes the SE
+from the test information function (TIF) at every ability estimate,
+including the bounded ones. The help page of <code><a href="../reference/cac_rud.html">cac_rud()</a></code>
+advises handling the 99.9999 values before they are supplied through
+<code>se</code>; this example supplies them unchanged to show the
+effect. When examinees with such estimates are present, the marginal
+indices differ slightly between the two calls. Supplying <code>x</code>
+instead of <code>se</code> avoids the problem.</p>
 <hr>
 </div>
 </div>
@@ -1149,15 +1159,16 @@ observed.</p>
 <h2 id="comparing-lees-and-rudners-methods">Comparing Lee’s and Rudner’s Methods<a class="anchor" aria-label="anchor" href="#comparing-lees-and-rudners-methods"></a>
 </h2>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Side-by-side comparison of marginal CA and CC (binary test, P-method)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"=== Lee's method (P-method) ===\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; === Lee's method (P-method) ===</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cac_l_p</span><span class="op">$</span><span class="va">marginal</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Side-by-side comparison of marginal CA and CC (binary test, P-method,</span></span>
+<span><span class="co"># the same theta-scale cut scores for both methods)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"=== Lee's method (P-method, theta-scale cut scores) ===\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; === Lee's method (P-method, theta-scale cut scores) ===</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cac_l_theta</span><span class="op">$</span><span class="va">marginal</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     level  accuracy consistency</span></span>
-<span><span class="co">#&gt;         1 0.1639447   0.1507562</span></span>
-<span><span class="co">#&gt;         2 0.3680726   0.3237276</span></span>
-<span><span class="co">#&gt;         3 0.2522645   0.2380921</span></span>
-<span><span class="co">#&gt;  marginal 0.7842818   0.7125758</span></span>
+<span><span class="co">#&gt;         1 0.2709956   0.2504939</span></span>
+<span><span class="co">#&gt;         2 0.3194857   0.2738093</span></span>
+<span><span class="co">#&gt;         3 0.2021494   0.1889719</span></span>
+<span><span class="co">#&gt;  marginal 0.7926307   0.7132751</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n=== Rudner's method (P-method, SE from TIF) ===\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1168,6 +1179,13 @@ observed.</p>
 <span><span class="co">#&gt;         2 0.3460603   0.3015966</span></span>
 <span><span class="co">#&gt;         3 0.1917003   0.1761846</span></span>
 <span><span class="co">#&gt;  marginal 0.7994807   0.7173665</span></span></code></pre></div>
+<p>Both calls use the same cut scores on the theta scale
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>0.5</mn></mrow><annotation encoding="application/x-tex">-0.5</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.8</mn><annotation encoding="application/x-tex">0.8</annotation></semantics></math>),
+so the marginal indices are directly comparable. The overall marginal CA
+and CC differ by less than 0.01 here; the level-specific values differ
+more (up to about 0.03 for level 2).</p>
 <p>The two methods share the same conceptual framework: both estimate CA
 and CC by computing, for each ability level, the probabilities of being
 assigned to each performance category, but differ in how they model the

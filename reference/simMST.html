@@ -13,7 +13,7 @@ by Lim et al. (2021)."><meta property="og:image" content="https://hwangQ.github.
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,7 +103,10 @@ the panel's measurement precision across the latent trait continuum.</p></dd>
 </dl><p>This 1-3-3 MST panel includes 7 modules across 3 stages, drawn from
 56 unique items (8 per module) with no item shared across modules. Each
 module contains 8 dichotomously scored items calibrated under the IRT
-3-parameter logistic (3PL) model.</p>
+3-parameter logistic (3PL) model. The item parameters are on the D = 1.702
+scale, so pass <code>D = 1.702</code> to <code><a href="find_cut.html">find_cut()</a></code>,
+<code><a href="reval_mst.html">reval_mst()</a></code>, and <code><a href="run_mst.html">run_mst()</a></code> when using this
+panel.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

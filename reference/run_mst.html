@@ -25,7 +25,7 @@ was inspired by the randomMST() function in the mstR package
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,8 +120,9 @@ to validate and normalise the metadata.</p></dd>
 
 <dt id="arg-route-map">route_map<a class="anchor" aria-label="anchor" href="#arg-route-map"></a></dt>
 <dd><p>A binary square matrix defining the MST transition
-structure. A 1 at row <em>i</em>, column <em>j</em> means that a test taker
-can be routed from module <em>i</em> to module <em>j</em>. Equivalent to the
+structure. An entry of 1 in row <em>i</em> and column <em>j</em> means that a
+test taker can be routed from module <em>i</em> to module <em>j</em>.
+Equivalent to the
 <code>transMatrix</code> argument in <code>randomMST()</code> from <span class="pkg">mstR</span>
 (Magis et al., 2017). See <code><a href="reval_mst.html">reval_mst</a></code> for details.</p></dd>
 
@@ -207,9 +208,9 @@ used when <code>route_method = NULL</code>. The list should have
 contains the cut scores for routing from stage <em>s</em> to stage
 <em>s</em>+1. For example, in a 1-3-3 MST, <code>cut_score = list(c(-0.5,
 0.5), c(-0.6, 0.6))</code> routes examinees whose stage-1 score is below
-\(-0.5\) to the easiest stage-2 module, between \(-0.5\) and
-\(0.5\) to the medium module, and above \(0.5\) to the hardest
-module. Ignored when <code>route_method</code> is <code>"bmat"</code> or
+\(-0.5\) to the easiest stage-2 module, from \(-0.5\) up to but not
+including \(0.5\) to the medium module, and \(0.5\) or above to the
+hardest module. Ignored when <code>route_method</code> is <code>"bmat"</code> or
 <code>"mfi"</code>. Default is <code>NULL</code>.</p></dd>
 
 
@@ -224,8 +225,9 @@ a posteriori), <code>"EAP"</code> (expected a posteriori; Bock &amp; Mislevy,
 1982), <code>"EAP.SUM"</code> (EAP summed scoring; Thissen et al., 1995),
 or <code>"INV.TCC"</code> (inverse test characteristic curve scoring; Lim
 et al., 2021). For <code>"EAP.SUM"</code> and <code>"INV.TCC"</code>, a
-sum-score-to-theta lookup table is pre-computed once per module before
-the simulation loop; routing theta is then obtained by a single
+sum-score-to-theta lookup table is pre-computed once per partial
+pathway (the modules of stages 1 to <em>s</em>) before the simulation
+loop; routing theta is then obtained by a single
 named-vector lookup, making the approach efficient for large \(N\).
 Default: <code>"ML"</code>.</p></dd>
 
@@ -280,27 +282,8 @@ Example: <code>route_score = list(method = "INV.TCC", range.tcc = c(-5, 5))</cod
 <dt id="arg-final-score">final_score<a class="anchor" aria-label="anchor" href="#arg-final-score"></a></dt>
 <dd><p>A named list specifying the scoring method and options
 for the final ability estimate (applied to all items accumulated across
-the entire administered pathway). Supports all fields in
-<code>route_score</code> plus:</p><dl><dt><code>method</code></dt>
-<dd><p>Character. Supports all <code>route_score</code> methods,
-plus <code>"EAP.SUM"</code> (EAP summed scoring; Thissen et al., 1995) and
-<code>"INV.TCC"</code> (inverse test characteristic curve scoring; Lim et
-al., 2021). Default: <code>"ML"</code>.</p></dd>
-
-<dt><code>intpol</code></dt>
-<dd><p>Logical: enable linear interpolation for
-<code>"INV.TCC"</code>. Default: <code>TRUE</code>.</p></dd>
-
-<dt><code>range.tcc</code></dt>
-<dd><p>Numeric vector of length 2: theta search range
-for <code>"INV.TCC"</code>. Default: <code>c(-7, 7)</code>.</p></dd>
-
-<dt><code>max.it</code></dt>
-<dd><p>Integer: maximum bisection iterations for
-<code>"INV.TCC"</code>. Default: <code>500</code>.</p></dd>
-
-
-</dl><p>The full default is equivalent to
+the entire administered pathway). It takes the same fields, methods, and
+defaults as <code>route_score</code>. The full default is equivalent to
 <code>list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),</code>
 <code>nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL,</code>
 <code>intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)</code>.</p></dd>
@@ -363,9 +346,10 @@ estimable range.</p></dd>
 
 <dt><code>theta.route</code></dt>
 <dd><p>An <em>N</em> x <code>n.stage</code> numeric matrix
-of ability estimates. Columns 1 to <code>n.stage - 1</code> are the
-intermediate routing estimates; column <code>n.stage</code> is the final
-estimate (equal to <code>est.theta</code>).</p></dd>
+of ability estimates. Column <em>s</em> (<em>s</em> &lt; <code>n.stage</code>) is the
+cumulative routing estimate after stage <em>s</em>, computed from the
+responses to all modules administered in stages 1 to <em>s</em>; column
+<code>n.stage</code> is the final estimate (equal to <code>est.theta</code>).</p></dd>
 
 <dt><code>path</code></dt>
 <dd><p>An <em>N</em> x <code>n.stage</code> integer matrix of
@@ -424,9 +408,9 @@ to a fixed assignment. For panels with multiple stage-1 modules (e.g., a
 booklet-based allocation used in operational testing. When <code>ini_mod</code>
 is an integer, all examinees start at the specified stage-1 module.</p>
 <p><strong>Routing (stages 1 to n.stage - 1)</strong>: After each non-final stage,
-an intermediate ability estimate is obtained from the current stage's
-responses using the <code>route_score</code> method. This estimate is used to
-select the next-stage module:</p><ul><li><p><code>"bmat"</code>: the reachable module (via <code>route_map</code>) whose
+an intermediate ability estimate is obtained from the responses to all
+modules administered so far using the <code>route_score</code> method. This
+estimate is used to select the next-stage module:</p><ul><li><p><code>"bmat"</code>: the reachable module (via <code>route_map</code>) whose
 mean item location is closest to the routing estimate is selected.
 For dichotomous items, the location is the <em>b</em> parameter; for
 GRM/GPCM items, it is the mean of the threshold / step parameters.</p></li>
@@ -434,12 +418,28 @@ GRM/GPCM items, it is the mean of the threshold / step parameters.</p></li>
 information at the routing estimate is selected.</p></li>
 <li><p><code>NULL</code>: the routing estimate is compared against the cut
 scores in <code>cut_score[[s]]</code> (for the transition from stage
-<em>s</em> to stage <em>s</em>+1) to assign a rank, and the rank-th
-reachable module (ordered by module index) is administered. If the
-rank exceeds the number of reachable modules, the last module is used.</p></li>
+<em>s</em> to stage <em>s</em>+1). The cut scores are tied to the modules
+of stage <em>s</em>+1 in order of module index: cut score <em>k</em>
+separates the <em>k</em>-th and the (<em>k</em>+1)-th module of the stage.
+When only some modules of the stage can be reached from the current
+module, only the cut scores that separate the reachable modules are
+used, as in <code><a href="reval_mst.html">reval_mst</a></code>, and the module whose interval
+contains the estimate is administered. An estimate equal to a cut
+score is assigned to the higher module. When every module of the next
+stage is reachable, all cut scores are used.</p></li>
 </ul><p><strong>Final scoring</strong>: Responses from all administered stages are
 concatenated, and the final ability estimate is computed using the
-<code>final_score</code> method.</p>
+<code>final_score</code> method. With <code>"EAP.SUM"</code> or <code>"INV.TCC"</code>, a
+missing response is counted as 0 in the sum score, as in
+<code><a href="est_score.html">est_score</a></code>, but no warning is issued.</p>
+<p><strong>Relation to <code><a href="reval_mst.html">reval_mst()</a></code></strong>: With <code>route_method = NULL</code>, a
+<code>cut_score</code> list, and <code>route_score = list(method = "INV.TCC")</code>,
+the routing rule is the one that <code><a href="reval_mst.html">reval_mst</a></code> evaluates
+analytically: cut scores are applied to the inverse TCC estimate of the
+cumulative sum score. With <code>final_score = list(method = "INV.TCC")</code> as
+well, the simulated bias and conditional standard error of measurement
+approach the <code><a href="reval_mst.html">reval_mst()</a></code> values as the number of simulated examinees
+grows.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -543,32 +543,32 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.076</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.077</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.021</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.019</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.319</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 177 (35.4%),  Module 3: 106 (21.2%),  Module 4: 217 (43.4%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 179 (35.8%),  Module 6: 131 (26.2%),  Module 7: 190 (38.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 185 (37.0%),  Module 6: 105 (21.0%),  Module 7: 210 (42.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Final ability estimates</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.6882857 -0.8288973  0.6168219  0.5453383  0.4140971  0.2068442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.6882857 -0.8039112  0.6168219  0.5994916  0.4140971  0.2068442</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Module pathway taken by each examinee</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      stage.1 stage.2 stage.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]       1       4       7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]       1       2       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]       1       2       5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]       1       4       7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]       1       4       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]       1       4       7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5,]       1       3       7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6,]       1       4       6</span>
 <span class="r-in"><span></span></span>
@@ -631,19 +631,19 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.028</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.030</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.002</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.292</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 142 (28.4%),  Module 3: 219 (43.8%),  Module 4: 139 (27.8%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 169 (33.8%),  Module 6: 163 (32.6%),  Module 7: 168 (33.6%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 171 (34.2%),  Module 6: 189 (37.8%),  Module 7: 140 (28.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
@@ -719,9 +719,9 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-in"><span><span class="va">rmse_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_A</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_B</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (bmat): %.4f\n"</span>, <span class="va">rmse_A</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (bmat): 0.3119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (bmat): 0.3082</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (cut-score): %.4f\n"</span>, <span class="va">rmse_B</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (cut-score): 0.3083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (cut-score): 0.3065</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Example 4: TIF-based cut scores via find_cut()</span></span></span>
@@ -827,19 +827,19 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.006</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.058</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 4.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.338</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.030</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.340</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 136 (27.2%),  Module 3: 225 (45.0%),  Module 4: 139 (27.8%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 161 (32.2%),  Module 6: 159 (31.8%),  Module 7: 180 (36.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 170 (34.0%),  Module 6: 169 (33.8%),  Module 7: 161 (32.2%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Visualise the TIF-based cut scores used for routing</span></span></span>
@@ -852,8 +852,9 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-in"><span><span class="co">## ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># INV.TCC can be used as both the routing and final scoring method.</span></span></span>
 <span class="r-in"><span><span class="co"># Before the examinee loop, run_mst() pre-computes a sum_score -&gt; theta</span></span></span>
-<span class="r-in"><span><span class="co"># lookup table for every module (routing) and for every unique complete</span></span></span>
-<span class="r-in"><span><span class="co"># pathway (final scoring), consistent with the reval_mst() approach.</span></span></span>
+<span class="r-in"><span><span class="co"># lookup table for every unique partial pathway (routing) and for every</span></span></span>
+<span class="r-in"><span><span class="co"># unique complete pathway (final scoring), consistent with the reval_mst()</span></span></span>
+<span class="r-in"><span><span class="co"># approach.</span></span></span>
 <span class="r-in"><span><span class="co"># SE is taken from the pre-computed lookup table.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">result_inv</span> <span class="op">&lt;-</span> <span class="fu">run_mst</span><span class="op">(</span></span></span>
@@ -906,32 +907,32 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Final method        : INV.TCC</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Final ability estimates (est.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.026</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean : -0.021</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SD   : 1.267</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Min  : -7.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Max  : 7.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimation accuracy (est.theta - true.theta):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.596</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bias : 0.009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSE : 0.599</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Module frequency by stage:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 1: Module 1: 500 (100.0%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 2: Module 2: 187 (37.4%),  Module 3: 84 (16.8%),  Module 4: 229 (45.8%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 168 (33.6%),  Module 6: 166 (33.2%),  Module 7: 166 (33.2%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Stage 3: Module 5: 199 (39.8%),  Module 6: 94 (18.8%),  Module 7: 207 (41.4%)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># standard errors from the lookup table</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result_inv</span><span class="op">$</span><span class="va">se.theta</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5213622 0.2798838 0.2659026 0.2692910 0.2692910 0.2739662</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5213622 0.2798838 0.2850462 0.2797603 0.2756490 0.2739662</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_inv</span><span class="op">$</span><span class="va">est.theta</span>  <span class="op">-</span> <span class="va">theta_true</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rmse_ml</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_bmat</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (INV.TCC routing + scoring): %.4f\n"</span>, <span class="va">rmse_inv</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (INV.TCC routing + scoring): 0.5963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (INV.TCC routing + scoring): 0.5995</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (ML    routing + scoring):   %.4f\n"</span>, <span class="va">rmse_ml</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (ML    routing + scoring):   0.3191</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RMSE (ML    routing + scoring):   0.3188</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

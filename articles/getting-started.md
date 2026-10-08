@@ -56,10 +56,10 @@ advantages are:
   ([`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
   [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md),
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md))
-- Estimating examinee abilities: maximum likelihood (ML), weighted
-  likelihood (WLE), maximum a posteriori (MAP), expected a posteriori
-  (EAP), EAP summed scoring, and inverse test characteristic curve (TCC)
-  scoring
+- Estimating examinee abilities: maximum likelihood (ML), maximum
+  likelihood with fences (MLF), weighted likelihood (WLE), maximum a
+  posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
+  inverse test characteristic curve (TCC) scoring
   ([`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md))
 - Evaluating item-level model-data fit: $`\chi^2`$, $`G^2`$,
   infit/outfit, $`S`$-$`X^2`$
@@ -71,9 +71,20 @@ advantages are:
   ([`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md),
   [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md),
   [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md))
+- Detecting item parameter drift (IPD): residual-based IPD (RIPD) and
+  the pseudo-count $`D^2`$ statistic
+  ([`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md),
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md))
 - Computing classification accuracy and consistency indices
   ([`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md),
   [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md))
+- Evaluating and simulating multistage-adaptive test (MST) panels: panel
+  structure, routing cut scores, recursion-based evaluation, and
+  simulation
+  ([`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md),
+  [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
+  [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md))
 
 **Beyond these IRT-based analyses**, irtQ also provides a small set of
 classical test theory (CTT) functions (item difficulty, item-total
@@ -94,7 +105,7 @@ selected-response item data without fitting an IRT model
 | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item and test characteristic curves |
 | [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord-Wingersky recursion (summed-score distributions) |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature weights from a distribution |
-| [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | IRT-based covariance between items |
+| [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Asymptotic variance-covariance matrices of item parameter estimates |
 | [`run_flexmirt()`](https://hwangQ.github.io/irtQ/reference/run_flexmirt.md) | Run flexMIRT directly from R |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data into a 0/1 matrix |
 
@@ -173,8 +184,8 @@ about $`-3`$ to $`+3`$.
 **$`g`$: Pseudo-guessing (item parameter)**  
 The lower asymptote of the ICC: the probability of a correct response as
 $`\theta \to -\infty`$. For a 5-option multiple-choice item with pure
-random guessing, $`g = 0.2`$. When $`g = 0`$ the ICC passes through the
-origin and the model reduces to the 2PLM or 1PLM.
+random guessing, $`g = 0.2`$. When $`g = 0`$, the lower asymptote is 0
+and the model reduces to the 2PLM (or the 1PLM).
 
 **$`D`$: Scaling constant**  
 $`D = 1.702`$ is a constant that makes the logistic function closely
@@ -194,13 +205,15 @@ the normal-ogive metric.
 
 > **Note on 1PLM in irtQ.** When `fix.a.1pl = TRUE` (in
 > [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)),
-> the discrimination is *fixed* to the value `a.val.1pl` (default 1);
-> this is the strict **Rasch model**. When `fix.a.1pl = FALSE` (the
-> default), the common discrimination is *estimated* from the data but
-> constrained to be equal across all 1PLM items. Both specifications
-> produce only $`b`$ as the item-differentiating parameter, but the
-> second is more flexible when the Rasch assumption of $`a = 1`$ does
-> not exactly hold.
+> the discrimination is *fixed* to the value `a.val.1pl` (default 1).
+> The latent variance is also fixed (at 1 by default), so this is a 1PLM
+> with a fixed common slope rather than the usual Rasch identification,
+> in which the slope is fixed and the latent variance is estimated. When
+> `fix.a.1pl = FALSE` (the default), the common discrimination is
+> *estimated* from the data but constrained to be equal across all 1PLM
+> items. Both specifications produce only $`b`$ as the
+> item-differentiating parameter, but the second is more flexible when a
+> common slope of $`a = 1`$ does not exactly hold.
 
 ------------------------------------------------------------------------
 
@@ -266,8 +279,8 @@ P(Y = k \mid \theta) =
      {\displaystyle\sum_{h=0}^{K-1} \exp\!\left(\displaystyle\sum_{v=0}^{h} D\,a\,(\theta - b_v)\right)}
 ```
 
-where the convention $`b_0 = 0`$ is used so that the numerator for
-$`k = 0`$ simplifies to $`\exp(0) = 1`$.
+where the $`v = 0`$ term is defined as 0 ($`b_0`$ is not a free
+parameter), so the numerator for $`k = 0`$ is $`\exp(0) = 1`$.
 
 **Parameters:**
 
@@ -283,11 +296,15 @@ $`k = 0`$ simplifies to $`\exp(0) = 1`$.
   (PCM)** (Masters, 1982)
 - The GPCM is therefore a generalization of the PCM that allows
   item-varying discrimination
+- In irtQ, a PCM item is specified as `model = "GPCM"` with
+  `fix.a.gpcm = TRUE` (`a.val.gpcm = 1`) in the estimation functions;
+  with `D = 1` and the latent variance fixed at 1 (the default), this is
+  the PCM. There is no separate `"PCM"` model string.
 
 **How to specify in irtQ:** For an item with $`K`$ categories, provide a
 vector of $`K - 1`$ step parameters as the `d` argument in
 [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md). The
-convention $`b_0 = 0`$ is handled internally; you do not supply $`b_0`$.
+$`v = 0`$ term is handled internally; you do not supply $`b_0`$.
 
 ------------------------------------------------------------------------
 
@@ -300,7 +317,7 @@ convention $`b_0 = 0`$ is handled internally; you do not supply $`b_0`$.
 | **3PLM** | Dichotomous | $`a,\, b,\, g`$ | All three parameters free |
 | **GRM** | Polytomous | $`a,\, b_1, \ldots, b_{K-1}`$ | Thresholds must be ordered |
 | **GPCM** | Polytomous | $`a,\, b_1, \ldots, b_{K-1}`$ | Step params need not be ordered |
-| **PCM** | Polytomous | $`b_1, \ldots, b_{K-1}`$ | GPCM with $`a = 1`$ |
+| **PCM** | Polytomous | $`b_1, \ldots, b_{K-1}`$ | GPCM with $`a = 1`$; use `"GPCM"` with `fix.a.gpcm = TRUE` |
 
 > **Alias:** `"DRM"` is accepted as a model string for any dichotomous
 > item (1PLM, 2PLM, or 3PLM) in contexts where the model is already
@@ -509,10 +526,10 @@ meta_ex4 <- shape_df(
 meta_ex4
 #>   id cats model par.1 par.2 par.3
 #> 1 V1    2  1PLM     1     0    NA
-#> 2 V1    2  2PLM     1     0    NA
-#> 3 V1    2  2PLM     1     0    NA
-#> 4 V1    2  3PLM     1     0     0
-#> 5 V1    2  3PLM     1     0     0
+#> 2 V2    2  2PLM     1     0    NA
+#> 3 V3    2  2PLM     1     0    NA
+#> 4 V4    2  3PLM     1     0   0.2
+#> 5 V5    2  3PLM     1     0   0.2
 ```
 
 ### `shape_df()` Argument Summary
@@ -688,6 +705,9 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 
 ### Importing from the mirt package
 
+[`bring.mirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+requires the suggested **mirt** package.
+
 ``` r
 
 # Fit a model with mirt (not run)
@@ -699,7 +719,9 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 
 ### Common Arguments for `bring.*()` Functions
 
-All `bring.*()` functions share two main arguments:
+All `bring.*()` functions except
+[`bring.mirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+share two main arguments:
 
 | Argument | Description |
 |----|----|
@@ -832,9 +854,9 @@ summary(mod)
 #>  Maximum parameter change: 0.0009162516
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.45
-#>  Standard error computation: 0.01
-#>  Total computation: 0.48
+#>  EM algorithm: 0.84
+#>  Standard error computation: 0.02
+#>  Total computation: 0.9
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -896,7 +918,7 @@ scores <- est_score(
 )
 
 head(scores$est.theta)   # EAP point estimates
-#> [1]  0.329351295 -0.821716551 -0.001138609  0.012362376 -0.681457328
+#> [1]  0.329351295 -0.821716552 -0.001138609  0.012362376 -0.681457328
 #> [6] -1.825776845
 head(scores$se.theta)    # posterior standard deviations
 #> [1] 0.2630482 0.2642191 0.2154156 0.2272038 0.2598002 0.3685849
@@ -938,7 +960,7 @@ IRT models, you are ready to explore each analysis in depth:
 | Classification accuracy | [Classification Accuracy and Consistency](https://hwangQ.github.io/irtQ/articles/classification-analysis.md) | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
 | Utilities | [Utility Functions](https://hwangQ.github.io/irtQ/articles/utilities.md) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md), [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md), [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) |
 | Classical test theory (CTT) analysis | [Classical Test Theory (CTT) Analysis](https://hwangQ.github.io/irtQ/articles/ctt-analysis.md) | [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
-| MST panel evaluation | [MST Panel Evaluation and Simulation](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md) | [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) |
+| MST panel evaluation | [MST Panel Evaluation and Simulation](https://hwangQ.github.io/irtQ/articles/mst-panel-evaluation.md) | [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md), [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md), [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) |
 
 ------------------------------------------------------------------------
 

@@ -50,7 +50,12 @@ A list containing five internal objects:
 This 1-3-3 MST panel includes 7 modules across 3 stages, drawn from 56
 unique items (8 per module) with no item shared across modules. Each
 module contains 8 dichotomously scored items calibrated under the IRT
-3-parameter logistic (3PL) model.
+3-parameter logistic (3PL) model. The item parameters are on the D =
+1.702 scale, so pass `D = 1.702` to
+[`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+and [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+when using this panel.
 
 ## References
 

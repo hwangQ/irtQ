@@ -81,7 +81,7 @@ reval_mst(
   A vector of ability levels (theta) at which the MST panel's
   performance is assessed. This allows for the evaluation of measurement
   precision and bias across a continuum of ability levels. The default
-  range is `theta = seq(-5, 5, 0.1)`.
+  is `theta = seq(-5, 5, 1)`.
 
 - intpol:
 
@@ -108,8 +108,7 @@ reval_mst(
 
 ## Value
 
-This function returns a list of seven internal objects. The four objects
-are:
+This function returns a list of seven internal objects. These are:
 
 - panel.info:
 
@@ -232,6 +231,25 @@ the computation of conditional biases and CSEMs efficiently, bypassing
 the need for extensive simulations traditionally required for MST
 evaluation.
 
+The recursion of Lim et al. (2021) is built on inverse TCC ability
+estimates. At each stage, the sum score accumulated over all modules
+administered so far is converted to an ability estimate by inverse TCC
+scoring, this estimate is compared with the cut scores to route the test
+taker to the next module, and the final ability estimate is also the
+inverse TCC estimate of the total sum score. Accordingly, the function
+supports inverse TCC scoring with cut-score routing only. To evaluate
+other scoring or routing methods, use
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md), which
+runs a Monte Carlo simulation. With `route_method = NULL`, a `cut_score`
+list, and `route_score = list(method = "INV.TCC")`,
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+follows the same design that this function evaluates analytically.
+
+All modules in the same stage must have the same maximum sum score (the
+sum of the maximum item scores), for example the same number of items
+when all items are dichotomous. The function stops with an error when
+this condition is not met.
+
 The `module` argument, used in conjunction with the item bank metadata
 `x`, systematically organizes items into modules for MST panel
 evaluation. Each row of `x` corresponds to an item, detailing its
@@ -262,10 +280,10 @@ To further detail the `cut_score` argument with an illustration: In a
 `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))` operates as a decision
 guide at each stage. Initially, all test takers start in the first
 module. Upon completion, their scores determine their next stage module:
-scores below -0.5 route to the first module of the next stage, between
--0.5 and 0.5 to the second, and above 0.5 to the third. This pattern
-allows for dynamic adaptation, tailoring the test path to individual
-performance levels.
+scores below -0.5 route to the first module of the next stage, scores
+from -0.5 up to but not including 0.5 to the second, and scores of 0.5
+or above to the third. This pattern allows for dynamic adaptation,
+tailoring the test path to individual performance levels.
 
 ## References
 

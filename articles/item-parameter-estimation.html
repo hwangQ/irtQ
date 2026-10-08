@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -281,9 +281,9 @@ and difficulty
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>j</mi></msub><annotation encoding="application/x-tex">b_j</annotation></semantics></math>
 for the 2PL model) and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_j(\theta_k)</annotation></semantics></math>
-is the item response function. <code><a href="../reference/est_irt.html">est_irt()</a></code> numerically
-optimizes this function for each item using Newton-Raphson or other
-root-finding techniques.</p>
+is the item response function. <code><a href="../reference/est_irt.html">est_irt()</a></code> maximizes this
+function for each item with <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code> using analytic
+gradients and Hessians.</p>
 <blockquote>
 <p>Extension to Polytomous Items: While the formulation above uses
 dichotomous items for ease of illustration, the same underlying MMLE-EM
@@ -447,7 +447,8 @@ for all 3PLM items</td>
 </tr>
 <tr class="odd">
 <td><code>use.gprior</code></td>
-<td>Apply beta prior to guessing parameters (recommended for 3PLM)</td>
+<td>Apply beta prior to guessing parameters (default <code>TRUE</code>;
+recommended for 3PLM)</td>
 </tr>
 <tr class="even">
 <td><code>aprior</code></td>
@@ -495,11 +496,10 @@ mean = 5/(5+16) = 0.24</td>
 <hr>
 </div>
 <div class="section level3">
-<h3 id="example-1-rasch-model-1plm-calibration">Example 1: Rasch Model (1PLM) Calibration<a class="anchor" aria-label="anchor" href="#example-1-rasch-model-1plm-calibration"></a>
+<h3 id="example-1-1plm-calibration-rasch-type-model">Example 1: 1PLM Calibration (Rasch-Type Model)<a class="anchor" aria-label="anchor" href="#example-1-1plm-calibration-rasch-type-model"></a>
 </h3>
-<p>The <strong>1-parameter logistic model (1PLM)</strong>, also known as
-the <strong>Rasch model</strong>, is the simplest IRT model for
-dichotomous items. It assumes:</p>
+<p>The <strong>1-parameter logistic model (1PLM)</strong> is the
+simplest IRT model for dichotomous items. It assumes:</p>
 <ul>
 <li>All items have <strong>equal discrimination</strong> (slopes)</li>
 <li>Items differ only in <strong>difficulty</strong> (location)</li>
@@ -513,18 +513,26 @@ P(Y = 1 \mid \theta) = \frac{1}{1 + \exp(-D \cdot a \cdot (\theta - b))}
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 is constrained to be equal across all items (or fixed to 1).</p>
-<p><strong>Two ways to fit the Rasch model in irtQ:</strong></p>
+<p><strong>Two ways to fit the 1PLM in irtQ:</strong></p>
 <ol style="list-style-type: decimal">
 <li>
 <strong><code>fix.a.1pl = TRUE</code></strong>: Fix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>
-for all 1PLM items (strict Rasch)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+at <code>a.val.1pl</code> (here 1) for all 1PLM items</li>
 <li>
 <strong><code>fix.a.1pl = FALSE</code></strong> (default): Constrain
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 to be equal across 1PLM items but estimate the common value from the
 data</li>
 </ol>
+<p>In both cases the latent distribution is fixed to N(0, 1)
+(<code>group.mean = 0</code>, <code>group.var = 1</code>). The Rasch
+model fixes the slope at 1 and leaves the latent variance free, so
+<code>fix.a.1pl = TRUE</code> is a 1PLM with the common slope fixed at
+<code>a.val.1pl</code> (and the latent variance fixed at 1) rather than
+the usual Rasch identification. With <code>D = 1.702</code>, the slope
+on the logit scale is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>×</mo><mi>a</mi><mo>=</mo><mn>1.702</mn></mrow><annotation encoding="application/x-tex">D \times a = 1.702</annotation></semantics></math>.</p>
 <p>We demonstrate both approaches:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 1: Define item metadata for 20-item 1PLM test ----</span></span>
@@ -545,7 +553,7 @@ data</li>
 <span><span class="va">resp_1pl</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_1pl</span>, theta <span class="op">=</span> <span class="va">theta_1pl</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ---- Step 3a: Estimate with FIXED discrimination (a = 1) ----</span></span>
-<span><span class="co"># Strict Rasch: D×a×(θ−b) = 1.702×1×(θ−b)</span></span>
+<span><span class="co"># Fixed slope: D×a×(θ−b) = 1.702×1×(θ−b)</span></span>
 <span><span class="va">mod_1pl_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">resp_1pl</span>,</span>
 <span>  D          <span class="op">=</span> <span class="fl">1.702</span>,</span>
@@ -553,7 +561,7 @@ data</li>
 <span>  cats       <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  item.id    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
 <span>  fix.a.1pl  <span class="op">=</span> <span class="cn">TRUE</span>,       <span class="co"># ← Fix discrimination to a.val.1pl (= 1)</span></span>
-<span>  a.val.1pl  <span class="op">=</span> <span class="fl">1</span>,          <span class="co"># ← a = 1 (strict Rasch parameterization)</span></span>
+<span>  a.val.1pl  <span class="op">=</span> <span class="fl">1</span>,          <span class="co"># ← a = 1</span></span>
 <span>  EmpHist    <span class="op">=</span> <span class="cn">FALSE</span>,      <span class="co"># Use fixed N(0,1) prior</span></span>
 <span>  Etol       <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  MaxE       <span class="op">=</span> <span class="fl">200</span>,</span>
@@ -583,9 +591,9 @@ data</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.000937656</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.29</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.4</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.4</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.52</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -673,9 +681,9 @@ data</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009438272</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.09</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.11</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.16</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
+<span><span class="co">#&gt;  Total computation: 0.18</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -734,13 +742,13 @@ data</li>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">meta_1pl</span><span class="op">$</span><span class="va">par.2</span>, <span class="va">par_fixed</span><span class="op">$</span><span class="va">par.2</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"True b"</span>, ylab <span class="op">=</span> <span class="st">"Estimated b"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Rasch: Fixed a = 1"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"1PLM: Fixed a = 1"</span>,</span>
 <span>     pch <span class="op">=</span> <span class="fl">19</span>, col <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">meta_1pl</span><span class="op">$</span><span class="va">par.2</span>, <span class="va">par_constrained</span><span class="op">$</span><span class="va">par.2</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"True b"</span>, ylab <span class="op">=</span> <span class="st">"Estimated b"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Rasch: Constrained a"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"1PLM: Constrained a"</span>,</span>
 <span>     pch <span class="op">=</span> <span class="fl">19</span>, col <span class="op">=</span> <span class="st">"coral"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="item-parameter-estimation_files/figure-html/estirt-1plm-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
@@ -808,9 +816,9 @@ data</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009961947</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.41</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.43</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.84</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.87</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -932,11 +940,15 @@ are still constrained to <code>group.mean</code> and
 <strong>shape</strong> of the distribution is estimated freely from the
 data.</p>
 <p><strong>When to use <code>EmpHist = TRUE</code>:</strong></p>
-<p>✅ Sample size is sufficiently <strong>large</strong> ✅ You suspect
-the ability distribution is <strong>non-normal</strong> (e.g., bimodal,
-skewed)<br>
-✅ You want to <strong>avoid strong distributional assumptions</strong>
-`</p>
+<ul>
+<li>Sample size is sufficiently <strong>large</strong>
+</li>
+<li>You suspect the ability distribution is <strong>non-normal</strong>
+(e.g., bimodal, skewed)</li>
+<li>You want to <strong>avoid strong distributional
+assumptions</strong>
+</li>
+</ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Estimate with empirical histogram</span></span>
 <span><span class="va">mod_bin_emp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
@@ -1180,9 +1192,9 @@ estimates back toward plausible values.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009130637</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.81</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.83</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.66</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.03</span></span>
+<span><span class="co">#&gt;  Total computation: 1.72</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1263,7 +1275,13 @@ simplifies the model and can improve the stability of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
-estimates, especially with smaller samples.</p>
+estimates, especially with smaller samples, provided that the fixed
+value is close to the true guessing levels. The simulated items here
+have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+between 0.10 and 0.25, so fixing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+at 0.20 is a deliberate misspecification.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3PLM with fixed guessing parameters</span></span>
 <span><span class="co"># - All items have g fixed at 0.20 (appropriate for 5-option MC items)</span></span>
@@ -1305,9 +1323,9 @@ estimates, especially with smaller samples.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009903456</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.54</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.58</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.1</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 1.15</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1423,9 +1441,9 @@ simultaneously can improve estimation stability.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008924307</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.1</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.2</span></span>
-<span><span class="co">#&gt;  Total computation: 1.31</span></span>
+<span><span class="co">#&gt;  EM algorithm: 2.17</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.21</span></span>
+<span><span class="co">#&gt;  Total computation: 2.41</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1567,12 +1585,17 @@ multiple-choice tests.</li>
 <strong>Strategy B</strong> (<code>fix.g = TRUE</code>): Fixing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
 reduces the number of free parameters by 30 (one per item), which can
-improve
+stabilize
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
-recovery when samples are moderate. Use when you are confident all items
-have the same guessing probability.</li>
+when samples are small, but only if the fixed value is close to the true
+guessing levels. Here the generating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+values range from 0.10 to 0.25 and are fixed at 0.20, so the
+misspecification biases the slopes: RMSE(a) is clearly larger than in
+Strategy A, while RMSE(b) is similar. Use this strategy only when you
+are confident all items have the same guessing probability.</li>
 <li>
 <strong>Strategy C</strong> (all priors): Providing priors on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
@@ -1729,9 +1752,9 @@ This parameterization differs from the GRM.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009697275</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.41</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.43</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.79</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
+<span><span class="co">#&gt;  Total computation: 0.83</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1852,9 +1875,10 @@ or
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&gt;</mo><mn>0.95</mn></mrow><annotation encoding="application/x-tex">p &gt; 0.95</annotation></semantics></math>)?
 Very easy or very hard items may cause instability.</li>
 <li>
-<strong>Use priors</strong>: Enable <code>use.aprior = TRUE</code>,
-<code>use.bprior = TRUE</code>, or <code>use.gprior = TRUE</code>
-</li>
+<strong>Use priors</strong>: Enable <code>use.aprior = TRUE</code>
+and <code>use.bprior = TRUE</code>; the Beta prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+is already on by default (<code>use.gprior = TRUE</code>)</li>
 </ol>
 <p><strong>Q: Should I use <code>EmpHist = TRUE</code> or
 <code>FALSE</code>?</strong></p>
@@ -2083,7 +2107,7 @@ FIPC</strong></p>
 <span>  fipc        <span class="op">=</span> <span class="cn">TRUE</span>,          <span class="co"># ← Enable FIPC</span></span>
 <span>  fipc.method <span class="op">=</span> <span class="st">"MEM"</span>,         <span class="co"># ← Multiple EM cycles</span></span>
 <span>  fix.loc     <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span>,          <span class="co"># ← Positions of anchor items</span></span>
-<span>  EmpHist     <span class="op">=</span> <span class="cn">TRUE</span>,          <span class="co"># ← Estimate Group Y's ability distribution</span></span>
+<span>  EmpHist     <span class="op">=</span> <span class="cn">TRUE</span>,          <span class="co"># ← Estimate Group Y's distribution shape as a histogram</span></span>
 <span>  verbose     <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Result:</strong></p>
@@ -2222,7 +2246,7 @@ examinees</li>
 <span>  x           <span class="op">=</span> <span class="va">meta_fipc</span>,</span>
 <span>  data        <span class="op">=</span> <span class="va">resp_new</span>,</span>
 <span>  D           <span class="op">=</span> <span class="fl">1.702</span>,</span>
-<span>  EmpHist     <span class="op">=</span> <span class="cn">TRUE</span>,         <span class="co"># Estimate Group Y's ability distribution</span></span>
+<span>  EmpHist     <span class="op">=</span> <span class="cn">TRUE</span>,         <span class="co"># Estimate the shape of Group Y's distribution as a histogram</span></span>
 <span>  Etol        <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  MaxE        <span class="op">=</span> <span class="fl">150</span>,</span>
 <span>  fipc        <span class="op">=</span> <span class="cn">TRUE</span>,         <span class="co"># ← Enable FIPC</span></span>
@@ -2250,12 +2274,12 @@ examinees</li>
 <span><span class="co">#&gt;  Number of free parameters: 12</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 15</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 13</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 0.0008186951</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.0008186949</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.06</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.12</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.07</span></span>
+<span><span class="co">#&gt;  Total computation: 0.14</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -2462,7 +2486,7 @@ simultaneously field-tested.</p>
 <span><span class="va">resp_anch_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_anchor_mix</span>, theta <span class="op">=</span> <span class="va">theta_new_mix</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span><span class="va">resp_pre_mix</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_pre_true_mix</span>, theta <span class="op">=</span> <span class="va">theta_new_mix</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Combine responses to match new form column order (anchors first, pretest after)</span></span>
+<span><span class="co"># Combine responses to match the new form column order (anchors at fix.loc, pretest items elsewhere)</span></span>
 <span><span class="co"># Since shape_df_fipc() places fixed items at fix.loc positions and new items</span></span>
 <span><span class="co"># at remaining positions, we need to assemble the response matrix accordingly.</span></span>
 <span><span class="co"># Here, fixed_pos_mix = c(1:20, 26:27); remaining positions = 21:25, 28.</span></span>
@@ -2509,9 +2533,9 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008719196</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.1</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0</span></span>
-<span><span class="co">#&gt;  Total computation: 0.12</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.19</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
+<span><span class="co">#&gt;  Total computation: 0.23</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -2666,8 +2690,9 @@ cycles; recommended)</td>
 </tr>
 <tr class="even">
 <td><code>EmpHist</code></td>
-<td>If <code>TRUE</code>, estimate Group Y’s ability distribution
-(recommended)</td>
+<td>If <code>TRUE</code>, the shape of Group Y’s distribution is
+estimated as an empirical histogram; with <code>FALSE</code>, a normal
+distribution with estimated mean and variance is used</td>
 </tr>
 </tbody>
 </table>
@@ -2773,13 +2798,18 @@ values. However, <code><a href="../reference/est_item.html">irtQ::est_item()</a>
 handling sparse data matrices containing <code>NA</code> values, which
 is typical for real-world CAT pretest data.</p>
 </blockquote>
-<p>The calibration process follows three main steps: 1. <strong>Obtain
-ability estimates</strong>
+<p>The calibration process follows three main steps:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Obtain ability estimates</strong>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
-(here, simulated from a standard normal distribution). 2.
-<strong>Collect responses</strong> to the pretest items. 3.
+(here, simulated from a standard normal distribution).</li>
+<li>
+<strong>Collect responses</strong> to the pretest items.</li>
+<li>
 <strong>Calibrate</strong> the pretest items using
-<code><a href="../reference/est_item.html">est_item()</a></code> by fixing the ability estimates.</p>
+<code><a href="../reference/est_item.html">est_item()</a></code> by fixing the ability estimates.</li>
+</ol>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 1: Simulate known ability estimates ----</span></span>
 <span><span class="co"># In practice, these would be the final theta estimates (e.g., EAP or MLE) </span></span>
@@ -2836,7 +2866,7 @@ ability estimates</strong>
 <span><span class="co">#&gt; 10  PRE10  500</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  Total computation: 0.03</span></span>
+<span><span class="co">#&gt;  Total computation: 0.05</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence of Solution </span></span>
 <span><span class="co">#&gt;  All item parameters were successfully converged.</span></span>
@@ -2909,29 +2939,33 @@ ability estimates</strong>
 <div class="section level3">
 <h3 id="key-advantages-and-limitations-of-fapc">Key Advantages and Limitations of FAPC<a class="anchor" aria-label="anchor" href="#key-advantages-and-limitations-of-fapc"></a>
 </h3>
-<p>✅ <strong>Simple</strong>: Direct MLE conditional on
+<ul>
+<li><p>✅ <strong>Simple</strong>: Direct MLE conditional on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>,
-requiring no complex latent distribution assumptions. ✅
-<strong>Fast</strong>: No EM iterations needed, making it
-computationally trivial. ✅ <strong>Scalable</strong>: Each item is
-calibrated independently; ideal for large-scale item pools or real-time
-distributed computing. ✅ <strong>Flexible</strong>: Compatible with any
-ability estimation method (MLE, EAP, MAP) derived from the operational
-test.</p>
-<p>⚠️ <strong>Assumes
+requiring no complex latent distribution assumptions.</p></li>
+<li><p>✅ <strong>Fast</strong>: No EM iterations needed, making it
+computationally trivial.</p></li>
+<li><p>✅ <strong>Scalable</strong>: Each item is calibrated
+independently; ideal for large-scale item pools or real-time distributed
+computing.</p></li>
+<li><p>✅ <strong>Flexible</strong>: Compatible with any ability
+estimation method (MLE, EAP, MAP) derived from the operational
+test.</p></li>
+<li><p>⚠️ <strong>Assumes
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is known without error</strong>: Treating
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
 as a fixed constant ignores measurement error. This measurement error
 propagates into calibration, causing a slight downward bias
 (attenuation) in item discrimination estimates, especially if the
-operational form is short.<br>
-⚠️ <strong>No population distribution estimation</strong>: Unlike FIPC,
-FAPC cannot estimate or recover the group-level latent trait
+operational form is short.</p></li>
+<li><p>⚠️ <strong>No population distribution estimation</strong>: Unlike
+FIPC, FAPC cannot estimate or recover the group-level latent trait
 distribution
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>θ</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>θ</mi></msub></mrow><annotation encoding="application/x-tex">\mu_{\theta}, \sigma_{\theta}</annotation></semantics></math>)
 because abilities are treated as fixed data rather than a random
-effect.</p>
+effect.</p></li>
+</ul>
 <hr>
 </div>
 </div>
@@ -2998,7 +3032,7 @@ reference.</li>
 <p>For example, consider three groups sharing items as follows:</p>
 <pre><code>Group 1:  [Item A1 ... Common items (C1) ... Item A2 ...]
 Group 2:  [Item B1 ... Common items (C1, C2) ... Item B2 ...]
-Group 3:  [Item C1 ... Common items (C2) ... Item C2 ...]</code></pre>
+Group 3:  [Item D1 ... Common items (C2) ... Item D2 ...]</code></pre>
 <p><code><a href="../reference/est_mg.html">est_mg()</a></code> automatically constrains the parameters of C1
 items to be identical across Groups 1 and 2, and C2 items to be
 identical across Groups 2 and 3. This chain of statistical constraints
@@ -3206,9 +3240,9 @@ scale.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009935414</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 7.75</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.1</span></span>
-<span><span class="co">#&gt;  Total computation: 8.38</span></span>
+<span><span class="co">#&gt;  EM algorithm: 15.3</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.2</span></span>
+<span><span class="co">#&gt;  Total computation: 15.94</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -3502,275 +3536,16 @@ scale.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group3</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"sigma"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Group 3: True μ=-0.3, σ=1.3 | Est. μ= -0.349 , σ= 1.364</span></span>
 <span></span>
-<span><span class="co"># Item parameter estimates for all items across groups ((first 6 items))</span></span>
+<span><span class="co"># Item parameter estimates for all items across groups (first 6 items of the overall table)</span></span>
 <span><span class="va">par_mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_mg</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">par_mg</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $overall</span></span>
-<span><span class="co">#&gt;        id cats model     par.1        par.2       par.3      par.4      par.5</span></span>
-<span><span class="co">#&gt; 1    C1I1    2  3PLM 0.8200242  1.318713757  0.25841706         NA         NA</span></span>
-<span><span class="co">#&gt; 2    C1I2    2  3PLM 2.0980879 -1.038422479  0.15218504         NA         NA</span></span>
-<span><span class="co">#&gt; 3    C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA</span></span>
-<span><span class="co">#&gt; 4    C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA</span></span>
-<span><span class="co">#&gt; 5    C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA</span></span>
-<span><span class="co">#&gt; 6    C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA</span></span>
-<span><span class="co">#&gt; 7    C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA</span></span>
-<span><span class="co">#&gt; 8    C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA</span></span>
-<span><span class="co">#&gt; 9    C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA</span></span>
-<span><span class="co">#&gt; 10  C1I10    2  3PLM 1.4311778  0.087980173  0.13646371         NA         NA</span></span>
-<span><span class="co">#&gt; 11   G1I1    2  3PLM 0.9359127 -0.548239144  0.12796867         NA         NA</span></span>
-<span><span class="co">#&gt; 12   G1I2    2  3PLM 0.8464253  1.172570909  0.08981114         NA         NA</span></span>
-<span><span class="co">#&gt; 13   G1I3    2  3PLM 1.4616326  1.305882948  0.18093863         NA         NA</span></span>
-<span><span class="co">#&gt; 14   G1I4    2  3PLM 1.4926688  0.238013232  0.28916429         NA         NA</span></span>
-<span><span class="co">#&gt; 15   G1I5    2  3PLM 1.2979873 -0.242251772  0.13400726         NA         NA</span></span>
-<span><span class="co">#&gt; 16   G1I6    2  3PLM 2.1074476 -0.012948148  0.07444095         NA         NA</span></span>
-<span><span class="co">#&gt; 17   G1I7    2  3PLM 1.4082434 -0.118840206  0.18134112         NA         NA</span></span>
-<span><span class="co">#&gt; 18   G1I8    2  3PLM 2.4266305  1.180075734  0.32271527         NA         NA</span></span>
-<span><span class="co">#&gt; 19   G1I9    2  3PLM 2.3509008 -0.977087363  0.21540341         NA         NA</span></span>
-<span><span class="co">#&gt; 20  G1I10    2  3PLM 1.2511555 -1.833025156  0.18382522         NA         NA</span></span>
-<span><span class="co">#&gt; 21  G1I11    2  3PLM 1.5207162 -1.185147713  0.16473757         NA         NA</span></span>
-<span><span class="co">#&gt; 22  G1I12    2  3PLM 0.7319287 -0.949068503  0.15414085         NA         NA</span></span>
-<span><span class="co">#&gt; 23  G1I13    2  3PLM 0.9962639 -0.233390945  0.16956608         NA         NA</span></span>
-<span><span class="co">#&gt; 24  G1I14    2  3PLM 1.4325980  1.770247838  0.29384714         NA         NA</span></span>
-<span><span class="co">#&gt; 25  G1I15    2  3PLM 0.8514660 -1.555773213  0.16752977         NA         NA</span></span>
-<span><span class="co">#&gt; 26  G1I16    2  3PLM 1.0495106 -2.029009529  0.17866810         NA         NA</span></span>
-<span><span class="co">#&gt; 27  G1I17    2  3PLM 1.0038192  0.182951364  0.13096757         NA         NA</span></span>
-<span><span class="co">#&gt; 28  G1I18    2  3PLM 2.0489907 -0.110884639  0.23047857         NA         NA</span></span>
-<span><span class="co">#&gt; 29  G1I19    2  3PLM 1.3130791 -1.455928197  0.15856273         NA         NA</span></span>
-<span><span class="co">#&gt; 30  G1I20    2  3PLM 0.9585798  0.433963565  0.20095980         NA         NA</span></span>
-<span><span class="co">#&gt; 31  G1I21    2  3PLM 0.8736611  0.704957357  0.11168893         NA         NA</span></span>
-<span><span class="co">#&gt; 32  G1I22    2  3PLM 1.7043931 -0.719471905  0.32551625         NA         NA</span></span>
-<span><span class="co">#&gt; 33  G1I23    2  3PLM 1.2733406 -1.278168141  0.20090537         NA         NA</span></span>
-<span><span class="co">#&gt; 34  G1I24    2  3PLM 1.5925036  0.288859365  0.21942351         NA         NA</span></span>
-<span><span class="co">#&gt; 35  G1I25    2  3PLM 1.5315792 -0.174914214  0.23326945         NA         NA</span></span>
-<span><span class="co">#&gt; 36  G1I26    2  3PLM 1.8351423  0.645101932  0.24918150         NA         NA</span></span>
-<span><span class="co">#&gt; 37  G1I27    2  3PLM 1.6038171 -1.629006369  0.20988867         NA         NA</span></span>
-<span><span class="co">#&gt; 38  G1I28    2  3PLM 1.2874830  0.532576013  0.13701099         NA         NA</span></span>
-<span><span class="co">#&gt; 39  G1I29    2  3PLM 0.8993998 -0.443199401  0.09884639         NA         NA</span></span>
-<span><span class="co">#&gt; 40  G1I30    2  3PLM 0.9764149  2.298256707  0.16440818         NA         NA</span></span>
-<span><span class="co">#&gt; 41  G1I31    2  3PLM 2.3488846  1.645346469  0.18059777         NA         NA</span></span>
-<span><span class="co">#&gt; 42  G1I32    2  3PLM 1.0719102 -0.141789310  0.12290992         NA         NA</span></span>
-<span><span class="co">#&gt; 43  G1I33    2  3PLM 1.5612761  0.146268646  0.14565485         NA         NA</span></span>
-<span><span class="co">#&gt; 44  G1I34    2  3PLM 1.2917326  0.204106661  0.09394302         NA         NA</span></span>
-<span><span class="co">#&gt; 45  G1I35    2  3PLM 1.2853134  1.287056625  0.06023247         NA         NA</span></span>
-<span><span class="co">#&gt; 46  G1I36    2  3PLM 1.4133363 -1.310815371  0.17461007         NA         NA</span></span>
-<span><span class="co">#&gt; 47  G1I37    2  3PLM 1.0033906 -0.746607205  0.21592694         NA         NA</span></span>
-<span><span class="co">#&gt; 48  G1I38    5   GRM 1.0610370 -0.370616565  0.21016901  0.8565983  1.4247754</span></span>
-<span><span class="co">#&gt; 49  C1I11    5   GRM 1.1918010 -2.203999118 -1.44976236 -0.7501574 -0.1231657</span></span>
-<span><span class="co">#&gt; 50  C1I12    5   GRM 0.9081917 -0.697151405  0.02199070  0.6791225  1.2532162</span></span>
-<span><span class="co">#&gt; 51   G2I1    2  3PLM 1.7090937 -0.945459280  0.19002945         NA         NA</span></span>
-<span><span class="co">#&gt; 52   G2I2    2  3PLM 0.8047999 -0.591187583  0.16910082         NA         NA</span></span>
-<span><span class="co">#&gt; 53   G2I3    2  3PLM 1.0335057 -0.005386015  0.14981835         NA         NA</span></span>
-<span><span class="co">#&gt; 54   G2I4    2  3PLM 1.4126589  1.456969538  0.16976522         NA         NA</span></span>
-<span><span class="co">#&gt; 55   G2I5    2  3PLM 0.6960546 -1.803740318  0.15691190         NA         NA</span></span>
-<span><span class="co">#&gt; 56   G2I6    2  3PLM 1.0734316 -1.699563872  0.17121906         NA         NA</span></span>
-<span><span class="co">#&gt; 57   G2I7    2  3PLM 1.2750904  0.207772100  0.10660801         NA         NA</span></span>
-<span><span class="co">#&gt; 58   G2I8    2  3PLM 2.1494419 -0.130339030  0.11647749         NA         NA</span></span>
-<span><span class="co">#&gt; 59   G2I9    2  3PLM 1.0657750 -1.656851791  0.16330371         NA         NA</span></span>
-<span><span class="co">#&gt; 60  G2I10    2  3PLM 1.5342410  0.850182846  0.27310868         NA         NA</span></span>
-<span><span class="co">#&gt; 61  G2I11    2  3PLM 0.9142407  0.808067550  0.09232400         NA         NA</span></span>
-<span><span class="co">#&gt; 62  G2I12    2  3PLM 1.6169550 -0.784688595  0.20535605         NA         NA</span></span>
-<span><span class="co">#&gt; 63  G2I13    2  3PLM 1.1505653 -1.400268822  0.16577464         NA         NA</span></span>
-<span><span class="co">#&gt; 64  G2I14    2  3PLM 1.3743305  0.164347103  0.10718159         NA         NA</span></span>
-<span><span class="co">#&gt; 65  G2I15    2  3PLM 1.4769165 -0.044939230  0.23084126         NA         NA</span></span>
-<span><span class="co">#&gt; 66  G2I16    2  3PLM 1.6758848  0.717001136  0.20622285         NA         NA</span></span>
-<span><span class="co">#&gt; 67  G2I17    2  3PLM 2.0846254 -1.258853096  0.15889136         NA         NA</span></span>
-<span><span class="co">#&gt; 68  G2I18    2  3PLM 1.6949896  0.600499352  0.12602851         NA         NA</span></span>
-<span><span class="co">#&gt; 69  G2I19    2  3PLM 1.0611990 -0.063742105  0.17109186         NA         NA</span></span>
-<span><span class="co">#&gt; 70  G2I20    2  3PLM 1.5813732  2.215649117  0.15598112         NA         NA</span></span>
-<span><span class="co">#&gt; 71  G2I21    2  3PLM 2.3728046  1.557275467  0.11499215         NA         NA</span></span>
-<span><span class="co">#&gt; 72  G2I22    2  3PLM 1.4130415  0.168939571  0.18743568         NA         NA</span></span>
-<span><span class="co">#&gt; 73  G2I23    2  3PLM 2.0886177  0.414684503  0.27046462         NA         NA</span></span>
-<span><span class="co">#&gt; 74  G2I24    2  3PLM 1.3839526  0.323687559  0.05755514         NA         NA</span></span>
-<span><span class="co">#&gt; 75  G2I25    2  3PLM 1.7067194  1.381915975  0.06514173         NA         NA</span></span>
-<span><span class="co">#&gt; 76  G2I26    2  3PLM 1.8430926 -0.963583581  0.19395885         NA         NA</span></span>
-<span><span class="co">#&gt; 77  G2I27    2  3PLM 0.9555100 -0.700065276  0.15891668         NA         NA</span></span>
-<span><span class="co">#&gt; 78  G2I28    5   GRM 1.1250412 -0.388696109  0.13170295  0.7782003  1.4533151</span></span>
-<span><span class="co">#&gt; 79   C2I1    2  3PLM 1.0434870 -0.352570990  0.10601903         NA         NA</span></span>
-<span><span class="co">#&gt; 80   C2I2    2  3PLM 0.9632989  1.228199394  0.05218138         NA         NA</span></span>
-<span><span class="co">#&gt; 81   C2I3    2  3PLM 1.5670851  1.386732985  0.12306915         NA         NA</span></span>
-<span><span class="co">#&gt; 82   C2I4    2  3PLM 1.5090851  0.215498274  0.17670489         NA         NA</span></span>
-<span><span class="co">#&gt; 83   C2I5    2  3PLM 1.3880431 -0.107008292  0.10553705         NA         NA</span></span>
-<span><span class="co">#&gt; 84   C2I6    2  3PLM 1.9974654 -0.081160756  0.04056956         NA         NA</span></span>
-<span><span class="co">#&gt; 85   C2I7    2  3PLM 1.5176344 -0.029562852  0.16718502         NA         NA</span></span>
-<span><span class="co">#&gt; 86   C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA</span></span>
-<span><span class="co">#&gt; 87   C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA</span></span>
-<span><span class="co">#&gt; 88  C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA</span></span>
-<span><span class="co">#&gt; 89   G3I1    2  3PLM 1.4958521 -1.157480281  0.13021457         NA         NA</span></span>
-<span><span class="co">#&gt; 90   G3I2    2  3PLM 0.7408780 -0.735132395  0.15274024         NA         NA</span></span>
-<span><span class="co">#&gt; 91   G3I3    2  3PLM 1.1082057  0.025301687  0.15302876         NA         NA</span></span>
-<span><span class="co">#&gt; 92   G3I4    2  3PLM 1.2502137  1.732480555  0.22122128         NA         NA</span></span>
-<span><span class="co">#&gt; 93   G3I5    2  3PLM 0.7484885 -1.246114621  0.22345365         NA         NA</span></span>
-<span><span class="co">#&gt; 94   G3I6    2  3PLM 1.1068583 -1.524973978  0.24798634         NA         NA</span></span>
-<span><span class="co">#&gt; 95   G3I7    2  3PLM 1.3187121  0.223560460  0.13144430         NA         NA</span></span>
-<span><span class="co">#&gt; 96   G3I8    2  3PLM 1.8714736 -0.110985326  0.14002954         NA         NA</span></span>
-<span><span class="co">#&gt; 97   G3I9    2  3PLM 1.1037907 -1.301014196  0.16749544         NA         NA</span></span>
-<span><span class="co">#&gt; 98  G3I10    2  3PLM 1.4614569  0.970092509  0.28702354         NA         NA</span></span>
-<span><span class="co">#&gt; 99  G3I11    2  3PLM 0.8635917  0.758975315  0.06886835         NA         NA</span></span>
-<span><span class="co">#&gt; 100 G3I12    2  3PLM 1.3635440 -0.866226276  0.22745508         NA         NA</span></span>
-<span><span class="co">#&gt; 101 G3I13    2  3PLM 1.0739247 -1.216780038  0.18915640         NA         NA</span></span>
-<span><span class="co">#&gt; 102 G3I14    2  3PLM 1.3335233  0.274945126  0.15754280         NA         NA</span></span>
-<span><span class="co">#&gt; 103 G3I15    2  3PLM 1.2528475 -0.095304761  0.18029262         NA         NA</span></span>
-<span><span class="co">#&gt; 104 G3I16    2  3PLM 1.5342037  0.731446180  0.19833440         NA         NA</span></span>
-<span><span class="co">#&gt; 105 G3I17    2  3PLM 1.6069625 -1.598226313  0.14676682         NA         NA</span></span>
-<span><span class="co">#&gt; 106 G3I18    2  3PLM 1.3342736  0.695788071  0.11240270         NA         NA</span></span>
-<span><span class="co">#&gt; 107 G3I19    2  3PLM 0.9464045  0.013806645  0.14158197         NA         NA</span></span>
-<span><span class="co">#&gt; 108 G3I20    2  3PLM 1.1090358  2.315077726  0.11500685         NA         NA</span></span>
-<span><span class="co">#&gt; 109 G3I21    2  3PLM 2.9584494  1.655508212  0.13968286         NA         NA</span></span>
-<span><span class="co">#&gt; 110 G3I22    2  3PLM 1.1275978  0.034439985  0.08480644         NA         NA</span></span>
-<span><span class="co">#&gt; 111 G3I23    2  3PLM 1.7401665  0.300800501  0.14515489         NA         NA</span></span>
-<span><span class="co">#&gt; 112 G3I24    2  3PLM 1.0967884  0.289853463  0.04381579         NA         NA</span></span>
-<span><span class="co">#&gt; 113 G3I25    2  3PLM 1.3271448  1.358693168  0.04687473         NA         NA</span></span>
-<span><span class="co">#&gt; 114 G3I26    2  3PLM 1.6100308 -1.071850355  0.18520610         NA         NA</span></span>
-<span><span class="co">#&gt; 115 G3I27    2  3PLM 0.8934562 -0.726951436  0.14955323         NA         NA</span></span>
-<span><span class="co">#&gt; 116 G3I28    5   GRM 0.9523168 -0.372121962  0.15027071  0.8090432  1.5444770</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $group</span></span>
-<span><span class="co">#&gt; $group$Group1</span></span>
-<span><span class="co">#&gt;       id cats model     par.1       par.2       par.3      par.4      par.5</span></span>
-<span><span class="co">#&gt; 1   C1I1    2  3PLM 0.8200242  1.31871376  0.25841706         NA         NA</span></span>
-<span><span class="co">#&gt; 2   C1I2    2  3PLM 2.0980879 -1.03842248  0.15218504         NA         NA</span></span>
-<span><span class="co">#&gt; 3   C1I3    2  3PLM 0.9966003  0.55114572  0.16098712         NA         NA</span></span>
-<span><span class="co">#&gt; 4   C1I4    2  3PLM 1.0093509 -0.32045149  0.23567127         NA         NA</span></span>
-<span><span class="co">#&gt; 5   C1I5    2  3PLM 0.8338492 -0.27183781  0.14448391         NA         NA</span></span>
-<span><span class="co">#&gt; 6   C1I6    2  3PLM 1.8443147  0.58243282  0.08027942         NA         NA</span></span>
-<span><span class="co">#&gt; 7   C1I7    2  3PLM 1.0424670  1.08507187  0.13731578         NA         NA</span></span>
-<span><span class="co">#&gt; 8   C1I8    2  3PLM 0.8848007  0.83180259  0.13784092         NA         NA</span></span>
-<span><span class="co">#&gt; 9   C1I9    2  3PLM 0.8350649  0.53838164  0.18075574         NA         NA</span></span>
-<span><span class="co">#&gt; 10 C1I10    2  3PLM 1.4311778  0.08798017  0.13646371         NA         NA</span></span>
-<span><span class="co">#&gt; 11  G1I1    2  3PLM 0.9359127 -0.54823914  0.12796867         NA         NA</span></span>
-<span><span class="co">#&gt; 12  G1I2    2  3PLM 0.8464253  1.17257091  0.08981114         NA         NA</span></span>
-<span><span class="co">#&gt; 13  G1I3    2  3PLM 1.4616326  1.30588295  0.18093863         NA         NA</span></span>
-<span><span class="co">#&gt; 14  G1I4    2  3PLM 1.4926688  0.23801323  0.28916429         NA         NA</span></span>
-<span><span class="co">#&gt; 15  G1I5    2  3PLM 1.2979873 -0.24225177  0.13400726         NA         NA</span></span>
-<span><span class="co">#&gt; 16  G1I6    2  3PLM 2.1074476 -0.01294815  0.07444095         NA         NA</span></span>
-<span><span class="co">#&gt; 17  G1I7    2  3PLM 1.4082434 -0.11884021  0.18134112         NA         NA</span></span>
-<span><span class="co">#&gt; 18  G1I8    2  3PLM 2.4266305  1.18007573  0.32271527         NA         NA</span></span>
-<span><span class="co">#&gt; 19  G1I9    2  3PLM 2.3509008 -0.97708736  0.21540341         NA         NA</span></span>
-<span><span class="co">#&gt; 20 G1I10    2  3PLM 1.2511555 -1.83302516  0.18382522         NA         NA</span></span>
-<span><span class="co">#&gt; 21 G1I11    2  3PLM 1.5207162 -1.18514771  0.16473757         NA         NA</span></span>
-<span><span class="co">#&gt; 22 G1I12    2  3PLM 0.7319287 -0.94906850  0.15414085         NA         NA</span></span>
-<span><span class="co">#&gt; 23 G1I13    2  3PLM 0.9962639 -0.23339095  0.16956608         NA         NA</span></span>
-<span><span class="co">#&gt; 24 G1I14    2  3PLM 1.4325980  1.77024784  0.29384714         NA         NA</span></span>
-<span><span class="co">#&gt; 25 G1I15    2  3PLM 0.8514660 -1.55577321  0.16752977         NA         NA</span></span>
-<span><span class="co">#&gt; 26 G1I16    2  3PLM 1.0495106 -2.02900953  0.17866810         NA         NA</span></span>
-<span><span class="co">#&gt; 27 G1I17    2  3PLM 1.0038192  0.18295136  0.13096757         NA         NA</span></span>
-<span><span class="co">#&gt; 28 G1I18    2  3PLM 2.0489907 -0.11088464  0.23047857         NA         NA</span></span>
-<span><span class="co">#&gt; 29 G1I19    2  3PLM 1.3130791 -1.45592820  0.15856273         NA         NA</span></span>
-<span><span class="co">#&gt; 30 G1I20    2  3PLM 0.9585798  0.43396357  0.20095980         NA         NA</span></span>
-<span><span class="co">#&gt; 31 G1I21    2  3PLM 0.8736611  0.70495736  0.11168893         NA         NA</span></span>
-<span><span class="co">#&gt; 32 G1I22    2  3PLM 1.7043931 -0.71947191  0.32551625         NA         NA</span></span>
-<span><span class="co">#&gt; 33 G1I23    2  3PLM 1.2733406 -1.27816814  0.20090537         NA         NA</span></span>
-<span><span class="co">#&gt; 34 G1I24    2  3PLM 1.5925036  0.28885936  0.21942351         NA         NA</span></span>
-<span><span class="co">#&gt; 35 G1I25    2  3PLM 1.5315792 -0.17491421  0.23326945         NA         NA</span></span>
-<span><span class="co">#&gt; 36 G1I26    2  3PLM 1.8351423  0.64510193  0.24918150         NA         NA</span></span>
-<span><span class="co">#&gt; 37 G1I27    2  3PLM 1.6038171 -1.62900637  0.20988867         NA         NA</span></span>
-<span><span class="co">#&gt; 38 G1I28    2  3PLM 1.2874830  0.53257601  0.13701099         NA         NA</span></span>
-<span><span class="co">#&gt; 39 G1I29    2  3PLM 0.8993998 -0.44319940  0.09884639         NA         NA</span></span>
-<span><span class="co">#&gt; 40 G1I30    2  3PLM 0.9764149  2.29825671  0.16440818         NA         NA</span></span>
-<span><span class="co">#&gt; 41 G1I31    2  3PLM 2.3488846  1.64534647  0.18059777         NA         NA</span></span>
-<span><span class="co">#&gt; 42 G1I32    2  3PLM 1.0719102 -0.14178931  0.12290992         NA         NA</span></span>
-<span><span class="co">#&gt; 43 G1I33    2  3PLM 1.5612761  0.14626865  0.14565485         NA         NA</span></span>
-<span><span class="co">#&gt; 44 G1I34    2  3PLM 1.2917326  0.20410666  0.09394302         NA         NA</span></span>
-<span><span class="co">#&gt; 45 G1I35    2  3PLM 1.2853134  1.28705662  0.06023247         NA         NA</span></span>
-<span><span class="co">#&gt; 46 G1I36    2  3PLM 1.4133363 -1.31081537  0.17461007         NA         NA</span></span>
-<span><span class="co">#&gt; 47 G1I37    2  3PLM 1.0033906 -0.74660720  0.21592694         NA         NA</span></span>
-<span><span class="co">#&gt; 48 G1I38    5   GRM 1.0610370 -0.37061656  0.21016901  0.8565983  1.4247754</span></span>
-<span><span class="co">#&gt; 49 C1I11    5   GRM 1.1918010 -2.20399912 -1.44976236 -0.7501574 -0.1231657</span></span>
-<span><span class="co">#&gt; 50 C1I12    5   GRM 0.9081917 -0.69715140  0.02199070  0.6791225  1.2532162</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $group$Group2</span></span>
-<span><span class="co">#&gt;       id cats model     par.1        par.2       par.3      par.4      par.5</span></span>
-<span><span class="co">#&gt; 1   C1I1    2  3PLM 0.8200242  1.318713757  0.25841706         NA         NA</span></span>
-<span><span class="co">#&gt; 2   C1I2    2  3PLM 2.0980879 -1.038422479  0.15218504         NA         NA</span></span>
-<span><span class="co">#&gt; 3   C1I3    2  3PLM 0.9966003  0.551145717  0.16098712         NA         NA</span></span>
-<span><span class="co">#&gt; 4   C1I4    2  3PLM 1.0093509 -0.320451489  0.23567127         NA         NA</span></span>
-<span><span class="co">#&gt; 5   C1I5    2  3PLM 0.8338492 -0.271837808  0.14448391         NA         NA</span></span>
-<span><span class="co">#&gt; 6   C1I6    2  3PLM 1.8443147  0.582432823  0.08027942         NA         NA</span></span>
-<span><span class="co">#&gt; 7   C1I7    2  3PLM 1.0424670  1.085071866  0.13731578         NA         NA</span></span>
-<span><span class="co">#&gt; 8   C1I8    2  3PLM 0.8848007  0.831802592  0.13784092         NA         NA</span></span>
-<span><span class="co">#&gt; 9   C1I9    2  3PLM 0.8350649  0.538381639  0.18075574         NA         NA</span></span>
-<span><span class="co">#&gt; 10 C1I10    2  3PLM 1.4311778  0.087980173  0.13646371         NA         NA</span></span>
-<span><span class="co">#&gt; 11 C1I11    5   GRM 1.1918010 -2.203999118 -1.44976236 -0.7501574 -0.1231657</span></span>
-<span><span class="co">#&gt; 12 C1I12    5   GRM 0.9081917 -0.697151405  0.02199070  0.6791225  1.2532162</span></span>
-<span><span class="co">#&gt; 13  G2I1    2  3PLM 1.7090937 -0.945459280  0.19002945         NA         NA</span></span>
-<span><span class="co">#&gt; 14  G2I2    2  3PLM 0.8047999 -0.591187583  0.16910082         NA         NA</span></span>
-<span><span class="co">#&gt; 15  G2I3    2  3PLM 1.0335057 -0.005386015  0.14981835         NA         NA</span></span>
-<span><span class="co">#&gt; 16  G2I4    2  3PLM 1.4126589  1.456969538  0.16976522         NA         NA</span></span>
-<span><span class="co">#&gt; 17  G2I5    2  3PLM 0.6960546 -1.803740318  0.15691190         NA         NA</span></span>
-<span><span class="co">#&gt; 18  G2I6    2  3PLM 1.0734316 -1.699563872  0.17121906         NA         NA</span></span>
-<span><span class="co">#&gt; 19  G2I7    2  3PLM 1.2750904  0.207772100  0.10660801         NA         NA</span></span>
-<span><span class="co">#&gt; 20  G2I8    2  3PLM 2.1494419 -0.130339030  0.11647749         NA         NA</span></span>
-<span><span class="co">#&gt; 21  G2I9    2  3PLM 1.0657750 -1.656851791  0.16330371         NA         NA</span></span>
-<span><span class="co">#&gt; 22 G2I10    2  3PLM 1.5342410  0.850182846  0.27310868         NA         NA</span></span>
-<span><span class="co">#&gt; 23 G2I11    2  3PLM 0.9142407  0.808067550  0.09232400         NA         NA</span></span>
-<span><span class="co">#&gt; 24 G2I12    2  3PLM 1.6169550 -0.784688595  0.20535605         NA         NA</span></span>
-<span><span class="co">#&gt; 25 G2I13    2  3PLM 1.1505653 -1.400268822  0.16577464         NA         NA</span></span>
-<span><span class="co">#&gt; 26 G2I14    2  3PLM 1.3743305  0.164347103  0.10718159         NA         NA</span></span>
-<span><span class="co">#&gt; 27 G2I15    2  3PLM 1.4769165 -0.044939230  0.23084126         NA         NA</span></span>
-<span><span class="co">#&gt; 28 G2I16    2  3PLM 1.6758848  0.717001136  0.20622285         NA         NA</span></span>
-<span><span class="co">#&gt; 29 G2I17    2  3PLM 2.0846254 -1.258853096  0.15889136         NA         NA</span></span>
-<span><span class="co">#&gt; 30 G2I18    2  3PLM 1.6949896  0.600499352  0.12602851         NA         NA</span></span>
-<span><span class="co">#&gt; 31 G2I19    2  3PLM 1.0611990 -0.063742105  0.17109186         NA         NA</span></span>
-<span><span class="co">#&gt; 32 G2I20    2  3PLM 1.5813732  2.215649117  0.15598112         NA         NA</span></span>
-<span><span class="co">#&gt; 33 G2I21    2  3PLM 2.3728046  1.557275467  0.11499215         NA         NA</span></span>
-<span><span class="co">#&gt; 34 G2I22    2  3PLM 1.4130415  0.168939571  0.18743568         NA         NA</span></span>
-<span><span class="co">#&gt; 35 G2I23    2  3PLM 2.0886177  0.414684503  0.27046462         NA         NA</span></span>
-<span><span class="co">#&gt; 36 G2I24    2  3PLM 1.3839526  0.323687559  0.05755514         NA         NA</span></span>
-<span><span class="co">#&gt; 37 G2I25    2  3PLM 1.7067194  1.381915975  0.06514173         NA         NA</span></span>
-<span><span class="co">#&gt; 38 G2I26    2  3PLM 1.8430926 -0.963583581  0.19395885         NA         NA</span></span>
-<span><span class="co">#&gt; 39 G2I27    2  3PLM 0.9555100 -0.700065276  0.15891668         NA         NA</span></span>
-<span><span class="co">#&gt; 40 G2I28    5   GRM 1.1250412 -0.388696109  0.13170295  0.7782003  1.4533151</span></span>
-<span><span class="co">#&gt; 41  C2I1    2  3PLM 1.0434870 -0.352570990  0.10601903         NA         NA</span></span>
-<span><span class="co">#&gt; 42  C2I2    2  3PLM 0.9632989  1.228199394  0.05218138         NA         NA</span></span>
-<span><span class="co">#&gt; 43  C2I3    2  3PLM 1.5670851  1.386732985  0.12306915         NA         NA</span></span>
-<span><span class="co">#&gt; 44  C2I4    2  3PLM 1.5090851  0.215498274  0.17670489         NA         NA</span></span>
-<span><span class="co">#&gt; 45  C2I5    2  3PLM 1.3880431 -0.107008292  0.10553705         NA         NA</span></span>
-<span><span class="co">#&gt; 46  C2I6    2  3PLM 1.9974654 -0.081160756  0.04056956         NA         NA</span></span>
-<span><span class="co">#&gt; 47  C2I7    2  3PLM 1.5176344 -0.029562852  0.16718502         NA         NA</span></span>
-<span><span class="co">#&gt; 48  C2I8    2  3PLM 1.4743622  1.278179271  0.18509527         NA         NA</span></span>
-<span><span class="co">#&gt; 49  C2I9    2  3PLM 2.1404797 -1.048933860  0.12403332         NA         NA</span></span>
-<span><span class="co">#&gt; 50 C2I10    2  3PLM 1.5576919 -1.413742240  0.22823561         NA         NA</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $group$Group3</span></span>
-<span><span class="co">#&gt;       id cats model     par.1       par.2      par.3     par.4    par.5</span></span>
-<span><span class="co">#&gt; 1   C2I1    2  3PLM 1.0434870 -0.35257099 0.10601903        NA       NA</span></span>
-<span><span class="co">#&gt; 2   C2I2    2  3PLM 0.9632989  1.22819939 0.05218138        NA       NA</span></span>
-<span><span class="co">#&gt; 3   C2I3    2  3PLM 1.5670851  1.38673299 0.12306915        NA       NA</span></span>
-<span><span class="co">#&gt; 4   C2I4    2  3PLM 1.5090851  0.21549827 0.17670489        NA       NA</span></span>
-<span><span class="co">#&gt; 5   C2I5    2  3PLM 1.3880431 -0.10700829 0.10553705        NA       NA</span></span>
-<span><span class="co">#&gt; 6   C2I6    2  3PLM 1.9974654 -0.08116076 0.04056956        NA       NA</span></span>
-<span><span class="co">#&gt; 7   C2I7    2  3PLM 1.5176344 -0.02956285 0.16718502        NA       NA</span></span>
-<span><span class="co">#&gt; 8   C2I8    2  3PLM 1.4743622  1.27817927 0.18509527        NA       NA</span></span>
-<span><span class="co">#&gt; 9   C2I9    2  3PLM 2.1404797 -1.04893386 0.12403332        NA       NA</span></span>
-<span><span class="co">#&gt; 10 C2I10    2  3PLM 1.5576919 -1.41374224 0.22823561        NA       NA</span></span>
-<span><span class="co">#&gt; 11  G3I1    2  3PLM 1.4958521 -1.15748028 0.13021457        NA       NA</span></span>
-<span><span class="co">#&gt; 12  G3I2    2  3PLM 0.7408780 -0.73513240 0.15274024        NA       NA</span></span>
-<span><span class="co">#&gt; 13  G3I3    2  3PLM 1.1082057  0.02530169 0.15302876        NA       NA</span></span>
-<span><span class="co">#&gt; 14  G3I4    2  3PLM 1.2502137  1.73248055 0.22122128        NA       NA</span></span>
-<span><span class="co">#&gt; 15  G3I5    2  3PLM 0.7484885 -1.24611462 0.22345365        NA       NA</span></span>
-<span><span class="co">#&gt; 16  G3I6    2  3PLM 1.1068583 -1.52497398 0.24798634        NA       NA</span></span>
-<span><span class="co">#&gt; 17  G3I7    2  3PLM 1.3187121  0.22356046 0.13144430        NA       NA</span></span>
-<span><span class="co">#&gt; 18  G3I8    2  3PLM 1.8714736 -0.11098533 0.14002954        NA       NA</span></span>
-<span><span class="co">#&gt; 19  G3I9    2  3PLM 1.1037907 -1.30101420 0.16749544        NA       NA</span></span>
-<span><span class="co">#&gt; 20 G3I10    2  3PLM 1.4614569  0.97009251 0.28702354        NA       NA</span></span>
-<span><span class="co">#&gt; 21 G3I11    2  3PLM 0.8635917  0.75897531 0.06886835        NA       NA</span></span>
-<span><span class="co">#&gt; 22 G3I12    2  3PLM 1.3635440 -0.86622628 0.22745508        NA       NA</span></span>
-<span><span class="co">#&gt; 23 G3I13    2  3PLM 1.0739247 -1.21678004 0.18915640        NA       NA</span></span>
-<span><span class="co">#&gt; 24 G3I14    2  3PLM 1.3335233  0.27494513 0.15754280        NA       NA</span></span>
-<span><span class="co">#&gt; 25 G3I15    2  3PLM 1.2528475 -0.09530476 0.18029262        NA       NA</span></span>
-<span><span class="co">#&gt; 26 G3I16    2  3PLM 1.5342037  0.73144618 0.19833440        NA       NA</span></span>
-<span><span class="co">#&gt; 27 G3I17    2  3PLM 1.6069625 -1.59822631 0.14676682        NA       NA</span></span>
-<span><span class="co">#&gt; 28 G3I18    2  3PLM 1.3342736  0.69578807 0.11240270        NA       NA</span></span>
-<span><span class="co">#&gt; 29 G3I19    2  3PLM 0.9464045  0.01380665 0.14158197        NA       NA</span></span>
-<span><span class="co">#&gt; 30 G3I20    2  3PLM 1.1090358  2.31507773 0.11500685        NA       NA</span></span>
-<span><span class="co">#&gt; 31 G3I21    2  3PLM 2.9584494  1.65550821 0.13968286        NA       NA</span></span>
-<span><span class="co">#&gt; 32 G3I22    2  3PLM 1.1275978  0.03443998 0.08480644        NA       NA</span></span>
-<span><span class="co">#&gt; 33 G3I23    2  3PLM 1.7401665  0.30080050 0.14515489        NA       NA</span></span>
-<span><span class="co">#&gt; 34 G3I24    2  3PLM 1.0967884  0.28985346 0.04381579        NA       NA</span></span>
-<span><span class="co">#&gt; 35 G3I25    2  3PLM 1.3271448  1.35869317 0.04687473        NA       NA</span></span>
-<span><span class="co">#&gt; 36 G3I26    2  3PLM 1.6100308 -1.07185035 0.18520610        NA       NA</span></span>
-<span><span class="co">#&gt; 37 G3I27    2  3PLM 0.8934562 -0.72695144 0.14955323        NA       NA</span></span>
-<span><span class="co">#&gt; 38 G3I28    5   GRM 0.9523168 -0.37212196 0.15027071 0.8090432 1.544477</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">par_mg</span><span class="op">$</span><span class="va">overall</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     id cats model     par.1      par.2      par.3 par.4 par.5</span></span>
+<span><span class="co">#&gt; 1 C1I1    2  3PLM 0.8200242  1.3187138 0.25841706    NA    NA</span></span>
+<span><span class="co">#&gt; 2 C1I2    2  3PLM 2.0980879 -1.0384225 0.15218504    NA    NA</span></span>
+<span><span class="co">#&gt; 3 C1I3    2  3PLM 0.9966003  0.5511457 0.16098712    NA    NA</span></span>
+<span><span class="co">#&gt; 4 C1I4    2  3PLM 1.0093509 -0.3204515 0.23567127    NA    NA</span></span>
+<span><span class="co">#&gt; 5 C1I5    2  3PLM 0.8338492 -0.2718378 0.14448391    NA    NA</span></span>
+<span><span class="co">#&gt; 6 C1I6    2  3PLM 1.8443147  0.5824328 0.08027942    NA    NA</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -3923,9 +3698,9 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009769281</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 4.38</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.08</span></span>
-<span><span class="co">#&gt;  Total computation: 4.87</span></span>
+<span><span class="co">#&gt;  EM algorithm: 8.02</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.17</span></span>
+<span><span class="co">#&gt;  Total computation: 8.67</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -4190,7 +3965,7 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">group_par_fipc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $Group1</span></span>
 <span><span class="co">#&gt;                    mu     sigma2      sigma</span></span>
-<span><span class="co">#&gt; estimates -0.01161244 1.00951986 1.00474866</span></span>
+<span><span class="co">#&gt; estimates -0.01161244 1.00951987 1.00474866</span></span>
 <span><span class="co">#&gt; se         0.02246686 0.03193181 0.01589044</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Group2</span></span>
@@ -4303,20 +4078,23 @@ distributions.</td>
 Parameter Calibration (<code>TRUE</code> or <code>FALSE</code>).</td>
 </tr>
 <tr class="odd">
+<td align="left"><code>fix.loc</code></td>
 <td align="left">
-<code>fix.loc</code> / <code>fix.id</code>
-</td>
-<td align="left">
-<strong>List</strong> (one per group) specifying the
-exact row positions or item IDs of the anchor items to be fixed.</td>
+<strong>List</strong> with one integer vector per group
+giving the row positions of the anchor items to be fixed.</td>
 </tr>
 <tr class="even">
+<td align="left"><code>fix.id</code></td>
+<td align="left">A <strong>single character vector</strong> of the IDs
+of all fixed items across groups (not a list).</td>
+</tr>
+<tr class="odd">
 <td align="left"><code>EmpHist</code></td>
 <td align="left">Logical; if <code>TRUE</code>, estimates empirical
 histogram shapes for the latent distributions instead of assuming
 normality.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">
 <code>group.mean</code> / <code>group.var</code>
 </td>
@@ -4348,9 +4126,10 @@ cross-contaminate group data and models.</p>
 <p>❌ <strong>Pitfall 2: Using <code>fix.loc</code> as a single vector
 (not a list) for MG-FIPC</strong></p>
 <p>Because each group represents a distinct test form with potentially
-different structures, <code>fix.loc</code> or <code>fix.id</code> must
-always be supplied as a <strong>list</strong>, containing one element
-per group.</p>
+different structures, <code>fix.loc</code> must always be supplied as a
+<strong>list</strong>, containing one integer vector per group.
+(<code>fix.id</code>, in contrast, is a single character vector of the
+IDs of all fixed items across groups.)</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WRONG: fix.loc must be a list for est_mg(), even if only fixing items in one group</span></span>
 <span><span class="fu"><a href="../reference/est_mg.html">est_mg</a></span><span class="op">(</span><span class="va">...</span>, fipc <span class="op">=</span> <span class="cn">TRUE</span>, fix.loc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>

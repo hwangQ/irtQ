@@ -59,10 +59,10 @@ run_mst(
 
 - route_map:
 
-  A binary square matrix defining the MST transition structure. A 1 at
-  row *i*, column *j* means that a test taker can be routed from module
-  *i* to module *j*. Equivalent to the `transMatrix` argument in
-  `randomMST()` from mstR (Magis et al., 2017). See
+  A binary square matrix defining the MST transition structure. An entry
+  of 1 in row *i* and column *j* means that a test taker can be routed
+  from module *i* to module *j*. Equivalent to the `transMatrix`
+  argument in `randomMST()` from mstR (Magis et al., 2017). See
   [`reval_mst`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
   for details.
 
@@ -150,10 +150,10 @@ run_mst(
   one per stage transition. Element *s* contains the cut scores for
   routing from stage *s* to stage *s*+1. For example, in a 1-3-3 MST,
   `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))` routes examinees whose
-  stage-1 score is below \\-0.5\\ to the easiest stage-2 module, between
-  \\-0.5\\ and \\0.5\\ to the medium module, and above \\0.5\\ to the
-  hardest module. Ignored when `route_method` is `"bmat"` or `"mfi"`.
-  Default is `NULL`.
+  stage-1 score is below \\-0.5\\ to the easiest stage-2 module, from
+  \\-0.5\\ up to but not including \\0.5\\ to the medium module, and
+  \\0.5\\ or above to the hardest module. Ignored when `route_method` is
+  `"bmat"` or `"mfi"`. Default is `NULL`.
 
 - route_score:
 
@@ -170,9 +170,10 @@ run_mst(
       scoring; Thissen et al., 1995), or `"INV.TCC"` (inverse test
       characteristic curve scoring; Lim et al., 2021). For `"EAP.SUM"`
       and `"INV.TCC"`, a sum-score-to-theta lookup table is pre-computed
-      once per module before the simulation loop; routing theta is then
-      obtained by a single named-vector lookup, making the approach
-      efficient for large \\N\\. Default: `"ML"`.
+      once per partial pathway (the modules of stages 1 to *s*) before
+      the simulation loop; routing theta is then obtained by a single
+      named-vector lookup, making the approach efficient for large
+      \\N\\. Default: `"ML"`.
 
   `range`
 
@@ -234,31 +235,8 @@ run_mst(
 
   A named list specifying the scoring method and options for the final
   ability estimate (applied to all items accumulated across the entire
-  administered pathway). Supports all fields in `route_score` plus:
-
-  `method`
-
-  :   Character. Supports all `route_score` methods, plus `"EAP.SUM"`
-      (EAP summed scoring; Thissen et al., 1995) and `"INV.TCC"`
-      (inverse test characteristic curve scoring; Lim et al., 2021).
-      Default: `"ML"`.
-
-  `intpol`
-
-  :   Logical: enable linear interpolation for `"INV.TCC"`. Default:
-      `TRUE`.
-
-  `range.tcc`
-
-  :   Numeric vector of length 2: theta search range for `"INV.TCC"`.
-      Default: `c(-7, 7)`.
-
-  `max.it`
-
-  :   Integer: maximum bisection iterations for `"INV.TCC"`. Default:
-      `500`.
-
-  The full default is equivalent to
+  administered pathway). It takes the same fields, methods, and defaults
+  as `route_score`. The full default is equivalent to
   `list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),`
   `nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0, fence.b = NULL,`
   `intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)`.
@@ -319,9 +297,10 @@ An object of class `"run_mst"`, which is a named list containing:
 
 - `theta.route`:
 
-  An *N* x `n.stage` numeric matrix of ability estimates. Columns 1 to
-  `n.stage - 1` are the intermediate routing estimates; column `n.stage`
-  is the final estimate (equal to `est.theta`).
+  An *N* x `n.stage` numeric matrix of ability estimates. Column *s*
+  (*s* \< `n.stage`) is the cumulative routing estimate after stage *s*,
+  computed from the responses to all modules administered in stages 1 to
+  *s*; column `n.stage` is the final estimate (equal to `est.theta`).
 
 - `path`:
 
@@ -387,9 +366,9 @@ booklet-based allocation used in operational testing. When `ini_mod` is
 an integer, all examinees start at the specified stage-1 module.
 
 **Routing (stages 1 to n.stage - 1)**: After each non-final stage, an
-intermediate ability estimate is obtained from the current stage's
-responses using the `route_score` method. This estimate is used to
-select the next-stage module:
+intermediate ability estimate is obtained from the responses to all
+modules administered so far using the `route_score` method. This
+estimate is used to select the next-stage module:
 
 - `"bmat"`: the reachable module (via `route_map`) whose mean item
   location is closest to the routing estimate is selected. For
@@ -400,14 +379,36 @@ select the next-stage module:
   routing estimate is selected.
 
 - `NULL`: the routing estimate is compared against the cut scores in
-  `cut_score[[s]]` (for the transition from stage *s* to stage *s*+1) to
-  assign a rank, and the rank-th reachable module (ordered by module
-  index) is administered. If the rank exceeds the number of reachable
-  modules, the last module is used.
+  `cut_score[[s]]` (for the transition from stage *s* to stage *s*+1).
+  The cut scores are tied to the modules of stage *s*+1 in order of
+  module index: cut score *k* separates the *k*-th and the (*k*+1)-th
+  module of the stage. When only some modules of the stage can be
+  reached from the current module, only the cut scores that separate the
+  reachable modules are used, as in
+  [`reval_mst`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+  and the module whose interval contains the estimate is administered.
+  An estimate equal to a cut score is assigned to the higher module.
+  When every module of the next stage is reachable, all cut scores are
+  used.
 
 **Final scoring**: Responses from all administered stages are
 concatenated, and the final ability estimate is computed using the
-`final_score` method.
+`final_score` method. With `"EAP.SUM"` or `"INV.TCC"`, a missing
+response is counted as 0 in the sum score, as in
+[`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md), but
+no warning is issued.
+
+**Relation to
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)**:
+With `route_method = NULL`, a `cut_score` list, and
+`route_score = list(method = "INV.TCC")`, the routing rule is the one
+that [`reval_mst`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+evaluates analytically: cut scores are applied to the inverse TCC
+estimate of the cumulative sum score. With
+`final_score = list(method = "INV.TCC")` as well, the simulated bias and
+conditional standard error of measurement approach the
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+values as the number of simulated examinees grows.
 
 ## References
 
@@ -521,32 +522,32 @@ print(result_bmat)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.009
-#>   SD   : 1.076
+#>   Mean : -0.011
+#>   SD   : 1.077
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.021
+#>   Bias : 0.019
 #>   RMSE : 0.319
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
 #>   Stage 2: Module 2: 177 (35.4%),  Module 3: 106 (21.2%),  Module 4: 217 (43.4%)
-#>   Stage 3: Module 5: 179 (35.8%),  Module 6: 131 (26.2%),  Module 7: 190 (38.0%)
+#>   Stage 3: Module 5: 185 (37.0%),  Module 6: 105 (21.0%),  Module 7: 210 (42.0%)
 #> 
 
 # Final ability estimates
 head(result_bmat$est.theta)
-#> [1]  1.6882857 -0.8288973  0.6168219  0.5453383  0.4140971  0.2068442
+#> [1]  1.6882857 -0.8039112  0.6168219  0.5994916  0.4140971  0.2068442
 
 # Module pathway taken by each examinee
 head(result_bmat$path)
 #>      stage.1 stage.2 stage.3
 #> [1,]       1       4       7
-#> [2,]       1       2       6
+#> [2,]       1       2       5
 #> [3,]       1       4       7
-#> [4,]       1       4       6
+#> [4,]       1       4       7
 #> [5,]       1       3       7
 #> [6,]       1       4       6
 
@@ -609,19 +610,19 @@ print(result_cut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.028
-#>   SD   : 1.003
+#>   Mean : -0.030
+#>   SD   : 1.002
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.002
+#>   Bias : 0.000
 #>   RMSE : 0.292
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
 #>   Stage 2: Module 2: 142 (28.4%),  Module 3: 219 (43.8%),  Module 4: 139 (27.8%)
-#>   Stage 3: Module 5: 169 (33.8%),  Module 6: 163 (32.6%),  Module 7: 168 (33.6%)
+#>   Stage 3: Module 5: 171 (34.2%),  Module 6: 189 (37.8%),  Module 7: 140 (28.0%)
 #> 
 
 ## ---------------------------------------------------------
@@ -697,9 +698,9 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat): %.4f\n", rmse_A))
-#> RMSE (bmat): 0.3119
+#> RMSE (bmat): 0.3082
 cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
-#> RMSE (cut-score): 0.3083
+#> RMSE (cut-score): 0.3065
 
 ## ---------------------------------------------------------
 ## Example 4: TIF-based cut scores via find_cut()
@@ -805,19 +806,19 @@ print(result_findcut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.006
-#>   SD   : 1.060
+#>   Mean : 0.000
+#>   SD   : 1.058
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.024
-#>   RMSE : 0.338
+#>   Bias : 0.030
+#>   RMSE : 0.340
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
 #>   Stage 2: Module 2: 136 (27.2%),  Module 3: 225 (45.0%),  Module 4: 139 (27.8%)
-#>   Stage 3: Module 5: 161 (32.2%),  Module 6: 159 (31.8%),  Module 7: 180 (36.0%)
+#>   Stage 3: Module 5: 170 (34.0%),  Module 6: 169 (33.8%),  Module 7: 161 (32.2%)
 #> 
 
 ## Visualise the TIF-based cut scores used for routing
@@ -830,8 +831,9 @@ plot(cut_result)
 ## ---------------------------------------------------------
 # INV.TCC can be used as both the routing and final scoring method.
 # Before the examinee loop, run_mst() pre-computes a sum_score -> theta
-# lookup table for every module (routing) and for every unique complete
-# pathway (final scoring), consistent with the reval_mst() approach.
+# lookup table for every unique partial pathway (routing) and for every
+# unique complete pathway (final scoring), consistent with the reval_mst()
+# approach.
 # SE is taken from the pre-computed lookup table.
 
 result_inv <- run_mst(
@@ -884,31 +886,31 @@ print(result_inv)
 #>   Final method        : INV.TCC
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.026
-#>   SD   : 1.266
+#>   Mean : -0.021
+#>   SD   : 1.267
 #>   Min  : -7.000
 #>   Max  : 7.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.004
-#>   RMSE : 0.596
+#>   Bias : 0.009
+#>   RMSE : 0.599
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 500 (100.0%)
 #>   Stage 2: Module 2: 187 (37.4%),  Module 3: 84 (16.8%),  Module 4: 229 (45.8%)
-#>   Stage 3: Module 5: 168 (33.6%),  Module 6: 166 (33.2%),  Module 7: 166 (33.2%)
+#>   Stage 3: Module 5: 199 (39.8%),  Module 6: 94 (18.8%),  Module 7: 207 (41.4%)
 #> 
 
 # standard errors from the lookup table
 head(result_inv$se.theta)
-#> [1] 0.5213622 0.2798838 0.2659026 0.2692910 0.2692910 0.2739662
+#> [1] 0.5213622 0.2798838 0.2850462 0.2797603 0.2756490 0.2739662
 
 # Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
 rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
 rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
 cat(sprintf("RMSE (INV.TCC routing + scoring): %.4f\n", rmse_inv))
-#> RMSE (INV.TCC routing + scoring): 0.5963
+#> RMSE (INV.TCC routing + scoring): 0.5995
 cat(sprintf("RMSE (ML    routing + scoring):   %.4f\n", rmse_ml))
-#> RMSE (ML    routing + scoring):   0.3191
+#> RMSE (ML    routing + scoring):   0.3188
 # }
 ```

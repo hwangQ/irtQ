@@ -43,7 +43,9 @@ ctt_distr(
   comma-separated string such as `"1,5"` for a double-marked response).
   In scored-category mode (`key = NULL`), a data frame or matrix of
   already-scored item responses with scores 0 to `cats[j] - 1` for each
-  item j. Either way, examinees are rows and items are columns.
+  item j; an error is raised when a score is not a whole number between
+  0 and `cats[j] - 1`. Either way, examinees are rows and items are
+  columns.
 
 - item.id:
 
@@ -93,7 +95,8 @@ ctt_distr(
   [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md). Only used
   in scored-category mode (`key = NULL`); silently ignored when `key` is
   supplied. If `NULL` (default), inferred per item as the observed
-  maximum score plus one.
+  maximum score plus one, with a minimum of two. Each value must be a
+  whole number of at least 2.
 
 - total:
 

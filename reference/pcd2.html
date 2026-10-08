@@ -5,19 +5,23 @@ Stone (2000). The Pseudo-count \(D^{2}\) statistic is designed to detect
 item parameter drift efficiently without requiring item recalibration, making
 it especially valuable in computerized adaptive testing (CAT) environments.
 This method compares observed and expected response frequencies across
-quadrature points, which represent latent ability levels. The expected
-frequencies are computed using the posterior distribution of each examinee's
-ability (Stone, 2000), providing a robust and sensitive measure of item
-parameter drift, ensuring the stability and accuracy of the test over time."><meta property="og:description" content="This function calculates the Pseudo-count \(D^{2}\) statistic
+quadrature points, which represent latent ability levels. The observed
+pseudo-frequencies are computed using the posterior distribution of each
+examinee's ability, whereas the expected frequencies are the response
+probabilities implied by the item parameters in the item bank (Stone, 2000).
+This provides a sensitive measure of item parameter drift, helping to
+ensure the stability and accuracy of the test over time."><meta property="og:description" content="This function calculates the Pseudo-count \(D^{2}\) statistic
 to evaluate item parameter drift, as described by Cappaert et al. (2018) and
 Stone (2000). The Pseudo-count \(D^{2}\) statistic is designed to detect
 item parameter drift efficiently without requiring item recalibration, making
 it especially valuable in computerized adaptive testing (CAT) environments.
 This method compares observed and expected response frequencies across
-quadrature points, which represent latent ability levels. The expected
-frequencies are computed using the posterior distribution of each examinee's
-ability (Stone, 2000), providing a robust and sensitive measure of item
-parameter drift, ensuring the stability and accuracy of the test over time."><meta property="og:image" content="https://hwangQ.github.io/irtQ/logo.png"></head><body>
+quadrature points, which represent latent ability levels. The observed
+pseudo-frequencies are computed using the posterior distribution of each
+examinee's ability, whereas the expected frequencies are the response
+probabilities implied by the item parameters in the item bank (Stone, 2000).
+This provides a sensitive measure of item parameter drift, helping to
+ensure the stability and accuracy of the test over time."><meta property="og:image" content="https://hwangQ.github.io/irtQ/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +29,7 @@ parameter drift, ensuring the stability and accuracy of the test over time."><me
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,10 +77,12 @@ Stone (2000). The Pseudo-count \(D^{2}\) statistic is designed to detect
 item parameter drift efficiently without requiring item recalibration, making
 it especially valuable in computerized adaptive testing (CAT) environments.
 This method compares observed and expected response frequencies across
-quadrature points, which represent latent ability levels. The expected
-frequencies are computed using the posterior distribution of each examinee's
-ability (Stone, 2000), providing a robust and sensitive measure of item
-parameter drift, ensuring the stability and accuracy of the test over time.</p>
+quadrature points, which represent latent ability levels. The observed
+pseudo-frequencies are computed using the posterior distribution of each
+examinee's ability, whereas the expected frequencies are the response
+probabilities implied by the item parameters in the item bank (Stone, 2000).
+This provides a sensitive measure of item parameter drift, helping to
+ensure the stability and accuracy of the test over time.</p>
     </div>
 
     <div class="section level2">
@@ -169,7 +175,9 @@ scale during calibration.</p></dd>
 
 <dt id="arg-crit-val">crit.val<a class="anchor" aria-label="anchor" href="#arg-crit-val"></a></dt>
 <dd><p>A critical value applied in hypothesis testing using
-the Pseudo-count \(D^{2}\) statistic. Default is <code>NULL</code>.</p></dd>
+the Pseudo-count \(D^{2}\) statistic. The user must supply it; no
+default threshold is built in. If <code>NULL</code> (default), the statistic is
+reported but no item is flagged and purification is not performed.</p></dd>
 
 
 <dt id="arg-min-resp">min.resp<a class="anchor" aria-label="anchor" href="#arg-min-resp"></a></dt>
@@ -259,9 +267,10 @@ items for parameter drift. If not specified by the user, this will be <code>NULL
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The Pseudo-count \(D^{2}\) statistic quantifies item parameter drift (IPD) by
 computing the weighted squared differences between the observed and expected
-response frequencies for each score category across ability levels. The expected
-frequencies are determined using the posterior distribution of each examinee's
-ability (Stone, 2000).</p>
+response frequencies for each score category across ability levels. The
+observed pseudo-frequencies are obtained from the posterior distribution of
+each examinee's ability, and the expected frequencies are the category
+probabilities computed from the item bank parameters (Stone, 2000).</p>
 <p>The Pseudo-count \(D^{2}\) statistic is calculated as:
 $$
 Pseudo-count D^{2} = \sum_{k=1}^{Q} \left( \frac{r_{0k} + r_{1k}}{N}\right)

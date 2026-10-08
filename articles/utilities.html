@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -374,8 +374,8 @@ available</td>
 </tr>
 <tr class="even">
 <td><code>g.drm</code></td>
-<td>Guessing parameters; omit for 1PLM/2PLM, use <code>NA</code> for
-mixed 1/2/3PLM tests</td>
+<td>Guessing parameters; omit for 1PLM/2PLM, use <code>NA</code>
+(treated as 0) for 1PLM and 2PLM items in mixed 1/2/3PLM tests</td>
 </tr>
 <tr class="odd">
 <td><code>a.prm</code></td>
@@ -415,12 +415,12 @@ probability computations.</p>
 Functions<a class="anchor" aria-label="anchor" href="#drm-and-prm-item-response-probability-functions"></a>
 </h2>
 <p><code><a href="../reference/drm.html">drm()</a></code> and <code><a href="../reference/prm.html">prm()</a></code> are the low-level
-probability engines underlying <code><a href="../reference/simdat.html">simdat()</a></code>,
-<code><a href="../reference/traceline.html">traceline()</a></code>, <code><a href="../reference/info.html">info()</a></code>, and the internal
-estimation routines. They compute item response probabilities directly
-from IRT parameters and are useful whenever you need category
-probabilities at a specific set of theta values without constructing a
-full item metadata frame.</p>
+probability functions behind <code><a href="../reference/traceline.html">traceline()</a></code>
+(<code><a href="../reference/drm.html">drm()</a></code>), <code><a href="../reference/simdat.html">simdat()</a></code> (<code><a href="../reference/prm.html">prm()</a></code>), and
+the internal likelihood and estimation routines. They compute item
+response probabilities directly from IRT parameters and are useful
+whenever you need category probabilities at a specific set of theta
+values without constructing a full item metadata frame.</p>
 <div class="section level3">
 <h3 id="drm-dichotomous-response-model">
 <code>drm()</code>: Dichotomous Response Model<a class="anchor" aria-label="anchor" href="#drm-dichotomous-response-model"></a>
@@ -516,9 +516,14 @@ expected scores.</li>
 <li>
 <strong>GPCM</strong>: <code>d</code> holds the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
-threshold parameters expressed as the item location minus the step
-parameter for each category boundary. The first threshold is fixed at 0
-internally, so provide
+threshold parameters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>b</mi><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">b_1, \ldots, b_{K-1}</annotation></semantics></math>,
+each expressed as the item location minus the step parameter for a
+category boundary. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">v = 0</annotation></semantics></math>
+term of the model is defined as 0 internally
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mn>0</mn></msub><annotation encoding="application/x-tex">b_0</annotation></semantics></math>
+is not supplied), so provide
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
 values.</li>
 </ul>
@@ -631,7 +636,8 @@ threshold parameters, polytomous items only</td>
 <td><code>D</code></td>
 <td align="center">✓</td>
 <td align="center">✓</td>
-<td>Scaling constant (typically <code>1.702</code>)</td>
+<td>Scaling constant (default <code>1</code>; use <code>1.702</code> to
+approximate the normal ogive)</td>
 </tr>
 <tr class="odd">
 <td><code>pr.model</code></td>
@@ -829,7 +835,7 @@ probabilities for each item over a specified ability grid.</p>
 four components:</p>
 <ul>
 <li>
-<code>$prob.cats</code>: a named list of data frames, one per item,
+<code>$prob.cats</code>: a named list of matrices, one per item,
 containing category response probabilities (columns <code>resp.0</code>,
 <code>resp.1</code>, …) at each theta value,</li>
 <li>
@@ -1051,26 +1057,27 @@ observed summed score given
 \Pr(X = s \mid \theta), \quad s = 0, 1, \ldots, \sum_j (K_j - 1).
 </annotation></semantics></math></p>
 <p>This distribution is the foundation of IRT-based score equating and
-is used internally by <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>, <code><a href="../reference/cac_lee.html">cac_lee()</a></code>,
-and <code><a href="../reference/est_score.html">est_score()</a></code> (EAP summed-score method). For tests with
-polytomous items, the algorithm generalizes straightforwardly to ordered
-response categories.</p>
+is used internally by <code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/reval_mst.html">reval_mst()</a></code>,
+and <code><a href="../reference/est_score.html">est_score()</a></code> (the <code>"EAP.SUM"</code> and
+<code>"INV.TCC"</code> methods). For tests with polytomous items, the
+algorithm generalizes straightforwardly to ordered response
+categories.</p>
 <p>The function supports <strong>two input modes</strong>:</p>
 <ul>
 <li>
 <strong><code>x</code> argument</strong> (item metadata): computes
 the conditional distribution at each specified <code>theta</code> value;
 returns a matrix with rows = summed scores
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>J</mi></mrow><annotation encoding="application/x-tex">0, 1, \ldots, J</annotation></semantics></math>)
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mo>∑</mo><mi>j</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>K</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">0, 1, \ldots, \sum_j (K_j - 1)</annotation></semantics></math>)
 and columns = theta levels.</li>
 <li>
 <strong><code>prob</code> argument</strong> (<code>x = NULL</code>):
 the user provides a category probability matrix already evaluated at a
-particular theta (or a single marginal weight), together with a
-<code>cats</code> vector; returns a <strong>named vector</strong> of
-summed-score probabilities. This is useful when category probabilities
-come from an external source or when computing the marginal distribution
-at a single fixed ability level.</li>
+particular theta, together with a <code>cats</code> vector; returns a
+<strong>named vector</strong> of summed-score probabilities. This is
+useful when category probabilities come from an external source or when
+computing the conditional distribution at a single fixed ability
+level.</li>
 </ul>
 <div class="section level3">
 <h3 id="mode-1-using-item-metadata-x-argument">Mode 1: Using item metadata (<code>x</code> argument)<a class="anchor" aria-label="anchor" href="#mode-1-using-item-metadata-x-argument"></a>
@@ -1119,7 +1126,7 @@ strictly correspond to the ordered score categories (i.e., column 1 is
 for score 0, column 2 is for score 1, column 3 is for score 2, and so
 forth).</strong> Empty cells for items with fewer categories should be
 filled with <code>0</code> or <code>NA</code>. This mode returns the
-<strong>marginal</strong> score distribution for the single ability
+<strong>conditional</strong> score distribution at the single ability
 level at which the probabilities were computed.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Example from Kolen &amp; Brennan (2004, p. 183): 3 dichotomous items at a fixed theta</span></span>
@@ -1163,10 +1170,12 @@ level at which the probabilities were computed.</p>
 </h2>
 <p><code><a href="../reference/gen.weight.html">gen.weight()</a></code> generates a two-column data frame of
 quadrature nodes and normalised weights to be used in numerical
-integration over the ability scale. It is used by
-<code><a href="../reference/est_score.html">est_score()</a></code> (EAP), <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>,
-<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>, and
-<code><a href="../reference/covirt.html">covirt()</a></code>.</p>
+integration over the ability scale. It is used internally by
+<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_mg.html">est_mg()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>,
+<code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>, <code><a href="../reference/pcd2.html">pcd2()</a></code>, and
+<code><a href="../reference/run_mst.html">run_mst()</a></code>, and its output can be passed as the
+<code>weights</code> argument of <code><a href="../reference/cac_lee.html">cac_lee()</a></code> and
+<code><a href="../reference/cac_rud.html">cac_rud()</a></code>.</p>
 <p>Three distribution options are available via the <code>dist</code>
 argument:</p>
 <ul>
@@ -1475,49 +1484,54 @@ syllable labels.</p>
 <td>a, b, g, θ</td>
 <td>P(correct) matrix (θ × items)</td>
 <td>
-<code><a href="../reference/simdat.html">simdat()</a></code>, <code><a href="../reference/traceline.html">traceline()</a></code>,
-<code><a href="../reference/info.html">info()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>
-</td>
+<code><a href="../reference/traceline.html">traceline()</a></code>, internal likelihood and estimation
+routines</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/prm.html">prm()</a></code></td>
 <td>a, d, θ, model</td>
 <td>Category prob. matrix (θ × cats)</td>
 <td>
-<code><a href="../reference/simdat.html">simdat()</a></code>, <code><a href="../reference/traceline.html">traceline()</a></code>,
-<code><a href="../reference/info.html">info()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>
-</td>
+<code><a href="../reference/simdat.html">simdat()</a></code>, internal likelihood and estimation
+routines</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/info.html">info()</a></code></td>
 <td>Item metadata + θ grid</td>
 <td>IIF matrix, TIF vector; <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 </td>
-<td><code><a href="../reference/est_score.html">est_score()</a></code></td>
+<td>
+<code><a href="../reference/cac_rud.html">cac_rud()</a></code>, <code><a href="../reference/find_cut.html">find_cut()</a></code>,
+<code><a href="../reference/run_mst.html">run_mst()</a></code>
+</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/traceline.html">traceline()</a></code></td>
 <td>Item metadata + θ grid</td>
 <td>ICC matrix, TCC vector, category probs; <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 </td>
-<td>Visualisation</td>
+<td>
+<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/plot.irtfit.html">plot.irtfit()</a></code>;
+visualisation</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/lwrc.html">lwrc()</a></code></td>
 <td>Item metadata + θ, or prob matrix</td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><mi>s</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Pr(X = s \mid \theta)</annotation></semantics></math></td>
 <td>
-<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>,
-<code><a href="../reference/est_score.html">est_score()</a></code>
-</td>
+<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/reval_mst.html">reval_mst()</a></code>,
+<code><a href="../reference/est_score.html">est_score()</a></code> (<code>"EAP.SUM"</code>,
+<code>"INV.TCC"</code>)</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/gen.weight.html">gen.weight()</a></code></td>
 <td>Distribution spec</td>
 <td>Node-weight data frame</td>
 <td>
-<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>,
-<code><a href="../reference/est_score.html">est_score()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>
+<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_mg.html">est_mg()</a></code>,
+<code><a href="../reference/est_score.html">est_score()</a></code>, <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>,
+<code><a href="../reference/pcd2.html">pcd2()</a></code>, <code><a href="../reference/run_mst.html">run_mst()</a></code>; input to
+<code><a href="../reference/cac_lee.html">cac_lee()</a></code> and <code><a href="../reference/cac_rud.html">cac_rud()</a></code>
 </td>
 </tr>
 <tr class="even">
@@ -1530,10 +1544,9 @@ syllable labels.</p>
 <td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
 <td>Raw option choices + answer key</td>
 <td>0/1 scored response matrix</td>
-<td>
-<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>,
-<code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>
-</td>
+<td>Output feeds <code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/est_irt.html">est_irt()</a></code>,
+<code><a href="../reference/est_score.html">est_score()</a></code>; called by <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>
+(selected-response mode)</td>
 </tr>
 </tbody>
 </table>

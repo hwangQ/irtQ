@@ -227,7 +227,7 @@ head(resp_mix_raw)   # columns 3 and 5 are polytomous (0-3 and 0-2)
 | `D` | Scaling constant |
 | `a.drm` | Discrimination parameters for dichotomous items (required when `x = NULL`) |
 | `b.drm` | Difficulty parameters for dichotomous items (required when `x = NULL`) |
-| `g.drm` | Guessing parameters; omit for 1PLM/2PLM, use `NA` for mixed 1/2/3PLM tests |
+| `g.drm` | Guessing parameters; omit for 1PLM/2PLM, use `NA` (treated as 0) for 1PLM and 2PLM items in mixed 1/2/3PLM tests |
 | `a.prm` | Discrimination parameters for polytomous items |
 | `d.prm` | List of threshold parameter vectors, one element per polytomous item |
 | `cats` | Number of score categories per item (2 for dichotomous); required when `x = NULL` |
@@ -245,14 +245,15 @@ probability computations.
 
 [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) and
 [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) are the
-low-level probability engines underlying
-[`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md),
-[`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md),
-[`info()`](https://hwangQ.github.io/irtQ/reference/info.md), and the
-internal estimation routines. They compute item response probabilities
-directly from IRT parameters and are useful whenever you need category
-probabilities at a specific set of theta values without constructing a
-full item metadata frame.
+low-level probability functions behind
+[`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md)
+([`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md)),
+[`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md)
+([`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md)), and the
+internal likelihood and estimation routines. They compute item response
+probabilities directly from IRT parameters and are useful whenever you
+need category probabilities at a specific set of theta values without
+constructing a full item metadata frame.
 
 ### `drm()`: Dichotomous Response Model
 
@@ -331,10 +332,11 @@ $`K`$-category item:
 - **GRM**: `d` holds the $`K - 1`$ difficulty thresholds $`b_k`$ at
   which $`P(U \geq k \mid \theta) = 0.5`$. The categories are ordered so
   that higher theta values yield higher expected scores.
-- **GPCM**: `d` holds the $`K - 1`$ threshold parameters expressed as
-  the item location minus the step parameter for each category boundary.
-  The first threshold is fixed at 0 internally, so provide $`K - 1`$
-  values.
+- **GPCM**: `d` holds the $`K - 1`$ threshold parameters
+  $`b_1, \ldots, b_{K-1}`$, each expressed as the item location minus
+  the step parameter for a category boundary. The $`v = 0`$ term of the
+  model is defined as 0 internally ($`b_0`$ is not supplied), so provide
+  $`K - 1`$ values.
 
 ``` r
 
@@ -411,7 +413,7 @@ items), set `a = 1`.
 | `b` | ✓ |  | Difficulty parameter(s), dichotomous items only |
 | `g` | ✓ |  | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
 | `d` |  | ✓ | Vector of $`K-1`$ threshold parameters, polytomous items only |
-| `D` | ✓ | ✓ | Scaling constant (typically `1.702`) |
+| `D` | ✓ | ✓ | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
 | `pr.model` |  | ✓ | `"GRM"` or `"GPCM"` |
 
 ------------------------------------------------------------------------
@@ -620,7 +622,7 @@ specified ability grid.
 The function returns an object of class `"traceline"` with four
 components:
 
-- `$prob.cats`: a named list of data frames, one per item, containing
+- `$prob.cats`: a named list of matrices, one per item, containing
   category response probabilities (columns `resp.0`, `resp.1`, …) at
   each theta value,
 - `$icc`: matrix of expected item scores (rows = theta, columns =
@@ -870,23 +872,26 @@ observed summed score given $`\theta`$**:
 
 This distribution is the foundation of IRT-based score equating and is
 used internally by
-[`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md),
-[`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), and
+[`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md),
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
+and
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
-(EAP summed-score method). For tests with polytomous items, the
-algorithm generalizes straightforwardly to ordered response categories.
+(the `"EAP.SUM"` and `"INV.TCC"` methods). For tests with polytomous
+items, the algorithm generalizes straightforwardly to ordered response
+categories.
 
 The function supports **two input modes**:
 
 - **`x` argument** (item metadata): computes the conditional
   distribution at each specified `theta` value; returns a matrix with
-  rows = summed scores ($`0, 1, \ldots, J`$) and columns = theta levels.
+  rows = summed scores ($`0, 1, \ldots, \sum_j (K_j - 1)`$) and columns
+  = theta levels.
 - **`prob` argument** (`x = NULL`): the user provides a category
-  probability matrix already evaluated at a particular theta (or a
-  single marginal weight), together with a `cats` vector; returns a
-  **named vector** of summed-score probabilities. This is useful when
-  category probabilities come from an external source or when computing
-  the marginal distribution at a single fixed ability level.
+  probability matrix already evaluated at a particular theta, together
+  with a `cats` vector; returns a **named vector** of summed-score
+  probabilities. This is useful when category probabilities come from an
+  external source or when computing the conditional distribution at a
+  single fixed ability level.
 
 ### Mode 1: Using item metadata (`x` argument)
 
@@ -936,8 +941,9 @@ categories) and `cats`. **Importantly, the columns in the `prob` matrix
 strictly correspond to the ordered score categories (i.e., column 1 is
 for score 0, column 2 is for score 1, column 3 is for score 2, and so
 forth).** Empty cells for items with fewer categories should be filled
-with `0` or `NA`. This mode returns the **marginal** score distribution
-for the single ability level at which the probabilities were computed.
+with `0` or `NA`. This mode returns the **conditional** score
+distribution at the single ability level at which the probabilities were
+computed.
 
 ``` r
 
@@ -985,13 +991,17 @@ sum(score_dist_mix)
 [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)
 generates a two-column data frame of quadrature nodes and normalised
 weights to be used in numerical integration over the ability scale. It
-is used by
-[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
-(EAP),
+is used internally by
+[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
+[`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md),
+[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md),
 [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md),
-[`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md),
-[`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), and
-[`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md).
+[`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md),
+[`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md), and
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md), and
+its output can be passed as the `weights` argument of
+[`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) and
+[`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md).
 
 Three distribution options are available via the `dist` argument:
 
@@ -1305,14 +1315,14 @@ for a worked example using Korean syllable labels.
 | Function | Input | Key output | Used by |
 |----|----|----|----|
 | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) | Item metadata or raw params + θ | Response matrix | Testing, demos |
-| [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) | a, b, g, θ | P(correct) matrix (θ × items) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
-| [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | a, d, θ, model | Category prob. matrix (θ × cats) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), [`info()`](https://hwangQ.github.io/irtQ/reference/info.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
-| [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item metadata + θ grid | IIF matrix, TIF vector; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
-| [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item metadata + θ grid | ICC matrix, TCC vector, category probs; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | Visualisation |
-| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + θ, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) |
-| [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node-weight data frame | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) |
+| [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) | a, b, g, θ | P(correct) matrix (θ × items) | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), internal likelihood and estimation routines |
+| [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | a, d, θ, model | Category prob. matrix (θ × cats) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), internal likelihood and estimation routines |
+| [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item metadata + θ grid | IIF matrix, TIF vector; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) |
+| [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item metadata + θ grid | ICC matrix, TCC vector, category probs; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md); visualisation |
+| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + θ, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) (`"EAP.SUM"`, `"INV.TCC"`) |
+| [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node-weight data frame | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md); input to [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) and [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
-| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) |
+| [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | Output feeds [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md); called by [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) (selected-response mode) |
 
 ------------------------------------------------------------------------
 

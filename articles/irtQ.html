@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,14 +94,16 @@ items with fixed item parameters or fixed abilities
 abilities (<code><a href="../reference/est_score.html">est_score()</a></code>), evaluating model-data fit
 (<code><a href="../reference/irtfit.html">irtfit()</a></code>, <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>), and detecting
 differential item functioning (<code><a href="../reference/rdif.html">rdif()</a></code>,
-<code><a href="../reference/crdif.html">crdif()</a></code>, <code><a href="../reference/grdif.html">grdif()</a></code>, <code><a href="../reference/catsib.html">catsib()</a></code>). It
-also provides functions for item and test information
-(<code><a href="../reference/info.html">info()</a></code>), item response curves (<code><a href="../reference/traceline.html">traceline()</a></code>),
-classification accuracy and consistency (<code><a href="../reference/cac_lee.html">cac_lee()</a></code>,
-<code><a href="../reference/cac_rud.html">cac_rud()</a></code>), multistage test panels
-(<code><a href="../reference/panel_info.html">panel_info()</a></code>, <code><a href="../reference/reval_mst.html">reval_mst()</a></code>,
-<code><a href="../reference/run_mst.html">run_mst()</a></code>), and classical test theory
-(<code><a href="../reference/ctt.html">ctt()</a></code>).</p>
+<code><a href="../reference/crdif.html">crdif()</a></code>, <code><a href="../reference/grdif.html">grdif()</a></code>, <code><a href="../reference/catsib.html">catsib()</a></code>) and
+item parameter drift (<code><a href="../reference/ripd.html">ripd()</a></code>, <code><a href="../reference/pcd2.html">pcd2()</a></code>). It also
+provides functions for item and test information (<code><a href="../reference/info.html">info()</a></code>),
+item response curves (<code><a href="../reference/traceline.html">traceline()</a></code>), classification accuracy
+and consistency (<code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/cac_rud.html">cac_rud()</a></code>),
+multistage test panels (<code><a href="../reference/panel_info.html">panel_info()</a></code>,
+<code><a href="../reference/find_cut.html">find_cut()</a></code>, <code><a href="../reference/reval_mst.html">reval_mst()</a></code>,
+<code><a href="../reference/run_mst.html">run_mst()</a></code>), and classical test theory (<code><a href="../reference/ctt.html">ctt()</a></code>,
+<code><a href="../reference/freq_score.html">freq_score()</a></code>, <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>,
+<code><a href="../reference/score_resp.html">score_resp()</a></code>).</p>
 <p>This vignette walks through a short workflow: read item parameters,
 simulate responses, calibrate the items, estimate abilities, check fit,
 and compute test information. Every example uses the scaling constant

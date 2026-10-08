@@ -13,7 +13,7 @@ from scored item response data."><meta property="og:image" content="https://hwan
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,8 @@ from scored item response data.</p>
 <dd><p>A data frame or matrix of already-scored item responses, with
 examinees in rows and items in columns. Item scores must range from 0 to
 <code>cats[j] - 1</code> for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
-for a polytomous/partial-credit item).</p></dd>
+for a polytomous/partial-credit item). An error is raised when a score
+is not a whole number between 0 and <code>cats[j] - 1</code>.</p></dd>
 
 
 <dt id="arg-item-id">item.id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
@@ -92,8 +93,10 @@ any other identifier scheme.</p></dd>
 each item (e.g., 2 for a dichotomous item), following the <code>cats</code>
 convention used elsewhere in irtQ (see, e.g., <code><a href="shape_df.html">shape_df()</a></code>). If
 <code>NULL</code> (default), the number of categories for each item is inferred
-from the observed maximum score in <code>data</code> (i.e., <code>max(data[, j], na.rm = TRUE) + 1</code>); supply <code>cats</code> explicitly whenever the maximum possible score
-may not have been observed in the sample.</p></dd>
+from the observed maximum score in <code>data</code> plus one, with a minimum of
+two (i.e., <code>max(max(data[, j]) + 1, 2)</code>); supply <code>cats</code> explicitly
+whenever the maximum possible score may not have been observed in the
+sample. Each value must be a whole number of at least 2.</p></dd>
 
 
 <dt id="arg-correct">correct<a class="anchor" aria-label="anchor" href="#arg-correct"></a></dt>
@@ -193,15 +196,14 @@ so <code>correct</code> has no further effect here beyond being passed through t
 <code><a href="ctt_item.html">ctt_item()</a></code> for internal consistency.</p>
 <p>Because <code>mean_difficulty</code>/<code>mean_discrimination_raw</code>/
 <code>mean_discrimination_corrected</code> are averaged with <code>na.rm = TRUE</code>, they
-inherit <code><a href="ctt_item.html">ctt_item()</a></code>'s <code>cats</code>-auto-inference caveat: an item whose observed
-score range never reaches its true maximum (most notably, an item that
-every examinee scores 0 on) will have its difficulty silently excluded
-from the average rather than contributing a <code>0</code>, which can bias the
-reported mean upward in extreme/degenerate samples. This is unlikely to
-matter with a reasonably large, non-degenerate sample, but supplying
-<code>cats</code> explicitly avoids the issue entirely. If every item in <code>data</code> is
-degenerate in this way, these means will be <code>NaN</code> (mean of an empty/all-
-<code>NA</code> vector) rather than <code>NA</code>.</p>
+inherit <code><a href="ctt_item.html">ctt_item()</a></code>'s <code>cats</code>-auto-inference rule: when <code>cats</code> is not
+supplied, it is inferred as the observed maximum score plus one, with a
+minimum of two. An item that every examinee scores 0 on therefore enters
+the average with a difficulty of 0 and is flagged as "difficulty too low"
+by <code><a href="ctt_item.html">ctt_item()</a></code>. For a polytomous item whose highest score category is not
+observed in the sample, however, <code>cats</code> is inferred too small and the
+difficulty is biased upward, so supply <code>cats</code> explicitly whenever the
+maximum possible score may not have been observed.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

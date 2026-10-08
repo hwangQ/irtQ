@@ -46,7 +46,10 @@ Both functions return a list with five elements:
 - `$prob.level`: a data frame of the probability of being assigned to
   each level for each theta (or node),
 - `$cutscore`: the cut scores used in the analysis (on the observed
-  score scale).
+  score scale for
+  [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) and
+  on the theta scale for
+  [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md)).
 
 ``` r
 
@@ -199,8 +202,9 @@ distribution gives the probability that an examinee with ability
 $`\theta`$ obtains each possible observed summed score $`x`$.
 
 **Cut scores** partition the range of observed summed scores into $`K`$
-performance levels. The probability that an examinee at ability
-$`\theta`$ is assigned to level $`k`$ is:
+performance levels ($`K - 1`$ cut scores define $`K`$ levels). The
+probability that an examinee at ability $`\theta`$ is assigned to level
+$`k`$ is:
 ``` math
 p_\theta(k) = \sum_{x \in \text{level } k} \Pr(X = x \mid \theta).
 ```
@@ -253,7 +257,7 @@ where:
 | Argument | Description |
 |----|----|
 | `x` | Item metadata data frame |
-| `cutscore` | Numeric vector of cut scores; defines $`K + 1`$ performance levels |
+| `cutscore` | Numeric vector of $`K - 1`$ cut scores defining $`K`$ performance levels |
 | `weights` | Two-column matrix of quadrature nodes and weights for D-method (use [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)) |
 | `theta` | Numeric vector of individual ability estimates for P-method |
 | `D` | Scaling constant; must match the value used during calibration |
@@ -362,7 +366,7 @@ cac_l_d
 #> 20  0.75 7.528702e-02  14.546417     3 1.896328e-05 2.620147e-01 7.379663e-01
 #> 21  1.00 6.049482e-02  15.555088     3 7.663720e-07 1.002162e-01 8.997831e-01
 #> 22  1.25 4.566389e-02  16.505175     3 1.876512e-08 2.651963e-02 9.734804e-01
-#> 23  1.50 3.238054e-02  17.356735     3 2.855207e-10 4.814701e-03 9.951853e-01
+#> 23  1.50 3.238054e-02  17.356735     3 2.855208e-10 4.814701e-03 9.951853e-01
 #> 24  1.75 2.157009e-02  18.065625     3 2.879399e-12 6.245660e-04 9.993754e-01
 #> 25  2.00 1.349822e-02  18.616683     3 2.112469e-14 6.251190e-05 9.999375e-01
 #> 26  2.25 7.935194e-03  19.026191     3 1.237687e-16 5.238462e-06 9.999948e-01
@@ -639,7 +643,7 @@ Either `x` or `se` must be provided.
 | Argument | Description |
 |----|----|
 | `x` | Item metadata data frame (optional if `se` is provided; used to compute SE from TIF) |
-| `cutscore` | Numeric vector of cut scores on the **theta scale** |
+| `cutscore` | Numeric vector of $`K - 1`$ cut scores on the **theta scale**, defining $`K`$ performance levels |
 | `theta` | Numeric vector of individual ability estimates (P-method) |
 | `se` | Numeric vector of standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
 | `weights` | Two-column matrix of quadrature nodes and weights (D-method) |
@@ -748,8 +752,8 @@ cac_r_d
 #> 29  3.00 1.108001e-03     3 8.953873e-04 0.02392962 9.751750e-01
 #> 30  3.25 5.072800e-04     3 2.878648e-03 0.03273349 9.643879e-01
 #> 31  3.50 2.181784e-04     3 7.651606e-03 0.04316803 9.491804e-01
-#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364464 9.292921e-01
-#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233080 9.050123e-01
+#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364463 9.292921e-01
+#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233079 9.050123e-01
 #> 
 #> $cutscore
 #> [1] -0.5  0.8
@@ -806,20 +810,22 @@ cac_r_p2$marginal
 #>  marginal 0.7959568   0.7157905
 ```
 
-Note that `cac_r_p` and `cac_r_p2` yield **nearly** identical results
-because ML-based SEs are theoretically equivalent to
-$`1/\sqrt{I(\hat\theta)}`$. **However, slight discrepancies may occur in
-practice due to how extreme boundary values are handled.** When using
+Note that `cac_r_p` and `cac_r_p2` yield similar but not identical
+results. ML-based SEs are theoretically equivalent to
+$`1/\sqrt{I(\hat\theta)}`$, but
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
-with ML estimation, the SEs for extreme ability estimates (e.g.,
-artificially bounded at -5 or 5 for all-correct or all-incorrect
-responses)are internally capped at an arbitrary large value (e.g.,
-99.99999) to prevent computational errors. In contrast, computing the SE
-internally from the test information function (TIF) using
+sets the SE to 99.9999 when an ML estimate equals a limit of `range`
+(here -5 or 5). Such estimates occur for all-correct or all-incorrect
+response patterns and, with 3PLM items, for some low-score patterns. In
+`cac_r_p2` these SEs are passed on as they are, whereas `cac_r_p`
+computes the SE from the test information function (TIF) at every
+ability estimate, including the bounded ones. The help page of
 [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md)
-calculates the exact analytical value at those bounded thetas.
-Therefore, if the sample includes examinees with extreme scores, minor
-differences in the final marginal indices might be observed.
+advises handling the 99.9999 values before they are supplied through
+`se`; this example supplies them unchanged to show the effect. When
+examinees with such estimates are present, the marginal indices differ
+slightly between the two calls. Supplying `x` instead of `se` avoids the
+problem.
 
 ------------------------------------------------------------------------
 
@@ -948,15 +954,16 @@ cac_r_mix_p$marginal
 
 ``` r
 
-# Side-by-side comparison of marginal CA and CC (binary test, P-method)
-cat("=== Lee's method (P-method) ===\n")
-#> === Lee's method (P-method) ===
-print(cac_l_p$marginal)
+# Side-by-side comparison of marginal CA and CC (binary test, P-method,
+# the same theta-scale cut scores for both methods)
+cat("=== Lee's method (P-method, theta-scale cut scores) ===\n")
+#> === Lee's method (P-method, theta-scale cut scores) ===
+print(cac_l_theta$marginal)
 #>     level  accuracy consistency
-#>         1 0.1639447   0.1507562
-#>         2 0.3680726   0.3237276
-#>         3 0.2522645   0.2380921
-#>  marginal 0.7842818   0.7125758
+#>         1 0.2709956   0.2504939
+#>         2 0.3194857   0.2738093
+#>         3 0.2021494   0.1889719
+#>  marginal 0.7926307   0.7132751
 
 cat("\n=== Rudner's method (P-method, SE from TIF) ===\n")
 #> 
@@ -968,6 +975,11 @@ print(cac_r_p$marginal)
 #>         3 0.1917003   0.1761846
 #>  marginal 0.7994807   0.7173665
 ```
+
+Both calls use the same cut scores on the theta scale ($`-0.5`$ and
+$`0.8`$), so the marginal indices are directly comparable. The overall
+marginal CA and CC differ by less than 0.01 here; the level-specific
+values differ more (up to about 0.03 for level 2).
 
 The two methods share the same conceptual framework: both estimate CA
 and CC by computing, for each ability level, the probabilities of being

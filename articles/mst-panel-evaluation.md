@@ -116,6 +116,10 @@ belongs to module $`m`$.
 
 Each item belongs to exactly one module, so each row has exactly one 1
 and all other entries are 0.
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+additionally requires that all modules in the same stage have the same
+maximum sum score (for dichotomous items, the same number of items); it
+stops with an error otherwise.
 
 #### 3. Route Map (`route_map`)
 
@@ -128,7 +132,7 @@ For a 1-3-3 panel with 7 modules (M1-M7):
              M1 M2 M3 M4 M5 M6 M7
     M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
     M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
-    M3  ──→ [  0  0  0  0  0  1  1 ]   M3 routes to M6 or M7
+    M3  ──→ [  0  0  0  0  1  1  1 ]   M3 routes to M5, M6, or M7
     M4  ──→ [  0  0  0  0  0  1  1 ]   M4 routes to M6 or M7
     M5  ──→ [  0  0  0  0  0  0  0 ]   terminal (Stage 3)
     M6  ──→ [  0  0  0  0  0  0  0 ]   terminal
@@ -157,6 +161,17 @@ cut_score = list(
                   #                    θ̂ ≥ 0.6 → hard module
 )
 ```
+
+The cut scores of a transition are tied to the modules of the next stage
+in order: the first cut score separates the first and second modules,
+the second separates the second and third. When a module can reach only
+some of the next-stage modules, only the cut scores that separate those
+modules apply. In the route map above, a test taker in M4 can reach only
+M6 or M7, so the second Stage 3 cut score alone decides between them (θ̂
+below it goes to M6, θ̂ at or above it to M7).
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+and [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+use the same rule.
 
 `cut_score` is required by
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md),
@@ -211,9 +226,9 @@ separates the scoring method used for routing decisions at intermediate
 stages (`route_score`) from the method used to report each examinee’s
 final score (`final_score`). Both arguments take a named list whose
 `method` element selects one of **irtQ**’s ability estimators: `"ML"`,
-`"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`, and whose
-remaining elements supply that estimator’s own arguments, e.g. `range`
-for `"ML"`/`"WL"`, or `norm.prior` and `nquad` for `"EAP"`:
+`"WL"`, `"MLF"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`, and
+whose remaining elements supply that estimator’s own arguments,
+e.g. `range` for `"ML"`/`"WL"`, or `norm.prior` and `nquad` for `"EAP"`:
 
 ``` r
 
@@ -240,12 +255,12 @@ scores directly.
 
 ### The `simMST` Dataset
 
-**irtQ** includes `simMST`, a built-in dataset that packages all four
-inputs described above. This dataset represents a **1-3-3 MST panel**,
-assembled using module-level target test information functions and
-design constraints similar to those used in the simulation study of Lim
-et al. (2021) (it is not the identical dataset from that study), with
-the following characteristics:
+**irtQ** includes `simMST`, a built-in dataset that packages the four
+inputs described above plus a vector of ability levels (`theta`). This
+dataset represents a **1-3-3 MST panel**, assembled using module-level
+target test information functions and design constraints similar to
+those used in the simulation study of Lim et al. (2021) (it is not the
+identical dataset from that study), with the following characteristics:
 
 - 7 modules across 3 stages
 - 8 items per module across 7 modules (56 unique items total, no item
@@ -291,7 +306,7 @@ head(simMST$item_bank, 10)
 dim(simMST$module)
 #> [1] 56  7
 
-# First 16 rows (items 1-16, first 2 modules)
+# First 16 rows (items 1-16, all 7 modules)
 simMST$module[1:16, ]
 #>       [,1] [,2] [,3] [,4] [,5] [,6] [,7]
 #>  [1,]    0    0    0    1    0    0    0
@@ -379,8 +394,10 @@ reachable module whose mean item difficulty is closest to their current
 ability estimate, and `route_method = "mfi"` routes to the reachable
 module with the highest test information function (TIF) value at their
 current estimate. The third, cut-score routing (`route_method = NULL`),
-compares the current estimate against a fixed set of cut scores. Start
-with the default, `bmat`:
+compares the current estimate against a fixed set of cut scores. In all
+three, the current estimate at the end of a stage is computed from the
+responses to all modules the examinee has taken so far, not only the
+module just completed. Start with the default, `bmat`:
 
 ``` r
 
@@ -429,19 +446,19 @@ print(sim_bmat)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.018
-#>   SD   : 1.110
+#>   Mean : -0.012
+#>   SD   : 1.111
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.007
+#>   Bias : 0.014
 #>   RMSE : 0.328
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
 #>   Stage 2: Module 2: 302 (30.2%),  Module 3: 314 (31.4%),  Module 4: 384 (38.4%)
-#>   Stage 3: Module 5: 372 (37.2%),  Module 6: 262 (26.2%),  Module 7: 366 (36.6%)
+#>   Stage 3: Module 5: 389 (38.9%),  Module 6: 214 (21.4%),  Module 7: 397 (39.7%)
 ```
 
 A closely related alternative is **maximum Fisher information (MFI)
@@ -486,19 +503,19 @@ print(sim_mfi)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.015
-#>   SD   : 1.082
+#>   Mean : -0.019
+#>   SD   : 1.083
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.011
-#>   RMSE : 0.312
+#>   Bias : 0.007
+#>   RMSE : 0.310
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
 #>   Stage 2: Module 2: 279 (27.9%),  Module 3: 475 (47.5%),  Module 4: 246 (24.6%)
-#>   Stage 3: Module 5: 334 (33.4%),  Module 6: 359 (35.9%),  Module 7: 307 (30.7%)
+#>   Stage 3: Module 5: 350 (35.0%),  Module 6: 350 (35.0%),  Module 7: 300 (30.0%)
 ```
 
 MFI routing assumes each module’s TIF curve behaves as intended, peaking
@@ -556,19 +573,19 @@ print(sim_cut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.009
+#>   Mean : -0.014
 #>   SD   : 1.102
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.017
-#>   RMSE : 0.331
+#>   Bias : 0.012
+#>   RMSE : 0.328
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
 #>   Stage 2: Module 2: 266 (26.6%),  Module 3: 456 (45.6%),  Module 4: 278 (27.8%)
-#>   Stage 3: Module 5: 330 (33.0%),  Module 6: 299 (29.9%),  Module 7: 371 (37.1%)
+#>   Stage 3: Module 5: 324 (32.4%),  Module 6: 361 (36.1%),  Module 7: 315 (31.5%)
 ```
 
 #### Deriving Principled Cut Scores with `find_cut()`
@@ -717,20 +734,24 @@ print(sim_findcut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.010
-#>   SD   : 1.080
+#>   Mean : -0.012
+#>   SD   : 1.079
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.016
+#>   Bias : 0.014
 #>   RMSE : 0.323
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
 #>   Stage 2: Module 2: 278 (27.8%),  Module 3: 453 (45.3%),  Module 4: 269 (26.9%)
-#>   Stage 3: Module 5: 337 (33.7%),  Module 6: 299 (29.9%),  Module 7: 364 (36.4%)
+#>   Stage 3: Module 5: 330 (33.0%),  Module 6: 357 (35.7%),  Module 7: 313 (31.3%)
 ```
+
+The cut scores are the same as in `sim_cut`; the small differences come
+from newly simulated responses, which the next subsection removes by
+passing `response`.
 
 #### Comparing Routing Methods on Identical Responses with `response`
 
@@ -787,15 +808,15 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat):                 %.4f\n", rmse_A))
-#> RMSE (bmat):                 0.3119
+#> RMSE (bmat):                 0.3082
 cat(sprintf("RMSE (find_cut cut scores):  %.4f\n", rmse_B))
-#> RMSE (find_cut cut scores):  0.3083
+#> RMSE (find_cut cut scores):  0.3065
 ```
 
 All five calls above return the same kind of result regardless of the
 routing rule or input format used: a final ability estimate
-(`est.theta`), its standard error (`se.theta`), and the module pathway
-taken by each examinee (`path`).
+(`est.theta`), its standard error (`se.theta`, when `se = TRUE`), and
+the module pathway taken by each examinee (`path`).
 
 #### Inspecting the `run_mst()` Output
 
@@ -810,19 +831,19 @@ object itself:
 
 # Final ability estimate and its standard error, one value per examinee
 head(sim_bmat$est.theta)
-#> [1]  1.25259186 -0.58316775  0.63574972  0.56422861  0.15408580  0.02297489
+#> [1]  1.25259186 -0.58316775  0.63574972  0.56422861  0.51421967 -0.03858902
 head(sim_bmat$se.theta)
-#> [1] 0.2878269 0.2562197 0.2443803 0.2442056 0.2439128 0.2587183
+#> [1] 0.2878269 0.2562197 0.2443803 0.2442056 0.2447564 0.2335472
 
 # Routing and final estimates at every stage: an N x n.stage matrix
 head(sim_bmat$theta.route)
-#>         stage.1     stage.2     stage.3
-#> [1,]  0.8423104  1.58893679  1.25259186
-#> [2,] -0.4208651 -0.47810582 -0.58316775
-#> [3,]  0.3826359  0.54173172  0.63574972
-#> [4,]  0.3826359  0.60844003  0.56422861
-#> [5,]  0.3826359  0.06174652  0.15408580
-#> [6,] -0.0606256  0.31115075  0.02297489
+#>         stage.1    stage.2     stage.3
+#> [1,]  0.8423104  1.3037657  1.25259186
+#> [2,] -0.4208651 -0.4527758 -0.58316775
+#> [3,]  0.3826359  0.5179248  0.63574972
+#> [4,]  0.3826359  0.5522797  0.56422861
+#> [5,]  0.3826359  0.2903304  0.51421967
+#> [6,] -0.0606256  0.1401152 -0.03858902
 
 # Module index administered at every stage: an N x n.stage matrix
 head(sim_bmat$path)
@@ -831,8 +852,8 @@ head(sim_bmat$path)
 #> [2,]       1       3       5
 #> [3,]       1       4       7
 #> [4,]       1       4       7
-#> [5,]       1       4       6
-#> [6,]       1       3       7
+#> [5,]       1       4       7
+#> [6,]       1       3       6
 ```
 
 `se.theta` in particular never appears in
@@ -843,11 +864,38 @@ landed in:
 
 ``` r
 
-# Mean standard error by terminal (Stage 3) module
-tapply(sim_bmat$se.theta, sim_bmat$path[, ncol(sim_bmat$path)], mean)
-#>         5         6         7 
-#> 2.1794982 0.2469682 3.0071373
+# final (Stage 3) module of each examinee
+final_mod <- sim_bmat$path[, ncol(sim_bmat$path)]
+
+# ML estimates at a limit of `range` (c(-4, 4) in `final_score` above) have
+# no finite SE (reported as 99.9999)
+at_limit <- abs(sim_bmat$est.theta) >= 4
+
+# per final module: examinees, estimates at a limit, and mean SE of the rest
+data.frame(
+  module   = sort(unique(final_mod)),
+  n        = as.vector(table(final_mod)),
+  n_limit  = as.vector(tapply(at_limit, final_mod, sum)),
+  mean_se  = as.vector(tapply(sim_bmat$se.theta[!at_limit],
+                              final_mod[!at_limit], mean))
+)
+#>   module   n n_limit   mean_se
+#> 1      5 389       7 0.3014238
+#> 2      6 214       0 0.2415196
+#> 3      7 397      10 0.2799251
 ```
+
+When an ML estimate reaches a limit of `range` (here -4 or 4, for
+example after all-correct or all-incorrect responses), its standard
+error is not finite and
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+reports 99.9999, as
+[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
+does. These values are flags rather than standard errors, so they are
+counted separately and left out of the mean. Examinees routed to the
+easy or hard final module (modules 5 and 7) have larger standard errors
+than those in the medium module, and they are the only ones whose
+estimates reach the limits.
 
 The full list of return components, including `panel` (reused from
 [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)),
@@ -1668,8 +1716,8 @@ smaller-scale tests or when fewer stage-3 difficulty levels are needed.
 
 Cut score placement directly affects measurement bias. Placing cuts too
 close to the centre can cause mid-ability examinees to be routed
-sub-optimally. Here we compare the original `c(-0.5, 0.5)` cut scores
-with a wider configuration `c(-1.0, 1.0)` for the 1-3-3 panel.
+sub-optimally. Here we compare the `simMST` cut scores (about -0.45 and
+0.45) with a wider configuration `c(-1.0, 1.0)` for the 1-3-3 panel.
 
 ``` r
 
@@ -1706,7 +1754,7 @@ lines(tb_wide$theta, tb_wide$bias,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 abline(h = 0, col = "grey50", lty = 3)
 legend("topright",
-       legend = c("Original cuts (±0.5)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
@@ -1722,16 +1770,16 @@ plot(
 lines(tb_wide$theta, tb_wide$csem,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 legend("topright",
-       legend = c("Original cuts (±0.5)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
 ```
 
-![CSEM comparison: original vs. wider cut scores in the 1-3-3
+![CSEM comparison: simMST vs. wider cut scores in the 1-3-3
 panel.](mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png)
 
-CSEM comparison: original vs. wider cut scores in the 1-3-3 panel.
+CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel.
 
 ``` r
 
@@ -1739,9 +1787,20 @@ CSEM comparison: original vs. wider cut scores in the 1-3-3 panel.
 par(mfrow = c(1, 1))
 ```
 
-Wide cuts concentrate test takers in the middle module of Stage 2 and 3
-for the most ability levels, which tends to reduce bias near the centre
-but may increase CSEM at the ability extremes.
+``` r
+
+# Largest absolute differences between the two configurations
+max(abs(tb_wide$bias - tb_orig$bias))
+#> [1] 0.02474664
+max(abs(tb_wide$csem - tb_orig$csem))
+#> [1] 0.01745606
+```
+
+For this panel, the two configurations give almost the same conditional
+bias and CSEM: the largest difference is about 0.02 for both, and the
+large biases at the ability extremes are the same. Wider cuts send more
+examinees to the middle modules of Stages 2 and 3, so the module paths
+differ, but the effect on the final precision is small here.
 
 ------------------------------------------------------------------------
 
@@ -1770,9 +1829,9 @@ close central agreement widens as test length increases.
 
 We reproduce that second condition directly here for the `simMST` panel,
 using the same scoring combination Lim et al. (2021) used in their own
-validation: `route_score = "EAP"` for routing at each interim stage, and
-`final_score = "ML"` for the reported final score. Neither method
-matches
+validation: `route_score = list(method = "EAP")` for routing at each
+interim stage, and `final_score = list(method = "ML")` for the reported
+final score. Neither method matches
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)’s
 internal inverse-TCC logic, so the two results are not expected to
 coincide everywhere; the comparison below should reproduce the same
@@ -1917,8 +1976,9 @@ carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
 pattern Lim et al. (2021) reported for this identical
 EAP-routing/MLE-final condition. Matching the recursion’s own scoring
-exactly (`route_score = "INV.TCC"` and `final_score = "INV.TCC"` instead
-of `"EAP"`/`"ML"`) would close most of this gap.
+exactly (`route_score = list(method = "INV.TCC")` and
+`final_score = list(method = "INV.TCC")` instead of the EAP and ML
+methods) would close most of this gap.
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md) is
 therefore best read as predicting the performance of a panel routed and
 scored via inverse-TCC; whenever a program uses a different scoring
@@ -1928,8 +1988,9 @@ simulation like this one remains the more direct check, particularly for
 ability levels far from the panel’s region of peak information.
 
 **Step 4: Confirm the gap closes under matched scoring.** As a final
-check, re-run the same simulation with `route_score = "INV.TCC"` and
-`final_score = "INV.TCC"`, matching
+check, re-run the same simulation with
+`route_score = list(method = "INV.TCC")` and
+`final_score = list(method = "INV.TCC")`, matching
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)’s
 internal logic exactly:
 
@@ -2100,8 +2161,8 @@ the `EAP`/`ML` condition diverged.
 | `ini_mod` | integer | `NULL` | Fixed Stage-1 module for all examinees; `NULL` assigns each independently at random |
 | `route_method` | character | `"bmat"` | `"bmat"`, `"mfi"`, or `NULL` for fixed cut-score routing |
 | `cut_score` | list | `NULL` | List of routing cut score vectors; used only when `route_method = NULL` |
-| `route_score` | list | \- | Scoring method used at intermediate stages (`ML`, `WL`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
-| `final_score` | list | \- | Scoring method used for the final reported score |
+| `route_score` | list | ML (see [`?run_mst`](https://hwangQ.github.io/irtQ/reference/run_mst.md)) | Scoring method used at intermediate stages (`ML`, `WL`, `MLF`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
+| `final_score` | list | ML (see [`?run_mst`](https://hwangQ.github.io/irtQ/reference/run_mst.md)) | Scoring method used for the final reported score |
 | `se` | logical | `TRUE` | Whether to compute standard errors of the final score |
 | `missing` | scalar | `NA` | Value representing a not-administered response in `response` |
 | `verbose` | logical | `TRUE` | Whether to print simulation progress messages to the console |
@@ -2113,9 +2174,9 @@ the `EAP`/`ML` condition diverged.
 |----|----|
 | `est.theta` | Final ability estimate for each simulated examinee |
 | `se.theta` | Standard error of the final ability estimate |
-| `theta.route` | Intermediate ability estimate used for routing at each stage |
+| `theta.route` | Cumulative ability estimate used for routing after each stage (from all modules taken so far); the last column is the final estimate |
 | `path` | Module pathway taken by each examinee |
-| `true.theta` | True ability supplied as input (`NA` when `response` was supplied instead) |
+| `true.theta` | The `theta` argument (true abilities), or `NULL` if `theta` was not supplied |
 | `panel` | Panel structure information (from [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)) |
 | `full.resp` | Full item-level response matrix, if `return_full_resp = TRUE` |
 

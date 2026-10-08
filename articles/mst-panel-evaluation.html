@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -236,7 +236,10 @@ item 2 [  1   0   0   0   0   0   0 ]
 item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
 ...</code></pre>
 <p>Each item belongs to exactly one module, so each row has exactly one
-1 and all other entries are 0.</p>
+1 and all other entries are 0. <code><a href="../reference/reval_mst.html">reval_mst()</a></code> additionally
+requires that all modules in the same stage have the same maximum sum
+score (for dichotomous items, the same number of items); it stops with
+an error otherwise.</p>
 </div>
 <div class="section level4">
 <h4 id="route-map-route_map">3. Route Map (<code>route_map</code>)<a class="anchor" aria-label="anchor" href="#route-map-route_map"></a>
@@ -254,7 +257,7 @@ directly to module
 <pre><code>         M1 M2 M3 M4 M5 M6 M7
 M1  ──→ [  0  1  1  1  0  0  0 ]   M1 routes to M2, M3, or M4
 M2  ──→ [  0  0  0  0  1  1  0 ]   M2 routes to M5 or M6
-M3  ──→ [  0  0  0  0  0  1  1 ]   M3 routes to M6 or M7
+M3  ──→ [  0  0  0  0  1  1  1 ]   M3 routes to M5, M6, or M7
 M4  ──→ [  0  0  0  0  0  1  1 ]   M4 routes to M6 or M7
 M5  ──→ [  0  0  0  0  0  0  0 ]   terminal (Stage 3)
 M6  ──→ [  0  0  0  0  0  0  0 ]   terminal
@@ -281,6 +284,15 @@ receives.</p>
 <span>                  <span class="co">#                    -0.6 ≤ θ̂ &lt; 0.6 → medium module</span></span>
 <span>                  <span class="co">#                    θ̂ ≥ 0.6 → hard module</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>The cut scores of a transition are tied to the modules of the next
+stage in order: the first cut score separates the first and second
+modules, the second separates the second and third. When a module can
+reach only some of the next-stage modules, only the cut scores that
+separate those modules apply. In the route map above, a test taker in M4
+can reach only M6 or M7, so the second Stage 3 cut score alone decides
+between them (θ̂ below it goes to M6, θ̂ at or above it to M7).
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code> and <code><a href="../reference/run_mst.html">run_mst()</a></code> use the same
+rule.</p>
 <p><code>cut_score</code> is required by <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, which
 always uses inverse-TCC scoring internally, and by
 <code><a href="../reference/run_mst.html">run_mst()</a></code> whenever <code>route_method = NULL</code>. When
@@ -333,10 +345,10 @@ method used to report each examinee’s final score
 (<code>final_score</code>). Both arguments take a named list whose
 <code>method</code> element selects one of <strong>irtQ</strong>’s
 ability estimators: <code>"ML"</code>, <code>"WL"</code>,
-<code>"MAP"</code>, <code>"EAP"</code>, <code>"EAP.SUM"</code>, or
-<code>"INV.TCC"</code>, and whose remaining elements supply that
-estimator’s own arguments, e.g. <code>range</code> for
-<code>"ML"</code>/<code>"WL"</code>, or <code>norm.prior</code> and
+<code>"MLF"</code>, <code>"MAP"</code>, <code>"EAP"</code>,
+<code>"EAP.SUM"</code>, or <code>"INV.TCC"</code>, and whose remaining
+elements supply that estimator’s own arguments, e.g. <code>range</code>
+for <code>"ML"</code>/<code>"WL"</code>, or <code>norm.prior</code> and
 <code>nquad</code> for <code>"EAP"</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">route_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"EAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, nquad <span class="op">=</span> <span class="fl">41</span><span class="op">)</span></span>
@@ -363,11 +375,13 @@ program reports summed scores directly.</p>
 <h3 id="the-simmst-dataset">The <code>simMST</code> Dataset<a class="anchor" aria-label="anchor" href="#the-simmst-dataset"></a>
 </h3>
 <p><strong>irtQ</strong> includes <code>simMST</code>, a built-in
-dataset that packages all four inputs described above. This dataset
-represents a <strong>1-3-3 MST panel</strong>, assembled using
-module-level target test information functions and design constraints
-similar to those used in the simulation study of <span class="citation">Lim et al. (2021)</span> (it is not the identical
-dataset from that study), with the following characteristics:</p>
+dataset that packages the four inputs described above plus a vector of
+ability levels (<code>theta</code>). This dataset represents a
+<strong>1-3-3 MST panel</strong>, assembled using module-level target
+test information functions and design constraints similar to those used
+in the simulation study of <span class="citation">Lim et al.
+(2021)</span> (it is not the identical dataset from that study), with
+the following characteristics:</p>
 <ul>
 <li>7 modules across 3 stages</li>
 <li>8 items per module across 7 modules (56 unique items total, no item
@@ -406,7 +420,7 @@ shared across modules)</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 56  7</span></span>
 <span></span>
-<span><span class="co"># First 16 rows (items 1-16, first 2 modules)</span></span>
+<span><span class="co"># First 16 rows (items 1-16, all 7 modules)</span></span>
 <span><span class="va">simMST</span><span class="op">$</span><span class="va">module</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;       [,1] [,2] [,3] [,4] [,5] [,6] [,7]</span></span>
 <span><span class="co">#&gt;  [1,]    0    0    0    1    0    0    0</span></span>
@@ -483,8 +497,10 @@ ability estimate, and <code>route_method = "mfi"</code> routes to the
 reachable module with the highest test information function (TIF) value
 at their current estimate. The third, cut-score routing
 (<code>route_method = NULL</code>), compares the current estimate
-against a fixed set of cut scores. Start with the default,
-<code>bmat</code>:</p>
+against a fixed set of cut scores. In all three, the current estimate at
+the end of a stage is computed from the responses to all modules the
+examinee has taken so far, not only the module just completed. Start
+with the default, <code>bmat</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Item bank and panel structure from simMST</span></span>
 <span><span class="va">x</span>         <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">item_bank</span></span>
@@ -531,19 +547,19 @@ against a fixed set of cut scores. Start with the default,
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.018</span></span>
-<span><span class="co">#&gt;   SD   : 1.110</span></span>
+<span><span class="co">#&gt;   Mean : -0.012</span></span>
+<span><span class="co">#&gt;   SD   : 1.111</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.007</span></span>
+<span><span class="co">#&gt;   Bias : 0.014</span></span>
 <span><span class="co">#&gt;   RMSE : 0.328</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
 <span><span class="co">#&gt;   Stage 2: Module 2: 302 (30.2%),  Module 3: 314 (31.4%),  Module 4: 384 (38.4%)</span></span>
-<span><span class="co">#&gt;   Stage 3: Module 5: 372 (37.2%),  Module 6: 262 (26.2%),  Module 7: 366 (36.6%)</span></span></code></pre></div>
+<span><span class="co">#&gt;   Stage 3: Module 5: 389 (38.9%),  Module 6: 214 (21.4%),  Module 7: 397 (39.7%)</span></span></code></pre></div>
 <p>A closely related alternative is <strong>maximum Fisher information
 (MFI) routing</strong> (<code>route_method = "mfi"</code>): instead of
 comparing mean item difficulty, it routes each examinee to the reachable
@@ -585,19 +601,19 @@ estimate.</p>
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.015</span></span>
-<span><span class="co">#&gt;   SD   : 1.082</span></span>
+<span><span class="co">#&gt;   Mean : -0.019</span></span>
+<span><span class="co">#&gt;   SD   : 1.083</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.011</span></span>
-<span><span class="co">#&gt;   RMSE : 0.312</span></span>
+<span><span class="co">#&gt;   Bias : 0.007</span></span>
+<span><span class="co">#&gt;   RMSE : 0.310</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
 <span><span class="co">#&gt;   Stage 2: Module 2: 279 (27.9%),  Module 3: 475 (47.5%),  Module 4: 246 (24.6%)</span></span>
-<span><span class="co">#&gt;   Stage 3: Module 5: 334 (33.4%),  Module 6: 359 (35.9%),  Module 7: 307 (30.7%)</span></span></code></pre></div>
+<span><span class="co">#&gt;   Stage 3: Module 5: 350 (35.0%),  Module 6: 350 (35.0%),  Module 7: 300 (30.0%)</span></span></code></pre></div>
 <p>MFI routing assumes each module’s TIF curve behaves as intended,
 peaking higher for harder modules as theta increases, and higher for
 easier modules as theta decreases. In practice this assumption can fail:
@@ -651,19 +667,19 @@ the next module:</p>
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.009</span></span>
+<span><span class="co">#&gt;   Mean : -0.014</span></span>
 <span><span class="co">#&gt;   SD   : 1.102</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.017</span></span>
-<span><span class="co">#&gt;   RMSE : 0.331</span></span>
+<span><span class="co">#&gt;   Bias : 0.012</span></span>
+<span><span class="co">#&gt;   RMSE : 0.328</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
 <span><span class="co">#&gt;   Stage 2: Module 2: 266 (26.6%),  Module 3: 456 (45.6%),  Module 4: 278 (27.8%)</span></span>
-<span><span class="co">#&gt;   Stage 3: Module 5: 330 (33.0%),  Module 6: 299 (29.9%),  Module 7: 371 (37.1%)</span></span></code></pre></div>
+<span><span class="co">#&gt;   Stage 3: Module 5: 324 (32.4%),  Module 6: 361 (36.1%),  Module 7: 315 (31.5%)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="deriving-principled-cut-scores-with-find_cut">Deriving Principled Cut Scores with <code>find_cut()</code><a class="anchor" aria-label="anchor" href="#deriving-principled-cut-scores-with-find_cut"></a>
 </h4>
@@ -796,19 +812,22 @@ any other fixed cut scores, by setting
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.010</span></span>
-<span><span class="co">#&gt;   SD   : 1.080</span></span>
+<span><span class="co">#&gt;   Mean : -0.012</span></span>
+<span><span class="co">#&gt;   SD   : 1.079</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.016</span></span>
+<span><span class="co">#&gt;   Bias : 0.014</span></span>
 <span><span class="co">#&gt;   RMSE : 0.323</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
 <span><span class="co">#&gt;   Stage 2: Module 2: 278 (27.8%),  Module 3: 453 (45.3%),  Module 4: 269 (26.9%)</span></span>
-<span><span class="co">#&gt;   Stage 3: Module 5: 337 (33.7%),  Module 6: 299 (29.9%),  Module 7: 364 (36.4%)</span></span></code></pre></div>
+<span><span class="co">#&gt;   Stage 3: Module 5: 330 (33.0%),  Module 6: 357 (35.7%),  Module 7: 313 (31.3%)</span></span></code></pre></div>
+<p>The cut scores are the same as in <code>sim_cut</code>; the small
+differences come from newly simulated responses, which the next
+subsection removes by passing <code>response</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="comparing-routing-methods-on-identical-responses-with-response">Comparing Routing Methods on Identical Responses with
@@ -863,13 +882,14 @@ response data:</p>
 <span><span class="va">rmse_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_A</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rmse_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_B</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (bmat):                 %.4f\n"</span>, <span class="va">rmse_A</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; RMSE (bmat):                 0.3119</span></span>
+<span><span class="co">#&gt; RMSE (bmat):                 0.3082</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (find_cut cut scores):  %.4f\n"</span>, <span class="va">rmse_B</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; RMSE (find_cut cut scores):  0.3083</span></span></code></pre></div>
+<span><span class="co">#&gt; RMSE (find_cut cut scores):  0.3065</span></span></code></pre></div>
 <p>All five calls above return the same kind of result regardless of the
 routing rule or input format used: a final ability estimate
-(<code>est.theta</code>), its standard error (<code>se.theta</code>),
-and the module pathway taken by each examinee (<code>path</code>).</p>
+(<code>est.theta</code>), its standard error (<code>se.theta</code>,
+when <code>se = TRUE</code>), and the module pathway taken by each
+examinee (<code>path</code>).</p>
 </div>
 <div class="section level4">
 <h4 id="inspecting-the-run_mst-output">Inspecting the <code>run_mst()</code> Output<a class="anchor" aria-label="anchor" href="#inspecting-the-run_mst-output"></a>
@@ -882,19 +902,19 @@ live in named components of the returned object itself:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Final ability estimate and its standard error, one value per examinee</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]  1.25259186 -0.58316775  0.63574972  0.56422861  0.15408580  0.02297489</span></span>
+<span><span class="co">#&gt; [1]  1.25259186 -0.58316775  0.63574972  0.56422861  0.51421967 -0.03858902</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2878269 0.2562197 0.2443803 0.2442056 0.2439128 0.2587183</span></span>
+<span><span class="co">#&gt; [1] 0.2878269 0.2562197 0.2443803 0.2442056 0.2447564 0.2335472</span></span>
 <span></span>
 <span><span class="co"># Routing and final estimates at every stage: an N x n.stage matrix</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">theta.route</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         stage.1     stage.2     stage.3</span></span>
-<span><span class="co">#&gt; [1,]  0.8423104  1.58893679  1.25259186</span></span>
-<span><span class="co">#&gt; [2,] -0.4208651 -0.47810582 -0.58316775</span></span>
-<span><span class="co">#&gt; [3,]  0.3826359  0.54173172  0.63574972</span></span>
-<span><span class="co">#&gt; [4,]  0.3826359  0.60844003  0.56422861</span></span>
-<span><span class="co">#&gt; [5,]  0.3826359  0.06174652  0.15408580</span></span>
-<span><span class="co">#&gt; [6,] -0.0606256  0.31115075  0.02297489</span></span>
+<span><span class="co">#&gt;         stage.1    stage.2     stage.3</span></span>
+<span><span class="co">#&gt; [1,]  0.8423104  1.3037657  1.25259186</span></span>
+<span><span class="co">#&gt; [2,] -0.4208651 -0.4527758 -0.58316775</span></span>
+<span><span class="co">#&gt; [3,]  0.3826359  0.5179248  0.63574972</span></span>
+<span><span class="co">#&gt; [4,]  0.3826359  0.5522797  0.56422861</span></span>
+<span><span class="co">#&gt; [5,]  0.3826359  0.2903304  0.51421967</span></span>
+<span><span class="co">#&gt; [6,] -0.0606256  0.1401152 -0.03858902</span></span>
 <span></span>
 <span><span class="co"># Module index administered at every stage: an N x n.stage matrix</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span>
@@ -903,17 +923,40 @@ live in named components of the returned object itself:</p>
 <span><span class="co">#&gt; [2,]       1       3       5</span></span>
 <span><span class="co">#&gt; [3,]       1       4       7</span></span>
 <span><span class="co">#&gt; [4,]       1       4       7</span></span>
-<span><span class="co">#&gt; [5,]       1       4       6</span></span>
-<span><span class="co">#&gt; [6,]       1       3       7</span></span></code></pre></div>
+<span><span class="co">#&gt; [5,]       1       4       7</span></span>
+<span><span class="co">#&gt; [6,]       1       3       6</span></span></code></pre></div>
 <p><code>se.theta</code> in particular never appears in
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> output, so accessing it directly is the only way to
 see how estimation precision varies across examinees, for example, by
 the Stage 3 (final) module each examinee landed in:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Mean standard error by terminal (Stage 3) module</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span>, <span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span><span class="op">]</span>, <span class="va">mean</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         5         6         7 </span></span>
-<span><span class="co">#&gt; 2.1794982 0.2469682 3.0071373</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># final (Stage 3) module of each examinee</span></span>
+<span><span class="va">final_mod</span> <span class="op">&lt;-</span> <span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">path</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># ML estimates at a limit of `range` (c(-4, 4) in `final_score` above) have</span></span>
+<span><span class="co"># no finite SE (reported as 99.9999)</span></span>
+<span><span class="va">at_limit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">4</span></span>
+<span></span>
+<span><span class="co"># per final module: examinees, estimates at a limit, and mean SE of the rest</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  module   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">final_mod</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">final_mod</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_limit  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">at_limit</span>, <span class="va">final_mod</span>, <span class="va">sum</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  mean_se  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">sim_bmat</span><span class="op">$</span><span class="va">se.theta</span><span class="op">[</span><span class="op">!</span><span class="va">at_limit</span><span class="op">]</span>,</span>
+<span>                              <span class="va">final_mod</span><span class="op">[</span><span class="op">!</span><span class="va">at_limit</span><span class="op">]</span>, <span class="va">mean</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;   module   n n_limit   mean_se</span></span>
+<span><span class="co">#&gt; 1      5 389       7 0.3014238</span></span>
+<span><span class="co">#&gt; 2      6 214       0 0.2415196</span></span>
+<span><span class="co">#&gt; 3      7 397      10 0.2799251</span></span></code></pre></div>
+<p>When an ML estimate reaches a limit of <code>range</code> (here -4 or
+4, for example after all-correct or all-incorrect responses), its
+standard error is not finite and <code><a href="../reference/run_mst.html">run_mst()</a></code> reports 99.9999,
+as <code><a href="../reference/est_score.html">est_score()</a></code> does. These values are flags rather than
+standard errors, so they are counted separately and left out of the
+mean. Examinees routed to the easy or hard final module (modules 5 and
+7) have larger standard errors than those in the medium module, and they
+are the only ones whose estimates reach the limits.</p>
 <p>The full list of return components, including <code>panel</code>
 (reused from <code><a href="../reference/panel_info.html">panel_info()</a></code>), <code>true.theta</code>, and
 <code>full.resp</code> (the complete item-level response matrix,
@@ -1768,9 +1811,9 @@ needed.</p>
 </h2>
 <p>Cut score placement directly affects measurement bias. Placing cuts
 too close to the centre can cause mid-ability examinees to be routed
-sub-optimally. Here we compare the original <code>c(-0.5, 0.5)</code>
-cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
-1-3-3 panel.</p>
+sub-optimally. Here we compare the <code>simMST</code> cut scores (about
+-0.45 and 0.45) with a wider configuration <code>c(-1.0, 1.0)</code> for
+the 1-3-3 panel.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Alternative cut scores: wider routing bands</span></span>
 <span><span class="va">cut_score_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span>
@@ -1802,7 +1845,7 @@ cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
 <span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original cuts (±0.5)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about ±0.45)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
 <span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
 <span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1818,21 +1861,30 @@ cut scores with a wider configuration <code>c(-1.0, 1.0)</code> for the
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span>,</span>
 <span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original cuts (±0.5)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about ±0.45)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
 <span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
 <span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png" class="r-plt" alt="CSEM comparison: original vs. wider cut scores in the 1-3-3 panel." width="768"><p class="caption">
-CSEM comparison: original vs. wider cut scores in the 1-3-3 panel.
+<img src="mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png" class="r-plt" alt="CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel." width="768"><p class="caption">
+CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel.
 </p>
 </div>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Wide cuts concentrate test takers in the middle module of Stage 2 and
-3 for the most ability levels, which tends to reduce bias near the
-centre but may increase CSEM at the ability extremes.</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Largest absolute differences between the two configurations</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">bias</span> <span class="op">-</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">bias</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.02474664</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span> <span class="op">-</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.01745606</span></span></code></pre></div>
+<p>For this panel, the two configurations give almost the same
+conditional bias and CSEM: the largest difference is about 0.02 for
+both, and the large biases at the ability extremes are the same. Wider
+cuts send more examinees to the middle modules of Stages 2 and 3, so the
+module paths differ, but the effect on the final precision is small
+here.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -1864,17 +1916,18 @@ recursion. That region of close central agreement widens as test length
 increases.</p>
 <p>We reproduce that second condition directly here for the
 <code>simMST</code> panel, using the same scoring combination <span class="citation">Lim et al. (2021)</span> used in their own validation:
-<code>route_score = "EAP"</code> for routing at each interim stage, and
-<code>final_score = "ML"</code> for the reported final score. Neither
-method matches <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal inverse-TCC logic, so
-the two results are not expected to coincide everywhere; the comparison
-below should reproduce the same central-agreement-with-tail-divergence
-pattern <span class="citation">Lim et al. (2021)</span> reported.</p>
+<code>route_score = list(method = "EAP")</code> for routing at each
+interim stage, and <code>final_score = list(method = "ML")</code> for
+the reported final score. Neither method matches
+<code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal inverse-TCC logic, so the two
+results are not expected to coincide everywhere; the comparison below
+should reproduce the same central-agreement-with-tail-divergence pattern
+<span class="citation">Lim et al. (2021)</span> reported.</p>
 <p>Because the exact values stored in <code>simMST$theta</code> are not
 needed for this comparison, we define our own explicit evaluation grid
 so that the Monte Carlo simulation and the analytical computation are
 guaranteed to line up point-for-point:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># An explicit, independent evaluation grid</span></span>
 <span><span class="va">theta_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">n_reps</span>     <span class="op">&lt;-</span> <span class="fl">300</span>   <span class="co"># simulated examinees per grid point</span></span>
@@ -1890,7 +1943,7 @@ scores (matching the routing rule <code><a href="../reference/reval_mst.html">re
 with <code>EAP</code> routing scores and <code>ML</code> final scores,
 the scoring combination <span class="citation">Lim et al. (2021)</span>
 used in their own Monte Carlo validation:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
@@ -1920,7 +1973,7 @@ used in their own Monte Carlo validation:</p>
 <p><strong>Step 2: Analytical computation with
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code></strong> on the <em>same</em>
 <code>theta_grid</code>, so the comparison is point-for-point:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reval_mst.html">reval_mst</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  D         <span class="op">=</span> <span class="fl">1.702</span>,</span>
@@ -1934,7 +1987,7 @@ used in their own Monte Carlo validation:</p>
 <span><span class="va">tb_grid</span>      <span class="op">&lt;-</span> <span class="va">eval_grid</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">sigma2</span> <span class="op">+</span> <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Step 3: Overlay the two results:</strong></p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Bias: Monte Carlo (points) vs. analytical (line)</span></span>
@@ -1971,7 +2024,7 @@ Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points)
 overlaid on the analytical reval_mst() curve (line).
 </p>
 </div>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In the central ability range (which <span class="citation">Lim et al.
@@ -1989,9 +2042,9 @@ carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
 pattern <span class="citation">Lim et al. (2021)</span> reported for
 this identical EAP-routing/MLE-final condition. Matching the recursion’s
-own scoring exactly (<code>route_score = "INV.TCC"</code> and
-<code>final_score = "INV.TCC"</code> instead of
-<code>"EAP"</code>/<code>"ML"</code>) would close most of this gap.
+own scoring exactly (<code>route_score = list(method = "INV.TCC")</code>
+and <code>final_score = list(method = "INV.TCC")</code> instead of the
+EAP and ML methods) would close most of this gap.
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code> is therefore best read as predicting the
 performance of a panel routed and scored via inverse-TCC; whenever a
 program uses a different scoring approach operationally, a
@@ -2000,10 +2053,10 @@ check, particularly for ability levels far from the panel’s region of
 peak information.</p>
 <p><strong>Step 4: Confirm the gap closes under matched
 scoring.</strong> As a final check, re-run the same simulation with
-<code>route_score = "INV.TCC"</code> and
-<code>final_score = "INV.TCC"</code>, matching
+<code>route_score = list(method = "INV.TCC")</code> and
+<code>final_score = list(method = "INV.TCC")</code>, matching
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal logic exactly:</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_mc_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
@@ -2032,7 +2085,7 @@ scoring.</strong> As a final check, re-run the same simulation with
 <p>Comparing all three at the tail grid points, where the
 <code>EAP</code>/<code>ML</code> condition diverged most from the
 analytical curve:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compare_tb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  theta              <span class="op">=</span> <span class="va">theta_grid</span>,</span>
 <span>  analytical_bias    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="fl">3</span><span class="op">)</span>,</span>
@@ -2066,7 +2119,7 @@ analytical curve:</p>
 <span><span class="co">#&gt; 20       0.546              2.491</span></span>
 <span><span class="co">#&gt; 21       1.037              2.006</span></span></code></pre></div>
 <p>The same comparison, overlaid across the full ability range:</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Bias: matched-scoring Monte Carlo (points) vs. analytical (line)</span></span>
@@ -2105,7 +2158,7 @@ Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo
 simulation (points) overlaid on the analytical reval_mst() curve (line).
 </p>
 </div>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Both the table and the plot confirm the same conclusion: the
@@ -2331,15 +2384,15 @@ fixed cut-score routing</td>
 <tr class="even">
 <td><code>route_score</code></td>
 <td>list</td>
-<td>-</td>
+<td>ML (see <code><a href="../reference/run_mst.html">?run_mst</a></code>)</td>
 <td>Scoring method used at intermediate stages (<code>ML</code>,
-<code>WL</code>, <code>MAP</code>, <code>EAP</code>,
+<code>WL</code>, <code>MLF</code>, <code>MAP</code>, <code>EAP</code>,
 <code>EAP.SUM</code>, <code>INV.TCC</code>, …)</td>
 </tr>
 <tr class="odd">
 <td><code>final_score</code></td>
 <td>list</td>
-<td>-</td>
+<td>ML (see <code><a href="../reference/run_mst.html">?run_mst</a></code>)</td>
 <td>Scoring method used for the final reported score</td>
 </tr>
 <tr class="even">
@@ -2397,7 +2450,8 @@ item-level response matrix as <code>full.resp</code>
 </tr>
 <tr class="odd">
 <td><code>theta.route</code></td>
-<td>Intermediate ability estimate used for routing at each stage</td>
+<td>Cumulative ability estimate used for routing after each stage (from
+all modules taken so far); the last column is the final estimate</td>
 </tr>
 <tr class="even">
 <td><code>path</code></td>
@@ -2405,8 +2459,8 @@ item-level response matrix as <code>full.resp</code>
 </tr>
 <tr class="odd">
 <td><code>true.theta</code></td>
-<td>True ability supplied as input (<code>NA</code> when
-<code>response</code> was supplied instead)</td>
+<td>The <code>theta</code> argument (true abilities), or
+<code>NULL</code> if <code>theta</code> was not supplied</td>
 </tr>
 <tr class="even">
 <td><code>panel</code></td>

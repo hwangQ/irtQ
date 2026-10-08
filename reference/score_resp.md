@@ -56,7 +56,8 @@ score_resp(data, key, missing = NA)
   same vector or data frame; letter (and other case-bearing) values are
   matched case-insensitively. When a data frame is supplied, it is
   internally sorted by `item` before use, so its row order does not need
-  to match the column order of `data`.
+  to match the column order of `data`. The `item` column may be numeric,
+  character, or factor; it is matched by item number.
 
 - missing:
 

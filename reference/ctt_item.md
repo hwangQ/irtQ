@@ -28,7 +28,8 @@ ctt_item(
   A data frame or matrix of already-scored item responses, with
   examinees in rows and items in columns. Item scores must range from 0
   to `cats[j] - 1` for each item j (0/1 for a dichotomous item; 0, 1, 2,
-  ... for a polytomous/partial-credit item).
+  ... for a polytomous/partial-credit item). An error is raised when a
+  score is not a whole number between 0 and `cats[j] - 1`.
 
 - item.id:
 
@@ -49,9 +50,11 @@ ctt_item(
   elsewhere in irtQ (see, e.g.,
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)).
   If `NULL` (default), the number of categories for each item is
-  inferred from the observed maximum score in `data` (i.e.,
-  `max(data[, j], na.rm = TRUE) + 1`); supply `cats` explicitly whenever
-  the maximum possible score may not have been observed in the sample.
+  inferred from the observed maximum score in `data` plus one, with a
+  minimum of two (i.e., `max(max(data[, j]) + 1, 2)`); supply `cats`
+  explicitly whenever the maximum possible score may not have been
+  observed in the sample. Each value must be a whole number of at least
+  2.
 
 - correct:
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,16 +128,18 @@ distribution</td>
 <div class="section level3">
 <h3 id="from-raw-responses-to-a-scored-matrix">From Raw Responses to a Scored Matrix<a class="anchor" aria-label="anchor" href="#from-raw-responses-to-a-scored-matrix"></a>
 </h3>
-<p>Both <code><a href="../reference/ctt.html">ctt()</a></code> and <code><a href="../reference/freq_score.html">freq_score()</a></code> expect an
-already-scored item response matrix (0/1 for a dichotomous item, or 0,
-1, 2, … for a polytomous item), the same convention used throughout irtQ
-(e.g., by <code><a href="../reference/est_irt.html">est_irt()</a></code>). Raw testing data, however, usually
-records the option each examinee actually chose. The <em>Utility
-Functions</em> article covers <code><a href="../reference/score_resp.html">score_resp()</a></code> in full -
-including its support for numeric, Latin-letter, and general-label
-(e.g., Korean-syllable) option-coding schemes - but a short example is
-worth repeating here, since it is the natural first step before calling
-<code><a href="../reference/ctt.html">ctt()</a></code> or <code><a href="../reference/freq_score.html">freq_score()</a></code> on raw data:</p>
+<p><code><a href="../reference/ctt.html">ctt()</a></code> expects an already-scored item response matrix
+(0/1 for a dichotomous item, or 0, 1, 2, … for a polytomous item), the
+same convention used throughout irtQ (e.g., by <code><a href="../reference/est_irt.html">est_irt()</a></code>),
+and <code><a href="../reference/freq_score.html">freq_score()</a></code> expects a vector of total scores, such as
+the <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums()</a></code> of a scored matrix. Raw testing data,
+however, usually records the option each examinee actually chose. The
+<em>Utility Functions</em> article covers <code><a href="../reference/score_resp.html">score_resp()</a></code> in
+full - including its support for numeric, Latin-letter, and
+general-label (e.g., Korean-syllable) option-coding schemes - but a
+short example is worth repeating here, since it is the natural first
+step before calling <code><a href="../reference/ctt.html">ctt()</a></code> on raw data (or computing the
+total scores that <code><a href="../reference/freq_score.html">freq_score()</a></code> tabulates):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Raw responses for 5 examinees on 3 letter-coded items; item 2 has one</span></span>
 <span><span class="co"># double-marked response ("B,D") and item 3 has one blank (NA) response</span></span>
@@ -149,7 +151,7 @@ worth repeating here, since it is the natural first step before calling
 <span><span class="va">key3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"D"</span>, <span class="st">"C"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">scored3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/score_resp.html">score_resp</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">raw3</span>, key <span class="op">=</span> <span class="va">key3</span><span class="op">)</span></span>
-<span><span class="va">scored3</span><span class="op">$</span><span class="va">scored</span>          <span class="co"># 0/1 matrix - the input format ctt()/freq_score() expect</span></span>
+<span><span class="va">scored3</span><span class="op">$</span><span class="va">scored</span>          <span class="co"># 0/1 matrix - the input format ctt() expects</span></span>
 <span><span class="co">#&gt;   V1 V2 V3</span></span>
 <span><span class="co">#&gt; 1  1  1  0</span></span>
 <span><span class="co">#&gt; 2  0  1  0</span></span>
@@ -186,12 +188,18 @@ article are defined once here and reused below:</p>
 <span><span class="co">#&gt;  2  5 </span></span>
 <span><span class="co">#&gt; 50  5</span></span>
 <span></span>
-<span><span class="co"># Data set 2: a small dichotomous-only response matrix, used for a simpler,</span></span>
-<span><span class="co"># easier-to-read walk-through of ctt()'s item- and test-level output</span></span>
+<span><span class="co"># Data set 2: a small dichotomous-only response matrix (300 examinees on 15</span></span>
+<span><span class="co"># simulated 3PLM items), used for a simpler, easier-to-read walk-through of</span></span>
+<span><span class="co"># ctt()'s item- and test-level output</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">dat_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">300</span> <span class="op">*</span> <span class="fl">8</span>, <span class="fl">1</span>, <span class="fl">0.6</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">300</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">dat_bin</span><span class="op">)</span>     <span class="co"># 300 examinees x 8 items</span></span>
-<span><span class="co">#&gt; [1] 300   8</span></span></code></pre></div>
+<span><span class="va">x_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/shape_df.html">shape_df</a></span><span class="op">(</span></span>
+<span>  par.drm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">15</span><span class="op">)</span>, b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, length.out <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span>
+<span>                 g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  cats <span class="op">=</span> <span class="fl">2</span>, model <span class="op">=</span> <span class="st">"3PLM"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">dat_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x_bin</span>, theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span>, D <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">dat_bin</span><span class="op">)</span>     <span class="co"># 300 examinees x 15 items</span></span>
+<span><span class="co">#&gt; [1] 300  15</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -272,6 +280,9 @@ additionally reports the blank/double-marking rate for each item:</p>
 <span><span class="co">#&gt;   item pct_blank pct_double</span></span>
 <span><span class="co">#&gt; 1   V1         0        0.0</span></span>
 <span><span class="co">#&gt; 2   V2         0       12.5</span></span></code></pre></div>
+<p>With only two items, the corrected total is the score on the other
+item alone, so <code>pb_corrected</code> is unstable here; use a
+full-length test in practice.</p>
 <p>Each item’s option-coding scheme (numeric, Latin-letter, or general
 label) is inferred independently from its own <code>key</code> value,
 using exactly the same rule as <code><a href="../reference/score_resp.html">score_resp()</a></code> - so a
@@ -394,28 +405,42 @@ distribution via <code><a href="../reference/freq_score.html">freq_score()</a></
 <span></span>
 <span><span class="va">out_bin</span><span class="op">$</span><span class="va">item</span>    <span class="co"># difficulty, discrimination_raw/corrected, alpha-with-item-removed, flag</span></span>
 <span><span class="co">#&gt;    item cats difficulty discrimination_raw discrimination_corrected</span></span>
-<span><span class="co">#&gt; X1   V1    2      0.630              0.344                    0.007</span></span>
-<span><span class="co">#&gt; X2   V2    2      0.587              0.346                    0.001</span></span>
-<span><span class="co">#&gt; X3   V3    2      0.603              0.403                    0.066</span></span>
-<span><span class="co">#&gt; X4   V4    2      0.620              0.365                    0.027</span></span>
-<span><span class="co">#&gt; X5   V5    2      0.620              0.389                    0.054</span></span>
-<span><span class="co">#&gt; X6   V6    2      0.590              0.385                    0.044</span></span>
-<span><span class="co">#&gt; X7   V7    2      0.623              0.337                   -0.002</span></span>
-<span><span class="co">#&gt; X8   V8    2      0.630              0.364                    0.028</span></span>
+<span><span class="co">#&gt; 1    V1    2      0.887              0.309                    0.205</span></span>
+<span><span class="co">#&gt; 2    V2    2      0.837              0.369                    0.250</span></span>
+<span><span class="co">#&gt; 3    V3    2      0.813              0.479                    0.365</span></span>
+<span><span class="co">#&gt; 4    V4    2      0.763              0.489                    0.364</span></span>
+<span><span class="co">#&gt; 5    V5    2      0.790              0.329                    0.195</span></span>
+<span><span class="co">#&gt; 6    V6    2      0.697              0.403                    0.257</span></span>
+<span><span class="co">#&gt; 7    V7    2      0.637              0.514                    0.375</span></span>
+<span><span class="co">#&gt; 8    V8    2      0.630              0.498                    0.356</span></span>
+<span><span class="co">#&gt; 9    V9    2      0.560              0.376                    0.215</span></span>
+<span><span class="co">#&gt; 10  V10    2      0.500              0.497                    0.349</span></span>
+<span><span class="co">#&gt; 11  V11    2      0.467              0.470                    0.319</span></span>
+<span><span class="co">#&gt; 12  V12    2      0.457              0.459                    0.307</span></span>
+<span><span class="co">#&gt; 13  V13    2      0.407              0.382                    0.223</span></span>
+<span><span class="co">#&gt; 14  V14    2      0.313              0.395                    0.247</span></span>
+<span><span class="co">#&gt; 15  V15    2      0.323              0.386                    0.236</span></span>
 <span><span class="co">#&gt;    alpha_removed flag</span></span>
-<span><span class="co">#&gt; X1         0.088     </span></span>
-<span><span class="co">#&gt; X2         0.093     </span></span>
-<span><span class="co">#&gt; X3         0.041     </span></span>
-<span><span class="co">#&gt; X4         0.072     </span></span>
-<span><span class="co">#&gt; X5         0.051     </span></span>
-<span><span class="co">#&gt; X6         0.059     </span></span>
-<span><span class="co">#&gt; X7         0.095     </span></span>
-<span><span class="co">#&gt; X8         0.072</span></span>
+<span><span class="co">#&gt; 1          0.668     </span></span>
+<span><span class="co">#&gt; 2          0.664     </span></span>
+<span><span class="co">#&gt; 3          0.651     </span></span>
+<span><span class="co">#&gt; 4          0.649     </span></span>
+<span><span class="co">#&gt; 5          0.670     </span></span>
+<span><span class="co">#&gt; 6          0.663     </span></span>
+<span><span class="co">#&gt; 7          0.646     </span></span>
+<span><span class="co">#&gt; 8          0.649     </span></span>
+<span><span class="co">#&gt; 9          0.669     </span></span>
+<span><span class="co">#&gt; 10         0.650     </span></span>
+<span><span class="co">#&gt; 11         0.654     </span></span>
+<span><span class="co">#&gt; 12         0.656     </span></span>
+<span><span class="co">#&gt; 13         0.668     </span></span>
+<span><span class="co">#&gt; 14         0.664     </span></span>
+<span><span class="co">#&gt; 15         0.666</span></span>
 <span><span class="va">out_bin</span><span class="op">$</span><span class="va">alpha</span>   <span class="co"># test-level alpha, alpha_std, sem, mean difficulty/discrimination</span></span>
 <span><span class="co">#&gt;   n_examinee n_item alpha alpha_std   sem mean_difficulty</span></span>
-<span><span class="co">#&gt; 1        300      8 0.081     0.081 1.372           0.613</span></span>
+<span><span class="co">#&gt; 1        300     15 0.675     0.675 1.648           0.605</span></span>
 <span><span class="co">#&gt;   mean_discrimination_raw mean_discrimination_corrected</span></span>
-<span><span class="co">#&gt; 1                   0.367                         0.028</span></span></code></pre></div>
+<span><span class="co">#&gt; 1                   0.424                         0.284</span></span></code></pre></div>
 <p>Difficulty for item
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
 is the mean item score divided by its maximum possible score,
@@ -476,7 +501,7 @@ such as the mix of dichotomous and polytomous items in
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out_bin</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="st">"alpha_std"</span><span class="op">)</span><span class="op">]</span>     <span class="co"># dichotomous-only: close together</span></span>
 <span><span class="co">#&gt;   alpha alpha_std</span></span>
-<span><span class="co">#&gt; 1 0.081     0.081</span></span>
+<span><span class="co">#&gt; 1 0.675     0.675</span></span>
 <span><span class="va">out_mixed</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="st">"alpha_std"</span><span class="op">)</span><span class="op">]</span>   <span class="co"># mixed-format: can differ more</span></span>
 <span><span class="co">#&gt;   alpha alpha_std</span></span>
 <span><span class="co">#&gt; 1 0.882     0.901</span></span></code></pre></div>
@@ -504,13 +529,13 @@ irtQ:</p>
 <span><span class="co">#&gt; ctt(data = dat_bin)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Classical Test Theory (CTT) Analysis</span></span>
-<span><span class="co">#&gt;  Number of items: 8</span></span>
+<span><span class="co">#&gt;  Number of items: 15</span></span>
 <span><span class="co">#&gt;  Number of examinees: 300</span></span>
-<span><span class="co">#&gt;  Cronbach's alpha: 0.081</span></span>
-<span><span class="co">#&gt;  SEM: 1.372</span></span>
-<span><span class="co">#&gt;  Mean difficulty: 0.613</span></span>
-<span><span class="co">#&gt;  Mean discrimination (raw / corrected): 0.367 / 0.028</span></span>
-<span><span class="co">#&gt;  Flagged items: 0 of 8</span></span>
+<span><span class="co">#&gt;  Cronbach's alpha: 0.675</span></span>
+<span><span class="co">#&gt;  SEM: 1.648</span></span>
+<span><span class="co">#&gt;  Mean difficulty: 0.605</span></span>
+<span><span class="co">#&gt;  Mean discrimination (raw / corrected): 0.424 / 0.284</span></span>
+<span><span class="co">#&gt;  Flagged items: 0 of 15</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Use summary() for the full item-level and frequency-distribution report.</span></span>
 <span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">out_bin</span><span class="op">)</span>     <span class="co"># summary.ctt(): full report</span></span>
@@ -520,43 +545,62 @@ irtQ:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Item-Level Statistics</span></span>
 <span><span class="co">#&gt;   item  cats  difficulty  discrimination_raw  discrimination_corrected</span></span>
-<span><span class="co">#&gt;     V1     2       0.630               0.344                     0.007</span></span>
-<span><span class="co">#&gt;     V2     2       0.587               0.346                     0.001</span></span>
-<span><span class="co">#&gt;     V3     2       0.603               0.403                     0.066</span></span>
-<span><span class="co">#&gt;     V4     2       0.620               0.365                     0.027</span></span>
-<span><span class="co">#&gt;     V5     2       0.620               0.389                     0.054</span></span>
-<span><span class="co">#&gt;     V6     2       0.590               0.385                     0.044</span></span>
-<span><span class="co">#&gt;     V7     2       0.623               0.337                    -0.002</span></span>
-<span><span class="co">#&gt;     V8     2       0.630               0.364                     0.028</span></span>
+<span><span class="co">#&gt;     V1     2       0.887               0.309                     0.205</span></span>
+<span><span class="co">#&gt;     V2     2       0.837               0.369                     0.250</span></span>
+<span><span class="co">#&gt;     V3     2       0.813               0.479                     0.365</span></span>
+<span><span class="co">#&gt;     V4     2       0.763               0.489                     0.364</span></span>
+<span><span class="co">#&gt;     V5     2       0.790               0.329                     0.195</span></span>
+<span><span class="co">#&gt;     V6     2       0.697               0.403                     0.257</span></span>
+<span><span class="co">#&gt;     V7     2       0.637               0.514                     0.375</span></span>
+<span><span class="co">#&gt;     V8     2       0.630               0.498                     0.356</span></span>
+<span><span class="co">#&gt;     V9     2       0.560               0.376                     0.215</span></span>
+<span><span class="co">#&gt;    V10     2       0.500               0.497                     0.349</span></span>
+<span><span class="co">#&gt;    V11     2       0.467               0.470                     0.319</span></span>
+<span><span class="co">#&gt;    V12     2       0.457               0.459                     0.307</span></span>
+<span><span class="co">#&gt;    V13     2       0.407               0.382                     0.223</span></span>
+<span><span class="co">#&gt;    V14     2       0.313               0.395                     0.247</span></span>
+<span><span class="co">#&gt;    V15     2       0.323               0.386                     0.236</span></span>
 <span><span class="co">#&gt;   alpha_removed  flag</span></span>
-<span><span class="co">#&gt;           0.088      </span></span>
-<span><span class="co">#&gt;           0.093      </span></span>
-<span><span class="co">#&gt;           0.041      </span></span>
-<span><span class="co">#&gt;           0.072      </span></span>
-<span><span class="co">#&gt;           0.051      </span></span>
-<span><span class="co">#&gt;           0.059      </span></span>
-<span><span class="co">#&gt;           0.095      </span></span>
-<span><span class="co">#&gt;           0.072      </span></span>
+<span><span class="co">#&gt;           0.668      </span></span>
+<span><span class="co">#&gt;           0.664      </span></span>
+<span><span class="co">#&gt;           0.651      </span></span>
+<span><span class="co">#&gt;           0.649      </span></span>
+<span><span class="co">#&gt;           0.670      </span></span>
+<span><span class="co">#&gt;           0.663      </span></span>
+<span><span class="co">#&gt;           0.646      </span></span>
+<span><span class="co">#&gt;           0.649      </span></span>
+<span><span class="co">#&gt;           0.669      </span></span>
+<span><span class="co">#&gt;           0.650      </span></span>
+<span><span class="co">#&gt;           0.654      </span></span>
+<span><span class="co">#&gt;           0.656      </span></span>
+<span><span class="co">#&gt;           0.668      </span></span>
+<span><span class="co">#&gt;           0.664      </span></span>
+<span><span class="co">#&gt;           0.666      </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2</span></span>
-<span><span class="co">#&gt; 0 of 8 item(s) flagged.</span></span>
+<span><span class="co">#&gt; 0 of 15 item(s) flagged.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Test-Level Reliability Summary</span></span>
 <span><span class="co">#&gt;   n_examinee  n_item  alpha  alpha_std    sem  mean_difficulty</span></span>
-<span><span class="co">#&gt;          300       8  0.081      0.081  1.372            0.613</span></span>
+<span><span class="co">#&gt;          300      15  0.675      0.675  1.648            0.605</span></span>
 <span><span class="co">#&gt;   mean_discrimination_raw  mean_discrimination_corrected</span></span>
-<span><span class="co">#&gt;                     0.367                          0.028</span></span>
+<span><span class="co">#&gt;                     0.424                          0.284</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Total-Score Frequency Distribution</span></span>
 <span><span class="co">#&gt;   score  freq    pct  cum_pct</span></span>
-<span><span class="co">#&gt;       1     4   1.33     1.33</span></span>
-<span><span class="co">#&gt;       2    11   3.67     5.00</span></span>
-<span><span class="co">#&gt;       3    34  11.33    16.33</span></span>
-<span><span class="co">#&gt;       4    61  20.33    36.67</span></span>
-<span><span class="co">#&gt;       5    87  29.00    65.67</span></span>
-<span><span class="co">#&gt;       6    64  21.33    87.00</span></span>
-<span><span class="co">#&gt;       7    32  10.67    97.67</span></span>
-<span><span class="co">#&gt;       8     7   2.33   100.00</span></span></code></pre></div>
+<span><span class="co">#&gt;       3     6   2.00     2.00</span></span>
+<span><span class="co">#&gt;       4    16   5.33     7.33</span></span>
+<span><span class="co">#&gt;       5    16   5.33    12.67</span></span>
+<span><span class="co">#&gt;       6    24   8.00    20.67</span></span>
+<span><span class="co">#&gt;       7    32  10.67    31.33</span></span>
+<span><span class="co">#&gt;       8    27   9.00    40.33</span></span>
+<span><span class="co">#&gt;       9    37  12.33    52.67</span></span>
+<span><span class="co">#&gt;      10    42  14.00    66.67</span></span>
+<span><span class="co">#&gt;      11    38  12.67    79.33</span></span>
+<span><span class="co">#&gt;      12    23   7.67    87.00</span></span>
+<span><span class="co">#&gt;      13    22   7.33    94.33</span></span>
+<span><span class="co">#&gt;      14    10   3.33    97.67</span></span>
+<span><span class="co">#&gt;      15     7   2.33   100.00</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -581,10 +625,9 @@ irtQ:</p>
 <td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
 <td>Raw option choices + answer key</td>
 <td>0/1 scored response matrix</td>
-<td>
-<code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code> (selected-response
-mode), <code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>
-</td>
+<td>Output feeds <code><a href="../reference/ctt.html">ctt()</a></code>, <code><a href="../reference/est_irt.html">est_irt()</a></code>,
+<code><a href="../reference/est_score.html">est_score()</a></code>; called by <code><a href="../reference/ctt_distr.html">ctt_distr()</a></code>
+(selected-response mode)</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/freq_score.html">freq_score()</a></code></td>

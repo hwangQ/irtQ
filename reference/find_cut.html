@@ -17,7 +17,7 @@ grounded alternative to heuristic cut-score selection."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -183,7 +183,8 @@ module's TIF first overtakes the easier module's TIF <em>from below</em>
 as theta increases. This crossing point is the natural boundary between
 the two modules: below it, the easier module is more informative; above it,
 the harder module is more informative. Using this point as a fixed cut
-score pre-empts the path reversal problem entirely.</p>
+score pre-empts the path reversals that MFI routing produces at the extremes
+of the scale.</p>
 </div>
 
 <div class="section">
@@ -319,7 +320,8 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4170988  0.4531584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Compare with the manually specified cut scores stored in simMST</span></span></span>
+<span class="r-in"><span><span class="co">## Compare with the cut scores stored in simMST, which were obtained the</span></span></span>
+<span class="r-in"><span><span class="co">## same way; the two sets of values are identical</span></span></span>
 <span class="r-in"><span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stage.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4450901  0.4588774</span>
