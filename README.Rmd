@@ -336,7 +336,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # gprior     = list(dist = "beta", params = c(5, 16))# Prior: Beta(5,16) for g
 # Quadrature = c(49, 6)                              # 49 quadrature points from -6 to 6
 # group.mean = 0
-# group.var  = 1                                     # Fix the scale of the latent distribution (mean 0, variance 1)
+# group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
 # Etol       = 1e-3                                  # E-step convergence tolerance
 # MaxE       = 500                                   # Max EM iterations
