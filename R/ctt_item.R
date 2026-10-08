@@ -1,10 +1,9 @@
 #' Classical Test Theory Item Analysis
 #'
-#' Computes traditional classical test theory (CTT) item statistics -
-#' difficulty, an item-total correlation (discrimination), and Cronbach's
-#' alpha with the item removed - for dichotomous or polytomous item response
-#' data, along with optional flagging of items that fall outside commonly
-#' used quality thresholds.
+#' Computes classical test theory (CTT) item statistics for dichotomous or
+#' polytomous item response data: difficulty, the item-total correlation
+#' (discrimination), and Cronbach's alpha with the item removed. Items that
+#' fall outside commonly used quality thresholds can optionally be flagged.
 #'
 #' @param data A data frame or matrix of already-scored item responses, with
 #'   examinees in rows and items in columns. Item scores must range from 0 to
@@ -26,16 +25,14 @@
 #'   two (i.e., `max(max(data[, j]) + 1, 2)`); supply `cats` explicitly
 #'   whenever the maximum possible score may not have been observed in the
 #'   sample. Each value must be a whole number of at least 2.
-#' @param correct Logical. Both the raw (uncorrected) item-total correlation -
-#'   where an item (or, in [ctt_distr()], a response option/category) is
-#'   correlated with the total score that includes its own contribution -
-#'   and the corrected item-total correlation - excluding its own
-#'   contribution - are always computed and reported as separate columns
-#'   (see **Details**/**Value**). This argument only controls which of the
-#'   two is used for flagging: if `TRUE`, flagging (in [ctt_item()]'s `flag`
-#'   column, [ctt_alpha()]'s summary discrimination figure, and, in
-#'   [ctt_distr()], the `crit.distractor` check) is based on the corrected
-#'   value; if `FALSE` (default), on the raw value.
+#' @param correct Logical. Both the raw item-total correlation (the item
+#'   score, or in [ctt_distr()] an option or category indicator, correlated
+#'   with a total score that includes the item) and the corrected item-total
+#'   correlation (correlated with a total score that excludes the item) are
+#'   always computed and reported as separate columns. This argument only
+#'   selects which of the two is used for flagging: the corrected value if
+#'   `TRUE`, the raw value if `FALSE` (default). It drives the `flag` column
+#'   of [ctt_item()] and the `crit.distractor` check of [ctt_distr()].
 #' @param missing A value indicating missing responses in `data`, analogous
 #'   to the `missing` argument in [irtQ::est_irt()] and [irtQ::score_resp()].
 #'   Any cell equal to `missing` is recoded to `NA` before analysis. Default
@@ -45,18 +42,20 @@
 #'   difficulty or discrimination falls outside the thresholds given in
 #'   `crit.p` and `crit.dis`.
 #' @param crit.p A numeric vector of length two giving the lower and upper
-#'   difficulty bounds used for flagging: difficulty below the first value is
-#'   flagged as too difficult, and difficulty above the second value is
-#'   flagged as too easy. Default is `c(0.10, 0.95)`.
+#'   difficulty bounds used for flagging: an item with difficulty below the
+#'   first value is flagged as too difficult ("difficulty too low"), and an
+#'   item with difficulty above the second value is flagged as too easy
+#'   ("difficulty too high"). Default is `c(0.10, 0.95)`.
 #' @param crit.dis A single numeric value giving the minimum acceptable
-#'   discrimination (item-total correlation); items strictly below this value
-#'   are flagged as poorly discriminating. Default is `0.20`.
+#'   discrimination (item-total correlation); an item whose discrimination is
+#'   strictly below this value is flagged as poorly discriminating
+#'   ("discrimination too low"). Default is `0.20`.
 #'
 #' @details
 #' Difficulty for item j is defined generally as the mean observed score
 #' divided by the item's maximum possible score,
-#' `mean(data[, j], na.rm = TRUE) / (cats[j] - 1)`. For a dichotomous item
-#' (`cats[j] = 2`), this reduces to the familiar proportion-correct difficulty
+#' `mean(data[, j]) / (cats[j] - 1)`, computed after listwise deletion. For a
+#' dichotomous item (`cats[j] = 2`), this reduces to the familiar proportion-correct difficulty
 #' index. For a polytomous item, this expresses the average score as a
 #' proportion of the maximum attainable score, so that difficulty remains
 #' interpretable on the same 0-1 scale regardless of the number of score
@@ -64,8 +63,9 @@
 #'
 #' Discrimination for item j is the Pearson correlation between the item
 #' score and the total score, which for a dichotomous item is mathematically
-#' equivalent to the point-biserial correlation. Both the uncorrected (raw)
-#' item-total correlation and the corrected (item-excluded) item-total
+#' equivalent to the point-biserial correlation. A correlation is `NA` when
+#' the item score or the reference total score is constant. Both the
+#' uncorrected (raw) item-total correlation and the corrected (item-excluded) item-total
 #' correlation are always computed and returned as separate columns; see,
 #' e.g., Crocker and Algina (1986) for discussion of both conventions.
 #' This mirrors how some software reports both side by side (e.g.,
@@ -77,22 +77,23 @@
 #' Alpha-with-item-removed for item j is Cronbach's alpha recomputed on the
 #' remaining `ncol(data) - 1` items, using the same variance-based formula
 #' used for an overall, test-level alpha (`k / (k - 1) * (1 - sum(item
-#' variances) / total variance)`). A value of `NA` is returned wherever a
-#' needed variance is zero (e.g., a constant item, or fewer than two items
-#' remaining), since the relevant ratio is then undefined.
+#' variances) / total variance)`). The value is `NA` when the total score of
+#' the remaining items has zero variance or when fewer than two items remain
+#' (a two-item test), since alpha is then undefined.
 #'
 #' @return A list with two elements:
-#' \item{item}{A data frame with one row per item, containing the item
-#'   label, number of score categories, difficulty, the raw (uncorrected)
-#'   item-total correlation (`discrimination_raw`), the corrected
-#'   (item-excluded) item-total correlation (`discrimination_corrected`),
-#'   and alpha-with-item-removed, plus a `flag` column (a character
-#'   description of which criteria were triggered, or `""` when none were;
-#'   present only when `flag = TRUE`). Flagging is based on whichever of
-#'   `discrimination_raw`/`discrimination_corrected` is selected by
-#'   `correct`.}
-#' \item{crit}{A list echoing the `crit.p` and `crit.dis` thresholds used, for
-#'   reference in downstream reporting.}
+#' \item{item}{A data frame with one row per item and the columns `item`
+#'   (item ID), `cats` (number of score categories), `difficulty`,
+#'   `discrimination_raw` (raw item-total correlation),
+#'   `discrimination_corrected` (corrected item-total correlation),
+#'   `alpha_removed` (alpha with the item removed), and, only when
+#'   `flag = TRUE`, `flag` (the criteria the item meets, among
+#'   "difficulty too low", "difficulty too high", and
+#'   "discrimination too low", separated by "; ", or `""` when none).
+#'   Discrimination is flagged using the column selected by `correct`.
+#'   Statistics are rounded to three decimal places.}
+#' \item{crit}{A list with elements `crit.p` and `crit.dis`, the thresholds
+#'   used for flagging.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'

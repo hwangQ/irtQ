@@ -817,11 +817,9 @@ print.find_cut <- function(x, digits = 4L, ...) {
 #' `summary.est_irt()`/`print.summary.est_irt()`).
 #'
 #' @param x An object of class `"ctt"`, as returned by [ctt()].
-#' @param digits Number of decimal places used when rounding numeric values
-#'   for display. Default is `3`. Note that the item- and test-level
-#'   statistics bundled into `x` are already rounded to 3 decimal places
-#'   before [ctt()] returns them, so a `digits` value greater than 3 here
-#'   cannot recover precision that was already discarded upstream.
+#' @param digits Number of decimal places used for display. Default is `3`.
+#'   The statistics in `x` are already rounded to three decimal places by
+#'   [ctt()], so a value above 3 adds no precision.
 #' @param ... Additional arguments passed to or from other methods (currently
 #'   not used).
 #'
@@ -887,12 +885,10 @@ print.ctt <- function(x, digits = 3, ...) {
 #'
 #' @param x An object of class `"summary.ctt"`, as returned by
 #'   [summary.ctt()].
-#' @param digits Number of decimal places used when rounding numeric values
-#'   for display. Default is `3`. Note that the statistics bundled into `x`
-#'   are already rounded to 3 decimal places upstream, so a `digits` value
-#'   greater than 3 here cannot recover precision that was already
-#'   discarded; `digits` is only useful for displaying the report at 3 or
-#'   fewer decimal places.
+#' @param digits Number of decimal places used for display. Default is `3`.
+#'   The values in `x` are already rounded by [ctt()] (item and test
+#'   statistics to three decimal places, percentages to two), so a larger
+#'   value adds no precision.
 #' @param ... Additional arguments passed to or from other methods (currently
 #'   not used).
 #'
