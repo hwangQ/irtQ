@@ -68,7 +68,10 @@ DIF is introduced into six items:
 - **Items 7-40**: No DIF.
 
 The focal group has a slightly lower mean ability ($\mu = -0.3$) than the
-reference group ($\mu = 0$), representing a realistic impact condition.
+reference group ($\mu = 0$), representing a realistic impact condition. The
+item difficulties are drawn from $U(-2.5, 2.5)$. Items that are extremely easy or
+hard for the examinees can make the pooled calibration unstable, so the range is
+kept moderate.
 
 ```{r dif-setup}
 J   <- 40     # number of items
@@ -76,9 +79,9 @@ N_R <- 1000   # reference group size
 N_F <- 1000   # focal group size
 
 # Base item parameters (no DIF) shared by both groups
-set.seed(100)
+set.seed(123)
 a_base <- round(runif(J, 0.7, 1.7), 2)
-b_base <- round(runif(J, -4.0, 4.0), 2)
+b_base <- round(runif(J, -2.5, 2.5), 2)
 g_base <- rep(0.15, J)
 
 # Reference group item metadata (no DIF)
@@ -120,7 +123,9 @@ cat("Pooled data:", nrow(resp_pool), "examinees x", ncol(resp_pool), "items\n")
 Next, we calibrate item parameters using the pooled data and estimate ability
 scores. Because the RDIF framework requires ability estimates based on pooled
 (aggregate) item parameters, both calibration and scoring must be performed on
-the combined data regardless of group membership [@lim_etal2022].
+the combined data regardless of group membership [@lim_etal2022]. The element
+`test.1` of the calibration result reports whether the EM algorithm converged;
+it should be checked before the estimates are used.
 
 ```{r dif-calibrate, cache=FALSE}
 # Calibrate item parameters from the pooled data
@@ -132,14 +137,18 @@ mod_pool <- est_irt(
   use.gprior = TRUE,
   gprior     = list(dist = "beta", params = c(4, 16)),
   EmpHist    = TRUE,
+  MaxE       = 1000,    # enough EM cycles for the empirical histogram to converge
   verbose    = FALSE
 )
+
+# Check that the EM algorithm converged
+mod_pool$test.1
 
 meta_pool <- mod_pool$par.est
 
 # Estimate ability using ML method
 # ML is recommended for RDIF analysis as it provides point estimates
-# unaffected by prior distribution assumptions [@lim_etal2022]
+# unaffected by prior distribution assumptions (Lim et al., 2022)
 score_pool <- est_score(
   x      = meta_pool,
   data   = resp_pool,
@@ -247,13 +256,23 @@ each item: `rdifr` (RDIF$_R$ statistic), `z.rdifr` (standardized RDIF$_R$),
 p-values), and group sample sizes. Items with p-values below `alpha` are
 flagged as DIF.
 
+In this simulation, RDIF$_{RS}$ flags all six items with injected DIF (items
+1-6) and four DIF-free items (8, 9, 23, and 32). RDIF$_R$ flags the items with a
+difficulty shift (items 1, 2, 5, and 6), and RDIF$_S$ flags the items with a
+lower focal discrimination (items 3, 4, 5, and 6) together with item 1. The
+DIF-free items that are flagged are false positives, which the purification in
+the next example is designed to remove.
+
 ### Example 2: RDIF with purification
 
 When DIF items are present in the test, they can contaminate the ability
 estimates used to compute the RDIF statistics, inflating Type I error rates
 for DIF-free items. Iterative purification addresses this by progressively
-removing flagged DIF items from ability re-estimation until the set of flagged
-items stabilizes [@lim_etal2022].
+removing flagged DIF items from ability re-estimation. At each iteration, the
+flagged item with the largest value of the `purify.by` statistic is removed, the
+abilities are re-estimated from the remaining items, and the DIF tests are
+repeated. The procedure stops when no further item is flagged or when `max.iter`
+is reached [@lim_etal2022].
 
 ```{r rdif-purify}
 rdif_pur <- rdif(
@@ -279,9 +298,18 @@ print(rdif_pur)
 rdif_pur$with_purify$dif_item
 ```
 
-The `with_purify` component contains the final results after purification
-converged. The `n.iter` field reports how many iterations were performed, and
-`complete` indicates whether convergence was achieved before reaching `max.iter`.
+The `with_purify` component contains the final results after purification. Its
+`n.iter` field reports the total number of iterations that were performed, and
+`complete` indicates whether purification finished before reaching `max.iter`.
+Here the purification finishes after 6 iterations and flags exactly the six items
+with injected DIF (items 1-6); the false positives of the previous example are
+gone.
+
+Do not confuse the `n.iter` field with the `n.iter` column of
+`with_purify$dif_stat`, which gives, for each item, the iteration whose result is
+reported: 0 for an item removed at the first iteration (its statistics come from
+the initial analysis), and the final iteration for the items that were never
+removed.
 
 ---
 
@@ -329,7 +357,8 @@ of groups exhibit DIF.
 
 We extend the simulation to a three-group scenario by adding a second focal
 group. Items 1-2 exhibit uniform DIF (b-parameters shifted upward) in both
-focal groups, with a larger shift for Focal Group 2.
+focal groups, with a larger shift for Focal Group 3 ($+0.8$ versus $+0.5$ for
+Focal Group 2).
 
 ```{r grdif-setup}
 N_g <- 700   # examinees per group
@@ -371,8 +400,12 @@ mod_3g <- est_irt(
   use.gprior = TRUE,
   gprior     = list(dist = "beta", params = c(4, 16)),
   EmpHist    = TRUE,
+  MaxE       = 1000,    # enough EM cycles for the empirical histogram to converge
   verbose    = FALSE
 )
+
+# Check that the EM algorithm converged
+mod_3g$test.1
 
 meta_3g  <- mod_3g$par.est
 
@@ -419,6 +452,11 @@ flagged by the omnibus test. This helps pinpoint whether DIF occurs between
 the reference and one focal group, between the reference and all focal groups,
 or between focal groups only.
 
+In this simulation, all three GRDIF statistics flag items 1 and 2 and no other
+item. The post-hoc results show significant RDIF$_R$ for every pair of groups on
+both items, and the largest differences involve Focal Group 3, whose difficulty
+shift is the largest.
+
 ### Example 2: GRDIF with purification
 
 ```{r grdif-purify}
@@ -449,6 +487,9 @@ grdif_pur$with_purify$dif_item
 grdif_pur$with_purify$post.hoc
 ```
 
+The purification, driven by GRDIF$_R$, finishes after 2 iterations (one item is
+removed per iteration) and again flags items 1 and 2.
+
 ---
 
 ## Part 3: CATSIB (`catsib()`)
@@ -469,16 +510,16 @@ into a regression-corrected score $\hat{\theta}^*_G$, which estimates the
 conditional expectation $E_G[\theta \mid \hat{\theta}]$ separately for each
 group $G$ [@shealy_stout1993]:
 
-$$\hat{\theta}^*_G = \bar{\theta}_G + \hat{\rho}^2_G\left(\hat{\theta} - \bar{\hat{\theta}}_G\right)$$
+$$\hat{\theta}^*_G = \bar{\hat{\theta}}_G + \hat{\rho}^2_G\left(\hat{\theta} - \bar{\hat{\theta}}_G\right)$$
 
-where $\bar{\theta}_G$ is the group mean of $\hat{\theta}$,
-$\bar{\hat{\theta}}_G$ is also estimated by $\bar{\theta}_G$, and
+where $\bar{\hat{\theta}}_G$ is the mean of the ability estimates in group $G$ and
 $\hat{\rho}^2_G = 1 - \hat{\sigma}^2_{e,G} / \hat{\sigma}^2_{\hat{\theta},G}$
 is the estimated reliability in group $G$, with $\hat{\sigma}^2_{e,G}$ being
 the mean squared standard error (SE) of ability estimates and
 $\hat{\sigma}^2_{\hat{\theta},G}$ being the observed variance of $\hat{\theta}$
-in group $G$. Examinees are then matched on $\hat{\theta}^*$ rather than
-$\hat{\theta}$.
+in group $G$. Estimates at a limit of `range` are excluded when these three
+quantities are computed. Examinees are then matched on $\hat{\theta}^*$ rather
+than $\hat{\theta}$.
 
 The corrected scores $\hat{\theta}^*$ are divided into $K$ equal-width ability
 bins. Within each bin $k$, the observed proportions of correct responses,
@@ -570,6 +611,14 @@ standard error (`se`), the standardized $\hat{\beta}$ (`z.beta`), and the
 corresponding p-value for each item. Items with $|\hat{\beta}|$ significantly
 different from zero (at the `alpha` level) are flagged as DIF.
 
+In this simulation, $\hat{\beta}$ is positive and significant for the items with
+a difficulty shift against the focal group (items 1, 2, 5, and 6), meaning that
+the items are easier for the reference group. The items with only a lower focal
+discrimination (items 3 and 4) are not flagged, which is consistent with the
+limited sensitivity of CATSIB to nonuniform DIF discussed below. CATSIB also
+flags several DIF-free items (for example, items 8, 9, 19, 26, and 32), all of
+them with small negative $\hat{\beta}$ values.
+
 ### Example 2: CATSIB with purification
 
 When purification is applied, `catsib()` re-estimates ability parameters
@@ -578,7 +627,7 @@ to be provided. Although Nandakumar and Roussos (2004) did not originally
 propose a purification procedure for CATSIB, `catsib()` implements one
 following the iterative scheme of @lim_etal2022.
 
-```{r catsib-purify}
+```{r catsib-purify, warning=TRUE}
 # x must be provided when purify = TRUE (needed for internal re-scoring)
 catsib_pur <- catsib(
   x            = meta_pool,
@@ -604,6 +653,13 @@ print(catsib_pur)
 catsib_pur$with_purify$dif_item
 ```
 
+In this run, the purification finishes after 10 iterations. It flags items 1, 2,
+4, 5, and 6 but not item 3, and it also flags five DIF-free items (8, 16, 19, 32,
+and 34). The warning printed above comes from the regression correction: after
+some items were removed, the estimated reliability of the focal group fell below
+0.05 and was floored (see the considerations below). Purification does not
+make the CATSIB results cleaner here, so they should be interpreted with caution.
+
 ### Important Considerations for CATSIB
 
 **Sensitivity to DIF type.** CATSIB, like its predecessor SIBTEST
@@ -619,20 +675,19 @@ these cases the bin-level differences may partially cancel and yield
 $\hat{\beta} \approx 0$ even when DIF is present. If nonuniform or mixed DIF
 is suspected, `rdif()` with RDIF$_S$ or RDIF$_{RS}$ is recommended instead.
 
-**Numerical instability of the regression correction under nonuniform or mixed
-DIF.** The regression correction (Equation 7 of @nandakumar_roussos2004)
+**Numerical instability of the regression correction when the reliability is
+low.** The regression correction (Equation 7 of @nandakumar_roussos2004)
 computes, for each group $G$, the reliability estimate:
 
 $$\hat{\rho}^2_G = 1 - \frac{\hat{\sigma}^2_{e,G}}{\hat{\sigma}^2_{\hat{\theta},G}}$$
 
 where $\hat{\sigma}^2_{e,G}$ is the mean squared SE of ability estimates and
 $\hat{\sigma}^2_{\hat{\theta},G}$ is the observed variance of $\hat{\theta}$ in
-group $G$. When DIF items with substantially reduced discrimination are present, 
-their large IRT standard errors may inflate $\hat{\sigma}^2_{e,G}$ for 
-the focal group, causing $\hat{\rho}^2_G$ to approach or fall below zero. 
-A negative $\hat{\rho}^2_G$ would reverse the direction of the regression 
-correction, compressing scores away from the group mean rather than toward 
-it, which severely distorts the bin-level matching and leads to inflated Type I error rates.
+group $G$. The reliability estimate falls toward or below zero when the mean
+squared SE approaches the observed variance of $\hat{\theta}$, for example when
+few items remain after purification. A negative $\hat{\rho}^2_G$ would reflect
+the scores around the group mean and reverse their order, which severely
+distorts the bin-level matching and leads to inflated Type I error rates.
 
 To prevent this, `catsib()` clamps $\hat{\rho}^2_G$ to the interval $[0.05,\,
 1]$:
@@ -657,6 +712,7 @@ func(
   x          = <item metadata>,     # pooled item parameters (data frame)
   data       = <response matrix>,   # pooled responses (examinees x items)
   score      = <ability vector>,    # pooled ability estimates
+  se         = <SE vector>,         # catsib() only: SEs of the ability estimates (required when score is given)
   group      = <group vector>,      # group membership labels
   focal.name = <focal label(s)>,    # which group(s) are focal
   D          = 1.702,               # scaling constant (match calibration)
@@ -667,8 +723,12 @@ func(
 ```
 
 Output always contains `$no_purify$dif_stat` (table of statistics for all
-items) and `$no_purify$dif_item` (indices of flagged items). When
-`purify = TRUE`, corresponding results are also available under `$with_purify`.
+items) and `$no_purify$dif_item` (indices of flagged items). For `rdif()` and
+`grdif()`, `no_purify$dif_item` is a list of three vectors, one per statistic;
+for `catsib()` it is a single vector. When `purify = TRUE`, corresponding results
+are also available under `$with_purify`, where `dif_item` is a single vector: the
+items flagged by the `purify.by` statistic across all purification iterations
+(for `catsib()`, by the CATSIB statistic).
 
 ---
 
