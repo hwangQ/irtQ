@@ -289,7 +289,6 @@ To generate a plot, specify the item to be examined using the `item.loc` argumen
 The `ci.method` argument controls how confidence intervals are computed in the raw residual plots. Supported methods include:
 
 - `"wald"`: Wald interval based on the normal approximation (Laplace, 1812)
-- `"cp"`: Clopper-Pearson interval (Clopper & Pearson, 1934)
 - `"wilson"`: Wilson score interval (Wilson, 1927)
 - `"wilson.cr"`: Wilson score interval with continuity correction (Newcombe, 1998)
 
@@ -337,7 +336,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # gprior     = list(dist = "beta", params = c(5, 16))# Prior: Beta(5,16) for g
 # Quadrature = c(49, 6)                              # 49 quadrature points from -6 to 6
 # group.mean = 0
-# group.var  = 1                                     # Fixed latent ability: N(0,1)
+# group.var  = 1                                     # Fix the scale of the latent distribution (mean 0, variance 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
 # Etol       = 1e-3                                  # E-step convergence tolerance
 # MaxE       = 500                                   # Max EM iterations
@@ -497,7 +496,7 @@ print(est_new_fapc)
 ## Only items with more than 1,000 non-missing responses are evaluated.
 
 # Identify items with more than 1,000 valid responses
-over1000 <- which(colSums(simCAT_MX$res.dat, na.rm = TRUE) > 1000)
+over1000 <- which(colSums(!is.na(simCAT_MX$res.dat)) > 1000)
 
 # (1) Item metadata
 x <- simCAT_MX$item.prm[over1000, ]
@@ -541,8 +540,8 @@ fit2 <- irtfit(
 # View the first 10 rows of fit statistics
 fit2$fit_stat[1:10, ]
 
-# View the contingency table for the fourth item (polytomous)
-fit2$contingency.fitstat[[4]]
+# View the contingency table for the 113th item (polytomous)
+fit2$contingency.fitstat[[113]]
 
 ## Step 3: Draw residual plots for IRT model-data fit diagnostics
 # 1. Dichotomous item
@@ -555,7 +554,7 @@ plot(x = fit1, item.loc = 1, type = "icc", ci.method = "wald",
      ylim.sr.adjust = TRUE)
 
 # (3) Standardized residual plot only
-plot(x = fit1, item.loc = 113, type = "sr", ci.method = "wald", 
+plot(x = fit1, item.loc = 1, type = "sr", ci.method = "wald", 
      ylim.sr.adjust = TRUE)
 
 # 2. Polytomous item
