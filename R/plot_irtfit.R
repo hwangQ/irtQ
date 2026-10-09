@@ -396,7 +396,7 @@ plot.irtfit <- function(x,
 
   ## -------------------------------------------------------------------------
   if (type == "both") {
-    xlab.text <- expression(theta)
+    if (missing(xlab.text)) xlab.text <- expression(theta)
     if (missing(ylab.text)) ylab.text <- c("Probability", "Standardized Residual")
     if (missing(main.text)) {
       main.text <- c(

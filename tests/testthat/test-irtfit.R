@@ -195,3 +195,19 @@ test_that("irtfit() reports NA critical values and p-values when no degrees of f
   # no warning when every item keeps degrees of freedom
   expect_no_warning(irtfit(x = x_ft, score = theta_fit, data = resp_ft, D = 1))
 })
+
+test_that("plot.irtfit() uses xlab.text for type = 'both'", {
+  # the last plot is read back, which needs get_last_plot() in ggplot2
+  skip_if_not("get_last_plot" %in% getNamespaceExports("ggplot2"))
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  fit <- irtfit(x = x_ft, score = theta_fit, data = resp_ft, D = 1)
+  for (tp in c("both", "icc", "sr")) {
+    plot(fit, item.loc = 1, type = tp, show.table = FALSE, xlab.text = "Ability")
+    expect_identical(ggplot2::get_last_plot()$labels$x, "Ability")
+  }
+
+  # the default label is theta
+  plot(fit, item.loc = 1, type = "both", show.table = FALSE)
+  expect_false(identical(ggplot2::get_last_plot()$labels$x, "Ability"))
+})

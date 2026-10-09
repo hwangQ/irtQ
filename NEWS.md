@@ -132,6 +132,10 @@
   `score.0`, `score.1`, ... as for tests with several polytomous items.
   The values are unchanged.
 
+- `plot()` for an `irtfit` object ignored `xlab.text` when
+  `type = "both"` and always used theta as the x-axis title. The given
+  title is now used, as for the other types.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
