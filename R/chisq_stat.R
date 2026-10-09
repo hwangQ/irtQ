@@ -1,4 +1,5 @@
-# This function calculates the central and non-central chi-square fit statistics
+# This function computes a chi-square fit statistic with its degrees of freedom
+# and the central and non-central critical values
 #' @importFrom Rfast rowsums
 chisq_stat <- function(exp.freq, obs.freq, count.prm, crt.delta, alpha) {
   # transform the two frequency tables to the matrix forms
@@ -16,14 +17,13 @@ chisq_stat <- function(exp.freq, obs.freq, count.prm, crt.delta, alpha) {
   # compute the chi-square statistic
   chisq_fit <- sum(Rfast::rowsums(obs.freq2) * ((obs.prop - exp.prop)^2 / exp.prop), na.rm = TRUE)
 
-  # copy the expected proportion table and replace 0 with NA
+  # copy the proportion tables and set the collapsed cells to NA
   exp.prop2 <- exp.prop
   obs.prop2 <- obs.prop
   exp.prop2[is.na(exp.freq)] <- NA
   obs.prop2[is.na(obs.freq)] <- NA
 
-  # check if any cell exists whose value is greater than crt.delta
-  # and and replace the value with the crt.delta
+  # cap the distances to the 0 and 1 boundaries at crt.delta
   diff_up <- 1 - exp.prop2
   diff_low <- exp.prop2 - 0
   diff_up[diff_up > crt.delta] <- crt.delta

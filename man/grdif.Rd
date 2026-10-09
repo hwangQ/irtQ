@@ -79,8 +79,8 @@ grdif(x, ...)
 }
 \arguments{
 \item{x}{A data frame containing item metadata (e.g., item parameters,
-number of categories, IRT model types, etc.); or an object of class
-\code{est_irt} obtained from \code{\link[=est_irt]{est_irt()}}, or \code{est_item} from
+number of categories, IRT model types, etc.), or an object of class
+\code{est_irt} or \code{est_item} obtained from \code{\link[=est_irt]{est_irt()}} or
 \code{\link[=est_item]{est_item()}}.
 
 See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for more details about the item

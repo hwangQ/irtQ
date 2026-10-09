@@ -9,56 +9,86 @@
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for the hypothesis test associated with the \eqn{S\text{-}X^2} statistic.
 #'   Default is 0.05.
-#' @param min.collapse An integer specifying the minimum expected frequency
-#'   required per cell before adjacent cells are collapsed. Default is 1. See
-#'   **Details**.
-#' @param norm.prior A numeric vector of length two specifying the mean and
-#'   standard deviation of the normal prior distribution used to generate the
-#'   Gaussian quadrature points and weights when `weights` is omitted. Default
+#' @param min.collapse A numeric value giving the minimum expected frequency
+#'   per cell. Cells with smaller expected frequencies are merged with adjacent
+#'   cells. Default is 1. See **Details**.
+#' @param norm.prior A numeric vector of length two giving the mean and standard
+#'   deviation of the normal latent ability distribution used to generate the
+#'   quadrature points and weights. Ignored when `weights` is supplied. Default
 #'   is `c(0, 1)`.
 #' @param nquad An integer specifying the number of Gaussian quadrature points
-#'   used to approximate the normal prior distribution. Default is 30.
+#'   used to approximate the normal latent ability distribution. Ignored when
+#'   `weights` is supplied. Default is 30.
 #' @param weights A two-column matrix or data frame containing the quadrature
 #'   points (first column) and their corresponding weights (second column) for
 #'   the latent ability distribution. If omitted, default values are generated
 #'   using [irtQ::gen.weight()] according to the `norm.prior` and `nquad` arguments.
-#' @param pcm.loc An optional integer vector indicating the row indices of items
-#'   that follow the partial credit model (PCM), where slope parameters are
-#'   fixed. Default is `NULL`.
+#' @param pcm.loc An optional integer vector giving the row indices of partial
+#'   credit model (PCM) items whose slope parameters are fixed. It is used only
+#'   to count the item parameters for the degrees of freedom. Default is `NULL`.
 #' @param ... Additional arguments passed to or from other methods.
 #'
 #' @details
-#' The accuracy of the \eqn{\chi^{2}} approximation in item fit statistics can be
-#' compromised when expected cell frequencies in contingency tables are too small
-#' (Orlando & Thissen, 2000). To address this issue, Orlando and Thissen (2000)
-#' proposed collapsing adjacent summed score groups to ensure a minimum expected
-#' frequency of at least 1.
+#' For item \eqn{i} and summed score group \eqn{s} with \eqn{N_s} examinees,
+#' let \eqn{O_{isk}} and \eqn{E_{isk}} be the observed and expected proportions
+#' of score category \eqn{k}. The statistic is
+#' \eqn{S\text{-}X^2_i = \sum_s \sum_k N_s (O_{isk} - E_{isk})^2 / E_{isk}},
+#' which has the form of Orlando and Thissen (2000) for a dichotomous item.
+#' The expected proportions are
+#' \eqn{E_{isk} = \sum_q P_{ik}(\theta_q) f^{*i}(s - k \mid \theta_q) A(\theta_q)
+#' / \sum_q f(s \mid \theta_q) A(\theta_q)},
+#' where \eqn{f} and \eqn{f^{*i}} are the summed score likelihoods with and
+#' without item \eqn{i}, computed by the Lord-Wingersky recursion, and
+#' \eqn{\theta_q} and \eqn{A(\theta_q)} are the quadrature points and weights.
 #'
-#' However, applying this collapsing approach directly to polytomous item data
-#' can result in excessive information loss (Kang & Chen, 2008). To mitigate this,
-#' Kang and Chen (2008) instead collapsed adjacent response categories *within*
-#' each summed score group, maintaining a minimum expected frequency of 1 per
-#' category. The same collapsing strategies are implemented in [irtQ::sx2_fit()].
-#' If a different minimum expected frequency is desired, it can be specified via
-#' the `min.collapse` argument.
+#' The lowest and highest possible summed scores are excluded. For an item with
+#' \eqn{K} score categories, the \eqn{K - 1} lowest remaining summed scores are
+#' pooled into one group, and so are the \eqn{K - 1} highest.
 #'
-#' When an item is labeled as "DRM" in the item metadata, it is treated as a 3PLM
-#' item when computing the degrees of freedom for the \eqn{S\text{-}X^2} statistic.
+#' The accuracy of the \eqn{\chi^{2}} approximation can be compromised when
+#' expected cell frequencies are too small (Orlando & Thissen, 2000). For
+#' dichotomous items, Orlando and Thissen (2000) merged adjacent summed score
+#' groups so that every expected frequency is at least 1. For polytomous items,
+#' this approach can discard too much information (Kang & Chen, 2008), so Kang
+#' and Chen (2008) instead merged adjacent score categories *within* each summed
+#' score group. [irtQ::sx2_fit()] follows both strategies, working from the ends
+#' of the table toward the middle, and `min.collapse` sets the minimum expected
+#' frequency.
 #'
-#' Additionally, any missing responses in the `data` are automatically replaced
-#' with incorrect responses (i.e., 0s).
+#' The degrees of freedom are \eqn{G(K - 1) - m - C}, where \eqn{G} is the
+#' number of summed score groups after collapsing, \eqn{m} is the number of
+#' item parameters, and \eqn{C} is the number of category cells removed by
+#' merging. The number of item parameters \eqn{m} is determined by the IRT model
+#' of each item: 1 for the 1PLM, 2 for the 2PLM, 3 for the 3PLM, and the number
+#' of score categories \eqn{K} for the GRM and GPCM; an item listed in
+#' `pcm.loc` has \eqn{m = K - 1}, and an item labeled `"DRM"` is counted as a
+#' 3PLM item. This also applies to `est_irt` and `est_item` objects: parameters
+#' fixed during estimation (for example, with `fix.g = TRUE`, or the items fixed
+#' in FIPC) are still counted, and GPCM items estimated with
+#' `fix.a.gpcm = TRUE` are counted as PCM items only when they are given in
+#' `pcm.loc`.
+#'
+#' Missing responses in `data` are replaced with 0 (the lowest score category),
+#' and a warning is issued.
 #'
 #' @return
-#' A list containing the following components:
-#' \item{fit_stat}{A data frame summarizing the \eqn{S\text{-}X^2} fit statistics
-#' for all items, including the chi-square value, degrees of freedom, critical
-#' value, and p-value.}
-#' \item{item_df}{A data frame containing the item metadata as specified in the
-#' input argument `x`.}
-#' \item{exp_freq}{A list of collapsed expected frequency tables for all items.}
-#' \item{obs_freq}{A list of collapsed observed frequency tables for all items.}
-#' \item{exp_prob}{A list of collapsed expected probability tables for all items.}
-#' \item{obs_prop}{A list of collapsed observed proportion tables for all items.}
+#' A list with the following components:
+#' \item{fit_stat}{A data frame with one row per item and the columns `id`,
+#' `chisq` (the \eqn{S\text{-}X^2} statistic), `df`, `crit.val` (the critical
+#' value at `alpha`), and `p` (the p-value).}
+#' \item{item_df}{The item metadata used in the analysis.}
+#' \item{exp_freq}{A list of collapsed expected frequency tables, one per item,
+#' with summed score groups in rows and score categories in columns.}
+#' \item{obs_freq}{A list of collapsed observed frequency tables in the same
+#' layout as `exp_freq`.}
+#' \item{exp_prob}{A list of matrices of expected proportions within each
+#' summed score group.}
+#' \item{obs_prop}{A list of matrices of observed proportions within each
+#' summed score group.}
+#'
+#' For a polytomous item, categories merged within a summed score group are
+#' stored in the leftmost columns of that row, and the remaining cells are
+#' `NA`.
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -169,7 +199,7 @@ sx2_fit.default <- function(x,
   ## ------------------------------------------------------------------
   ## 1. data preparation
   ## ------------------------------------------------------------------
-  # save item metadata to another objective
+  # keep a copy of the item metadata
   full_df <- x
   
   # count the number of items
@@ -201,7 +231,7 @@ sx2_fit.default <- function(x,
   # compute category probabilities for all items
   prob.cats <- trace(elm_item = elm_item, theta = wts[, 1], D = D, tcc = FALSE)$prob.cats
   
-  # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
+  # compute the summed score likelihoods with the Lord-Wingersky recursion
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
   # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
@@ -284,17 +314,16 @@ sx2_fit.default <- function(x,
       exp_tmp <- data.frame(ftable_info_plm[i, 1])
       obs_tmp <- data.frame(ftable_info_plm[i, 2])
       
-      # check if there are any rows a sum of the number of examinees across all score categories are zero
-      # if so, delete them
+      # drop summed score groups with no examinees
       if (any(rowSums(exp_tmp) == 0L)) {
         exp_tmp <- exp_tmp[rowSums(exp_tmp) != 0L, ]
         obs_tmp <- obs_tmp[rowSums(obs_tmp) != 0L, ]
       }
       
-      # Extract column names before collapsing the frequency tablesact
+      # keep the column names before collapsing the frequency tables
       col.name <- colnames(exp_tmp)
       
-      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      # collapse the categories of each summed score group with collapse_ftable_prm()
       out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
                                         min.collapse = min.collapse)
       exp_table <- out_tables$exp_table
@@ -361,7 +390,7 @@ sx2_fit.default <- function(x,
   obs_prop <- purrr::map(fitstat_list, .f = function(x) x$obs.prop)
   
   ## ------------------------------------------------------------------
-  ## 3. return the results
+  ## 6. return the results
   ## ------------------------------------------------------------------
   list(
     fit_stat = fit_stat, item_df = full_df, exp_freq = exp_freq2, obs_freq = obs_freq2,
@@ -370,7 +399,9 @@ sx2_fit.default <- function(x,
 }
 
 
-#' @describeIn sx2_fit An object created by the function [irtQ::est_item()].
+#' @describeIn sx2_fit Method for an object of class `est_item` created by
+#' [irtQ::est_item()]. The item parameter estimates, response data, and `D`
+#' are taken from the object.
 #' @import dplyr
 #' @export
 sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0, 1),
@@ -407,7 +438,7 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
   ## ------------------------------------------------------------------
   ## 1. data preparation
   ## ------------------------------------------------------------------
-  # save item metadata to another objective
+  # keep a copy of the item metadata
   full_df <- x
   
   # count the number of items
@@ -439,7 +470,7 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
   # compute category probabilities for all items
   prob.cats <- trace(elm_item = elm_item, theta = wts[, 1], D = D, tcc = FALSE)$prob.cats
   
-  # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
+  # compute the summed score likelihoods with the Lord-Wingersky recursion
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
   # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
@@ -521,17 +552,16 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
       exp_tmp <- data.frame(ftable_info_plm[i, 1])
       obs_tmp <- data.frame(ftable_info_plm[i, 2])
       
-      # check if there are any rows a sum of the number of examinees across all score categories are zero
-      # if so, delete them
+      # drop summed score groups with no examinees
       if (any(rowSums(exp_tmp) == 0L)) {
         exp_tmp <- exp_tmp[rowSums(exp_tmp) != 0L, ]
         obs_tmp <- obs_tmp[rowSums(obs_tmp) != 0L, ]
       }
       
-      # Extract column names before collapsing the frequency tablesact
+      # keep the column names before collapsing the frequency tables
       col.name <- colnames(exp_tmp)
       
-      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      # collapse the categories of each summed score group with collapse_ftable_prm()
       out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
                                         min.collapse = min.collapse)
       exp_table <- out_tables$exp_table
@@ -597,7 +627,7 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
   obs_prop <- purrr::map(fitstat_list, .f = function(x) x$obs.prop)
   
   ## ------------------------------------------------------------------
-  ## 3. return the results
+  ## 6. return the results
   ## ------------------------------------------------------------------
   list(
     fit_stat = fit_stat, item_df = full_df, exp_freq = exp_freq2, obs_freq = obs_freq2,
@@ -605,7 +635,9 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
   )
 }
 
-#' @describeIn sx2_fit An object created by the function [irtQ::est_irt()].
+#' @describeIn sx2_fit Method for an object of class `est_irt` created by
+#' [irtQ::est_irt()]. The item parameter estimates, response data, and `D`
+#' are taken from the object.
 #' @importFrom Rfast rowsums
 #' @import dplyr
 #' @export
@@ -643,7 +675,7 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
   ## ------------------------------------------------------------------
   ## 1. data preparation
   ## ------------------------------------------------------------------
-  # save item metadata to another objective
+  # keep a copy of the item metadata
   full_df <- x
   
   # count the number of items
@@ -675,7 +707,7 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
   # compute category probabilities for all items
   prob.cats <- trace(elm_item = elm_item, theta = wts[, 1], D = D, tcc = FALSE)$prob.cats
   
-  # estimate likelihoods of getting raw sum scores using lord-wingersky algorithm
+  # compute the summed score likelihoods with the Lord-Wingersky recursion
   lkhd <- t(lwRecurive(prob.cats = prob.cats, cats = cats, n.theta = nquad))
   
   # compute lkhd_noitem for all items via forward-backward LW (2 passes + J convolutions)
@@ -757,17 +789,16 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
       exp_tmp <- data.frame(ftable_info_plm[i, 1])
       obs_tmp <- data.frame(ftable_info_plm[i, 2])
       
-      # check if there are any rows a sum of the number of examinees across all score categories are zero
-      # if so, delete them
+      # drop summed score groups with no examinees
       if (any(rowSums(exp_tmp) == 0L)) {
         exp_tmp <- exp_tmp[rowSums(exp_tmp) != 0L, ]
         obs_tmp <- obs_tmp[rowSums(obs_tmp) != 0L, ]
       }
       
-      # Extract column names before collapsing the frequency tablesact
+      # keep the column names before collapsing the frequency tables
       col.name <- colnames(exp_tmp)
       
-      # vectorised detection and per-row collapse via collapse_ftable_prm()
+      # collapse the categories of each summed score group with collapse_ftable_prm()
       out_tables <- collapse_ftable_prm(exp_mat = exp_tmp, obs_mat = obs_tmp,
                                         min.collapse = min.collapse)
       exp_table <- out_tables$exp_table
@@ -833,7 +864,7 @@ sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0,
   obs_prop <- purrr::map(fitstat_list, .f = function(x) x$obs.prop)
   
   ## ------------------------------------------------------------------
-  ## 3. return the results
+  ## 6. return the results
   ## ------------------------------------------------------------------
   list(
     fit_stat = fit_stat, item_df = full_df, exp_freq = exp_freq2, obs_freq = obs_freq2,
