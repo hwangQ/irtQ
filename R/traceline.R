@@ -164,9 +164,13 @@ traceline.default <- function(x, theta, D = 1, ...) {
           }
         )
 
+      # drop the probabilities of the categories an item does not have
+      item.of.row <- rep(seq_along(a), n.theta)
+      P.valid <- P.all * (col(P.all) <= cat.tmp[item.of.row])
+
       # insert icc
       icc_df[, idx.tmp] <-
-        matrix(P.all %*% c(0:max.cats), nrow = n.theta, byrow = TRUE)
+        matrix(P.valid %*% c(0:max.cats), nrow = n.theta, byrow = TRUE)
     }
   }
 

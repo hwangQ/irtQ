@@ -62,10 +62,12 @@
   thetas.
 
 - `drm()` compared the probabilities with the guessing parameters of the
-  wrong items when it kept them away from the guessing parameter, so
-  probabilities could differ by about 1e-10 and item parameter estimates
-  by about 1e-10. Each item is now compared with its own guessing
-  parameter.
+  wrong items when it kept them away from the guessing parameter, and
+  `traceline()` added the lower bound of categories that an item does
+  not have to its expected score. Probabilities and expected scores
+  could differ by about 1e-10, and item parameter estimates by about
+  1e-9. Each item is now compared with its own guessing parameter, and
+  missing categories are left out.
 
 ## Minor Improvements
 

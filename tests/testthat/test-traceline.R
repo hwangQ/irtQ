@@ -48,3 +48,21 @@ test_that("traceline() ICC and TCC are expected scores of the category probabili
   expect_equal(tr$tcc, rowSums(tr$icc))
   expect_true(all(abs(sapply(tr$prob.cats, rowSums) - 1) < 1e-8))
 })
+
+test_that("traceline() ICC ignores the categories an item does not have", {
+  # a GRM item with 3 categories next to a GRM item with 5 categories
+  meta <- data.frame(
+    id = c("A", "B"), cats = c(3, 5), model = "GRM", par.1 = c(1, 1.2), par.2 = c(-1, -1),
+    par.3 = c(1, 0), par.4 = c(NA, 1), par.5 = c(NA, 2)
+  )
+  tr <- traceline(meta, c(-2, 0, 1.5))
+  es <- sapply(tr$prob.cats, function(p) p %*% (0:(ncol(p) - 1)))
+  expect_equal(unname(tr$icc), unname(es), tolerance = 1e-12)
+  expect_equal(tr$tcc, rowSums(es), tolerance = 1e-12)
+
+  # the same holds for GPCM items
+  meta$model <- "GPCM"
+  tr <- traceline(meta, c(-2, 0, 1.5))
+  es <- sapply(tr$prob.cats, function(p) p %*% (0:(ncol(p) - 1)))
+  expect_equal(unname(tr$icc), unname(es), tolerance = 1e-12)
+})
