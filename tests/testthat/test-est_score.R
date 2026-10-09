@@ -519,11 +519,22 @@ test_that("llike_score() returns NA for an examinee without any observed respons
   d_ll <- simdat(x_ll, rnorm(3), D = 1)
   th <- seq(-2, 2, 1)
   d_na <- rbind(d_ll[1, ], rep(NA, ncol(d_ll)), d_ll[2, ])
-  for (m in c("ML", "MAP")) {
+  for (m in c("ML", "MLF", "MAP")) {
     res <- llike_score(x_ll, d_na, th, method = m)
     expect_true(all(is.na(res[[2]])))
     expect_equal(res[, c(1, 3)], llike_score(x_ll, d_ll[1:2, ], th, method = m), ignore_attr = TRUE)
+
+    # the other columns equal the values computed without that examinee
+    expect_identical(
+      unname(as.matrix(res[, c(1, 3)])),
+      unname(as.matrix(llike_score(x_ll, d_ll[1:2, ], th, method = m)))
+    )
   }
+
+  # a data frame gives the same NA column for MLF
+  res_df <- llike_score(x_ll, as.data.frame(d_na), th, method = "MLF")
+  expect_true(all(is.na(res_df[[2]])))
+  expect_false(anyNA(res_df[[1]]))
 })
 
 test_that("bisection() warns when the bounds do not bracket a root and stops at max.it", {
