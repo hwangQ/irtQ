@@ -80,3 +80,25 @@ test_that("simdat() repeats a single pr.model for every polytomous item", {
   expect_identical(res1, res2)
   expect_true(all(res1 %in% 0:2))
 })
+
+test_that("simdat() reproduces the category probabilities", {
+  meta <- data.frame(
+    id = paste0("I", 1:4), cats = c(2, 4, 2, 5), model = c("3PLM", "GRM", "2PLM", "GPCM"),
+    par.1 = c(1.2, 1.4, 0.8, 0.9), par.2 = c(0.3, -1, -0.5, -1), par.3 = c(0.2, 0, NA, 0),
+    par.4 = c(NA, 1, NA, 0.7), par.5 = c(NA, NA, NA, 1.6)
+  )
+  n <- 200000
+  set.seed(11)
+  resp <- simdat(meta, theta = rep(0.4, n), D = 1.702)
+  pr <- traceline(meta, 0.4, D = 1.702)$prob.cats
+
+  # observed proportions are within five standard errors of the model probabilities
+  for (j in 1:4) {
+    obs <- tabulate(resp[, j] + 1, meta$cats[j]) / n
+    expect_lt(max(abs(obs - c(pr[[j]]))), 5 * 0.5 / sqrt(n))
+  }
+
+  # the result is always a matrix, whatever the numbers of examinees and items
+  expect_equal(dim(simdat(meta, theta = 0.1)), c(1L, 4L))
+  expect_equal(dim(simdat(meta[2, ], theta = c(-1, 1))), c(2L, 1L))
+})

@@ -165,3 +165,26 @@ test_that("drm() treats NA guessing parameters as zeros", {
   expect_equal(P[, 2], 0.2 + 0.8 * plogis(c(-1, 0, 1)), tolerance = 1e-12)
   expect_equal(as.numeric(drm(0, a = 1, b = 0, g = NA, D = 1)), 0.5)
 })
+
+test_that("prm() matches the GRM and GPCM formulas (b_v = beta - tau_v)", {
+  # hand formulas used as references
+  grm_ref <- function(th, a, d, D) {
+    s <- matrix(sapply(d, function(dk) plogis(D * a * (th - dk))), nrow = length(th))
+    cbind(1, s) - cbind(s, 0)
+  }
+  gpcm_ref <- function(th, a, d, D) {
+    num <- sapply(0:length(d), function(k) if (k == 0) rep(0, length(th)) else D * a * (k * th - sum(d[1:k])))
+    num <- matrix(num, nrow = length(th))
+    num <- exp(num - apply(num, 1, max))
+    num / rowSums(num)
+  }
+  th <- seq(-4, 4, 0.5)
+  for (D in c(1, 1.702)) {
+    expect_lt(max(abs(prm(th, 1.3, c(-1, 0.2, 1.5), D, "GRM") - grm_ref(th, 1.3, c(-1, 0.2, 1.5), D))), 1e-12)
+    expect_lt(max(abs(prm(th, 1.3, c(-1, 0.2, 1.5), D, "GPCM") - gpcm_ref(th, 1.3, c(-1, 0.2, 1.5), D))), 1e-12)
+  }
+
+  # symmetric steps around beta give a symmetric distribution at theta = beta
+  P <- prm(0.5, 1, 0.5 - c(0.8, 0, -0.8), 1, "GPCM")
+  expect_equal(c(P), c(0.1550128, 0.3449872, 0.3449872, 0.1550128), tolerance = 1e-6)
+})

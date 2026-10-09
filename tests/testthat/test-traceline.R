@@ -117,3 +117,23 @@ test_that("plot.traceline() labels items and score panels as given", {
   expect_setequal(unique(p_panel$data$score), c("Score: 0", "Score: 1", "Score: 2"))
   expect_setequal(as.character(unique(p_over$data$score)), c("0", "1", "2"))
 })
+
+# ---- a flexMIRT test form ------------------------------------------------------
+
+test_that("traceline() of the flexMIRT sample form gives expected scores and keeps matrices", {
+  meta <- bring.flexmirt(
+    file = system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ"), "par"
+  )$Group1$full_df
+
+  # ICC and TCC are expected scores, and the category probabilities sum to 1
+  tr <- traceline(meta, seq(-3, 3, 1))
+  es <- sapply(tr$prob.cats, function(p) p %*% (0:(ncol(p) - 1)))
+  expect_lt(max(abs(tr$icc - es)), 1e-12)
+  expect_equal(tr$tcc, rowSums(tr$icc))
+  expect_true(all(abs(sapply(tr$prob.cats, rowSums) - 1) < 1e-8))
+
+  # a single theta keeps one-row matrices for every item
+  tr1 <- traceline(meta, 0)
+  expect_true(all(vapply(tr1$prob.cats, is.matrix, logical(1))))
+  expect_equal(dim(tr1$prob.cats[[39]]), c(1L, 5L))
+})

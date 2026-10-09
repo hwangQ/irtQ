@@ -107,3 +107,45 @@ test_that("plot.info() labels items with their IDs as given", {
   expect_setequal(as.character(unique(p$data$item)), c("1", "item-2", "CR 3"))
   expect_identical(plot(inf, item.loc = 2)$labels$title, "Item Information: item-2")
 })
+
+# ---- information against the Fisher information of the category probabilities --
+
+# hand formulas used as references
+grm_ref <- function(th, a, d, D) {
+  s <- matrix(sapply(d, function(dk) plogis(D * a * (th - dk))), nrow = length(th))
+  cbind(1, s) - cbind(s, 0)
+}
+gpcm_ref <- function(th, a, d, D) {
+  num <- sapply(0:length(d), function(k) if (k == 0) rep(0, length(th)) else D * a * (k * th - sum(d[1:k])))
+  num <- matrix(num, nrow = length(th))
+  num <- exp(num - apply(num, 1, max))
+  num / rowSums(num)
+}
+fisher_ref <- function(pfun, th, h = 1e-5) {
+  sapply(th, function(t) {
+    P <- pfun(t)
+    dP <- (pfun(t + h) - pfun(t - h)) / (2 * h)
+    sum(dP^2 / P)
+  })
+}
+
+test_that("info() equals the Fisher information of the category probabilities", {
+  meta <- data.frame(
+    id = c("D3", "G4", "P5"), cats = c(2, 4, 5), model = c("3PLM", "GRM", "GPCM"),
+    par.1 = c(1.2, 1.4, 0.9), par.2 = c(0.4, -1.2, -1), par.3 = c(0.18, 0.1, 0),
+    par.4 = c(NA, 1.3, 0.7), par.5 = c(NA, NA, 1.6)
+  )
+  th <- c(-3, -1, 0, 0.7, 2)
+  for (D in c(1, 1.702)) {
+    ref <- rbind(
+      fisher_ref(function(t) {
+        p <- 0.18 + 0.82 * plogis(D * 1.2 * (t - 0.4))
+        c(1 - p, p)
+      }, th),
+      fisher_ref(function(t) grm_ref(t, 1.4, c(-1.2, 0.1, 1.3), D)[1, ], th),
+      fisher_ref(function(t) gpcm_ref(t, 0.9, c(-1, 0, 0.7, 1.6), D)[1, ], th)
+    )
+    expect_lt(max(abs(unname(info(meta, th, D = D)$iif) - ref)), 1e-8)
+  }
+  expect_equal(unname(info(meta, 0, D = 1.702)$iif[1, 1]), 0.516497, tolerance = 1e-6)
+})
