@@ -659,3 +659,159 @@ test_that("est_score() has a method for est_item objects that matches the defaul
   expect_error(est_score(ei, data = resp_drm[1:3, 1:6], method = "ML"), "cannot be supplied")
   expect_error(est_score(ei, D = 1, method = "ML"), "cannot be supplied")
 })
+
+
+# ==============================================================================
+# 8. VALUES AGAINST INDEPENDENT COMPUTATIONS
+# ==============================================================================
+
+# mixed-format test: 3 x 3PLM, 2 x GPCM, 1 x GRM
+x_mix <- shape_df(
+  par.drm = list(a = c(1.0, 1.2, 0.9), b = c(-1.0, 0, 1.0), g = c(0.2, 0.15, 0.1)),
+  par.prm = list(a = c(1.0, 1.2, 0.8), d = list(c(-1.0, 0.0, 1.0), c(-0.5, 0.5, 1.5), c(-1, 0.3))),
+  cats = c(2, 2, 2, 4, 4, 3), model = c(rep("3PLM", 3), "GPCM", "GRM", "GPCM")
+)
+
+# category probabilities of one item written out independently of the package
+cat_prob <- function(th, it, D = 1) {
+  a <- it$par.1
+  if (it$model == "3PLM") {
+    p <- it$par.3 + (1 - it$par.3) / (1 + exp(-D * a * (th - it$par.2)))
+    return(cbind(1 - p, p))
+  }
+  d <- as.numeric(unlist(it[paste0("par.", 2:it$cats)]))
+  if (it$model == "GRM") {
+    ps <- matrix(sapply(d, function(b) plogis(D * a * (th - b))), nrow = length(th))
+    return(cbind(1, ps) - cbind(ps, 0))
+  }
+  z <- matrix(sapply(d, function(b) D * a * (th - b)), nrow = length(th))
+  e <- exp(t(apply(cbind(0, z), 1, cumsum)))
+  e / rowSums(e)
+}
+
+# log-likelihood of one response pattern
+loglik_ref <- function(th, x, resp, D = 1) {
+  out <- 0
+  for (j in seq_len(nrow(x))) {
+    if (!is.na(resp[j])) out <- out + log(cat_prob(th, x[j, ], D)[, resp[j] + 1])
+  }
+  out
+}
+
+# test information by numerical differentiation of the category probabilities
+info_ref <- function(th, x, h = 1e-4) {
+  sum(sapply(seq_len(nrow(x)), function(j) {
+    dp <- (cat_prob(th + h, x[j, ]) - cat_prob(th - h, x[j, ])) / (2 * h)
+    sum(dp^2 / cat_prob(th, x[j, ]))
+  }))
+}
+
+set.seed(5)
+resp_mix <- simdat(x_mix, rnorm(8), D = 1)
+resp_mix[3, c(2, 5)] <- NA
+
+test_that("ML and MAP agree with optimize() on a mixed-format test", {
+  ml <- est_score(x_mix, resp_mix, D = 1, method = "ML", tol = 1e-9)
+  map <- est_score(x_mix, resp_mix, D = 1, method = "MAP", norm.prior = c(0.3, 1.2), tol = 1e-9)
+  for (i in seq_len(nrow(resp_mix))) {
+    r <- resp_mix[i, ]
+    ok <- !is.na(r)
+    ref_ml <- optimize(function(t) loglik_ref(t, x_mix, r), c(-5, 5), maximum = TRUE, tol = 1e-10)$maximum
+    ref_map <- optimize(function(t) loglik_ref(t, x_mix, r) + dnorm(t, 0.3, 1.2, log = TRUE),
+                        c(-5, 5), maximum = TRUE, tol = 1e-10)$maximum
+    if (ml$se.theta[i] != 99.9999) {
+      expect_equal(ml$est.theta[i], ref_ml, tolerance = 1e-6)
+      expect_equal(ml$se.theta[i], 1 / sqrt(info_ref(ref_ml, x_mix[ok, ])), tolerance = 1e-6)
+    }
+    expect_equal(map$est.theta[i], ref_map, tolerance = 1e-6)
+    expect_equal(map$se.theta[i], 1 / sqrt(info_ref(ref_map, x_mix[ok, ]) + 1 / 1.2^2), tolerance = 1e-6)
+  }
+})
+
+test_that("EAP and its posterior SD agree with direct quadrature", {
+  w <- gen.weight(41, dist = "norm", mu = 0.3, sigma = 1.2)
+  eap <- est_score(x_mix, resp_mix, D = 1, method = "EAP", norm.prior = c(0.3, 1.2), nquad = 41)
+  for (i in seq_len(nrow(resp_mix))) {
+    post <- exp(loglik_ref(w[, 1], x_mix, resp_mix[i, ])) * w[, 2]
+    post <- post / sum(post)
+    m <- sum(post * w[, 1])
+    expect_equal(eap$est.theta[i], m, tolerance = 1e-12)
+    expect_equal(eap$se.theta[i], sqrt(sum(post * w[, 1]^2) - m^2), tolerance = 1e-12)
+  }
+})
+
+test_that("ML returns the range limits with SE 99.9999 for perfect patterns", {
+  res <- est_score(x_drm, rbind(rep(1, 10), rep(0, 10)), D = 1, method = "ML", range = c(-4, 4))
+  expect_equal(res$est.theta, c(4, -4))
+  expect_equal(res$se.theta, c(99.9999, 99.9999))
+})
+
+test_that("a missing code gives the same result as NA", {
+  d9 <- rbind(c(1, 0, 1, -9, 1, 0, 1, 0, 1, 0))
+  dna <- d9
+  dna[dna == -9] <- NA
+  expect_identical(
+    est_score(x_drm, d9, D = 1, missing = -9),
+    est_score(x_drm, dna, D = 1)
+  )
+})
+
+test_that("a single response vector is scored like a one-row matrix", {
+  r <- c(1, 0, 1, 0, 1, 0, 1, 0, 1, 0)
+  expect_equal(est_score(x_drm, r, D = 1), est_score(x_drm, rbind(r), D = 1))
+})
+
+test_that("lwrc() matches enumeration of all response patterns", {
+  grid <- as.matrix(expand.grid(lapply(x_mix$cats, function(k) 0:(k - 1))))
+  th <- c(-2.3, 0, 1.1)
+  ref <- sapply(th, function(t) {
+    pr <- apply(grid, 1, function(r) exp(loglik_ref(t, x_mix, r)))
+    tapply(pr, rowSums(grid), sum)
+  })
+  expect_equal(unname(lwrc(x_mix, theta = th, D = 1)), unname(ref), tolerance = 1e-12)
+
+  # a single theta value returns a one-column matrix
+  expect_equal(unname(lwrc(x_mix, theta = 0)[, 1]), unname(lwrc(x_mix, theta = c(0, 1))[, 1]))
+})
+
+test_that("EAP.SUM matches the brute-force summed-score posterior", {
+  grid <- as.matrix(expand.grid(lapply(x_mix$cats, function(k) 0:(k - 1))))
+  w <- gen.weight(41, dist = "norm", mu = 0.2, sigma = 1.1)
+  lss <- sapply(w[, 1], function(t) {
+    pr <- apply(grid, 1, function(r) exp(loglik_ref(t, x_mix, r)))
+    tapply(pr, rowSums(grid), sum)
+  })
+  post <- t(t(lss) * w[, 2])
+  post <- post / rowSums(post)
+  m <- c(post %*% w[, 1])
+  res <- est_score(x_mix, grid[1:3, ], D = 1, method = "EAP.SUM", norm.prior = c(0.2, 1.1))
+  expect_equal(res$score.table$est.theta, m, tolerance = 1e-12)
+  expect_equal(res$score.table$se.theta, sqrt(c(post %*% w[, 1]^2) - m^2), tolerance = 1e-12)
+})
+
+test_that("INV.TCC matches uniroot() on the TCC and interpolates below the guessing sum", {
+  tcc <- function(t) {
+    sum(sapply(seq_len(nrow(x_mix)), function(j) sum((0:(x_mix$cats[j] - 1)) * cat_prob(t, x_mix[j, ]))))
+  }
+  res <- est_score(x_mix, rbind(rep(0, 6)), D = 1, method = "INV.TCC", tol = 1e-10)$score.table
+  ref <- sapply(1:10, function(s) uniroot(function(t) tcc(t) - s, c(-20, 20), tol = 1e-12)$root)
+  expect_equal(res$est.theta[2:11], ref, tolerance = 1e-8)
+  expect_equal(res$est.theta[c(1, 12)], c(-7, 7))
+})
+
+test_that("llike_score() matches the reference log-likelihood", {
+  th <- seq(-2, 2, 1)
+  ll <- llike_score(x_mix, resp_mix[1:4, ], th, D = 1, method = "ML")
+  ref <- sapply(1:4, function(i) loglik_ref(th, x_mix, resp_mix[i, ]))
+  expect_equal(unname(as.matrix(ll)), ref, tolerance = 1e-12)
+
+  # the MAP values add the log prior density
+  llp <- llike_score(x_mix, resp_mix[1:4, ], th, D = 1, method = "MAP", norm.prior = c(0.2, 1.1))
+  expect_equal(unname(as.matrix(llp)), ref + dnorm(th, 0.2, 1.1, log = TRUE), tolerance = 1e-12)
+})
+
+test_that("bisection() finds the root within tol", {
+  f <- function(t, p) p - drm(theta = t, a = 1, b = 0.2, D = 1)
+  r <- bisection(f, p = 0.2, lb = -10, ub = 10, tol = 1e-8)
+  expect_lt(abs(r$root - (0.2 + qlogis(0.2))), 1e-8)
+})
