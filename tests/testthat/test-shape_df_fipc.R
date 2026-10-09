@@ -29,3 +29,35 @@ test_that("shape_df_fipc() stops when cats or model do not match the number of n
     "must be 1 or equal to the number of new items"
   )
 })
+
+test_that("shape_df_fipc() stops when fix.loc is missing or invalid", {
+  new_ids <- paste0("N", 1:4)
+  # fix.loc is not given
+  expect_error(
+    shape_df_fipc(x = x_fix, item.id = new_ids, cats = 2, model = "3PLM"),
+    "fix.loc"
+  )
+  # fix.loc is shorter than the number of fixed items
+  expect_error(
+    shape_df_fipc(x = x_fix, fix.loc = 1:3, item.id = new_ids, cats = 2, model = "3PLM"),
+    "fix.loc"
+  )
+  # fix.loc repeats a position
+  expect_error(
+    shape_df_fipc(x = x_fix, fix.loc = c(1:9, 9), item.id = new_ids, cats = 2, model = "3PLM"),
+    "fix.loc"
+  )
+  # fix.loc points beyond the final form
+  expect_error(
+    shape_df_fipc(x = x_fix, fix.loc = c(1:9, 15), item.id = new_ids, cats = 2, model = "3PLM"),
+    "fix.loc"
+  )
+})
+
+test_that("shape_df_fipc() places the fixed and new items at their positions", {
+  meta <- shape_df_fipc(
+    x = x_fix[1:3, ], fix.loc = c(1, 3, 5), item.id = c("N1", "N2"),
+    cats = 2, model = "3PLM"
+  )
+  expect_identical(as.character(meta$id), c(x_fix$id[1], "N1", x_fix$id[2], "N2", x_fix$id[3]))
+})

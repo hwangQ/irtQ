@@ -88,6 +88,16 @@ shape_df_fipc <- function(x, fix.loc = NULL, item.id = NULL, cats, model) {
   # Determine the total number of items
   nitem <- nrow(x_all)
 
+  # Stop unless fix.loc gives one distinct valid position for every fixed item
+  if (is.null(fix.loc) || length(fix.loc) != nrow(x_fix) ||
+      anyDuplicated(fix.loc) > 0L || !all(fix.loc %in% seq_len(nitem))) {
+    stop(
+      "`fix.loc` must contain one distinct position in 1:", nitem,
+      " for each row of `x`.",
+      call. = FALSE
+    )
+  }
+
   # Identify row positions reserved for new items
   nfix.loc <- setdiff(seq_len(nitem), fix.loc)
 
