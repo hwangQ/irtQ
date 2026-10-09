@@ -244,6 +244,27 @@ simdat <- function(x = NULL,
     idx.drm <- which(cats == 2)
     idx.prm <- which(cats > 2)
 
+    # Stop when the dichotomous parameters do not match the items with cats = 2
+    if (length(idx.drm) > 0L &&
+        (length(a.drm) != length(idx.drm) || length(b.drm) != length(idx.drm) ||
+         !(length(g.drm) %in% c(0L, length(idx.drm))))) {
+      stop("`a.drm`, `b.drm`, and `g.drm` must have one value per item with cats = 2.", call. = FALSE)
+    }
+
+    if (length(idx.prm) > 0L) {
+      # Repeat a single polytomous model name for every polytomous item
+      if (length(pr.model) == 1L) pr.model <- rep(pr.model, length(idx.prm))
+
+      # Stop when the polytomous parameters do not match the items with cats > 2
+      if (length(a.prm) != length(idx.prm) || length(d.prm) != length(idx.prm) ||
+          length(pr.model) != length(idx.prm) || any(lengths(d.prm) != cats[idx.prm] - 1)) {
+        stop(
+          "`a.prm`, `d.prm` (cats - 1 thresholds each), and `pr.model` must match the items with cats > 2.",
+          call. = FALSE
+        )
+      }
+    }
+
     # Simulate data
     # (1) for DRM items
     if (any(cats == 2)) {
