@@ -162,6 +162,19 @@ knitr::opts_chunk$set(
 * `est_score()` now has a method for `est_item` objects, as its documentation
   already stated.
 
+* `irtfit()` and `sx2_fit()` stop with a clear message when `data` has a
+  number of columns other than the number of items or a response is not an
+  integer within the categories of its item (such a response was counted in
+  the wrong cells before), and they read character and factor responses as
+  numbers instead of level codes. `irtfit()` also stops for a `score` of the
+  wrong length, scores without variation, an invalid `range.score`, and an
+  unknown `loc.theta` (any other value was treated as `"average"`), leaves out
+  examinees with a missing ability estimate instead of failing, and works when
+  only one item remains after items with fewer than two responses are
+  excluded. `plot.irtfit()` stops for an unknown `type` or an `item.loc` that
+  is not an evaluated item. The warnings for excluded items and for missing
+  responses in `sx2_fit()` name the items.
+
 * `bisection()` warns when the function values at `lb` and `ub` have the same
   sign, instead of returning a bound without notice, and it stops after
   exactly `max.it` iterations instead of `max.it + 1`. Its help page names

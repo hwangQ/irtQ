@@ -291,6 +291,9 @@ irtfit.default <- function(x,
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
+  # check the location of the theta point for each group
+  loc.theta <- match.arg(tolower(loc.theta), choices = c("average", "middle"))
+
   # create a vector of PCM item indicators
   pcm.lg <- logical(nrow(x))
   pcm.lg[pcm.loc] <- TRUE
@@ -300,34 +303,50 @@ irtfit.default <- function(x,
     score <- as.numeric(data.matrix(score))
   }
 
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
   # recode missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
   }
 
+  # transform the response data to a numeric matrix and check the responses
+  data <- resp_to_matrix(data, x$cats)
+
+  # stop when the scores do not match the rows of the response data
+  if (length(score) != nrow(data)) {
+    stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
+  }
+
   # check if there are items which have zero or one response frequency
   n.score <- Rfast::colsums(!is.na(data))
   if (all(n.score %in% c(0L, 1L))) {
-    stop("Every item has frequency of zero or one for the item response data. Each item must have more than two item responses.", call. = FALSE)
+    stop("Every item has fewer than two responses. Each item must have at least two responses.", call. = FALSE)
   }
 
   if (any(n.score %in% c(0L, 1L))) {
     del_item <- which(n.score %in% c(0L, 1L))
 
     # remove items with fewer than two responses
+    x_del <- x[del_item, ]
     x <- x[-del_item, ]
-    data <- data[, -del_item]
+    data <- data[, -del_item, drop = FALSE]
     pcm.lg <- pcm.lg[-del_item]
 
-    # warning message
+    # warning message with the column numbers and ids of the removed items
     memo <- paste0(
-      paste0("item ", del_item, collapse = ", "),
-      " is/are excluded in the analysis. Because the item(s) has/have frequency of zero or one for the item response data."
+      "The following items have fewer than two responses and are excluded from the analysis: ",
+      paste0(x_del$id, " (column ", del_item, ")", collapse = ", "), "."
     )
     warning(memo, call. = FALSE)
+  }
+
+  # stop when the bounds of the score range are not valid
+  if (!is.null(range.score) &&
+    !isTRUE(is.numeric(range.score) && length(range.score) == 2L && range.score[1] < range.score[2])) {
+    stop(
+      "'range.score' must be a numeric vector of length two ",
+      "with the first element smaller than the second element.",
+      call. = FALSE
+    )
   }
 
   # restrict the range of scores if required
@@ -468,8 +487,8 @@ itemfit <- function(x_item, score, resp, group.method = c("equal.width", "equal.
   # number of score categories
   cats <- elm_item$cats
 
-  # delete missing responses and corresponding thetas
-  na_lg <- is.na(resp)
+  # delete missing responses and missing thetas
+  na_lg <- is.na(resp) | is.na(score)
   resp <- resp[!na_lg]
   score <- score[!na_lg]
 
@@ -485,6 +504,15 @@ itemfit <- function(x_item, score, resp, group.method = c("equal.width", "equal.
 
   # drop duplicate cut scores, which can occur with equal.freq
   cutscore <- unique(cutscore)
+
+  # stop when the ability estimates do not span an interval
+  if (length(cutscore) < 2L) {
+    stop(
+      "The ability estimates of the examinees who responded to item ", x_item$id,
+      " have no variation.",
+      call. = FALSE
+    )
+  }
 
   # assign score group variable to each score
   intv <- cut(score, breaks = cutscore, right = FALSE, include.lowest = TRUE, dig.lab = 7)

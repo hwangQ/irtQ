@@ -185,6 +185,11 @@ plot.irtfit <- function(x,
     }
   }
 
+  # stop when the item location does not point to an evaluated item
+  if (!item.loc %in% seq_len(nrow(x$item_df))) {
+    stop(paste0("'item.loc' must be an integer between 1 and ", nrow(x$item_df), "."), call. = FALSE)
+  }
+
   # prepare data
   # extract the metadata of the item to plot
   item_meta <- x$item_df[item.loc, ]
@@ -317,7 +322,8 @@ plot.irtfit <- function(x,
 
   ## -------------------------------------------------------------------------
   # draw plots
-  type <- tolower(type)
+  type <- match.arg(tolower(type), choices = c("both", "icc", "sr"))
+
   # (1) draw ICC plots
   if (type == "icc") {
     if (missing(xlab.text)) xlab.text <- expression(theta)

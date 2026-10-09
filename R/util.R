@@ -50,6 +50,52 @@ bind.fill <- function(List, type=c("rbind", "cbind"), fill = NA){
 
 }
 
+# Convert the response data of the model-data fit functions to a numeric matrix
+# and check that every observed response is a whole number within the score
+# categories of its item
+resp_to_matrix <- function(data, cats) {
+  # convert the responses to a matrix
+  resp <- as.matrix(data)
+
+  # stop when the data do not have one column per item
+  if (ncol(resp) != length(cats)) {
+    stop(
+      "The number of columns in 'data' (", ncol(resp), ") must equal ",
+      "the number of items in 'x' (", length(cats), ").",
+      call. = FALSE
+    )
+  }
+
+  # read character or factor responses as numbers
+  if (!is.numeric(resp) && !is.logical(resp)) {
+    resp_num <- suppressWarnings(as.numeric(resp))
+
+    # stop when an observed response cannot be read as a number
+    if (any(is.na(resp_num) & !is.na(resp))) {
+      stop("Responses must be numeric scores.", call. = FALSE)
+    }
+
+    # keep the numeric responses with the dimensions and names of the input
+    resp <- matrix(resp_num, nrow = nrow(resp), dimnames = dimnames(resp))
+  }
+
+  # flag the items that have an observed response outside their score categories
+  max_cat <- matrix(cats - 1, nrow = nrow(resp), ncol = ncol(resp), byrow = TRUE)
+  bad_item <- which(colSums(!is.na(resp) & (resp < 0 | resp > max_cat | resp != round(resp)),
+    na.rm = TRUE) > 0)
+
+  # stop when any observed response is invalid
+  if (length(bad_item) > 0L) {
+    stop(
+      "Responses outside the score categories 0, ..., (cats - 1) are found for item(s) ",
+      paste(bad_item, collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+
+  resp
+}
+
 # Find the indices of the DRM and PRM items in the output of breakdown()
 idxfinder <- function(x) {
 

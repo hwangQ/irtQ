@@ -173,29 +173,34 @@ sx2_fit.default <- function(x,
                             ...) {
   
   ## ------------------------------------------------------------------------------------------------
+  # confirm and correct all item metadata information
+  x <- confirm_df(x)
+
+  # transform the response data to a numeric matrix and check the responses
+  data <- resp_to_matrix(data, x$cats)
+
   # check missing data
   # replace NAs with 0
   na.lg <- is.na(data)
   if (any(na.lg)) {
+    # find the items that have no response at all
+    allmiss <- which(colSums(!na.lg) == 0L)
     data[na.lg] <- 0
-    memo <- "Any missing responses are replaced with 0s. \n"
+    memo <- "Missing responses are replaced with 0."
+    if (length(allmiss) > 0L) {
+      memo <- paste0(memo, " Every response is missing for item(s) ", paste(x$id[allmiss], collapse = ", "), ".")
+    }
     warning(memo, call. = FALSE)
   }
-  
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-  
+
   # break down the item metadata into several elements
   elm_item <- breakdown(x)
-  
+
   # classify the items into DRM and PRM item groups
   idx.item <- idxfinder(elm_item)
   idx.drm <- idx.item$idx.drm
   idx.prm <- idx.item$idx.prm
-  
-  # transform a data set to matrix
-  data <- data.matrix(data)
-  
+
   ## ------------------------------------------------------------------
   ## 1. data preparation
   ## ------------------------------------------------------------------
