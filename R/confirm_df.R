@@ -5,6 +5,16 @@ confirm_df <- function(x, g2na = FALSE) {
   x <- data.frame(x, stringsAsFactors = FALSE)
   x <- purrr::modify_if(x, is.factor, as.character)
   x[, 3] <- toupper(x[, 3])
+
+  # convert a cats column stored as text or factor labels into numbers
+  if (!is.numeric(x[, 2])) {
+    cats.num <- suppressWarnings(as.numeric(x[, 2]))
+    # stop when a non-missing value cannot be read as a number
+    if (anyNA(cats.num[!is.na(x[, 2])])) {
+      stop("The cats column in 'x' must be numeric.", call. = FALSE)
+    }
+    x[, 2] <- cats.num
+  }
   modelGood <- all(x[, 3] %in% c("1PLM", "2PLM", "3PLM", "DRM", "GRM", "GPCM"))
   # require a known number of at least two score categories for every item
   catsGood <- !anyNA(x[, 2]) && all(x[, 2] >= 2)

@@ -214,3 +214,33 @@ test_that("confirm_df() errors when a two-category GRM or GPCM item has a value 
     expect_no_error(confirm_df(x))
   }
 })
+
+test_that("confirm_df() reads a cats column stored as text or factor labels", {
+  x <- make_grm_df()
+  x$cats <- as.character(x$cats)
+  r1 <- confirm_df(x)
+  expect_true(is.numeric(r1$cats))
+  expect_equal(r1$cats, c(4, 4))
+
+  # factor labels are read as the numbers they show
+  x$cats <- factor(c(4, 4))
+  expect_equal(confirm_df(x)$cats, c(4, 4))
+
+  # the result equals that of numeric cats
+  expect_equal(confirm_df(x)$par.2, confirm_df(make_grm_df())$par.2)
+
+  # text that is not a number stops with a message
+  x$cats <- c("4", "many")
+  expect_error(confirm_df(x), "cats column")
+})
+
+test_that("info() and simdat() accept item metadata with a text cats column", {
+  meta <- data.frame(
+    id = c("A", "B"), cats = c("2", "4"), model = c("2PLM", "GRM"), par.1 = c(1, 1.2),
+    par.2 = c(0, -1), par.3 = c(NA, 0), par.4 = c(NA, 1)
+  )
+  num <- meta
+  num$cats <- c(2, 4)
+  expect_equal(info(meta, c(-1, 1))$iif, info(num, c(-1, 1))$iif)
+  expect_equal(dim(simdat(meta, theta = c(-1, 0, 1))), c(3L, 2L))
+})
