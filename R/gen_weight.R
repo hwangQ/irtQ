@@ -74,9 +74,19 @@ gen.weight <- function(n = 41,
                        theta) {
   dist <- tolower(dist)
 
+  # stop on a distribution name that is not supported
+  if (!(length(dist) == 1L && dist %in% c("norm", "unif", "emp"))) {
+    stop("`dist` must be one of 'norm', 'unif', or 'emp'.", call. = FALSE)
+  }
+
+  # stop when theta is given with the uniform option, which uses n, l, and u only
+  if (dist == "unif" && !missing(theta)) {
+    stop("`theta` cannot be used with dist = 'unif'; use n, l, and u instead.", call. = FALSE)
+  }
+
   if (missing(theta)) {
     if (dist == "emp") {
-      stop("To use actual option in a distribution argument, theta values are needed.", call. = FALSE)
+      stop("Theta values are required when dist = 'emp'.", call. = FALSE)
     }
     if (dist == "norm") {
       wts.nd <- statmod::gauss.quad.prob(n, dist = dist, mu = mu, sigma = sigma)
