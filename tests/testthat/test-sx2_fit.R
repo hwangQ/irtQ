@@ -49,3 +49,46 @@ test_that("sx2_fit() replaces missing responses with zeros and names the items w
   resp[, 4] <- NA
   expect_warning(sx2_fit(x_lsat, data = resp, D = 1), "item\\(s\\) V4")
 })
+
+prm_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
+x_full <- bring.flexmirt(file = prm_file, "par")$Group1$full_df
+
+test_that("sx2_fit() does not count a summed score group twice in a short test", {
+  # two 5-category items: the groups pooled at the two ends overlap
+  x_short <- x_full[53:54, ]
+  set.seed(12)
+  resp <- simdat(x = x_short, theta = rnorm(1000), D = 1)
+  fit <- sx2_fit(x_short, data = resp, min.collapse = 0)
+  n_mid <- sum(rowSums(resp) > 0 & rowSums(resp) < 8)
+  for (i in 1:2) {
+    expect_equal(sum(fit$obs_freq[[i]]), n_mid)
+    expect_equal(sum(fit$exp_freq[[i]]), n_mid)
+  }
+
+  # two dichotomous items and one 5-category item
+  x_mix3 <- x_full[c(1, 2, 53), ]
+  set.seed(15)
+  resp3 <- simdat(x = x_mix3, theta = rnorm(1000), D = 1)
+  fit3 <- sx2_fit(x_mix3, data = resp3, min.collapse = 0)
+  n_mid3 <- sum(rowSums(resp3) > 0 & rowSums(resp3) < 6)
+  for (i in 1:3) {
+    expect_equal(sum(fit3$obs_freq[[i]]), n_mid3)
+    expect_equal(sum(fit3$exp_freq[[i]]), n_mid3)
+  }
+})
+
+test_that("sx2_fit() keeps observed and expected totals of polytomous items equal", {
+  x_poly <- x_full[c(1:10, 53:55), ]
+  set.seed(11)
+  resp <- simdat(x = x_poly, theta = rnorm(800), D = 1)
+  fit <- sx2_fit(x_poly, data = resp)
+  n_mid <- sum(rowSums(resp) > 0 & rowSums(resp) < sum(x_poly$cats - 1))
+  for (i in 11:13) {
+    e <- data.matrix(fit$exp_freq[[i]])
+    o <- data.matrix(fit$obs_freq[[i]])
+    expect_equal(rowSums(e, na.rm = TRUE), rowSums(o, na.rm = TRUE), ignore_attr = TRUE)
+    expect_equal(sum(o, na.rm = TRUE), n_mid)
+    # the df counts the remaining cells per score group minus the item parameters
+    expect_equal(fit$fit_stat$df[i], sum(rowSums(!is.na(e)) - 1) - 5)
+  }
+})

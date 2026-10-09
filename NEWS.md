@@ -115,6 +115,12 @@
 - `lwrc()` stopped with an error for a single `theta` when the test had
   polytomous items.
 
+- `sx2_fit()` counted some summed score groups twice in the tables of
+  polytomous items when the test was so short that the groups merged at
+  the two ends overlapped (for example, two items with five categories).
+  The observed and expected frequencies and the degrees of freedom were
+  too large. Each summed score group is now counted once.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
