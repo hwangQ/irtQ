@@ -78,7 +78,7 @@ confirm_df <- function(x, g2na = FALSE) {
   # consider DRM as 3PLM
   if ("DRM" %in% x$model) {
     x$model[x$model == "DRM"] <- "3PLM"
-    memo <- "All 'DRM' items are considered as '3PLM' items during the item parameter estimation. \n"
+    memo <- "All 'DRM' items are treated as '3PLM' items.\n"
     warning(memo, call. = FALSE)
   }
 

@@ -103,6 +103,10 @@
   titles of `plot.traceline()` read `Score: 0` instead of
   `Score: resp.0`.
 
+- The warning that a `"DRM"` item is treated as a `"3PLM"` item no
+  longer says that item parameters are being estimated, because it also
+  appears in functions such as `info()` and `simdat()`.
+
 - `ctt()` computes alpha with each item removed faster for large tests.
 
 # irtQ 1.3.1

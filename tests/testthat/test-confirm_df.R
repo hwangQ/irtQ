@@ -74,7 +74,7 @@ test_that("confirm_df() accepts a valid GPCM data frame", {
 
 test_that("confirm_df() converts DRM to 3PLM with a warning", {
   x <- make_drm_df("DRM")
-  expect_warning(result <- confirm_df(x), "DRM")
+  expect_warning(result <- confirm_df(x), "treated as '3PLM'")
   expect_true(all(result$model == "3PLM"))
 })
 
