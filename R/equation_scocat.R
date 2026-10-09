@@ -1,6 +1,10 @@
 # This function returns, for each score category, a function that evaluates
 # the category probability with its gradient (and Hessian if requested)
 equation_scocat <- function(model = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"), cats = NULL, fix.a.gpcm = FALSE, hessian = TRUE, type = c("item", "ability")) {
+  # resolve the model and the type of derivatives
+  model <- match.arg(model)
+  type <- match.arg(type)
+
   ## -------------------------------
   # set the item parameters to be used in the equation
   if (model %in% c("1PLM", "2PLM", "3PLM")) {
