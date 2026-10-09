@@ -152,7 +152,7 @@
 #'
 #' # Simulate the response data
 #' simdat(
-#'   theta = theta, a.drm = a.drm, b.drm = b.drm, g.drm = NULL,
+#'   theta = theta, a.drm = a.drm, b.drm = b.drm, g.drm = g.drm,
 #'   a.prm = a.prm, d.prm = d.prm, cats = cats, pr.model = pr.model, D = 1
 #' )
 #'
