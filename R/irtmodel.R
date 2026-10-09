@@ -44,17 +44,18 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
   # check the item guessing parameters
   if (is.null(g)) g <- rep(0, nitem)
 
-  # calculate probability of correct answer
+  # calculate probability of correct answer (rows are items, columns are thetas)
   z <- (D * a) * Rfast::Outer(x = theta, y = b, oper = "-")
-  P <- t(g + (1 - g) / (1 + exp(-z)))
+  P <- g + (1 - g) / (1 + exp(-z))
 
   # keep the probabilities away from 1 and from g (0 for the 1PLM and 2PLM)
   P[P > 9999999999e-10] <- 9999999999e-10
+  # compare each item with its own guessing parameter before transposing
   lg.lessg <- P < (g + 1e-10)
   P[lg.lessg] <- P[lg.lessg] + 1e-10
 
-  # return the probability matrix
-  P
+  # return the probability matrix with thetas in rows and items in columns
+  t(P)
 }
 
 

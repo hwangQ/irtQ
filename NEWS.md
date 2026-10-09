@@ -61,6 +61,12 @@
   which made `plot()` fail. It now returns a matrix, as for several
   thetas.
 
+- `drm()` compared the probabilities with the guessing parameters of the
+  wrong items when it kept them away from the guessing parameter, so
+  probabilities could differ by about 1e-10 and item parameter estimates
+  by about 1e-10. Each item is now compared with its own guessing
+  parameter.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

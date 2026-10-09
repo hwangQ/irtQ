@@ -137,3 +137,24 @@ test_that("prm() GPCM matches the closed-form probabilities", {
   ref <- num / rowSums(num)
   expect_equal(prm(th, a, d, 1.702, "GPCM"), unname(ref), tolerance = 1e-12)
 })
+
+test_that("drm() applies the lower bound with each item's own guessing parameter", {
+  # a 2PLM item next to a 3PLM item keeps the exact logistic probabilities
+  P <- drm(theta = c(-3, 0), a = c(1, 1), b = c(0, 0), g = c(0.2, 0), D = 1)
+  expect_lt(max(abs(P[, 2] - plogis(c(-3, 0)))), 1e-12)
+
+  # a 3PLM item far below its location stays above its guessing parameter
+  P <- drm(theta = c(0, -50), a = c(1, 1), b = c(0, 0), g = c(0.2, 0), D = 1)
+  expect_gt(P[2, 1], 0.2)
+})
+
+test_that("drm() matches the 1PLM, 2PLM, and 3PLM formulas on a grid", {
+  th <- seq(-4, 4, 0.25)
+  a <- c(0.8, 1.5, 2)
+  b <- c(-1, 0, 1.2)
+  g <- c(0.2, 0, 0.15)
+  for (D in c(1, 1.702)) {
+    ref <- sapply(1:3, function(j) g[j] + (1 - g[j]) / (1 + exp(-D * a[j] * (th - b[j]))))
+    expect_lt(max(abs(drm(th, a, b, g, D) - ref)), 1e-12)
+  }
+})
