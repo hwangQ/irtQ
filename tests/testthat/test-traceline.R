@@ -95,3 +95,25 @@ test_that("traceline() treats NA guessing parameters of 3PLM and DRM items as ze
   expect_equal(unname(tr$icc[, 1]), plogis(c(-1, 0, 1)), tolerance = 1e-12)
   expect_equal(unname(tr$icc[, 2]), plogis(c(-1, 0, 1)), tolerance = 1e-12)
 })
+
+# ---- plot labels ---------------------------------------------------------------
+
+test_that("plot.traceline() labels items and score panels as given", {
+  meta <- data.frame(
+    id = c("1", "item-2", "CR 3"), cats = c(2, 2, 3), model = c("3PLM", "2PLM", "GRM"),
+    par.1 = c(1, 1.2, 1), par.2 = c(0, 0.5, -1), par.3 = c(0.2, NA, 1)
+  )
+  tr <- traceline(meta, seq(-2, 2, 0.5))
+  grDevices::pdf(NULL)
+  p_curve <- plot(tr, item.loc = 1:3, score.curve = TRUE, overlap = TRUE)
+  p_panel <- plot(tr, item.loc = 3)
+  p_over <- plot(tr, item.loc = 3, overlap = TRUE)
+  grDevices::dev.off()
+
+  # item IDs are not converted to syntactic names
+  expect_setequal(as.character(unique(p_curve$data$Item)), c("1", "item-2", "CR 3"))
+
+  # the panel titles show the score value only
+  expect_setequal(unique(p_panel$data$score), c("Score: 0", "Score: 1", "Score: 2"))
+  expect_setequal(as.character(unique(p_over$data$score)), c("0", "1", "2"))
+})

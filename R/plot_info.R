@@ -137,7 +137,8 @@ plot.info <- function(x,
     if (!is.null(item.loc)) {
       # data manipulation for plotting
       df_info <-
-        data.frame(t(x$iif[item.loc, , drop = FALSE]), theta = x$theta) %>%
+        # keep item IDs as given instead of converting them to syntactic names
+        data.frame(t(x$iif[item.loc, , drop = FALSE]), theta = x$theta, check.names = FALSE) %>%
         reshape2::melt(variable.name = "item", id.vars = "theta", value.name = "info")
 
       # plot

@@ -98,6 +98,11 @@
   without a `par.3` column is accepted when every item is 1PLM or 2PLM,
   and `simdat()` repeats a single `pr.model` for all polytomous items.
 
+- `plot.info()` and `plot.traceline()` label items with their IDs as
+  given (an ID such as `"item-2"` was shown as `item.2`), and the panel
+  titles of `plot.traceline()` read `Score: 0` instead of
+  `Score: resp.0`.
+
 - `ctt()` computes alpha with each item removed faster for large tests.
 
 # irtQ 1.3.1

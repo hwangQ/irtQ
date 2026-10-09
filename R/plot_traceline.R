@@ -146,7 +146,7 @@ plot.traceline <- function(x,
     if (missing(main.text)) main.text <- "Test Characteristic Curve"
     if (missing(line.color)) line.color <- "#F8766D" else line.color <- line.color
     max.score <-
-      purrr::map_dbl(x$prob.cat, .f = function(k) ncol(k) - 1) %>%
+      purrr::map_dbl(x$prob.cats, .f = function(k) ncol(k) - 1) %>%
       sum()
 
     # draw a plot
@@ -175,11 +175,11 @@ plot.traceline <- function(x,
           purrr::map(.x = item.loc,
                      .f = function(i) {
                        icc_df <-
-                         data.frame(theta = theta, x$prob.cat[[i]]) %>%
+                         data.frame(theta = theta, x$prob.cats[[i]]) %>%
                          dplyr::rename_all(.funs = function(k) gsub(pattern = "score.", replacement = "", x = k)) %>%
                          reshape2::melt(id.vars = "theta", variable.name = "score", value.name = "icc")
                        icc_df$score <- gsub(pattern = "resp.", replacement = "", x = icc_df$score)
-                       icc_df$Item <- names(x$prob.cat[i])
+                       icc_df$Item <- names(x$prob.cats[i])
                        icc_df
                      }) %>%
           dplyr::bind_rows()
@@ -189,7 +189,7 @@ plot.traceline <- function(x,
         if (missing(xlab.text)) xlab.text <- expression(theta)
         if (missing(ylab.text)) ylab.text <- "Probability"
         if (length(item.loc) == 1) {
-          if (missing(main.text)) main.text <- paste0("Item Characteristic Curve: ", names(x$prob.cat[item.loc]))
+          if (missing(main.text)) main.text <- paste0("Item Characteristic Curve: ", names(x$prob.cats[item.loc]))
         } else if (length(item.loc) > 1) {
           if (missing(main.text)) main.text <- "Item Characteristic Curve"
         }
@@ -198,7 +198,7 @@ plot.traceline <- function(x,
         p <-
           icc_all %>%
           dplyr::mutate_at(.vars = "Item",
-                           .funs = ~{factor(x = .x, levels = names(x$prob.cat[item.loc]))}) %>%
+                           .funs = ~{factor(x = .x, levels = names(x$prob.cats[item.loc]))}) %>%
           ggplot2::ggplot(mapping = ggplot2::aes(x = .data$theta, y = .data$icc)) +
           ggplot2::geom_line(mapping = ggplot2::aes(color = .data$score),
                              linewidth = line.size, ...) +
@@ -220,17 +220,21 @@ plot.traceline <- function(x,
 
         # a data.frame including the ICC across all score categories
         icc_df <-
-          data.frame(theta = theta, x$prob.cat[[item.loc]]) %>%
+          data.frame(theta = theta, x$prob.cats[[item.loc]]) %>%
           dplyr::rename_all(.funs = function(k) gsub(pattern = "score.", replacement = "", x = k)) %>%
           reshape2::melt(id.vars = "theta", variable.name = "score", value.name = "icc")
-        icc_df$score <- gsub(pattern = "^*", replacement = "Score: ", x = icc_df$score)
+        # label each panel with the score value only
+        icc_df$score <- paste0(
+          "Score: ",
+          gsub(pattern = "resp.", replacement = "", x = icc_df$score, fixed = TRUE)
+        )
 
         ## -------------------------------------------------------------------------
         # draw ICC plots
         if (missing(xlab.text)) xlab.text <- expression(theta)
         if (missing(ylab.text)) ylab.text <- "Probability"
         if (missing(main.text)) main.text <- paste0("Item Characteristic Curve: ",
-                                                    names(x$prob.cat[item.loc]))
+                                                    names(x$prob.cats[item.loc]))
         if (missing(line.color)) line.color <- "#F8766D" else line.color <- line.color
 
         p <-
@@ -253,12 +257,13 @@ plot.traceline <- function(x,
 
     if (score.curve) {
       # check the number of score categories
-      cats <- purrr::map_dbl(.x = x$prob.cat[item.loc], ncol)
+      cats <- purrr::map_dbl(.x = x$prob.cats[item.loc], ncol)
 
       # data manipulation for plotting
       score.trace <- x$icc[, item.loc, drop = FALSE]
       df_score <-
-        data.frame(score.trace, theta = theta) %>%
+        # keep item IDs as given instead of converting them to syntactic names
+        data.frame(score.trace, theta = theta, check.names = FALSE) %>%
         reshape2::melt(variable.name = "item", id.vars = "theta", value.name = "icc")
 
       # plot
@@ -266,7 +271,7 @@ plot.traceline <- function(x,
       if (missing(xlab.text)) xlab.text <- expression(theta)
       if (missing(ylab.text)) ylab.text <- "Expected Score"
       if (length(cats) == 1) {
-        if (missing(main.text)) main.text <- paste0("Item Score Curve: ", names(x$prob.cat[item.loc]))
+        if (missing(main.text)) main.text <- paste0("Item Score Curve: ", names(x$prob.cats[item.loc]))
       } else if (length(cats) > 1) {
         if (missing(main.text)) main.text <- "Item Score Curve"
       }
