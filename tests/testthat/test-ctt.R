@@ -448,3 +448,24 @@ test_that("print.summary.ctt() applies digits to the item table", {
   lines <- utils::capture.output(print(summary(ctt(data = dat_mixed)), digits = 2))
   expect_true("    V1     2         0.6                0.87                      0.76" %in% lines)
 })
+
+# ---- boundary cases ----------------------------------------------------------
+
+test_that("a score within rounding error of 0 is counted as 0", {
+  dat <- data.frame(a = c(1, 0, 1, 0.3 - (0.1 + 0.2)), b = c(1, 1, 0, 0),
+                    c = c(0, 1, 1, 1))
+  out <- ctt(data = dat)
+  expect_equal(out$freq$freq[out$freq$score == 1], 1L)
+  expect_equal(sum(out$freq$freq), 4)
+  expect_equal(ctt_distr(data = dat)$distr$freq[1], 2L)
+  expect_error(ctt(data = data.frame(a = c(1, 0, -1e-6), b = c(1, 1, 0))),
+               "whole numbers")
+})
+
+test_that("ctt_alpha() gives a standardized alpha of 0 when one item varies", {
+  dat <- data.frame(a = c(0, 1, 1, 0, 1), b = 1, c = 1)
+  out <- ctt_alpha(data = dat)
+  expect_equal(out$alpha, 0)
+  expect_equal(out$alpha_std, 0)
+  expect_equal(ctt(dat)$alpha$alpha_std, 0)
+})

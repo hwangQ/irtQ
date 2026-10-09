@@ -295,3 +295,13 @@ test_that("ctt_distr() scored-category mode aligns total with the retained rows"
   expect_equal(row$pb_raw, 0.866)
   expect_equal(row$pb_corrected, 0.490)
 })
+
+test_that("ctt_distr() lists a supplied option written as 1 and 01 once, in the supplied order", {
+  raw <- data.frame(V1 = c("1", "01", "2", "3", "1"),
+                    V2 = c("2", "2", "1", "3", "2"))
+  out <- ctt_distr(data = raw, key = c(1, 2), opt = c("3", "1", "01", "2"))$distr
+  v1 <- out[out$item == "V1", ]
+  expect_equal(v1$option, c(3, 1, 2))
+  expect_equal(v1$freq, c(1L, 3L, 1L))
+  expect_equal(sum(v1$pct), 100)
+})

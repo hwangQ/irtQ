@@ -82,27 +82,27 @@ In everyday terms, raw alpha asks: "if every item kept its own natural
 scale and spread, how consistently do these items agree with each other?"
 
 Standardized alpha (\code{alpha_std}) is raw alpha computed after standardizing
-every item with nonzero variance to unit variance. When no item is
-constant, it equals \code{alpha_std = (k * r_bar) / (1 + (k - 1) * r_bar)},
-where \code{r_bar} is the average pairwise correlation among the items. A
-constant item has no defined correlation and cannot be standardized, so it
-stays in the item count k with zero variance, as in raw alpha, and \code{r_bar}
-is the average correlation among the items that vary. \code{alpha_std} is \code{NA}
-when it is undefined (fewer than two items vary, or the standardized total
-score is constant). In everyday terms, standardized alpha asks: "if every
-item counted equally regardless of how much it happens to vary in this
-particular sample, how consistently would these items agree with each
-other?" Because it removes the influence of any single item's variance,
-standardized alpha is most
-useful when items differ substantially in scale or format (e.g., a mix of
-dichotomous and polytomous items with very different score ranges); when
-all items share the same scale and format (as with a dichotomous
-selected-response test scored 0/1), raw and standardized alpha are
-typically close, and raw alpha remains the more directly interpretable of
-the two since it matches the reliability of the score actually used in
-practice. See Cronbach (1951) for the original derivation of coefficient
-alpha, and Osburn (2000) for a discussion contrasting the raw
-(covariance-based) and standardized (correlation-based) forms.
+every item with nonzero variance to unit variance. When no item is constant,
+it equals \code{alpha_std = (k * r_bar) / (1 + (k - 1) * r_bar)}, where \code{r_bar}
+is the average pairwise correlation among the items. A constant item has no
+defined correlation and cannot be standardized, so it stays in the item
+count k with zero variance, as in raw alpha, and \code{r_bar} is the average
+correlation among the items that vary. When only one item varies,
+\code{alpha_std} is 0, as is raw alpha; it is \code{NA} when no item varies or the
+standardized total score is constant. In everyday terms, standardized alpha
+asks: "if every item counted equally regardless of how much it happens to
+vary in this particular sample, how consistently would these items agree
+with each other?" Because it removes the influence of any single item's
+variance, standardized alpha is most useful when items differ substantially
+in scale or format (e.g., a mix of dichotomous and polytomous items with
+very different score ranges); when all items share the same scale and format
+(as with a dichotomous selected-response test scored 0/1), raw and
+standardized alpha are typically close, and raw alpha remains the more
+directly interpretable of the two since it matches the reliability of the
+score actually used in practice. See Cronbach (1951) for the original
+derivation of coefficient alpha, and Osburn (2000) for a discussion
+contrasting the raw (covariance-based) and standardized (correlation-based)
+forms.
 
 The standard error of measurement (SEM) is computed as
 \verb{SEM = SD(total score) * sqrt(1 - alpha)} (using raw alpha), following the

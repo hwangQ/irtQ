@@ -316,7 +316,7 @@ check_ctt_scores <- function(data, cats = NULL, item_names = NULL) {
 
   # every score must be a finite whole number of at least 0
   not_whole <- vapply(data, function(x) {
-    any(!is.finite(x) | x < 0 | abs(x - round(x)) > 1e-8)
+    any(!is.finite(x) | round(x) < 0 | abs(x - round(x)) > 1e-8)
   }, logical(1))
   if (any(not_whole)) {
     stop("Item scores must be whole numbers between 0 and cats - 1. ",

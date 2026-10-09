@@ -26,27 +26,27 @@
 #' scale and spread, how consistently do these items agree with each other?"
 #'
 #' Standardized alpha (`alpha_std`) is raw alpha computed after standardizing
-#' every item with nonzero variance to unit variance. When no item is
-#' constant, it equals `alpha_std = (k * r_bar) / (1 + (k - 1) * r_bar)`,
-#' where `r_bar` is the average pairwise correlation among the items. A
-#' constant item has no defined correlation and cannot be standardized, so it
-#' stays in the item count k with zero variance, as in raw alpha, and `r_bar`
-#' is the average correlation among the items that vary. `alpha_std` is `NA`
-#' when it is undefined (fewer than two items vary, or the standardized total
-#' score is constant). In everyday terms, standardized alpha asks: "if every
-#' item counted equally regardless of how much it happens to vary in this
-#' particular sample, how consistently would these items agree with each
-#' other?" Because it removes the influence of any single item's variance,
-#' standardized alpha is most
-#' useful when items differ substantially in scale or format (e.g., a mix of
-#' dichotomous and polytomous items with very different score ranges); when
-#' all items share the same scale and format (as with a dichotomous
-#' selected-response test scored 0/1), raw and standardized alpha are
-#' typically close, and raw alpha remains the more directly interpretable of
-#' the two since it matches the reliability of the score actually used in
-#' practice. See Cronbach (1951) for the original derivation of coefficient
-#' alpha, and Osburn (2000) for a discussion contrasting the raw
-#' (covariance-based) and standardized (correlation-based) forms.
+#' every item with nonzero variance to unit variance. When no item is constant,
+#' it equals `alpha_std = (k * r_bar) / (1 + (k - 1) * r_bar)`, where `r_bar`
+#' is the average pairwise correlation among the items. A constant item has no
+#' defined correlation and cannot be standardized, so it stays in the item
+#' count k with zero variance, as in raw alpha, and `r_bar` is the average
+#' correlation among the items that vary. When only one item varies,
+#' `alpha_std` is 0, as is raw alpha; it is `NA` when no item varies or the
+#' standardized total score is constant. In everyday terms, standardized alpha
+#' asks: "if every item counted equally regardless of how much it happens to
+#' vary in this particular sample, how consistently would these items agree
+#' with each other?" Because it removes the influence of any single item's
+#' variance, standardized alpha is most useful when items differ substantially
+#' in scale or format (e.g., a mix of dichotomous and polytomous items with
+#' very different score ranges); when all items share the same scale and format
+#' (as with a dichotomous selected-response test scored 0/1), raw and
+#' standardized alpha are typically close, and raw alpha remains the more
+#' directly interpretable of the two since it matches the reliability of the
+#' score actually used in practice. See Cronbach (1951) for the original
+#' derivation of coefficient alpha, and Osburn (2000) for a discussion
+#' contrasting the raw (covariance-based) and standardized (correlation-based)
+#' forms.
 #'
 #' The standard error of measurement (SEM) is computed as
 #' `SEM = SD(total score) * sqrt(1 - alpha)` (using raw alpha), following the
@@ -168,10 +168,13 @@ ctt_alpha <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
   vary <- item_var > 0
   k_vary <- sum(vary)    # number of items that vary
 
-  # mean off-diagonal correlation among the items that vary; NA when fewer
-  # than two items vary
+  # mean off-diagonal correlation among the items that vary; NA when no item
+  # varies, and 0 (unused) when one item varies, whose standardized total
+  # score has variance 1 and gives a standardized alpha of 0
   r_bar <- NA_real_
-  if (k_vary >= 2L) {
+  if (k_vary == 1L) {
+    r_bar <- 0
+  } else if (k_vary >= 2L) {
     item_cor <- stats::cor(data[vary])
     r_bar <- mean(item_cor[upper.tri(item_cor)])
   }

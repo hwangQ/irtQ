@@ -151,19 +151,20 @@ and decisions. Standardized alpha is raw alpha computed after
 standardizing every item with nonzero variance to unit variance. When no
 item is constant, it equals
 \deqn{\alpha_{std} = \frac{k \bar{r}}{1 + (k - 1)\bar{r}},}
-where \eqn{\bar{r}} is the average pairwise correlation among the items.
-A constant item cannot be standardized, so it stays in the item count
+where \eqn{\bar{r}} is the average pairwise correlation among the items. A
+constant item cannot be standardized, so it stays in the item count
 \eqn{k} with zero variance, as in raw alpha, and \eqn{\bar{r}} is the
-average correlation among the items that vary; standardized alpha is \code{NA}
-when it is undefined. Standardized alpha differs meaningfully from raw alpha mainly when items
-vary substantially in scale or format (e.g., a mix of dichotomous and
-polytomous items with very different score ranges); when all items share
-the same scale and format, the two are typically close, and raw alpha
-remains the more directly interpretable of the two since it matches the
-reliability of the score actually used in practice. See Cronbach (1951)
-for the original derivation of coefficient alpha, and Osburn (2000) for a
-discussion contrasting the raw (covariance-based) and standardized
-(correlation-based) forms.
+average correlation among the items that vary. When only one item varies,
+standardized alpha is 0, as is raw alpha; it is \code{NA} when no item varies or
+the standardized total score is constant. Standardized alpha differs
+meaningfully from raw alpha mainly when items vary substantially in scale or
+format (e.g., a mix of dichotomous and polytomous items with very different
+score ranges); when all items share the same scale and format, the two are
+typically close, and raw alpha remains the more directly interpretable of
+the two since it matches the reliability of the score actually used in
+practice. See Cronbach (1951) for the original derivation of coefficient
+alpha, and Osburn (2000) for a discussion contrasting the raw
+(covariance-based) and standardized (correlation-based) forms.
 
 The standard error of measurement (SEM) is
 \eqn{SEM = SD(X)\sqrt{1 - \alpha}} (using raw alpha), the standard CTT

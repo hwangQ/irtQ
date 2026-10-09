@@ -339,7 +339,8 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
         opt <- sort(uniq_tokens)
       }
     } else if (all(is_key_numeric)) {
-      opt <- as.numeric(opt)          # keep caller's values/order, coerce type
+      # keep caller's order, coerce type, and drop repeated values ("1", "01")
+      opt <- unique(as.numeric(opt))
     } else {
       opt <- toupper(as.character(opt))   # keep caller's order, canonicalize case
     }
