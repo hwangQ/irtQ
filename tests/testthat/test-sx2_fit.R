@@ -92,3 +92,19 @@ test_that("sx2_fit() keeps observed and expected totals of polytomous items equa
     expect_equal(fit$fit_stat$df[i], sum(rowSums(!is.na(e)) - 1) - 5)
   }
 })
+
+test_that("sx2_fit() reports NA critical values and p-values when no degrees of freedom remain", {
+  x3 <- x_lsat
+  x3$model <- "3PLM"
+  x3$par.2 <- c(-3.36, -1.0, 0.2, -1.3, -2.6)
+  x3$par.3 <- 0.2
+  expect_warning(fit <- sx2_fit(x3, data = LSAT6, D = 1), "No degrees of freedom.*V3")
+  expect_equal(fit$fit_stat$df[3], 0)
+  expect_true(is.na(fit$fit_stat$p[3]))
+  expect_true(is.na(fit$fit_stat$crit.val[3]))
+
+  # the other items keep their critical values and p-values
+  ok <- fit$fit_stat$df > 0
+  expect_false(anyNA(fit$fit_stat$p[ok]))
+  expect_equal(fit$fit_stat$crit.val[ok], round(stats::qchisq(0.95, df = fit$fit_stat$df[ok]), 3))
+})

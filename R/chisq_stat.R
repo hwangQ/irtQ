@@ -1,7 +1,7 @@
 # This function computes a chi-square fit statistic with its degrees of freedom
-# and the central and non-central critical values
+# and the critical value
 #' @importFrom Rfast rowsums
-chisq_stat <- function(exp.freq, obs.freq, count.prm, crt.delta, alpha) {
+chisq_stat <- function(exp.freq, obs.freq, count.prm, alpha) {
   # transform the two frequency tables to the matrix forms
   exp.freq2 <- data.matrix(exp.freq)
   obs.freq2 <- data.matrix(obs.freq)
@@ -23,17 +23,6 @@ chisq_stat <- function(exp.freq, obs.freq, count.prm, crt.delta, alpha) {
   exp.prop2[is.na(exp.freq)] <- NA
   obs.prop2[is.na(obs.freq)] <- NA
 
-  # cap the distances to the 0 and 1 boundaries at crt.delta
-  diff_up <- 1 - exp.prop2
-  diff_low <- exp.prop2 - 0
-  diff_up[diff_up > crt.delta] <- crt.delta
-  diff_low[diff_low > crt.delta] <- crt.delta
-
-  # compute the two non-centrality parameters
-  ncp_up <- sum(rowSums(obs.freq) * (diff_up^2 / exp.prop2), na.rm = TRUE)
-  ncp_low <- sum(rowSums(obs.freq) * (diff_low^2 / exp.prop2), na.rm = TRUE)
-  ncp <- max(ncp_up, ncp_low)
-
   # compute degrees of freedom
   # the number of collapsed cells
   counted_NA <- sum(is.na(exp.freq))
@@ -41,15 +30,12 @@ chisq_stat <- function(exp.freq, obs.freq, count.prm, crt.delta, alpha) {
   # degrees of freedom
   df <- nrow(exp.freq) * (ncol(exp.freq) - 1) - count.prm - counted_NA
 
-  # compute the central critical value
-  crtval_cen <- stats::qchisq(1 - alpha, df = df, lower.tail = TRUE)
-
-  # compute the non-central critical value
-  crtval_non <- stats::qchisq(1 - alpha, df = df, ncp = ncp, lower.tail = TRUE)
+  # compute the critical value only when degrees of freedom remain
+  crtval_cen <- if (df > 0) stats::qchisq(1 - alpha, df = df, lower.tail = TRUE) else NA_real_
 
   # return results
   list(
-    chisq_fit = chisq_fit, df = df, crtval_cen = crtval_cen, crtval_non = crtval_non, ncp = ncp,
+    chisq_fit = chisq_fit, df = df, crtval_cen = crtval_cen,
     exp.prop = exp.prop2, obs.prop = obs.prop2
   )
 }

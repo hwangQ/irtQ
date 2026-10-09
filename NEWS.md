@@ -121,6 +121,11 @@
   The observed and expected frequencies and the degrees of freedom were
   too large. Each summed score group is now counted once.
 
+- `sx2_fit()` and `irtfit()` reported a p-value of 0 (or `NaN` with a
+  warning) for an item without degrees of freedom left after collapsing,
+  which read as a strong misfit. The critical value and p-value of such
+  an item are now `NA`, with a warning that names the item.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

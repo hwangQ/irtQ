@@ -371,7 +371,7 @@ sx2_fit.default <- function(x,
   
   # compute the fit statistics for all items
   infoList <- list(exp_freq2, obs_freq2, as.list(count_prm))
-  fitstat_list <- purrr::pmap(.l = infoList, .f = chisq_stat, crt.delta = 0.0, alpha = alpha)
+  fitstat_list <- purrr::pmap(.l = infoList, .f = chisq_stat, alpha = alpha)
   
   # make a data.frame for the fit statistics results
   fit_stat <- list(chisq = NULL, df = NULL, crit.val = NULL)
@@ -380,8 +380,19 @@ sx2_fit.default <- function(x,
   }
   pval <- purrr::pmap_dbl(
     .l = list(x = fit_stat[[1]], y = fit_stat[[2]]),
-    .f = function(x, y) 1 - stats::pchisq(q = x, df = y, lower.tail = TRUE)
+    .f = function(x, y) if (y > 0) 1 - stats::pchisq(q = x, df = y, lower.tail = TRUE) else NA_real_
   )
+
+  # warn when an item has no degrees of freedom left for the test
+  if (any(fit_stat$df <= 0)) {
+    warning(
+      "No degrees of freedom remain for the S-X2 statistic of item(s) ",
+      paste(full_df$id[fit_stat$df <= 0], collapse = ", "),
+      ". Their critical values and p-values are set to NA.",
+      call. = FALSE
+    )
+  }
+
   fit_stat <- data.frame(id = full_df$id, fit_stat, p = round(pval, 3), stringsAsFactors = FALSE)
   fit_stat$chisq <- round(fit_stat$chisq, 3)
   fit_stat$crit.val <- round(fit_stat$crit.val, 3)

@@ -177,3 +177,21 @@ test_that("plot.irtfit() stops for an unknown type or an item location outside t
   expect_error(plot(fit, item.loc = 1.5), "item.loc")
   expect_no_error(plot(fit, item.loc = 4, type = "SR", show.table = FALSE))
 })
+
+test_that("irtfit() reports NA critical values and p-values when no degrees of freedom remain", {
+  expect_warning(
+    fit <- irtfit(x = x_ft, score = theta_fit[1:30], data = resp_ft[1:30, ], n.width = 10, D = 1),
+    "No degrees of freedom"
+  )
+  no_df <- fit$fit_stat$df.X2 <= 0
+  expect_true(any(no_df))
+  expect_true(all(is.na(fit$fit_stat$p.X2[no_df])))
+  expect_true(all(is.na(fit$fit_stat$crit.val.X2[no_df])))
+
+  # the G2 statistic and the items with degrees of freedom are not affected
+  expect_false(anyNA(fit$fit_stat$p.G2))
+  expect_false(anyNA(fit$fit_stat$p.X2[!no_df]))
+
+  # no warning when every item keeps degrees of freedom
+  expect_no_warning(irtfit(x = x_ft, score = theta_fit, data = resp_ft, D = 1))
+})

@@ -389,6 +389,16 @@ irtfit.default <- function(x,
     purrr::map(fits, .f = function(i) i$individual.info)
   names(individual.info) <- x$id
 
+  # warn when an item has no degrees of freedom left for the chi-square test
+  if (any(fit_stat$df.X2 <= 0)) {
+    warning(
+      "No degrees of freedom remain for the X2 statistic of item(s) ",
+      paste(fit_stat$id[fit_stat$df.X2 <= 0], collapse = ", "),
+      ". Their critical values and p-values are set to NA.",
+      call. = FALSE
+    )
+  }
+
   # return results
   rst <- list(
     fit_stat = fit_stat, contingency.fitstat = contingency.fitstat,
@@ -631,10 +641,10 @@ itemfit <- function(x_item, score, resp, group.method = c("equal.width", "equal.
   # find a critical value and compute the p values
   df.x2 <- nrow(exp.freq.cp) * (ncol(exp.freq.cp) - 1) - count_prm
   df.g2 <- nrow(exp.freq.cp) * (ncol(exp.freq.cp) - 1)
-  crtval.x2 <- stats::qchisq(1 - alpha, df = df.x2, lower.tail = TRUE)
-  crtval.g2 <- stats::qchisq(1 - alpha, df = df.g2, lower.tail = TRUE)
-  pval.x2 <- 1 - stats::pchisq(x2, df = df.x2, lower.tail = TRUE)
-  pval.g2 <- 1 - stats::pchisq(g2, df = df.g2, lower.tail = TRUE)
+  crtval.x2 <- if (df.x2 > 0) stats::qchisq(1 - alpha, df = df.x2, lower.tail = TRUE) else NA_real_
+  crtval.g2 <- if (df.g2 > 0) stats::qchisq(1 - alpha, df = df.g2, lower.tail = TRUE) else NA_real_
+  pval.x2 <- if (df.x2 > 0) 1 - stats::pchisq(x2, df = df.x2, lower.tail = TRUE) else NA_real_
+  pval.g2 <- if (df.g2 > 0) 1 - stats::pchisq(g2, df = df.g2, lower.tail = TRUE) else NA_real_
 
   ## ------------------------------------------------------------------------------
   # infit & outfit
