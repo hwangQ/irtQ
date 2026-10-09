@@ -24,8 +24,9 @@ indicator, or a comma-separated string such as \code{"1,5"} for a
 double-marked response). In scored-category mode (\code{key = NULL}), a data
 frame or matrix of already-scored item responses with scores 0 to
 \code{cats[j] - 1} for each item j; an error is raised when a score is not a
-whole number between 0 and \code{cats[j] - 1}. Either way, examinees are rows
-and items are columns.}
+whole number between 0 and \code{cats[j] - 1}, and a score within 1e-8 of a
+whole number is treated as that whole number. Either way, examinees are
+rows and items are columns.}
 
 \item{item.id}{A character vector of item identifiers, in the same order
 as the columns of \code{data}. If \code{NULL} (default), item IDs are generated
@@ -69,8 +70,9 @@ total score is computed internally: via \code{\link[=score_resp]{score_resp()}} 
 selected-response mode, or as \code{rowSums(data)} in scored-category mode
 (see \strong{Details} for how \code{total} interacts with \code{missing}/listwise
 deletion in scored-category mode). A supplied \code{total} must be numeric
-with no missing values for the examinees analyzed, and it should include the item scores, since
-\code{pb_corrected} subtracts each item's score from it.}
+with no missing values for the examinees analyzed, and it should include
+the item scores, since \code{pb_corrected} subtracts each item's score from
+it.}
 
 \item{correct}{Logical. Both the raw item-total correlation (the item
 score, or in \code{\link[=ctt_distr]{ctt_distr()}} an option or category indicator, correlated
@@ -79,12 +81,13 @@ correlation (correlated with a total score that excludes the item) are
 always computed and reported as separate columns. This argument only
 selects which of the two is used for flagging: the corrected value if
 \code{TRUE}, the raw value if \code{FALSE} (default). It drives the \code{flag} column
-of \code{\link[=ctt_item]{ctt_item()}} and the \code{crit.distractor} check of \code{\link[=ctt_distr]{ctt_distr()}}.}
+of \code{\link[=ctt]{ctt()}} and the \code{crit.distractor} check of \code{\link[=ctt_distr]{ctt_distr()}}.}
 
 \item{missing}{A value indicating missing responses, analogous to the
 \code{missing} argument in \code{\link[=est_irt]{est_irt()}} and \code{\link[=score_resp]{score_resp()}}. Its
 effect differs by mode (see \strong{Details}): in selected-response mode, a
-cell equal to \code{missing} is recoded to \code{NA} and then treated as a blank
+cell equal to \code{missing} after trimming surrounding spaces is recoded to
+\code{NA} and then treated as a blank
 (omitted) response, contributing to that item's omission rate, without
 removing the examinee from the analysis. In scored-category mode, a
 cell equal to \code{missing} is recoded to \code{NA} and the examinee's row is

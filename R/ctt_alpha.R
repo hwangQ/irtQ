@@ -85,9 +85,10 @@
 #'   when `alpha` is `NA`.}
 #' \item{mean_difficulty}{average item difficulty.}
 #' \item{mean_discrimination_raw}{average raw (uncorrected) item-total
-#'   correlation across items.}
+#'   correlation across items with a defined value; `NA` when there is none.}
 #' \item{mean_discrimination_corrected}{average corrected (item-excluded)
-#'   item-total correlation across items.}
+#'   item-total correlation across items with a defined value; `NA` when
+#'   there is none.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'

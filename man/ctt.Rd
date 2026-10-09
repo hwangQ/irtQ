@@ -20,7 +20,8 @@ ctt(
 examinees in rows and items in columns. Item scores must range from 0 to
 \code{cats[j] - 1} for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
 for a polytomous/partial-credit item). An error is raised when a score
-is not a whole number between 0 and \code{cats[j] - 1}.}
+is not a whole number between 0 and \code{cats[j] - 1}; a score within 1e-8
+of a whole number is treated as that whole number.}
 
 \item{item.id}{A character vector of item identifiers, in the same order
 as the columns of \code{data}. If \code{NULL} (default), item IDs are generated
@@ -54,7 +55,7 @@ listwise from all statistics computed by this function.}
 
 \item{flag}{Logical. If \code{TRUE} (default), items are flagged when their
 difficulty or discrimination falls outside the thresholds given in
-\code{crit.p} and \code{crit.dis}.}
+\code{crit.p} and \code{crit.dis}, or when their discrimination is undefined.}
 
 \item{crit.p}{A numeric vector of length two giving the lower and upper
 difficulty bounds used for flagging: an item with difficulty below the

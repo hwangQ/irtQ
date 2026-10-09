@@ -40,8 +40,9 @@ one correct option.}
 
 \item{missing}{A value indicating missing (omitted) responses in \code{data},
 analogous to the \code{missing} argument in \code{\link[=est_irt]{est_irt()}} and
-\code{\link[=est_score]{est_score()}}. Any cell equal to \code{missing} is recoded to \code{NA}
-before scoring. Default is \code{NA}, meaning \code{data} is assumed to already use
+\code{\link[=est_score]{est_score()}}. Any cell equal to \code{missing}, after trimming
+surrounding spaces, is recoded to \code{NA} before scoring. Default is \code{NA},
+meaning \code{data} is assumed to already use
 \code{NA} (or an empty string) for omitted responses, and no recoding is
 performed. Set this to whatever sentinel value a particular data set uses
 for a missing response (e.g., \code{-9}, \code{"9"}) when it differs from \code{NA}.}
@@ -117,8 +118,9 @@ error, since no correct option was actually supplied for that item.
 
 A response cell is classified as double-marked when, after coercion to
 character, it contains a comma (e.g., \code{"1,5"}, \code{"B,D"}). A response cell is
-classified as blank/omitted when it equals \code{missing} (recoded to \code{NA}
-beforehand), or is otherwise \code{NA} or an empty/whitespace-only string. For
+classified as blank/omitted when it equals \code{missing} after trimming
+surrounding spaces (recoded to \code{NA} beforehand), or is otherwise \code{NA} or an
+empty/whitespace-only string. For
 numeric- and Latin-letter-coded items, any response that is none of blank,
 double-marked, or a single valid option in the coding scheme used for that
 item (e.g., a numeric token where a letter was expected for a

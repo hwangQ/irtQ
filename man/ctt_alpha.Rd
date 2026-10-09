@@ -11,7 +11,8 @@ ctt_alpha(data, item.id = NULL, cats = NULL, correct = FALSE, missing = NA)
 examinees in rows and items in columns. Item scores must range from 0 to
 \code{cats[j] - 1} for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
 for a polytomous/partial-credit item). An error is raised when a score
-is not a whole number between 0 and \code{cats[j] - 1}.}
+is not a whole number between 0 and \code{cats[j] - 1}; a score within 1e-8
+of a whole number is treated as that whole number.}
 
 \item{item.id}{A character vector of item identifiers, in the same order
 as the columns of \code{data}. If \code{NULL} (default), item IDs are generated
@@ -58,9 +59,10 @@ to unit variance, with a constant item kept in the item count as in
 when \code{alpha} is \code{NA}.}
 \item{mean_difficulty}{average item difficulty.}
 \item{mean_discrimination_raw}{average raw (uncorrected) item-total
-correlation across items.}
+correlation across items with a defined value; \code{NA} when there is none.}
 \item{mean_discrimination_corrected}{average corrected (item-excluded)
-item-total correlation across items.}
+item-total correlation across items with a defined value; \code{NA} when
+there is none.}
 }
 \description{
 Computes a test-level classical test theory (CTT) reliability summary

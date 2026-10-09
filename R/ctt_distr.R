@@ -38,8 +38,9 @@
 #'   double-marked response). In scored-category mode (`key = NULL`), a data
 #'   frame or matrix of already-scored item responses with scores 0 to
 #'   `cats[j] - 1` for each item j; an error is raised when a score is not a
-#'   whole number between 0 and `cats[j] - 1`. Either way, examinees are rows
-#'   and items are columns.
+#'   whole number between 0 and `cats[j] - 1`, and a score within 1e-8 of a
+#'   whole number is treated as that whole number. Either way, examinees are
+#'   rows and items are columns.
 #' @param key `NULL` (default) for scored-category mode. For
 #'   selected-response mode, either a vector of correct options in item
 #'   order or a data frame with columns `item` and `key`, as accepted by
@@ -71,12 +72,14 @@
 #'   selected-response mode, or as `rowSums(data)` in scored-category mode
 #'   (see **Details** for how `total` interacts with `missing`/listwise
 #'   deletion in scored-category mode). A supplied `total` must be numeric
-#'   with no missing values for the examinees analyzed, and it should include the item scores, since
-#'   `pb_corrected` subtracts each item's score from it.
+#'   with no missing values for the examinees analyzed, and it should include
+#'   the item scores, since `pb_corrected` subtracts each item's score from
+#'   it.
 #' @param missing A value indicating missing responses, analogous to the
 #'   `missing` argument in [irtQ::est_irt()] and [irtQ::score_resp()]. Its
 #'   effect differs by mode (see **Details**): in selected-response mode, a
-#'   cell equal to `missing` is recoded to `NA` and then treated as a blank
+#'   cell equal to `missing` after trimming surrounding spaces is recoded to
+#'   `NA` and then treated as a blank
 #'   (omitted) response, contributing to that item's omission rate, without
 #'   removing the examinee from the analysis. In scored-category mode, a
 #'   cell equal to `missing` is recoded to `NA` and the examinee's row is
@@ -253,9 +256,9 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
     # score the raw responses against the key to get the 0/1 item scores
     # needed both for the total score (if not supplied) and for the
     # "corrected" reference total used in each option's point-biserial.
-    # score_resp() also validates `key` here (errors on any blank/NA key
-    # value), so by the time execution reaches the re-derivation below,
-    # `key` is already known to be valid
+    # score_resp() also validates `key` (a blank, NA, or comma-containing
+    # value, or wrong item numbers in a key data frame, stops with an error),
+    # so the key it resolves can be reused below
     scored_out <- score_resp(data = data, key = key, missing = NA)
     scored <- scored_out$scored
 
@@ -334,8 +337,8 @@ ctt_distr <- function(data, item.id = NULL, key = NULL, opt = NULL,
         # one option
         opt <- sort(unique(as.numeric(uniq_tokens)))
       } else {
-        # at least one item is letter- or general-label-coded: sort as
-        # character strings and keep `opt` character
+        # every item is letter- or general-label-coded, or no single response
+        # was observed: sort as character strings and keep `opt` character
         opt <- sort(uniq_tokens)
       }
     } else if (all(is_key_numeric)) {

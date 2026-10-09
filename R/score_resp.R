@@ -58,8 +58,9 @@
 #'   one correct option.
 #' @param missing A value indicating missing (omitted) responses in `data`,
 #'   analogous to the `missing` argument in [irtQ::est_irt()] and
-#'   [irtQ::est_score()]. Any cell equal to `missing` is recoded to `NA`
-#'   before scoring. Default is `NA`, meaning `data` is assumed to already use
+#'   [irtQ::est_score()]. Any cell equal to `missing`, after trimming
+#'   surrounding spaces, is recoded to `NA` before scoring. Default is `NA`,
+#'   meaning `data` is assumed to already use
 #'   `NA` (or an empty string) for omitted responses, and no recoding is
 #'   performed. Set this to whatever sentinel value a particular data set uses
 #'   for a missing response (e.g., `-9`, `"9"`) when it differs from `NA`.
@@ -106,8 +107,9 @@
 #'
 #' A response cell is classified as double-marked when, after coercion to
 #' character, it contains a comma (e.g., `"1,5"`, `"B,D"`). A response cell is
-#' classified as blank/omitted when it equals `missing` (recoded to `NA`
-#' beforehand), or is otherwise `NA` or an empty/whitespace-only string. For
+#' classified as blank/omitted when it equals `missing` after trimming
+#' surrounding spaces (recoded to `NA` beforehand), or is otherwise `NA` or an
+#' empty/whitespace-only string. For
 #' numeric- and Latin-letter-coded items, any response that is none of blank,
 #' double-marked, or a single valid option in the coding scheme used for that
 #' item (e.g., a numeric token where a letter was expected for a
@@ -367,16 +369,15 @@ score_resp <- function(data, key, missing = NA) {
 
     } else {
 
-      # general label-coded item (e.g., Korean syllable labels, Roman
-      # numerals written with non-Latin numeral characters, circled-number
-      # symbols, or
-      # any other non-numeric, non-Latin-letter label): there is no
-      # universal, script-independent format check for "a well-formed
-      # option label" the way there is for numbers or Latin letters, so
-      # every non-blank, non-double-marked token is accepted as a single
-      # valid response for this item; toupper() is applied for consistency
-      # with the other two schemes, but is a no-op for non-Latin scripts
-      # such as Hangul, so this effectively reduces to an exact string match
+      # general label-coded item (e.g., Korean syllable labels, Roman numerals
+      # written with non-Latin numeral characters, circled-number symbols, or
+      # any other non-numeric, non-Latin-letter label): there is no universal,
+      # script-independent format check for "a well-formed option label" the
+      # way there is for numbers or Latin letters, so every non-blank,
+      # non-double-marked token is accepted as a single valid response for this
+      # item; toupper() is applied for consistency with the other two schemes,
+      # but is a no-op for non-Latin scripts such as Hangul, so this
+      # effectively reduces to an exact string match
       is_single <- !is_blank & !is_double
       item_score[is_single & toupper(resp_chr) == toupper(key_vec[j])] <- 1L
     }

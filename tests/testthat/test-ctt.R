@@ -391,7 +391,7 @@ test_that("ctt() records which item-total correlation is used for flagging", {
                 "discrimination >= 0.2 (corrected item-total correlation)",
                 fixed = TRUE)
 
-  # an object saved without the element prints the threshold line as before
+  # an object without crit$correct omits the correlation name
   smry <- summary(ctt(data = dat))
   smry$crit$correct <- NULL
   lines <- utils::capture.output(print(smry))

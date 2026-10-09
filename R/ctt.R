@@ -19,7 +19,8 @@
 #'   examinees in rows and items in columns. Item scores must range from 0 to
 #'   `cats[j] - 1` for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
 #'   for a polytomous/partial-credit item). An error is raised when a score
-#'   is not a whole number between 0 and `cats[j] - 1`.
+#'   is not a whole number between 0 and `cats[j] - 1`; a score within 1e-8
+#'   of a whole number is treated as that whole number.
 #' @param item.id A character vector of item identifiers, in the same order
 #'   as the columns of `data`. If `NULL` (default), item IDs are generated
 #'   automatically as `paste0("V", 1:ncol(data))`, following the convention
@@ -48,7 +49,7 @@
 #'   listwise from all statistics computed by this function.
 #' @param flag Logical. If `TRUE` (default), items are flagged when their
 #'   difficulty or discrimination falls outside the thresholds given in
-#'   `crit.p` and `crit.dis`.
+#'   `crit.p` and `crit.dis`, or when their discrimination is undefined.
 #' @param crit.p A numeric vector of length two giving the lower and upper
 #'   difficulty bounds used for flagging: an item with difficulty below the
 #'   first value is flagged as too difficult ("difficulty too low"), and an
@@ -233,7 +234,7 @@ ctt <- function(data, item.id = NULL, cats = NULL, correct = FALSE,
                           correct = correct, missing = NA)
 
   # total score of the retained examinees, which freq_score() tabulates;
-  # rounding gives scores within tolerance of whole numbers their whole total
+  # rounding turns a sum of near-whole scores into an exact whole number
   total <- round(rowSums(data))
 
   # total-score frequency distribution (no missing values remain)

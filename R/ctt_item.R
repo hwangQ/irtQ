@@ -9,7 +9,8 @@
 #'   examinees in rows and items in columns. Item scores must range from 0 to
 #'   `cats[j] - 1` for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
 #'   for a polytomous/partial-credit item). An error is raised when a score
-#'   is not a whole number between 0 and `cats[j] - 1`.
+#'   is not a whole number between 0 and `cats[j] - 1`; a score within 1e-8
+#'   of a whole number is treated as that whole number.
 #' @param item.id A character vector of item identifiers, in the same order
 #'   as the columns of `data`. If `NULL` (default), item IDs are generated
 #'   automatically as `paste0("V", 1:ncol(data))`, following the convention
@@ -32,7 +33,7 @@
 #'   always computed and reported as separate columns. This argument only
 #'   selects which of the two is used for flagging: the corrected value if
 #'   `TRUE`, the raw value if `FALSE` (default). It drives the `flag` column
-#'   of [ctt_item()] and the `crit.distractor` check of [ctt_distr()].
+#'   of [ctt()] and the `crit.distractor` check of [ctt_distr()].
 #' @param missing A value indicating missing responses in `data`, analogous
 #'   to the `missing` argument in [irtQ::est_irt()] and [irtQ::score_resp()].
 #'   Any cell equal to `missing` is recoded to `NA` before analysis. Default
@@ -40,7 +41,7 @@
 #'   listwise from all statistics computed by this function.
 #' @param flag Logical. If `TRUE` (default), items are flagged when their
 #'   difficulty or discrimination falls outside the thresholds given in
-#'   `crit.p` and `crit.dis`.
+#'   `crit.p` and `crit.dis`, or when their discrimination is undefined.
 #' @param crit.p A numeric vector of length two giving the lower and upper
 #'   difficulty bounds used for flagging: an item with difficulty below the
 #'   first value is flagged as too difficult ("difficulty too low"), and an
@@ -57,24 +58,24 @@
 #' Difficulty for item j is defined generally as the mean observed score
 #' divided by the item's maximum possible score,
 #' `mean(data[, j]) / (cats[j] - 1)`, computed after listwise deletion. For a
-#' dichotomous item (`cats[j] = 2`), this reduces to the familiar proportion-correct difficulty
-#' index. For a polytomous item, this expresses the average score as a
-#' proportion of the maximum attainable score, so that difficulty remains
-#' interpretable on the same 0-1 scale regardless of the number of score
-#' categories.
+#' dichotomous item (`cats[j] = 2`), this reduces to the familiar
+#' proportion-correct difficulty index. For a polytomous item, this
+#' expresses the average score as a proportion of the maximum attainable
+#' score, so that difficulty remains interpretable on the same 0-1 scale
+#' regardless of the number of score categories.
 #'
-#' Discrimination for item j is the Pearson correlation between the item
-#' score and the total score, which for a dichotomous item is mathematically
-#' equivalent to the point-biserial correlation. A correlation is `NA` when
-#' the item score or the reference total score is constant. Both the
-#' uncorrected (raw) item-total correlation and the corrected (item-excluded) item-total
-#' correlation are always computed and returned as separate columns; see,
-#' e.g., Crocker and Algina (1986) for discussion of both conventions.
-#' This mirrors how some software reports both side by side (e.g.,
-#' `psych::alpha()` reports the raw item-total correlation as `raw.r` and
-#' the corrected version as `r.drop`) rather than defaulting to one or the
-#' other. The `correct` argument only selects which of the two feeds the
-#' discrimination flagging criterion (see `crit.dis`).
+#' Discrimination for item j is the Pearson correlation between the item score
+#' and the total score, which for a dichotomous item is mathematically
+#' equivalent to the point-biserial correlation. A correlation is `NA` when the
+#' item score or the reference total score is constant. Both the uncorrected
+#' (raw) item-total correlation and the corrected (item-excluded) item-total
+#' correlation are always computed and returned as separate columns; see, e.g.,
+#' Crocker and Algina (1986) for discussion of both conventions. This mirrors
+#' how some software reports both side by side (e.g., `psych::alpha()` reports
+#' the raw item-total correlation as `raw.r` and the corrected version as
+#' `r.drop`) rather than defaulting to one or the other. The `correct` argument
+#' only selects which of the two feeds the discrimination flagging criterion
+#' (see `crit.dis`).
 #'
 #' Alpha-with-item-removed for item j is Cronbach's alpha recomputed on the
 #' remaining `ncol(data) - 1` items, using the same variance-based formula
