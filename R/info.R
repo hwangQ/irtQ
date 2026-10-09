@@ -32,6 +32,9 @@
 #' an `est_irt` or `est_item` object. The structure of this data frame
 #' is explained in the documentation of [irtQ::est_irt()] and [irtQ::simdat()].
 #' Items of different models (e.g., 3PLM, GPCM) can be combined in a single test.
+#' For an `est_irt` or `est_item` object, the item parameter estimates and the
+#' scaling constant `D` are taken from the object, and a `D` supplied through
+#' `...` is ignored.
 #'
 #' Item information is computed under each item's IRT model and summed over
 #' items to give the TIF when `tif = TRUE`. The TIF shows where on the theta
@@ -217,181 +220,19 @@ info.default <- function(x, theta, D = 1, tif = TRUE, ...) {
 
 #' @describeIn info An object created by the function [irtQ::est_item()].
 #' @export
-#' @importFrom Rfast colsums
 info.est_item <- function(x, theta, tif = TRUE, ...) {
-  # extract information from an object
-  D <- x$scale.D
-  x <- x$par.est
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # break down the item metadata into several elements
-  elm_item <- breakdown(x)
-
-  # classify the items into DRM and PRM item groups
-  idx.item <- idxfinder(elm_item)
-  idx.drm <- idx.item$idx.drm
-  idx.prm <- idx.item$idx.prm
-
-  # extract item id
-  id <- elm_item$id
-
-  # For DRM items
-  if (!is.null(idx.drm)) {
-    # compute the item information
-    iif_drm <-
-      info_drm(
-        theta = theta, a = elm_item$pars[idx.drm, 1],
-        b = elm_item$par[idx.drm, 2], g = elm_item$par[idx.drm, 3],
-        D = D, one.theta = FALSE, grad = FALSE, info = TRUE
-      )$II
-  } else {
-    iif_drm <- NULL
-  }
-
-  # For PRM items
-  if (!is.null(idx.prm)) {
-    # count the number of theta values
-    nstd <- length(theta)
-
-    # check what poly models were used
-    pr.mod <- unique(elm_item$model[idx.prm])
-    iif_prm <- NULL
-    idx.prm <- c()
-    for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
-      a <- par.tmp[, 1]
-      d <- par.tmp[, -1, drop = FALSE]
-
-      # reorder the index of the PRMs
-      idx.prm <- c(idx.prm, elm_item$item[[mod]])
-
-      # compute the item information of the polytomous items
-      iif_all <-
-        info_prm(
-          theta = theta, a = a, d = d, D = D, pr.model = mod,
-          grad = FALSE, info = TRUE
-        )$II
-      iif_all <- matrix(iif_all, ncol = nstd, byrow = FALSE)
-      iif_prm <- rbind(iif_prm, iif_all)
-    }
-  } else {
-    iif_prm <- NULL
-  }
-
-  # create an item information matrix for all items
-  iif <- rbind(iif_drm, iif_prm)
-
-  # re-order the item information matrix along with the original order of items
-  loc.item <- c(idx.drm, idx.prm)
-  iif <- iif[order(loc.item), , drop = FALSE]
-  rownames(iif) <- id
-  colnames(iif) <- paste0("theta.", 1:length(theta))
-
-  # compute the test information
-  if (tif) {
-    tif.vec <- Rfast::colsums(iif)
-  } else {
-    tif.vec <- NULL
-  }
-
-  # return the results
-  rst <- list(iif = iif, tif = tif.vec, theta = theta)
-  class(rst) <- c("info")
-  rst
+  # compute with the estimated metadata and the scaling constant stored in the object
+  info.default(x = x$par.est, theta = theta, D = x$scale.D, tif = tif)
 }
+
 
 #' @describeIn info An object created by the function [irtQ::est_irt()].
 #' @export
-#' @importFrom Rfast rowsums
 info.est_irt <- function(x, theta, tif = TRUE, ...) {
-  # extract information from an object
-  D <- x$scale.D
-  x <- x$par.est
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # break down the item metadata into several elements
-  elm_item <- breakdown(x)
-
-  # classify the items into DRM and PRM item groups
-  idx.item <- idxfinder(elm_item)
-  idx.drm <- idx.item$idx.drm
-  idx.prm <- idx.item$idx.prm
-
-  # extract item id
-  id <- elm_item$id
-
-  # For DRM items
-  if (!is.null(idx.drm)) {
-    # compute the item information
-    iif_drm <-
-      info_drm(
-        theta = theta, a = elm_item$pars[idx.drm, 1],
-        b = elm_item$par[idx.drm, 2], g = elm_item$par[idx.drm, 3],
-        D = D, one.theta = FALSE, grad = FALSE, info = TRUE
-      )$II
-  } else {
-    iif_drm <- NULL
-  }
-
-  # For PRM items
-  if (!is.null(idx.prm)) {
-    # count the number of theta values
-    nstd <- length(theta)
-
-    # check what poly models were used
-    pr.mod <- unique(elm_item$model[idx.prm])
-    iif_prm <- NULL
-    idx.prm <- c()
-    for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
-      a <- par.tmp[, 1]
-      d <- par.tmp[, -1, drop = FALSE]
-
-      # reorder the index of the PRMs
-      idx.prm <- c(idx.prm, elm_item$item[[mod]])
-
-      # compute the item information of the polytomous items
-      iif_all <-
-        info_prm(
-          theta = theta, a = a, d = d, D = D, pr.model = mod,
-          grad = FALSE, info = TRUE
-        )$II
-      iif_all <- matrix(iif_all, ncol = nstd, byrow = FALSE)
-      iif_prm <- rbind(iif_prm, iif_all)
-    }
-  } else {
-    iif_prm <- NULL
-  }
-
-  # create an item information matrix for all items
-  iif <- rbind(iif_drm, iif_prm)
-
-  # re-order the item information matrix along with the original order of items
-  loc.item <- c(idx.drm, idx.prm)
-  iif <- iif[order(loc.item), , drop = FALSE]
-  rownames(iif) <- id
-  colnames(iif) <- paste0("theta.", 1:length(theta))
-
-  # compute the test information
-  if (tif) {
-    tif.vec <- Rfast::colsums(iif)
-  } else {
-    tif.vec <- NULL
-  }
-
-  # return the results
-  rst <- list(iif = iif, tif = tif.vec, theta = theta)
-  class(rst) <- c("info")
-  rst
+  # compute with the estimated metadata and the scaling constant stored in the object
+  info.default(x = x$par.est, theta = theta, D = x$scale.D, tif = tif)
 }
+
 
 # Compute the expected Fisher item information for DRM items.
 # The derivatives of P with respect to theta and the J value follow the
@@ -541,7 +382,8 @@ info_prm <- function(theta, a, d, D = 1, pr.model,
       # sum the category information over categories to obtain the item information (II)
       II <- Rfast::rowsums(IP, na.rm = TRUE)
     } else {
-      dP <- dP2 <- II <- NULL
+      # clear the derivative and information outputs when info = FALSE
+      dP <- II <- NULL
     }
   }
 

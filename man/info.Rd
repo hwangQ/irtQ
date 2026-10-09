@@ -73,6 +73,9 @@ The input \code{x} must follow a specific data frame format if not already
 an \code{est_irt} or \code{est_item} object. The structure of this data frame
 is explained in the documentation of \code{\link[=est_irt]{est_irt()}} and \code{\link[=simdat]{simdat()}}.
 Items of different models (e.g., 3PLM, GPCM) can be combined in a single test.
+For an \code{est_irt} or \code{est_item} object, the item parameter estimates and the
+scaling constant \code{D} are taken from the object, and a \code{D} supplied through
+\code{...} is ignored.
 
 Item information is computed under each item's IRT model and summed over
 items to give the TIF when \code{tif = TRUE}. The TIF shows where on the theta

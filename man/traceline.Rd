@@ -79,8 +79,8 @@ item/test scores.
 
 If the input \code{x} is an object of class \code{est_item} or \code{est_irt}, the function
 automatically extracts item parameter estimates and the scaling constant
-\code{D} from the object. Otherwise, a properly formatted item metadata data frame
-must be provided.
+\code{D} from the object, and a \code{D} supplied through \code{...} is ignored. Otherwise,
+a properly formatted item metadata data frame must be provided.
 }
 \section{Methods (by class)}{
 \itemize{

@@ -26,8 +26,8 @@
 #'
 #' If the input `x` is an object of class `est_item` or `est_irt`, the function
 #' automatically extracts item parameter estimates and the scaling constant
-#' `D` from the object. Otherwise, a properly formatted item metadata data frame
-#' must be provided.
+#' `D` from the object, and a `D` supplied through `...` is ignored. Otherwise,
+#' a properly formatted item metadata data frame must be provided.
 #'
 #' @return This function returns an object of class `traceline`, which is a list
 #' containing the following components:
@@ -179,224 +179,19 @@ traceline.default <- function(x, theta, D = 1, ...) {
 }
 
 
-
 #' @describeIn traceline An object created by the function [irtQ::est_item()].
-#' @importFrom Rfast rowsums
-#' @import dplyr
 #' @export
 traceline.est_item <- function(x, theta, ...) {
-  # extract information from an object
-  D <- x$scale.D
-  x <- x$par.est
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # break down the item metadata into several components
-  elm_item <- breakdown(x)
-
-  # set indices of the DRM and PRM items
-  idx.all <- idxfinder(elm_item)
-  idx.drm <- idx.all$idx.drm
-  idx.prm <- idx.all$idx.prm
-
-  # count the number of thetas
-  n.theta <- length(theta)
-
-  # count the total number of items
-  n.item <- sum(length(idx.drm), length(idx.prm))
-
-  # create an empty list for category probabilities and an empty matrix for ICCs
-  prob.cats <- vector("list", n.item)
-  icc_df <- array(NA, c(n.theta, n.item))
-  names(prob.cats) <- x$id
-  colnames(icc_df) <- x$id
-
-  # For DRM items
-  if (!is.null(idx.drm)) {
-    # compute the probabilities of correct answers
-    p.mat <- drm(
-      theta = theta, a = elm_item$pars[idx.drm, 1],
-      b = elm_item$pars[idx.drm, 2], g = elm_item$pars[idx.drm, 3],
-      D = D
-    )
-    p.vec <- c(p.mat)
-    q.vec <- 1 - p.vec
-
-    # split the probabilities into each item group
-    prob.drm <-
-      split.data.frame(
-        cbind(resp.0 = q.vec, resp.1 = p.vec),
-        rep(idx.drm, each = n.theta)
-      )
-
-    # fill the empty list
-    prob.cats[idx.drm] <- prob.drm
-
-    # insert icc
-    icc_df[, idx.drm] <- p.mat
-  }
-
-  # For PRM items
-  if (!is.null(idx.prm)) {
-    # check what poly models were used
-    pr.mod <- unique(elm_item$model[idx.prm])
-
-    # check the maximum score category
-    max.cats <- max(elm_item$cats) - 1
-    for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
-      a <- par.tmp[, 1]
-      d <- par.tmp[, -1, drop = FALSE]
-      cat.tmp <- elm_item$cats[lg.prm]
-
-      # reorder the index of the PRMs
-      idx.tmp <- elm_item$item[[mod]]
-
-      # compute the probabilities of endorsing each score category
-      P.all <-
-        info_prm(
-          theta = theta, a = a, d = d, D = D, pr.model = mod,
-          grad = FALSE, info = FALSE
-        )$P
-      colnames(P.all) <- paste0("resp.", 0:max.cats)
-      prob.cats[idx.tmp] <-
-        split.data.frame(
-          P.all,
-          rep(1:length(a), n.theta)
-        ) %>%
-        purrr::map2(
-          .y = cat.tmp,
-          .f = ~ {
-            .x[, 1:(.y)]
-          }
-        )
-
-      # insert icc
-      icc_df[, idx.tmp] <-
-        matrix(P.all %*% c(0:max.cats), nrow = n.theta, byrow = TRUE)
-    }
-  }
-
-  # compute tcc
-  tcc.vec <- Rfast::rowsums(icc_df)
-
-  # return results
-  rst <- list(prob.cats = prob.cats, icc = icc_df, tcc = tcc.vec, theta = theta)
-  class(rst) <- "traceline"
-  rst
+  # compute with the estimated metadata and the scaling constant stored in the object
+  traceline.default(x = x$par.est, theta = theta, D = x$scale.D)
 }
 
 
 #' @describeIn traceline An object created by the function [irtQ::est_irt()].
-#' @importFrom Rfast rowsums
-#' @import dplyr
 #' @export
 traceline.est_irt <- function(x, theta, ...) {
-  # extract information from an object
-  D <- x$scale.D
-  x <- x$par.est
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # break down the item metadata into several components
-  elm_item <- breakdown(x)
-
-  # set indices of the DRM and PRM items
-  idx.all <- idxfinder(elm_item)
-  idx.drm <- idx.all$idx.drm
-  idx.prm <- idx.all$idx.prm
-
-  # count the number of thetas
-  n.theta <- length(theta)
-
-  # count the total number of items
-  n.item <- sum(length(idx.drm), length(idx.prm))
-
-  # create an empty list for category probabilities and an empty matrix for ICCs
-  prob.cats <- vector("list", n.item)
-  icc_df <- array(NA, c(n.theta, n.item))
-  names(prob.cats) <- x$id
-  colnames(icc_df) <- x$id
-
-  # For DRM items
-  if (!is.null(idx.drm)) {
-    # compute the probabilities of correct answers
-    p.mat <- drm(
-      theta = theta, a = elm_item$pars[idx.drm, 1],
-      b = elm_item$pars[idx.drm, 2], g = elm_item$pars[idx.drm, 3],
-      D = D
-    )
-    p.vec <- c(p.mat)
-    q.vec <- 1 - p.vec
-
-    # split the probabilities into each item group
-    prob.drm <-
-      split.data.frame(
-        cbind(resp.0 = q.vec, resp.1 = p.vec),
-        rep(idx.drm, each = n.theta)
-      )
-
-    # fill the empty list
-    prob.cats[idx.drm] <- prob.drm
-
-    # insert icc
-    icc_df[, idx.drm] <- p.mat
-  }
-
-  # For PRM items
-  if (!is.null(idx.prm)) {
-    # check what poly models were used
-    pr.mod <- unique(elm_item$model[idx.prm])
-
-    # check the maximum score category
-    max.cats <- max(elm_item$cats) - 1
-    for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
-      a <- par.tmp[, 1]
-      d <- par.tmp[, -1, drop = FALSE]
-      cat.tmp <- elm_item$cats[lg.prm]
-
-      # reorder the index of the PRMs
-      idx.tmp <- elm_item$item[[mod]]
-
-      # compute the probabilities of endorsing each score category
-      P.all <-
-        info_prm(
-          theta = theta, a = a, d = d, D = D, pr.model = mod,
-          grad = FALSE, info = FALSE
-        )$P
-      colnames(P.all) <- paste0("resp.", 0:max.cats)
-      prob.cats[idx.tmp] <-
-        split.data.frame(
-          P.all,
-          rep(1:length(a), n.theta)
-        ) %>%
-        purrr::map2(
-          .y = cat.tmp,
-          .f = ~ {
-            .x[, 1:(.y)]
-          }
-        )
-
-      # insert icc
-      icc_df[, idx.tmp] <-
-        matrix(P.all %*% c(0:max.cats), nrow = n.theta, byrow = TRUE)
-    }
-  }
-
-  # compute tcc
-  tcc.vec <- Rfast::rowsums(icc_df)
-
-  # return results
-  rst <- list(prob.cats = prob.cats, icc = icc_df, tcc = tcc.vec, theta = theta)
-  class(rst) <- "traceline"
-  rst
+  # compute with the estimated metadata and the scaling constant stored in the object
+  traceline.default(x = x$par.est, theta = theta, D = x$scale.D)
 }
 
 
