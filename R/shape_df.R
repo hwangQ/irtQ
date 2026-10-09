@@ -141,6 +141,16 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
     # replicate a single model name across all items
     if (length(model) == 1) model <- rep(model, n_item_default)
 
+    # stop when cats, model, or item.id cannot be matched to the number of items
+    if (length(cats) != n_item_default || length(model) != n_item_default ||
+        (!is.null(item.id) && length(item.id) != n_item_default)) {
+      stop(
+        "`cats` and `model` must have length 1 or one value per item, ",
+        "and `item.id` must have one value per item.",
+        call. = FALSE
+      )
+    }
+
     # find the index of drm items
     idx.drm <- which(cats == 2)
     if (sum(idx.drm) == 0) idx.drm <- NULL
@@ -184,6 +194,15 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
   # create a vector of model names when length(model) = 1
   if (length(model) == 1) model <- rep(model, nitem)
 
+  # stop when cats, model, or item.id do not match the number of items
+  if (length(cats) != nitem || length(model) != nitem || length(item.id) != nitem) {
+    stop(
+      "`cats`, `model`, and `item.id` must have length 1 or one value per item ",
+      "(", nitem, " items given in `par.drm` and `par.prm`).",
+      call. = FALSE
+    )
+  }
+
   # find the indices of DRM and PRM items when default.par = FALSE
   if (!default.par) {
     # find the index of drm items
@@ -193,6 +212,21 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
     # find the index of prm items
     idx.prm <- which(cats > 2)
     if (sum(idx.prm) == 0) idx.prm <- NULL
+
+    # count the guessing values given (zero when the g element is absent)
+    n.g <- if (length(par.drm) < 3L) 0L else length(par.drm[[3]])
+
+    # stop when the dichotomous parameter vectors do not match the dichotomous items
+    if (length(par.drm[[1]]) != length(idx.drm) || length(par.drm[[2]]) != length(idx.drm) ||
+        !(n.g %in% c(0L, length(idx.drm)))) {
+      stop("`par.drm` must give a, b (and g) for every item with cats = 2.", call. = FALSE)
+    }
+
+    # stop when the polytomous slopes or threshold lists do not match the polytomous items
+    if (length(par.prm[[1]]) != length(idx.prm) || length(par.prm[[2]]) != length(idx.prm) ||
+        any(lengths(par.prm[[2]]) != cats[idx.prm] - 1)) {
+      stop("`par.prm` must give a and cats - 1 thresholds for every item with cats > 2.", call. = FALSE)
+    }
   }
 
   # create an empty matrix to contain item parameters
@@ -204,7 +238,8 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
 
   # if drm items exist
   if (!is.null(idx.drm)) {
-    if (is.null(par.drm[[3]])) par.drm[[3]] <- rep(0, length(idx.drm))
+    # fill zero guessing values when g is absent or NULL
+    if (length(par.drm) < 3L || is.null(par.drm[[3]])) par.drm[[3]] <- rep(0, length(idx.drm))
     par_mat[idx.drm, 1:3] <- bind.fill(par.drm, type = "cbind")
   }
 
