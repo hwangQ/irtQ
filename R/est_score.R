@@ -706,6 +706,10 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
     # preserve the last protected finfo for SE reuse on clean convergence;
     # initialized to 1e-5 (the floor) in case the loop body never executes
     finfo_last <- 1e-5
+
+    # record the visited theta values and their gradients for the fallback root search
+    th_hist <- numeric(0)
+    gr_hist <- numeric(0)
     while (abs_delta >= tol) {
       # update the iteration number
       i <- i + 1
@@ -720,6 +724,10 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
         )
       grad <- gr_fi$grad
       finfo <- gr_fi$finfo
+
+      # store the current theta value and its gradient
+      th_hist <- c(th_hist, theta)
+      gr_hist <- c(gr_hist, grad)
 
       # floor the Fisher information at 1e-5 to avoid division by values near 0
       finfo[finfo < 1e-5 | is.nan(finfo)] <- 1e-5
@@ -742,6 +750,33 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
     # flag whether the loop exited via convergence (abs_delta < tol) or
     # hit the iteration ceiling; finfo_last is only safe to reuse when converged
     nr_converged <- (abs_delta < tol)
+
+    # solve for the gradient root inside a visited bracket when the iterations do not converge
+    if (!nr_converged) {
+      # list the visited pairs whose lower point has a negative gradient and upper point a positive one
+      pairs <- expand.grid(lo = th_hist[which(gr_hist < 0)], hi = th_hist[which(gr_hist > 0)])
+
+      # keep the pairs whose lower point lies below the upper point
+      pairs <- pairs[pairs$lo < pairs$hi, , drop = FALSE]
+
+      # search only when such a bracket exists
+      if (nrow(pairs) > 0L) {
+        # take the narrowest bracket
+        br <- unlist(pairs[which.min(pairs$hi - pairs$lo), ])
+
+        # define the gradient of the objective function as a function of theta
+        f_grad <- function(t) {
+          info_score(
+            theta = t, elm_item = elm_item, freq.cat = freq.cat,
+            idx.drm = idx.drm, idx.prm = idx.prm, method = method, D = D,
+            norm.prior = norm.prior, grad = TRUE, ji = ji
+          )$grad
+        }
+
+        # find the root of the gradient within the bracket
+        theta <- stats::uniroot(f_grad, lower = br[1], upper = br[2], tol = tol)$root
+      }
+    }
 
     # truncate the estimate to the bounds of range
     theta[theta <= range[1]] <- range[1]

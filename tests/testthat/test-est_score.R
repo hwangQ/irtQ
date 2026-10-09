@@ -510,3 +510,64 @@ test_that("INV.TCC stops with a clear message when the TCC does not reach a sum 
     "does not reach the sum score"
   )
 })
+
+
+# ==============================================================================
+# 7. SCORING VALUES
+# ==============================================================================
+
+test_that("ML, WL, and MAP reach the stationary point when Fisher scoring cycles", {
+  # Fisher scoring alternates between -2 and -3 for an all-incorrect pattern under WL
+  wl <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = "WL")
+  expect_equal(wl$est.theta, -2.591107, tolerance = 1e-3)
+
+  # the same happens for ML with this pattern
+  ml <- est_score(x_drm, rbind(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0)), D = 1, method = "ML")
+  expect_equal(ml$est.theta, -2.761422, tolerance = 1e-3)
+
+  # the estimate does not depend on the parity of max.iter
+  for (m in c("WL", "ML", "MLF")) {
+    a1 <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = m, max.iter = 100)
+    a2 <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = m, max.iter = 101)
+    expect_equal(a1$est.theta, a2$est.theta, tolerance = 1e-3)
+  }
+
+  # MAP for a 15-item 3PLM test with only the first item answered correctly
+  x15 <- shape_df(
+    par.drm = list(
+      a = c(1.0700, 2.7576, 1.3941, 1.7162, 1.3461, 2.7103, 0.8456, 0.9710, 0.6149, 1.3543,
+            1.0006, 0.9705, 1.1978, 1.8814, 1.5150),
+      b = c(1.1640, -0.9606, 0.5895, -0.1602, 0.1801, 0.7633, 1.0025, 1.1542, 0.5137, 0.0823,
+            -0.5269, 1.1872, 1.1288, 0.0991, -0.1955),
+      g = c(0.2637, 0.1888, 0.1845, 0.3310, 0.2532, 0.1545, 0.1319, 0.2345, 0.1529, 0.1468,
+            0.1708, 0.1099, 0.1766, 0.2699, 0.1671)
+    ),
+    cats = 2, model = "3PLM"
+  )
+  r15 <- rbind(c(1, rep(0, 14)))
+  map100 <- est_score(x15, r15, D = 1.702, method = "MAP", max.iter = 100)
+  map101 <- est_score(x15, r15, D = 1.702, method = "MAP", max.iter = 101)
+  expect_equal(map100$est.theta, -1.398218, tolerance = 1e-3)
+  expect_equal(map101$est.theta, -1.398218, tolerance = 1e-3)
+  expect_equal(map100$se.theta, 0.6907323, tolerance = 1e-3)
+})
+
+test_that("ML estimates are local maxima of the log-likelihood for every response pattern", {
+  # every response pattern of 10 items
+  pat <- as.matrix(expand.grid(rep(list(0:1), 10)))
+  ml <- est_score(x_drm, pat, D = 1, method = "ML")
+
+  # log-likelihood of each pattern at its own theta value, written out independently
+  ll_vec <- function(th) {
+    p <- sapply(seq_len(10), function(j) {
+      x_drm$par.3[j] + (1 - x_drm$par.3[j]) / (1 + exp(-x_drm$par.1[j] * (th - x_drm$par.2[j])))
+    })
+    rowSums(pat * log(p) + (1 - pat) * log(1 - p))
+  }
+
+  # patterns whose estimate lies inside the range cannot be improved by a small move
+  inner <- ml$se.theta != 99.9999
+  ll0 <- ll_vec(ml$est.theta)
+  expect_true(all(ll0[inner] >= ll_vec(ml$est.theta - 1e-3)[inner] - 1e-9))
+  expect_true(all(ll0[inner] >= ll_vec(ml$est.theta + 1e-3)[inner] - 1e-9))
+})

@@ -81,6 +81,13 @@
   not close the cluster when a worker failed. Each chunk is now kept as
   a matrix, also when it has one row, and the cluster is always closed.
 
+- `est_score()` with `method = "ML"`, `"WL"`, `"MLF"`, or `"MAP"` could
+  stop at a point that was not a solution when the iterations alternated
+  between two values, which happened mostly for low-scoring examinees on
+  tests with 3PLM items. The estimate then depended on `max.iter`. When
+  the iterations do not converge, the root of the score function is now
+  found within the range of the visited values.
+
 - `llike_score()` with `method = "MLF"` stopped with an error under the
   default `fence.b = NULL`. The fences are now placed at -5 and 5, the
   default `range` of `est_score()`. The function also merged examinees
