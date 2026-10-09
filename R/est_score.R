@@ -571,6 +571,47 @@ est_score.est_irt <- function(x,
 }
 
 
+#' @describeIn est_score Method for an object of class `est_item`. The item
+#'  parameter estimates, response data, and scaling constant `D` are taken from
+#'  `x`, so supplying `data` or `D` stops with an error.
+#' @export
+est_score.est_item <- function(x,
+                               method = "ML",
+                               range = c(-5, 5),
+                               norm.prior = c(0, 1),
+                               nquad = 41,
+                               weights = NULL,
+                               fence.a = 3.0,
+                               fence.b = NULL,
+                               tol = 1e-4,
+                               max.iter = 100,
+                               se = TRUE,
+                               stval.opt = 1,
+                               intpol = TRUE,
+                               range.tcc = c(-7, 7),
+                               missing = NA,
+                               ncore = 1,
+                               ...) {
+  # stop when 'data' or 'D' is supplied, since both are taken from the fitted object
+  if (any(c("data", "D") %in% names(list(...)))) {
+    stop(
+      "'data' and 'D' are taken from the est_item object and cannot be supplied.",
+      call. = FALSE
+    )
+  }
+
+  # score the stored response data with the stored item estimates and scaling constant
+  est_score.default(
+    x = x$par.est, data = x$data, D = x$scale.D, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, fence.a = fence.a, fence.b = fence.b,
+    tol = tol, max.iter = max.iter, se = se, stval.opt = stval.opt,
+    intpol = intpol, range.tcc = range.tcc, missing = missing,
+    ncore = ncore, ...
+  )
+}
+
+
 # Score one chunk of examinees on a single worker in the parallel path
 est_score_1core <- function(elm_item,
                             data,

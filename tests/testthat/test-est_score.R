@@ -640,3 +640,22 @@ test_that("EAP gives finite estimates for a very long test", {
   # with this many items the EAP estimate is close to the ML estimate
   expect_lt(max(abs(eap$est.theta - ml$est.theta)), 0.1)
 })
+
+test_that("est_score() has a method for est_item objects that matches the default method", {
+  # calibrate the pretest items of a small test with the fixed abilities
+  utils::capture.output(
+    ei <- est_item(x = x_drm[1:6, ], data = resp_drm[1:120, 1:6], score = theta_drm[1:120], D = 1.702)
+  )
+  expect_s3_class(ei, "est_item")
+
+  for (m in c("ML", "WL", "EAP", "EAP.SUM", "INV.TCC")) {
+    expect_identical(
+      est_score(ei, method = m),
+      est_score(ei$par.est, ei$data, D = ei$scale.D, method = m)
+    )
+  }
+
+  # data and D come from the object
+  expect_error(est_score(ei, data = resp_drm[1:3, 1:6], method = "ML"), "cannot be supplied")
+  expect_error(est_score(ei, D = 1, method = "ML"), "cannot be supplied")
+})

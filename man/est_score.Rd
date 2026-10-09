@@ -4,6 +4,7 @@
 \alias{est_score}
 \alias{est_score.default}
 \alias{est_score.est_irt}
+\alias{est_score.est_item}
 \title{Estimate examinees' ability (proficiency) parameters}
 \usage{
 est_score(x, ...)
@@ -31,6 +32,26 @@ est_score(x, ...)
 )
 
 \method{est_score}{est_irt}(
+  x,
+  method = "ML",
+  range = c(-5, 5),
+  norm.prior = c(0, 1),
+  nquad = 41,
+  weights = NULL,
+  fence.a = 3,
+  fence.b = NULL,
+  tol = 1e-04,
+  max.iter = 100,
+  se = TRUE,
+  stval.opt = 1,
+  intpol = TRUE,
+  range.tcc = c(-7, 7),
+  missing = NA,
+  ncore = 1,
+  ...
+)
+
+\method{est_score}{est_item}(
   x,
   method = "ML",
   range = c(-5, 5),
@@ -277,6 +298,10 @@ package (Magis & Barrada, 2017).
 parameters using a data frame \code{x} containing the item metadata.
 
 \item \code{est_score(est_irt)}: Method for an object of class \code{est_irt}. The item
+parameter estimates, response data, and scaling constant \code{D} are taken from
+\code{x}, so supplying \code{data} or \code{D} stops with an error.
+
+\item \code{est_score(est_item)}: Method for an object of class \code{est_item}. The item
 parameter estimates, response data, and scaling constant \code{D} are taken from
 \code{x}, so supplying \code{data} or \code{D} stops with an error.
 

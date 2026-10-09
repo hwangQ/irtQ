@@ -155,6 +155,9 @@
   `est_irt` object, supplying `data` or `D` is now an error instead of
   being ignored.
 
+- `est_score()` now has a method for `est_item` objects, as its
+  documentation already stated.
+
 - `bisection()` warns when the function values at `lb` and `ub` have the
   same sign, instead of returning a bound without notice, and it stops
   after exactly `max.it` iterations instead of `max.it + 1`. Its help
