@@ -159,3 +159,77 @@ test_that("sx2_fit() follows the latent distribution estimated with EmpHist = TR
   ei <- suppressWarnings(est_item(x = x_emp, data = dat, score = th, D = 1, use.gprior = TRUE, verbose = FALSE))
   expect_identical(sx2_fit(ei)$fit_stat, sx2_fit(ei$par.est, data = dat, D = 1)$fit_stat)
 })
+
+test_that("sx2_fit() matches an independent Lord-Wingersky computation without collapsing", {
+  fit <- sx2_fit(x_lsat, data = LSAT6, D = 1, min.collapse = 0)
+
+  # quadrature used by sx2_fit() by default
+  wts <- gen.weight(n = 30, dist = "norm", mu = 0, sigma = 1)
+  pmat <- lapply(seq_len(5), function(i) {
+    p1 <- 1 / (1 + exp(-x_lsat$par.1[i] * (wts[, 1] - x_lsat$par.2[i])))
+    cbind(1 - p1, p1)
+  })
+
+  # summed score distribution at each quadrature point
+  lw <- function(p) {
+    f <- matrix(1, nrow(wts), 1)
+    for (q in p) f <- cbind(f * q[, 1], 0) + cbind(0, f * q[, 2])
+    f
+  }
+  rs <- rowSums(LSAT6)
+  n_s <- tabulate(rs + 1, 6)
+  denom <- colSums(lw(pmat) * wts[, 2])
+  for (i in 1:5) {
+    rest <- lw(pmat[-i])
+    s <- 1:4
+
+    # expected number correct in each summed score group with the item removed
+    e1 <- n_s[s + 1] * colSums(wts[, 2] * pmat[[i]][, 2] * rest[, s, drop = FALSE]) / denom[s + 1]
+    o1 <- vapply(s, function(k) sum(rs == k & LSAT6[, i] == 1), numeric(1))
+    x2 <- sum((o1 - e1)^2 / e1 + ((n_s[s + 1] - o1) - (n_s[s + 1] - e1))^2 / (n_s[s + 1] - e1))
+    expect_equal(fit$fit_stat$chisq[i], round(x2, 3))
+    expect_equal(fit$fit_stat$df[i], 4 - 2)
+  }
+  expect_equal(fit$fit_stat$chisq, c(0.481, 1.984, 3.985, 3.179, 0.320))
+  expect_equal(fit$fit_stat$p, c(0.786, 0.371, 0.136, 0.204, 0.852))
+})
+
+test_that("sx2_fit() collapses sparse summed score groups and lowers the df", {
+  fit <- sx2_fit(x_lsat, data = LSAT6, D = 1)
+  expect_equal(fit$fit_stat$df, c(2, 2, 1, 2, 2))
+  expect_equal(fit$fit_stat$chisq[3], 3.662)
+  expect_equal(fit$fit_stat$p[3], 0.056)
+
+  # every expected cell reaches the minimum after collapsing
+  expect_true(all(vapply(fit$exp_freq, function(e) min(data.matrix(e), na.rm = TRUE), numeric(1)) >= 1))
+})
+
+test_that("sx2_fit() for est_irt and est_item objects uses the data and scaling constant of the object", {
+  mod <- est_irt(data = LSAT6, D = 1.702, model = "2PLM", cats = 2, verbose = FALSE)
+  expect_identical(
+    sx2_fit(mod, norm.prior = c(0, 1), nquad = 30)$fit_stat,
+    sx2_fit(mod$par.est, data = mod$data, D = 1.702)$fit_stat
+  )
+
+  # a different scaling constant gives different statistics
+  expect_false(isTRUE(all.equal(
+    sx2_fit(mod, norm.prior = c(0, 1), nquad = 30)$fit_stat$chisq,
+    sx2_fit(mod$par.est, data = mod$data, D = 1)$fit_stat$chisq
+  )))
+  ei <- suppressWarnings(
+    est_item(x = x_lsat, data = LSAT6, score = rnorm(nrow(LSAT6)), D = 1.702, verbose = FALSE)
+  )
+  expect_identical(sx2_fit(ei)$fit_stat, sx2_fit(ei$par.est, data = ei$data, D = 1.702)$fit_stat)
+})
+
+test_that("sx2_fit() lowers the df by one for each PCM item given in pcm.loc", {
+  x_pcm <- x_full[c(1:10, 53:55), ]
+  x_pcm[11:13, 3] <- "GPCM"
+  x_pcm[11:13, 4] <- 1
+  set.seed(13)
+  resp <- simdat(x = x_pcm, theta = rnorm(1000), D = 1)
+  f1 <- sx2_fit(x_pcm, data = resp)
+  f2 <- sx2_fit(x_pcm, data = resp, pcm.loc = 11:13)
+  expect_equal(f2$fit_stat$df - f1$fit_stat$df, c(rep(0, 10), rep(1, 3)))
+  expect_equal(f2$fit_stat$chisq, f1$fit_stat$chisq)
+})

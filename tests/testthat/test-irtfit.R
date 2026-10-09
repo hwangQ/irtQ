@@ -211,3 +211,63 @@ test_that("plot.irtfit() uses xlab.text for type = 'both'", {
   plot(fit, item.loc = 1, type = "both", show.table = FALSE)
   expect_false(identical(ggplot2::get_last_plot()$labels$x, "Ability"))
 })
+
+# ---- Statistics against direct computations ---------------------------------------
+
+x_chk <- x_mix[c(1:3, 20), ]
+set.seed(2027)
+theta_chk <- rnorm(1500)
+resp_chk <- simdat(x = x_chk, theta = theta_chk, D = 1)
+
+test_that("irtfit() X2, G2, and df agree with the uncollapsed contingency tables", {
+  fit <- irtfit(x = x_chk, score = theta_chk, data = resp_chk, n.width = 8, min.collapse = 0, D = 1)
+  npar <- c(3, 3, 3, 5)
+  for (i in 1:4) {
+    tb <- fit$contingency.plot[[i]]
+    k <- x_chk$cats[i]
+    o <- data.matrix(tb[, paste0("obs.freq.", 0:(k - 1))])
+    p <- data.matrix(tb[, paste0("exp.prob.", 0:(k - 1))])
+    e <- p * tb$total
+    expect_equal(fit$fit_stat$X2[i], round(sum((o - e)^2 / e), 3))
+    expect_equal(fit$fit_stat$G2[i], round(2 * sum(ifelse(o > 0, o * log(o / e), 0)), 3))
+    expect_equal(fit$fit_stat$df.X2[i], nrow(tb) * (k - 1) - npar[i])
+    expect_equal(fit$fit_stat$df.G2[i], nrow(tb) * (k - 1))
+  }
+})
+
+test_that("irtfit() infit and outfit are the weighted and unweighted mean squares", {
+  fit <- irtfit(x = x_chk, score = theta_chk, data = resp_chk, D = 1)
+  for (i in 1:4) {
+    p <- traceline(x = x_chk[i, ], theta = theta_chk, D = 1)$prob.cats[[1]]
+    k <- 0:(x_chk$cats[i] - 1)
+    ex <- as.vector(p %*% k)
+    v <- as.vector(p %*% k^2) - ex^2
+    z <- resp_chk[, i] - ex
+    expect_equal(fit$fit_stat$outfit[i], round(mean(z^2 / v), 3))
+    expect_equal(fit$fit_stat$infit[i], round(sum(z^2) / sum(v), 3))
+  }
+})
+
+test_that("irtfit() evaluates the middle of each interval when loc.theta = 'middle'", {
+  fit <- irtfit(x = x_chk, score = theta_chk, data = resp_chk, n.width = 10, loc.theta = "middle", D = 1)
+  cuts <- seq(min(theta_chk), max(theta_chk), length.out = 11)
+  expect_equal(fit$contingency.plot[[1]]$point, (cuts[-1] + cuts[-11]) / 2)
+})
+
+test_that("irtfit() for est_item objects uses the scores, data, and scaling constant of the object", {
+  mod <- suppressWarnings(
+    est_item(x = x_chk, data = resp_chk, score = theta_chk, D = 1.702, use.gprior = TRUE, verbose = FALSE)
+  )
+  f1 <- irtfit(mod)
+  f2 <- irtfit(mod$par.est, score = theta_chk, data = resp_chk, D = 1.702)
+  expect_identical(f1$fit_stat, f2$fit_stat)
+  expect_equal(f1$ancillary$scale.D, 1.702)
+})
+
+test_that("irtfit() for est_irt objects uses the data and scaling constant of the object", {
+  mod <- est_irt(x = x_chk, data = resp_chk, D = 1.702, use.gprior = TRUE, verbose = FALSE)
+  f1 <- irtfit(mod, score = theta_chk)
+  f2 <- irtfit(mod$par.est, score = theta_chk, data = resp_chk, D = 1.702)
+  expect_identical(f1$fit_stat, f2$fit_stat)
+  expect_equal(f1$ancillary$scale.D, 1.702)
+})
