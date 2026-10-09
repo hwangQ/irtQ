@@ -12,6 +12,10 @@
 #' @param min.collapse An integer specifying the minimum expected frequency
 #'   required per cell before adjacent cells are collapsed. Default is 1. See
 #'   **Details**.
+#' @param norm.prior A numeric vector of length two specifying the mean and
+#'   standard deviation of the normal prior distribution used to generate the
+#'   Gaussian quadrature points and weights when `weights` is omitted. Default
+#'   is `c(0, 1)`.
 #' @param nquad An integer specifying the number of Gaussian quadrature points
 #'   used to approximate the normal prior distribution. Default is 30.
 #' @param weights A two-column matrix or data frame containing the quadrature

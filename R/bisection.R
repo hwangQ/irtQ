@@ -12,17 +12,17 @@
 #' @param tol A numeric value specifying the tolerance for convergence. Default is 1e-4.
 #' @param max.it An integer specifying the maximum number of iterations. Default is 100.
 #'
-#' @details The bisection method is a well-known root-finding numerical algorithm
-#' that applies to any continuous function, provided that the function values at the lower (`lb`)
-#' and upper (`ub`) bounds have opposite signs. The method repeatedly bisects the interval until
-#' the absolute difference between successive estimates is smaller than the error tolerance
-#' (`tol`) or the maximum number of iterations (`max.it`) is reached.
+#' @details The bisection method is a root-finding algorithm for a continuous
+#' function whose values at the lower (`lb`) and upper (`ub`) bounds have
+#' opposite signs. The method repeatedly halves the interval until its width
+#' is no greater than `tol` or the maximum number of iterations (`max.it`) is
+#' exceeded, and returns the midpoint of the final interval. The signs at the
+#' bounds are not checked.
 #'
 #' @return A list with the following components:
 #' - `root`: The estimated root of the function.
 #' - `iter`: The number of iterations performed.
-#' - `accuracy`: The final absolute difference between the last two interval
-#'  points with opposite signs.
+#' - `delta`: The width of the final search interval.
 #'
 #' @seealso [irtQ::est_score()]
 #'
@@ -63,7 +63,7 @@ bisection <- function(.fun, ..., lb, ub, tol = 1e-4, max.it = 100) {
     }
     iter <- iter + 1
     if (iter > max.it) {
-      warning("The maximum number of iteration is reached. \n", call. = FALSE)
+      warning("The maximum number of iterations is reached.", call. = FALSE)
       break
     }
   }

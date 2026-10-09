@@ -1,37 +1,46 @@
 #' Log-Likelihood of Ability Parameters
 #'
 #' This function computes the log-likelihood values for a set of ability
-#' parameters, given item parameters and response data
+#' values, given item parameters and response data.
 #'
 #' @inheritParams catsib
 #' @inheritParams est_score
 #' @param theta A numeric vector of ability values at which to evaluate the
 #'   log-likelihood function.
 #' @param method A character string specifying the estimation method. Available
-#'   options include:
-#'   - `"ML"`: Maximum Likelihood Estimation
-#'   - `"MLF"`: Maximum Likelihood Estimation with Fences
-#'   - `"MAP"`: Maximum A Posteriori Estimation
+#'   options are:
+#'   - `"ML"`: Maximum likelihood estimation
+#'   - `"MLF"`: Maximum likelihood estimation with fences
+#'   - `"MAP"`: Maximum a posteriori estimation
+#'
 #'   Default is `"ML"`.
 #' @param norm.prior A numeric vector of length two specifying the mean and
-#'   standard deviation of the normal prior distribution (used only when `method
-#'   = "MAP"`). Default is `c(0, 1)`. Ignored for `"ML"` and `"MLF"`.
+#'   standard deviation of the normal prior distribution. Used only when
+#'   `method = "MAP"`. Default is `c(0, 1)`.
+#' @param fence.b A numeric vector of length two specifying the difficulty (*b*)
+#'   parameters of the lower and upper fence items. Required when
+#'   `method = "MLF"`. Default is `NULL`.
 #'
-#' @details This function evaluates the log-likelihood of a given ability
-#' (`theta`) for one or more examinees, based on item parameters (`x`) and item
-#' response data (`data`).
+#' @details This function evaluates the log-likelihood at each value of
+#' `theta` for one or more examinees, based on item parameters (`x`) and item
+#' response data (`data`). For `method = "MAP"`, the log density of the normal
+#' prior is added, so the values are log-posterior values.
 #'
-#' If `method = "MLF"` is selected, the function appends two virtual "fence"
-#' items to the item pool with fixed parameters. These artificial items help
-#' avoid unstable likelihood functions near the boundaries of the ability scale.
+#' If `method = "MLF"`, two fence items with slope `fence.a` and difficulties
+#' `fence.b` are appended, with the lower fence answered correctly and the
+#' upper fence answered incorrectly. The fences give the likelihood a finite
+#' maximum for all-correct and all-incorrect patterns. See [irtQ::est_score()]
+#' for details.
 #'
 #' For example, to compute the log-likelihood curves of two examinees' responses
 #' to the same test items, supply a 2-row matrix to `data` and a vector of
 #' ability values to `theta`.
 #'
-#' @return A data frame of log-likelihood values.
-#' - Each **row** corresponds to an ability value (`theta`).
-#' - Each **column** corresponds to an examinee's response pattern.
+#' @return A data frame of log-likelihood values (log-posterior values for
+#'   `method = "MAP"`).
+#' - Each **row** corresponds to a value of `theta`.
+#' - Each **column** corresponds to an examinee and is named `Resp.1`,
+#'   `Resp.2`, and so on.
 #'
 #' @examples
 #' ## Import the "-prm.txt" output file from flexMIRT
@@ -50,7 +59,7 @@
 #' # Specify ability values for log-likelihood evaluation
 #' theta <- seq(-3, 3, 0.5)
 #'
-#' # Compute log-likelihood values (using MLE)
+#' # Compute log-likelihood values (ML)
 #' llike_score(x = x, data = data, theta = theta, D = 1, method = "ML")
 #'
 #' @export
@@ -66,7 +75,7 @@ llike_score <- function(x,
                         fence.b = NULL,
                         missing = NA) {
 
-  # check if the data set is a vector of an examinee
+  # convert a single examinee's response vector to a one-row matrix
   if (is.vector(data)) {
     data <- rbind(data)
   }
@@ -82,7 +91,7 @@ llike_score <- function(x,
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # add two more items and data responses when "ML" with Fences method is used
+  # add two fence items and their responses when MLF is used
   if (method == "MLF") {
     # when fence.b = NULL, use the range argument as the fence.b argument
     if (is.null(fence.b)) {
@@ -92,7 +101,7 @@ llike_score <- function(x,
     # add two more response columns for the two fence items
     data <- cbind(data, f.lower = 1, f.upper = 0)
 
-    # create a new item metadata for the two fence items
+    # create item metadata for the two fence items
     x.fence <- shape_df(
       par.drm = list(a = rep(fence.a, 2), b = fence.b, g = rep(0, 2)),
       item.id = c("fence.lower", "fence.upper"), cats = 2,
@@ -154,7 +163,7 @@ llike_score <- function(x,
 }
 
 
-# This function computes the loglikelihood values for one test data set
+# Compute the log-likelihood values for one examinee
 llike_score_one <- function(exam_dat, theta, elm_item, max.col, D = 1, method = "ML",
                             norm.prior = c(0, 1)) {
   # extract the required objects from the individual exam data

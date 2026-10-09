@@ -72,9 +72,9 @@ required per cell before adjacent cells are collapsed. Default is 1. See
 \strong{Details}.}
 
 \item{norm.prior}{A numeric vector of length two specifying the mean and
-standard deviation of the normal prior distribution. These values are used
-to generate the Gaussian quadrature points and weights. Ignored if \code{method}
-is \code{"ML"}, \code{"MLF"}, \code{"WL"}, or \code{"INV.TCC"}. Default is \code{c(0, 1)}.}
+standard deviation of the normal prior distribution used to generate the
+Gaussian quadrature points and weights when \code{weights} is omitted. Default
+is \code{c(0, 1)}.}
 
 \item{nquad}{An integer specifying the number of Gaussian quadrature points
 used to approximate the normal prior distribution. Default is 30.}

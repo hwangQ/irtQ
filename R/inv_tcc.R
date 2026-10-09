@@ -1,13 +1,14 @@
-# This function find the ability estimate (theta) corresponding to each observed score using the test characteristic curve (TCC).
-# This \code{\link{inv_tcc}} was written by modifying the function \code{irt.eq.tse} of the SNSequate R package (Gonzalez, 2014)
-# Inside the function, the \code{\link{bisection}} function is used to to find the root of theta corresponding to each observed score.
-# The \code{\link{bisection}} function was written by modifying the function \code{bisetion} of the cmna R package (Howard, 2017).
+# Find the ability estimate for each sum score by inverting the test
+# characteristic curve (TCC). This function modifies irt.eq.tse() from the
+# SNSequate package (Gonzalez, 2014). The root for each sum score is found with
+# bisection(), a modified version of bisection() from the cmna package
+# (Howard, 2017).
 #
-# Reference
-# Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models and methods for test equating.
-# \emph{Journal of Statistical Software, 59}, 1-30.
-# Howard, J. P. (2017). \emph{Computational methods for numerical analysis with R}. New York:
-# Chapman and Hall/CRC.
+# References
+# Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
+#   and methods for test equating. Journal of Statistical Software, 59(7), 1-30.
+# Howard, J. P. (2017). Computational methods for numerical analysis with R.
+#   New York: Chapman and Hall/CRC.
 #
 #' @importFrom Rfast colsums
 inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1e-4, max.it = 500) {
@@ -20,7 +21,7 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   na.lg <- is.na(data)
   if (any(na.lg)) {
     data[na.lg] <- 0
-    memo <- "Any missing responses are replaced with 0s. \n"
+    memo <- "Missing responses are replaced with 0."
     warning(memo, call. = FALSE)
   }
 
@@ -44,16 +45,16 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   # theta scores will be found
   obs2theta.lg <- logical(length(obs.score))
 
-  # Admissible range to find the theta value
-  # when DRM items exists
+  # admissible sum scores for the root search
+  # when DRM items exist
   # \sum c_j < \tau < K, eq (6.19), Kolen & Brennan (2004, p.176)
   if (!is.null(idx.drm)) {
     g_sum <- sum(elm_item$pars[idx.drm, 3])
     if (max.obs == 1) {
       idx.score <- NULL
     } else if (ceiling(g_sum) == g_sum) {
-      # when g_sum is an positive integer, the minimum observed sum score
-      # whose theta can be found is ceiling(g_sum) + 1
+      # when g_sum is an integer, the smallest sum score with a root
+      # is g_sum + 1
       idx.score <- ((ceiling(g_sum) + 1):(max.obs - 1) + 1)
     } else {
       idx.score <- (ceiling(g_sum):(max.obs - 1) + 1)
@@ -79,7 +80,7 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   theta.nodes <- seq(-20, 20, 0.01)
   tcc.vals <- trace(elm_item = elm_item, theta = theta.nodes, D = D, tcc = TRUE)$tcc
 
-  # find the thetas corresponding to the all possible observed sum scores
+  # find the thetas for all admissible sum scores
   th4obs <- purrr::map_dbl(
     .x = obs.score[obs2theta.lg],
     .f = function(x) {
@@ -93,24 +94,23 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   )
   thetas[obs2theta.lg] <- th4obs
 
-  # if intpol = TRUE,
-  # linear interpolation method is used to find ability estimates for the observed scores
-  # less than or equal to g_sum using the lower and upper bounds
+  # if intpol = TRUE, interpolate linearly for sum scores less than or equal
+  # to g_sum and assign range.tcc[2] to the maximum sum score
   if (intpol) {
     if (max.obs == 1) {
-      # in case that only 1 DRM item is used
+      # the test has a single dichotomous item
       thetas <- range.tcc
       obs2theta.lg <- c(TRUE, TRUE)
     } else if (range.tcc[1] > th4obs[1]) {
       memo <- paste0(
         "A lower bound of theta must be less than ", round(th4obs[1], 3), "\n",
-        "Set the different lower bound in the 'range.tcc' argument. \n"
+        "Set a lower bound below this value in the 'range.tcc' argument."
       )
       warning(memo, call. = FALSE)
     } else if (range.tcc[2] < utils::tail(th4obs, 1)) {
       memo <- paste0(
         "An upper bound of theta must be greater than ", round(utils::tail(th4obs, 1), 3), "\n",
-        "Set the different upper bound in the 'range.tcc' argument. \n"
+        "Set an upper bound above this value in the 'range.tcc' argument."
       )
       warning(memo, call. = FALSE)
     } else {
@@ -134,8 +134,8 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   # a vector of theta excluding NAs
   thetas.nona <- thetas[obs2theta.lg]
 
-  # estimate the conditional observed score function given the theta
-  # using lord-wingersky algorithm
+  # compute the conditional sum score distribution at each estimated theta
+  # with the Lord-Wingersky recursion
   if (length(thetas.nona) > 1) {
     lkhd <- lwrc(x = x, theta = thetas.nona, D = D)
 
@@ -178,7 +178,7 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
 # This function finds the ability estimates (thetas) corresponding
 # to the possible observed scores using the test characteristic curve (TCC).
 # No response data set needs to be provided.
-# This function is used for the eval_mst() function.
+# This function is used by reval_mst().
 inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
                        tol = 1e-4, max.it = 500) {
 
@@ -202,16 +202,16 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
   # theta scores will be found
   obs2theta.lg <- logical(length(obs.score))
 
-  # Admissible range to find the theta value
-  # when DRM items exists
+  # admissible sum scores for the root search
+  # when DRM items exist
   # \sum c_j < \tau < K, eq (6.19), Kolen & Brennan (2004, p.176)
   if (!is.null(idx.drm)) {
     g_sum <- sum(elm_item$pars[idx.drm, 3])
     if (max.obs == 1) {
       idx.score <- NULL
     } else if (ceiling(g_sum) == g_sum) {
-      # when g_sum is an positive integer, the minimum observed sum score
-      # whose theta can be found is ceiling(g_sum) + 1
+      # when g_sum is an integer, the smallest sum score with a root
+      # is g_sum + 1
       idx.score <- ((ceiling(g_sum) + 1):(max.obs - 1) + 1)
     } else {
       idx.score <- (ceiling(g_sum):(max.obs - 1) + 1)
@@ -237,7 +237,7 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
   theta.nodes <- seq(-20, 20, 0.01)
   tcc.vals <- trace(elm_item = elm_item, theta = theta.nodes, D = D, tcc = TRUE)$tcc
 
-  # find the thetas corresponding to the all possible observed sum scores
+  # find the thetas for all admissible sum scores
   th4obs <- purrr::map_dbl(
     .x = obs.score[obs2theta.lg],
     .f = function(x) {
@@ -251,24 +251,23 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
   )
   thetas[obs2theta.lg] <- th4obs
 
-  # if intpol = TRUE,
-  # linear interpolation method is used to find ability estimates for the observed scores
-  # less than or equal to g_sum using the lower and upper bounds
+  # if intpol = TRUE, interpolate linearly for sum scores less than or equal
+  # to g_sum and assign range.tcc[2] to the maximum sum score
   if (intpol) {
     if (max.obs == 1) {
-      # in case that only 1 DRM item is used
+      # the test has a single dichotomous item
       thetas <- range.tcc
       obs2theta.lg <- c(TRUE, TRUE)
     } else if (range.tcc[1] > th4obs[1]) {
       memo <- paste0(
         "A lower bound of theta must be less than ", round(th4obs[1], 3), "\n",
-        "Set the different lower bound in the 'range.tcc' argument. \n"
+        "Set a lower bound below this value in the 'range.tcc' argument."
       )
       warning(memo, call. = FALSE)
     } else if (range.tcc[2] < utils::tail(th4obs, 1)) {
       memo <- paste0(
         "An upper bound of theta must be greater than ", round(utils::tail(th4obs, 1), 3), "\n",
-        "Set the different upper bound in the 'range.tcc' argument. \n"
+        "Set an upper bound above this value in the 'range.tcc' argument."
       )
       warning(memo, call. = FALSE)
     } else {

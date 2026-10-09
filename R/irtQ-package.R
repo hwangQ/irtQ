@@ -546,7 +546,7 @@
 #'
 #'   Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 #'   and methods for test equating. *Journal of Statistical Software, 59*(7),
-#'   1-30.
+#'   1-30. \doi{10.18637/jss.v059.i07}.
 #'
 #'   Hambleton, R. K., & Swaminathan, H. (1985). *Item response theory:
 #'   Principles and applications*. Boston, MA: Kluwer.
@@ -581,6 +581,7 @@
 #'
 #'   Kolen, M. J., & Tong, Y. (2010). Psychometric properties of IRT proficiency
 #'   estimates. *Educational Measurement: Issues and Practice, 29*(3), 8-14.
+#'   \doi{10.1111/j.1745-3992.2010.00179.x}.
 #'
 #'   Laplace, P. S. (1820). *Theorie analytique des probabilites* (in French).
 #'   Courcier.
@@ -620,13 +621,13 @@
 #'   item functioning among multiple groups using IRT residual DIF framework.
 #'   *Journal of Educational Measurement, 61*(4), 656-681.
 #'
-#'   Lord, F., & Wingersky, M. (1984). Comparison of IRT true score and
-#'   equipercentile observed score equatings. *Applied Psychological
-#'   Measurement, 8*(4), 453-461.
+#'   Lord, F. M., & Wingersky, M. S. (1984). Comparison of IRT true-score and
+#'   equipercentile observed-score "equatings." *Applied Psychological
+#'   Measurement, 8*(4), 453-461. \doi{10.1177/014662168400800409}.
 #'
 #'   Magis, D., & Barrada, J. R. (2017). Computerized adaptive testing with R:
-#'   Recent updates of the package catR. *Journal of Statistical Software, 76*,
-#'   1-19.
+#'   Recent updates of the package catR. *Journal of Statistical Software,
+#'   76*(Code Snippet 1), 1-19. \doi{10.18637/jss.v076.c01}.
 #'
 #'   Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive and
 #'   multistage testing with R: Using packages catR and mstR*. Springer.
@@ -692,6 +693,7 @@
 #'
 #'   Stocking, M. L. (1996). An alternative method for scoring adaptive tests.
 #'   *Journal of Educational and Behavioral Statistics, 21*(4), 365-389.
+#'   \doi{10.3102/10769986021004365}.
 #'
 #'   Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
 #'   goodness-of-fit test statistic in IRT models. *Journal of Educational
