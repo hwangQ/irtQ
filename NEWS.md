@@ -76,6 +76,11 @@
   `g` value is now used for every dichotomous item, as in `simdat()`,
   and a `g` vector of any other wrong length stops with an error.
 
+- `est_score()` with `ncore > 1` failed when a chunk of examinees had a
+  single row, for example with 3 examinees and `ncore = 2`, and it did
+  not close the cluster when a worker failed. Each chunk is now kept as
+  a matrix, also when it has one row, and the cluster is always closed.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
@@ -108,6 +113,13 @@
 - The warning for `"DRM"` items reads "All 'DRM' items are treated as
   '3PLM' items." and no longer mentions item parameter estimation,
   because it also appears in functions such as `info()` and `simdat()`.
+
+- `est_score()` stops with a clear message when `data` has a number of
+  columns other than the number of items (it scored the wrong items
+  before), when a response is not an integer within the categories of
+  its item, and when `method` or `stval.opt` is not valid. For an
+  `est_irt` object, supplying `data` or `D` is now an error instead of
+  being ignored.
 
 - `ctt()` computes alpha with each item removed faster for large tests.
 

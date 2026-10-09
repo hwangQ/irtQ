@@ -344,3 +344,85 @@ test_that("Mixed(3PLM+GPCM) | ML estimates correlate with true theta", {
   res <- do.call(est_score, c(base_mix_gpcm, list(method = "ML", range = c(-6,6))))
   expect_gt(cor(res$est.theta, theta_mix_gpcm), 0.7)
 })
+
+
+# ==============================================================================
+# 6. INPUT CHECKS AND PARALLEL SCORING
+# ==============================================================================
+
+test_that("est_score() stops when data and item metadata have different numbers of items", {
+  for (m in c("ML", "EAP", "EAP.SUM", "INV.TCC")) {
+    expect_error(est_score(x_drm, resp_drm[1:3, 1:9], D = 1, method = m), "number of columns")
+    expect_error(est_score(x_drm, cbind(resp_drm[1:3, ], 1), D = 1, method = m), "number of columns")
+  }
+
+  # a single response vector is checked in the same way
+  expect_error(est_score(x_drm, resp_drm[1, 1:5], D = 1), "number of columns")
+})
+
+test_that("est_score() stops for responses that are not integer scores within the categories", {
+  r <- resp_drm[1:3, ]
+
+  # a score above the highest category of a dichotomous item
+  r_high <- r
+  r_high[1, 2] <- 2
+  expect_error(est_score(x_drm, r_high, D = 1), "Responses must be integers")
+  expect_error(est_score(x_drm, r_high, D = 1, method = "EAP"), "Responses must be integers")
+  expect_error(est_score(x_drm, r_high, D = 1, method = "EAP.SUM"), "Responses must be integers")
+
+  # a non-integer score
+  r_frac <- r
+  r_frac[2, 3] <- 0.7
+  expect_error(est_score(x_drm, r_frac, D = 1), "Responses must be integers")
+
+  # a negative code that is not declared as missing
+  r_neg <- r
+  r_neg[3, 1] <- -9
+  expect_error(est_score(x_drm, r_neg, D = 1), "Responses must be integers")
+
+  # the same code is accepted when it is declared as missing
+  expect_identical(
+    est_score(x_drm, r_neg, D = 1, missing = -9),
+    est_score(x_drm, replace(r_neg, r_neg == -9, NA), D = 1)
+  )
+
+  # a polytomous item accepts its own categories only
+  r_grm <- resp_grm[1:3, ]
+  expect_no_error(est_score(x_grm, r_grm, D = 1))
+  r_grm[1, 1] <- 4
+  expect_error(est_score(x_grm, r_grm, D = 1), "Responses must be integers")
+})
+
+test_that("est_score() stops for an unknown method or starting value option", {
+  r <- resp_drm[1:3, ]
+  expect_error(est_score(x_drm, r, D = 1, method = "ml"), "'method' must be one of")
+  expect_error(est_score(x_drm, r, D = 1, method = c("ML", "WL")), "'method' must be one of")
+  expect_error(est_score(x_drm, r, D = 1, stval.opt = 4), "'stval.opt' must be 1, 2, or 3")
+  expect_error(est_score(x_drm, r, D = 1, stval.opt = c(1, 2)), "'stval.opt' must be 1, 2, or 3")
+})
+
+test_that("est_score() for an est_irt object uses the stored data and D and rejects data or D", {
+  fit <- structure(list(par.est = x_drm, data = resp_drm[1:5, ], scale.D = 1.702), class = "est_irt")
+  expect_identical(
+    est_score(fit, method = "ML"),
+    est_score(x_drm, resp_drm[1:5, ], D = 1.702, method = "ML")
+  )
+  expect_error(est_score(fit, data = resp_drm[1:2, ], method = "ML"), "cannot be supplied")
+  expect_error(est_score(fit, D = 1, method = "ML"), "cannot be supplied")
+})
+
+test_that("parallel scoring gives the serial result for any number of examinees per core", {
+  skip_on_cran()
+  n_conn <- nrow(showConnections())
+  for (n in c(1, 2, 3, 5)) {
+    r <- resp_drm[seq_len(n), , drop = FALSE]
+    serial <- est_score(x_drm, r, D = 1, method = "ML")
+    for (nc in c(2, 4)) {
+      expect_warning(par <- est_score(x_drm, r, D = 1, method = "ML", ncore = nc), "ncore > 1")
+      expect_equal(par, serial)
+    }
+  }
+
+  # the clusters are closed after scoring
+  expect_equal(nrow(showConnections()), n_conn)
+})

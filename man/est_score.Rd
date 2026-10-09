@@ -196,7 +196,9 @@ Kolen & Tong, 2010; Stocking, 1996).
 For \code{"MAP"}, the prior is the normal distribution given by
 \code{norm.prior}.
 
-Missing responses must be coded as \code{NA} or declared with the \code{missing}
+Each response must be an integer from 0 to the number of categories of the
+item minus 1, and \code{data} must have one column per item in \code{x}. Missing
+responses must be coded as \code{NA} or declared with the \code{missing}
 argument. For \code{"ML"}, \code{"MLF"}, \code{"WL"}, \code{"MAP"}, and \code{"EAP"}, missing
 responses are excluded from the likelihood, and examinees with all
 responses missing receive \code{NA} with a warning. For \code{"EAP.SUM"} and
@@ -276,7 +278,7 @@ parameters using a data frame \code{x} containing the item metadata.
 
 \item \code{est_score(est_irt)}: Method for an object of class \code{est_irt}. The item
 parameter estimates, response data, and scaling constant \code{D} are taken from
-\code{x}.
+\code{x}, so supplying \code{data} or \code{D} stops with an error.
 
 }}
 \examples{

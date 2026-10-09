@@ -92,7 +92,9 @@
 #' @details For `"MAP"`, the prior is the normal distribution given by
 #'   `norm.prior`.
 #'
-#'   Missing responses must be coded as `NA` or declared with the `missing`
+#'   Each response must be an integer from 0 to the number of categories of the
+#'   item minus 1, and `data` must have one column per item in `x`. Missing
+#'   responses must be coded as `NA` or declared with the `missing`
 #'   argument. For `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, and `"EAP"`, missing
 #'   responses are excluded from the likelihood, and examinees with all
 #'   responses missing receive `NA` with a warning. For `"EAP.SUM"` and
@@ -322,6 +324,21 @@ est_score.default <- function(x,
                               missing = NA,
                               ncore = 1,
                               ...) {
+  # stop when the scoring method is not one of the available options
+  if (!(is.character(method) && length(method) == 1L &&
+    method %in% c("ML", "MLF", "WL", "MAP", "EAP", "EAP.SUM", "INV.TCC"))) {
+    stop(
+      "'method' must be one of \"ML\", \"MLF\", \"WL\", \"MAP\", \"EAP\", ",
+      "\"EAP.SUM\", or \"INV.TCC\".",
+      call. = FALSE
+    )
+  }
+
+  # stop when the starting value option is not 1, 2, or 3
+  if (!(length(stval.opt) == 1L && stval.opt %in% 1:3)) {
+    stop("'stval.opt' must be 1, 2, or 3.", call. = FALSE)
+  }
+
   # convert a single examinee's response vector to a one-row matrix
   if (is.vector(data)) {
     data <- rbind(data)
@@ -337,6 +354,31 @@ est_score.default <- function(x,
 
   # confirm and correct all item metadata information
   x <- confirm_df(x)
+
+  # stop when the response data do not have one column per item
+  if (ncol(data) != nrow(x)) {
+    stop(
+      "The number of columns in 'data' (", ncol(data), ") must equal ",
+      "the number of items in 'x' (", nrow(x), ").",
+      call. = FALSE
+    )
+  }
+
+  # convert the responses to a numeric matrix for validation
+  resp_chk <- data.matrix(data)
+
+  # flag observed responses that are not integer scores within each item's categories
+  bad_resp <- !is.na(resp_chk) &
+    (resp_chk != round(resp_chk) | resp_chk < 0 | t(t(resp_chk) > (x$cats - 1)))
+
+  # stop when any observed response is invalid
+  if (any(bad_resp)) {
+    stop(
+      "Responses must be integers from 0 to (number of categories - 1) ",
+      "of each item; check the 'missing' argument for missing-value codes.",
+      call. = FALSE
+    )
+  }
 
   # scoring of ML, WL, MLF, MAP, and EAP
   if (method %in% c("ML", "MAP", "WL", "EAP", "MLF")) {
@@ -410,17 +452,14 @@ est_score.default <- function(x,
       # create a parallel processing cluster
       cl <- parallel::makeCluster(ncore, ...)
 
-      # divide response data into ncore equal chunks
-      quotient <- nstd %/% ncore
-      remain <- nstd %% ncore
-      data_list <- vector("list", ncore)
-      for (k in 1:ncore) {
-        if (k == ncore & remain != 0) {
-          data_list[[k]] <- data[((k - 1) * quotient + 1):(quotient * k + remain), ]
-        } else {
-          data_list[[k]] <- data[((k - 1) * quotient + 1):(quotient * k), ]
-        }
-      }
+      # stop the cluster even when a worker fails
+      on.exit(parallel::stopCluster(cl), add = TRUE)
+
+      # split the row indices into at most ncore nearly equal chunks
+      chunk_idx <- parallel::splitIndices(nstd, ncore)
+
+      # keep every chunk as a two-dimensional object even when it holds one row
+      data_list <- lapply(chunk_idx, function(ix) data[ix, , drop = FALSE])
 
       # delete 'data' object
       rm(data, envir = environment(), inherits = FALSE)
@@ -453,9 +492,6 @@ est_score.default <- function(x,
 
       # parallel scoring
       est <- parallel::parLapply(cl = cl, X = data_list, fun = fsm)
-
-      # finish
-      parallel::stopCluster(cl)
 
       # combine the results
       rst <- do.call(what = "rbind", args = est)
@@ -490,7 +526,7 @@ est_score.default <- function(x,
 
 #' @describeIn est_score Method for an object of class `est_irt`. The item
 #'  parameter estimates, response data, and scaling constant `D` are taken from
-#'  `x`.
+#'  `x`, so supplying `data` or `D` stops with an error.
 #' @export
 est_score.est_irt <- function(x,
                               method = "ML",
@@ -509,6 +545,14 @@ est_score.est_irt <- function(x,
                               missing = NA,
                               ncore = 1,
                               ...) {
+  # stop when 'data' or 'D' is supplied, since both are taken from the fitted object
+  if (any(c("data", "D") %in% names(list(...)))) {
+    stop(
+      "'data' and 'D' are taken from the est_irt object and cannot be supplied.",
+      call. = FALSE
+    )
+  }
+
   # score the stored response data with the stored item estimates and scaling constant
   est_score.default(
     x = x$par.est, data = x$data, D = x$scale.D, method = method,
