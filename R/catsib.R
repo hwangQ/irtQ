@@ -220,7 +220,7 @@
 #' # Generate four new items to contain uniform DIF
 #' difpar_ref <-
 #'   shape_df(
-#'     par.drm = list(a = c(0.8, 1.5, 0.8, 1.5), b = c(0.0, 0.0, -0.5, -0.5), g = 0.15),
+#'     par.drm = list(a = c(0.8, 1.5, 0.8, 1.5), b = c(0.0, 0.0, -0.5, -0.5), g = rep(0.15, 4)),
 #'     item.id = paste0("dif", 1:4), cats = 2, model = "3PLM"
 #'   )
 #'

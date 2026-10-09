@@ -53,12 +53,13 @@
   text, a missing or too small `cats`, a dichotomous model with `cats`
   other than 2, and a polytomous item with more thresholds than
   `cats - 1`. `shape_df()` and `simdat()` reject parameter vectors that
-  do not match the number of items, `shape_df_fipc()` checks `fix.loc`,
-  and `gen.weight()` checks `dist` and `theta`. `prm()` uses the GRM
-  when `pr.model` is omitted and rejects an unknown model name. Item
-  metadata without a `par.3` column is accepted when every item is 1PLM
-  or 2PLM, and `simdat()` repeats a single `pr.model` for all polytomous
-  items.
+  do not match the number of items (a single `g` for four items used to
+  give the first item that value and the other three items a guessing
+  parameter of 0), `shape_df_fipc()` checks `fix.loc`, and
+  `gen.weight()` checks `dist` and `theta`. `prm()` uses the GRM when
+  `pr.model` is omitted and rejects an unknown model name. Item metadata
+  without a `par.3` column is accepted when every item is 1PLM or 2PLM,
+  and `simdat()` repeats a single `pr.model` for all polytomous items.
 
 - `ctt()` computes alpha with each item removed faster for large tests.
 
