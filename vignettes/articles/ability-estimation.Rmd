@@ -66,7 +66,7 @@ estimators is typically smaller in practice than the difference between Bayesian
 and non-Bayesian estimators, so the choice between summed-score and
 pattern-score scoring need not be driven primarily by accuracy concerns.
 
-An important practical consideration when using these methods is the treatment of missing data. While pattern-based scoring methods handle missing responses (`NA`) flexibly by conditioning only on the observed items, summed-score methods (`"EAP.SUM"` and `"INV.TCC"`) automatically treat any missing responses as incorrect (recoded as 0s) to calculate the total raw score.
+An important practical consideration when using these methods is the treatment of missing data. While pattern-based scoring methods handle missing responses (`NA`) flexibly by conditioning only on the observed items, summed-score methods (`"EAP.SUM"` and `"INV.TCC"`) automatically treat any missing responses as incorrect (recoded as 0s, with a warning) to calculate the total raw score.
 
 | Method | Key | Description |
 |--------|-----|-------------|
@@ -87,8 +87,8 @@ important arguments of `est_score()`:
 
 | Argument | Description |
 |----------|-------------|
-| `x` | An `est_irt` object (from `irtQ::est_irt()`), or a data frame of item metadata. When an `est_irt` object is provided, the response data embedded in it are used automatically. |
-| `data` | Response matrix (rows = examinees, columns = items). **Required** when `x` is a metadata data frame rather than an `est_irt` object. |
+| `x` | An `est_irt` object (from `irtQ::est_irt()`), an `est_item` object (from `irtQ::est_item()`), or a data frame of item metadata. When an `est_irt` or `est_item` object is provided, the response data embedded in it are used automatically. |
+| `data` | Response matrix (rows = examinees, columns = items). **Required** when `x` is a metadata data frame rather than an `est_irt` or `est_item` object. |
 | `D` | IRT scaling constant. Use `1` for the logistic metric or `1.702` to approximate the normal-ogive metric. |
 | `method` | Scoring method: `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`. |
 | `range` | `c(lower, upper)` bounding the ability scale for iterative methods (`"ML"`, `"MLF"`, `"WL"`, `"MAP"`). Default `c(-5, 5)`. |
@@ -97,10 +97,10 @@ important arguments of `est_score()`:
 | `fence.a` | Discrimination parameter of the virtual fence items added in `"MLF"`. Default `3`. |
 | `fence.b` | Location of the fence items on the $\theta$ scale in `"MLF"`. Defaults to the `range` bounds when `NULL`. |
 | `tol` | Convergence tolerance for iterative methods. Default `1e-4`. |
-| `max.iter` | Maximum Newton-Raphson iterations. Default `100`. |
+| `max.iter` | Maximum number of Fisher scoring iterations. If the iterations do not converge, the root of the score function is found with `uniroot()` between the values visited during the iterations; see the Details of `?est_score`. Default `100`. |
 | `se` | Logical; compute standard errors? Always returned for `"EAP.SUM"` and `"INV.TCC"`. Default `TRUE`. |
 | `intpol` | Logical; apply linear interpolation in `"INV.TCC"` for extreme scores? Default `TRUE`. |
-| `range.tcc` | Lower and upper bounds of the `"INV.TCC"` estimates; the upper bound is assigned to the maximum raw score. Default `c(-7, 7)`. |
+| `range.tcc` | The estimates that `"INV.TCC"` assigns to the lowest sum score (first value) and to the maximum possible sum score (second value) when `intpol = TRUE`. Default `c(-7, 7)`. |
 
 **Return values** differ by method:
 
@@ -461,9 +461,10 @@ round(sd_dich, 4)
 
 ### Providing an `est_irt` Object vs. Separate Metadata
 
-`est_score()` accepts either an `est_irt` object (which embeds the response data
-and item parameters) or item metadata and response data provided separately.
-When an `est_irt` object is passed to the `x` argument, `est_score()` automatically extracts both the item parameters and the embedded response data. This simplifies the post-calibration scoring workflow by eliminating the need to explicitly supply a separate `data` matrix.
+`est_score()` accepts either an `est_irt` or `est_item` object (which embeds the
+response data and item parameters) or item metadata and response data provided
+separately.
+When an `est_irt` or `est_item` object is passed to the `x` argument, `est_score()` automatically extracts both the item parameters and the embedded response data. This simplifies the post-calibration scoring workflow by eliminating the need to explicitly supply a separate `data` matrix.
 
 Both workflows produce identical results. The estimates differ from the EAP
 estimates in Part 1 because they use the item parameters estimated by
