@@ -108,3 +108,16 @@ test_that("sx2_fit() reports NA critical values and p-values when no degrees of 
   expect_false(anyNA(fit$fit_stat$p[ok]))
   expect_equal(fit$fit_stat$crit.val[ok], round(stats::qchisq(0.95, df = fit$fit_stat$df[ok]), 3))
 })
+
+test_that("sx2_fit() names the collapsed tables of a single polytomous item consistently", {
+  x_one <- x_full[c(1:20, 55), ]
+  set.seed(14)
+  resp <- simdat(x = x_one, theta = rnorm(600), D = 1)
+  fit <- sx2_fit(x_one, data = resp)
+  expect_identical(names(fit$obs_freq[[21]]), paste0("score.", 0:4))
+  expect_identical(names(fit$exp_freq[[21]]), paste0("score.", 0:4))
+
+  # the observed and expected tables have the same shape and row names
+  expect_identical(dim(fit$obs_freq[[21]]), dim(fit$exp_freq[[21]]))
+  expect_identical(rownames(fit$obs_freq[[21]]), rownames(fit$exp_freq[[21]]))
+})

@@ -313,8 +313,8 @@ sx2_fit.default <- function(x,
     for (i in 1:length(idx.prm)) {
       
       # select the expected and observed frequency tables for the corresponding items
-      exp_tmp <- data.frame(ftable_info_plm[i, 1])
-      obs_tmp <- data.frame(ftable_info_plm[i, 2])
+      exp_tmp <- data.frame(ftable_info_plm[[i, 1]])
+      obs_tmp <- data.frame(ftable_info_plm[[i, 2]])
       
       # drop summed score groups with no examinees
       if (any(rowSums(exp_tmp) == 0L)) {

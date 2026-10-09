@@ -126,6 +126,12 @@
   which read as a strong misfit. The critical value and p-value of such
   an item are now `NA`, with a warning that names the item.
 
+- `sx2_fit()` named the columns of the observed frequency table
+  `score.*` with an `exp_freq.` prefix (`exp_freq.score.0`, ...) when
+  the test had a single polytomous item. The columns are now named
+  `score.0`, `score.1`, ... as for tests with several polytomous items.
+  The values are unchanged.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
