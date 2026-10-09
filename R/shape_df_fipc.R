@@ -104,9 +104,12 @@ shape_df_fipc <- function(x, fix.loc = NULL, item.id = NULL, cats, model) {
   # Extract the original fixed-item rows
   x_fix2 <- x_all[seq_len(nrow(x_fix)), ]
 
+  # Extract the new-item rows aligned to every column of the merged frame
+  x_new2 <- x_all[nrow(x_fix) + seq_len(nrow(x_new)), ]
+
   # Place fixed items and new items at their specified positions
   x_all[fix.loc, ] <- x_fix2
-  x_all[nfix.loc, ] <- x_new
+  x_all[nfix.loc, ] <- x_new2
 
   # Return the combined and ordered metadata
   x_all

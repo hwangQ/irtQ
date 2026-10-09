@@ -38,6 +38,12 @@
   `crit.dis` check. Such an item is now flagged with
   `"discrimination undefined"`.
 
+- `shape_df_fipc()` shifted the columns of the new items when the fixed
+  items included a polytomous item and every new item was dichotomous,
+  which replaced a threshold of a fixed polytomous item with a wrong
+  value. The new items are now aligned with the columns of the fixed
+  items. FIPC results built from metadata of this kind should be rerun.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
