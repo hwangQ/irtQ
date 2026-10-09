@@ -717,6 +717,26 @@ test_that("est_score() has a method for est_item objects that matches the defaul
   expect_error(est_score(ei, D = 1, method = "ML"), "cannot be supplied")
 })
 
+test_that("est_score() for an est_item object skips the items excluded for having no responses", {
+  # the third item has no responses and is excluded from the calibration
+  d_del <- resp_drm[1:120, 1:6]
+  d_del[, 3] <- NA
+  expect_warning(
+    ei_del <- est_item(
+      x = x_drm[1:6, ], data = d_del, score = theta_drm[1:120], D = 1.702, verbose = FALSE
+    ),
+    "excluded"
+  )
+  expect_equal(ei_del$deleted.item, 3)
+
+  for (m in c("ML", "MAP", "EAP", "EAP.SUM")) {
+    expect_identical(
+      est_score(ei_del, method = m),
+      est_score(ei_del$par.est[-3, ], ei_del$data, D = ei_del$scale.D, method = m)
+    )
+  }
+})
+
 
 # ==============================================================================
 # 8. VALUES AGAINST INDEPENDENT COMPUTATIONS

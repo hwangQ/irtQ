@@ -633,9 +633,15 @@ est_score.est_item <- function(x,
     )
   }
 
+  # drop the items that were excluded from the calibration for having no responses
+  par_est <- x$par.est
+  if (length(x$deleted.item) > 0L) {
+    par_est <- par_est[-x$deleted.item, , drop = FALSE]
+  }
+
   # score the stored response data with the stored item estimates and scaling constant
   est_score.default(
-    x = x$par.est, data = x$data, D = x$scale.D, method = method,
+    x = par_est, data = x$data, D = x$scale.D, method = method,
     range = range, norm.prior = norm.prior, nquad = nquad,
     weights = weights, fence.a = fence.a, fence.b = fence.b,
     tol = tol, max.iter = max.iter, se = se, stval.opt = stval.opt,
