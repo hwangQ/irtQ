@@ -651,7 +651,8 @@ est_score.est_item <- function(x,
 }
 
 
-# Score one chunk of examinees on a single worker in the parallel path
+# Score a block of examinees; used for all examinees when ncore = 1 and for
+# each chunk on a worker when ncore > 1
 est_score_1core <- function(elm_item,
                             data,
                             D = 1,

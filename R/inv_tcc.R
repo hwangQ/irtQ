@@ -99,7 +99,7 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
 # This function finds the ability estimates (thetas) corresponding
 # to the possible observed scores using the test characteristic curve (TCC).
 # No response data set needs to be provided.
-# This function is used by reval_mst().
+# This function is used by inv_tcc() and reval_mst().
 inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
                        tol = 1e-4, max.it = 500) {
 
@@ -159,9 +159,9 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
   tcc.vals <- trace(elm_item = elm_item, theta = theta.nodes, D = D, tcc = TRUE)$tcc
 
   # find the thetas for all admissible sum scores
-  th4obs <- purrr::map_dbl(
-    .x = obs.score[obs2theta.lg],
-    .f = function(x) {
+  th4obs <- vapply(
+    X = obs.score[obs2theta.lg], FUN.VALUE = numeric(1), USE.NAMES = FALSE,
+    FUN = function(x) {
       loc.node <- which(diff(sign(x - tcc.vals)) != 0)
 
       # stop with a clear message when the TCC does not reach the sum score

@@ -577,6 +577,13 @@ test_that("INV.TCC stops with a clear message when the TCC does not reach a sum 
     est_score(x_flat, rbind(rep(1, 10)), D = 1, method = "INV.TCC"),
     "does not reach the sum score"
   )
+
+  # the message is not wrapped in an index error of the loop over the sum scores
+  msg <- tryCatch(
+    est_score(x_flat, rbind(rep(1, 10)), D = 1, method = "INV.TCC"),
+    error = function(e) conditionMessage(e)
+  )
+  expect_false(grepl("index", msg))
 })
 
 
