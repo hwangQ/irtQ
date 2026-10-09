@@ -31,7 +31,7 @@ dichotomous IRT models.}
 IRT models.}
 
 \item{g.drm}{A numeric vector of guessing parameters for dichotomous IRT
-models.}
+models. A single value is used for all dichotomous items.}
 
 \item{a.prm}{A numeric vector of item discrimination (slope) parameters for
 polytomous IRT models.}
@@ -45,7 +45,8 @@ each item.}
 \item{pr.model}{A character vector specifying the IRT model of each
 polytomous item, in the order the polytomous items appear in \code{cats}. Each
 element is either \code{"GRM"} (graded response model) or \code{"GPCM"}
-(generalized partial credit model).}
+(generalized partial credit model). A single value is used for all
+polytomous items.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly

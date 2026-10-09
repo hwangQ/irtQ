@@ -6,11 +6,14 @@
 #'
 #' @param par.drm A list containing three numeric vectors for dichotomous item
 #'   parameters: item discrimination (`a`), item difficulty (`b`), and guessing
-#'   parameters (`g`). If `g` is `NULL`, the guessing parameters are set to 0.
+#'   parameters (`g`), each with one value per item with `cats = 2`. A single
+#'   value of `g` is used for every dichotomous item. If `g` is omitted or
+#'   `NULL`, the guessing parameters are set to 0.
 #' @param par.prm A list containing polytomous item parameters. The list must
-#'   include a numeric vector `a` for item discrimination (slope) parameters,
-#'   and a list `d` of numeric vectors specifying difficulty (or threshold)
-#'   parameters for each item. See the **Details** section for more information.
+#'   include a numeric vector `a` of slope parameters and a list `d` of numeric
+#'   vectors of threshold parameters, with one slope and one vector of
+#'   `cats - 1` thresholds per item with `cats > 2`. See the **Details** section
+#'   for more information.
 #' @param item.id A character vector of item IDs. If `NULL`, default IDs (e.g.,
 #'   "V1", "V2", ...) are assigned automatically.
 #' @param cats A numeric vector indicating the number of score categories for
@@ -212,6 +215,11 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
     # find the index of prm items
     idx.prm <- which(cats > 2)
     if (sum(idx.prm) == 0) idx.prm <- NULL
+
+    # repeat a single guessing value for every dichotomous item
+    if (length(par.drm) >= 3L && length(par.drm[[3]]) == 1L && length(idx.drm) > 1L) {
+      par.drm[[3]] <- rep(par.drm[[3]], length(idx.drm))
+    }
 
     # count the guessing values given (zero when the g element is absent)
     n.g <- if (length(par.drm) < 3L) 0L else length(par.drm[[3]])

@@ -41,9 +41,9 @@ test_that("simdat() errors when dichotomous parameter vectors do not match cats"
     simdat(theta = th, a.drm = c(1, 1), b.drm = c(0, 0), cats = c(2, 2, 2, 2)),
     "one value per item"
   )
-  # g vector of the wrong length
+  # g vector of the wrong length (a single value is repeated)
   expect_error(
-    simdat(theta = th, a.drm = c(1, 1), b.drm = c(0, 0), g.drm = 0.2, cats = c(2, 2)),
+    simdat(theta = th, a.drm = c(1, 1), b.drm = c(0, 0), g.drm = c(0.2, 0.2, 0.2), cats = c(2, 2)),
     "one value per item"
   )
 })
@@ -101,4 +101,16 @@ test_that("simdat() reproduces the category probabilities", {
   # the result is always a matrix, whatever the numbers of examinees and items
   expect_equal(dim(simdat(meta, theta = 0.1)), c(1L, 4L))
   expect_equal(dim(simdat(meta[2, ], theta = c(-1, 1))), c(2L, 1L))
+})
+
+test_that("simdat() repeats a single guessing value for every dichotomous item", {
+  th <- rnorm(100)
+  set.seed(8)
+  res1 <- simdat(theta = th, a.drm = c(1, 1.2, 0.8), b.drm = c(0, 0.5, -0.5), g.drm = 0.2, cats = c(2, 2, 2))
+  set.seed(8)
+  res2 <- simdat(
+    theta = th, a.drm = c(1, 1.2, 0.8), b.drm = c(0, 0.5, -0.5), g.drm = rep(0.2, 3),
+    cats = c(2, 2, 2)
+  )
+  expect_identical(res1, res2)
 })

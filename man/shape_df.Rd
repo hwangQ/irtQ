@@ -16,12 +16,15 @@ shape_df(
 \arguments{
 \item{par.drm}{A list containing three numeric vectors for dichotomous item
 parameters: item discrimination (\code{a}), item difficulty (\code{b}), and guessing
-parameters (\code{g}). If \code{g} is \code{NULL}, the guessing parameters are set to 0.}
+parameters (\code{g}), each with one value per item with \code{cats = 2}. A single
+value of \code{g} is used for every dichotomous item. If \code{g} is omitted or
+\code{NULL}, the guessing parameters are set to 0.}
 
 \item{par.prm}{A list containing polytomous item parameters. The list must
-include a numeric vector \code{a} for item discrimination (slope) parameters,
-and a list \code{d} of numeric vectors specifying difficulty (or threshold)
-parameters for each item. See the \strong{Details} section for more information.}
+include a numeric vector \code{a} of slope parameters and a list \code{d} of numeric
+vectors of threshold parameters, with one slope and one vector of
+\code{cats - 1} thresholds per item with \code{cats > 2}. See the \strong{Details} section
+for more information.}
 
 \item{item.id}{A character vector of item IDs. If \code{NULL}, default IDs (e.g.,
 "V1", "V2", ...) are assigned automatically.}

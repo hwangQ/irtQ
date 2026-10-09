@@ -100,3 +100,27 @@ test_that("startval_df() repeats a single cats value like a full vector", {
     irtQ:::startval_df(cats = rep(2, 3), model = models)
   )
 })
+
+test_that("shape_df() uses a single g value for every dichotomous item", {
+  meta <- shape_df(
+    par.drm = list(a = c(0.8, 1.5, 0.8, 1.5), b = c(0, 0, -0.5, -0.5), g = 0.15),
+    cats = 2, model = "3PLM"
+  )
+  expect_equal(meta$par.3, rep(0.15, 4))
+
+  # a single value also works next to polytomous items
+  mixed <- shape_df(
+    par.drm = list(a = c(1, 1.2), b = c(0, 0.5), g = 0.2),
+    par.prm = list(a = 1, d = list(c(-1, 1))), cats = c(2, 3, 2), model = c("3PLM", "GRM", "3PLM")
+  )
+  expect_equal(mixed$par.3[c(1, 3)], c(0.2, 0.2))
+
+  # any other wrong length still stops
+  expect_error(
+    shape_df(
+      par.drm = list(a = c(0.8, 1.5, 0.8), b = c(0, 0, -0.5), g = c(0.1, 0.2)),
+      cats = 2, model = "3PLM"
+    ),
+    "par.drm"
+  )
+})

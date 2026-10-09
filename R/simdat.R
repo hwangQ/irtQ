@@ -15,7 +15,7 @@
 #' @param b.drm A numeric vector of item difficulty parameters for dichotomous
 #'   IRT models.
 #' @param g.drm A numeric vector of guessing parameters for dichotomous IRT
-#'   models.
+#'   models. A single value is used for all dichotomous items.
 #' @param a.prm A numeric vector of item discrimination (slope) parameters for
 #'   polytomous IRT models.
 #' @param d.prm A list of numeric vectors, where each vector contains difficulty
@@ -28,7 +28,8 @@
 #' @param pr.model A character vector specifying the IRT model of each
 #'   polytomous item, in the order the polytomous items appear in `cats`. Each
 #'   element is either `"GRM"` (graded response model) or `"GPCM"`
-#'   (generalized partial credit model).
+#'   (generalized partial credit model). A single value is used for all
+#'   polytomous items.
 #'
 #' @details There are two ways to generate simulated response data. The first is
 #'   by providing a data frame of item metadata using the argument `x`. This
@@ -243,6 +244,9 @@ simdat <- function(x = NULL,
     # Set initial numbers
     idx.drm <- which(cats == 2)
     idx.prm <- which(cats > 2)
+
+    # Repeat a single guessing value for every dichotomous item
+    if (length(g.drm) == 1L && length(idx.drm) > 1L) g.drm <- rep(g.drm, length(idx.drm))
 
     # Stop when the dichotomous parameters do not match the items with cats = 2
     if (length(idx.drm) > 0L &&
