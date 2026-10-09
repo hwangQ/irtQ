@@ -57,6 +57,17 @@ knitr::opts_chunk$set(
   examinees remain, or when `ctt_distr()` receives numeric and non-numeric
   keys together.
 
+* Inputs that were silently misread now stop with a clear message. Functions
+  that take item metadata reject parameter columns stored as text, a missing
+  or too small `cats`, a dichotomous model with `cats` other than 2, and a
+  polytomous item with more thresholds than `cats - 1`. `shape_df()` and
+  `simdat()` reject parameter vectors that do not match the number of items,
+  `shape_df_fipc()` checks `fix.loc`, and `gen.weight()` checks `dist` and
+  `theta`. `prm()` uses the GRM when `pr.model` is omitted and rejects an
+  unknown model name. Item metadata without a `par.3` column is accepted when
+  every item is 1PLM or 2PLM, and `simdat()` repeats a single `pr.model` for
+  all polytomous items.
+
 * `ctt()` computes alpha with each item removed faster for large tests.
 
 # irtQ 1.3.1
