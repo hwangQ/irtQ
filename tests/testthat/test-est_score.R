@@ -468,3 +468,45 @@ test_that("llike_score() returns NA for an examinee without any observed respons
     expect_equal(res[, c(1, 3)], llike_score(x_ll, d_ll[1:2, ], th, method = m), ignore_attr = TRUE)
   }
 })
+
+test_that("bisection() warns when the bounds do not bracket a root and stops at max.it", {
+  f <- function(t, p) p - drm(theta = t, a = 1, b = 0.2, D = 1)
+
+  # the root of f lies below lb, so both bounds have the same sign
+  expect_warning(r <- bisection(f, p = 0.2, lb = 1, ub = 10), "opposite signs")
+  expect_true(is.finite(r$root))
+
+  # no warning when the bounds bracket the root
+  expect_no_warning(bisection(f, p = 0.2, lb = -10, ub = 10))
+
+  # exactly max.it iterations are done when the interval is still wide
+  expect_warning(r <- bisection(f, p = 0.2, lb = -10, ub = 10, tol = 1e-12, max.it = 10), "maximum number")
+  expect_equal(r$iter, 10)
+  expect_equal(r$delta, 20 / 2^10)
+
+  # reaching the tolerance in exactly max.it iterations gives no warning
+  expect_no_warning(r <- bisection(f, p = 0.2, lb = -10, ub = 10, tol = 20 / 2^10, max.it = 10))
+  expect_equal(r$iter, 10)
+})
+
+test_that("INV.TCC stops with a clear message when the TCC does not reach a sum score", {
+  # the guessing parameters leave no sum score between their sum and the maximum
+  x_g <- shape_df(
+    par.drm = list(a = c(1, 1), b = c(0, 0.5), g = c(0.6, 0.6)),
+    cats = 2, model = "3PLM"
+  )
+  expect_error(
+    est_score(x_g, rbind(c(1, 0)), D = 1, method = "INV.TCC"),
+    "does not reach the sum score"
+  )
+
+  # very flat items keep the TCC from reaching the lowest nonzero sum score
+  x_flat <- shape_df(
+    par.drm = list(a = rep(0.1, 10), b = rep(0, 10), g = rep(0, 10)),
+    cats = 2, model = "3PLM"
+  )
+  expect_error(
+    est_score(x_flat, rbind(rep(1, 10)), D = 1, method = "INV.TCC"),
+    "does not reach the sum score"
+  )
+})

@@ -16,8 +16,9 @@
 #' function whose values at the lower (`lb`) and upper (`ub`) bounds have
 #' opposite signs. The method repeatedly halves the interval until its width
 #' is no greater than `tol` or the maximum number of iterations (`max.it`) is
-#' exceeded, and returns the midpoint of the final interval. The signs at the
-#' bounds are not checked.
+#' reached, and returns the midpoint of the final interval. A warning is issued
+#' when the function values at the bounds do not have opposite signs or when
+#' `max.it` is reached before the interval is no wider than `tol`.
 #'
 #' @return A list with the following components:
 #' - `root`: The estimated root of the function.
@@ -49,7 +50,18 @@
 bisection <- function(.fun, ..., lb, ub, tol = 1e-4, max.it = 100) {
   iter <- 0
   f.ub <- .fun(ub, ...)
+
+  # warn when the function values at the two bounds do not have opposite signs
+  if (isTRUE(.fun(lb, ...) * f.ub > 0)) {
+    warning("The function values at 'lb' and 'ub' must have opposite signs.", call. = FALSE)
+  }
+
   while (abs(lb - ub) > tol) {
+    # stop at the maximum number of iterations when the interval is still wider than tol
+    if (iter >= max.it) {
+      warning("The maximum number of iterations is reached.", call. = FALSE)
+      break
+    }
     mb <- (lb + ub) / 2
     f.mb <- .fun(mb, ...)
     if (f.mb == 0) {
@@ -62,10 +74,6 @@ bisection <- function(.fun, ..., lb, ub, tol = 1e-4, max.it = 100) {
       f.ub <- f.mb
     }
     iter <- iter + 1
-    if (iter > max.it) {
-      warning("The maximum number of iterations is reached.", call. = FALSE)
-      break
-    }
   }
   root <- (lb + ub) / 2
   list(root = root, iter = iter, delta = abs(lb - ub))

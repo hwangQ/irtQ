@@ -130,6 +130,16 @@
   `est_irt` object, supplying `data` or `D` is now an error instead of
   being ignored.
 
+- `bisection()` warns when the function values at `lb` and `ub` have the
+  same sign, instead of returning a bound without notice, and it stops
+  after exactly `max.it` iterations instead of `max.it + 1`. Its help
+  page names the last returned element `delta`, as in the code.
+
+- `est_score()` with `method = "INV.TCC"` stops with a clear message
+  when the test characteristic curve does not reach a sum score within
+  theta from -20 to 20, for example for items with very small slopes or
+  guessing parameters that sum to nearly the maximum score.
+
 - `ctt()` computes alpha with each item removed faster for large tests.
 
 # irtQ 1.3.1

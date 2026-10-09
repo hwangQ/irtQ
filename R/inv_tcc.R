@@ -154,6 +154,15 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
     .x = obs.score[obs2theta.lg],
     .f = function(x) {
       loc.node <- which(diff(sign(x - tcc.vals)) != 0)
+
+      # stop with a clear message when the TCC does not reach the sum score
+      if (length(loc.node) == 0L) {
+        stop(
+          "The TCC does not reach the sum score ", x,
+          " within theta in [-20, 20]; INV.TCC scoring is not available.",
+          call. = FALSE
+        )
+      }
       bd <- theta.nodes[c(loc.node, loc.node + 1)]
       bisection(
         .fun = f.o2t, tau = x, lb = bd[1], ub = bd[2], tol = tol,

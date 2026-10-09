@@ -38,8 +38,9 @@ The bisection method is a root-finding algorithm for a continuous
 function whose values at the lower (\code{lb}) and upper (\code{ub}) bounds have
 opposite signs. The method repeatedly halves the interval until its width
 is no greater than \code{tol} or the maximum number of iterations (\code{max.it}) is
-exceeded, and returns the midpoint of the final interval. The signs at the
-bounds are not checked.
+reached, and returns the midpoint of the final interval. A warning is issued
+when the function values at the bounds do not have opposite signs or when
+\code{max.it} is reached before the interval is no wider than \code{tol}.
 }
 \examples{
 ## Example: Find the theta value corresponding to a given probability
