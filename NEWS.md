@@ -5,43 +5,50 @@
 
 ## Bug Fixes
 
-- `ctt_alpha()` and `ctt()` computed the standardized alpha with an
-  inflated value when a test included a constant item. A constant item
-  is now kept in the item count as in the raw alpha, and the
-  standardized alpha is `NA` when it is undefined.
+- `ctt()` returned a standardized alpha (`alpha_std`) that was too
+  large, and could exceed 1, when a test included a constant item. The
+  constant item is now kept in the item count as in the raw alpha, and
+  the value is 0 when only one item varies, as is the raw alpha. An
+  undefined standardized alpha or mean discrimination is `NA` instead of
+  `NaN`.
 
-- `ctt()`, `freq_score()`, and `ctt_distr()` left out of the frequency
-  tables a score that was within rounding error of a whole number, such
-  as `(0.1 + 0.2) * 10`, without a warning. Such a score is now counted
-  as the whole number.
+- `ctt()`, `ctt_distr()`, and `freq_score()` silently left out of their
+  counts a score within rounding error of a whole number, such as
+  `(0.1 + 0.2) * 10`. Such a score is now counted as that whole number.
 
-- `freq_score()` tabulated the level codes of a factor (1, 2, 3, ...)
-  instead of its values. A factor is now converted through its labels.
+- `freq_score()` tabulated a factor by its level codes (1, 2, 3, ...)
+  instead of its labels. A factor is now converted through its labels.
 
 - `ctt_distr()` listed an option twice in selected-response mode when
   the responses wrote it in different ways, such as `"1"` and `"01"`,
   which inflated the frequencies and percentages. The option is now
   listed once.
 
-- `score_resp()` and `ctt_distr()` did not recognize a missing-response
-  code that had surrounding spaces, such as `" 9"`, so it was not
-  counted as an omission. Codes are now compared after trimming spaces.
+- `score_resp()` and `ctt_distr()` did not treat a response with
+  surrounding spaces, such as `" 9"`, as missing when `missing = "9"`.
+  Responses are now compared with `missing` after trimming spaces.
 
-- `score_resp()` and `ctt_distr()` scored every response to an item as
-  wrong, without a message, when the key value was written with a comma,
-  such as `"1,5"`. They now stop with an error, because every item must
-  have exactly one correct option.
+- `score_resp()` and `ctt_distr()` silently scored every response to an
+  item as wrong when its key value contained a comma, such as `"1,5"`.
+  They now stop with an error, because every item must have exactly one
+  correct option.
 
-- `ctt()` and `ctt_item()` now flag an item whose discrimination is
-  undefined, such as an item that every examinee answers alike, with the
-  new flag `"discrimination undefined"`. Such an item received no flag
-  before when its difficulty was within the bounds `crit.p`.
+- `ctt()` did not flag an item whose discrimination is undefined, such
+  as an item with a constant score, so the item could pass the
+  `crit.dis` check. Such an item is now flagged with
+  `"discrimination undefined"`.
 
 ## Minor Improvements
 
-- `ctt_item()` and `ctt()` now record `correct` in `crit`, and
-  `print(summary())` of a `ctt` object states which item-total
-  correlation was used for flagging.
+- `ctt()` records the `correct` setting in its `crit` element, and the
+  `summary()` report names the item-total correlation used for flagging.
+
+- `ctt()` and `ctt_distr()` stop with a clear message when `crit.p`,
+  `crit.dis`, `crit.distractor`, or `total` is not valid, when fewer
+  than two examinees remain, or when `ctt_distr()` receives numeric and
+  non-numeric keys together.
+
+- `ctt()` computes alpha with each item removed faster for large tests.
 
 # irtQ 1.3.1
 
