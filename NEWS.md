@@ -100,6 +100,12 @@
   without a warning. The examinee now gets `NA` and the warning, as with
   the other methods.
 
+- `est_score()` with `method = "EAP"` returned `NaN`, with a warning
+  about missing responses, for tests of about 1,000 items or more,
+  because the product of the item probabilities underflowed. The
+  posterior is now computed from log-likelihoods, and results for usual
+  tests change by less than 1e-14.
+
 - `llike_score()` with `method = "MLF"` stopped with an error under the
   default `fence.b = NULL`. The fences are now placed at -5 and 5, the
   default `range` of `est_score()`. The function also merged examinees

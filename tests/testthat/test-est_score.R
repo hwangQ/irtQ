@@ -623,3 +623,20 @@ test_that("examinees with all missing responses get NA under every pointwise met
   expect_warning(res_df <- est_score(x_drm, as.data.frame(d), D = 1, method = "MLF"), "all missing")
   expect_true(all(is.na(res_df[1, ])))
 })
+
+test_that("EAP gives finite estimates for a very long test", {
+  # 1500 items: the product of the item probabilities underflows to 0 at every node
+  x_long <- x_full[rep(1:50, 30), ]
+  x_long$id <- paste0("item", seq_len(nrow(x_long)))
+  set.seed(31)
+  d_long <- simdat(x_long, c(-1, 0.5), D = 1)
+
+  eap <- est_score(x_long, d_long, D = 1, method = "EAP")
+  ml <- est_score(x_long, d_long, D = 1, method = "ML")
+  expect_false(anyNA(eap))
+  expect_true(all(is.finite(eap$est.theta)))
+  expect_true(all(eap$se.theta > 0))
+
+  # with this many items the EAP estimate is close to the ML estimate
+  expect_lt(max(abs(eap$est.theta - ml$est.theta)), 0.1)
+})

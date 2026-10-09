@@ -818,12 +818,18 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
   if (method == "EAP") {
     # popdist is pre-computed by the caller (gen.weight() is not called per examinee)
 
-    # compute the posterior distribution
-    posterior <-
-      ll_score(
+    # compute the log-likelihood at the quadrature points
+    loglik <-
+      -ll_score(
         theta = popdist[, 1], elm_item = elm_item, freq.cat = freq.cat,
-        idx.drm = idx.drm, idx.prm = idx.prm, D = D, logL = FALSE
-      ) * popdist[, 2]
+        idx.drm = idx.drm, idx.prm = idx.prm, D = D, logL = TRUE
+      )
+
+    # add the log prior weights to obtain the unnormalized log posterior
+    lpost <- loglik + log(popdist[, 2])
+
+    # shift by the maximum so that the exponential does not underflow
+    posterior <- exp(lpost - max(lpost))
 
     # compute the posterior mean (EAP)
     posterior <- posterior / sum(posterior)
