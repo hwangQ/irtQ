@@ -139,7 +139,10 @@ test_that("sx2_fit() for an est_irt object uses the latent distribution stored i
   expect_identical(sx2_fit(mod, weights = w), base(weights = w))
 
   # the scaling constant comes from the object
-  expect_identical(sx2_fit(mod)$fit_stat, sx2_fit(mod$par.est, data = mod$data, D = 1.702, weights = mod$weights)$fit_stat)
+  expect_identical(
+    sx2_fit(mod)$fit_stat,
+    sx2_fit(mod$par.est, data = mod$data, D = 1.702, weights = mod$weights)$fit_stat
+  )
 })
 
 test_that("sx2_fit() follows the latent distribution estimated with EmpHist = TRUE", {
@@ -148,7 +151,10 @@ test_that("sx2_fit() follows the latent distribution estimated with EmpHist = TR
   x_emp <- x_full[1:12, ]
   dat <- simdat(x_emp, th, D = 1)
   mod <- suppressWarnings(
-    est_irt(data = dat, D = 1, model = "3PLM", cats = 2, use.gprior = TRUE, EmpHist = TRUE, Etol = 0.001, verbose = FALSE)
+    est_irt(
+      data = dat, D = 1, model = "3PLM", cats = 2, use.gprior = TRUE,
+      EmpHist = TRUE, Etol = 0.001, verbose = FALSE
+    )
   )
   fit_obj <- sx2_fit(mod)
   fit_norm <- sx2_fit(mod, norm.prior = c(0, 1), nquad = 30)
