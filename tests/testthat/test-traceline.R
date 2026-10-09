@@ -23,3 +23,28 @@ test_that("traceline() for est_irt and est_item objects uses the stored metadata
   # a D supplied through ... does not replace the stored scaling constant
   expect_identical(traceline(fit_irt, theta, D = 1), ref)
 })
+
+# ---- structure of the results ---------------------------------------------------
+
+test_that("traceline() keeps one-row matrices for a single theta", {
+  meta <- make_mixed_meta()
+  tr <- traceline(meta, 0)
+  expect_true(all(vapply(tr$prob.cats, is.matrix, logical(1))))
+  expect_equal(vapply(tr$prob.cats, ncol, numeric(1)), c(D3 = 2, G4 = 4, P5 = 5))
+  expect_equal(vapply(tr$prob.cats, nrow, numeric(1)), c(D3 = 1, G4 = 1, P5 = 1))
+
+  # the test characteristic curve can be plotted for a single theta
+  grDevices::pdf(NULL)
+  p <- plot(tr)
+  grDevices::dev.off()
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("traceline() ICC and TCC are expected scores of the category probabilities", {
+  meta <- make_mixed_meta()
+  tr <- traceline(meta, seq(-3, 3, 1))
+  es <- sapply(tr$prob.cats, function(p) p %*% (0:(ncol(p) - 1)))
+  expect_equal(unname(tr$icc), unname(es), tolerance = 1e-8)
+  expect_equal(tr$tcc, rowSums(tr$icc))
+  expect_true(all(abs(sapply(tr$prob.cats, rowSums) - 1) < 1e-8))
+})

@@ -56,6 +56,11 @@
   far from the item location, where an exponent exceeded about 709. The
   derivatives are now computed in a form that stays finite.
 
+- `traceline()` returned a plain vector instead of a one-row matrix in
+  `prob.cats` for a polytomous item when a single theta value was given,
+  which made `plot()` fail. It now returns a matrix, as for several
+  thetas.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

@@ -159,7 +159,8 @@ traceline.default <- function(x, theta, D = 1, ...) {
         purrr::map2(
           .y = cat.tmp,
           .f = ~ {
-            .x[, 1:(.y)]
+            # keep a one-row matrix when a single theta value is given
+            .x[, 1:(.y), drop = FALSE]
           }
         )
 
