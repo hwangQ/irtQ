@@ -141,6 +141,13 @@ knitr::opts_chunk$set(
   always used theta as the x-axis title. The given title is now used, as for
   the other types.
 
+* `sx2_fit()` for an `est_irt` object computed the expected frequencies with a
+  standard normal distribution even when a different latent distribution was
+  used or estimated in the calibration (for example, with `EmpHist = TRUE` or
+  FIPC). When `weights`, `norm.prior`, and `nquad` are all omitted, the latent
+  distribution stored in the object is now used. Results for a standard
+  normal calibration change in the third decimal place.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.

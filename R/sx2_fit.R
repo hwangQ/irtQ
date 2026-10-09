@@ -14,15 +14,24 @@
 #'   cells. Default is 1. See **Details**.
 #' @param norm.prior A numeric vector of length two giving the mean and standard
 #'   deviation of the normal latent ability distribution used to generate the
-#'   quadrature points and weights. Ignored when `weights` is supplied. Default
-#'   is `c(0, 1)`.
+#'   quadrature points and weights. Ignored when `weights` is supplied. For an
+#'   `est_irt` object, see `weights`. Default is `c(0, 1)`.
 #' @param nquad An integer specifying the number of Gaussian quadrature points
 #'   used to approximate the normal latent ability distribution. Ignored when
-#'   `weights` is supplied. Default is 30.
+#'   `weights` is supplied. For an `est_irt` object, see `weights`. Default is
+#'   30.
 #' @param weights A two-column matrix or data frame containing the quadrature
 #'   points (first column) and their corresponding weights (second column) for
 #'   the latent ability distribution. If omitted, default values are generated
-#'   using [irtQ::gen.weight()] according to the `norm.prior` and `nquad` arguments.
+#'   using [irtQ::gen.weight()] according to the `norm.prior` and `nquad`
+#'   arguments.
+#'
+#'   For an `est_irt` object, when `weights`, `norm.prior`, and `nquad` are all
+#'   omitted, the latent distribution stored in the object (`x$weights`), which
+#'   was used or estimated in the calibration, is used. Otherwise, `weights` is
+#'   used if given, and a normal distribution given by `norm.prior` and `nquad`
+#'   is used if not. For an `est_item` object, which stores no latent
+#'   distribution, the normal distribution is used when `weights` is omitted.
 #' @param pcm.loc An optional integer vector giving the row indices of partial
 #'   credit model (PCM) items whose slope parameters are fixed. It is used only
 #'   to count the item parameters for the degrees of freedom. Default is `NULL`.
@@ -40,6 +49,12 @@
 #' where \eqn{f} and \eqn{f^{*i}} are the summed score likelihoods with and
 #' without item \eqn{i}, computed by the Lord-Wingersky recursion, and
 #' \eqn{\theta_q} and \eqn{A(\theta_q)} are the quadrature points and weights.
+#'
+#' The latent ability distribution used to compute the expected proportions is
+#' given by `weights`, or by a normal distribution generated from `norm.prior`
+#' and `nquad` when `weights` is omitted. For an `est_irt` object, the latent
+#' distribution stored in the object is used when `weights`, `norm.prior`, and
+#' `nquad` are all omitted.
 #'
 #' The lowest and highest possible summed scores are excluded. For an item with
 #' \eqn{K} score categories, the \eqn{K - 1} lowest remaining summed scores are
@@ -429,12 +444,18 @@ sx2_fit.est_item <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0
 
 #' @describeIn sx2_fit Method for an object of class `est_irt` created by
 #' [irtQ::est_irt()]. The item parameter estimates, response data, and `D`
-#' are taken from the object.
+#' are taken from the object. When `weights`, `norm.prior`, and `nquad` are all
+#' omitted, the latent distribution stored in the object (`x$weights`) is used.
 #' @importFrom Rfast rowsums
 #' @import dplyr
 #' @export
 sx2_fit.est_irt <- function(x, alpha = 0.05, min.collapse = 1, norm.prior = c(0, 1),
                             nquad = 30, weights, pcm.loc = NULL, ...) {
+  # use the latent distribution stored in the object when no distribution is given
+  if (missing(weights) && missing(norm.prior) && missing(nquad)) {
+    weights <- x$weights
+  }
+
   # compute the fit statistics with the data and scaling constant stored in the object
   sx2_fit.default(
     x = x$par.est, data = x$data, D = x$scale.D, alpha = alpha,

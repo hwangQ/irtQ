@@ -121,3 +121,41 @@ test_that("sx2_fit() names the collapsed tables of a single polytomous item cons
   expect_identical(dim(fit$obs_freq[[21]]), dim(fit$exp_freq[[21]]))
   expect_identical(rownames(fit$obs_freq[[21]]), rownames(fit$exp_freq[[21]]))
 })
+
+test_that("sx2_fit() for an est_irt object uses the latent distribution stored in the object by default", {
+  mod <- est_irt(data = LSAT6, D = 1.702, model = "2PLM", cats = 2, verbose = FALSE)
+  base <- function(...) sx2_fit(mod$par.est, data = mod$data, D = mod$scale.D, ...)
+
+  # all three distribution arguments omitted: the stored distribution
+  expect_identical(sx2_fit(mod), base(weights = mod$weights))
+
+  # norm.prior or nquad given: the normal distribution, as for the default method
+  expect_identical(sx2_fit(mod, norm.prior = c(0, 1), nquad = 30), base())
+  expect_identical(sx2_fit(mod, nquad = 21), base(nquad = 21))
+  expect_identical(sx2_fit(mod, norm.prior = c(0.2, 1.1)), base(norm.prior = c(0.2, 1.1)))
+
+  # weights given: those weights
+  w <- gen.weight(n = 41, dist = "norm", mu = 0.3, sigma = 1.2)
+  expect_identical(sx2_fit(mod, weights = w), base(weights = w))
+
+  # the scaling constant comes from the object
+  expect_identical(sx2_fit(mod)$fit_stat, sx2_fit(mod$par.est, data = mod$data, D = 1.702, weights = mod$weights)$fit_stat)
+})
+
+test_that("sx2_fit() follows the latent distribution estimated with EmpHist = TRUE", {
+  set.seed(22)
+  th <- c(rnorm(600, -1, 0.6), rnorm(600, 1, 0.6))
+  x_emp <- x_full[1:12, ]
+  dat <- simdat(x_emp, th, D = 1)
+  mod <- suppressWarnings(
+    est_irt(data = dat, D = 1, model = "3PLM", cats = 2, use.gprior = TRUE, EmpHist = TRUE, Etol = 0.001, verbose = FALSE)
+  )
+  fit_obj <- sx2_fit(mod)
+  fit_norm <- sx2_fit(mod, norm.prior = c(0, 1), nquad = 30)
+  expect_identical(fit_obj$fit_stat, sx2_fit(mod$par.est, data = dat, D = 1, weights = mod$weights)$fit_stat)
+  expect_false(isTRUE(all.equal(fit_obj$fit_stat$chisq, fit_norm$fit_stat$chisq)))
+
+  # an est_item object stores no latent distribution and keeps the normal distribution
+  ei <- suppressWarnings(est_item(x = x_emp, data = dat, score = th, D = 1, use.gprior = TRUE, verbose = FALSE))
+  expect_identical(sx2_fit(ei)$fit_stat, sx2_fit(ei$par.est, data = dat, D = 1)$fit_stat)
+})

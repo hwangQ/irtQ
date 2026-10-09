@@ -73,17 +73,26 @@ cells. Default is 1. See \strong{Details}.}
 
 \item{norm.prior}{A numeric vector of length two giving the mean and standard
 deviation of the normal latent ability distribution used to generate the
-quadrature points and weights. Ignored when \code{weights} is supplied. Default
-is \code{c(0, 1)}.}
+quadrature points and weights. Ignored when \code{weights} is supplied. For an
+\code{est_irt} object, see \code{weights}. Default is \code{c(0, 1)}.}
 
 \item{nquad}{An integer specifying the number of Gaussian quadrature points
 used to approximate the normal latent ability distribution. Ignored when
-\code{weights} is supplied. Default is 30.}
+\code{weights} is supplied. For an \code{est_irt} object, see \code{weights}. Default is
+30.}
 
 \item{weights}{A two-column matrix or data frame containing the quadrature
 points (first column) and their corresponding weights (second column) for
 the latent ability distribution. If omitted, default values are generated
-using \code{\link[=gen.weight]{gen.weight()}} according to the \code{norm.prior} and \code{nquad} arguments.}
+using \code{\link[=gen.weight]{gen.weight()}} according to the \code{norm.prior} and \code{nquad}
+arguments.
+
+For an \code{est_irt} object, when \code{weights}, \code{norm.prior}, and \code{nquad} are all
+omitted, the latent distribution stored in the object (\code{x$weights}), which
+was used or estimated in the calibration, is used. Otherwise, \code{weights} is
+used if given, and a normal distribution given by \code{norm.prior} and \code{nquad}
+is used if not. For an \code{est_item} object, which stores no latent
+distribution, the normal distribution is used when \code{weights} is omitted.}
 
 \item{pcm.loc}{An optional integer vector giving the row indices of partial
 credit model (PCM) items whose slope parameters are fixed. It is used only
@@ -127,6 +136,12 @@ where \eqn{f} and \eqn{f^{*i}} are the summed score likelihoods with and
 without item \eqn{i}, computed by the Lord-Wingersky recursion, and
 \eqn{\theta_q} and \eqn{A(\theta_q)} are the quadrature points and weights.
 
+The latent ability distribution used to compute the expected proportions is
+given by \code{weights}, or by a normal distribution generated from \code{norm.prior}
+and \code{nquad} when \code{weights} is omitted. For an \code{est_irt} object, the latent
+distribution stored in the object is used when \code{weights}, \code{norm.prior}, and
+\code{nquad} are all omitted.
+
 The lowest and highest possible summed scores are excluded. For an item with
 \eqn{K} score categories, the \eqn{K - 1} lowest remaining summed scores are
 pooled into one group, and so are the \eqn{K - 1} highest.
@@ -168,7 +183,8 @@ are taken from the object.
 
 \item \code{sx2_fit(est_irt)}: Method for an object of class \code{est_irt} created by
 \code{\link[=est_irt]{est_irt()}}. The item parameter estimates, response data, and \code{D}
-are taken from the object.
+are taken from the object. When \code{weights}, \code{norm.prior}, and \code{nquad} are all
+omitted, the latent distribution stored in the object (\code{x$weights}) is used.
 
 }}
 \examples{
