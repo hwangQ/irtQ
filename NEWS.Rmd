@@ -96,6 +96,13 @@ knitr::opts_chunk$set(
   do not converge, the root of the score function is now found within the
   range of the visited values.
 
+* `est_score()` with `method = "INV.TCC"` returned wrong standard errors when
+  `intpol = FALSE` or when the interpolation was skipped with a warning (a
+  `range.tcc` that is too narrow), because the standard deviation was taken
+  over a score distribution that included sum scores without an estimate. It
+  is now taken over the sum scores that have an estimate. Results with
+  `intpol = TRUE` and no warning are unchanged.
+
 * `llike_score()` with `method = "MLF"` stopped with an error under the
   default `fence.b = NULL`. The fences are now placed at -5 and 5, the default
   `range` of `est_score()`. The function also merged examinees whose rows had

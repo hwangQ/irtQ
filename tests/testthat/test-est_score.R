@@ -571,3 +571,38 @@ test_that("ML estimates are local maxima of the log-likelihood for every respons
   expect_true(all(ll0[inner] >= ll_vec(ml$est.theta - 1e-3)[inner] - 1e-9))
   expect_true(all(ll0[inner] >= ll_vec(ml$est.theta + 1e-3)[inner] - 1e-9))
 })
+
+test_that("INV.TCC SEs are the conditional SDs over the scores with an estimate when intpol = FALSE", {
+  x20 <- x_full[1:20, ]
+  res <- suppressWarnings(est_score(x20, rbind(rep(1, 20)), D = 1, method = "INV.TCC", intpol = FALSE))
+  st <- res$score.table
+  ok <- !is.na(st$est.theta)
+  expect_true(any(!ok))
+  expect_true(all(is.finite(st$se.theta[ok])))
+  expect_true(all(is.na(st$se.theta[!ok])))
+
+  # conditional SD over the scores that have an estimate
+  lk <- lwrc(x20, theta = st$est.theta[ok])[ok, , drop = FALSE]
+  lk <- t(t(lk) / colSums(lk))
+  mu <- colSums(lk * st$est.theta[ok])
+  expect_equal(unname(st$se.theta[ok]), unname(sqrt(colSums(lk * st$est.theta[ok]^2) - mu^2)), tolerance = 1e-12)
+
+  # the SEs do not zigzag between neighboring scores
+  expect_true(all(abs(diff(st$se.theta[ok])) < 0.5))
+})
+
+test_that("INV.TCC SEs are rescaled when the interpolation range is rejected", {
+  x20 <- x_full[1:20, ]
+  d20 <- rbind(rep(1, 20))
+  expect_warning(
+    res <- est_score(x20, d20, D = 1, method = "INV.TCC", range.tcc = c(-1, 7)),
+    "lower bound"
+  )
+  st <- res$score.table
+  ok <- !is.na(st$est.theta)
+  expect_true(any(!ok))
+  lk <- lwrc(x20, theta = st$est.theta[ok])[ok, , drop = FALSE]
+  lk <- t(t(lk) / colSums(lk))
+  mu <- colSums(lk * st$est.theta[ok])
+  expect_equal(unname(st$se.theta[ok]), unname(sqrt(colSums(lk * st$est.theta[ok]^2) - mu^2)), tolerance = 1e-12)
+})

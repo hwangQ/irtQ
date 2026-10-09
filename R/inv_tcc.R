@@ -51,6 +51,15 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
   if (length(thetas.nona) > 1) {
     lkhd <- lwrc(x = x, theta = thetas.nona, D = D)
 
+    # keep only the scores that have an estimate and rescale each column to sum to one
+    if (!all(obs2theta.lg)) {
+      # drop the rows of the scores without an ability estimate
+      lkhd <- lkhd[obs2theta.lg, , drop = FALSE]
+
+      # rescale the conditional probabilities over the remaining scores
+      lkhd <- t(t(lkhd) / Rfast::colsums(lkhd))
+    }
+
     # calculate the standard error of ability estimates
     mu <- Rfast::colsums(lkhd * thetas.nona)
     se.theta[obs2theta.lg] <- sqrt(Rfast::colsums(lkhd * thetas.nona^2) - mu^2)
