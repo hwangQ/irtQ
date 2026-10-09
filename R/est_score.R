@@ -393,8 +393,14 @@ est_score.default <- function(x,
         fence.b <- range
       }
 
+      # flag examinees without any observed response before adding the fences
+      allmiss <- rowSums(!is.na(data)) == 0L
+
       # add two more response columns for the two fence items
       data <- cbind(data, f.lower = 1, f.upper = 0)
+
+      # keep the fence responses missing for those examinees so that they get NA
+      data[allmiss, ncol(data) - 1:0] <- NA
 
       # create item metadata for the two fence items
       x.fence <- shape_df(

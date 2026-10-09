@@ -103,6 +103,10 @@ knitr::opts_chunk$set(
   is now taken over the sum scores that have an estimate. Results with
   `intpol = TRUE` and no warning are unchanged.
 
+* `est_score()` with `method = "MLF"` gave an examinee with all responses
+  missing an estimate near 0 and a standard error of 316.2 without a warning.
+  The examinee now gets `NA` and the warning, as with the other methods.
+
 * `llike_score()` with `method = "MLF"` stopped with an error under the
   default `fence.b = NULL`. The fences are now placed at -5 and 5, the default
   `range` of `est_score()`. The function also merged examinees whose rows had

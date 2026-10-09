@@ -606,3 +606,20 @@ test_that("INV.TCC SEs are rescaled when the interpolation range is rejected", {
   mu <- colSums(lk * st$est.theta[ok])
   expect_equal(unname(st$se.theta[ok]), unname(sqrt(colSums(lk * st$est.theta[ok]^2) - mu^2)), tolerance = 1e-12)
 })
+
+test_that("examinees with all missing responses get NA under every pointwise method", {
+  d <- rbind(rep(NA, 10), c(1, 0, 1, 0, 1, 0, 1, 0, 1, 0))
+  for (m in c("ML", "MLF", "WL", "MAP", "EAP")) {
+    expect_warning(res <- est_score(x_drm, d, D = 1, method = m), "all missing")
+    expect_true(all(is.na(res[1, ])))
+    expect_false(anyNA(res[2, ]))
+
+    # the other examinee gets the result of scoring alone
+    alone <- est_score(x_drm, d[2, , drop = FALSE], D = 1, method = m)
+    expect_equal(res[2, ], alone[1, ], ignore_attr = TRUE)
+  }
+
+  # a data frame is handled in the same way for MLF
+  expect_warning(res_df <- est_score(x_drm, as.data.frame(d), D = 1, method = "MLF"), "all missing")
+  expect_true(all(is.na(res_df[1, ])))
+})
