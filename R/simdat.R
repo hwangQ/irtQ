@@ -255,6 +255,7 @@ simdat <- function(x = NULL,
       stop("`a.drm`, `b.drm`, and `g.drm` must have one value per item with cats = 2.", call. = FALSE)
     }
 
+    # Check the polytomous parameters only when polytomous items exist
     if (length(idx.prm) > 0L) {
       # Repeat a single polytomous model name for every polytomous item
       if (length(pr.model) == 1L) pr.model <- rep(pr.model, length(idx.prm))
