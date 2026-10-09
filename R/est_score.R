@@ -339,6 +339,19 @@ est_score.default <- function(x,
     stop("'stval.opt' must be 1, 2, or 3.", call. = FALSE)
   }
 
+  # stop when the convergence tolerance is not a single positive number
+  if (method %in% c("ML", "MLF", "WL", "MAP", "INV.TCC") &&
+    !(is.numeric(tol) && length(tol) == 1L && is.finite(tol) && tol > 0)) {
+    stop("'tol' must be a single positive number.", call. = FALSE)
+  }
+
+  # stop when the maximum number of iterations is not a positive whole number
+  if (method %in% c("ML", "MLF", "WL", "MAP") &&
+    !(is.numeric(max.iter) && length(max.iter) == 1L && is.finite(max.iter) &&
+      max.iter >= 1 && max.iter == round(max.iter))) {
+    stop("'max.iter' must be a single positive whole number.", call. = FALSE)
+  }
+
   # convert a single examinee's response vector to a one-row matrix
   if (is.vector(data)) {
     data <- rbind(data)
@@ -364,8 +377,28 @@ est_score.default <- function(x,
     )
   }
 
-  # convert the responses to a numeric matrix for validation
-  resp_chk <- data.matrix(data)
+  # convert the responses to a matrix for validation
+  resp_chk <- as.matrix(data)
+
+  # read character or factor responses as numbers, as the scoring does
+  if (!is.numeric(resp_chk) && !is.logical(resp_chk)) {
+    resp_num <- suppressWarnings(as.numeric(resp_chk))
+
+    # stop when an observed response cannot be read as a number
+    if (any(is.na(resp_num) & !is.na(resp_chk))) {
+      stop(
+        "Responses must be numeric scores; ",
+        "check the 'missing' argument for missing-value codes.",
+        call. = FALSE
+      )
+    }
+
+    # keep the numeric responses with the dimensions and names of the input
+    resp_chk <- matrix(resp_num, nrow = nrow(resp_chk), dimnames = dimnames(resp_chk))
+
+    # score the numeric responses
+    data <- resp_chk
+  }
 
   # flag observed responses that are not integer scores within each item's categories
   bad_resp <- !is.na(resp_chk) &

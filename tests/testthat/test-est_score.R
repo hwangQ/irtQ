@@ -393,6 +393,63 @@ test_that("est_score() stops for responses that are not integer scores within th
   expect_error(est_score(x_grm, r_grm, D = 1), "Responses must be integers")
 })
 
+test_that("est_score() reads character and factor responses like numeric responses", {
+  r <- resp_drm[1:6, ]
+  r[2, 3] <- NA
+
+  # a character matrix with a character code for missing responses
+  r_chr <- matrix(as.character(r), nrow(r))
+  r_chr[is.na(r)] <- "."
+
+  # a data frame with character columns and a data frame with factor columns
+  df_chr <- as.data.frame(r_chr, stringsAsFactors = FALSE)
+  df_fac <- as.data.frame(lapply(df_chr, factor))
+
+  for (m in c("ML", "MLF", "WL", "MAP", "EAP")) {
+    ref <- est_score(x_drm, r, D = 1, method = m)
+    expect_identical(est_score(x_drm, r_chr, D = 1, method = m, missing = "."), ref)
+    expect_identical(est_score(x_drm, df_chr, D = 1, method = m, missing = "."), ref)
+    expect_identical(est_score(x_drm, df_fac, D = 1, method = m, missing = "."), ref)
+  }
+
+  # the summed-score methods read the labels in the same way
+  r0 <- resp_drm[1:6, ]
+  r0_chr <- matrix(as.character(r0), nrow(r0))
+  df0_fac <- as.data.frame(lapply(as.data.frame(r0_chr, stringsAsFactors = FALSE), factor))
+  for (m in c("EAP.SUM", "INV.TCC")) {
+    ref0 <- est_score(x_drm, r0, D = 1, method = m)
+    expect_identical(est_score(x_drm, r0_chr, D = 1, method = m), ref0)
+    expect_identical(est_score(x_drm, df0_fac, D = 1, method = m), ref0)
+  }
+
+  # a response that cannot be read as a number stops with a pointer to 'missing'
+  expect_error(est_score(x_drm, r_chr, D = 1), "check the 'missing' argument")
+  expect_error(est_score(x_drm, df_fac, D = 1, method = "EAP"), "check the 'missing' argument")
+
+  # numeric labels outside the categories are still rejected
+  r_chr_high <- r_chr
+  r_chr_high[1, 1] <- "2"
+  expect_error(est_score(x_drm, r_chr_high, D = 1, missing = "."), "Responses must be integers")
+})
+
+test_that("est_score() stops when the iteration limit or the tolerance is not valid", {
+  r <- resp_drm[1:3, ]
+  for (m in c("ML", "MLF", "WL", "MAP")) {
+    for (bad in list(0, -1, 2.5, NA, Inf, c(10, 20), "10")) {
+      expect_error(est_score(x_drm, r, D = 1, method = m, max.iter = bad), "'max.iter' must be")
+    }
+  }
+  for (m in c("ML", "MLF", "WL", "MAP", "INV.TCC")) {
+    for (bad in list(0, -1e-4, NA, Inf, c(1e-4, 1e-3), "1e-4")) {
+      expect_error(est_score(x_drm, r, D = 1, method = m, tol = bad), "'tol' must be")
+    }
+  }
+
+  # the limits of the valid range are accepted
+  expect_no_error(est_score(x_drm, r, D = 1, method = "ML", max.iter = 1))
+  expect_no_error(est_score(x_drm, r, D = 1, method = "ML", tol = 1e-12))
+})
+
 test_that("est_score() stops for an unknown method or starting value option", {
   r <- resp_drm[1:3, ]
   expect_error(est_score(x_drm, r, D = 1, method = "ml"), "'method' must be one of")
