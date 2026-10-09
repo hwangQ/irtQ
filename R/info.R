@@ -11,7 +11,8 @@
 #'   See [irtQ::est_irt()] or [irtQ::simdat()] for more details about the item
 #'   metadata. This data frame can be easily created using the
 #'   [irtQ::shape_df()] function. An item with `cats = 2` under the `"GRM"` or
-#'   `"GPCM"` model is computed in the same way as a 2PLM item.
+#'   `"GPCM"` model has one threshold in `par.2`, must have `NA` in `par.3`,
+#'   and is computed as a 2PLM item.
 #' @param theta A numeric vector of theta values at which item and test
 #'   information are computed.
 #' @param D A scaling constant used in IRT models to make the logistic function
@@ -173,14 +174,14 @@ info.default <- function(x, theta, D = 1, tif = TRUE, ...) {
     iif_prm <- NULL
     idx.prm <- c()
     for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
+      # extract the response, model, and item parameters of items with more than two categories
+      lg.prm <- elm_item$model == mod & elm_item$cats > 2
       par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
       a <- par.tmp[, 1]
       d <- par.tmp[, -1, drop = FALSE]
 
       # reorder the index of the PRMs
-      idx.prm <- c(idx.prm, elm_item$item[[mod]])
+      idx.prm <- c(idx.prm, which(lg.prm))
 
       # compute the item information of the polytomous items
       iif_all <-

@@ -58,8 +58,7 @@ confirm_df <- function(x, g2na = FALSE) {
   thr <- as.matrix(x[, -(1:4), drop = FALSE])
   if (ncol(thr) > 0L) {
     # flag thresholds placed beyond the cats - 1 thresholds of a polytomous item
-    thr.extra <- (x$model %in% c("GRM", "GPCM")) & (x$cats > 2) &
-      (col(thr) > (x$cats - 1)) & !is.na(thr)
+    thr.extra <- (x$model %in% c("GRM", "GPCM")) & (col(thr) > (x$cats - 1)) & !is.na(thr)
     # stop instead of using the extra thresholds in the category probabilities
     if (any(thr.extra)) {
       stop("A polytomous item has more threshold parameters than cats - 1.", call. = FALSE)

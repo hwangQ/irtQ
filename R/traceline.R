@@ -134,15 +134,15 @@ traceline.default <- function(x, theta, D = 1, ...) {
     # check the maximum score category
     max.cats <- max(elm_item$cats) - 1
     for (mod in pr.mod) {
-      # extract the response, model, and item parameters
-      lg.prm <- elm_item$model == mod
+      # extract the response, model, and item parameters of items with more than two categories
+      lg.prm <- elm_item$model == mod & elm_item$cats > 2
       par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
       a <- par.tmp[, 1]
       d <- par.tmp[, -1, drop = FALSE]
       cat.tmp <- elm_item$cats[lg.prm]
 
       # reorder the index of the PRMs
-      idx.tmp <- elm_item$item[[mod]]
+      idx.tmp <- which(lg.prm)
 
       # compute the probabilities of endorsing each score category
       P.all <-

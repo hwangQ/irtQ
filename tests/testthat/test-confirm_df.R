@@ -200,3 +200,17 @@ test_that("confirm_df() adds par.3 when every item is 1PLM or 2PLM", {
   expect_equal(r2$par.3, c(0, 0))
   expect_equal(r2$par.2, c(0, 1))
 })
+
+test_that("confirm_df() errors when a two-category GRM or GPCM item has a value in par.3", {
+  for (m in c("GRM", "GPCM")) {
+    x <- data.frame(
+      id = c("A", "B"), cats = c(2L, 3L), model = m, par.1 = c(1, 1.2),
+      par.2 = c(0.3, -1), par.3 = c(0.2, 0.5)
+    )
+    expect_error(confirm_df(x), "more threshold parameters")
+
+    # the cell must be NA
+    x$par.3[1] <- NA
+    expect_no_error(confirm_df(x))
+  }
+})

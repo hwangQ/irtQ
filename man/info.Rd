@@ -24,7 +24,8 @@ number of categories, IRT model types, etc.); or an object of class
 See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for more details about the item
 metadata. This data frame can be easily created using the
 \code{\link[=shape_df]{shape_df()}} function. An item with \code{cats = 2} under the \code{"GRM"} or
-\code{"GPCM"} model is computed in the same way as a 2PLM item.}
+\code{"GPCM"} model has one threshold in \code{par.2}, must have \code{NA} in \code{par.3},
+and is computed as a 2PLM item.}
 
 \item{...}{Further arguments passed to or from other methods.}
 

@@ -137,7 +137,8 @@
 #' }
 #'
 #'   A GRM or GPCM item with \eqn{K = 2} score categories is equivalent to a
-#'   2PLM item, and [irtQ::info()] and [irtQ::traceline()] compute it with the
+#'   2PLM item. In the item metadata it has one threshold in `par.2` and `NA` in
+#'   `par.3`, and [irtQ::info()] and [irtQ::traceline()] compute it with the
 #'   same values as the 2PLM.
 #'
 #' @section Item Calibration for a Linear Test Form:

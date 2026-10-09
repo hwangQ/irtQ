@@ -137,3 +137,22 @@ test_that("traceline() of the flexMIRT sample form gives expected scores and kee
   expect_true(all(vapply(tr1$prob.cats, is.matrix, logical(1))))
   expect_equal(dim(tr1$prob.cats[[39]]), c(1L, 5L))
 })
+
+test_that("traceline() computes a two-category GRM or GPCM item next to polytomous items of the same model", {
+  theta <- c(-1, 0, 1)
+  for (m in c("GRM", "GPCM")) {
+    meta <- data.frame(
+      id = c("g2", "g3", "g4"), cats = c(2, 3, 4), model = m, par.1 = c(1.2, 1.1, 0.8),
+      par.2 = c(-0.5, -1, -1), par.3 = c(NA, 1, 0), par.4 = c(NA, NA, 1)
+    )
+    tr <- traceline(meta, theta, D = 1.702)
+    expect_equal(vapply(tr$prob.cats, ncol, numeric(1)), c(g2 = 2, g3 = 3, g4 = 4))
+
+    # the two-category item has the probabilities of a 2PLM item
+    twopl <- data.frame(id = "g2", cats = 2, model = "2PLM", par.1 = 1.2, par.2 = -0.5, par.3 = NA)
+    expect_equal(tr$prob.cats$g2, traceline(twopl, theta, D = 1.702)$prob.cats$g2, tolerance = 1e-12)
+
+    # the polytomous items do not depend on the two-category item
+    expect_equal(tr$prob.cats[2:3], traceline(meta[2:3, ], theta, D = 1.702)$prob.cats, tolerance = 1e-12)
+  }
+})

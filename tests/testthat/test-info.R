@@ -149,3 +149,22 @@ test_that("info() equals the Fisher information of the category probabilities", 
   }
   expect_equal(unname(info(meta, 0, D = 1.702)$iif[1, 1]), 0.516497, tolerance = 1e-6)
 })
+
+test_that("info() computes a two-category GRM or GPCM item next to polytomous items of the same model", {
+  theta <- c(-1, 0, 1)
+  for (m in c("GRM", "GPCM")) {
+    meta <- data.frame(
+      id = c("g2", "g3", "g4"), cats = c(2, 3, 4), model = m, par.1 = c(1.2, 1.1, 0.8),
+      par.2 = c(-0.5, -1, -1), par.3 = c(NA, 1, 0), par.4 = c(NA, NA, 1)
+    )
+    iif <- info(meta, theta, D = 1.702)$iif
+    expect_equal(rownames(iif), c("g2", "g3", "g4"))
+
+    # the two-category item has the information of a 2PLM item
+    twopl <- data.frame(id = "g2", cats = 2, model = "2PLM", par.1 = 1.2, par.2 = -0.5, par.3 = NA)
+    expect_equal(iif["g2", ], info(twopl, theta, D = 1.702)$iif["g2", ], tolerance = 1e-12)
+
+    # the polytomous items do not depend on the two-category item
+    expect_equal(iif[2:3, ], info(meta[2:3, ], theta, D = 1.702)$iif, tolerance = 1e-12)
+  }
+})
