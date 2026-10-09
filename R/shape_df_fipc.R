@@ -29,9 +29,9 @@
 #'   form. The length of `fix.loc` must equal the number of rows in `x`, and
 #'   the i-th element of `fix.loc` is the position of the i-th row of `x`.
 #'
-#'   Next, provide information for the new items whose parameters will be
-#'   estimated. Supply vectors for `item.id`, `cats`, and `model` matching the
-#'   number of new items (equal to total form length minus length of `fix.loc`).
+#'   Next, provide `item.id`, `cats`, and `model` for the new items, whose
+#'   number equals the total form length minus the length of `fix.loc`. A
+#'   single value of `cats` or `model` is used for all new items.
 #'   If `item.id` is `NULL`, default IDs (`"V1"`, `"V2"`, ...) are assigned.
 #'
 #'

@@ -38,43 +38,38 @@
   `crit.dis` check. Such an item is now flagged with
   `"discrimination undefined"`.
 
-- `shape_df_fipc()` shifted the columns of the new items when the fixed
-  items included a polytomous item and every new item was dichotomous,
-  which replaced a threshold of a fixed polytomous item with a wrong
-  value. The new items are now aligned with the columns of the fixed
-  items. FIPC results built from metadata of this kind should be rerun.
+- `shape_df_fipc()` misplaced the parameter columns of the new items
+  when the fixed items included a polytomous item and every new item was
+  dichotomous, which changed a threshold of a fixed polytomous item. The
+  new items now follow the columns of the fixed items. FIPC results
+  built from such metadata should be rerun.
 
-- The GPCM probabilities of `prm()`, `traceline()`, and `info()` changed
-  when an exponent in the calculation exceeded 700, because the whole
-  matrix was rescaled by one factor and the values for other thetas and
-  items changed with it. Each row is now rescaled by its own maximum,
-  which gives the same values for a theta whatever other thetas are
-  supplied. Results in the usual range differ by less than 1e-12, and
-  `prm()` no longer returns exactly zero for a GPCM category.
+- The GPCM probabilities of `prm()`, `traceline()`, and `info()` were
+  distorted when an exponent exceeded 700, and the values at the other
+  thetas and items of the same call changed with them. Each row is now
+  rescaled by its own maximum. Results in the usual range change by less
+  than 1e-12, and `prm()` no longer returns a GPCM probability of
+  exactly 0.
 
 - `info()` returned `NaN` instead of 0 for a dichotomous item at a theta
-  far from the item location, where an exponent exceeded about 709. The
-  derivatives are now computed in a form that stays finite.
+  far from the item location.
 
-- `traceline()` returned a plain vector instead of a one-row matrix in
-  `prob.cats` for a polytomous item when a single theta value was given,
-  which made `plot()` fail. It now returns a matrix, as for several
-  thetas.
+- `traceline()` returned a vector instead of a one-row matrix in
+  `prob.cats` for a polytomous item when a single theta was given, which
+  made `plot()` fail.
 
-- `drm()` compared the probabilities with the guessing parameters of the
-  wrong items when it kept them away from the guessing parameter, and
-  `traceline()` added the lower bound of categories that an item does
-  not have to its expected score. Probabilities and expected scores
-  could differ by about 1e-10, and item parameter estimates by about
-  1e-9. Each item is now compared with its own guessing parameter, and
-  missing categories are left out.
+- `drm()` checked each probability against the guessing parameter of
+  another item, and the expected item score of `traceline()` included
+  categories that the item does not have. Probabilities and expected
+  scores could differ by about 1e-10, and item parameter estimates by
+  about 1e-9.
 
-- `traceline()` and `info()` stopped with an error for a GRM or GPCM
-  item with two score categories, such as those made by `bring.mirt()`,
-  and for a 3PLM or DRM item whose guessing parameter is `NA`; `drm()`
+- `traceline()` and `info()` stopped with an error for a two-category
+  GRM or GPCM item, such as one made by `bring.mirt()`, and for a 3PLM
+  or DRM item with an `NA` guessing parameter, for which `drm()`
   returned `NA`. An `NA` guessing parameter is now treated as 0, so a
-  two-category GRM or GPCM item gets the values of a 2PLM item, also
-  next to polytomous items of the same model.
+  two-category GRM or GPCM item is computed as a 2PLM item, also when
+  the test has polytomous items of the same model.
 
 - `shape_df()` used a single `g` value for the first dichotomous item
   only and set the guessing parameters of the other items to 0. A single
@@ -95,22 +90,24 @@
   Functions that take item metadata reject parameter columns stored as
   text, a missing or too small `cats`, a dichotomous model with `cats`
   other than 2, and a polytomous item with more thresholds than
-  `cats - 1`, including a value in `par.3` of a two-category GRM or GPCM
-  item. `shape_df()` and `simdat()` reject parameter vectors that do not
-  match the number of items, `shape_df_fipc()` checks `fix.loc`, and
-  `gen.weight()` checks `dist` and `theta`. `prm()` uses the GRM when
-  `pr.model` is omitted and rejects an unknown model name. Item metadata
-  without a `par.3` column is accepted when every item is 1PLM or 2PLM,
-  and `simdat()` repeats a single `pr.model` for all polytomous items.
+  `cats - 1`, including any value in `par.3` of a two-category GRM or
+  GPCM item. `shape_df()` and `simdat()` reject parameter vectors that
+  do not match the items, `shape_df_fipc()` checks `fix.loc`,
+  `gen.weight()` checks `dist` and `theta`, and `prm()` rejects an
+  unknown `pr.model`.
 
-- `plot.info()` and `plot.traceline()` label items with their IDs as
-  given (an ID such as `"item-2"` was shown as `item.2`), and the panel
-  titles of `plot.traceline()` read `Score: 0` instead of
-  `Score: resp.0`.
+- `prm()` uses the GRM when `pr.model` is omitted, `simdat()` repeats a
+  single `pr.model` for all polytomous items, `shape_df()` accepts
+  `par.drm` without `g`, and item metadata without a `par.3` column is
+  accepted when every item is 1PLM or 2PLM.
 
-- The warning that a `"DRM"` item is treated as a `"3PLM"` item no
-  longer says that item parameters are being estimated, because it also
-  appears in functions such as `info()` and `simdat()`.
+- `plot.info()` and `plot.traceline()` show item IDs as given
+  (`"item-2"` was shown as `item.2`), and the panel titles of
+  `plot.traceline()` read `Score: 0` instead of `Score: resp.0`.
+
+- The warning for `"DRM"` items reads "All 'DRM' items are treated as
+  '3PLM' items." and no longer mentions item parameter estimation,
+  because it also appears in functions such as `info()` and `simdat()`.
 
 - `ctt()` computes alpha with each item removed faster for large tests.
 

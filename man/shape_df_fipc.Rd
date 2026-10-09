@@ -48,9 +48,9 @@ use \code{fix.loc} to give the row positions of these items in the final test
 form. The length of \code{fix.loc} must equal the number of rows in \code{x}, and
 the i-th element of \code{fix.loc} is the position of the i-th row of \code{x}.
 
-Next, provide information for the new items whose parameters will be
-estimated. Supply vectors for \code{item.id}, \code{cats}, and \code{model} matching the
-number of new items (equal to total form length minus length of \code{fix.loc}).
+Next, provide \code{item.id}, \code{cats}, and \code{model} for the new items, whose
+number equals the total form length minus the length of \code{fix.loc}. A
+single value of \code{cats} or \code{model} is used for all new items.
 If \code{item.id} is \code{NULL}, default IDs (\code{"V1"}, \code{"V2"}, ...) are assigned.
 }
 \examples{

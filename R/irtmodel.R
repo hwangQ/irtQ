@@ -6,7 +6,8 @@
 #' @param theta A numeric vector of ability values (latent traits).
 #' @param a A numeric vector of item discrimination (slope) parameters.
 #' @param b A numeric vector of item difficulty parameters.
-#' @param g A numeric vector of item guessing parameters. Not required for 1PL or 2PL models.
+#' @param g A numeric vector of item guessing parameters. Not required for 1PL
+#'   or 2PL models. `NA` values are treated as 0.
 #' @param D A scaling constant used in IRT models to make the logistic function
 #'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
@@ -88,9 +89,9 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
 #'
 #' The GRM probabilities are bounded to the range from 1e-10 to 1 - 1e-10,
 #' whereas the GPCM probabilities are bounded below only by the smallest
-#' positive normalized double value (about 2.2e-308). The functions
-#' [irtQ::traceline()] and [irtQ::info()] bound the probabilities of both models
-#' below by 1e-10 for internal use.
+#' positive normalized double value (about 2.2e-308). The category
+#' probabilities in [irtQ::traceline()] and [irtQ::info()] are bounded below by
+#' 1e-10 for both models.
 #'
 #' For more details on the parameterization of the (generalized) partial credit
 #' model, refer to the *IRT Models* section in the [irtQ-package] documentation.
@@ -135,7 +136,7 @@ gpcm <- function(theta, a, d, D = 1) {
   # calculate category probabilities
   z <- (D * a) * (Rfast::Outer(x = theta, y = d, oper = "-"))
   cumsum_z <- t(Rfast::colCumSums(z))
-  # subtract the row maximum so that exp() neither overflows nor underflows
+  # subtract the row maximum so that exp() does not overflow
   cumsum_z <- cumsum_z - Rfast::rowMaxs(cumsum_z, value = TRUE)
   numer <- exp(cumsum_z) # numerator
   denom <- Rfast::rowsums(numer) # denominator

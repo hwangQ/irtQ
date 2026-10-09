@@ -164,7 +164,7 @@ traceline.default <- function(x, theta, D = 1, ...) {
           }
         )
 
-      # drop the probabilities of the categories an item does not have
+      # set the probabilities of the categories an item does not have to 0
       item.of.row <- rep(seq_along(a), n.theta)
       P.valid <- P.all * (col(P.all) <= cat.tmp[item.of.row])
 

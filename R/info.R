@@ -265,7 +265,7 @@ info_drm <- function(theta, a, b, g, D = 1, one.theta = FALSE,
     # logistic function and its complement, both finite for any z
     pz <- 1 / (1 + exp(-z))
     qz <- 1 / (1 + exp(z))
-    # first derivative written without exp(z) / (1 + exp(z))^2, which is NaN for large z
+    # first derivative from pz and qz, which stays finite for any z
     dP <- Da * (1 - g) * pz * qz
 
     # compute the item information as dP^2 / (P * Q), which equals the

@@ -200,8 +200,8 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
   # stop when cats, model, or item.id do not match the number of items
   if (length(cats) != nitem || length(model) != nitem || length(item.id) != nitem) {
     stop(
-      "`cats`, `model`, and `item.id` must have length 1 or one value per item ",
-      "(", nitem, " items given in `par.drm` and `par.prm`).",
+      "`cats` and `model` must have length 1 or one value per item, and ",
+      "`item.id` one value per item (", nitem, " items given in `par.drm` and `par.prm`).",
       call. = FALSE
     )
   }
