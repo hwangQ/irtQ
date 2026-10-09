@@ -68,9 +68,9 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
 #' @param a A numeric value of the item discrimination (slope) parameter.
 #' @param d A numeric vector of the threshold parameters of the item. For the
 #'   GRM, the thresholds must be in increasing order.
-#' @param pr.model A character string specifying the polytomous IRT model.
-#'   Available options are `"GRM"` for the graded response model and `"GPCM"`
-#'   for the (generalized) partial credit model.
+#' @param pr.model A character string specifying the polytomous IRT model:
+#'   `"GRM"` for the graded response model or `"GPCM"` for the (generalized)
+#'   partial credit model. Default is `"GRM"`.
 #'
 #' @details When computing category probabilities using the partial credit model
 #' (PCM), set `a = 1`.
@@ -109,7 +109,8 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
 #'
 #' @export
 prm <- function(theta, a, d, D = 1, pr.model = c("GRM", "GPCM")) {
-  pr.model <- toupper(pr.model)
+  # use the first listed model when the default vector is left unchanged
+  pr.model <- match.arg(toupper(pr.model), choices = c("GRM", "GPCM"))
   if (pr.model == "GRM") {
     P <- grm(theta = theta, a = a, d = d, D = D)
   } else {

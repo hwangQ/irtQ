@@ -87,3 +87,19 @@ test_that("drm() known probability: 2PL D=1.702 matches hand calculation", {
   P <- drm(theta = 0, a = 1, b = 0, g = 0, D = 1.702)
   expect_equal(as.numeric(P), 0.5, tolerance = 1e-6)
 })
+
+test_that("prm() uses the GRM when pr.model is not given", {
+  P1 <- prm(theta = c(-1, 0, 1), a = 1.2, d = c(-1, 0.5), D = 1)
+  P2 <- prm(theta = c(-1, 0, 1), a = 1.2, d = c(-1, 0.5), D = 1, pr.model = "GRM")
+  expect_identical(P1, P2)
+
+  # model names are matched without regard to case
+  P3 <- prm(theta = c(-1, 0, 1), a = 1.2, d = c(-1, 0.5), D = 1, pr.model = "gpcm")
+  P4 <- prm(theta = c(-1, 0, 1), a = 1.2, d = c(-1, 0.5), D = 1, pr.model = "GPCM")
+  expect_identical(P3, P4)
+})
+
+test_that("prm() errors on an unknown pr.model", {
+  expect_error(prm(theta = 0, a = 1, d = c(0, 1), D = 1, pr.model = "PCM"))
+  expect_error(prm(theta = 0, a = 1, d = c(0, 1), D = 1, pr.model = "xyz"))
+})

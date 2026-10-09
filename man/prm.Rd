@@ -18,9 +18,9 @@ GRM, the thresholds must be in increasing order.}
 closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
-\item{pr.model}{A character string specifying the polytomous IRT model.
-Available options are \code{"GRM"} for the graded response model and \code{"GPCM"}
-for the (generalized) partial credit model.}
+\item{pr.model}{A character string specifying the polytomous IRT model:
+\code{"GRM"} for the graded response model or \code{"GPCM"} for the (generalized)
+partial credit model. Default is \code{"GRM"}.}
 }
 \value{
 A matrix of category response probabilities, where each row
