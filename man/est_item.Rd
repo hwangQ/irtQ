@@ -50,7 +50,7 @@ represent items.}
 The length of this vector must match the number of rows in the response data.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{model}{A character vector specifying the IRT model to fit each item.

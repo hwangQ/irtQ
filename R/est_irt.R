@@ -26,7 +26,7 @@
 #'   specified in the `x` argument. Rows represent examinees and columns
 #'   represent items.
 #' @param D A scaling constant used in IRT models to make the logistic function
-#'   closely approximate the normal ogive function. A value of 1.7 is commonly
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
 #' @param model A character vector specifying the IRT model to fit each item.
 #'   Available values are:

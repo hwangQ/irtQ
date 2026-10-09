@@ -6,7 +6,6 @@
 #' using [irtQ::plot.traceline()].
 #'
 #' @inheritParams info
-#' @inheritParams est_score
 #' @param theta A numeric vector of theta values at which item and test
 #'   characteristic curves are computed.
 #'
@@ -21,7 +20,7 @@
 #'  - The test characteristic curve (TCC), which is the sum of expected item
 #'  scores at each theta value.
 #'
-#' The output object can be visualized using the [irtQ::plot.traceline] to
+#' The output object can be visualized using [irtQ::plot.traceline()] to
 #' inspect the relationship between ability levels (theta) and expected
 #' item/test scores.
 #'
@@ -33,10 +32,10 @@
 #' @return This function returns an object of class `traceline`, which is a list
 #' containing the following components:
 #'
-#'   \item{prob.cats}{A list of matrices containing the category response
-#'   probabilities for each item across the specified theta values. Each
-#'   matrix corresponds to an item, with rows representing theta values and
-#'   columns representing response categories (e.g., `"resp.0"`, `"resp.1"`, ...).}
+#'   \item{prob.cats}{A list of matrices of category response probabilities,
+#'   one per item and named by item ID. Each matrix has one row per theta
+#'   value and one column per score category of the item (`"resp.0"`,
+#'   `"resp.1"`, ...).}
 #'
 #'   \item{icc}{A numeric matrix representing ICCs. Each column corresponds to
 #'   an item, and each row represents the expected item score at a given theta value.
@@ -46,7 +45,7 @@
 #'   expected item scores across all items at each theta value.}
 #'
 #'   \item{theta}{A numeric vector of theta values at which the item and test
-#'   information functions are evaluated. This matches the user-supplied
+#'   characteristic functions are evaluated. This matches the user-supplied
 #'   `theta` argument.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
@@ -96,7 +95,7 @@ traceline.default <- function(x, theta, D = 1, ...) {
   # count the total number of items
   n.item <- sum(length(idx.drm), length(idx.prm))
 
-  # make the empty list and data frame to contain icc and tcc
+  # create an empty list for category probabilities and an empty matrix for ICCs
   prob.cats <- vector("list", n.item)
   icc_df <- array(NA, c(n.theta, n.item))
   names(prob.cats) <- x$id
@@ -207,7 +206,7 @@ traceline.est_item <- function(x, theta, ...) {
   # count the total number of items
   n.item <- sum(length(idx.drm), length(idx.prm))
 
-  # make the empty list and data frame to contain icc and tcc
+  # create an empty list for category probabilities and an empty matrix for ICCs
   prob.cats <- vector("list", n.item)
   icc_df <- array(NA, c(n.theta, n.item))
   names(prob.cats) <- x$id
@@ -317,7 +316,7 @@ traceline.est_irt <- function(x, theta, ...) {
   # count the total number of items
   n.item <- sum(length(idx.drm), length(idx.prm))
 
-  # make the empty list and data frame to contain icc and tcc
+  # create an empty list for category probabilities and an empty matrix for ICCs
   prob.cats <- vector("list", n.item)
   icc_df <- array(NA, c(n.theta, n.item))
   names(prob.cats) <- x$id
@@ -418,10 +417,9 @@ trace <- function(elm_item, theta, D = 1, tcc = TRUE) {
   # count the total number of items
   n.item <- sum(length(idx.drm), length(idx.prm))
 
-  # make the empty list and data frame to contain icc and tcc
+  # create an empty list for category probabilities and an empty matrix for ICCs
   prob.cats <- vector("list", n.item)
   if (tcc) {
-    # icc_df <- matrix(NA, nrow=n.theta, ncol=n.item)
     icc_df <- array(NA, c(n.theta, n.item))
   } else {
     icc_df <- NULL
@@ -439,9 +437,6 @@ trace <- function(elm_item, theta, D = 1, tcc = TRUE) {
     q.vec <- 1 - p.vec
 
     # split the probabilities into each item group
-    # prob.drm <-
-    #   split.data.frame(cbind(resp.0 = q.vec, resp.1 = p.vec),
-    #                    rep(idx.drm, each=n.theta))
     prob.drm <-
       split.data.frame(
         cbind(q.vec, p.vec),

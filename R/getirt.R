@@ -35,7 +35,7 @@
 #'   response patterns at each quadrature point. Rows represent examinees, and
 #'   columns represent quadrature points.}
 #'   \item{data}{A data frame of the examinee response dataset used in estimation.}
-#'   \item{scale.D}{The scaling constant (usually 1 or 1.7) used in the IRT model.}
+#'   \item{scale.D}{The scaling constant (usually 1 or 1.702) used in the IRT model.}
 #'   \item{ncase}{The number of unique response patterns.}
 #'   \item{nitem}{The number of items included in the dataset.}
 #'   \item{Etol}{The convergence criterion for the E-step of the EM algorithm:
@@ -103,7 +103,7 @@
 #'   and columns to quadrature points.}
 #'   \item{data}{A list with `overall` and `group` components, each containing
 #'   examinee response data.}
-#'   \item{scale.D}{The scaling constant used in the IRT model (typically 1 or 1.7).}
+#'   \item{scale.D}{The scaling constant used in the IRT model (typically 1 or 1.702).}
 #'   \item{ncase}{A list with `overall` and `group` components indicating the
 #'   number of response patterns in each.}
 #'   \item{nitem}{A list with `overall` and `group` components indicating the
@@ -154,7 +154,7 @@
 #'   \item{data}{A data frame of examinee response data.}
 #'   \item{score}{A numeric vector of examinees' ability values used as fixed
 #'   effects during estimation.}
-#'   \item{scale.D}{The scaling constant (typically 1 or 1.7) used in the IRT model.}
+#'   \item{scale.D}{The scaling constant (typically 1 or 1.702) used in the IRT model.}
 #'   \item{convergence}{A character string indicating the convergence status of
 #'   the item parameter estimation.}
 #'   \item{nitem}{The total number of items included in the response data.}

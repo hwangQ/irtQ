@@ -19,7 +19,7 @@
 #'   corresponding weights. This is typically used in quadrature-based IRT
 #'   analysis.
 #' @param D A scaling constant used in IRT models to make the logistic function
-#'   closely approximate the normal ogive function. A value of 1.7 is commonly
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
 #' @param cut.obs Logical. If `TRUE`, it indicates the cutscores on the
 #'   observed-summed score metric. If `FALSE`, it indicates they are on the IRT

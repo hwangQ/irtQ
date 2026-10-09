@@ -34,7 +34,7 @@
 #'   module \emph{i} to module \emph{j}. This is the same \code{route_map}
 #'   argument used in \code{\link{run_mst}}.
 #' @param D A scaling constant used in IRT models to make the logistic function
-#'   closely approximate the normal ogive function. A value of 1.7 is commonly
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
 #' @param theta_range A numeric vector of length 2 specifying the theta range
 #'   over which to search for TIF crossings. Default is \code{c(-6, 6)}.

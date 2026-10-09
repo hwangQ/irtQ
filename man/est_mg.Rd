@@ -75,7 +75,7 @@ For example, if five groups are analyzed, use
 valid character strings.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{model}{A list containing character vectors specifying the IRT models

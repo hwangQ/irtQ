@@ -27,7 +27,7 @@ item bank metadata along with \code{module} for MST panel evaluation are
 provided below.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{route_map}{A binary square matrix that defines the MST structure,

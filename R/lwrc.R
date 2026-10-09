@@ -24,7 +24,7 @@
 #'   argument is required only when a probability matrix is provided via the
 #'   `prob` argument.
 #' @param D A scaling constant used in IRT models to make the logistic function
-#'   closely approximate the normal ogive function. A value of 1.7 is commonly
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
 #'
 #' @details The Lord and Wingersky recursive algorithm provides an efficient

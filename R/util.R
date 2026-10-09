@@ -6,7 +6,7 @@
 #'
 #' @param List A list containing numeric vectors of possibly different lengths.
 #' @param type A character string indicating the type of binding to perform.
-#'   Options are `"rbind"` or `"cbind"`.
+#'   Options are `"rbind"` or `"cbind"`. Default is `"rbind"`.
 #' @param fill A value used to fill missing elements when aligning the vectors.
 #'   For `type = "cbind"`, this fills missing rows in shorter columns; for `type
 #'   = "rbind"`, this fills missing columns in shorter rows. Accepts any R
@@ -14,6 +14,7 @@
 #'
 #' @return A matrix formed by binding the elements of the list either row-wise
 #'   or column-wise, with shorter vectors padded by the specified `fill` value.
+#'   The matrix has no row or column names.
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -49,8 +50,7 @@ bind.fill <- function(List, type=c("rbind", "cbind"), fill = NA){
 
 }
 
-# this function finds the index of the DRM items and PLM items given the object of
-# "simdat()" function
+# Find the indices of the DRM and PRM items in the output of breakdown()
 idxfinder <- function(x) {
 
   # find the index of drm items
@@ -66,7 +66,7 @@ idxfinder <- function(x) {
 
 }
 
-# a function to calculate a mean and variance at each theta point
+# Compute the mean and variance of a discrete distribution given its nodes and weights
 cal_moment <- function(node, weight) {
   mu <- sum(node * weight)
   sigma2 <- sum(node^2 * weight) - mu^2
@@ -90,8 +90,6 @@ cal_moment <- function(node, weight) {
 # Returns:
 #   list of length nitem; element [[k]] is an nstd x cats[k] integer
 #   matrix as described above.
-#
-# This direct one-hot construction allocates only the final per-item matrices.
 build_freqcat <- function(data, cats) {
 
   # number of examinees and items in the response matrix
@@ -135,8 +133,8 @@ build_freqcat <- function(data, cats) {
 }
 
 
-# This function divides the item response data sets into the two DRM responses (correct and incorrect)
-# and one PRM item parts.
+# Split the response data into sparse matrices of DRM correct responses,
+# DRM incorrect responses, PRM category indicators, and all category indicators.
 #' @importFrom Matrix Matrix
 divide_data <- function(data, idx.item, freq.cat) {
 

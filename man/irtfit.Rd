@@ -109,7 +109,7 @@ independent of the grouping method specified in \code{group.method}.
 Default is \code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{alpha}{A numeric value specifying the significance level (\eqn{\alpha}) for

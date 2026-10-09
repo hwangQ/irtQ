@@ -6,42 +6,39 @@
 #' while the TCC is plotted for the entire test form.
 #'
 #' @inheritParams plot.info
-#' @param x x An object of class `traceline` obtained from [irtQ::traceline()].
+#' @param x An object of class `traceline` obtained from [irtQ::traceline()].
 #' @param item.loc A numeric vector specifying the position(s) of the item(s) to
 #'   plot. If `NULL` (default), the test characteristic curve (TCC) for the
 #'   entire test form is plotted.
-#' @param score.curve Logical. If `TRUE`, plots the item score curve, defined
-#'   as the weighted sum of category probabilities across score categories, in
-#'   a panel.
-#'
-#'   If `FALSE`, plots item characteristic curves (ICCs) for all score categories,
-#'   either in separate panels or in a single panel depending on the `overlap`
-#'   setting.
-#'
-#'   For dichotomous items, the item score curve is equivalent to the ICC for
-#'   score category 1. Ignored when `item.loc = NULL`. Default is `FALSE`.
+#' @param score.curve Logical. If `TRUE`, plots the item score curve, which is
+#'   the expected item score (the sum of category scores weighted by their
+#'   probabilities) as a function of theta. If `FALSE`, plots the item
+#'   characteristic curves (ICCs) of all score categories. For dichotomous
+#'   items, the item score curve equals the ICC for score category 1. Ignored
+#'   when `item.loc = NULL`. Default is `FALSE`.
 #' @param overlap Logical. Determines how multiple curves are displayed when
-#'   plotting ICCs or item score curves.
-#'
-#'   If `TRUE`, curves are overlaid in a single panel using different colors.
-#'   If `FALSE`, each curve is drawn in a separate panel - either one panel per
-#'   item or per score category, depending on the setting of `score.curve`.
-#' @param layout.col An integer value indicating the number of columns in the
-#'   plot when displaying multiple panels. Used only when `overlap = FALSE`.
-#'   Default is 2.
-#' @param strip.size Numeric. Font size of facet labels when ICCs are plotted.
+#'   plotting ICCs or item score curves. If `TRUE`, curves are overlaid in
+#'   different colors: the category ICCs of each item share one panel per item
+#'   when `score.curve = FALSE`, and the score curves of all items share a
+#'   single panel when `score.curve = TRUE`. If `FALSE`, each curve is drawn in
+#'   its own panel: one panel per score category of a single item when
+#'   `score.curve = FALSE`, or one panel per item when `score.curve = TRUE`.
+#'   Default is `FALSE`.
+#' @param layout.col An integer value indicating the number of panel columns
+#'   when multiple panels are drawn. Not used when `overlap = TRUE` and
+#'   `score.curve = TRUE`. Default is 2.
+#' @param strip.size Numeric. Font size of the panel (facet) labels. Default is
+#'   12.
 #'
 #' @details
-#' All plots are generated using the \pkg{ggplot2} package.
-#' If `item.loc = NULL`, the test characteristic curve (TCC) for the entire test
-#' form is plotted. If `item.loc` is specified, it should be a vector of
-#' positive integers indicating the position(s) of the items to be plotted.
-#' For example, if the test form includes ten items and you wish to plot the
-#' score curves of the 1st, 2nd, and 3rd items, set `item.loc = 1:3`.
+#' All plots are drawn with the \pkg{ggplot2} package. If `item.loc = NULL`,
+#' the test characteristic curve (TCC) of the entire test form is plotted.
+#' Otherwise, `item.loc` gives the positions of the items to plot; for example,
+#' `item.loc = 1:3` plots the first three items.
 #'
-#' @return This method displays item characteristic curves (ICCs), item score
-#' curves, or the test characteristic curve (TCC), depending on the specified
-#' arguments.
+#' @return This method prints the plot of item characteristic curves (ICCs),
+#' item score curves, or the test characteristic curve (TCC), and invisibly
+#' returns the \pkg{ggplot2} object.
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -256,7 +253,6 @@ plot.traceline <- function(x,
 
     if (score.curve) {
       # check the number of score categories
-      # cats <- ncol(x$prob.cat[[item.loc]])
       cats <- purrr::map_dbl(.x = x$prob.cat[item.loc], ncol)
 
       # data manipulation for plotting
@@ -264,9 +260,6 @@ plot.traceline <- function(x,
       df_score <-
         data.frame(score.trace, theta = theta) %>%
         reshape2::melt(variable.name = "item", id.vars = "theta", value.name = "icc")
-
-      # data manipulation for plotting
-      # df_info$item <- as.numeric(df_info$item)
 
       # plot
       # Set plot conditions

@@ -21,7 +21,7 @@ of categories, IRT model types, etc.). See \code{\link[=est_irt]{est_irt()}} or
 can be easily created using the \code{\link[=shape_df]{shape_df()}} function.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{nstd}{An integer or a vector of integers indicating the sample size(s).

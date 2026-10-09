@@ -110,7 +110,7 @@ analysis. If NULL, all items are included. Useful for omitting specific
 items based on prior insights.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{alpha}{A numeric value specifying the significance level (\eqn{\alpha})

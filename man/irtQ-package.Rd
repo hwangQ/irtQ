@@ -147,6 +147,10 @@ When fitting the partial credit model, the item discrimination parameter
 }
 
 }
+
+A GRM or GPCM item with \eqn{K = 2} score categories is equivalent to a
+2PLM item, and \code{\link[=info]{info()}} and \code{\link[=traceline]{traceline()}} compute it with the
+same values as the 2PLM.
 }
 
 \section{Item Calibration for a Linear Test Form}{

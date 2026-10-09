@@ -1,12 +1,12 @@
 #' Create a Data Frame of Item Metadata
 #'
-#' This function creates a data frame of item metadata - including item
-#' parameters, the number of score categories, and IRT model specifications - to
-#' be used in various IRT-related analyses within the \pkg{irtQ} package.
+#' This function creates a data frame of item metadata (item parameters,
+#' numbers of score categories, and IRT models) for use in IRT analyses with
+#' the \pkg{irtQ} package.
 #'
 #' @param par.drm A list containing three numeric vectors for dichotomous item
 #'   parameters: item discrimination (`a`), item difficulty (`b`), and guessing
-#'   parameters (`g`).
+#'   parameters (`g`). If `g` is `NULL`, the guessing parameters are set to 0.
 #' @param par.prm A list containing polytomous item parameters. The list must
 #'   include a numeric vector `a` for item discrimination (slope) parameters,
 #'   and a list `d` of numeric vectors specifying difficulty (or threshold)
@@ -29,8 +29,8 @@
 #'   The default is `FALSE`.
 #'
 #' @details For any item where `"1PLM"` or `"2PLM"` is specified in `model`, the
-#'   guessing parameter will be set to `NA`. If `model` is a vector of length 1,
-#'   the specified model will be replicated across all items.
+#'   guessing parameter is set to `NA`. If `cats` or `model` has length 1, it is
+#'   recycled across all items.
 #'
 #'   As in the [irtQ::simdat()] function, when constructing a mixed-format test
 #'   form, it is important to specify the `cats` argument to reflect the correct
@@ -45,21 +45,20 @@
 #'     - `g`: a numeric vector of guessing parameters
 #'   - `par.prm` should be a list with two components:
 #'     - `a`: a numeric vector of slope parameters for polytomous items
-#'     - `d`: a list of numeric vectors specifying threshold (or step) parameters
+#'     - `d`: a list of numeric vectors specifying the threshold parameters
 #'       for each polytomous item
 #'
+#'   For GPCM items, the threshold parameters are \eqn{b_v = \beta - \tau_v},
+#'   the overall item location minus the threshold of each score category. An
+#'   item with *K* score categories requires *K - 1* threshold parameters,
+#'   because the term for the lowest score category is fixed at 0 and is not
+#'   supplied. For GRM items, the thresholds must be in increasing order.
 #'
-#' For items following the (generalized) partial credit model (`"GPCM"`), the
-#' threshold (or step) parameters are computed as the overall item difficulty
-#' (location) minus the category-specific thresholds. Therefore, for an item
-#' with `m` score categories, `m - 1` step parameters must be provided, since
-#' the first category threshold is fixed and does not contribute to category
-#' probabilities.
-#'
-#' @return A data frame containing item metadata, including item IDs, number of
-#'   score categories, IRT model types, and associated item parameters. This
-#'   data frame can be used as input for other functions in the \pkg{irtQ}
-#'   package, such as [irtQ::est_irt()] or [irtQ::simdat()].
+#' @return A data frame of item metadata with columns `id`, `cats`, `model`,
+#'   and `par.1`, `par.2`, ..., one row per item. The number of parameter
+#'   columns is the larger of 3 and the maximum of `cats`; unused cells are
+#'   `NA`. This data frame can be used as input for other functions in the
+#'   \pkg{irtQ} package, such as [irtQ::est_irt()] or [irtQ::simdat()].
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -93,7 +92,7 @@
 #' # Generate an item metadata set using the specified parameters
 #' shape_df(par.drm = par.drm, par.prm = par.prm, cats = cats, model = model)
 #'
-#' ## An empty item metadata frame with five dichotomous items and two polytomous items
+#' ## An item metadata frame with default parameters for five dichotomous and two polytomous items
 #' # Create a numeric vector indicating the number of score categories for each item
 #' cats <- c(2, 4, 3, 2, 5, 2, 2)
 #'
@@ -116,18 +115,18 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
                      model,
                      default.par = FALSE) {
 
-  # ensure that the model names are all upper cases
+  # convert the model names to uppercase
   model <- toupper(model)
 
   # check model names
   if (!all(model %in% c("1PLM", "2PLM", "3PLM", "DRM", "GRM", "GPCM"))) {
     stop(paste0(
-      "At least, one model name is mis-specified in the model argument. \n",
+      "At least one model name is mis-specified in the model argument.\n",
       "Available model names are 1PLM, 2PLM, 3PLM, DRM, GRM, and GPCM"
     ), call. = FALSE)
   }
 
-  # only to create an empty item meta
+  # generate default item parameters when default.par = TRUE
   if (default.par) {
     if (missing(cats) | missing(model)) {
       stop("The number of score categories and IRT models must be specified.", call. = FALSE)
@@ -185,7 +184,7 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
   # create a vector of model names when length(model) = 1
   if (length(model) == 1) model <- rep(model, nitem)
 
-  # find the index of DRM and PLM items when default.par = FALSE
+  # find the indices of DRM and PRM items when default.par = FALSE
   if (!default.par) {
     # find the index of drm items
     idx.drm <- which(cats == 2)
@@ -221,7 +220,7 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
   # re-assign column names
   colnames(x) <- c("id", "cats", "model", paste0("par.", 1:(ncol(x) - 3)))
 
-  # assign NAs to the par.3 column for the 1PLM, 2PLM, items
+  # assign NAs to the par.3 column for the 1PLM and 2PLM items
   x[x$model %in% c("1PLM", "2PLM"), "par.3"] <- NA_real_
 
   # assign 0s to the par.3 column for the 3PLM when par.3 = NA
@@ -240,15 +239,15 @@ shape_df <- function(par.drm = list(a = NULL, b = NULL, g = NULL),
 }
 
 
-# This function creates an item meta containing the starting values
+# Create item metadata containing the starting values
 startval_df <- function(cats, model, item.id = NULL) {
-  # ensure that the model names are all upper cases
+  # convert the model names to uppercase
   model <- toupper(model)
 
   # check model names
   if (!all(model %in% c("1PLM", "2PLM", "3PLM", "DRM", "GRM", "GPCM"))) {
     stop(paste0(
-      "At least, one model name is mis-specified in the model argument. \n",
+      "At least one model name is mis-specified in the model argument.\n",
       "Available model names are 1PLM, 2PLM, 3PLM, DRM, GRM, and GPCM"
     ), call. = FALSE)
   }
@@ -328,9 +327,6 @@ startval_df <- function(cats, model, item.id = NULL) {
 
   # re-assign column names
   colnames(x) <- c("id", "cats", "model", paste0("par.", 1:(ncol(x) - 3)))
-
-  # assign NAs to the par.3 column for the 1PLM, 2PLM, items
-  # x[x$model %in% c("1PLM", "2PLM"), "par.3"] <- NA_real_
 
   # assign 0s to the par.3 column for the 3PLM when par.3 = NA
   x[x$model == "3PLM" & is.na(x$par.3), "par.3"] <- 0

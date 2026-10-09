@@ -32,7 +32,7 @@ specified in the \code{x} argument. Rows represent examinees and columns
 represent items.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{item.skip}{A numeric vector of item indices to exclude from IPD analysis.

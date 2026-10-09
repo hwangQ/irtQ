@@ -9,19 +9,19 @@
 #' @param dist A character string indicating the distribution type used to
 #'   generate weights. Available options are `"norm"` for a normal distribution,
 #'   `"unif"` for a uniform distribution, and `"emp"` for an empirical
-#'   distribution.
+#'   distribution. Default is `"norm"`.
 #'   - If `dist = "norm"`, either `n` or `theta` must be provided.
-#'   - If `dist = "unif"`, only `n` is applicable.
-#'   - If `dist = "emp"`, only `theta` must be specified.
+#'   - If `dist = "unif"`, only `n` is used; `theta` must not be supplied.
+#'   - If `dist = "emp"`, `theta` is required.
 #' @param mu,sigma Mean and standard deviation of the normal distribution (used
-#'   when `dist = "norm"`).
+#'   when `dist = "norm"`). Defaults are 0 and 1.
 #' @param l,u Lower and upper bounds of the uniform distribution (used when
-#'   `dist = "unif"`).
-#' @param theta A numeric vector of empirical theta (node) values for which
-#'   weights are generated.
+#'   `dist = "unif"`). Defaults are -4 and 4.
+#' @param theta A numeric vector of theta (node) values for which weights are
+#'   generated. Used when `dist = "norm"` or `dist = "emp"`.
 #'
-#' @details If `theta` is not specified, *n* equally spaced quadrature points
-#' and corresponding weights are generated from either the normal or uniform
+#' @details If `theta` is not specified, *n* quadrature points and
+#' corresponding weights are generated from either the normal or uniform
 #' distribution:
 #' - When `dist = "norm"`, Gaussian quadrature points and weights are computed
 #' using `gauss.quad.prob()` from the \pkg{statmod} package.

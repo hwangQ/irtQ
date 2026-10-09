@@ -1,5 +1,5 @@
-# make sure that the item metadata has a correct data frame format and
-# all components that are required to be used for the IRT analyses
+# Check that the item metadata is a correctly formatted data frame with all
+# components required for IRT analyses, and standardize it
 confirm_df <- function(x, g2na = FALSE) {
   # change all factor variables into character variables
   x <- data.frame(x, stringsAsFactors = FALSE)
@@ -9,7 +9,7 @@ confirm_df <- function(x, g2na = FALSE) {
   catsGood <- all(x[, 2] >= 1)
   if (!modelGood) {
     stop(paste0(
-      "At least, one model name is mis-specified under the model column. \n",
+      "At least one model name is mis-specified in the model column.\n",
       "Available model names are 1PLM, 2PLM, 3PLM, DRM, GRM, and GPCM"
     ), call. = FALSE)
   }
@@ -20,21 +20,18 @@ confirm_df <- function(x, g2na = FALSE) {
     ), call. = FALSE)
   }
 
-  # add "par.3" (guessing parameter) column when there is no par.3 column
-  # just in case that all items are 2PLMs
+  # add a par.3 (guessing parameter) column when it is missing and all items are 2PLM
   if (ncol(x[, -c(1, 2, 3)]) == 2) {
     if (all(x[, 3] == "2PLM")) {
       x <- data.frame(x, par.3 = NA)
     } else {
-      stop("Add par.3 column in the item metadata argumetn 'x'.", call. = FALSE)
+      stop("Add a par.3 column to the item metadata 'x'.", call. = FALSE)
     }
   }
 
   # remove the parameter columns with all NAs except par.1
-  # col.na.lg <- Rfast::colAll(is.na(x[, -c(1:3)]))
   col.na.lg <- Rfast::colAll(is.na(x[, -c(1:4)]))
   if (!all(col.na.lg)) {
-    # x <- x[, c(!logical(3), !col.na.lg)]
     x <- x[, c(!logical(4), !col.na.lg)]
   }
 
