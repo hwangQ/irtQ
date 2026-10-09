@@ -134,9 +134,6 @@ llike_score <- function(x,
   data$resp <- factor(data$resp, levels = (seq_len(max.cats) - 1))
   data$std <- as.numeric(data$std)
 
-  # create a score table to contain the scoring results
-  rst <- data.frame(std = 1:nstd)
-
   # compute the log-likelihood values for all the discrete theta values
   lls <-
     purrr::map(

@@ -371,11 +371,6 @@ est_score.default <- function(x,
     # pre-populate elm_item with pars, model, cats, id from item metadata
     elm_item <- breakdown(x)
 
-    # classify DRM/PRM items once for the full item set, outside the loop
-    idx_full     <- idxfinder(elm_item)
-    idx_drm_full <- idx_full$idx.drm
-    idx_prm_full <- idx_full$idx.prm
-
     # pre-compute quadrature points once for EAP method (not per examinee)
     popdist <- if (method == "EAP") {
       if (is.null(weights)) {
@@ -402,64 +397,15 @@ est_score.default <- function(x,
 
     # estimation
     if (ncore == 1L) {
-      # score each examinee directly from the raw response row;
-      # no wide-to-long transformation needed
-      est <- lapply(seq_len(nstd), function(i) {
-        resp_vec_i <- data[i, ]
-
-        # subset to non-NA items
-        na_mask <- !is.na(resp_vec_i)
-
-        # return NA immediately for examinees with all missing responses
-        if (!any(na_mask)) {
-          return(data.frame(est.theta = NA_real_, se.theta = NA_real_))
-        }
-
-        # subset elm_item to observed (non-NA) items only
-        elm_sub       <- elm_item
-        elm_sub$pars  <- elm_item$pars[na_mask, , drop = FALSE]
-        elm_sub$model <- elm_item$model[na_mask]
-        elm_sub$cats  <- elm_item$cats[na_mask]
-
-        # numeric response vector for the observed items
-        resp_sub <- as.numeric(resp_vec_i[na_mask])
-
-        # observed sum score for stval.opt==2 starting value (computed once here)
-        obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
-
-        # map pre-computed full-item DRM/PRM indices to the non-NA subset
-        if (all(na_mask)) {
-          # no missing items: pre-computed indices apply directly
-          idx_drm_i <- idx_drm_full
-          idx_prm_i <- idx_prm_full
-        } else {
-          # some missing items: remap to local positions in the observed subset
-          na_pos    <- which(na_mask)
-          idx_drm_i <- if (!is.null(idx_drm_full)) {
-            x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
-          } else NULL
-          idx_prm_i <- if (!is.null(idx_prm_full)) {
-            x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
-          } else NULL
-        }
-
-        est_score_indiv(
-          resp_vec = resp_sub,
-          elm_item = elm_sub,
-          max.cats = max.cats,
-          idx.drm  = idx_drm_i,
-          idx.prm  = idx_prm_i,
-          D = D, method = method,
-          range = range, norm.prior = norm.prior, nquad = nquad,
-          weights = weights, tol = tol, max.iter = max.iter, se = se,
-          stval.opt = stval.opt, ji = ji,
-          obs.sum = obs_sum_i,
-          popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
-        )
-      })
-
-      # combine per-examinee results into a single data frame
-      rst <- do.call(rbind, est)
+      # score all examinees in the current process
+      rst <- est_score_1core(
+        elm_item = elm_item, data = data, D = D,
+        method = method, max.cats = max.cats,
+        range = range, norm.prior = norm.prior,
+        tol = tol, max.iter = max.iter,
+        se = se, stval.opt = stval.opt, ji = ji,
+        popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
+      )
     } else {
       # create a parallel processing cluster
       cl <- parallel::makeCluster(ncore, ...)
@@ -482,8 +428,8 @@ est_score.default <- function(x,
       # export pre-populated elm_item, pre-computed popdist, and required functions.
       parallel::clusterExport(cl, c(
         "elm_item", "popdist", "D", "method",
-        "max.cats", "range", "norm.prior", "nquad",
-        "weights", "tol", "max.iter", "se", "stval.opt", "ji",
+        "max.cats", "range", "norm.prior",
+        "tol", "max.iter", "se", "stval.opt", "ji",
         "est_score_1core", "est_score_indiv", "idxfinder",
         "ll_score", "drm", "prm", "gpcm", "grm",
         "logprior_deriv", "esprior_norm",
@@ -498,8 +444,8 @@ est_score.default <- function(x,
         est_score_1core(
           elm_item = elm_item, data = subdat, D = D,
           method = method, max.cats = max.cats,
-          range = range, norm.prior = norm.prior, nquad = nquad,
-          weights = weights, tol = tol, max.iter = max.iter,
+          range = range, norm.prior = norm.prior,
+          tol = tol, max.iter = max.iter,
           se = se, stval.opt = stval.opt, ji = ji,
           popdist = popdist        # pre-computed quadrature passed to workers
         )
@@ -545,7 +491,6 @@ est_score.default <- function(x,
 #' @describeIn est_score Method for an object of class `est_irt`. The item
 #'  parameter estimates, response data, and scaling constant `D` are taken from
 #'  `x`.
-#' @importFrom dplyr bind_rows
 #' @export
 est_score.est_irt <- function(x,
                               method = "ML",
@@ -564,228 +509,15 @@ est_score.est_irt <- function(x,
                               missing = NA,
                               ncore = 1,
                               ...) {
-  # extract information from an object
-  data <- x$data
-  D <- x$scale.D
-  x <- x$par.est
-
-  # convert a single examinee's response vector to a one-row matrix
-  if (is.vector(data)) {
-    data <- rbind(data)
-  }
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # check the number of examinees
-  nstd <- nrow(data)
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # scoring of ML, WL, MLF, MAP, and EAP
-  if (method %in% c("ML", "MAP", "WL", "EAP", "MLF")) {
-    # check if the method is WL
-    # if TRUE, ji = TRUE
-    ji <- ifelse(method == "WL", TRUE, FALSE)
-
-    # add two fence items and their responses when MLF is used
-    if (method == "MLF") {
-      # when fence.b = NULL, use the range argument as the fence.b argument
-      if (is.null(fence.b)) {
-        fence.b <- range
-      }
-
-      # add two more response columns for the two fence items
-      data <- cbind(data, f.lower = 1, f.upper = 0)
-
-      # create item metadata for the two fence items
-      x.fence <- shape_df(
-        par.drm = list(a = rep(fence.a, 2), b = fence.b, g = rep(0, 2)),
-        item.id = c("fence.lower", "fence.upper"), cats = 2,
-        model = "3PLM"
-      )
-
-      # create the new item metadata by adding two fence items
-      x <- dplyr::bind_rows(x, x.fence)
-    }
-
-    # check the maximum score category across all items
-    max.cats <- max(x$cats)
-
-    # pre-populate elm_item with pars, model, cats, id from item metadata
-    elm_item <- breakdown(x)
-
-    # classify DRM/PRM items once for the full item set, outside the loop
-    idx_full     <- idxfinder(elm_item)
-    idx_drm_full <- idx_full$idx.drm
-    idx_prm_full <- idx_full$idx.prm
-
-    # pre-compute quadrature points once for EAP method (not per examinee)
-    popdist <- if (method == "EAP") {
-      if (is.null(weights)) {
-        gen.weight(n = nquad, dist = "norm", mu = norm.prior[1], sigma = norm.prior[2])
-      } else {
-        data.frame(weights)
-      }
-    } else NULL
-
-    # check the number of CPU cores
-    if (ncore < 1) {
-      stop("The number of logical CPU cores must not be less than 1.", call. = FALSE)
-    }
-
-    # warn when parallel overhead likely exceeds computation gain
-    if (ncore > 1 && nstd < 5000) {
-      warning(
-        "ncore > 1 is not recommended for N < 5,000 ",
-        "as parallel overhead exceeds computation time. ",
-        "Consider using ncore = 1.",
-        call. = FALSE
-      )
-    }
-
-    # estimation
-    if (ncore == 1L) {
-      # score each examinee directly from the raw response row;
-      # no wide-to-long transformation needed
-      est <- lapply(seq_len(nstd), function(i) {
-        resp_vec_i <- data[i, ]
-
-        # subset to non-NA items
-        na_mask <- !is.na(resp_vec_i)
-
-        # return NA immediately for examinees with all missing responses
-        if (!any(na_mask)) {
-          return(data.frame(est.theta = NA_real_, se.theta = NA_real_))
-        }
-
-        # subset elm_item to observed (non-NA) items only
-        elm_sub       <- elm_item
-        elm_sub$pars  <- elm_item$pars[na_mask, , drop = FALSE]
-        elm_sub$model <- elm_item$model[na_mask]
-        elm_sub$cats  <- elm_item$cats[na_mask]
-
-        # numeric response vector for the observed items
-        resp_sub <- as.numeric(resp_vec_i[na_mask])
-
-        # observed sum score for stval.opt==2 starting value (computed once here)
-        obs_sum_i <- if (stval.opt == 2L) sum(resp_sub) else NULL
-
-        # map pre-computed full-item DRM/PRM indices to the non-NA subset
-        if (all(na_mask)) {
-          # no missing items: pre-computed indices apply directly
-          idx_drm_i <- idx_drm_full
-          idx_prm_i <- idx_prm_full
-        } else {
-          # some missing items: remap to local positions in the observed subset
-          na_pos    <- which(na_mask)
-          idx_drm_i <- if (!is.null(idx_drm_full)) {
-            x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
-          } else NULL
-          idx_prm_i <- if (!is.null(idx_prm_full)) {
-            x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
-          } else NULL
-        }
-
-        est_score_indiv(
-          resp_vec = resp_sub,
-          elm_item = elm_sub,
-          max.cats = max.cats,
-          idx.drm  = idx_drm_i,
-          idx.prm  = idx_prm_i,
-          D = D, method = method,
-          range = range, norm.prior = norm.prior, nquad = nquad,
-          weights = weights, tol = tol, max.iter = max.iter, se = se,
-          stval.opt = stval.opt, ji = ji,
-          obs.sum = obs_sum_i,
-          popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
-        )
-      })
-
-      # combine per-examinee results into a single data frame
-      rst <- do.call(rbind, est)
-    } else {
-      # create a parallel processing cluster
-      cl <- parallel::makeCluster(ncore, ...)
-
-      # divide response data into ncore equal chunks
-      quotient <- nstd %/% ncore
-      remain <- nstd %% ncore
-      data_list <- vector("list", ncore)
-      for (k in 1:ncore) {
-        if (k == ncore & remain != 0) {
-          data_list[[k]] <- data[((k - 1) * quotient + 1):(quotient * k + remain), ]
-        } else {
-          data_list[[k]] <- data[((k - 1) * quotient + 1):(quotient * k), ]
-        }
-      }
-
-      # delete 'data' object
-      rm(data, envir = environment(), inherits = FALSE)
-
-      # export pre-populated elm_item, pre-computed popdist, and required functions.
-      parallel::clusterExport(cl, c(
-        "elm_item", "popdist", "D", "method",
-        "max.cats", "range", "norm.prior", "nquad",
-        "weights", "tol", "max.iter", "se", "stval.opt", "ji",
-        "est_score_1core", "est_score_indiv", "idxfinder",
-        "ll_score", "drm", "prm", "gpcm", "grm",
-        "logprior_deriv", "esprior_norm",
-        "info_score", "info_drm", "info_prm",
-        "gen.weight"
-      ), envir = environment())
-      # pre-load Rfast on workers (used in ll_score, info_drm, etc.)
-      parallel::clusterEvalQ(cl, library(Rfast))
-
-      # set a function for scoring
-      fsm <- function(subdat) {
-        est_score_1core(
-          elm_item = elm_item, data = subdat, D = D,
-          method = method, max.cats = max.cats,
-          range = range, norm.prior = norm.prior, nquad = nquad,
-          weights = weights, tol = tol, max.iter = max.iter,
-          se = se, stval.opt = stval.opt, ji = ji,
-          popdist = popdist        # pre-computed quadrature passed to workers
-        )
-      }
-
-      # parallel scoring
-      est <- parallel::parLapply(cl = cl, X = data_list, fun = fsm)
-
-      # finish
-      parallel::stopCluster(cl)
-
-      # combine the results
-      rst <- do.call(what = "rbind", args = est)
-    }
-
-    # return a warning message when some examinees have all missing responses
-    loc.na <- which(is.na(rst$est.theta))
-    if (length(loc.na) > 0) {
-      memo <- "NA values are returned for examinees with all missing responses."
-      warning(memo, call. = FALSE)
-    }
-  }
-
-  if (method == "EAP.SUM") {
-    rst <- eap_sum(
-      x = x, data = data, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, D = D
-    )
-  }
-
-  if (method == "INV.TCC") {
-    rst <- inv_tcc(x, data,
-      D = D, intpol = intpol, range.tcc = range.tcc,
-      tol = tol, max.it = 500
-    )
-  }
-
-  # return results
-  rst
+  # score the stored response data with the stored item estimates and scaling constant
+  est_score.default(
+    x = x$par.est, data = x$data, D = x$scale.D, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, fence.a = fence.a, fence.b = fence.b,
+    tol = tol, max.iter = max.iter, se = se, stval.opt = stval.opt,
+    intpol = intpol, range.tcc = range.tcc, missing = missing,
+    ncore = ncore, ...
+  )
 }
 
 
@@ -797,8 +529,6 @@ est_score_1core <- function(elm_item,
                             max.cats,
                             range = c(-4, 4),
                             norm.prior = c(0, 1),
-                            nquad = 41,
-                            weights = NULL,
                             tol = 1e-4,
                             max.iter = 30,
                             se = TRUE,
@@ -841,10 +571,10 @@ est_score_1core <- function(elm_item,
     } else {
       na_pos    <- which(na_mask)
       idx_drm_i <- if (!is.null(idx_drm_full)) {
-        x <- which(na_pos %in% idx_drm_full); if (length(x) == 0L) NULL else x
+        loc <- which(na_pos %in% idx_drm_full); if (length(loc) == 0L) NULL else loc
       } else NULL
       idx_prm_i <- if (!is.null(idx_prm_full)) {
-        x <- which(na_pos %in% idx_prm_full); if (length(x) == 0L) NULL else x
+        loc <- which(na_pos %in% idx_prm_full); if (length(loc) == 0L) NULL else loc
       } else NULL
     }
 
@@ -855,8 +585,8 @@ est_score_1core <- function(elm_item,
       idx.drm  = idx_drm_i,
       idx.prm  = idx_prm_i,
       D = D, method = method,
-      range = range, norm.prior = norm.prior, nquad = nquad,
-      weights = weights, tol = tol, max.iter = max.iter, se = se,
+      range = range, norm.prior = norm.prior,
+      tol = tol, max.iter = max.iter, se = se,
       stval.opt = stval.opt, ji = ji,
       obs.sum = obs_sum_i,
       popdist = popdist        # pre-computed quadrature (NULL for non-EAP)
@@ -871,8 +601,8 @@ est_score_1core <- function(elm_item,
 # This function computes an ability estimate for a single examinee (ML, WL, MLF, MAP, EAP)
 est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
                             D = 1, method = "ML",
-                            range = c(-4, 4), norm.prior = c(0, 1), nquad = 41,
-                            weights = NULL, tol = 1e-4, max.iter = 30, se = TRUE,
+                            range = c(-4, 4), norm.prior = c(0, 1),
+                            tol = 1e-4, max.iter = 30, se = TRUE,
                             stval.opt = 1, ji = FALSE, obs.sum = NULL,
                             popdist = NULL) {
   # elm_item is pre-populated (pars, model, cats) for the observed (non-NA) items only;

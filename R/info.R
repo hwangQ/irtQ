@@ -449,7 +449,7 @@ info_score <- function(theta, elm_item, freq.cat, idx.drm, idx.prm,
     for (mod in pr.mod) {
       # extract the response, model, and item parameters
       lg.prm <- elm_item$model == mod
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
+      par.tmp <- elm_item$pars[lg.prm, , drop = FALSE]
       r_i <- freq.cat[lg.prm, , drop = FALSE]
       a <- par.tmp[, 1]
       d <- par.tmp[, -1, drop = FALSE]

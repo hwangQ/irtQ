@@ -25,108 +25,20 @@ inv_tcc <- function(x, data, D = 1, intpol = TRUE, range.tcc = c(-7, 7), tol = 1
     warning(memo, call. = FALSE)
   }
 
-  # break down the item metadata into several elements
-  elm_item <- breakdown(x)
-
-  ## extract score category information
-  cats <- elm_item$cats
-
-  # classify the items into DRM and PRM item groups
-  idx.item <- idxfinder(elm_item)
-  idx.drm <- idx.item$idx.drm
-
-  # set all available observed sum scores
-  obs.score <- 0:sum(cats - 1)
-
-  # possible maximum total observed sum score
-  max.obs <- max(obs.score)
-
-  # a set of indexes of observed sum scores whose corresponding
-  # theta scores will be found
-  obs2theta.lg <- logical(length(obs.score))
-
-  # admissible sum scores for the root search
-  # when DRM items exist
-  # \sum c_j < \tau < K, eq (6.19), Kolen & Brennan (2004, p.176)
-  if (!is.null(idx.drm)) {
-    g_sum <- sum(elm_item$pars[idx.drm, 3])
-    if (max.obs == 1) {
-      idx.score <- NULL
-    } else if (ceiling(g_sum) == g_sum) {
-      # when g_sum is an integer, the smallest sum score with a root
-      # is g_sum + 1
-      idx.score <- ((ceiling(g_sum) + 1):(max.obs - 1) + 1)
-    } else {
-      idx.score <- (ceiling(g_sum):(max.obs - 1) + 1)
-    }
-  } else {
-    g_sum <- 0
-    idx.score <- ((g_sum + 1):(max.obs - 1) + 1)
-  }
-
-  # update the score index
-  obs2theta.lg[idx.score] <- TRUE
-
-  # a vector of thetas corresponding to the observed sum scores
-  thetas <- rep(NA, length(obs.score))
-
-  # a function to estimate a theta corresponding to the observed sum score
-  # fun(theta) = tau - \sum p(theta), eq (6.21), Kolen & Brennan (2004, p.177)
-  f.o2t <- function(theta, tau) {
-    tau - trace(elm_item = elm_item, theta = theta, D = D, tcc = TRUE)$tcc
-  }
-
-  # compute tcc values at discrete theta nodes
-  theta.nodes <- seq(-20, 20, 0.01)
-  tcc.vals <- trace(elm_item = elm_item, theta = theta.nodes, D = D, tcc = TRUE)$tcc
-
-  # find the thetas for all admissible sum scores
-  th4obs <- purrr::map_dbl(
-    .x = obs.score[obs2theta.lg],
-    .f = function(x) {
-      loc.node <- which(diff(sign(x - tcc.vals)) != 0)
-      bd <- theta.nodes[c(loc.node, loc.node + 1)]
-      bisection(
-        .fun = f.o2t, tau = x, lb = bd[1], ub = bd[2], tol = tol,
-        max.it = max.it
-      )$root
-    }
+  # find the ability estimates for all possible observed sum scores
+  tab <- inv_tcc_nr(
+    x = x, D = D, intpol = intpol, range.tcc = range.tcc, tol = tol,
+    max.it = max.it
   )
-  thetas[obs2theta.lg] <- th4obs
 
-  # if intpol = TRUE, interpolate linearly for sum scores less than or equal
-  # to g_sum and assign range.tcc[2] to the maximum sum score
-  if (intpol) {
-    if (max.obs == 1) {
-      # the test has a single dichotomous item
-      thetas <- range.tcc
-      obs2theta.lg <- c(TRUE, TRUE)
-    } else if (range.tcc[1] > th4obs[1]) {
-      memo <- paste0(
-        "A lower bound of theta must be less than ", round(th4obs[1], 3), "\n",
-        "Set a lower bound below this value in the 'range.tcc' argument."
-      )
-      warning(memo, call. = FALSE)
-    } else if (range.tcc[2] < utils::tail(th4obs, 1)) {
-      memo <- paste0(
-        "An upper bound of theta must be greater than ", round(utils::tail(th4obs, 1), 3), "\n",
-        "Set an upper bound above this value in the 'range.tcc' argument."
-      )
-      warning(memo, call. = FALSE)
-    } else {
-      if (g_sum > 0) {
-        lessg.score <- 0:(obs.score[idx.score[1]] - 1)
-        slope <- obs.score[obs2theta.lg][1] / (th4obs[1] - range.tcc[1])
-        intercept <- -slope * range.tcc[1]
-        lessg.theta <- (lessg.score - intercept) / slope
-        thetas[!obs2theta.lg] <- c(lessg.theta, range.tcc[2])
-        thetas[is.nan(thetas)] <- range.tcc[1]
-      } else {
-        thetas[!obs2theta.lg] <- range.tcc
-      }
-      obs2theta.lg[!obs2theta.lg] <- TRUE
-    }
-  }
+  # extract the observed sum scores
+  obs.score <- tab$sum.score
+
+  # extract the ability estimates without names
+  thetas <- unname(tab$est.theta)
+
+  # flag the observed sum scores that have an ability estimate
+  obs2theta.lg <- !is.na(thetas)
 
   # a vector of SEs corresponding to all thetas
   se.theta <- rep(NA, length(obs.score))
@@ -284,9 +196,6 @@ inv_tcc_nr <- function(x, D = 1, intpol = TRUE, range.tcc = c(-7, 7),
       obs2theta.lg[!obs2theta.lg] <- TRUE
     }
   }
-
-  # a vector of theta excluding NAs
-  thetas.nona <- thetas[obs2theta.lg]
 
   # Table of the estimated thetas corresponding to each observed score
   names(thetas) <- obs.score
