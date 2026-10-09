@@ -6,7 +6,8 @@ confirm_df <- function(x, g2na = FALSE) {
   x <- purrr::modify_if(x, is.factor, as.character)
   x[, 3] <- toupper(x[, 3])
   modelGood <- all(x[, 3] %in% c("1PLM", "2PLM", "3PLM", "DRM", "GRM", "GPCM"))
-  catsGood <- all(x[, 2] >= 1)
+  # require a known number of at least two score categories for every item
+  catsGood <- !anyNA(x[, 2]) && all(x[, 2] >= 2)
   if (!modelGood) {
     stop(paste0(
       "At least one model name is mis-specified in the model column.\n",
@@ -15,8 +16,8 @@ confirm_df <- function(x, g2na = FALSE) {
   }
   if (!catsGood) {
     stop(paste0(
-      "At least, one score category is less than 2 under the cats column.\n",
-      "Any score category should have the number greater than 1"
+      "At least one score category count in the cats column is missing or less than 2.\n",
+      "Each item must have at least two score categories."
     ), call. = FALSE)
   }
 
@@ -37,6 +38,33 @@ confirm_df <- function(x, g2na = FALSE) {
 
   # re-assign column names
   colnames(x) <- c("id", "cats", "model", paste0("par.", 1:(ncol(x) - 3)))
+
+  # check that every parameter column is numeric or logical (all NA)
+  par.num <- vapply(
+    x[, -(1:3), drop = FALSE],
+    function(v) is.numeric(v) || is.logical(v), logical(1)
+  )
+  # stop on text columns, which breakdown() would turn into factor codes
+  if (!all(par.num)) {
+    stop("All item parameter columns in 'x' must be numeric.", call. = FALSE)
+  }
+
+  # stop when a dichotomous model is given a number of score categories other than two
+  if (any(x$model %in% c("1PLM", "2PLM", "3PLM", "DRM") & x$cats != 2)) {
+    stop("Dichotomous items (1PLM, 2PLM, 3PLM, DRM) must have cats = 2.", call. = FALSE)
+  }
+
+  # threshold columns that follow the slope column
+  thr <- as.matrix(x[, -(1:4), drop = FALSE])
+  if (ncol(thr) > 0L) {
+    # flag thresholds placed beyond the cats - 1 thresholds of a polytomous item
+    thr.extra <- (x$model %in% c("GRM", "GPCM")) & (x$cats > 2) &
+      (col(thr) > (x$cats - 1)) & !is.na(thr)
+    # stop instead of using the extra thresholds in the category probabilities
+    if (any(thr.extra)) {
+      stop("A polytomous item has more threshold parameters than cats - 1.", call. = FALSE)
+    }
+  }
 
   # handle the g parameters for the 1PLM and 2PLM
   if (g2na) {

@@ -137,6 +137,54 @@ test_that("confirm_df() errors when par.3 column missing and model is not all-2P
   expect_error(confirm_df(x), "par.3")
 })
 
+test_that("confirm_df() errors when a parameter column holds text", {
+  x <- make_drm_df("2PLM")
+  x$par.1 <- c("1.2", "0.9")
+  expect_error(confirm_df(x), "numeric")
+
+  # an all-NA logical column is not text
+  y <- make_drm_df("2PLM")
+  y$par.3 <- NA
+  expect_no_error(confirm_df(y))
+})
+
+test_that("confirm_df() errors when cats is missing or less than 2", {
+  x <- make_drm_df("3PLM")
+  x$cats[2] <- 1L
+  expect_error(confirm_df(x), "score category")
+
+  x$cats[2] <- NA
+  expect_error(confirm_df(x), "score category")
+})
+
+test_that("confirm_df() errors when a dichotomous model has cats other than 2", {
+  x <- make_drm_df("3PLM")
+  x$cats[1] <- 3L
+  expect_error(confirm_df(x), "cats = 2")
+})
+
+test_that("confirm_df() errors when a polytomous item has more thresholds than cats - 1", {
+  # two GRM items with 3 and 4 categories, where the first has a third threshold
+  x <- data.frame(
+    id = c("A", "B"), cats = c(3L, 4L), model = "GRM", par.1 = c(1, 1.2),
+    par.2 = c(-1, -1), par.3 = c(0, 0), par.4 = c(1, 1)
+  )
+  expect_error(confirm_df(x), "more threshold parameters")
+
+  # NA in the unused threshold cell is accepted
+  x$par.4[1] <- NA
+  expect_no_error(confirm_df(x))
+})
+
+test_that("confirm_df() accepts a GRM item with two categories", {
+  x <- data.frame(
+    id = c("A", "B"), cats = c(2L, 3L), model = "GRM", par.1 = c(1, 1.2),
+    par.2 = c(0.3, -1), par.3 = c(NA, 0.5)
+  )
+  r <- confirm_df(x)
+  expect_equal(r$cats, c(2, 3))
+})
+
 test_that("confirm_df() adds par.3 when every item is 1PLM or 2PLM", {
   # all 1PLM items without a par.3 column
   x1 <- data.frame(id = c("A", "B"), cats = 2L, model = "1PLM", par.1 = 1, par.2 = c(0, 1))
