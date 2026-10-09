@@ -136,3 +136,19 @@ test_that("confirm_df() errors when par.3 column missing and model is not all-2P
   )
   expect_error(confirm_df(x), "par.3")
 })
+
+test_that("confirm_df() adds par.3 when every item is 1PLM or 2PLM", {
+  # all 1PLM items without a par.3 column
+  x1 <- data.frame(id = c("A", "B"), cats = 2L, model = "1PLM", par.1 = 1, par.2 = c(0, 1))
+  r1 <- confirm_df(x1)
+  expect_equal(r1$par.3, c(0, 0))
+
+  # a mixture of 1PLM and 2PLM items without a par.3 column
+  x2 <- data.frame(
+    id = c("A", "B"), cats = 2L, model = c("1PLM", "2PLM"),
+    par.1 = c(1, 1.3), par.2 = c(0, 1)
+  )
+  r2 <- confirm_df(x2)
+  expect_equal(r2$par.3, c(0, 0))
+  expect_equal(r2$par.2, c(0, 1))
+})

@@ -20,12 +20,12 @@ confirm_df <- function(x, g2na = FALSE) {
     ), call. = FALSE)
   }
 
-  # add a par.3 (guessing parameter) column when it is missing and all items are 2PLM
+  # add a par.3 (guessing parameter) column when it is missing and all items are 1PLM or 2PLM
   if (ncol(x[, -c(1, 2, 3)]) == 2) {
-    if (all(x[, 3] == "2PLM")) {
+    if (all(x[, 3] %in% c("1PLM", "2PLM"))) {
       x <- data.frame(x, par.3 = NA)
     } else {
-      stop("Add a par.3 column to the item metadata 'x'.", call. = FALSE)
+      stop("Add a par.3 column to the item metadata 'x' unless all items are 1PLM or 2PLM.", call. = FALSE)
     }
   }
 
