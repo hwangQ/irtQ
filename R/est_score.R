@@ -11,8 +11,8 @@
 #'
 #' @inheritParams est_irt
 #' @param x A data frame containing item metadata (e.g., item parameters, number
-#'   of categories, IRT model types, etc.); or an object of class `est_irt`
-#'   obtained from [irtQ::est_irt()], or `est_item` from [irtQ::est_item()].
+#'   of categories, IRT model types, etc.), or an object of class `est_irt` or
+#'   `est_item` obtained from [irtQ::est_irt()] or [irtQ::est_item()].
 #'
 #'   See [irtQ::est_irt()] or [irtQ::simdat()] for more details about the item
 #'   metadata. This data frame can be easily created using the
@@ -56,16 +56,18 @@
 #' @param fence.b A numeric vector of length two specifying the difficulty (*b*)
 #'   parameters of the lower and upper fence items used in MLF. If `NULL`, the
 #'   values in `range` are used. Default is `NULL`.
-#' @param tol A numeric value specifying the convergence tolerance. For `"ML"`,
-#'   `"MLF"`, `"WL"`, and `"MAP"`, the Newton-Raphson iterations stop when the
-#'   absolute update is less than `tol`. For `"INV.TCC"`, the bisection search
-#'   stops when the search interval is no wider than `tol`. Default is 1e-4.
-#' @param max.iter A positive integer specifying the maximum number of
-#'   Newton-Raphson iterations for `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`.
-#'   Default is 100.
+#' @param tol A positive numeric value specifying the convergence tolerance. For
+#'   `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`, the Fisher scoring iterations stop
+#'   when the absolute update is less than `tol`, and `tol` is also the
+#'   tolerance of the root search used when the iterations do not converge. For
+#'   `"INV.TCC"`, the bisection search stops when the search interval is no
+#'   wider than `tol`. Default is 1e-4.
+#' @param max.iter A positive integer specifying the maximum number of Fisher
+#'   scoring iterations for `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`. Default is
+#'   100. See **Details** for the case where the iterations do not converge.
 #' @param stval.opt A positive integer specifying the starting value option for
 #'   the ML, MLF, WL, and MAP scoring methods. Available options are:
-#'   - 1: Brute-force search (default)
+#'   - 1: Grid search (default)
 #'   - 2: Based on observed sum scores
 #'   - 3: Fixed at 0
 #'
@@ -110,9 +112,9 @@
 #'
 #'   For `"INV.TCC"`, the ability estimate for a sum score X is the root of
 #'   TCC(theta) = X, found by the bisection method (Howard, 2017). No root
-#'   exists for the maximum possible sum score or, when the test includes items
-#'   with guessing parameters, for sum scores less than or equal to the sum of
-#'   the guessing parameters (for score 0 when the sum is 0). With
+#'   exists for the maximum possible sum score or for sum scores less than or
+#'   equal to the sum of the guessing parameters, which is only the score 0 when
+#'   there are no guessing parameters. With
 #'   `intpol = TRUE`, these scores receive estimates as follows. Let
 #'   \eqn{\theta_{min}} and \eqn{\theta_{max}} be the first and second values
 #'   of `range.tcc`, and let \eqn{\theta_{X}} be the estimate for the smallest
@@ -124,12 +126,15 @@
 #'   below the largest root, a warning is issued and no values are
 #'   assigned. With `intpol = FALSE`, these scores receive `NA`.
 #'
-#'   For `"INV.TCC"`, the standard error for sum score X is the standard
+#'   For `"INV.TCC"`, the standard error for a sum score is the standard
 #'   deviation of the inverse TCC estimates over the conditional sum score
-#'   distribution at \eqn{\theta_{X}}, computed with the Lord-Wingersky
-#'   recursion (Lim et al., 2021; see [irtQ::lwrc()]). The implementation is
-#'   based on a modified version of `SNSequate::irt.eq.tse()` from the
-#'   \pkg{SNSequate} package (Gonzalez, 2014).
+#'   distribution at the estimate for that score, computed with the
+#'   Lord-Wingersky recursion (Lim et al., 2021; see [irtQ::lwrc()]). When some
+#'   sum scores have no estimate (`intpol = FALSE`, or the warning described
+#'   above), the distribution is restricted to the sum scores with an estimate
+#'   and rescaled to sum to one. The implementation is based on a modified
+#'   version of `SNSequate::irt.eq.tse()` from the \pkg{SNSequate} package
+#'   (Gonzalez, 2014).
 #'
 #'   For the ML, MLF, WL, and MAP scoring methods, different strategies can be
 #'   used to determine the starting value for ability estimation based on the
@@ -142,12 +147,31 @@
 #'
 #'   - When `stval.opt = 2`, the starting value is the log-odds of the
 #'   observed sum score `obs.score` relative to the maximum possible score
-#'   `max.score`, both computed over the nonmissing items:
+#'   `max.score`, both computed over the non-missing items:
 #'   `log(obs.score / (max.score - obs.score))`.
 #'     - If `obs.score = 0`, the starting value is `log(1 / max.score)`.
 #'     - If `obs.score = max.score`, the starting value is `log(max.score)`.
 #'
 #'   - When `stval.opt = 3`, the starting value is fixed at 0.
+#'
+#'   For the ML, MLF, WL, and MAP scoring methods, the estimate is found by
+#'   Fisher scoring. This is a Newton-type iteration that divides the first
+#'   derivative of the log-likelihood (of the log-posterior for `"MAP"`, or
+#'   Warm's weighted score function for `"WL"`) by the expected Fisher
+#'   information instead of the observed second derivative, and a single update
+#'   is capped at 1 in absolute value. The iterations stop when the absolute
+#'   update is less than `tol`. If they have not converged after `max.iter`
+#'   iterations (for example, when the iterations alternate between two values
+#'   for a low-scoring examinee on a test with 3PLM items), the estimate is
+#'   found as follows. Among the values visited during the iterations, the
+#'   function takes the closest pair in which the score function (the
+#'   derivative above) is positive at the lower value and negative at the
+#'   upper value, so that the pair encloses a local maximum, and finds the root
+#'   of the score function between them with [stats::uniroot()] using the
+#'   tolerance `tol`. If there is no such pair, the last value of the
+#'   iterations is used. In both cases the estimate is then truncated to
+#'   `range`. This step is not carried out when the iterations converge. The
+#'   standard error is computed at the final estimate.
 #'
 #'   For `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, and `"EAP"`, examinees can be scored
 #'   in parallel by setting `ncore` greater than 1. A warning is issued when
@@ -786,7 +810,7 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
       theta <- 0
     }
 
-    # estimate an ability using Newton-Raphson
+    # estimate an ability using Fisher scoring
     # set the iteration number to 0
     i <- 0
     abs_delta <- 1

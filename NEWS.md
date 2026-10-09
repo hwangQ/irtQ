@@ -90,9 +90,9 @@
 
 - `est_score()` with `method = "INV.TCC"` returned wrong standard errors
   when `intpol = FALSE` or when the interpolation was skipped with a
-  warning (a `range.tcc` that is too narrow), because the standard
-  deviation was taken over a score distribution that included sum scores
-  without an estimate. It is now taken over the sum scores that have an
+  warning (a `range.tcc` that is too narrow), because the estimates were
+  paired with the wrong sum scores of the score distribution. The
+  standard deviation is now taken over the sum scores that have an
   estimate. Results with `intpol = TRUE` and no warning are unchanged.
 
 - `est_score()` with `method = "MLF"` gave an examinee with all
@@ -151,7 +151,8 @@
 - `est_score()` stops with a clear message when `data` has a number of
   columns other than the number of items (it scored the wrong items
   before), when a response is not an integer within the categories of
-  its item, and when `method` or `stval.opt` is not valid. For an
+  its item, and when `method`, `stval.opt`, `tol`, or `max.iter` is not
+  valid (a `max.iter` below 1 removed the iteration limit). For an
   `est_irt` object, supplying `data` or `D` is now an error instead of
   being ignored.
 

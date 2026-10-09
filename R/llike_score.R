@@ -40,7 +40,8 @@
 #'   `method = "MAP"`).
 #' - Each **row** corresponds to a value of `theta`.
 #' - Each **column** corresponds to an examinee and is named `Resp.1`,
-#'   `Resp.2`, and so on.
+#'   `Resp.2`, and so on. Examinees without any observed response have `NA` in
+#'   their column.
 #'
 #' @examples
 #' ## Import the "-prm.txt" output file from flexMIRT

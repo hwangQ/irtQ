@@ -73,8 +73,8 @@ est_score(x, ...)
 }
 \arguments{
 \item{x}{A data frame containing item metadata (e.g., item parameters, number
-of categories, IRT model types, etc.); or an object of class \code{est_irt}
-obtained from \code{\link[=est_irt]{est_irt()}}, or \code{est_item} from \code{\link[=est_item]{est_item()}}.
+of categories, IRT model types, etc.), or an object of class \code{est_irt} or
+\code{est_item} obtained from \code{\link[=est_irt]{est_irt()}} or \code{\link[=est_item]{est_item()}}.
 
 See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for more details about the item
 metadata. This data frame can be easily created using the
@@ -139,14 +139,16 @@ two fence items used in MLF. See \strong{Details} below. Default is 3.0.}
 parameters of the lower and upper fence items used in MLF. If \code{NULL}, the
 values in \code{range} are used. Default is \code{NULL}.}
 
-\item{tol}{A numeric value specifying the convergence tolerance. For \code{"ML"},
-\code{"MLF"}, \code{"WL"}, and \code{"MAP"}, the Newton-Raphson iterations stop when the
-absolute update is less than \code{tol}. For \code{"INV.TCC"}, the bisection search
-stops when the search interval is no wider than \code{tol}. Default is 1e-4.}
+\item{tol}{A positive numeric value specifying the convergence tolerance. For
+\code{"ML"}, \code{"MLF"}, \code{"WL"}, and \code{"MAP"}, the Fisher scoring iterations stop
+when the absolute update is less than \code{tol}, and \code{tol} is also the
+tolerance of the root search used when the iterations do not converge. For
+\code{"INV.TCC"}, the bisection search stops when the search interval is no
+wider than \code{tol}. Default is 1e-4.}
 
-\item{max.iter}{A positive integer specifying the maximum number of
-Newton-Raphson iterations for \code{"ML"}, \code{"MLF"}, \code{"WL"}, and \code{"MAP"}.
-Default is 100.}
+\item{max.iter}{A positive integer specifying the maximum number of Fisher
+scoring iterations for \code{"ML"}, \code{"MLF"}, \code{"WL"}, and \code{"MAP"}. Default is
+100. See \strong{Details} for the case where the iterations do not converge.}
 
 \item{se}{Logical. If \code{TRUE}, standard errors of ability estimates are
 computed. If \code{FALSE}, the standard errors are returned as \code{NA}. For
@@ -156,7 +158,7 @@ is \code{TRUE}.}
 \item{stval.opt}{A positive integer specifying the starting value option for
 the ML, MLF, WL, and MAP scoring methods. Available options are:
 \itemize{
-\item 1: Brute-force search (default)
+\item 1: Grid search (default)
 \item 2: Based on observed sum scores
 \item 3: Fixed at 0
 }
@@ -235,9 +237,9 @@ placed at the bounds given in \code{range}. See Han (2016) for details.
 
 For \code{"INV.TCC"}, the ability estimate for a sum score X is the root of
 TCC(theta) = X, found by the bisection method (Howard, 2017). No root
-exists for the maximum possible sum score or, when the test includes items
-with guessing parameters, for sum scores less than or equal to the sum of
-the guessing parameters (for score 0 when the sum is 0). With
+exists for the maximum possible sum score or for sum scores less than or
+equal to the sum of the guessing parameters, which is only the score 0 when
+there are no guessing parameters. With
 \code{intpol = TRUE}, these scores receive estimates as follows. Let
 \eqn{\theta_{min}} and \eqn{\theta_{max}} be the first and second values
 of \code{range.tcc}, and let \eqn{\theta_{X}} be the estimate for the smallest
@@ -249,12 +251,15 @@ maximum possible sum score receives \eqn{\theta_{max}}. If
 below the largest root, a warning is issued and no values are
 assigned. With \code{intpol = FALSE}, these scores receive \code{NA}.
 
-For \code{"INV.TCC"}, the standard error for sum score X is the standard
+For \code{"INV.TCC"}, the standard error for a sum score is the standard
 deviation of the inverse TCC estimates over the conditional sum score
-distribution at \eqn{\theta_{X}}, computed with the Lord-Wingersky
-recursion (Lim et al., 2021; see \code{\link[=lwrc]{lwrc()}}). The implementation is
-based on a modified version of \code{SNSequate::irt.eq.tse()} from the
-\pkg{SNSequate} package (Gonzalez, 2014).
+distribution at the estimate for that score, computed with the
+Lord-Wingersky recursion (Lim et al., 2021; see \code{\link[=lwrc]{lwrc()}}). When some
+sum scores have no estimate (\code{intpol = FALSE}, or the warning described
+above), the distribution is restricted to the sum scores with an estimate
+and rescaled to sum to one. The implementation is based on a modified
+version of \code{SNSequate::irt.eq.tse()} from the \pkg{SNSequate} package
+(Gonzalez, 2014).
 
 For the ML, MLF, WL, and MAP scoring methods, different strategies can be
 used to determine the starting value for ability estimation based on the
@@ -266,7 +271,7 @@ used to determine the starting value for ability estimation based on the
 there is no local maximum on the grid, the starting value is 0.
 \item When \code{stval.opt = 2}, the starting value is the log-odds of the
 observed sum score \code{obs.score} relative to the maximum possible score
-\code{max.score}, both computed over the nonmissing items:
+\code{max.score}, both computed over the non-missing items:
 \code{log(obs.score / (max.score - obs.score))}.
 \itemize{
 \item If \code{obs.score = 0}, the starting value is \code{log(1 / max.score)}.
@@ -274,6 +279,25 @@ observed sum score \code{obs.score} relative to the maximum possible score
 }
 \item When \code{stval.opt = 3}, the starting value is fixed at 0.
 }
+
+For the ML, MLF, WL, and MAP scoring methods, the estimate is found by
+Fisher scoring. This is a Newton-type iteration that divides the first
+derivative of the log-likelihood (of the log-posterior for \code{"MAP"}, or
+Warm's weighted score function for \code{"WL"}) by the expected Fisher
+information instead of the observed second derivative, and a single update
+is capped at 1 in absolute value. The iterations stop when the absolute
+update is less than \code{tol}. If they have not converged after \code{max.iter}
+iterations (for example, when the iterations alternate between two values
+for a low-scoring examinee on a test with 3PLM items), the estimate is
+found as follows. Among the values visited during the iterations, the
+function takes the closest pair in which the score function (the
+derivative above) is positive at the lower value and negative at the
+upper value, so that the pair encloses a local maximum, and finds the root
+of the score function between them with \code{\link[stats:uniroot]{stats::uniroot()}} using the
+tolerance \code{tol}. If there is no such pair, the last value of the
+iterations is used. In both cases the estimate is then truncated to
+\code{range}. This step is not carried out when the iterations converge. The
+standard error is computed at the final estimate.
 
 For \code{"ML"}, \code{"MLF"}, \code{"WL"}, \code{"MAP"}, and \code{"EAP"}, examinees can be scored
 in parallel by setting \code{ncore} greater than 1. A warning is issued when

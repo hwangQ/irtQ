@@ -63,7 +63,8 @@ A data frame of log-likelihood values (log-posterior values for
 \itemize{
 \item Each \strong{row} corresponds to a value of \code{theta}.
 \item Each \strong{column} corresponds to an examinee and is named \code{Resp.1},
-\code{Resp.2}, and so on.
+\code{Resp.2}, and so on. Examinees without any observed response have \code{NA} in
+their column.
 }
 }
 \description{
