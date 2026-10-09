@@ -44,6 +44,9 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
   # check the item guessing parameters
   if (is.null(g)) g <- rep(0, nitem)
 
+  # treat NA guessing parameters as zeros
+  g[is.na(g)] <- 0
+
   # calculate probability of correct answer (rows are items, columns are thetas)
   z <- (D * a) * Rfast::Outer(x = theta, y = b, oper = "-")
   P <- g + (1 - g) / (1 + exp(-z))

@@ -77,6 +77,12 @@ knitr::opts_chunk$set(
   1e-10, and item parameter estimates by about 1e-9. Each item is now compared
   with its own guessing parameter, and missing categories are left out.
 
+* `traceline()` and `info()` stopped with an error for a GRM or GPCM item with
+  two score categories, such as those made by `bring.mirt()`, and for a 3PLM
+  or DRM item whose guessing parameter is `NA`; `drm()` returned `NA`. An `NA`
+  guessing parameter is now treated as 0, so a two-category GRM or GPCM item
+  gets the values of a 2PLM item.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.

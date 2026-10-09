@@ -158,3 +158,10 @@ test_that("drm() matches the 1PLM, 2PLM, and 3PLM formulas on a grid", {
     expect_lt(max(abs(drm(th, a, b, g, D) - ref)), 1e-12)
   }
 })
+
+test_that("drm() treats NA guessing parameters as zeros", {
+  P <- drm(theta = c(-1, 0, 1), a = c(1, 1), b = c(0, 0), g = c(NA, 0.2), D = 1)
+  expect_equal(P[, 1], plogis(c(-1, 0, 1)), tolerance = 1e-12)
+  expect_equal(P[, 2], 0.2 + 0.8 * plogis(c(-1, 0, 1)), tolerance = 1e-12)
+  expect_equal(as.numeric(drm(0, a = 1, b = 0, g = NA, D = 1)), 0.5)
+})

@@ -240,6 +240,9 @@ info.est_irt <- function(x, theta, tif = TRUE, ...) {
 #' @importFrom Rfast Outer
 info_drm <- function(theta, a, b, g, D = 1, one.theta = FALSE,
                      r_i, grad = FALSE, info = TRUE, ji = FALSE) {
+  # treat NA guessing parameters as zeros
+  g[is.na(g)] <- 0
+
   # calculate probability of correct answers
   Da <- D * a
   if (!one.theta) {

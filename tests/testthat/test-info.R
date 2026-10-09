@@ -77,3 +77,20 @@ test_that("info() of dichotomous items matches the closed-form 3PLM information"
     expect_equal(unname(iif[2, ]), ref(0.8, -0.5, 0), tolerance = 1e-8)
   }
 })
+
+test_that("info() computes a GRM or GPCM item with two categories as a 2PLM item", {
+  theta <- c(-2, -1, 0, 0.5, 1.5)
+  two_cat <- data.frame(
+    id = c("G", "P"), cats = 2, model = c("GRM", "GPCM"), par.1 = c(1.2, 0.8),
+    par.2 = c(0.3, -0.4), par.3 = NA
+  )
+  twopl <- data.frame(
+    id = c("G", "P"), cats = 2, model = "2PLM", par.1 = c(1.2, 0.8),
+    par.2 = c(0.3, -0.4), par.3 = NA
+  )
+  expect_equal(
+    info(two_cat, theta, D = 1.702)$iif,
+    info(twopl, theta, D = 1.702)$iif,
+    tolerance = 1e-12
+  )
+})

@@ -66,3 +66,32 @@ test_that("traceline() ICC ignores the categories an item does not have", {
   es <- sapply(tr$prob.cats, function(p) p %*% (0:(ncol(p) - 1)))
   expect_equal(unname(tr$icc), unname(es), tolerance = 1e-12)
 })
+
+test_that("traceline() computes a GRM or GPCM item with two categories as a 2PLM item", {
+  theta <- c(-2, -1, 0, 0.5, 1.5)
+  two_cat <- data.frame(
+    id = c("G", "P"), cats = 2, model = c("GRM", "GPCM"), par.1 = c(1.2, 0.8),
+    par.2 = c(0.3, -0.4), par.3 = NA
+  )
+  tr <- traceline(two_cat, theta, D = 1.702)
+
+  # the probabilities equal those of prm() with a single threshold
+  expect_equal(tr$prob.cats$G[, 2], prm(theta, 1.2, 0.3, 1.702, "GRM")[, 2], tolerance = 1e-12)
+  expect_equal(tr$prob.cats$P[, 2], prm(theta, 0.8, -0.4, 1.702, "GPCM")[, 2], tolerance = 1e-12)
+
+  # and the 2PLM items with the same parameters
+  twopl <- data.frame(
+    id = c("G", "P"), cats = 2, model = "2PLM", par.1 = c(1.2, 0.8),
+    par.2 = c(0.3, -0.4), par.3 = NA
+  )
+  expect_equal(tr$icc, traceline(twopl, theta, D = 1.702)$icc, tolerance = 1e-12)
+})
+
+test_that("traceline() treats NA guessing parameters of 3PLM and DRM items as zeros", {
+  na_g <- data.frame(
+    id = c("A", "B"), cats = 2, model = c("3PLM", "DRM"), par.1 = 1, par.2 = 0, par.3 = NA
+  )
+  tr <- suppressWarnings(traceline(na_g, c(-1, 0, 1)))
+  expect_equal(unname(tr$icc[, 1]), plogis(c(-1, 0, 1)), tolerance = 1e-12)
+  expect_equal(unname(tr$icc[, 2]), plogis(c(-1, 0, 1)), tolerance = 1e-12)
+})
