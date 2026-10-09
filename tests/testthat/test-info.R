@@ -49,3 +49,31 @@ test_that("info() of a GPCM item is zero far from the item location", {
   expect_false(anyNA(iif))
   expect_equal(unname(iif[1, ]), c(0, 0), tolerance = 1e-8)
 })
+
+# ---- dichotomous information ---------------------------------------------------
+
+test_that("info() of dichotomous items stays finite far from the item location", {
+  meta <- data.frame(
+    id = c("A", "B"), cats = 2, model = c("2PLM", "3PLM"), par.1 = 3, par.2 = 0,
+    par.3 = c(NA, 0.2)
+  )
+  iif <- info(meta, c(-300, 300, 1000), D = 1.702)$iif
+  expect_false(anyNA(iif))
+  expect_equal(unname(iif), matrix(0, 2, 3), tolerance = 1e-8)
+})
+
+test_that("info() of dichotomous items matches the closed-form 3PLM information", {
+  meta <- data.frame(id = c("A", "B"), cats = 2, model = c("3PLM", "2PLM"),
+                     par.1 = c(1.2, 0.8), par.2 = c(0.4, -0.5), par.3 = c(0.18, NA))
+  theta <- seq(-3, 3, 1)
+  for (D in c(1, 1.702)) {
+    iif <- info(meta, theta, D = D)$iif
+    # information (D a)^2 (Q / P) ((P - g) / (1 - g))^2 with P = g + (1 - g) / (1 + exp(-D a (theta - b)))
+    ref <- function(a, b, g) {
+      P <- g + (1 - g) / (1 + exp(-D * a * (theta - b)))
+      (D * a)^2 * ((1 - P) / P) * ((P - g) / (1 - g))^2
+    }
+    expect_equal(unname(iif[1, ]), ref(1.2, 0.4, 0.18), tolerance = 1e-8)
+    expect_equal(unname(iif[2, ]), ref(0.8, -0.5, 0), tolerance = 1e-8)
+  }
+})

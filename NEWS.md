@@ -52,6 +52,10 @@
   supplied. Results in the usual range differ by less than 1e-12, and
   `prm()` no longer returns exactly zero for a GPCM category.
 
+- `info()` returned `NaN` instead of 0 for a dichotomous item at a theta
+  far from the item location, where an exponent exceeded about 709. The
+  derivatives are now computed in a form that stays finite.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

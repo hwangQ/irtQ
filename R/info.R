@@ -258,9 +258,11 @@ info_drm <- function(theta, a, b, g, D = 1, one.theta = FALSE,
   if (info) {
     # compute the first derivative of P with respect to theta
     # (see Pi() in catR; Magis & Barrada, 2017)
-    expz <- exp(z)
-    exp1g <- expz * (1 - g)
-    dP <- Da * exp1g / (1 + expz)^2
+    # logistic function and its complement, both finite for any z
+    pz <- 1 / (1 + exp(-z))
+    qz <- 1 / (1 + exp(z))
+    # first derivative written without exp(z) / (1 + exp(z))^2, which is NaN for large z
+    dP <- Da * (1 - g) * pz * qz
 
     # compute the item information as dP^2 / (P * Q), which equals the
     # reference formula for the 3PL item information
@@ -281,7 +283,8 @@ info_drm <- function(theta, a, b, g, D = 1, one.theta = FALSE,
 
   # compute J only for the WL method
   if (ji & info) {
-    d2P <- Da^2 * expz * (1 - expz) * (1 - g) / (1 + expz)^3
+    # second derivative in the same overflow-free form
+    d2P <- Da^2 * (1 - g) * pz * qz * (qz - pz)
     J <- dP * d2P / (P * Q)
   } else {
     J <- NULL
