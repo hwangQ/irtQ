@@ -598,6 +598,10 @@ test_that("ML, WL, and MAP reach the stationary point when Fisher scoring cycles
     a1 <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = m, max.iter = 100)
     a2 <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = m, max.iter = 101)
     expect_equal(a1$est.theta, a2$est.theta, tolerance = 1e-3)
+
+    # a large iteration limit gives the same estimate
+    a3 <- est_score(x_drm, rbind(rep(0, 10)), D = 1, method = m, max.iter = 3000)
+    expect_equal(a1$est.theta, a3$est.theta, tolerance = 1e-3)
   }
 
   # MAP for a 15-item 3PLM test with only the first item answered correctly

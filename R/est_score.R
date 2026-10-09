@@ -839,16 +839,21 @@ est_score_indiv <- function(resp_vec, elm_item, max.cats, idx.drm, idx.prm,
 
     # solve for the gradient root inside a visited bracket when the iterations do not converge
     if (!nr_converged) {
-      # list the visited pairs whose lower point has a negative gradient and upper point a positive one
-      pairs <- expand.grid(lo = th_hist[which(gr_hist < 0)], hi = th_hist[which(gr_hist > 0)])
+      # sort the distinct visited points with a negative gradient
+      lo_v <- sort(unique(th_hist[which(gr_hist < 0)]))
 
-      # keep the pairs whose lower point lies below the upper point
-      pairs <- pairs[pairs$lo < pairs$hi, , drop = FALSE]
+      # take the visited points with a positive gradient in the order of the iterations
+      hi_v <- th_hist[which(gr_hist > 0)]
+
+      # locate the largest negative-gradient point strictly below each positive-gradient point
+      k <- findInterval(hi_v, lo_v, left.open = TRUE)
 
       # search only when such a bracket exists
-      if (nrow(pairs) > 0L) {
+      if (any(k > 0L)) {
         # take the narrowest bracket
-        br <- unlist(pairs[which.min(pairs$hi - pairs$lo), ])
+        ok <- which(k > 0L)
+        j <- ok[which.min(hi_v[ok] - lo_v[k[ok]])]
+        br <- c(lo_v[k[j]], hi_v[j])
 
         # define the gradient of the objective function as a function of theta
         f_grad <- function(t) {
