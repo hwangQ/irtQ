@@ -44,6 +44,14 @@
   value. The new items are now aligned with the columns of the fixed
   items. FIPC results built from metadata of this kind should be rerun.
 
+- The GPCM probabilities of `prm()`, `traceline()`, and `info()` changed
+  when an exponent in the calculation exceeded 700, because the whole
+  matrix was rescaled by one factor and the values for other thetas and
+  items changed with it. Each row is now rescaled by its own maximum,
+  which gives the same values for a theta whatever other thetas are
+  supplied. Results in the usual range differ by less than 1e-12, and
+  `prm()` no longer returns exactly zero for a GPCM category.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

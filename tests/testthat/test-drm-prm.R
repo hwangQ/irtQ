@@ -103,3 +103,37 @@ test_that("prm() errors on an unknown pr.model", {
   expect_error(prm(theta = 0, a = 1, d = c(0, 1), D = 1, pr.model = "PCM"))
   expect_error(prm(theta = 0, a = 1, d = c(0, 1), D = 1, pr.model = "xyz"))
 })
+
+test_that("prm() GPCM probabilities at one theta do not depend on the other theta values", {
+  d <- c(-1, 0, 1, 2)
+  p1 <- prm(theta = 0, a = 2, d = d, D = 1.702, pr.model = "GPCM")
+  p2 <- prm(theta = c(0, 50), a = 2, d = d, D = 1.702, pr.model = "GPCM")[1, , drop = FALSE]
+  expect_equal(p2, p1, tolerance = 1e-12)
+  expect_equal(unname(rowSums(prm(c(-50, 50), 1, d, 1, "GPCM"))), c(1, 1))
+})
+
+test_that("prm() GPCM probabilities stay above zero for very large slopes", {
+  th <- seq(-6, 6, length.out = 49)
+  P <- prm(th, a = 100, d = c(-1, 0, 1), D = 1.702, pr.model = "GPCM")
+  expect_true(all(P > 0))
+  expect_true(all(is.finite(log(P))))
+
+  # the log-likelihood from these probabilities is finite
+  ll <- irtQ:::loglike_prm(
+    item_par = c(100, -1, 0, 1), r_i = matrix(1, 49, 4), theta = th,
+    pr.mod = "GPCM", D = 1.702, nstd = 1000
+  )
+  expect_true(is.finite(ll))
+})
+
+test_that("prm() GPCM matches the closed-form probabilities", {
+  th <- seq(-4, 4, 0.5)
+  d <- c(-1, 0.2, 1.5)
+  a <- 1.3
+  # numerators exp(sum_{v <= k} D a (theta - b_v)) with b_0 = 0
+  num <- sapply(0:3, function(k) {
+    exp(vapply(th, function(t) sum(1.702 * a * (t - c(0, d)[seq_len(k + 1)])), numeric(1)))
+  })
+  ref <- num / rowSums(num)
+  expect_equal(prm(th, a, d, 1.702, "GPCM"), unname(ref), tolerance = 1e-12)
+})

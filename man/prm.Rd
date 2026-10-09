@@ -44,7 +44,8 @@ fixed at 0 and is not supplied. For example, a GPCM item with five
 categories requires four threshold parameters.
 
 The GRM probabilities are bounded to the range from 1e-10 to 1 - 1e-10,
-whereas the GPCM probabilities are not bounded away from zero. The functions
+whereas the GPCM probabilities are bounded below only by the smallest
+positive normalized double value (about 2.2e-308). The functions
 \code{\link[=traceline]{traceline()}} and \code{\link[=info]{info()}} bound the probabilities of both models
 below by 1e-10 for internal use.
 

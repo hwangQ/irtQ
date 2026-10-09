@@ -26,3 +26,26 @@ test_that("info() for est_irt and est_item objects uses the stored metadata and 
   # tif = FALSE leaves the tif component empty
   expect_null(info(fit_irt, theta, tif = FALSE)$tif)
 })
+
+# ---- GPCM information ----------------------------------------------------------
+
+test_that("info() of a GPCM item does not depend on the other theta values", {
+  meta <- data.frame(
+    id = "G", cats = 5, model = "GPCM", par.1 = 2, par.2 = -1, par.3 = 0,
+    par.4 = 1, par.5 = 2
+  )
+  alone <- info(meta, 0, D = 1.702)$iif[1, 1]
+  together <- info(meta, c(0, 50), D = 1.702)$iif[1, 1]
+  expect_equal(together, alone, tolerance = 1e-12)
+  expect_equal(alone, 3.643564, tolerance = 1e-6)
+})
+
+test_that("info() of a GPCM item is zero far from the item location", {
+  meta <- data.frame(
+    id = "G", cats = 5, model = "GPCM", par.1 = 2, par.2 = -1, par.3 = 0,
+    par.4 = 1, par.5 = 2
+  )
+  iif <- info(meta, c(-300, 300), D = 1.702)$iif
+  expect_false(anyNA(iif))
+  expect_equal(unname(iif[1, ]), c(0, 0), tolerance = 1e-8)
+})

@@ -348,12 +348,9 @@ info_prm <- function(theta, a, d, D = 1, pr.model,
     theta_d <- Rfast::Outer(x = theta, y = d, oper = "-")
     z <- matrix(theta_d, nrow = m + 1, byrow = FALSE)
     cumsum_z <- Da * t(Rfast::colCumSums(z))
-    if (any(cumsum_z > 700, na.rm = TRUE)) {
-      cumsum_z <- (cumsum_z / max(cumsum_z, na.rm = TRUE)) * 700
-    }
-    if (any(cumsum_z < -700, na.rm = TRUE)) {
-      cumsum_z <- -(cumsum_z / min(cumsum_z, na.rm = TRUE)) * 700
-    }
+    # subtract each row maximum over the existing categories to keep exp() finite
+    row_max <- Rfast::rowMaxs(replace(cumsum_z, is.na(cumsum_z), -Inf), value = TRUE)
+    cumsum_z <- cumsum_z - row_max
     numer <- exp(cumsum_z) # numerator
     numer[is.na(numer)] <- 0
     denom <- Rfast::rowsums(numer, na.rm = TRUE)

@@ -83,7 +83,8 @@ drm <- function(theta, a, b, g = NULL, D = 1) {
 #' categories requires four threshold parameters.
 #'
 #' The GRM probabilities are bounded to the range from 1e-10 to 1 - 1e-10,
-#' whereas the GPCM probabilities are not bounded away from zero. The functions
+#' whereas the GPCM probabilities are bounded below only by the smallest
+#' positive normalized double value (about 2.2e-308). The functions
 #' [irtQ::traceline()] and [irtQ::info()] bound the probabilities of both models
 #' below by 1e-10 for internal use.
 #'
@@ -130,15 +131,14 @@ gpcm <- function(theta, a, d, D = 1) {
   # calculate category probabilities
   z <- (D * a) * (Rfast::Outer(x = theta, y = d, oper = "-"))
   cumsum_z <- t(Rfast::colCumSums(z))
-  if (any(cumsum_z > 700)) {
-    cumsum_z <- (cumsum_z / max(cumsum_z)) * 700
-  }
-  if (any(cumsum_z < -700)) {
-    cumsum_z <- -(cumsum_z / min(cumsum_z)) * 700
-  }
+  # subtract the row maximum so that exp() neither overflows nor underflows
+  cumsum_z <- cumsum_z - Rfast::rowMaxs(cumsum_z, value = TRUE)
   numer <- exp(cumsum_z) # numerator
   denom <- Rfast::rowsums(numer) # denominator
   P <- numer / denom
+
+  # keep the probabilities above zero so that their logarithms are finite
+  P[P < .Machine$double.xmin] <- .Machine$double.xmin
 
   # return
   P
