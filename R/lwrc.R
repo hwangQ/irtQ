@@ -303,6 +303,9 @@ prep4lw2 <- function(x, theta, D) {
   # compute category probabilities for all items
   prob.cats <- trace(elm_item, theta, D = D, tcc = FALSE)$prob.cats
 
+  # keep each item's probabilities as a theta-by-category matrix, also for a single theta
+  prob.cats <- lapply(prob.cats, matrix, nrow = length(theta))
+
   # extract score categories for all items
   cats <- elm_item$cats
 

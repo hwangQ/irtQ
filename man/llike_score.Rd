@@ -51,8 +51,8 @@ standard deviation of the normal prior distribution. Used only when
 two fence items used in MLF. See \strong{Details} below. Default is 3.0.}
 
 \item{fence.b}{A numeric vector of length two specifying the difficulty (\emph{b})
-parameters of the lower and upper fence items. Required when
-\code{method = "MLF"}. Default is \code{NULL}.}
+parameters of the lower and upper fence items. If \code{NULL}, \code{c(-5, 5)} is
+used. Used only when \code{method = "MLF"}. Default is \code{NULL}.}
 
 \item{missing}{A value indicating missing responses in the data set. Default
 is \code{NA}.}

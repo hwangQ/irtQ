@@ -426,3 +426,45 @@ test_that("parallel scoring gives the serial result for any number of examinees 
   # the clusters are closed after scoring
   expect_equal(nrow(showConnections()), n_conn)
 })
+
+test_that("lwrc() accepts a single theta for a test with polytomous items", {
+  x_pm <- x_full[c(1, 53), ]
+  one <- lwrc(x_pm, theta = 0.4)
+  two <- lwrc(x_pm, theta = c(0.4, 1))
+  expect_equal(dim(one), c(6L, 1L))
+  expect_equal(unname(one[, 1]), unname(two[, 1]))
+  expect_equal(sum(one), 1)
+})
+
+test_that("llike_score() uses default fences for MLF and keeps examinees with duplicated row names apart", {
+  x_ll <- x_full[c(1:6, 51:53), ]
+  set.seed(8)
+  d_ll <- simdat(x_ll, rnorm(3), D = 1)
+  th <- seq(-2, 2, 1)
+
+  # the default fences are c(-5, 5)
+  expect_identical(
+    llike_score(x_ll, d_ll, th, method = "MLF"),
+    llike_score(x_ll, d_ll, th, method = "MLF", fence.b = c(-5, 5))
+  )
+
+  # two identical response rows with the same row name give two identical columns
+  d_dup <- rbind(d_ll[1, ], d_ll[1, ], d_ll[2, ])
+  rownames(d_dup) <- c("a", "a", "b")
+  ll_dup <- llike_score(x_ll, d_dup, th)
+  ref <- llike_score(x_ll, d_ll[1:2, ], th)
+  expect_equal(unname(as.matrix(ll_dup)), unname(as.matrix(ref[, c(1, 1, 2)])))
+})
+
+test_that("llike_score() returns NA for an examinee without any observed response", {
+  x_ll <- x_full[c(1:6, 51:53), ]
+  set.seed(8)
+  d_ll <- simdat(x_ll, rnorm(3), D = 1)
+  th <- seq(-2, 2, 1)
+  d_na <- rbind(d_ll[1, ], rep(NA, ncol(d_ll)), d_ll[2, ])
+  for (m in c("ML", "MAP")) {
+    res <- llike_score(x_ll, d_na, th, method = m)
+    expect_true(all(is.na(res[[2]])))
+    expect_equal(res[, c(1, 3)], llike_score(x_ll, d_ll[1:2, ], th, method = m), ignore_attr = TRUE)
+  }
+})

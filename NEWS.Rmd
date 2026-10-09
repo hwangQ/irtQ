@@ -89,6 +89,15 @@ knitr::opts_chunk$set(
   cluster when a worker failed. Each chunk is now kept as a matrix, also when
   it has one row, and the cluster is always closed.
 
+* `llike_score()` with `method = "MLF"` stopped with an error under the
+  default `fence.b = NULL`. The fences are now placed at -5 and 5, the default
+  `range` of `est_score()`. The function also merged examinees whose rows had
+  the same row name and stopped for an examinee without any response, who now
+  gets `NA`.
+
+* `lwrc()` stopped with an error for a single `theta` when the test had
+  polytomous items.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.

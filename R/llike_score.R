@@ -18,8 +18,8 @@
 #'   standard deviation of the normal prior distribution. Used only when
 #'   `method = "MAP"`. Default is `c(0, 1)`.
 #' @param fence.b A numeric vector of length two specifying the difficulty (*b*)
-#'   parameters of the lower and upper fence items. Required when
-#'   `method = "MLF"`. Default is `NULL`.
+#'   parameters of the lower and upper fence items. If `NULL`, `c(-5, 5)` is
+#'   used. Used only when `method = "MLF"`. Default is `NULL`.
 #'
 #' @details This function evaluates the log-likelihood at each value of
 #' `theta` for one or more examinees, based on item parameters (`x`) and item
@@ -80,6 +80,9 @@ llike_score <- function(x,
     data <- rbind(data)
   }
 
+  # drop row names so that duplicated names cannot merge examinees
+  rownames(data) <- NULL
+
   # re-code missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
@@ -93,9 +96,9 @@ llike_score <- function(x,
 
   # add two fence items and their responses when MLF is used
   if (method == "MLF") {
-    # when fence.b = NULL, use the range argument as the fence.b argument
+    # when fence.b = NULL, use the default ability range of est_score() as the fences
     if (is.null(fence.b)) {
-      fence.b <- range
+      fence.b <- c(-5, 5)
     }
 
     # add two more response columns for the two fence items
@@ -163,6 +166,11 @@ llike_score <- function(x,
 # Compute the log-likelihood values for one examinee
 llike_score_one <- function(exam_dat, theta, elm_item, max.col, D = 1, method = "ML",
                             norm.prior = c(0, 1)) {
+  # return NA when the examinee has no observed response
+  if (nrow(exam_dat) == 0L) {
+    return(rep(NA_real_, length(theta)))
+  }
+
   # extract the required objects from the individual exam data
   elm_item$pars <- data.matrix(exam_dat[, 4:max.col])
   elm_item$model <- exam_dat$model
