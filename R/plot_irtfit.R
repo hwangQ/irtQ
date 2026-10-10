@@ -366,8 +366,9 @@ plot.irtfit <- function(x,
     if (missing(xlab.text)) xlab.text <- expression(theta)
     if (missing(ylab.text)) ylab.text <- "Standardized Residual"
     if (missing(main.text)) main.text <- paste0("Standardized Residuals: ", item_meta$id)
-    point.color <- c("blue", "red")
-    point.shape <- c(4, 1)
+    # fix the color and shape of each level, so that a plot with one level keeps its meaning
+    point.color <- c("0" = "blue", "1" = "red")
+    point.shape <- c("0" = 4, "1" = 1)
 
     # find a maximum value of the absolute standardized residuals
     # use the maximum value as the ylim value
@@ -434,8 +435,9 @@ plot.irtfit <- function(x,
       ggplot2::theme(strip.text.x = ggplot2::element_text(size = strip.size, face = "bold"))
 
     # (2) draw standardized residual plots
-    point.color <- c("blue", "red")
-    point.shape <- c(4, 1)
+    # fix the color and shape of each level, so that a plot with one level keeps its meaning
+    point.color <- c("0" = "blue", "1" = "red")
+    point.shape <- c("0" = 4, "1" = 1)
 
     # find a maximum value of the absolute standardized residuals
     # use the maximum value as the ylim value

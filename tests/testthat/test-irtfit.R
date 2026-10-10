@@ -322,3 +322,25 @@ test_that("irtfit() reads logical responses and a single remaining group", {
   expect_true(all(is.na(fit$fit_stat$p.X2)))
   expect_false(anyNA(fit$fit_stat$p.G2))
 })
+
+test_that("plot.irtfit() keeps the colors of the standardized residuals when all or none exceed overSR", {
+  skip_if_not("get_last_plot" %in% getNamespaceExports("ggplot2"))
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  layer_look <- function(over) {
+    fit <- irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, overSR = over)
+    suppressWarnings(plot(fit, item.loc = 1, type = "sr", show.table = FALSE))
+    d <- suppressWarnings(ggplot2::ggplot_build(ggplot2::get_last_plot()))$data[[1]]
+    list(colour = unique(d$colour), shape = unique(d$shape))
+  }
+
+  # every residual exceeds the threshold: red circles
+  all_over <- layer_look(0)
+  expect_identical(all_over$colour, "red")
+  expect_identical(as.numeric(all_over$shape), 1)
+
+  # no residual exceeds the threshold: blue crosses
+  none_over <- layer_look(100)
+  expect_identical(none_over$colour, "blue")
+  expect_identical(as.numeric(none_over$shape), 4)
+})
