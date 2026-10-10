@@ -95,10 +95,10 @@ Default is \code{TRUE}.}
 \value{
 This function returns a list with the following elements:
 
-\item{no_purify}{A list containing the results of Pseudo-count \eqn{D^{2}} analysis
+\item{no_purify}{A list containing the results of pseudo-count \eqn{D^{2}} analysis
 without applying the purification procedure. It includes:
 \describe{
-\item{ipd_stat}{A data frame summarizing the Pseudo-count \eqn{D^{2}} statistics
+\item{ipd_stat}{A data frame summarizing the pseudo-count \eqn{D^{2}} statistics
 for all items. The columns include:
 \code{id} (item ID),
 \code{pcd2} (the computed \eqn{D^{2}} value), and
@@ -112,12 +112,12 @@ If no items are flagged or \code{crit.val = NULL}, this is \code{NULL}.}
 \item{purify}{The value of the \code{purify} argument. Purification is actually
 performed only when \code{crit.val} is also supplied.}
 
-\item{with_purify}{A list containing the results of Pseudo-count \eqn{D^{2}} analysis
+\item{with_purify}{A list containing the results of pseudo-count \eqn{D^{2}} analysis
 after applying the purification procedure. This list is populated only when both
 \code{purify = TRUE} and \code{crit.val} is not \code{NULL}; otherwise, all of its elements are \code{NULL}. It
 includes:
 \describe{
-\item{ipd_stat}{A data frame reporting the final Pseudo-count \eqn{D^{2}} statistics
+\item{ipd_stat}{A data frame reporting the final pseudo-count \eqn{D^{2}} statistics
 after purification. Columns include:
 \code{id} (item ID),
 \code{pcd2} (the computed \eqn{D^{2}} value),
@@ -242,12 +242,16 @@ print(ps_d2_puri)
 \donttest{
 ## -- Example 3: CAT-based IPD detection using simIPD --------------------------
 ##
-## The Pseudo-count D2 statistic has no closed-form null distribution.
-## Following Lim & Han (2026), the critical value is estimated empirically
-## via bootstrap:
-##   (1) Select drift-free (anchor) items to form the null D2 distribution.
-##   (2) Repeatedly resample from those values and take the 95th percentile.
-##   (3) Average across bootstrap iterations to obtain the critical value.
+## The pseudo-count D2 statistic has no closed-form null distribution.
+## Following Cappaert et al. (2018), the critical value is estimated
+## empirically via bootstrap:
+##   (1) Select items that are not suspected of IPD (anchor items).
+##   (2) Compute D2 for the whole item pool from all responses, and take
+##       the D2 values of the anchor items as the null distribution.
+##   (3) Resample the null distribution with replacement, take the 95th
+##       percentile of each bootstrap sample, and average the percentiles
+##       to obtain the critical value.
+##   (4) Run pcd2() with this critical value.
 ##
 ## The simIPD dataset provides:
 ##   item_par  : original 360-item pool (3PLM, irtQ format)
@@ -260,46 +264,55 @@ print(ps_d2_puri)
 data(simIPD)
 
 ## -- Step 1. Select anchor items for bootstrap -----------------------------
-## From the full item pool, select items that (a) have sufficient observed
-## responses (>= boot_size) and (b) are not known IPD items. These items
-## serve as the empirical null distribution of D2.
-## boot_size = 300: chosen to match the minimum response count used in the
-##   bootstrap procedure of the simulation study (Lim & Han, 2026).
-## In practice, exclude items you know or suspect have drifted; here the
-## ground truth (simIPD$ipd_item) is used for illustration.
-boot_size    <- 300
-n_resp       <- colSums(!is.na(simIPD$foc_resp))   # observed responses per item
-anchor_items <- setdiff(which(n_resp >= boot_size), simIPD$ipd_item)
+## Select items that (a) have at least min_resp_anchor observed responses
+## and (b) are not suspected of IPD. In practice, exclude the items you
+## suspect to have drifted; here the ground truth (simIPD$ipd_item) is
+## excluded for illustration.
+## The minimum response count follows Lim & Han (2026). Cappaert et al.
+## (2018) did not set such a criterion, but in a CAT pool with uneven
+## exposure, items with few responses have large D2 values that inflate the
+## tail of the null distribution. For the simIPD data, the critical value
+## computed below is about 0.034 when all items with at least one response
+## are used, and about 0.004 with at least 300 responses.
+min_resp_anchor <- 300
+n_resp          <- colSums(!is.na(simIPD$foc_resp))   # observed responses per item
+anchor_items    <- setdiff(which(n_resp >= min_resp_anchor), simIPD$ipd_item)
 
-## -- Step 2. Compute null D2 values for the anchor items ------------------
-pcd2_null <- pcd2(
-  x        = simIPD$item_par[anchor_items, ],
-  data     = simIPD$foc_resp[, anchor_items],
-  D        = 1.7,
-  crit.val = NULL,
-  purify   = FALSE
-)$no_purify$ipd_stat$pcd2
+## -- Step 2. Compute D2 for the whole pool and keep the anchor items -------
+## D2 is computed once from all items and responses, so that the posterior
+## ability distributions are the same as in the final analysis (Step 4).
+## A warning lists the pool items that were never administered.
+pcd2_all  <- pcd2(
+  x    = simIPD$item_par,
+  data = simIPD$foc_resp,
+  D    = 1.7
+)
+pcd2_null <- pcd2_all$no_purify$ipd_stat$pcd2[anchor_items]
 
-## -- Step 3. Bootstrap critical value (Lim & Han, 2026) --------------
-## For each bootstrap iteration: resample boot_size D2 values from the null
-## distribution and take the 95th percentile. The critical value is the mean
-## of these percentiles across all iterations.
+## -- Step 3. Bootstrap critical value (Cappaert et al., 2018) --------------
+## For each bootstrap iteration: resample the null D2 values with replacement
+## (the sample size equals the number of anchor items) and take the 95th
+## percentile. The critical value is the mean of these percentiles.
 ## n_boots = 500: reduced for demo speed; use 10,000 in practice for a
 ##   stable critical value estimate.
 set.seed(2024)
 n_boots <- 500
 
-crit_val <- purrr::map_dbl(
-  .x = 1:n_boots,
-  .f = ~ sample(x = pcd2_null, size = boot_size, replace = TRUE) |>
-           stats::quantile(probs = 0.95)
-) |> mean()
+crit_val <- mean(vapply(
+  X   = seq_len(n_boots),
+  FUN = function(b) {
+    stats::quantile(sample(x = pcd2_null, size = length(pcd2_null), replace = TRUE),
+                    probs = 0.95)
+  },
+  FUN.VALUE = numeric(1)
+))
 
 cat("Bootstrap critical value (alpha = 0.05):", round(crit_val, 6), "\n")
 
 ## -- Step 4. Run PCD2 with the bootstrap critical value + purification --
-## A warning lists the pool items that were never administered to the
-## focal group (no response data).
+## The statistics of the first analysis (pcd2_result$no_purify) are the same
+## as those of pcd2_all for the analyzed items, since the same responses are
+## used.
 pcd2_result <- pcd2(
   x         = simIPD$item_par,
   data      = simIPD$foc_resp,

@@ -316,7 +316,6 @@
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @examples
-#' \donttest{
 #' ## --- RIPD Example: Detecting IPD in CAT ---------------------------------
 #' ##
 #' ## Background (Lim & Han, 2026):
@@ -347,7 +346,7 @@
 #' group <- c(rep(0, nrow(simIPD$ref_resp)),   # 0 = reference
 #'            rep(1, nrow(simIPD$foc_resp)))   # 1 = focal
 #'
-#' ## Step 2. Run RIPD with purification (recommended statistic: RIPD_RS)
+#' ## Step 2. Run RIPD without purification
 #' ##         item.skip excludes the 270 non-key items from analysis
 #' ripd_result <- ripd(
 #'   x          = simIPD$item_par,
@@ -358,22 +357,28 @@
 #'   item.skip  = simIPD$item.skip,
 #'   D          = 1.7,
 #'   alpha      = 0.05,
-#'   purify     = TRUE,
-#'   purify.by  = "ripdrs",    # purify using RIPD_RS (combined statistic)
-#'   max.iter   = 30,
+#'   purify     = FALSE,
 #'   method     = "ML",
 #'   range      = c(-5, 5)
 #' )
 #'
-#' ## Step 3. Review RIPD_RS results (with purification)
-#' print(ripd_result, what = "with_purify")
-#'
-#' ## Step 4. Compare detected items to ground truth
-#' detected <- ripd_result$with_purify$ipd_item
+#' ## Step 3. Compare the items flagged by RIPD_RS to the ground truth
+#' detected <- ripd_result$no_purify$ipd_item$ripdrs
 #' cat("Truly drifted items (ground truth):", simIPD$ipd_item, "\n")
-#' cat("RIPD-detected items:               ", detected, "\n")
+#' cat("RIPD_RS-flagged items:             ", detected, "\n")
 #' cat("True positives:", sum(detected %in% simIPD$ipd_item), "of",
 #'     length(simIPD$ipd_item), "\n")
+#'
+#' ## Step 4. Purification (not run: it takes several minutes because the
+#' ##         abilities of the examinees are re-estimated at every iteration)
+#' ##
+#' ##   ripd_purified <- ripd(
+#' ##     x = simIPD$item_par, data = data, score = score, group = group,
+#' ##     focal.name = 1, item.skip = simIPD$item.skip, D = 1.7, alpha = 0.05,
+#' ##     purify = TRUE, purify.by = "ripdrs", max.iter = 30,
+#' ##     method = "ML", range = c(-5, 5)
+#' ##   )
+#' ##   print(ripd_purified, what = "with_purify")
 #'
 #' ## -- Note on reference group size -----------------------------------------
 #' ## This example uses a 1F reference group (n_ref = n_foc = 3,000).
@@ -387,7 +392,6 @@
 #' ##   # simulate a CAT for theta_8F with simIPD$item_par, then call ripd()
 #' ##   # with the simulated responses and final ability estimates
 #' ## -------------------------------------------------------------------------
-#' }
 #'
 #' @seealso [irtQ::rdif()], [irtQ::est_irt()], [irtQ::est_item()],
 #'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()],
