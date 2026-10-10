@@ -235,3 +235,36 @@ test_that("find_cut() uses D = 1 by default", {
   }
   expect_false(identical(res_default$tif_data, res_d1702$tif_data))
 })
+
+test_that("find_cut() cut scores equal the roots of an independent TIF difference", {
+  x <- simMST$item_bank
+  md <- simMST$module
+  tif <- function(m, t) {
+    it <- x[md[, m] == 1, ]
+    p <- it$par.3 + (1 - it$par.3) / (1 + exp(-1.702 * it$par.1 * (t - it$par.2)))
+    sum((1.702 * it$par.1)^2 * ((p - it$par.3) / (1 - it$par.3))^2 * (1 - p) / p)
+  }
+  fc <- find_cut(x = x, module = md, route_map = simMST$route_map, D = 1.702)
+  # proper crossings near the middle of the scale (located on a coarse grid first)
+  root <- function(l, r, lo, hi) {
+    stats::uniroot(function(t) tif(r, t) - tif(l, t), c(lo, hi), tol = 1e-12)$root
+  }
+  expect_equal(fc$cut_score$stage.2, c(root(2, 3, -1, 0), root(3, 4, 0, 1)), tolerance = 1e-6)
+  expect_equal(fc$cut_score$stage.3, c(root(5, 6, -1, 0), root(6, 7, 0, 1)), tolerance = 1e-6)
+})
+
+test_that("find_cut() reports a crossing on a grid point only once", {
+  # mirror-image modules cross exactly at theta = 0, which is a grid point
+  x <- shape_df(par.drm = list(a = rep(1, 9), b = c(-0.5, 0, 0.5, rep(-1, 3), rep(1, 3)),
+                               g = rep(0, 9)),
+                cats = 2, model = "2PLM")
+  md <- matrix(0, 9, 3)
+  md[1:3, 1] <- 1
+  md[4:6, 2] <- 1
+  md[7:9, 3] <- 1
+  rm <- matrix(0, 3, 3)
+  rm[1, 2:3] <- 1
+  expect_no_warning(fc <- find_cut(x = x, module = md, route_map = rm))
+  expect_equal(fc$details$stage.2$pairs[[1]]$proper_crossings, 0)
+  expect_equal(fc$cut_score$stage.2, 0)
+})

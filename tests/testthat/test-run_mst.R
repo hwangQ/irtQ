@@ -340,3 +340,101 @@ test_that("give_path() sends a score equal to a cut score to the higher module",
   # a missing score stays missing
   expect_true(is.na(irtQ:::give_path(score = NA_real_, cut_sc = 0)$path))
 })
+
+
+# 6. independent routing checks, module order, and input checks
+
+test_that("bmat and mfi routing select the module given by the routing estimate", {
+  # mean b and test information of each module, computed without irtQ
+  mod_b <- vapply(1:7, function(m) mean(x_mst$par.2[mod_mst[, m] == 1]), numeric(1))
+  mod_tif <- function(m, t) {
+    it <- x_mst[mod_mst[, m] == 1, ]
+    p <- it$par.3 + (1 - it$par.3) / (1 + exp(-1.702 * it$par.1 * (t - it$par.2)))
+    sum((1.702 * it$par.1)^2 * ((p - it$par.3) / (1 - it$par.3))^2 * (1 - p) / p)
+  }
+  for (meth in c("bmat", "mfi")) {
+    fit <- run_mst(x = x_mst, route_map = map_mst, module = mod_mst, theta = theta_mst,
+                   D = 1.702, route_method = meth, verbose = FALSE)
+    for (i in seq_along(theta_mst)) {
+      for (s in 2:3) {
+        nxt <- which(map_mst[fit$path[i, s - 1], ] == 1)
+        t <- fit$theta.route[i, s - 1]
+        expected <- if (meth == "bmat") {
+          nxt[which.min(abs(mod_b[nxt] - t))]
+        } else {
+          nxt[which.max(vapply(nxt, mod_tif, numeric(1), t = t))]
+        }
+        expect_equal(unname(fit$path[i, s]), unname(expected))
+      }
+    }
+  }
+})
+
+test_that("run_mst() stops on invalid convergence controls instead of looping", {
+  base <- list(x = x_mst, route_map = map_mst, module = mod_mst, theta = theta_mst[1:3],
+               D = 1.702, verbose = FALSE)
+  expect_error(do.call(run_mst, c(base, list(route_score = list(method = "ML", max.iter = 0)))),
+               "route_score\\$max.iter")
+  expect_error(do.call(run_mst, c(base, list(route_score = list(method = "ML", max.iter = 2.5)))),
+               "route_score\\$max.iter")
+  expect_error(do.call(run_mst, c(base, list(final_score = list(method = "MAP", tol = 0)))),
+               "final_score\\$tol")
+  expect_error(do.call(run_mst, c(base, list(final_score = list(method = "WL", tol = NA)))),
+               "final_score\\$tol")
+  # the controls of a method that does not use them are not checked
+  expect_s3_class(do.call(run_mst, c(base, list(route_score = list(method = "EAP", max.iter = 0)))),
+                  "run_mst")
+})
+
+test_that("run_mst() stops on cut scores that do not match the panel", {
+  base <- list(x = x_mst, route_map = map_mst, module = mod_mst, theta = theta_mst[1:3],
+               D = 1.702, route_method = NULL, verbose = FALSE)
+  expect_error(do.call(run_mst, c(base, list(cut_score = list(c(-1, 0, 1), c(-0.4, 0.4))))),
+               "cut_score\\[\\[1\\]\\]")
+  expect_error(do.call(run_mst, c(base, list(cut_score = list(c(1, -1), c(-0.4, 0.4))))),
+               "ascending")
+})
+
+test_that("run_mst() maps the cut scores to the modules in ascending order of module index", {
+  # module 2 reaches modules 5 and 6, and module 3 reaches modules 4 and 5
+  pnl <- ref_panel()
+  rm_x <- matrix(0L, 6, 6)
+  rm_x[1, 2:3] <- 1L
+  rm_x[2, 5:6] <- 1L
+  rm_x[3, 4:5] <- 1L
+  set.seed(2041)
+  fit <- run_mst(x = pnl$x, route_map = rm_x, module = pnl$module, theta = rnorm(60),
+                 D = 1, route_method = NULL, cut_score = pnl$cut_score,
+                 route_score = list(method = "EAP"), final_score = list(method = "EAP"),
+                 verbose = FALSE)
+  est2 <- unname(fit$theta.route[, 2])
+  # module 2 is separated by the second cut score, module 3 by the first
+  expected3 <- ifelse(fit$path[, 2] == 2L,
+                      ifelse(est2 < pnl$cut_score[[2]][2], 5L, 6L),
+                      ifelse(est2 < pnl$cut_score[[2]][1], 4L, 5L))
+  expect_equal(unname(fit$path[, 3]), expected3)
+  # both stage 2 modules are administered
+  expect_setequal(unique(fit$path[, 2]), c(2L, 3L))
+})
+
+test_that("run_mst() stops when the module matrix does not match the route map", {
+  expect_error(
+    run_mst(x = x_mst, route_map = map_mst, module = mod_mst[, 1:6], theta = theta_mst[1:3],
+            D = 1.702, verbose = FALSE),
+    "one column per module"
+  )
+})
+
+test_that("run_mst() warns once about examinees without any observed response", {
+  resp_na <- resp_mst
+  resp_na[c(2, 5), ] <- NA
+  expect_warning(
+    fit <- run_mst(x = x_mst, route_map = map_mst, module = mod_mst, response = resp_na,
+                   D = 1.702, route_method = NULL, cut_score = cut_mst,
+                   route_score = list(method = "EAP"), final_score = list(method = "ML"),
+                   verbose = FALSE),
+    "2 examinee"
+  )
+  expect_true(all(is.na(fit$est.theta[c(2, 5)])))
+  expect_false(anyNA(fit$est.theta[-c(2, 5)]))
+})

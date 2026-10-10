@@ -40,10 +40,14 @@
 #'   scores less than or equal to the sum of the guessing parameters, and the
 #'   maximum possible sum score), as in [irtQ::est_score()]. The low scores are
 #'   mapped by linear interpolation (Lim et al., 2021), and the maximum sum
-#'   score receives the second value of `range.tcc`. Default is `TRUE`.
+#'   score receives the second value of `range.tcc`. With `intpol = FALSE`,
+#'   some sum scores have no ability estimate, and the function stops with an
+#'   error. Default is `TRUE`.
 #' @param range.tcc A numeric vector of length two giving the ability estimates
 #'   assigned to the lowest and the maximum possible sum scores when
-#'   `intpol = TRUE` (see [irtQ::est_score()]). Default is `c(-7, 7)`.
+#'   `intpol = TRUE` (see [irtQ::est_score()]). The range must be wide enough
+#'   to cover the ability estimates of the sum scores, or the function stops
+#'   with an error. Default is `c(-7, 7)`.
 #' @param tol A positive number giving the tolerance of the bisection search
 #'   used by inverse TCC scoring; the search stops when the search interval is
 #'   no wider than `tol`. Default is 1e-4.
@@ -228,6 +232,10 @@ reval_mst <- function(x,
                       range.tcc = c(-7, 7),
                       tol = 1e-4) {
 
+  # Validate and normalize the item metadata (e.g., a missing guessing
+  # parameter of 1PLM and 2PLM items is set to 0)
+  x <- confirm_df(x)
+
   ## -----------------------------------------------------
   # Extract all the panel information from the route map
   ## -----------------------------------------------------
@@ -243,8 +251,32 @@ reval_mst <- function(x,
   # Total number of modules across all stages
   tn.mod <- sum(n.mod)
 
+  # Stop when the module matrix does not have one column per module of the panel
+  if (ncol(module) != tn.mod) {
+    stop("'module' must have one column per module in 'route_map'.", call. = FALSE)
+  }
+
   # Number of stages
   n.stg <- panel_data$n.stage
+
+  # Stop when cut_score does not have one vector per stage transition
+  if (length(cut_score) != (n.stg - 1)) {
+    stop(sprintf(
+      "'cut_score' must be a list of length %d (one vector per stage transition).",
+      n.stg - 1), call. = FALSE)
+  }
+
+  # Stop when a cut score vector does not separate the modules of the next stage
+  for (s in seq_len(n.stg - 1)) {
+    cut_s <- cut_score[[s]]
+    if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1] - 1) ||
+        !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {
+      stop(sprintf(paste0(
+        "'cut_score[[%d]]' must contain %d finite value(s) in strictly ascending ",
+        "order, one fewer than the number of modules in stage %d."),
+        s, n.mod[s + 1] - 1, s + 1), call. = FALSE)
+    }
+  }
 
   ## -----------------------------------------------------
   # Create List of item metadata for modules and paths
@@ -334,6 +366,15 @@ reval_mst <- function(x,
           do.call(what = "cbind")
       }
     )
+
+  # Stop when a sum score has no inverse TCC estimate, which happens when
+  # intpol = FALSE or range.tcc does not cover the estimates
+  if (anyNA(unlist(eq_theta))) {
+    stop(paste0(
+      "Inverse TCC estimates are not available for some sum scores. ",
+      "Use 'intpol = TRUE' and a 'range.tcc' wide enough to cover the estimates."),
+      call. = FALSE)
+  }
 
   ## -----------------------------------------------------
   # Compute the conditional distributions of modules at each theta
@@ -441,8 +482,9 @@ reval_mst <- function(x,
         dplyr::pull(2) %>%
         unique()
 
-      # Secondly, find the positions of the reachable modules among all modules of the next stage
-      idx_next <- match(nmod_next, unique(pathway[, s]))
+      # Secondly, find the positions of the reachable modules among the modules
+      # of the next stage in ascending order of module index
+      idx_next <- match(nmod_next, panel_data$config[[s]])
 
       # Lastly, find the cut scores to be used to assign the next modules
       cut4route[[s - 1]][[i]] <- cut_score[[s - 1]][dplyr::lag(idx_next)[-1]]

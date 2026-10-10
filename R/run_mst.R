@@ -152,6 +152,8 @@
 #'     \item{\code{max.it}}{Integer: maximum bisection iterations for
 #'       \code{"INV.TCC"}. Default: \code{500L}.}
 #'   }
+#'   As in \code{\link{est_score}}, the function stops with an error when
+#'   \code{tol} or \code{max.iter} is not valid for the chosen method.
 #'   Unspecified fields take their defaults; the full default is
 #'   \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
 #'   \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,}
@@ -247,7 +249,9 @@
 #' \code{\link{est_score}}, but no warning is issued. The same rule applies to
 #' the routing estimates. When all responses up to a non-final stage are
 #' missing, the routing estimate is 0 after stage 1 and the previous routing
-#' estimate after a later stage.
+#' estimate after a later stage. An examinee with no observed response at all
+#' receives \code{NA} as the final estimate, and one warning reports the number
+#' of such examinees.
 #'
 #' \strong{Relation to \code{reval_mst()}}: With \code{route_method = NULL}, a
 #' \code{cut_score} list, and \code{route_score = list(method = "INV.TCC")},
@@ -614,6 +618,10 @@ run_mst <- function(x,
   route_args <- utils::modifyList(default_route, route_score)
   final_args <- utils::modifyList(default_final, final_score)
 
+  # Check the convergence controls of the routing and final scoring methods
+  check_score_ctrl(route_args, "route_score")
+  check_score_ctrl(final_args, "final_score")
+
   # --- Panel structure ---
 
   # Extract panel info: stage config, valid pathways, module/stage counts
@@ -622,6 +630,11 @@ run_mst <- function(x,
   n.mod      <- panel_data$n.module         # modules per stage
   tn.mod     <- sum(n.mod)                  # total modules across all stages
   pathway    <- panel_data$pathway          # valid pathway matrix
+
+  # Stop when the module matrix does not have one column per module of the panel
+  if (ncol(module) != tn.mod) {
+    stop("'module' must have one column per module in 'route_map'.", call. = FALSE)
+  }
 
   # Validate ini_mod: NULL (random per-examinee) or a single integer index
   if (!is.null(ini_mod)) {
@@ -638,9 +651,10 @@ run_mst <- function(x,
   # stage1_mods: all module indices that belong to stage 1
   stage1_mods <- panel_data$config[[1L]]          # integer vector, length = n.mod[1]
   fixed_start <- if (!is.null(ini_mod)) stage1_mods[ini_mod] else NULL
-  # modules of each stage in pathway order, used to map the cut scores of a
-  # stage transition to the modules they separate (as in reval_mst())
-  stage_mods <- lapply(seq_len(n.stg), function(s) unique(pathway[, s]))
+  # modules of each stage in ascending order of module index, used to map the
+  # cut scores of a stage transition to the modules they separate (as in
+  # reval_mst())
+  stage_mods <- panel_data$config
   # When fixed_start is NULL, each examinee is assigned a stage-1 module
   # by sample() at the start of the per-examinee loop (see below).
 
@@ -650,6 +664,18 @@ run_mst <- function(x,
       stop(sprintf(
         "'cut_score' must be a list of length %d (one vector per stage transition).",
         n.stg - 1), call. = FALSE)
+    }
+
+    # Stop when a cut score vector does not separate the modules of the next stage
+    for (s in seq_len(n.stg - 1L)) {
+      cut_s <- cut_score[[s]]
+      if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1L] - 1L) ||
+          !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {
+        stop(sprintf(paste0(
+          "'cut_score[[%d]]' must contain %d finite value(s) in strictly ascending ",
+          "order, one fewer than the number of modules in stage %d."),
+          s, n.mod[s + 1L] - 1L, s + 1L), call. = FALSE)
+      }
     }
   }
 
@@ -956,6 +982,9 @@ run_mst <- function(x,
     report_every <- max(1L, N %/% 10L)
   }
 
+  # number of examinees whose responses are all missing
+  n_all_missing <- 0L
+
   # --- Main loop over examinees ---
   for (i in seq_len(N)) {
 
@@ -1145,6 +1174,7 @@ run_mst <- function(x,
 
         if (!any(na_mask_acc)) {
           # All responses missing across entire path
+          n_all_missing  <- n_all_missing + 1L
           est_theta[i]   <- NA_real_
           se_theta[i]    <- NA_real_
           theta_route_mat[i, s] <- NA_real_
@@ -1250,6 +1280,13 @@ run_mst <- function(x,
     }  # end of stage loop
   }  # end of examinee loop
 
+  # warn once about the examinees whose responses are all missing
+  if (n_all_missing > 0L) {
+    warning(sprintf(
+      "%d examinee(s) have no observed response; their final estimates are NA.",
+      n_all_missing), call. = FALSE)
+  }
+
   # --- Assemble result list ---
   rst <- list(
     call             = call,
@@ -1273,6 +1310,38 @@ run_mst <- function(x,
   if (verbose) message("[run_mst] Done.")
 
   rst
+}
+
+# ---------------------------------------------------------------------------
+# check_score_ctrl(): internal helper for run_mst()
+#
+# Checks the convergence controls of a merged route_score or final_score list
+# in the same way as est_score() checks its 'tol' and 'max.iter' arguments.
+#
+# @param args      A merged route_score or final_score list.
+# @param arg_name  The argument name used in the error message.
+# @return          NULL, invisibly; stops when a control is not valid.
+# ---------------------------------------------------------------------------
+check_score_ctrl <- function(args, arg_name) {
+
+  # stop when the convergence tolerance is not a single positive number
+  if (args$method %in% c("ML", "MLF", "WL", "MAP", "INV.TCC") &&
+      !(is.numeric(args$tol) && length(args$tol) == 1L &&
+        is.finite(args$tol) && args$tol > 0)) {
+    stop(sprintf("'%s$tol' must be a single positive number.", arg_name),
+         call. = FALSE)
+  }
+
+  # stop when the maximum number of iterations is not a positive whole number
+  if (args$method %in% c("ML", "MLF", "WL", "MAP") &&
+      !(is.numeric(args$max.iter) && length(args$max.iter) == 1L &&
+        is.finite(args$max.iter) && args$max.iter >= 1 &&
+        args$max.iter == round(args$max.iter))) {
+    stop(sprintf("'%s$max.iter' must be a single positive whole number.", arg_name),
+         call. = FALSE)
+  }
+
+  invisible(NULL)
 }
 
 # ---------------------------------------------------------------------------

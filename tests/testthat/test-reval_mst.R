@@ -27,3 +27,94 @@ test_that("reval_mst() stops when modules in a stage differ in maximum sum score
     "same maximum sum score"
   )
 })
+
+
+# fixtures: a mixed-format 1-2-3 panel and its exact enumeration over the stage
+# sum scores (helper-mst-reference.R)
+pnl <- ref_panel()
+
+test_that("reval_mst() equals an exact enumeration on a mixed-format 1-2-3 panel", {
+  th <- c(-2, 0, 1.5)
+  for (D in c(1, 1.702)) {
+    rv <- reval_mst(x = pnl$x, D = D, route_map = pnl$route_map, module = pnl$module,
+                    cut_score = pnl$cut_score, theta = th)$eval.tb
+    bf <- ref_brute_mst(pnl$x, pnl$module, pnl$route_map, pnl$cut_score, th, D = D)
+    expect_equal(bf$ptot, rep(1, 3), tolerance = 1e-12)
+    expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
+    expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
+  }
+})
+
+test_that("reval_mst() equals an exact enumeration on the simMST panel", {
+  skip_on_cran()
+  th <- c(-1, 0.3)
+  rv <- reval_mst(x = simMST$item_bank, D = 1.702, route_map = simMST$route_map,
+                  module = simMST$module, cut_score = simMST$cut_score, theta = th)$eval.tb
+  bf <- ref_brute_mst(simMST$item_bank, simMST$module, simMST$route_map,
+                      simMST$cut_score, th, D = 1.702)
+  expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
+  expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
+})
+
+test_that("reval_mst() accepts 2PLM items whose guessing parameter is missing", {
+  x2 <- shape_df(par.drm = list(a = rep(1, 9), b = c(-0.5, 0, 0.5, rep(-1, 3), rep(1, 3)),
+                                g = rep(0, 9)),
+                 cats = 2, model = "2PLM")
+  md <- matrix(0, 9, 3)
+  md[1:3, 1] <- 1
+  md[4:6, 2] <- 1
+  md[7:9, 3] <- 1
+  rm <- matrix(0, 3, 3)
+  rm[1, 2:3] <- 1
+  rv <- reval_mst(x2, route_map = rm, module = md, cut_score = list(0), theta = c(-1, 0))$eval.tb
+  bf <- ref_brute_mst(x2, md, rm, list(0), c(-1, 0))
+  expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
+  expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
+})
+
+test_that("reval_mst() stops on cut scores that do not match the panel", {
+  args <- list(x = simMST$item_bank, D = 1.702, route_map = simMST$route_map,
+               module = simMST$module, theta = 0)
+  # an extra cut score in a stage
+  expect_error(do.call(reval_mst, c(args, list(cut_score = list(c(-0.45, 0.46, 2), c(-0.42, 0.45))))),
+               "cut_score\\[\\[1\\]\\]")
+  # cut scores in descending order
+  expect_error(do.call(reval_mst, c(args, list(cut_score = list(c(0.46, -0.45), c(-0.42, 0.45))))),
+               "ascending")
+  # one vector too many
+  expect_error(do.call(reval_mst, c(args, list(cut_score = c(simMST$cut_score, list(1))))),
+               "length 2")
+})
+
+test_that("reval_mst() stops with a clear message when an inverse TCC estimate is missing", {
+  expect_error(
+    reval_mst(x = simMST$item_bank, D = 1.702, route_map = simMST$route_map,
+              module = simMST$module, cut_score = simMST$cut_score, theta = 0,
+              intpol = FALSE),
+    "Inverse TCC estimates"
+  )
+})
+
+test_that("reval_mst() maps the cut scores to the modules in ascending order of module index", {
+  # module 2 reaches modules 5 and 6, and module 3 reaches modules 4 and 5, so
+  # the order of first appearance in the pathways (5, 6, 4) differs from the
+  # order of the module indices (4, 5, 6)
+  rm_x <- matrix(0L, 6, 6)
+  rm_x[1, 2:3] <- 1L
+  rm_x[2, 5:6] <- 1L
+  rm_x[3, 4:5] <- 1L
+  th <- c(-1, 0.5)
+  rv <- reval_mst(x = pnl$x, D = 1, route_map = rm_x, module = pnl$module,
+                  cut_score = pnl$cut_score, theta = th)$eval.tb
+  bf <- ref_brute_mst(pnl$x, pnl$module, rm_x, pnl$cut_score, th)
+  expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
+  expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
+})
+
+test_that("reval_mst() stops when the module matrix does not match the route map", {
+  expect_error(
+    reval_mst(x = simMST$item_bank, D = 1.702, route_map = simMST$route_map,
+              module = simMST$module[, 1:6], cut_score = simMST$cut_score, theta = 0),
+    "one column per module"
+  )
+})

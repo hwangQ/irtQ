@@ -448,6 +448,11 @@ find_cut <- function(x,
         slope_i <- (diff_tif_fn(root_i + 0.01) - diff_tif_fn(root_i - 0.01)) / 0.02
         type_i  <- if (slope_i > 0) "proper" else "anomalous"
 
+        # Skip a root already found from the previous interval; this happens
+        # when the TIF difference is exactly zero at a grid point
+        if (length(all_roots) > 0L &&
+            abs(root_i - all_roots[length(all_roots)]) < .Machine$double.eps^0.5) next
+
         all_roots  <- c(all_roots,  root_i)
         root_types <- c(root_types, type_i)
       }

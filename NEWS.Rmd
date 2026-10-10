@@ -231,6 +231,35 @@ knitr::opts_chunk$set(
 
 * `ctt()` computes alpha with each item removed faster for large tests.
 
+* `cac_lee()` and `cac_rud()` leave out examinees with a missing ability
+  estimate (or standard error) with a warning. Before, `cac_lee()` and
+  `cac_rud()` stopped with an obscure error for a missing ability estimate, and
+  `cac_rud()` returned wrong indices for a missing standard error. Both stop
+  for cut scores that are not in strictly ascending order, and `cac_rud()`
+  stops for a standard error that is not positive. `cac_lee()` no longer stops
+  when a performance level contains no integer summed score, and it is much
+  faster with ability estimates.
+
+* `panel_info()` stops with a clear message for a route map that does not
+  define a panel (a module without transitions, a cycle, or a module outside
+  the stages) instead of running forever, and it finds every stage when the
+  modules are not numbered in the order of the stages.
+
+* `reval_mst()` accepts item metadata with a missing guessing parameter, such
+  as 2PLM items from `shape_df()`. `reval_mst()` and `run_mst()` stop with a
+  clear message when `cut_score` does not match the panel or `module` has a
+  number of columns other than the number of modules, and they assign the cut
+  scores to the modules of a stage in the order of the module indices.
+  `reval_mst()` also stops when an inverse TCC estimate is missing for a sum
+  score.
+
+* `run_mst()` stops with a clear message when `tol` or `max.iter` in
+  `route_score` or `final_score` is not valid (a `max.iter` of 0 or 2.5 never
+  ended), and it warns once about examinees without any observed response.
+
+* `find_cut()` no longer warns about two proper crossings when a crossing lies
+  exactly on a grid point.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

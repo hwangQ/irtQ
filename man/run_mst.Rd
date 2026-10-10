@@ -166,6 +166,8 @@ assigned to the lowest and the maximum possible sum scores for
 \item{\code{max.it}}{Integer: maximum bisection iterations for
 \code{"INV.TCC"}. Default: \code{500L}.}
 }
+As in \code{\link{est_score}}, the function stops with an error when
+\code{tol} or \code{max.iter} is not valid for the chosen method.
 Unspecified fields take their defaults; the full default is
 \code{list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),}
 \code{nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,}
@@ -313,7 +315,9 @@ missing response is counted as 0 in the sum score, as in
 \code{\link{est_score}}, but no warning is issued. The same rule applies to
 the routing estimates. When all responses up to a non-final stage are
 missing, the routing estimate is 0 after stage 1 and the previous routing
-estimate after a later stage.
+estimate after a later stage. An examinee with no observed response at all
+receives \code{NA} as the final estimate, and one warning reports the number
+of such examinees.
 
 \strong{Relation to \code{reval_mst()}}: With \code{route_method = NULL}, a
 \code{cut_score} list, and \code{route_score = list(method = "INV.TCC")},

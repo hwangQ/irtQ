@@ -56,11 +56,15 @@ estimates to the sum scores that cannot be mapped through the TCC (sum
 scores less than or equal to the sum of the guessing parameters, and the
 maximum possible sum score), as in \code{\link[=est_score]{est_score()}}. The low scores are
 mapped by linear interpolation (Lim et al., 2021), and the maximum sum
-score receives the second value of \code{range.tcc}. Default is \code{TRUE}.}
+score receives the second value of \code{range.tcc}. With \code{intpol = FALSE},
+some sum scores have no ability estimate, and the function stops with an
+error. Default is \code{TRUE}.}
 
 \item{range.tcc}{A numeric vector of length two giving the ability estimates
 assigned to the lowest and the maximum possible sum scores when
-\code{intpol = TRUE} (see \code{\link[=est_score]{est_score()}}). Default is \code{c(-7, 7)}.}
+\code{intpol = TRUE} (see \code{\link[=est_score]{est_score()}}). The range must be wide enough
+to cover the ability estimates of the sum scores, or the function stops
+with an error. Default is \code{c(-7, 7)}.}
 
 \item{tol}{A positive number giving the tolerance of the bisection search
 used by inverse TCC scoring; the search stops when the search interval is
