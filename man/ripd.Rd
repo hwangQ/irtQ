@@ -364,6 +364,17 @@ because it is sensitive to both uniform and nonuniform drift and addresses
 potential inflation of the family-wise Type I error that arises from
 applying \eqn{RIPD_R} and \eqn{RIPD_S} separately to the same item.
 
+In rare cases, the covariance matrix of \eqn{RIPD_R} and \eqn{RIPD_S} is
+singular, for example when all examinees who responded to an item have the
+same probability of a correct response, so that \eqn{RIPD_S} is a linear
+function of \eqn{RIPD_R}. Then \eqn{RIPD_{RS}} is computed with the
+Moore-Penrose generalized inverse of the covariance matrix and compared with
+a chi-square distribution whose degrees of freedom equal the rank of the
+matrix (Moore, 1977), and a warning names the item. This handling is not part
+of the original method (Lim et al., 2022; Lim & Han, 2026) and is added in
+irtQ. In most data the matrix is not singular, and \eqn{RIPD_{RS}} has two
+degrees of freedom.
+
 \strong{Diagnosing the Nature of Drift}
 
 The pattern of flagging across the three statistics can help diagnose the
@@ -548,6 +559,11 @@ parameter drift in CAT. \emph{Journal of Educational and Behavioral Statistics}.
 
 Lord, F. M. (1980). Applications of item response theory to practical
 testing problems. Lawrence Erlbaum Associates.
+
+Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. \emph{Journal of the American
+Statistical Association, 72}(357), 131-137.
+\doi{10.1080/01621459.1977.10479921}.
 
 Veerkamp, W. J. J., & Glas, C. A. W. (2000). Detection of known items in
 adaptive testing with a statistical quality control method. \emph{Journal of

@@ -213,6 +213,17 @@
 #' potential inflation of the family-wise Type I error that arises from
 #' applying \eqn{RIPD_R} and \eqn{RIPD_S} separately to the same item.
 #'
+#' In rare cases, the covariance matrix of \eqn{RIPD_R} and \eqn{RIPD_S} is
+#' singular, for example when all examinees who responded to an item have the
+#' same probability of a correct response, so that \eqn{RIPD_S} is a linear
+#' function of \eqn{RIPD_R}. Then \eqn{RIPD_{RS}} is computed with the
+#' Moore-Penrose generalized inverse of the covariance matrix and compared with
+#' a chi-square distribution whose degrees of freedom equal the rank of the
+#' matrix (Moore, 1977), and a warning names the item. This handling is not part
+#' of the original method (Lim et al., 2022; Lim & Han, 2026) and is added in
+#' irtQ. In most data the matrix is not singular, and \eqn{RIPD_{RS}} has two
+#' degrees of freedom.
+#'
 #' \strong{Diagnosing the Nature of Drift}
 #'
 #' The pattern of flagging across the three statistics can help diagnose the
@@ -388,6 +399,11 @@
 #'
 #'   Lord, F. M. (1980). Applications of item response theory to practical
 #'   testing problems. Lawrence Erlbaum Associates.
+#'
+#'   Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+#'   construction of chi-squared tests of fit. *Journal of the American
+#'   Statistical Association, 72*(357), 131-137.
+#'   \doi{10.1080/01621459.1977.10479921}.
 #'
 #'   Veerkamp, W. J. J., & Glas, C. A. W. (2000). Detection of known items in
 #'   adaptive testing with a statistical quality control method. *Journal of
@@ -627,6 +643,9 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
     item.skip = item.skip, D = D, alpha = alpha
   )
 
+  # record the items whose covariance matrix is singular
+  singular_id <- ipd_rst$singular
+
   # create two empty lists to contain the results
   no_purify <- list(ipd_stat = NULL, moments = NULL, ipd_item = NULL, score = NULL)
   with_purify <- list(
@@ -770,6 +789,9 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           alpha = alpha
         )
 
+        # record the items whose covariance matrix is singular
+        singular_id <- union(singular_id, ipd_rst_tmp$singular)
+
         # extract the IPD analysis results
         # and check if at least one IPD item is detected
         ipd_item_tmp <- ipd_rst_tmp$ipd_item[[purify.by]]
@@ -835,6 +857,13 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
       with_purify$n.iter <- 0
       with_purify$complete <- TRUE
     }
+  }
+
+  # warn that the generalized inverse is used for the items with a singular covariance matrix
+  if (length(singular_id) > 0L) {
+    warning("The covariance matrix of RIPD_R and RIPD_S is singular for item(s) ",
+            paste(singular_id, collapse = ", "), ". RIPD_RS of these items is computed ",
+            "with a generalized inverse and fewer degrees of freedom.", call. = FALSE)
   }
 
   # summarize the results
@@ -941,8 +970,9 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   moments_ripds <- moments$rdifs
   covar <- moments$covariance
 
-  # compute the chi-square statistics
-  chisq <- c()
+  # compute the chi-square statistics and their degrees of freedom
+  chisq <- rep(NA_real_, nitem)
+  df_chisq <- rep(2, nitem)
   for (i in 1:nitem) {
     if (i %in% all_miss) {
       chisq[i] <- NaN
@@ -962,38 +992,32 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
       # create a vector of ripdr and ripds
       est_mu_vec <- cbind(ripdr[i], ripds[i])
 
-      # compute the chi-square statistic
-      inv_cov <- suppressWarnings(tryCatch(
-        {
-          solve(cov_mat, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_cov)) {
-        inv_cov <- suppressWarnings(tryCatch(
-          {
-            solve(cov_mat + 1e-15, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_cov)) {
-          inv_cov <- suppressWarnings(tryCatch(
-            {
-              solve(cov_mat + 1e-10, tol = 1e-200)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
+      # compute the reciprocal condition number of the covariance matrix
+      rc_cov <- if (all(is.finite(cov_mat))) {
+        tryCatch(rcond(cov_mat), error = function(e) 0)
+      } else {
+        NA_real_
+      }
+
+      if (isTRUE(rc_cov > 1e-10)) {
+        # use the inverse of the covariance matrix when it is well conditioned
+        inv_cov <- solve(cov_mat)
+        chisq[i] <- as.numeric((est_mu_vec - mu_vec) %*% inv_cov %*% t(est_mu_vec - mu_vec))
+      } else if (!is.na(rc_cov)) {
+        # otherwise use the generalized inverse and the rank of the covariance matrix
+        eig <- eigen(cov_mat, symmetric = TRUE)
+        keep <- eig$values > max(eig$values) * 1e-10
+        if (any(keep)) {
+          proj <- crossprod(eig$vectors[, keep, drop = FALSE], t(est_mu_vec - mu_vec))
+          chisq[i] <- sum(proj^2 / eig$values[keep])
+          df_chisq[i] <- sum(keep)
         }
       }
-      chisq[i] <- as.numeric((est_mu_vec - mu_vec) %*% inv_cov %*% t(est_mu_vec - mu_vec))
     }
   }
+
+  # find the items whose covariance matrix is singular
+  singular_id <- x$id[which(df_chisq < 2 & !(seq_len(nitem) %in% item.skip))]
 
   # standardize the two statistics of ripdr and ripds
   z_stat_ripdr <- (ripdr - moments_ripdr$mu) / moments_ripdr$sigma
@@ -1002,7 +1026,7 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   # calculate p-values for all three statistics
   p_ripdr <- 2 * stats::pnorm(q = abs(z_stat_ripdr), mean = 0, sd = 1, lower.tail = FALSE)
   p_ripds <- 2 * stats::pnorm(q = abs(z_stat_ripds), mean = 0, sd = 1, lower.tail = FALSE)
-  p_ripdrs <- stats::pchisq(chisq, df = 2, lower.tail = FALSE)
+  p_ripdrs <- stats::pchisq(chisq, df = df_chisq, lower.tail = FALSE)
 
   # compute total sample size
   n_total <- n_foc + n_ref
@@ -1043,7 +1067,8 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   rst <- list(
     ipd_stat = stat_df,
     ipd_item = list(ripdr = ipd_item_ripdr, ripds = ipd_item_ripds, ripdrs = ipd_item_ripdrs),
-    moments = list(ripdr = moments_ripdr, ripds = moments_ripds), covariance = covar, alpha = alpha
+    moments = list(ripdr = moments_ripdr, ripds = moments_ripds), covariance = covar, alpha = alpha,
+    singular = singular_id
   )
 
   # return the results

@@ -682,6 +682,11 @@ Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
 terms. \emph{Journal of the Royal Statistical Society: Series B
 (Methodological), 51}, 127-138.
 
+Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. \emph{Journal of the American
+Statistical Association, 72}(357), 131-137.
+\doi{10.1080/01621459.1977.10479921}.
+
 Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
 scoring for rating scale data (Computer software). Chicago, IL: Scientific
 Software International. URL http://www.ssicentral.com

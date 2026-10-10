@@ -210,6 +210,14 @@
   `alpha = 0.05`) was flagged. The decision now uses the unrounded
   p-values, and the tables still show four decimals.
 
+- `ripd()` computed `RIPD_RS` from arbitrary values when the covariance
+  matrix of `RIPD_R` and `RIPD_S` was singular, which happens when all
+  examinees who responded to an item have the same probability of a
+  correct response (a tiny constant was added to every entry of the
+  matrix). The statistic is now computed with a generalized inverse and
+  the rank of the matrix as degrees of freedom, and a warning names the
+  items. Results for regular data are unchanged.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

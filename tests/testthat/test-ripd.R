@@ -184,3 +184,31 @@ test_that("ripd() flags items with the unrounded p-values", {
   expect_equal(j %in% rst$no_purify$ipd_item$ripdr, ref$p.ripdr[j] <= alpha)
   expect_equal(rst$no_purify$ipd_stat$p.ripdr[j], p_round[j])
 })
+
+test_that("ripd() uses a generalized inverse when the covariance matrix is singular", {
+  x1 <- shape_df(par.drm = list(a = c(1, 1.5), b = c(0, -0.5), g = c(0, 0.2)), cats = 2,
+                 model = c("2PLM", "3PLM"))
+  set.seed(2)
+  p <- drm(theta = 1, a = x1$par.1, b = x1$par.2, g = x1$par.3, D = 1)
+  resp <- cbind(rbinom(200, 1, p[1]), rbinom(200, 1, p[2]))
+
+  # with a common ability the squared residual is a linear function of the raw residual
+  expect_warning(
+    rst <- ripd(x1, resp, score = rep(1, 200), group = rep(1:2, each = 100), focal.name = 2,
+                verbose = FALSE),
+    "singular for item(s) V1, V2", fixed = TRUE
+  )
+  stat <- rst$no_purify$ipd_stat
+  expect_equal(stat$ripdrs, round(stat$z.ripdr^2, 4), tolerance = 1e-3)
+  expect_equal(stat$p.ripdrs, stat$p.ripdr, tolerance = 1e-3)
+})
+
+test_that("ripd() keeps two degrees of freedom when the covariance matrix is regular", {
+  sim <- ripd_sim()
+  score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
+  expect_no_warning(rst <- ripd(sim$par, sim$resp, score = score, group = sim$group,
+                                focal.name = "f", verbose = FALSE))
+  stat <- rst$no_purify$ipd_stat
+  expect_equal(stat$p.ripdrs, round(pchisq(stat$ripdrs, df = 2, lower.tail = FALSE), 4),
+               tolerance = 1e-2)
+})
