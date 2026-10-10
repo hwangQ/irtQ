@@ -53,9 +53,13 @@ test_that("irtfit() drops empty score groups and keeps proportions that sum to o
   }
 })
 
+# reads the most recent ggplot with the function that the installed ggplot2 provides
+last_ggplot <- function() {
+  getter <- if ("get_last_plot" %in% getNamespaceExports("ggplot2")) "get_last_plot" else "last_plot"
+  getExportedValue("ggplot2", getter)()
+}
+
 test_that("plot.irtfit() Wald intervals use the two-sided critical value", {
-  # the last plot is read back, which needs get_last_plot() in ggplot2
-  skip_if_not("get_last_plot" %in% getNamespaceExports("ggplot2"))
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off())
   fit <- irtfit(
@@ -63,7 +67,7 @@ test_that("plot.irtfit() Wald intervals use the two-sided critical value", {
     n.width = 8, loc.theta = "average", range.score = c(-4, 4), D = 1, alpha = 0.05
   )
   plot(x = fit, item.loc = 1, type = "icc", ci.method = "wald", show.table = FALSE)
-  built <- ggplot2::ggplot_build(ggplot2::get_last_plot())
+  built <- ggplot2::ggplot_build(last_ggplot())
   # the segment layer holds the interval (y = upper limit, yend = lower limit)
   seg <- Filter(function(d) all(c("y", "yend", "xend") %in% names(d)), built$data)[[1]]
   unclipped <- seg$yend > 0 & seg$y < 1
@@ -197,19 +201,17 @@ test_that("irtfit() reports NA critical values and p-values when no degrees of f
 })
 
 test_that("plot.irtfit() uses xlab.text for type = 'both'", {
-  # the last plot is read back, which needs get_last_plot() in ggplot2
-  skip_if_not("get_last_plot" %in% getNamespaceExports("ggplot2"))
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off())
   fit <- irtfit(x = x_ft, score = theta_fit, data = resp_ft, D = 1)
   for (tp in c("both", "icc", "sr")) {
     plot(fit, item.loc = 1, type = tp, show.table = FALSE, xlab.text = "Ability")
-    expect_identical(ggplot2::get_last_plot()$labels$x, "Ability")
+    expect_identical(last_ggplot()$labels$x, "Ability")
   }
 
   # the default label is theta
   plot(fit, item.loc = 1, type = "both", show.table = FALSE)
-  expect_false(identical(ggplot2::get_last_plot()$labels$x, "Ability"))
+  expect_false(identical(last_ggplot()$labels$x, "Ability"))
 })
 
 # ---- Statistics against direct computations ---------------------------------------
@@ -327,13 +329,12 @@ test_that("irtfit() reads logical responses and a single remaining group", {
 })
 
 test_that("plot.irtfit() keeps the colors of the standardized residuals when all or none exceed overSR", {
-  skip_if_not("get_last_plot" %in% getNamespaceExports("ggplot2"))
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off())
   layer_look <- function(over) {
     fit <- irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, overSR = over)
     suppressWarnings(plot(fit, item.loc = 1, type = "sr", show.table = FALSE))
-    d <- suppressWarnings(ggplot2::ggplot_build(ggplot2::get_last_plot()))$data[[1]]
+    d <- suppressWarnings(ggplot2::ggplot_build(last_ggplot()))$data[[1]]
     list(colour = unique(d$colour), shape = unique(d$shape))
   }
 
@@ -344,6 +345,34 @@ test_that("plot.irtfit() keeps the colors of the standardized residuals when all
 
   # no residual exceeds the threshold: blue crosses
   none_over <- layer_look(100)
+  expect_identical(none_over$colour, "blue")
+  expect_identical(as.numeric(none_over$shape), 4)
+})
+
+test_that("plot.irtfit() with type = 'both' keeps the colors of the standardized residuals", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  # type = 'both' draws the two plots with grid.arrange(), so the plots are
+  # taken from the arguments of that call
+  layer_look_both <- function(over) {
+    store <- new.env()
+    ns <- asNamespace("gridExtra")
+    suppressMessages(base::trace(
+      "grid.arrange", where = ns, print = FALSE,
+      tracer = bquote(assign("plots", list(...), envir = .(store)))
+    ))
+    on.exit(suppressMessages(base::untrace("grid.arrange", where = ns)), add = TRUE)
+    fit <- irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, overSR = over)
+    suppressWarnings(plot(fit, item.loc = 1, type = "both", show.table = FALSE))
+    d <- suppressWarnings(ggplot2::ggplot_build(store$plots[[2]]))$data[[1]]
+    list(colour = unique(d$colour), shape = unique(d$shape))
+  }
+
+  all_over <- layer_look_both(0)
+  expect_identical(all_over$colour, "red")
+  expect_identical(as.numeric(all_over$shape), 1)
+
+  none_over <- layer_look_both(100)
   expect_identical(none_over$colour, "blue")
   expect_identical(as.numeric(none_over$shape), 4)
 })

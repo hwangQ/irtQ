@@ -141,11 +141,12 @@
   instead of red circles, when every plotted residual exceeded `overSR`.
   Each kind of point now keeps its color and shape.
 
-- `irtfit()` stopped with an error for a logical response matrix and
-  when the ability groups of an item were merged into a single row (for
-  example, with a large `min.collapse`). Both now work; an item left
-  without degrees of freedom gets `NA` for the critical value and
-  p-value of the chi-square statistic, with a warning.
+- `irtfit()` stopped with an error for a logical response matrix, and
+  `irtfit()` and `sx2_fit()` stopped with an error when the groups of an
+  item were merged into a single row (for example, with a large
+  `min.collapse`). These cases now work; an item left without degrees of
+  freedom gets `NA` for the critical value and p-value of the chi-square
+  statistic, with a warning.
 
 - `sx2_fit()` for an `est_irt` object computed the expected frequencies
   with a standard normal distribution even when a different latent

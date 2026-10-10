@@ -32,9 +32,10 @@ equating and CAT [@ames_etal2015].
 | `irtfit()` | $\chi^2$, $G^2$, infit, outfit | Estimated $\hat{\theta}$ (ability bins) |
 | `sx2_fit()` | $S$-$X^2$ [@orlando_thissen2000; @orlando_thissen2003; @kang_chen2008] | Observed summed score |
 
-Both functions accept either an `est_irt` object (produced by `est_irt()`) or
-a plain item metadata data frame as their first argument `x`, and both support
-mixed-format tests containing dichotomous and polytomous items.
+Both functions accept an `est_irt` object (produced by `est_irt()`), an
+`est_item` object (produced by `est_item()`), or a plain item metadata data
+frame as their first argument `x`, and both support mixed-format tests
+containing dichotomous and polytomous items.
 
 ```{r load-pkg}
 library(irtQ)
@@ -198,7 +199,8 @@ and $\bar{P}_h$ is the model-predicted expected proportion correct in that bin.
 > **Extension to polytomous items:** For items with $K$ response categories, the degrees of freedom are extended to account for the multiple categories. The $\chi^2$ statistic has $df = H \times (K - 1) - p$, and the $G^2$ statistic has $df = H \times (K - 1)$, where $H$ is the final number of ability bins after any necessary cell collapsing.
 
 > **Key difference between $\chi^2$ and $G^2$ df:** For the $\chi^2$ statistic,
-> the number of estimated item parameters is subtracted from the df (e.g., for a
+> the number of item parameters of the item's model (including parameters
+> fixed in the calibration) is subtracted from the df (e.g., for a
 > 3PLM item with $H = 11$ bins left after any cell collapsing, $df = 11 - 3 = 8$).
 > For $G^2$, no such subtraction is made ($df = H = 11$). Here $H$ is the number
 > of groups that remain after cell collapsing, so it can be smaller than `n.width`
