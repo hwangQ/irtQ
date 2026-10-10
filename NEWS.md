@@ -179,6 +179,32 @@
   crossing lines outside the range. The x-axis now covers the requested
   range.
 
+- `ripd()` stopped with an obscure error when an examinee had no ability
+  estimate: a missing value in `score`, an examinee without any
+  response, a focal group examinee left out by `min.resp` (so `min.resp`
+  could not be used), or an examinee whose responses were all removed
+  during purification. Such examinees are now excluded, with a warning
+  for the first and the third case, and the function stops when no
+  examinee has an ability estimate. `min.resp` now also applies to the
+  first analysis when `score` is given.
+
+- `ripd()` and `pcd2()` stopped with an obscure error when purification
+  left a single item. They now work, and stop with a clear message when
+  every item is flagged.
+
+- `ripd()` and `pcd2()` silently accepted responses outside the score
+  categories (for example, an unrecorded missing code such as -9, which
+  gave chi-square values in the hundred thousands), a `group` of the
+  wrong length, and an `item.skip` that was not a set of item positions
+  (an ID given to `pcd2()` added a spurious row and skipped nothing).
+  They now stop with a clear message, a logical `item.skip` is read as
+  item positions, also during purification, and character responses are
+  read as numbers.
+
+- `pcd2()` warned about excluded items even when `min.resp` excluded
+  none, and worded the warning poorly. It now warns only when items are
+  excluded.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

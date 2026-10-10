@@ -111,6 +111,8 @@
 #'   \item If `max.iter` is reached before convergence, a warning is issued, the
 #'   items flagged at the last iteration are added to the flagged set, and
 #'   `complete` is set to `FALSE`.
+#'   \item The function stops with an error when all items are flagged, because
+#'   no item is left to analyze.
 #'   \item All flagged items and statistics are saved, and convergence status is reported.
 #' }
 #' This process reduces the influence of already-flagged items on the posterior
@@ -315,7 +317,7 @@ pcd2 <- function(x,
   cl <- match.call()
 
   # Transform a data set to matrix
-  data <- data.matrix(data)
+  data <- as.matrix(data)
 
   # Confirm and correct all item metadata information
   x <- confirm_df(x)
@@ -330,13 +332,19 @@ pcd2 <- function(x,
     data[data == missing] <- NA
   }
 
+  # Transform the response data to a numeric matrix and check the responses
+  data <- resp_to_matrix(data, x$cats, x$id)
+
+  # Check the positions of the items to be skipped
+  item.skip <- check_item_skip(item.skip, nrow(x))
+
   # count the number of item responses across all items
   n.resp <- Rfast::colsums(!is.na(data))
 
   # check the items which have all missing responses
   loc_allmiss <- which(n.resp == 0L)
   if (length(loc_allmiss) > 0L) {
-    memo1 <- paste0(paste0("Item(s) ", loc_allmiss, collapse = ", "), " has(have) no item response data. \n")
+    memo1 <- paste0("Item(s) ", paste0(loc_allmiss, collapse = ", "), " have no response data.")
     warning(memo1, call. = FALSE)
   }
 
@@ -345,10 +353,14 @@ pcd2 <- function(x,
   # those items with NA
   if (!is.null(min.resp)) {
     loc_less <- which(n.resp < min.resp & n.resp > 0)
-    data[, loc_less] <- NA
-    memo2 <- paste0(paste0("Item(s) ", loc_less, collapse = ", "), " is(are) not be analyzed ",
-                    "because it(they) did not meet the minimum response count criterion. \n")
-    warning(memo2, call. = FALSE)
+
+    # Warn only when at least one item is excluded
+    if (length(loc_less) > 0L) {
+      data[, loc_less] <- NA
+      memo2 <- paste0("Item(s) ", paste0(loc_less, collapse = ", "), " are not analyzed ",
+                      "because they do not meet the minimum response count criterion.")
+      warning(memo2, call. = FALSE)
+    }
   }
 
   # (1) when no purification is implemented
@@ -427,11 +439,17 @@ pcd2 <- function(x,
         # Refine the leftover items
         item_num <- item_num[-flag_max]
 
+        # Stop when no item is left to analyze
+        if (length(item_num) == 0L) {
+          stop("All items were flagged during the purification, so no item is left to analyze.",
+               call. = FALSE)
+        }
+
         # Remove the detected IPD item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
+        x_puri <- x_puri[-flag_max, , drop = FALSE]
 
         # Remove the detected IPD item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
+        data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # Update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -471,10 +489,10 @@ pcd2 <- function(x,
       # Record the actual number of iteration
       n_iter <- i
 
-      # If the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
+      # Warn when max.iter is reached before the purification is completed
       if(max.iter == n_iter & !is.null(ipd_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
+        warning("The maximum number of iterations was reached before purification was completed.",
+                call. = FALSE)
         complete <- FALSE
 
         # add flagged IPD item at the last iteration

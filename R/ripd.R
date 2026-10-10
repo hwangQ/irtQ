@@ -49,9 +49,10 @@
 #'   responses to be used. All responses of focal group examinees with fewer
 #'   than `min.resp` (but at least one) responses are set to `NA` before the
 #'   ability estimation, in the initial analysis and at every purification
-#'   iteration, and these examinees are excluded from the analysis with a
-#'   warning. Reference group examinees are not affected. If `NULL`, no minimum
-#'   is applied. Default is `NULL`.
+#'   iteration, and these examinees are excluded from the analysis. A warning
+#'   reports the number of examinees excluded in the initial analysis. Reference
+#'   group examinees are not affected. If `NULL`, no minimum is applied. Default
+#'   is `NULL`.
 #'
 #' @return This function returns an object of class `"ripd"`, a list with the
 #' following elements:
@@ -277,8 +278,9 @@
 #' The process continues until no additional items are flagged (convergence) or
 #' \code{max.iter} is reached. In the latter case, a warning is issued, the
 #' items flagged at the last iteration are added to the flagged set, and
-#' \code{complete} is set to \code{FALSE}. The statistic
-#' used to drive purification is specified by \code{purify.by};
+#' \code{complete} is set to \code{FALSE}. The function stops with an error when
+#' all items are flagged, because no item is left to estimate the abilities.
+#' The statistic used to drive purification is specified by \code{purify.by};
 #' \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 #' types of drift.
 #'
@@ -539,33 +541,83 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
   }
 
   # transform the response data to a matrix form
-  data <- data.matrix(data)
+  data <- as.matrix(data)
 
   # re-code missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
   }
 
-  # stop when the response data include any polytomous response
-  if (any(data > 1, na.rm = TRUE)) {
-    stop("The current version only supports dichotomous response data.", call. = FALSE)
+  # transform the response data to a numeric matrix and check the responses
+  data <- resp_to_matrix(data, x$cats, x$id)
+
+  # stop when the group vector does not match the rows of the response data
+  if (length(group) != nrow(data)) {
+    stop("The length of 'group' must equal the number of rows in 'data'.", call. = FALSE)
   }
 
-  # compute the score if score = NULL
+  # stop when the focal group is not a single value found in the group vector
+  if (length(focal.name) != 1L || !any(group == focal.name, na.rm = TRUE)) {
+    stop("'focal.name' must be a single value found in 'group'.", call. = FALSE)
+  }
+
+  # stop when there is no examinee in the reference group
+  if (!any(group != focal.name, na.rm = TRUE)) {
+    stop("'group' must contain at least one examinee of the reference group.", call. = FALSE)
+  }
+
+  # check the positions of the items to be skipped
+  item.skip <- check_item_skip(item.skip, nrow(x))
+
+  # find the focal group examinees with fewer than min.resp responses
+  loc_less <- NULL
+  if (!is.null(min.resp)) {
+    loc_less <- ripd_min_resp(data = data, group = group, focal.name = focal.name,
+                              min.resp = min.resp)
+  }
+
+  # transform the scores to a vector form when they are provided
   if (!is.null(score)) {
-    # transform scores to a vector form
     if (is.matrix(score) | is.data.frame(score)) {
       score <- as.numeric(data.matrix(score))
     }
-  } else {
-    # set all responses of focal group examinees with fewer than min.resp responses to NA
-    if (!is.null(min.resp)) {
-      data <- ripd_min_resp(data = data, group = group, focal.name = focal.name,
-                            min.resp = min.resp)
+
+    # stop when the scores do not match the rows of the response data
+    if (length(score) != nrow(data)) {
+      stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
     }
+
+    # warn that the examinees with responses but without an ability estimate are excluded
+    n_na <- sum(is.na(score) & rowSums(!is.na(data)) > 0)
+    if (n_na > 0L) {
+      warning(n_na, " examinee(s) with a missing ability estimate were excluded.", call. = FALSE)
+    }
+  }
+
+  # warn that the focal group examinees with too few responses are excluded
+  if (length(loc_less) > 0L) {
+    warning(length(loc_less), " focal group examinee(s) with fewer than ", min.resp,
+            " responses were excluded.", call. = FALSE)
+  }
+
+  # set all responses of those examinees to NA
+  if (length(loc_less) > 0L) {
+    data[loc_less, ] <- NA
+  }
+
+  # compute the score if score = NULL
+  if (is.null(score)) {
     score <- est_score(
       x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
       nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
+  } else if (length(loc_less) > 0L) {
+    # treat the ability estimates of those examinees as missing
+    score[loc_less] <- NA
+  }
+
+  # stop when no examinee has an ability estimate
+  if (all(is.na(score))) {
+    stop("No examinee has an ability estimate.", call. = FALSE)
   }
 
   # a) when no purification is set
@@ -666,11 +718,17 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         # refine the leftover items
         item_num <- item_num[-flag_max]
 
+        # stop when no item is left to estimate the abilities
+        if (length(item_num) == 0L) {
+          stop("All items were flagged during the purification, so no item is left to analyze.",
+               call. = FALSE)
+        }
+
         # remove the detected IPD item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
+        x_puri <- x_puri[-flag_max, , drop = FALSE]
 
         # remove the detected IPD item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
+        data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -681,8 +739,9 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
         # set all responses of focal group examinees with fewer than min.resp responses to NA
         if (!is.null(min.resp)) {
-          data_puri <- ripd_min_resp(data = data_puri, group = group, focal.name = focal.name,
-                                     min.resp = min.resp)
+          loc_less <- ripd_min_resp(data = data_puri, group = group, focal.name = focal.name,
+                                    min.resp = min.resp)
+          data_puri[loc_less, ] <- NA
         }
 
         # re-estimate the abilities of all examinees without the flagged items
@@ -739,7 +798,8 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
       # warn when max.iter is reached before the purification is completed
       if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
+        warning("The maximum number of iterations was reached before purification was completed.",
+                call. = FALSE)
         complete <- FALSE
 
         # add flagged IPD item at the last iteration
@@ -786,16 +846,14 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 }
 
 
-# This function sets all responses of focal group examinees with fewer than min.resp responses to NA
+# This function finds the focal group examinees with fewer than min.resp (but at least one) responses
 ripd_min_resp <- function(data, group, focal.name, min.resp) {
-  # find the focal group examinees whose number of responses is less than min.resp
+  # count the responses of the focal group examinees
   loc_foc <- which(group == focal.name)
   n_resp <- rowSums(!is.na(data[loc_foc, , drop = FALSE]))
-  loc_less <- which(n_resp < min.resp & n_resp > 0)
 
-  # replace all responses of those examinees with NA
-  data[loc_foc[loc_less], ] <- NA
-  data
+  # return the row numbers of the examinees whose number of responses is less than min.resp
+  loc_foc[which(n_resp < min.resp & n_resp > 0)]
 }
 
 
@@ -827,6 +885,13 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   ## ---------------------------------
   # compute the two statistics
   ## ---------------------------------
+  # treat the responses of examinees without an ability estimate as missing
+  na_score <- is.na(score)
+  if (any(na_score)) {
+    data[na_score, ] <- NA
+    score[na_score] <- 0
+  }
+
   # find the location of examinees for the reference and the focal groups
   loc_ref <- which(group != focal.name)
   loc_foc <- which(group == focal.name)

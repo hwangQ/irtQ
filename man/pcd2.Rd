@@ -205,6 +205,8 @@ number of iterations reaches \code{max.iter}.
 \item If \code{max.iter} is reached before convergence, a warning is issued, the
 items flagged at the last iteration are added to the flagged set, and
 \code{complete} is set to \code{FALSE}.
+\item The function stops with an error when all items are flagged, because
+no item is left to analyze.
 \item All flagged items and statistics are saved, and convergence status is reported.
 }
 This process reduces the influence of already-flagged items on the posterior

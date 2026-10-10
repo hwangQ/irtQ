@@ -50,6 +50,35 @@ bind.fill <- function(List, type=c("rbind", "cbind"), fill = NA){
 
 }
 
+# Check the positions of the items to be skipped in an IPD analysis and return them as
+# sorted unique integers (NULL when no item is skipped)
+check_item_skip <- function(item.skip, nitem) {
+  # nothing to check when no item is skipped
+  if (is.null(item.skip)) {
+    return(NULL)
+  }
+
+  # read a logical vector as the positions of TRUE
+  if (is.logical(item.skip)) {
+    if (length(item.skip) != nitem || anyNA(item.skip)) {
+      stop("A logical 'item.skip' must have one non-missing value per item.", call. = FALSE)
+    }
+    item.skip <- which(item.skip)
+  }
+
+  # stop when the values are not whole item positions within the items
+  if (!is.numeric(item.skip) || anyNA(item.skip) || any(item.skip != round(item.skip)) ||
+      any(item.skip < 1 | item.skip > nitem)) {
+    stop("'item.skip' must contain item positions (row numbers of 'x') from 1 to ", nitem, ".",
+         call. = FALSE)
+  }
+
+  # return the unique positions in ascending order
+  item.skip <- sort(unique(as.integer(item.skip)))
+  if (length(item.skip) == 0L) item.skip <- NULL
+  item.skip
+}
+
 # Convert the response data of the model-data fit functions to a numeric matrix
 # and check that every observed response is a whole number within the score
 # categories of its item

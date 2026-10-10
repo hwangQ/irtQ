@@ -150,9 +150,10 @@ item responses required from a focal group examinee for the examinee's
 responses to be used. All responses of focal group examinees with fewer
 than \code{min.resp} (but at least one) responses are set to \code{NA} before the
 ability estimation, in the initial analysis and at every purification
-iteration, and these examinees are excluded from the analysis with a
-warning. Reference group examinees are not affected. If \code{NULL}, no minimum
-is applied. Default is \code{NULL}.}
+iteration, and these examinees are excluded from the analysis. A warning
+reports the number of examinees excluded in the initial analysis. Reference
+group examinees are not affected. If \code{NULL}, no minimum is applied. Default
+is \code{NULL}.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:
@@ -428,8 +429,9 @@ for the remaining items.
 The process continues until no additional items are flagged (convergence) or
 \code{max.iter} is reached. In the latter case, a warning is issued, the
 items flagged at the last iteration are added to the flagged set, and
-\code{complete} is set to \code{FALSE}. The statistic
-used to drive purification is specified by \code{purify.by};
+\code{complete} is set to \code{FALSE}. The function stops with an error when
+all items are flagged, because no item is left to estimate the abilities.
+The statistic used to drive purification is specified by \code{purify.by};
 \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 types of drift.
 
