@@ -267,7 +267,7 @@ The `irtQ::irtfit()` function calculates widely used item fit statistics, includ
 To compute X^2 and G^2 statistics, the latent ability scale must be divided into several groups. Two grouping methods are available:
 
 - `"equal.width"`: Divides the scale into intervals of equal length
-- `"equal.freq"`: Divides the scale into groups with equal numbers of examinees
+- `"equal.freq"`: Divides the examinees into groups of approximately equal size
 
 You must also specify where the expected probabilities of item responses are calculated within each group. Two options are available:
 
@@ -288,7 +288,7 @@ To generate a plot, specify the item to be examined using the `item.loc` argumen
 
 The `ci.method` argument controls how confidence intervals are computed in the raw residual plots. Supported methods include:
 
-- `"wald"`: Wald interval based on the normal approximation (Laplace, 1812)
+- `"wald"`: Wald interval based on the normal approximation (Laplace, 1820), with the model-implied standard error
 - `"wilson"`: Wilson score interval (Wilson, 1927)
 - `"wilson.cr"`: Wilson score interval with continuity correction (Newcombe, 1998)
 

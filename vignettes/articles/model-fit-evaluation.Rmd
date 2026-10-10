@@ -238,8 +238,8 @@ choices materially affect the statistics:
 
 | Argument | Option | Description |
 |----------|--------|-------------|
-| `group.method` | `"equal.width"` | Bins span equal-length *intervals* on the $\theta$ scale. Easier to interpret geometrically; used by @yen1981. |
-| `group.method` | `"equal.freq"` | Each bin contains approximately the same *number of examinees* (quantile-based). Preferred when the ability distribution is skewed. |
+| `group.method` | `"equal.width"` | Bins span equal-length *intervals* on the $\theta$ scale. Easier to interpret geometrically. |
+| `group.method` | `"equal.freq"` | Each bin contains approximately the same *number of examinees* (quantile-based). Preferred when the ability distribution is skewed. @yen1981 used 10 groups of approximately equal size. |
 | `n.width` | integer | Number of bins $H$. @yen1981 used $H = 10$; @bock1960 allowed flexibility. Fewer bins = more examinees per bin but coarser resolution. |
 | `loc.theta` | `"average"` | The within-bin *mean* $\hat{\theta}$ is used to compute expected probabilities $\bar{P}_h$. |
 | `loc.theta` | `"middle"` | The *midpoint* of the bin's $\theta$ interval is used. |
@@ -279,7 +279,7 @@ choices materially affect the statistics:
 | `contingency.fitstat` | Collapsed contingency tables used for $\chi^2$ and $G^2$ computation (one per item) |
 | `contingency.plot` | Uncollapsed contingency tables used for residual plots |
 | `individual.info` | Individual residuals and variances used for infit/outfit |
-| `item_df` | Copy of the item metadata provided in `x` |
+| `item_df` | The item metadata used in the analysis (items with fewer than two responses are removed by `irtfit()`) |
 | `ancillary` | List with `range.score`, `alpha`, `overSR`, and `scale.D` |
 | `call` | The matched function call |
 
@@ -288,7 +288,7 @@ The `fit_stat` columns include (one row per item, plus an `id` column):
 - `X2` / `df.X2` / `crit.val.X2` / `p.X2`: $\chi^2$ statistic, degrees of freedom, critical value, and p-value
 - `G2` / `df.G2` / `crit.val.G2` / `p.G2`: $G^2$ statistic, degrees of freedom, critical value, and p-value
 - `outfit` / `infit`: mean-square outfit and infit statistics
-- `N`: number of non-missing responses to the item
+- `N`: number of examinees with a response to the item and an ability estimate
 - `overSR.prop`: proportion of (ability bin x response category) cells, prior to cell collapsing, whose absolute standardized residuals exceed `overSR`; for a dichotomous item the two categories mirror each other, so this equals the proportion of bins
 
 ---
@@ -321,7 +321,7 @@ fit_bin2 <- irtfit(
   score        = score_bin$est.theta,
   data         = resp_bin,
   D            = 1.702,
-  group.method = "equal.width",  # equal-width θ intervals (Yen, 1981 approach)
+  group.method = "equal.width",  # equal-width θ intervals
   n.width      = 10,
   loc.theta    = "average",      # within-bin mean θ
   range.score  = c(-4, 4),
@@ -418,7 +418,7 @@ cells were merged during the statistical computation.
 # Side-by-side: ICC overlay (raw residuals) + standardized residual plot
 plot(
   x          = fit_bin1,
-  item.loc   = 1,          # item index (row number in the metadata)
+  item.loc   = 1,          # row number in fit_bin1$item_df
   type       = "both",
   ci.method  = "wald",     # confidence interval method for proportion-correct CI
   show.table = FALSE,
@@ -451,7 +451,7 @@ plot(
 
 | Method | Description |
 |--------|-------------|
-| `"wald"` | Normal-approximation (Wald) interval, simplest but can be unreliable for small $N_h$ |
+| `"wald"` | Normal-approximation (Wald) interval with the model-implied standard error, simplest but can be unreliable for small $N_h$ |
 | `"wilson"` | Wilson score interval, good coverage even for small $N_h$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
 
@@ -526,7 +526,7 @@ the observed proportion correct on item $i$ among those examinees, and
 $\hat{P}_s$ is the model-based expected proportion.
 
 Degrees of freedom equal the number of summed-score groups that remain after cell
-collapsing minus the number of estimated item parameters. Before any collapsing,
+collapsing minus the number of item parameters of the item's model (parameters fixed in the calibration are also counted). Before any collapsing,
 the feasible summed-score values exclude 0 and the maximum, where responses to the
 item are deterministic, so $df \le (I - 1) - p$ [@ames_etal2015].
 
@@ -548,13 +548,14 @@ the $\chi^2$ approximation deteriorates. To address this:
 | Argument | Description |
 |----------|-------------|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
-| `data` | Response matrix (examinees × items). Missing values are replaced with 0 (incorrect). |
+| `data` | Response matrix (examinees × items). Missing values are replaced with 0 (the lowest category), with a warning. |
 | `D` | Scaling constant; must match calibration |
 | `alpha` | Significance level for flagging items (default `0.05`) |
 | `min.collapse` | Minimum expected frequency per cell before collapsing (default `1`) |
-| `norm.prior` | `c(mean, sd)` of the normal prior used in the Lord-Wingersky integration (default `c(0, 1)`) |
+| `norm.prior` | `c(mean, sd)` of the normal latent distribution used in the Lord-Wingersky integration (default `c(0, 1)`); ignored when `weights` is given |
 | `nquad` | Number of Gaussian quadrature points for integration (default `30`) |
-| `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); default `NULL` |
+| `weights` | Two-column quadrature points and weights of the latent distribution. For an `est_irt` object, when `weights`, `norm.prior`, and `nquad` are all omitted, the distribution stored in the object (`x$weights`) is used |
+| `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); used only to count the item parameters for the df; default `NULL` |
 
 ### Return value of `sx2_fit()`
 
@@ -563,7 +564,7 @@ the $\chi^2$ approximation deteriorates. To address this:
 | Component | Description |
 |-----------|-------------|
 | `fit_stat` | Data frame with columns `id`, `chisq` ($S$-$X^2$ statistic), `df`, `crit.val` (critical value at the specified `alpha`), and `p` (p-value); one row per item |
-| `item_df` | Copy of the item metadata provided in `x` |
+| `item_df` | The item metadata used in the analysis |
 | `exp_freq` | List of collapsed expected frequency tables (one per item) |
 | `obs_freq` | List of collapsed observed frequency tables |
 | `exp_prob` | List of collapsed expected probability tables |

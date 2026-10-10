@@ -141,7 +141,9 @@ cor(scores$est.theta, theta)
 
 `sx2_fit()` computes the S-X2 item fit statistic, and `irtfit()` computes
 chi-square and likelihood-ratio statistics, infit and outfit, and the
-contingency tables behind the residual plots.
+contingency tables behind the residual plots. For a fitted `est_irt` object,
+`sx2_fit()` uses the latent distribution stored in the object to compute the
+expected frequencies.
 
 ```{r sx2}
 sx2 <- sx2_fit(fit)
