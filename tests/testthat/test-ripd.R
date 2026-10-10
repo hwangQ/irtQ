@@ -168,3 +168,19 @@ test_that("ripd() stops with clear errors for invalid inputs", {
   expect_error(ripd(rbind(sim$par, xp), cbind(sim$resp, 0), score = score, group = sim$group, focal.name = "f"),
                "dichotomous")
 })
+
+test_that("ripd() flags items with the unrounded p-values", {
+  sim <- ripd_sim()
+  score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
+  ref <- ripd_ref(sim$par, sim$resp, score, sim$group, "f", 1)
+
+  # choose an item whose p-value changes by rounding and put alpha between the two values
+  p_round <- round(ref$p.ripdr, 4)
+  j <- which(abs(p_round - ref$p.ripdr) > 1e-5 & ref$p.ripdr > 1e-3)[1]
+  expect_false(is.na(j))
+  alpha <- (p_round[j] + ref$p.ripdr[j]) / 2
+  rst <- ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f", alpha = alpha,
+              verbose = FALSE)
+  expect_equal(j %in% rst$no_purify$ipd_item$ripdr, ref$p.ripdr[j] <= alpha)
+  expect_equal(rst$no_purify$ipd_stat$p.ripdr[j], p_round[j])
+})

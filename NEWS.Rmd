@@ -204,6 +204,11 @@ knitr::opts_chunk$set(
 * `pcd2()` warned about excluded items even when `min.resp` excluded none, and
   worded the warning poorly. It now warns only when items are excluded.
 
+* `ripd()` compared the p-values rounded to four decimals with `alpha`, so an
+  item with a p-value just above `alpha` (for example, 0.05004 for `alpha =
+  0.05`) was flagged. The decision now uses the unrounded p-values, and the
+  tables still show four decimals.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.

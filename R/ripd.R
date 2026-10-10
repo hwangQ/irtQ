@@ -1000,9 +1000,9 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   z_stat_ripds <- (ripds - moments_ripds$mu) / moments_ripds$sigma
 
   # calculate p-values for all three statistics
-  p_ripdr <- round(2 * stats::pnorm(q = abs(z_stat_ripdr), mean = 0, sd = 1, lower.tail = FALSE), 4)
-  p_ripds <- round(2 * stats::pnorm(q = abs(z_stat_ripds), mean = 0, sd = 1, lower.tail = FALSE), 4)
-  p_ripdrs <- round(stats::pchisq(chisq, df = 2, lower.tail = FALSE), 4)
+  p_ripdr <- 2 * stats::pnorm(q = abs(z_stat_ripdr), mean = 0, sd = 1, lower.tail = FALSE)
+  p_ripds <- 2 * stats::pnorm(q = abs(z_stat_ripds), mean = 0, sd = 1, lower.tail = FALSE)
+  p_ripdrs <- stats::pchisq(chisq, df = 2, lower.tail = FALSE)
 
   # compute total sample size
   n_total <- n_foc + n_ref
@@ -1014,7 +1014,7 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
       ripdr = round(ripdr, 4), z.ripdr = round(z_stat_ripdr, 4),
       ripds = round(ripds, 4), z.ripds = round(z_stat_ripds, 4),
       ripdrs = round(chisq, 4),
-      p.ripdr = p_ripdr, p.ripds = p_ripds, p.ripdrs = p_ripdrs,
+      p.ripdr = round(p_ripdr, 4), p.ripds = round(p_ripds, 4), p.ripdrs = round(p_ripdrs, 4),
       n.ref = n_ref, n.foc = n_foc, n.total = n_total, stringsAsFactors = FALSE
     )
   rownames(stat_df) <- NULL
@@ -1031,7 +1031,7 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
     covar[item.skip] <- NA
   }
 
-  # find the flagged items
+  # find the flagged items using the unrounded p-values
   ipd_item_ripdr <- as.numeric(which(p_ripdr <= alpha))
   ipd_item_ripds <- as.numeric(which(p_ripds <= alpha))
   ipd_item_ripdrs <- which(p_ripdrs <= alpha)
