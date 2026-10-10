@@ -163,7 +163,7 @@ cut_score = list(
 ```
 
 The cut scores of a transition are tied to the modules of the next stage in
-order: the first cut score separates the first and second modules, the second
+the order of the module indices: the first cut score separates the first and second modules, the second
 separates the second and third. When a module can reach only some of the
 next-stage modules, only the cut scores that separate those modules apply. In
 the route map above, a test taker in M4 can reach only M6 or M7, so the second
@@ -1453,7 +1453,7 @@ across the *entire* ability range, including the extremes where the
 | `cut_score` | list | - | List of routing cut score vectors (one per stage transition) |
 | `theta` | numeric | `seq(-5, 5, 1)` | Ability grid for evaluation |
 | `intpol` | logical | TRUE | Linear interpolation for out-of-range TCC scores |
-| `range.tcc` | numeric(2) | `c(-7, 7)` | Ability range for inverse TCC scoring |
+| `range.tcc` | numeric(2) | `c(-7, 7)` | Ability estimates assigned to the lowest and the maximum sum scores when `intpol = TRUE` |
 | `tol` | numeric | 1e-4 | Convergence tolerance for bisection in inverse TCC |
 
 ### `reval_mst()` Return Value

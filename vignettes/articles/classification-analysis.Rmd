@@ -419,9 +419,9 @@ Either `x` or `se` must be provided.
 |------------|-------------|
 | `x`        | Item metadata data frame (optional if `se` is provided; used to compute SE from TIF) |
 | `cutscore` | Numeric vector of $K - 1$ cut scores on the **theta scale**, defining $K$ performance levels |
-| `theta`    | Numeric vector of individual ability estimates (P-method) |
-| `se`       | Numeric vector of standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
-| `weights`  | Two-column matrix of quadrature nodes and weights (D-method) |
+| `theta`    | Numeric vector of individual ability estimates (P-method); an examinee with a missing `theta` or `se` is excluded with a warning |
+| `se`       | Numeric vector of positive standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
+| `weights`  | Two-column matrix of quadrature nodes and weights (D-method); weights that do not sum to 1 are rescaled with a warning |
 | `D`        | Scaling constant |
 
 ---

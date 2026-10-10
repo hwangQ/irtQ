@@ -158,6 +158,11 @@
   decision at `alpha` when the distribution was estimated. Set
   `norm.prior = c(0, 1)` to reproduce the earlier results.
 
+- `run_mst()` stopped with an obscure error for a panel whose routing
+  module is not module 1 when `ini_mod` was `NULL`, because the starting
+  module was drawn with `sample()` from a single module number. The
+  examinees now start in the routing module.
+
 - `reval_mst()` took the score distribution of the first stage from
   module 1 even when the routing module had another number, which gave
   wrong results without an error. The routing module is now taken from
@@ -166,7 +171,8 @@
 
 - `cac_lee()` and `cac_rud()` used weights that did not sum to 1 as
   given, so the marginal indices could exceed 1. Such weights are now
-  rescaled to sum to 1, with a warning.
+  rescaled to sum to 1, with a warning. Weights that are missing,
+  negative, or have a non-positive sum now stop with an error.
 
 - `plot.find_cut()` with `theta_range` still stretched the x-axis to the
   crossing lines outside the range. The x-axis now covers the requested
@@ -261,12 +267,19 @@
   stage when the modules are not numbered in the order of the stages.
 
 - `reval_mst()` accepts item metadata with a missing guessing parameter,
-  such as 2PLM items from `shape_df()`. `reval_mst()` and `run_mst()`
-  stop with a clear message when `cut_score` does not match the panel or
-  `module` has a number of columns other than the number of modules, and
-  they assign the cut scores to the modules of a stage in the order of
-  the module indices. `reval_mst()` also stops when an inverse TCC
-  estimate is missing for a sum score.
+  such as 2PLM items from `shape_df()`. It checks and completes the item
+  metadata as `run_mst()` does, so `item.by.mod` and `item.by.path` hold
+  plain data frames with upper-case model names and without parameter
+  columns that are all `NA`. `reval_mst()` and `run_mst()` stop with a
+  clear message when `cut_score` does not match the panel or `module`
+  has a number of columns other than the number of modules, they read a
+  `NULL` element of `cut_score` for a stage with a single module as an
+  empty vector, and they assign the cut scores to the modules of a stage
+  in the order of the module indices. `reval_mst()` also stops with a
+  clear message when a sum score has no inverse TCC estimate (with
+  `intpol = FALSE` or a `range.tcc` that does not cover the estimates);
+  before, it stopped with an obscure error or returned `NA` for every
+  row of `eval.tb`.
 
 - `run_mst()` stops with a clear message when `tol` or `max.iter` in
   `route_score` or `final_score` is not valid (a `max.iter` of 0 or 2.5
