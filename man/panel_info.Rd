@@ -22,8 +22,9 @@ Each element is an integer vector of module indices belonging to that
 stage. Names are \code{"stage.1"}, \code{"stage.2"}, etc.}
 \item{\code{pathway}}{An integer matrix of all valid test pathways, with
 one row per pathway and one column per stage. Row names are
-\code{"path.1"}, \code{"path.2"}, etc. Columns correspond to the module
-index administered at each stage.}
+\code{"path.1"}, \code{"path.2"}, etc., and column names are
+\code{"stage.1"}, \code{"stage.2"}, etc. Each entry is the index of the
+module administered at that stage.}
 \item{\code{n.module}}{A named integer vector giving the number of modules
 in each stage.}
 \item{\code{n.stage}}{An integer scalar giving the total number of stages.}

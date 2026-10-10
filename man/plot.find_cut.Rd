@@ -37,12 +37,12 @@ stage in its own column (one row of panels, stage 1 at the left).}
 }
 \value{
 A \code{ggplot} object. The object is printed automatically when
-called interactively. It can be further customised with standard
+called interactively. It can be further customized with standard
 \pkg{ggplot2} functions such as \code{ggplot2::theme()},
 \code{ggplot2::scale_color_manual()}, etc.
 }
 \description{
-Produces a \pkg{ggplot2} visualisation of the Test Information Function
+Produces a \pkg{ggplot2} visualization of the Test Information Function
 (TIF) curves for each module, faceted by stage, with vertical lines marking
 the selected cut scores (proper TIF crossings) and, optionally, any
 anomalous crossings detected by \code{\link{find_cut}}.

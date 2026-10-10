@@ -735,7 +735,7 @@ print.run_mst <- function(x, digits = 3L, ...) {
 }
 
 # ---------------------------------------------------------------------------
-# print.find_cut() - Print method for objects of class "find_cut"
+# print.find_cut(): print method for objects of class "find_cut"
 #
 # Displays a formatted summary of the TIF-crossing cut scores found by
 # find_cut(), including per-stage module information, proper and anomalous
