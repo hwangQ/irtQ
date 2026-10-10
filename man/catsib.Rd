@@ -60,9 +60,11 @@ response data matrix.}
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
 the focal group, set \code{focal.name = 1}.}
 
-\item{item.skip}{A numeric vector of item indices to exclude from DIF analysis.
-If \code{NULL}, all items are included. Useful for omitting specific items based on
-prior insights.}
+\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
+exclude from the analysis. Skipped items still contribute to the ability
+estimates, but their results (statistics, p-values, and moments) are set to
+\code{NA}, and they are never flagged or removed during purification. If \code{NULL},
+all items are analyzed. Default is \code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
@@ -107,10 +109,13 @@ is \code{NA}.}
 Default is \code{FALSE}.}
 
 \item{max.iter}{A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is \code{10}. If the
-limit is reached while flagged items remain, a warning is issued and the
-\code{complete} element of the purification results is \code{FALSE}; for tests with
-many items or many DIF items, consider increasing \code{max.iter}.}
+iterations allowed for the purification process. Default is \code{10}. Each
+iteration removes one item, so \code{max.iter} should be at least as large as
+the number of items expected to be flagged. If the limit is reached while
+flagged items remain, a warning is issued, the \code{complete} element of the
+purification results is \code{FALSE}, and the items flagged in the last
+iteration are added to the flagged items. This argument is not passed to
+\code{\link[=est_score]{est_score()}}.}
 
 \item{min.resp}{A positive integer specifying the minimum number of valid
 item responses required from an examinee in order to compute an ability
@@ -149,12 +154,12 @@ If \code{NULL} and \code{method = "EAP"}, default quadrature values are generate
 based on the \code{norm.prior} and \code{nquad} arguments. Ignored if \code{method} is
 \code{"ML"}, \code{"WL"}, or \code{"MAP"}.}
 
-\item{ncore}{An integer specifying the number of logical CPU cores to use for
-parallel processing. Default is \code{1}. See \code{\link[=est_score]{est_score()}} for details.}
+\item{ncore}{An integer specifying the number of logical CPU cores used by
+\code{\link[=est_score]{est_score()}} when abilities are estimated internally. The test
+statistics themselves are not computed in parallel. Default is \code{1}.}
 
-\item{verbose}{Logical. If \code{TRUE}, progress messages from the purification
-procedure will be displayed; if \code{FALSE}, the messages will be suppressed.
-Default is \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, the progress of the purification procedure
+is printed to the console. Default is \code{TRUE}.}
 
 \item{...}{Additional arguments passed to the \code{\link[=est_score]{est_score()}} function.}
 }

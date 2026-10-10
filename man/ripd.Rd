@@ -86,7 +86,10 @@ See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for mor
 metadata. This data frame can be easily created using the
 \code{\link[=shape_df]{shape_df()}} function.}
 
-\item{...}{Additional arguments passed to the \code{\link[=est_score]{est_score()}} function.}
+\item{...}{Additional arguments passed to \code{\link[=est_score]{est_score()}} when abilities
+are estimated internally, for example \code{tol} or \code{se}. The \code{est_score()}
+arguments \code{max.iter} and \code{missing} cannot be passed this way, because the
+function uses arguments with these names for its own purposes.}
 
 \item{data}{A matrix of examinees' item responses corresponding to the items
 specified in the \code{x} argument. Rows represent examinees and columns
@@ -188,12 +191,12 @@ If \code{NULL} and \code{method = "EAP"}, default quadrature values are generate
 based on the \code{norm.prior} and \code{nquad} arguments. Ignored if \code{method} is
 \code{"ML"}, \code{"WL"}, or \code{"MAP"}.}
 
-\item{ncore}{An integer specifying the number of logical CPU cores to use for
-parallel processing. Default is \code{1}. See \code{\link[=est_score]{est_score()}} for details.}
+\item{ncore}{An integer specifying the number of logical CPU cores used by
+\code{\link[=est_score]{est_score()}} when abilities are estimated internally. The test
+statistics themselves are not computed in parallel. Default is \code{1}.}
 
-\item{verbose}{Logical. If \code{TRUE}, progress messages from the purification
-procedure will be displayed; if \code{FALSE}, the messages will be suppressed.
-Default is \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, the progress of the purification procedure
+is printed to the console. Default is \code{TRUE}.}
 }
 \value{
 This function returns an object of class \code{"ripd"}, a list with the

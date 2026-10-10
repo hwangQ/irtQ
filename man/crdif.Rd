@@ -86,16 +86,24 @@ See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for mor
 metadata. This data frame can be easily created using the
 \code{\link[=shape_df]{shape_df()}} function.}
 
-\item{...}{Additional arguments passed to the \code{\link[=est_score]{est_score()}} function.}
+\item{...}{Additional arguments passed to \code{\link[=est_score]{est_score()}} when abilities
+are estimated internally, for example \code{tol} or \code{se}. The \code{est_score()}
+arguments \code{max.iter} and \code{missing} cannot be passed this way, because the
+function uses arguments with these names for its own purposes.}
 
 \item{data}{A matrix of examinees' item responses corresponding to the items
 specified in the \code{x} argument. Rows represent examinees and columns
 represent items.}
 
-\item{score}{A numeric vector containing examinees' ability estimates (theta
-values). If not provided, \code{\link[=crdif]{crdif()}} will estimate ability parameters
-internally before computing the RDIF statistics. See \code{\link[=est_score]{est_score()}}
-for more information on scoring methods. Default is \code{NULL}.}
+\item{score}{A numeric vector of examinees' ability estimates (theta values),
+in the same row order as \code{data}. The estimates should be based on the item
+parameters in \code{x} (see \strong{Details}). If \code{NULL}, abilities are estimated
+internally with \code{\link[=est_score]{est_score()}} using \code{method}, \code{range}, \code{norm.prior},
+\code{nquad}, \code{weights}, and \code{ncore}. When \code{purify = TRUE}, abilities are
+re-estimated internally at every purification iteration, so a supplied
+\code{score} is used only in the initial analysis. The \code{est_item} method has no
+\code{score} argument; it uses the abilities stored in the object. Default is
+\code{NULL}.}
 
 \item{group}{A numeric or character vector indicating examinees' group
 membership. The length of the vector must match the number of rows in the
@@ -105,16 +113,21 @@ response data matrix.}
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
 the focal group, set \code{focal.name = 1}.}
 
-\item{item.skip}{A numeric vector of item indices to exclude from DIF analysis.
-If \code{NULL}, all items are included. Useful for omitting specific items based on
-prior insights.}
+\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
+exclude from the analysis. Skipped items still contribute to the ability
+estimates, but their results (statistics, p-values, and moments) are set to
+\code{NA}, and they are never flagged or removed during purification. If \code{NULL},
+all items are analyzed. Default is \code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
 \item{alpha}{A numeric value specifying the significance level (\eqn{\alpha})
-for hypothesis testing using the CRDIF statistics. Default is \code{0.05}.}
+of the tests. An item is flagged by a statistic when its p-value is less
+than or equal to \code{alpha}. The comparison uses unrounded p-values, although
+the p-values reported in \code{dif_stat} are rounded to four decimal places.
+Default is \code{0.05}.}
 
 \item{missing}{A value indicating missing responses in the data set. Default
 is \code{NA}.}
@@ -122,20 +135,23 @@ is \code{NA}.}
 \item{purify}{Logical. Indicates whether to apply a purification procedure.
 Default is \code{FALSE}.}
 
-\item{purify.by}{A character string specifying which RDIF statistic is used
-to perform the purification. Available options are \code{"crdifrs"} for
-\eqn{RDIF_{RS}-CR}, \code{"crdifr"} for \eqn{RDIF_{R}-CR}, and
-\code{"crdifs"} for \eqn{RDIF_{S}-CR}.}
+\item{purify.by}{A character string specifying the RDIF-CR statistic used for
+purification: \code{"crdifrs"} for \eqn{RDIF_{RS}-CR}, \code{"crdifr"} for
+\eqn{RDIF_{R}-CR}, or \code{"crdifs"} for \eqn{RDIF_{S}-CR}. Used only when
+\code{purify = TRUE}. Default is \code{"crdifrs"}.}
 
 \item{max.iter}{A positive integer specifying the maximum number of
-iterations allowed for the purification process. Default is \code{10}. If the
-limit is reached while flagged items remain, a warning is issued and the
-\code{complete} element of the purification results is \code{FALSE}; for tests with
-many items or many DIF items, consider increasing \code{max.iter}.}
+iterations allowed for the purification process. Default is \code{10}. Each
+iteration removes one item, so \code{max.iter} should be at least as large as
+the number of items expected to be flagged. If the limit is reached while
+flagged items remain, a warning is issued, the \code{complete} element of the
+purification results is \code{FALSE}, and the items flagged in the last
+iteration are added to the flagged items. This argument is not passed to
+\code{\link[=est_score]{est_score()}}.}
 
 \item{min.resp}{A positive integer specifying the minimum number of valid
 item responses required from an examinee in order to compute an ability
-estimate. Default is \code{NULL}.}
+estimate. Default is \code{NULL}. See \strong{Details} for more information.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:
@@ -170,73 +186,97 @@ If \code{NULL} and \code{method = "EAP"}, default quadrature values are generate
 based on the \code{norm.prior} and \code{nquad} arguments. Ignored if \code{method} is
 \code{"ML"}, \code{"WL"}, or \code{"MAP"}.}
 
-\item{ncore}{An integer specifying the number of logical CPU cores to use for
-parallel processing. Default is \code{1}. See \code{\link[=est_score]{est_score()}} for details.}
+\item{ncore}{An integer specifying the number of logical CPU cores used by
+\code{\link[=est_score]{est_score()}} when abilities are estimated internally. The test
+statistics themselves are not computed in parallel. Default is \code{1}.}
 
-\item{verbose}{Logical. If \code{TRUE}, progress messages from the purification
-procedure will be displayed; if \code{FALSE}, the messages will be suppressed.
-Default is \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, the progress of the purification procedure
+is printed to the console. Default is \code{TRUE}.}
 }
 \value{
-This function returns a list containing four main components:
+This function returns an object of class \code{"crdif"}, which is a list
+with the following five components:
 
 \item{no_purify}{A list of sub-objects containing the results of DIF analysis
 without applying a purification procedure. The sub-objects include:
 \describe{
-\item{dif_stat}{A data frame summarizing the RDIF-CR analysis results for all
-items. Columns include item ID, \eqn{RDIF_{R}-CR}, degrees of freedom,
-\eqn{RDIF_{S}-CR}, degrees of freedom, \eqn{RDIF_{RS}-CR}, degrees of freedom,
-associated p-values, and sample sizes for the reference and focal groups.}
-\item{moments}{A list containing the first and second moments (means and
-covariance matrices) of the RDIF-CR statistics. The elements include:
-\code{mu.crdifr}, \code{mu.crdifs}, \code{mu.crdifrs} (means), and
-\code{cov.crdifr}, \code{cov.crdifs}, \code{cov.crdifrs} (covariances),
-each indexed by item ID.}
-\item{dif_item}{A list of three numeric vectors identifying items flagged
-as DIF based on each statistic: \code{crdifr}, \code{crdifs}, and \code{crdifrs}.}
-\item{score}{A numeric vector of ability estimates used to compute the RDIF-CR
-statistics. These may be user-supplied or internally estimated.}
+\item{dif_stat}{A data frame with one row per item and the columns \code{id},
+\code{crdifr}, \code{df.crdifr}, \code{crdifs}, \code{df.crdifs}, \code{crdifrs}, \code{df.crdifrs},
+\code{p.crdifr}, \code{p.crdifs}, \code{p.crdifrs}, \code{n.ref}, \code{n.foc}, and \code{n.total}: the
+item ID, each RDIF-CR statistic followed by its degrees of freedom, the
+p-values of the three statistics, the numbers of examinees in the
+reference and focal groups who responded to the item, and their sum.
+Statistics and p-values are rounded to four decimal places.}
+\item{moments}{A list with the elements \code{mu.crdifr}, \code{mu.crdifs},
+\code{mu.crdifrs}, \code{cov.crdifr}, \code{cov.crdifs}, and \code{cov.crdifrs}. Each element
+is a list named by item ID that holds, for each item, the null mean
+vector or the null covariance matrix of the category-level statistics. For
+an item with K score categories (K of 3 or more), the vectors have lengths
+K, K, and 2K, and the matrices have dimensions K by K, K by K, and 2K by
+2K. For a dichotomous item, only score category 1 is used, so the lengths
+are 1, 1, and 2.}
+\item{dif_item}{A list with the elements \code{crdifr}, \code{crdifs}, and
+\code{crdifrs}, each giving the positions (rows of \code{x}) of the items flagged by
+the corresponding statistic, or \code{NULL} if no item is flagged.}
+\item{score}{A numeric vector of the ability estimates used in the initial
+analysis: the supplied \code{score}, or the internal estimates when
+\code{score = NULL}.}
 }
 }
 
-\item{purify}{A logical value indicating whether a purification procedure
-was applied.}
+\item{purify}{A logical value indicating whether purification was requested
+(the \code{purify} argument).}
 
-\item{with_purify}{A list of sub-objects containing the results of DIF analysis
-after applying the purification procedure. The sub-objects include:
+\item{with_purify}{A list with the results of the purification procedure. All
+elements are \code{NULL} when \code{purify = FALSE}. The elements are:
 \describe{
-\item{purify.by}{A character string indicating the RDIF-CR statistic used for
-purification. Possible values are "crdifr", "crdifs", or "crdifrs".}
-\item{dif_stat}{A data frame summarizing the final RDIF-CR statistics after
-purification. Same structure as in \code{no_purify}, with an additional
-column indicating the iteration in which the result was obtained.}
-\item{moments}{A list of moments (means and covariance matrices) of the
-RDIF-CR statistics for all items, updated based on the final iteration.}
-\item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
-the items flagged as DIF by the \code{purify.by} statistic across all
-purification iterations, sorted in ascending order.}
-\item{n.iter}{An integer indicating the number of iterations performed during
-the purification procedure.}
-\item{score}{A numeric vector of updated ability estimates used in the final
-iteration.}
-\item{complete}{A logical value indicating whether the purification process
-converged. If \code{FALSE}, the maximum number of iterations was reached
-before convergence.}
+\item{purify.by}{A character string indicating the RDIF-CR statistic used
+for purification. Possible values are "crdifr", "crdifs", or "crdifrs".}
+\item{dif_stat}{A data frame with the same columns as
+\code{no_purify$dif_stat} and an additional column \code{n.iter}. For an item
+removed during purification, the row reports the statistics from the
+iteration in which the item was removed, and \code{n.iter} is that iteration
+minus 1 (0 for an item removed on the basis of the initial analysis). For
+the other items, the row reports the statistics from the last iteration,
+and \code{n.iter} is the number of that iteration. If no item is flagged in the
+initial analysis, this is \code{no_purify$dif_stat} with \code{n.iter = 0}.}
+\item{moments}{A list with the same structure as \code{no_purify$moments}. For
+an item removed during purification, it holds the moments from the
+iteration in which the item was removed; for the other items, it holds the
+moments from the last iteration. If no item is flagged in the initial
+analysis, this is \code{no_purify$moments}.}
+\item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
+items flagged by the \code{purify.by} statistic, sorted in ascending order. It
+contains the items removed during purification and, if \code{max.iter} is
+reached, the items flagged in the last iteration. \code{NULL} if no item is
+flagged in the initial analysis.}
+\item{n.iter}{The number of purification iterations performed (0 if no
+item is flagged in the initial analysis).}
+\item{score}{A numeric vector of the ability estimates from the last
+iteration. \code{NULL} if no item is flagged in the initial analysis, because
+purification is not carried out; the initial estimates are then in
+\code{no_purify$score}.}
+\item{complete}{A logical value. \code{TRUE} if the procedure stopped because
+no remaining item was flagged (including the case in which no item is
+flagged in the initial analysis), and \code{FALSE} if it stopped because
+\code{max.iter} was reached.}
 }
 }
 
 \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
-used for hypothesis testing with RDIF-CR statistics.}
+used for the tests.}
+
+\item{call}{The matched function call.}
 }
 \description{
 This function computes three statistics of the residual-based DIF detection
-framework using categorical residuals (RDIF-CR) - \eqn{RDIF_{R}-CR},
-\eqn{RDIF_{S}-CR}, and \eqn{RDIF_{RS}-CR} - for detecting global differential
+framework using categorical residuals (RDIF-CR), \eqn{RDIF_{R}-CR},
+\eqn{RDIF_{S}-CR}, and \eqn{RDIF_{RS}-CR}, for detecting global differential
 item functioning (DIF), particularly in polytomously scored items. The RDIF-CR
 framework evaluates DIF by comparing categorical residual vectors, which are
 calculated as the difference between a one-hot encoded response vector
-(with 1 for the selected category and 0 for all others) and the IRT
-model - predicted probability vector across all score categories.
+(with 1 for the selected category and 0 for all others) and the vector of
+IRT model-predicted probabilities across all score categories.
 This approach enables fine-grained detection of global DIF patterns at the
 category level.
 }
@@ -261,30 +301,38 @@ To illustrate how the RDIF-CR framework operates, consider an item with five
 ordered score categories (\eqn{k \in \{0,1,2,3,4\}}). Suppose an examinee with
 latent ability \eqn{\theta} responds with category 2. The one-hot encoded
 response vector for this response is \eqn{(0,0,1,0,0)^T}. Assume that the IRT
-model estimates the examinee's expected score as 2.5 and predicts the
-category probabilities as \eqn{(0.1, 0.2, 0.4, 0.25, 0.05)^T}.
+model predicts the category probabilities as
+\eqn{(0.1, 0.2, 0.4, 0.25, 0.05)^T}, so that the expected item score is
+\eqn{0(0.1) + 1(0.2) + 2(0.4) + 3(0.25) + 4(0.05) = 1.95}.
 In the RDIF-CR framework, the categorical residual vector is calculated by
 subtracting the predicted probability vector from the one-hot response vector,
 resulting in \eqn{(-0.1, -0.2, 0.6, -0.25, -0.05)^T}.
 
-In contrast to the RDIF-CR framework, net DIF is assessed using a
-unidimensional item score residual. In this example, the residual would be
-\eqn{2 - 2.5 = -0.5}. For detecting net DIF, the \code{\link[=rdif]{rdif()}} function
-should be used instead.
+In contrast, net DIF is assessed with a single item score residual, the
+observed item score minus the expected item score. In this example, the
+residual would be \eqn{2 - 1.95 = 0.05}. To detect net DIF, use
+\code{\link[=rdif]{rdif()}}.
 
-Note that for dichotomous items, \code{\link[=crdif]{crdif()}} and \code{\link[=rdif]{rdif()}} yield
-identical results. This is because the categorical probability vector for a
-binary item reduces to a scalar difference, making the global and net DIF
-evaluations mathematically equivalent.
+For dichotomous items, \code{\link[=crdif]{crdif()}} and \code{\link[=rdif]{rdif()}} lead to the same
+conclusions. The two category residuals of a binary item are the negatives of
+each other, so only the residual for score category 1 is used. Then
+\eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the squares of the standardized
+\eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of \code{\link[=rdif]{rdif()}} and are
+compared with a chi-square distribution with one degree of freedom,
+\eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values and flagged items
+are identical.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{crdif(default)}: Default method for computing the three RDIF-CR statistics using
-a data frame \code{x} that contains item metadata
+\item \code{crdif(default)}: Default method for a data frame \code{x} containing item metadata.
 
-\item \code{crdif(est_irt)}: An object created by the function \code{\link[=est_irt]{est_irt()}}.
+\item \code{crdif(est_irt)}: Method for an object of class \code{est_irt} created by
+\code{\link[=est_irt]{est_irt()}}. The response data and the scaling factor \code{D} are taken from
+the object.
 
-\item \code{crdif(est_item)}: An object created by the function \code{\link[=est_item]{est_item()}}.
+\item \code{crdif(est_item)}: Method for an object of class \code{est_item} created by
+\code{\link[=est_item]{est_item()}}. The response data, ability estimates, and the scaling
+factor \code{D} are taken from the object.
 
 }}
 \examples{
@@ -398,6 +446,13 @@ print(dif_puri_3)
 }
 }
 \references{
+Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in
+a microcomputer environment. \emph{Applied Psychological Measurement, 6}(4),
+431-444. \doi{10.1177/014662168200600405}.
+
+Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). \emph{Fundamentals of
+item response theory}. Newbury Park, CA: Sage.
+
 Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
 polytomous items using RDIF. Paper presented at the annual meeting of the
 National Council on Measurement in Education, Los Angeles, CA.
@@ -413,6 +468,10 @@ International Meeting of the Psychometric Society, Prague, Czech Republic.
 Penfield, R. D. (2010). Distinguishing between net and global DIF in
 polytomous items. \emph{Journal of Educational Measurement, 47}(2), 129-149.
 \doi{10.1111/j.1745-3984.2010.00105.x}.
+
+Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+response theory. \emph{Psychometrika, 54}(3), 427-450.
+\doi{10.1007/BF02294627}.
 }
 \seealso{
 \code{\link[=rdif]{rdif()}}, \code{\link[=est_irt]{est_irt()}}, \code{\link[=est_item]{est_item()}},

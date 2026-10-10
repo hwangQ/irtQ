@@ -219,8 +219,9 @@ computationally efficient.
 - `purify`: Logical; whether to apply iterative purification (default `FALSE`).
 - `purify.by`: Statistic used for purification: `"rdifrs"`, `"rdifr"`, or `"rdifs"`.
 - `max.iter`: Maximum number of purification iterations (default `10`).
-- `method`: Scoring method for ability re-estimation during purification.
-  `"ML"` is recommended (default).
+- `method`: Scoring method used when abilities are estimated internally, that
+  is, when `score = NULL` and at every purification iteration. `"ML"` is
+  recommended (default).
 
 ### Example 1: RDIF without purification
 
@@ -253,8 +254,9 @@ The output contains a `dif_stat` data frame with the following columns for
 each item: `rdifr` (RDIF$_R$ statistic), `z.rdifr` (standardized RDIF$_R$),
 `rdifs` (RDIF$_S$ statistic), `z.rdifs` (standardized RDIF$_S$), `rdifrs`
 (RDIF$_{RS}$ statistic), `p.rdifr`, `p.rdifs`, `p.rdifrs` (corresponding
-p-values), and group sample sizes. Items with p-values below `alpha` are
-flagged as DIF.
+p-values), and `n.ref`, `n.foc`, and `n.total` (the numbers of examinees in the
+reference and focal groups who responded to the item, and their sum). Items
+with p-values less than or equal to `alpha` are flagged as DIF.
 
 In this simulation, RDIF$_{RS}$ flags all six items with injected DIF (items
 1-6) and four DIF-free items (8, 9, 23, and 32). Among the items with injected

@@ -1,30 +1,38 @@
 #' Residual-Based DIF Detection Framework Using Categorical Residuals (RDIF-CR)
 #'
 #' This function computes three statistics of the residual-based DIF detection
-#' framework using categorical residuals (RDIF-CR) - \eqn{RDIF_{R}-CR},
-#' \eqn{RDIF_{S}-CR}, and \eqn{RDIF_{RS}-CR} - for detecting global differential
+#' framework using categorical residuals (RDIF-CR), \eqn{RDIF_{R}-CR},
+#' \eqn{RDIF_{S}-CR}, and \eqn{RDIF_{RS}-CR}, for detecting global differential
 #' item functioning (DIF), particularly in polytomously scored items. The RDIF-CR
 #' framework evaluates DIF by comparing categorical residual vectors, which are
 #' calculated as the difference between a one-hot encoded response vector
-#' (with 1 for the selected category and 0 for all others) and the IRT
-#' model - predicted probability vector across all score categories.
+#' (with 1 for the selected category and 0 for all others) and the vector of
+#' IRT model-predicted probabilities across all score categories.
 #' This approach enables fine-grained detection of global DIF patterns at the
 #' category level.
 #'
 #' @inheritParams rdif
-#' @param score A numeric vector containing examinees' ability estimates (theta
-#'   values). If not provided, [irtQ::crdif()] will estimate ability parameters
-#'   internally before computing the RDIF statistics. See [irtQ::est_score()]
-#'   for more information on scoring methods. Default is `NULL`.
+#' @param score A numeric vector of examinees' ability estimates (theta values),
+#'   in the same row order as `data`. The estimates should be based on the item
+#'   parameters in `x` (see **Details**). If `NULL`, abilities are estimated
+#'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
+#'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
+#'   re-estimated internally at every purification iteration, so a supplied
+#'   `score` is used only in the initial analysis. The `est_item` method has no
+#'   `score` argument; it uses the abilities stored in the object. Default is
+#'   `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
-#'   for hypothesis testing using the CRDIF statistics. Default is `0.05`.
-#' @param purify.by A character string specifying which RDIF statistic is used
-#'   to perform the purification. Available options are `"crdifrs"` for
-#'   \eqn{RDIF_{RS}-CR}, `"crdifr"` for \eqn{RDIF_{R}-CR}, and
-#'   `"crdifs"` for \eqn{RDIF_{S}-CR}.
+#'   of the tests. An item is flagged by a statistic when its p-value is less
+#'   than or equal to `alpha`. The comparison uses unrounded p-values, although
+#'   the p-values reported in `dif_stat` are rounded to four decimal places.
+#'   Default is `0.05`.
+#' @param purify.by A character string specifying the RDIF-CR statistic used for
+#'   purification: `"crdifrs"` for \eqn{RDIF_{RS}-CR}, `"crdifr"` for
+#'   \eqn{RDIF_{R}-CR}, or `"crdifs"` for \eqn{RDIF_{S}-CR}. Used only when
+#'   `purify = TRUE`. Default is `"crdifrs"`.
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`.
+#'   estimate. Default is `NULL`. See **Details** for more information.
 #'
 #' @details
 #' According to Penfield (2010), differential item functioning (DIF) in
@@ -47,71 +55,100 @@
 #' ordered score categories (\eqn{k \in \{0,1,2,3,4\}}). Suppose an examinee with
 #' latent ability \eqn{\theta} responds with category 2. The one-hot encoded
 #' response vector for this response is \eqn{(0,0,1,0,0)^T}. Assume that the IRT
-#' model estimates the examinee's expected score as 2.5 and predicts the
-#' category probabilities as \eqn{(0.1, 0.2, 0.4, 0.25, 0.05)^T}.
+#' model predicts the category probabilities as
+#' \eqn{(0.1, 0.2, 0.4, 0.25, 0.05)^T}, so that the expected item score is
+#' \eqn{0(0.1) + 1(0.2) + 2(0.4) + 3(0.25) + 4(0.05) = 1.95}.
 #' In the RDIF-CR framework, the categorical residual vector is calculated by
 #' subtracting the predicted probability vector from the one-hot response vector,
 #' resulting in \eqn{(-0.1, -0.2, 0.6, -0.25, -0.05)^T}.
 #'
-#' In contrast to the RDIF-CR framework, net DIF is assessed using a
-#' unidimensional item score residual. In this example, the residual would be
-#' \eqn{2 - 2.5 = -0.5}. For detecting net DIF, the [irtQ::rdif()] function
-#' should be used instead.
+#' In contrast, net DIF is assessed with a single item score residual, the
+#' observed item score minus the expected item score. In this example, the
+#' residual would be \eqn{2 - 1.95 = 0.05}. To detect net DIF, use
+#' [irtQ::rdif()].
 #'
-#' Note that for dichotomous items, [irtQ::crdif()] and [irtQ::rdif()] yield
-#' identical results. This is because the categorical probability vector for a
-#' binary item reduces to a scalar difference, making the global and net DIF
-#' evaluations mathematically equivalent.
+#' For dichotomous items, [irtQ::crdif()] and [irtQ::rdif()] lead to the same
+#' conclusions. The two category residuals of a binary item are the negatives of
+#' each other, so only the residual for score category 1 is used. Then
+#' \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the squares of the standardized
+#' \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of [irtQ::rdif()] and are
+#' compared with a chi-square distribution with one degree of freedom,
+#' \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values and flagged items
+#' are identical.
 #'
-#' @return This function returns a list containing four main components:
+#' @return This function returns an object of class `"crdif"`, which is a list
+#' with the following five components:
 #'
 #' \item{no_purify}{A list of sub-objects containing the results of DIF analysis
 #' without applying a purification procedure. The sub-objects include:
 #'   \describe{
-#'     \item{dif_stat}{A data frame summarizing the RDIF-CR analysis results for all
-#'     items. Columns include item ID, \eqn{RDIF_{R}-CR}, degrees of freedom,
-#'     \eqn{RDIF_{S}-CR}, degrees of freedom, \eqn{RDIF_{RS}-CR}, degrees of freedom,
-#'     associated p-values, and sample sizes for the reference and focal groups.}
-#'     \item{moments}{A list containing the first and second moments (means and
-#'     covariance matrices) of the RDIF-CR statistics. The elements include:
-#'       \code{mu.crdifr}, \code{mu.crdifs}, \code{mu.crdifrs} (means), and
-#'       \code{cov.crdifr}, \code{cov.crdifs}, \code{cov.crdifrs} (covariances),
-#'       each indexed by item ID.}
-#'     \item{dif_item}{A list of three numeric vectors identifying items flagged
-#'     as DIF based on each statistic: \code{crdifr}, \code{crdifs}, and \code{crdifrs}.}
-#'     \item{score}{A numeric vector of ability estimates used to compute the RDIF-CR
-#'     statistics. These may be user-supplied or internally estimated.}
+#'     \item{dif_stat}{A data frame with one row per item and the columns `id`,
+#'     `crdifr`, `df.crdifr`, `crdifs`, `df.crdifs`, `crdifrs`, `df.crdifrs`,
+#'     `p.crdifr`, `p.crdifs`, `p.crdifrs`, `n.ref`, `n.foc`, and `n.total`: the
+#'     item ID, each RDIF-CR statistic followed by its degrees of freedom, the
+#'     p-values of the three statistics, the numbers of examinees in the
+#'     reference and focal groups who responded to the item, and their sum.
+#'     Statistics and p-values are rounded to four decimal places.}
+#'     \item{moments}{A list with the elements `mu.crdifr`, `mu.crdifs`,
+#'     `mu.crdifrs`, `cov.crdifr`, `cov.crdifs`, and `cov.crdifrs`. Each element
+#'     is a list named by item ID that holds, for each item, the null mean
+#'     vector or the null covariance matrix of the category-level statistics. For
+#'     an item with K score categories (K of 3 or more), the vectors have lengths
+#'     K, K, and 2K, and the matrices have dimensions K by K, K by K, and 2K by
+#'     2K. For a dichotomous item, only score category 1 is used, so the lengths
+#'     are 1, 1, and 2.}
+#'     \item{dif_item}{A list with the elements `crdifr`, `crdifs`, and
+#'     `crdifrs`, each giving the positions (rows of `x`) of the items flagged by
+#'     the corresponding statistic, or `NULL` if no item is flagged.}
+#'     \item{score}{A numeric vector of the ability estimates used in the initial
+#'     analysis: the supplied `score`, or the internal estimates when
+#'     `score = NULL`.}
 #'   }
 #' }
 #'
-#' \item{purify}{A logical value indicating whether a purification procedure
-#' was applied.}
+#' \item{purify}{A logical value indicating whether purification was requested
+#' (the `purify` argument).}
 #'
-#' \item{with_purify}{A list of sub-objects containing the results of DIF analysis
-#' after applying the purification procedure. The sub-objects include:
+#' \item{with_purify}{A list with the results of the purification procedure. All
+#' elements are `NULL` when `purify = FALSE`. The elements are:
 #'   \describe{
-#'     \item{purify.by}{A character string indicating the RDIF-CR statistic used for
-#'     purification. Possible values are "crdifr", "crdifs", or "crdifrs".}
-#'     \item{dif_stat}{A data frame summarizing the final RDIF-CR statistics after
-#'     purification. Same structure as in \code{no_purify}, with an additional
-#'     column indicating the iteration in which the result was obtained.}
-#'     \item{moments}{A list of moments (means and covariance matrices) of the
-#'     RDIF-CR statistics for all items, updated based on the final iteration.}
-#'     \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
-#'     the items flagged as DIF by the \code{purify.by} statistic across all
-#'     purification iterations, sorted in ascending order.}
-#'     \item{n.iter}{An integer indicating the number of iterations performed during
-#'     the purification procedure.}
-#'     \item{score}{A numeric vector of updated ability estimates used in the final
-#'     iteration.}
-#'     \item{complete}{A logical value indicating whether the purification process
-#'     converged. If \code{FALSE}, the maximum number of iterations was reached
-#'     before convergence.}
+#'     \item{purify.by}{A character string indicating the RDIF-CR statistic used
+#'     for purification. Possible values are "crdifr", "crdifs", or "crdifrs".}
+#'     \item{dif_stat}{A data frame with the same columns as
+#'     `no_purify$dif_stat` and an additional column `n.iter`. For an item
+#'     removed during purification, the row reports the statistics from the
+#'     iteration in which the item was removed, and `n.iter` is that iteration
+#'     minus 1 (0 for an item removed on the basis of the initial analysis). For
+#'     the other items, the row reports the statistics from the last iteration,
+#'     and `n.iter` is the number of that iteration. If no item is flagged in the
+#'     initial analysis, this is `no_purify$dif_stat` with `n.iter = 0`.}
+#'     \item{moments}{A list with the same structure as `no_purify$moments`. For
+#'     an item removed during purification, it holds the moments from the
+#'     iteration in which the item was removed; for the other items, it holds the
+#'     moments from the last iteration. If no item is flagged in the initial
+#'     analysis, this is `no_purify$moments`.}
+#'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
+#'     items flagged by the `purify.by` statistic, sorted in ascending order. It
+#'     contains the items removed during purification and, if `max.iter` is
+#'     reached, the items flagged in the last iteration. `NULL` if no item is
+#'     flagged in the initial analysis.}
+#'     \item{n.iter}{The number of purification iterations performed (0 if no
+#'     item is flagged in the initial analysis).}
+#'     \item{score}{A numeric vector of the ability estimates from the last
+#'     iteration. `NULL` if no item is flagged in the initial analysis, because
+#'     purification is not carried out; the initial estimates are then in
+#'     `no_purify$score`.}
+#'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
+#'     no remaining item was flagged (including the case in which no item is
+#'     flagged in the initial analysis), and `FALSE` if it stopped because
+#'     `max.iter` was reached.}
 #'   }
 #' }
 #'
 #' \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
-#' used for hypothesis testing with RDIF-CR statistics.}
+#' used for the tests.}
+#'
+#' \item{call}{The matched function call.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -119,6 +156,13 @@
 #'  [irtQ::est_score()]
 #'
 #' @references
+#'   Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in
+#'   a microcomputer environment. *Applied Psychological Measurement, 6*(4),
+#'   431-444. \doi{10.1177/014662168200600405}.
+#'
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
+#'   item response theory*. Newbury Park, CA: Sage.
+#'
 #'   Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
 #'   polytomous items using RDIF. Paper presented at the annual meeting of the
 #'   National Council on Measurement in Education, Los Angeles, CA.
@@ -134,6 +178,10 @@
 #'   Penfield, R. D. (2010). Distinguishing between net and global DIF in
 #'   polytomous items. *Journal of Educational Measurement, 47*(2), 129-149.
 #'   \doi{10.1111/j.1745-3984.2010.00105.x}.
+#'
+#'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+#'   response theory. *Psychometrika, 54*(3), 427-450.
+#'   \doi{10.1007/BF02294627}.
 #'
 #' @examples
 #' \donttest{
@@ -247,8 +295,7 @@
 #' @export
 crdif <- function(x, ...) UseMethod("crdif")
 
-#' @describeIn crdif Default method for computing the three RDIF-CR statistics using
-#' a data frame `x` that contains item metadata
+#' @describeIn crdif Default method for a data frame `x` containing item metadata.
 #'
 #' @export
 crdif.default <- function(x,
@@ -536,7 +583,9 @@ crdif.default <- function(x,
   rst
 }
 
-#' @describeIn crdif An object created by the function [irtQ::est_irt()].
+#' @describeIn crdif Method for an object of class `est_irt` created by
+#' [irtQ::est_irt()]. The response data and the scaling factor `D` are taken from
+#' the object.
 #'
 #' @export
 #'
@@ -828,7 +877,9 @@ crdif.est_irt <- function(x,
   rst
 }
 
-#' @describeIn crdif An object created by the function [irtQ::est_item()].
+#' @describeIn crdif Method for an object of class `est_item` created by
+#' [irtQ::est_item()]. The response data, ability estimates, and the scaling
+#' factor `D` are taken from the object.
 #'
 #' @export
 #'

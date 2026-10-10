@@ -10,34 +10,44 @@
 #'
 #' @inheritParams irtfit
 #' @inheritParams est_score
-#' @param score A numeric vector containing examinees' ability estimates (theta
-#'   values). If not provided, [irtQ::rdif()] will estimate ability parameters
-#'   internally before computing the RDIF statistics. See [irtQ::est_score()]
-#'   for more information on scoring methods. Default is `NULL`.
+#' @param score A numeric vector of examinees' ability estimates (theta values),
+#'   in the same row order as `data`. The estimates should be based on the item
+#'   parameters in `x` (see **Details**). If `NULL`, abilities are estimated
+#'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
+#'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
+#'   re-estimated internally at every purification iteration, so a supplied
+#'   `score` is used only in the initial analysis. The `est_item` method has no
+#'   `score` argument; it uses the abilities stored in the object. Default is
+#'   `NULL`.
 #' @param group A numeric or character vector indicating examinees' group
 #'   membership. The length of the vector must match the number of rows in the
 #'   response data matrix.
 #' @param focal.name A single numeric or character value specifying the focal
 #'   group. For instance, given `group = c(0, 1, 0, 1, 1)` and '1' indicating
 #'   the focal group, set `focal.name = 1`.
-#' @param item.skip A numeric vector of item indices to exclude from DIF analysis.
-#'  If `NULL`, all items are included. Useful for omitting specific items based on
-#'  prior insights.
+#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
+#'   exclude from the analysis. Skipped items still contribute to the ability
+#'   estimates, but their results (statistics, p-values, and moments) are set to
+#'   `NA`, and they are never flagged or removed during purification. If `NULL`,
+#'   all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for hypothesis testing using the RDIF statistics. Default is `0.05`.
 #' @param missing  A value indicating missing responses in the data set. Default
 #'   is `NA`.
 #' @param purify Logical. Indicates whether to apply a purification procedure.
 #'   Default is `FALSE`.
-#' @param purify.by A character string specifying which RDIF statistic is used
-#'   to perform the purification. Available options are "rdifrs" for
-#'   \eqn{RDIF_{RS}}, "rdifr" for \eqn{RDIF_{R}}, and "rdifs" for
-#'   \eqn{RDIF_{S}}.
+#' @param purify.by A character string specifying the RDIF statistic used for
+#'   purification: "rdifrs" for \eqn{RDIF_{RS}}, "rdifr" for \eqn{RDIF_{R}}, or
+#'   "rdifs" for \eqn{RDIF_{S}}. Used only when `purify = TRUE`. Default is
+#'   `"rdifrs"`.
 #' @param max.iter A positive integer specifying the maximum number of
-#'   iterations allowed for the purification process. Default is `10`. If the
-#'   limit is reached while flagged items remain, a warning is issued and the
-#'   `complete` element of the purification results is `FALSE`; for tests with
-#'   many items or many DIF items, consider increasing `max.iter`.
+#'   iterations allowed for the purification process. Default is `10`. Each
+#'   iteration removes one item, so `max.iter` should be at least as large as
+#'   the number of items expected to be flagged. If the limit is reached while
+#'   flagged items remain, a warning is issued, the `complete` element of the
+#'   purification results is `FALSE`, and the items flagged in the last
+#'   iteration are added to the flagged items. This argument is not passed to
+#'   [irtQ::est_score()].
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
@@ -67,29 +77,43 @@
 #'   If `NULL` and `method = "EAP"`, default quadrature values are generated
 #'   based on the `norm.prior` and `nquad` arguments. Ignored if `method` is
 #'   `"ML"`, `"WL"`, or `"MAP"`.
-#' @param ncore An integer specifying the number of logical CPU cores to use for
-#'   parallel processing. Default is `1`. See [irtQ::est_score()] for details.
-#' @param verbose Logical. If `TRUE`, progress messages from the purification
-#'   procedure will be displayed; if `FALSE`, the messages will be suppressed.
-#'   Default is `TRUE`.
-#' @param ... Additional arguments passed to the [irtQ::est_score()] function.
+#' @param ncore An integer specifying the number of logical CPU cores used by
+#'   [irtQ::est_score()] when abilities are estimated internally. The test
+#'   statistics themselves are not computed in parallel. Default is `1`.
+#' @param verbose Logical. If `TRUE`, the progress of the purification procedure
+#'   is printed to the console. Default is `TRUE`.
+#' @param ... Additional arguments passed to [irtQ::est_score()] when abilities
+#'   are estimated internally, for example `tol` or `se`. The `est_score()`
+#'   arguments `max.iter` and `missing` cannot be passed this way, because the
+#'   function uses arguments with these names for its own purposes.
 #'
 #' @details The RDIF framework (Lim & Choe, 2023; Lim et al., 2022) consists of
 #'   three IRT residual-based statistics: \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and
-#'   \eqn{RDIF_{RS}}. Under the null hypothesis that a test contains no DIF
-#'   items, \eqn{RDIF_{R}} and \eqn{RDIF_{S}} asymptotically follow standard
-#'   normal distributions. \eqn{RDIF_{RS}} is based on a bivariate normal
-#'   distribution of the \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics, and under
-#'   the null hypothesis, it asymptotically follows a \eqn{\chi^{2}}
-#'   distribution with 2 degrees of freedom. See Lim et al. (2022) for more
-#'   details about the RDIF framework.
+#'   \eqn{RDIF_{RS}}. For each item, a residual is the observed item score minus
+#'   the model-expected item score evaluated at the examinee's ability estimate.
+#'   \eqn{RDIF_{R}} is the difference between the focal and reference groups in
+#'   the mean raw residual, and \eqn{RDIF_{S}} is the difference in the mean
+#'   squared residual. Under the null hypothesis that the item has no DIF,
+#'   \eqn{RDIF_{R}} and \eqn{RDIF_{S}} asymptotically follow normal
+#'   distributions whose means and variances are computed analytically from the
+#'   model-predicted probabilities (Lim et al., 2022, Equations 9, 10, 12, and
+#'   13). The null mean of \eqn{RDIF_{R}} is zero, whereas the null mean of
+#'   \eqn{RDIF_{S}} is generally not zero. Each statistic is standardized by
+#'   subtracting its null mean and dividing by its null standard deviation
+#'   (`z.rdifr` and `z.rdifs`), and a two-sided p-value is obtained from the
+#'   standard normal distribution. \eqn{RDIF_{RS}} is the quadratic form of the
+#'   vector of \eqn{RDIF_{R}} and \eqn{RDIF_{S}}, centered at their null means,
+#'   in the inverse of their null covariance matrix. Under the null hypothesis,
+#'   \eqn{RDIF_{RS}} asymptotically follows a \eqn{\chi^{2}} distribution with 2
+#'   degrees of freedom (Lim et al., 2022, Equation 20).
 #'
-#'   The [irtQ::rdif()] function computes all three RDIF statistics:
-#'   \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and \eqn{RDIF_{RS}}. The current version of
-#'   [irtQ::rdif()] supports both dichotomous and polytomous item response data.
-#'   Note that for polytomous items, net DIF is assessed (Jung & Lim, 2026;
-#'   Lim, Malatesta, & Lee, 2024). To evaluate global DIF for polytomous
-#'   items, use [irtQ::crdif()].
+#'   [irtQ::rdif()] accepts both dichotomous and polytomous items. For a
+#'   polytomous item, the residual is the observed item score minus the
+#'   model-expected item score, and the null means, variances, and covariance are
+#'   computed from the model-predicted category probabilities in the same way,
+#'   so the three statistics assess net DIF (Jung & Lim, 2026; Lim, Malatesta, &
+#'   Lee, 2024). To evaluate global DIF in polytomous items, use
+#'   [irtQ::crdif()].
 #'
 #'   To compute the RDIF statistics, the [irtQ::rdif()] function requires:
 #'   (1) item parameter estimates obtained from aggregate data (regardless
@@ -100,7 +124,11 @@
 #'   argument, and the response data in the `data` argument. If ability
 #'   estimates are not provided (i.e., `score = NULL`), [irtQ::rdif()] will
 #'   estimate them automatically using the scoring method specified via the
-#'   `method` argument (e.g., `method = "ML"`).
+#'   `method` argument (e.g., `method = "ML"`). When `x` is an object of class
+#'   `est_irt`, the item parameter estimates, the response data, and the scaling
+#'   constant `D` are taken from the object. When `x` is an object of class
+#'   `est_item`, the ability values stored in the object are also used as
+#'   `score`.
 #'
 #'   The `group` argument should be a vector containing exactly two distinct
 #'   values (either numeric or character), representing the reference and focal
@@ -109,15 +137,21 @@
 #'   single numeric or character value must be provided in the `focal.name`
 #'   argument to indicate which level in `group` represents the focal group.
 #'
+#'   If no examinee of one of the two groups responded to an item, the
+#'   statistics and p-values of the item are `NaN`, and the item is not flagged.
+#'
 #'   Similar to other DIF detection approaches, the RDIF framework supports an
-#'   iterative purification process. When `purify = TRUE`, purification is
-#'   conducted using one of the RDIF statistics specified in the `purify.by`
-#'   argument (e.g., `purify.by = "rdifrs"`). At each iteration, examinees'
-#'   ability estimates are recalculated based on the set of purified items using
-#'   the scoring method specified in the `method` argument. The purification
-#'   process continues until no additional DIF items are identified or the
-#'   maximum number of iterations specified in `max.iter` is reached. See Lim et
-#'   al. (2022) for more details on the purification procedure.
+#'   iterative purification procedure (Lim et al., 2022). When `purify = TRUE`,
+#'   the statistic specified in `purify.by` drives the procedure (e.g.,
+#'   `purify.by = "rdifrs"`). At each iteration, the flagged item with the
+#'   largest absolute standardized statistic (for `"rdifr"` and `"rdifs"`) or the
+#'   largest \eqn{RDIF_{RS}} (for `"rdifrs"`) is removed, the abilities are
+#'   re-estimated from the remaining items with the scoring method specified in
+#'   `method`, and the RDIF statistics of the remaining items are recomputed. A
+#'   supplied `score` is therefore used only in the initial analysis. The
+#'   procedure stops when no remaining item is flagged or when `max.iter`
+#'   iterations have been performed. If no item is flagged in the initial
+#'   analysis, no iteration is performed.
 #'
 #'   Scoring based on a small number of item responses can lead to large
 #'   standard errors, potentially reducing the accuracy of DIF detection in the
@@ -130,69 +164,95 @@
 #'   computation of RDIF statistics. If `min.resp = NULL`, a score will be
 #'   computed for any examinee with at least one valid item response.
 #'
-#' @return This function returns a list containing four main components:
+#' @return This function returns an object of class `"rdif"`, which is a list
+#' with the following five components:
 #'
 #' \item{no_purify}{A list of sub-objects containing the results of DIF analysis
 #' without applying a purification procedure. The sub-objects include:
 #'   \describe{
-#'     \item{dif_stat}{A data frame summarizing the RDIF analysis results for all
-#'    items. The columns include: item ID, \eqn{RDIF_{R}} statistic, standardized
-#'    \eqn{RDIF_{R}}, \eqn{RDIF_{S}} statistic, standardized \eqn{RDIF_{S}},
-#'    \eqn{RDIF_{RS}} statistic, p-values for \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and
-#'    \eqn{RDIF_{RS}}, sample sizes for the reference and focal groups, and total
-#'    sample size. Note that \eqn{RDIF_{RS}} does not have a standardized value
-#'    because it is a \eqn{\chi^{2}}-based statistic.}
-#'     \item{moments}{A data frame reporting the first and second moments of the
-#'     RDIF statistics. The columns include: item ID, mean and standard deviation
-#'     of \eqn{RDIF_{R}}, mean and standard deviation of \eqn{RDIF_{S}}, and the
-#'     covariance between \eqn{RDIF_{R}} and \eqn{RDIF_{S}}.}
-#'     \item{dif_item}{A list of three numeric vectors identifying items flagged
-#'     as DIF by each RDIF statistic: \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and
-#'     \eqn{RDIF_{RS}}.}
-#'     \item{score}{A numeric vector of ability estimates used to compute the RDIF
-#'     statistics.}
+#'     \item{dif_stat}{A data frame with one row per item and the columns `id`,
+#'     `rdifr`, `z.rdifr`, `rdifs`, `z.rdifs`, `rdifrs`, `p.rdifr`, `p.rdifs`,
+#'     `p.rdifrs`, `n.ref`, `n.foc`, and `n.total`: the item ID, the
+#'     \eqn{RDIF_{R}} statistic and its standardized value, the \eqn{RDIF_{S}}
+#'     statistic and its standardized value, the \eqn{RDIF_{RS}} statistic, the
+#'     p-values of the three statistics (two-sided for \eqn{RDIF_{R}} and
+#'     \eqn{RDIF_{S}}), the numbers of examinees in the reference and focal
+#'     groups who responded to the item, and their sum. Statistics and p-values
+#'     are rounded to four decimal places. \eqn{RDIF_{RS}} has no standardized
+#'     value because it is a \eqn{\chi^{2}}-based statistic.}
+#'     \item{moments}{A data frame with the columns `id`, `mu.rdifr`,
+#'     `sigma.rdifr`, `mu.rdifs`, `sigma.rdifs`, and `covariance`: the item ID,
+#'     the null mean and standard deviation of \eqn{RDIF_{R}}, the null mean and
+#'     standard deviation of \eqn{RDIF_{S}}, and the null covariance between
+#'     \eqn{RDIF_{R}} and \eqn{RDIF_{S}}. These moments are computed
+#'     analytically under the null hypothesis of no DIF and are used to
+#'     standardize the statistics.}
+#'     \item{dif_item}{A list with the elements `rdifr`, `rdifs`, and `rdifrs`,
+#'     each giving the positions (rows of `x`) of the items flagged by the
+#'     corresponding statistic, or `NULL` if no item is flagged.}
+#'     \item{score}{A numeric vector of the ability estimates used in the initial
+#'     analysis: the supplied `score`, or the internal estimates when
+#'     `score = NULL`.}
 #'   }
 #' }
 #'
-#' \item{purify}{A logical value indicating whether the purification procedure
-#' was applied.}
+#' \item{purify}{A logical value indicating whether purification was requested
+#' (the `purify` argument).}
 #'
-#' \item{with_purify}{A list of sub-objects containing the results of DIF analysis
-#' with a purification procedure. The sub-objects include:
+#' \item{with_purify}{A list with the results of the purification procedure. All
+#' elements are `NULL` when `purify = FALSE`. The elements are:
 #'   \describe{
 #'     \item{purify.by}{A character string indicating the RDIF statistic used for
 #'     purification. Possible values are "rdifr", "rdifs", and "rdifrs",
 #'     corresponding to \eqn{RDIF_{R}}, \eqn{RDIF_{S}}, and \eqn{RDIF_{RS}},
 #'     respectively.}
-#'     \item{dif_stat}{A data frame reporting the RDIF analysis results for
-#'     all items across the final iteration. Same structure as in \code{no_purify},
-#'     with one additional column indicating the iteration number in which each
-#'     result was obtained.}
-#'     \item{moments}{A data frame reporting the moments of RDIF statistics
-#'     across the final iteration. Includes the same columns as in
-#'     \code{no_purify}, with an additional column for the iteration number.}
-#'     \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
-#'     the items flagged as DIF by the \code{purify.by} statistic across all
-#'     purification iterations, sorted in ascending order.}
-#'     \item{n.iter}{An integer indicating the total number of iterations
-#'     performed during the purification process.}
-#'     \item{score}{A numeric vector of purified ability estimates used to
-#'     compute the final RDIF statistics.}
-#'     \item{complete}{A logical value indicating whether the purification
-#'     process converged. If FALSE, the maximum number of iterations was reached
-#'     without convergence.}
+#'     \item{dif_stat}{A data frame with the same columns as
+#'     `no_purify$dif_stat` and an additional column `n.iter`. For an item
+#'     removed during purification, the row reports the statistics from the
+#'     iteration in which the item was removed, and `n.iter` is that iteration
+#'     minus 1 (0 for an item removed on the basis of the initial analysis). For
+#'     the other items, the row reports the statistics from the last iteration,
+#'     and `n.iter` is the number of that iteration. If no item is flagged in the
+#'     initial analysis, this is `no_purify$dif_stat` with `n.iter = 0`.}
+#'     \item{moments}{A data frame with the same columns as
+#'     `no_purify$moments` and an additional column `n.iter`, defined in the same
+#'     way as in `dif_stat`.}
+#'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
+#'     items flagged by the `purify.by` statistic, sorted in ascending order. It
+#'     contains the items removed during purification and, if `max.iter` is
+#'     reached, the items flagged in the last iteration. `NULL` if no item is
+#'     flagged in the initial analysis.}
+#'     \item{n.iter}{The number of purification iterations performed (0 if no
+#'     item is flagged in the initial analysis).}
+#'     \item{score}{A numeric vector of the ability estimates from the last
+#'     iteration. `NULL` if no item is flagged in the initial analysis, because
+#'     purification is not carried out; the initial estimates are then in
+#'     `no_purify$score`.}
+#'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
+#'     no remaining item was flagged (including the case in which no item is
+#'     flagged in the initial analysis), and `FALSE` if it stopped because
+#'     `max.iter` was reached.}
 #'   }
 #' }
 #'
 #' \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
-#' used in hypothesis testing for RDIF statistics.}
+#' used for the tests.}
+#'
+#' \item{call}{The matched function call.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @seealso [irtQ::est_irt()], [irtQ::est_item()], [irtQ::simdat()],
 #'   [irtQ::shape_df()], [irtQ::est_score()]
 #'
-#' @references Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
+#' @references Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of
+#'   ability in a microcomputer environment. *Applied Psychological Measurement,
+#'   6*(4), 431-444. \doi{10.1177/014662168200600405}.
+#'
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
+#'   item response theory*. Newbury Park, CA: Sage.
+#'
+#'   Jung, H., & Lim, H. (2026, April). Detecting global and net DIF in
 #'   polytomous items using RDIF. Paper presented at the annual meeting of the
 #'   National Council on Measurement in Education, Los Angeles, CA.
 #'
@@ -207,6 +267,10 @@
 #'   Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 #'   detection with the residual DIF framework. Paper presented at the annual
 #'   International Meeting of the Psychometric Society, Prague, Czech Republic.
+#'
+#'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+#'   response theory. *Psychometrika, 54*(3), 427-450.
+#'   \doi{10.1007/BF02294627}.
 #'
 #' @examples
 #' \donttest{
@@ -242,7 +306,7 @@
 #'   dplyr::mutate_at(.vars = "par.2", .funs = function(x) x + rep(0.7, 4))
 #'
 #' # Combine the DIF and non-DIF items for both reference and focal groups
-#' # Therefor, the first 4 items exhibit uniform DIF
+#' # Therefore, the first 4 items exhibit uniform DIF
 #' par_ref <- rbind(difpar_ref, par_nstd)
 #' par_foc <- rbind(difpar_foc, par_nstd)
 #'
@@ -321,8 +385,7 @@
 #' @export
 rdif <- function(x, ...) UseMethod("rdif")
 
-#' @describeIn rdif Default method for computing the three RDIF statistics using
-#' a data frame `x` that contains item metadata
+#' @describeIn rdif Default method for a data frame `x` containing item metadata.
 #'
 #' @export
 rdif.default <- function(x,
@@ -619,7 +682,9 @@ rdif.default <- function(x,
   rst
 }
 
-#' @describeIn rdif An object created by the function [irtQ::est_irt()].
+#' @describeIn rdif Method for an object of class `est_irt` created by
+#' [irtQ::est_irt()]. The response data and the scaling factor `D` are taken from
+#' the object.
 #'
 #' @export
 #'
@@ -915,7 +980,9 @@ rdif.est_irt <- function(x,
 }
 
 
-#' @describeIn rdif An object created by the function [irtQ::est_item()].
+#' @describeIn rdif Method for an object of class `est_item` created by
+#' [irtQ::est_item()]. The response data, ability estimates, and the scaling
+#' factor `D` are taken from the object.
 #'
 #' @export
 #'

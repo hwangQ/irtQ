@@ -88,9 +88,8 @@ iteration are added to the flagged set, and the \code{complete} element of
 \code{with_purify} is \code{FALSE}. Because one item is removed per iteration,
 \code{max.iter} should be at least the number of items expected to drift.}
 
-\item{verbose}{Logical. If \code{TRUE}, progress messages from the purification
-procedure will be displayed; if \code{FALSE}, the messages will be suppressed.
-Default is \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, the progress of the purification procedure
+is printed to the console. Default is \code{TRUE}.}
 }
 \value{
 This function returns a list with the following elements:
