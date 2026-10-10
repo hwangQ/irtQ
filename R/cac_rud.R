@@ -15,17 +15,25 @@
 #'   can be easily created using the [irtQ::shape_df()] function.
 #'   If `x = NULL`, the `se` argument must be explicitly provided.
 #'   Defaults to `NULL`.
-#' @param cutscore A numeric vector of cut scores on the ability (theta) metric,
-#'   in ascending order. The K - 1 cut scores divide examinees into K
-#'   performance levels. An ability value equal to a cut score is assigned to
-#'   the higher level.
+#' @param cutscore A numeric vector of finite cut scores on the ability (theta)
+#'   metric, in strictly ascending order. The K - 1 cut scores divide examinees
+#'   into K performance levels. An ability value equal to a cut score is
+#'   assigned to the higher level.
+#' @param theta A numeric vector of ability estimates, one per examinee. It is
+#'   ignored when `weights` is supplied. An examinee with a missing `theta` (or
+#'   a missing `se`) is excluded with a warning. Default is `NULL`.
 #' @param se A numeric vector of the same length as `theta` representing the
-#'   standard errors associated with each ability estimate. If `NULL` and
-#'   `x` is supplied, standard errors are computed using the test information
-#'   function. See the **Details** section for more information. When `weights`
-#'   is supplied, `se` must have one value per quadrature point. Standard
-#'   errors from [irtQ::est_score()] that are set to 99.9999 (ability estimates
-#'   at a limit of `range`) should be handled before they are supplied.
+#'   standard errors associated with each ability estimate. All standard errors
+#'   must be positive. If `NULL` and `x` is supplied, standard errors are
+#'   computed using the test information function. See the **Details** section
+#'   for more information. When `weights` is supplied, `se` must have one value
+#'   per quadrature point. Standard errors from [irtQ::est_score()] that are
+#'   set to 99.9999 (ability estimates at a limit of `range`) should be handled
+#'   before they are supplied.
+#' @param weights A two-column data frame or matrix. The first column holds the
+#'   quadrature points (nodes), and the second column holds the corresponding
+#'   weights, which should sum to 1. [irtQ::gen.weight()] creates such a data
+#'   frame. When `weights` is supplied, `theta` is ignored. Default is `NULL`.
 #' @param D A scaling constant used in IRT models to make the logistic function
 #'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1. It is used only when `se` is computed
@@ -49,7 +57,8 @@
 #' squared level probabilities, as in Lee (2010); Rudner (2001, 2005) defines
 #' only accuracy indices. When individual ability estimates are used, each
 #' estimate is treated as the true ability, and each examinee receives the
-#' weight 1/N, where N is the number of ability estimates.
+#' weight 1/N, where N is the number of ability estimates after the examinees
+#' with a missing `theta` or `se` are excluded.
 #'
 #' Finally, the function computes marginal classification accuracy and
 #' consistency across all examinees by aggregating the conditional indices with
@@ -173,6 +182,39 @@ cac_rud <- function(x = NULL,
     )
   }
 
+  # stop when the cut scores are not finite values in strictly ascending order
+  if (!is.numeric(cutscore) || length(cutscore) == 0L ||
+      !all(is.finite(cutscore)) || is.unsorted(cutscore, strictly = TRUE)) {
+    stop("'cutscore' must be a numeric vector of finite values in strictly ascending order.",
+         call. = FALSE
+    )
+  }
+
+  # exclude the examinees whose ability estimate or standard error is missing
+  if (is.null(weights)) {
+    # check if the provided inputs are correct
+    if (!is.null(se) && length(se) != length(theta)) {
+      stop("The numbers of thetas and the standard errors must be equal.",
+           call. = FALSE
+      )
+    }
+
+    # find the missing ability estimates and standard errors
+    na.lg <- is.na(theta)
+    if (!is.null(se)) na.lg <- na.lg | is.na(se)
+    if (all(na.lg)) {
+      stop("All values in 'theta' (or 'se') are missing.", call. = FALSE)
+    }
+    if (any(na.lg)) {
+      warning(sprintf(
+        "%d examinee(s) with a missing value in 'theta' or 'se' were excluded.",
+        sum(na.lg)
+      ), call. = FALSE)
+      theta <- theta[!na.lg]
+      if (!is.null(se)) se <- se[!na.lg]
+    }
+  }
+
   # compute standard errors if not provided
   if (is.null(se)) {
     if (is.null(x)) {
@@ -183,6 +225,11 @@ cac_rud <- function(x = NULL,
     } else {
       se <- 1 / sqrt(info(x = x, theta = theta, D = D, tif = TRUE)$tif)
     }
+  }
+
+  # stop when a standard error is missing or not positive
+  if (anyNA(se) || any(se <= 0)) {
+    stop("All standard errors in 'se' must be positive.", call. = FALSE)
   }
 
   # count the number of levels
@@ -202,13 +249,6 @@ cac_rud <- function(x = NULL,
     }
   } else {
     # (2) when individual ability estimates and ses are provided
-    # check if the provided inputs are correct
-    if (length(theta) != length(se)) {
-      stop("The numbers of thetas and the standard errors must be equal.",
-           call. = FALSE
-      )
-    }
-
     # use the ability estimates as nodes with uniform weights
     nodes <- theta
     wts <- rep(1 / length(theta), length(theta))

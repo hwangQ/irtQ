@@ -12,14 +12,15 @@ of categories, IRT model types, etc.). See \code{\link[=est_irt]{est_irt()}} or
 \code{\link[=simdat]{simdat()}} for more details about the item metadata. This data frame
 can be easily created using the \code{\link[=shape_df]{shape_df()}} function.}
 
-\item{cutscore}{A numeric vector of cut scores in ascending order. The K - 1
-cut scores divide examinees into K performance levels. With
-\code{cut.obs = TRUE}, the cut scores are on the observed summed score metric.
-With \code{cut.obs = FALSE}, they are on the ability (theta) metric. A score
-equal to a cut score is assigned to the higher level.}
+\item{cutscore}{A numeric vector of finite cut scores in strictly ascending
+order. The K - 1 cut scores divide examinees into K performance levels.
+With \code{cut.obs = TRUE}, the cut scores are on the observed summed score
+metric. With \code{cut.obs = FALSE}, they are on the ability (theta) metric. A
+score equal to a cut score is assigned to the higher level.}
 
 \item{theta}{A numeric vector of ability estimates, one per examinee, used by
-the P method. It is ignored when \code{weights} is supplied. Default is \code{NULL}.}
+the P method. It is ignored when \code{weights} is supplied. Missing values
+(\code{NA}) are excluded with a warning. Default is \code{NULL}.}
 
 \item{weights}{A two-column data frame or matrix used by the D method. The
 first column holds the quadrature points (nodes), and the second column
@@ -92,8 +93,8 @@ administrations (Lee, 2010).
 In the D method (\code{weights} supplied), the marginal indices are the weighted
 sums of the conditional indices over the quadrature points. In the P method
 (\code{theta} supplied), each examinee receives the weight 1/N, where N is the
-number of ability estimates, so the marginal indices are the averages of the
-conditional indices.
+number of ability estimates (after the missing values are excluded), so the
+marginal indices are the averages of the conditional indices.
 }
 \examples{
 \donttest{

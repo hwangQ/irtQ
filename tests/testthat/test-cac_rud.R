@@ -62,3 +62,21 @@ test_that("cac_rud() with item metadata matches the reference", {
   expect_equal(tot$accuracy, ref$acc, tolerance = 1e-12)
   expect_equal(tot$consistency, ref$con, tolerance = 1e-12)
 })
+
+test_that("cac_rud() excludes examinees with a missing theta or se with a warning", {
+  set.seed(11)
+  th <- rnorm(20)
+  se <- runif(20, 0.2, 0.4)
+  res <- cac_rud(cutscore = c(-0.5, 0.8), theta = th, se = se)
+  expect_warning(
+    res_na <- cac_rud(cutscore = c(-0.5, 0.8), theta = c(th, NA, 0.1), se = c(se, 0.3, NA)),
+    "2 examinee"
+  )
+  expect_equal(res_na$marginal, res$marginal)
+})
+
+test_that("cac_rud() stops on unordered cut scores and non-positive standard errors", {
+  expect_error(cac_rud(cutscore = c(1, -1), theta = c(0, 1), se = c(0.3, 0.3)), "ascending")
+  expect_error(cac_rud(cutscore = 0, theta = c(0, 1), se = c(0.3, -0.3)), "positive")
+  expect_error(cac_rud(cutscore = 0, theta = c(0, 1), se = c(0.3, 0)), "positive")
+})

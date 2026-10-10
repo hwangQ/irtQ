@@ -15,27 +15,28 @@ can be easily created using the \code{\link[=shape_df]{shape_df()}} function.
 If \code{x = NULL}, the \code{se} argument must be explicitly provided.
 Defaults to \code{NULL}.}
 
-\item{cutscore}{A numeric vector of cut scores on the ability (theta) metric,
-in ascending order. The K - 1 cut scores divide examinees into K
-performance levels. An ability value equal to a cut score is assigned to
-the higher level.}
+\item{cutscore}{A numeric vector of finite cut scores on the ability (theta)
+metric, in strictly ascending order. The K - 1 cut scores divide examinees
+into K performance levels. An ability value equal to a cut score is
+assigned to the higher level.}
 
-\item{theta}{A numeric vector of ability estimates, one per examinee, used by
-the P method. It is ignored when \code{weights} is supplied. Default is \code{NULL}.}
+\item{theta}{A numeric vector of ability estimates, one per examinee. It is
+ignored when \code{weights} is supplied. An examinee with a missing \code{theta} (or
+a missing \code{se}) is excluded with a warning. Default is \code{NULL}.}
 
 \item{se}{A numeric vector of the same length as \code{theta} representing the
-standard errors associated with each ability estimate. If \code{NULL} and
-\code{x} is supplied, standard errors are computed using the test information
-function. See the \strong{Details} section for more information. When \code{weights}
-is supplied, \code{se} must have one value per quadrature point. Standard
-errors from \code{\link[=est_score]{est_score()}} that are set to 99.9999 (ability estimates
-at a limit of \code{range}) should be handled before they are supplied.}
+standard errors associated with each ability estimate. All standard errors
+must be positive. If \code{NULL} and \code{x} is supplied, standard errors are
+computed using the test information function. See the \strong{Details} section
+for more information. When \code{weights} is supplied, \code{se} must have one value
+per quadrature point. Standard errors from \code{\link[=est_score]{est_score()}} that are
+set to 99.9999 (ability estimates at a limit of \code{range}) should be handled
+before they are supplied.}
 
-\item{weights}{A two-column data frame or matrix used by the D method. The
-first column holds the quadrature points (nodes), and the second column
-holds the corresponding weights, which should sum to 1.
-\code{\link[=gen.weight]{gen.weight()}} creates such a data frame. When \code{weights} is
-supplied, \code{theta} is ignored. Default is \code{NULL}.}
+\item{weights}{A two-column data frame or matrix. The first column holds the
+quadrature points (nodes), and the second column holds the corresponding
+weights, which should sum to 1. \code{\link[=gen.weight]{gen.weight()}} creates such a data
+frame. When \code{weights} is supplied, \code{theta} is ignored. Default is \code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
@@ -91,7 +92,8 @@ classified into the level that contains the ability value itself (Rudner,
 squared level probabilities, as in Lee (2010); Rudner (2001, 2005) defines
 only accuracy indices. When individual ability estimates are used, each
 estimate is treated as the true ability, and each examinee receives the
-weight 1/N, where N is the number of ability estimates.
+weight 1/N, where N is the number of ability estimates after the examinees
+with a missing \code{theta} or \code{se} are excluded.
 
 Finally, the function computes marginal classification accuracy and
 consistency across all examinees by aggregating the conditional indices with

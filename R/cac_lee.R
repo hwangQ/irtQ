@@ -8,13 +8,14 @@
 #'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
 #'   [irtQ::simdat()] for more details about the item metadata. This data frame
 #'   can be easily created using the [irtQ::shape_df()] function.
-#' @param cutscore A numeric vector of cut scores in ascending order. The K - 1
-#'   cut scores divide examinees into K performance levels. With
-#'   `cut.obs = TRUE`, the cut scores are on the observed summed score metric.
-#'   With `cut.obs = FALSE`, they are on the ability (theta) metric. A score
-#'   equal to a cut score is assigned to the higher level.
+#' @param cutscore A numeric vector of finite cut scores in strictly ascending
+#'   order. The K - 1 cut scores divide examinees into K performance levels.
+#'   With `cut.obs = TRUE`, the cut scores are on the observed summed score
+#'   metric. With `cut.obs = FALSE`, they are on the ability (theta) metric. A
+#'   score equal to a cut score is assigned to the higher level.
 #' @param theta A numeric vector of ability estimates, one per examinee, used by
-#'   the P method. It is ignored when `weights` is supplied. Default is `NULL`.
+#'   the P method. It is ignored when `weights` is supplied. Missing values
+#'   (`NA`) are excluded with a warning. Default is `NULL`.
 #' @param weights A two-column data frame or matrix used by the D method. The
 #'   first column holds the quadrature points (nodes), and the second column
 #'   holds the corresponding weights, which should sum to 1.
@@ -56,8 +57,8 @@
 #' In the D method (`weights` supplied), the marginal indices are the weighted
 #' sums of the conditional indices over the quadrature points. In the P method
 #' (`theta` supplied), each examinee receives the weight 1/N, where N is the
-#' number of ability estimates, so the marginal indices are the averages of the
-#' conditional indices.
+#' number of ability estimates (after the missing values are excluded), so the
+#' marginal indices are the averages of the conditional indices.
 #'
 #' @return A list with the following elements:
 #'  - `confusion`: A K x K matrix of expected proportions, with the true levels
@@ -173,6 +174,14 @@ cac_lee <- function(x,
     )
   }
 
+  # stop when the cut scores are not finite values in strictly ascending order
+  if (!is.numeric(cutscore) || length(cutscore) == 0L ||
+      !all(is.finite(cutscore)) || is.unsorted(cutscore, strictly = TRUE)) {
+    stop("'cutscore' must be a numeric vector of finite values in strictly ascending order.",
+         call. = FALSE
+    )
+  }
+
   # if the cutscores are on the theta metric, compute the expected cutscores
   # on the observed score metric
   if (!cut.obs) {
@@ -189,6 +198,20 @@ cac_lee <- function(x,
     wts <- weights[, 2]
   } else {
     # (2) P method: individual ability estimates are provided
+    # find the missing ability estimates
+    na.lg <- is.na(theta)
+    if (all(na.lg)) {
+      stop("All values in 'theta' are missing.", call. = FALSE)
+    }
+
+    # exclude the missing ability estimates
+    if (any(na.lg)) {
+      warning(sprintf("%d missing value(s) in 'theta' were excluded.", sum(na.lg)),
+              call. = FALSE
+      )
+      theta <- theta[!na.lg]
+    }
+
     # use the ability estimates as nodes with uniform weights
     nodes <- theta
     wts <- rep(1 / length(theta), length(theta))

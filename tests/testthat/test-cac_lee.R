@@ -76,3 +76,18 @@ test_that("cac_lee() keeps a level that contains no observed summed score", {
   res2 <- cac_lee(x = x_lee, cutscore = c(10, 40), weights = wts_lee)
   expect_true(all(res2$prob.level$p.level.3 == 0))
 })
+
+test_that("cac_lee() excludes missing ability estimates with a warning", {
+  expect_warning(
+    res_na <- cac_lee(x = x_lee, cutscore = c(5, 10, 15), theta = c(theta_lee, NA)),
+    "missing"
+  )
+  res <- cac_lee(x = x_lee, cutscore = c(5, 10, 15), theta = theta_lee)
+  expect_equal(res_na$marginal, res$marginal)
+  expect_error(cac_lee(x = x_lee, cutscore = 5, theta = c(NA_real_, NA_real_)), "missing")
+})
+
+test_that("cac_lee() stops on cut scores that are not in ascending order", {
+  expect_error(cac_lee(x = x_lee, cutscore = c(15, 5), weights = wts_lee), "ascending")
+  expect_error(cac_lee(x = x_lee, cutscore = c(5, 5), weights = wts_lee), "ascending")
+})
