@@ -268,3 +268,18 @@ test_that("find_cut() reports a crossing on a grid point only once", {
   expect_equal(fc$details$stage.2$pairs[[1]]$proper_crossings, 0)
   expect_equal(fc$cut_score$stage.2, 0)
 })
+
+test_that("plot.find_cut() limits the x-axis to theta_range", {
+  fc <- find_cut(x = simMST$item_bank, module = simMST$module,
+                 route_map = simMST$route_map, D = 1.702)
+  # the anomalous crossings at about -1.99 and 1.62 lie outside the range
+  p <- plot(fc, theta_range = c(-0.3, 0.3))
+  expect_equal(p$coordinates$limits$x, c(-0.3, 0.3))
+  # the x-axis of every panel covers the requested range plus the default expansion
+  built <- ggplot2::ggplot_build(p)
+  for (k in seq_along(built$layout$panel_params)) {
+    expect_equal(built$layout$panel_params[[k]]$x.range, c(-0.33, 0.33))
+  }
+  # without theta_range the axis is not limited
+  expect_null(plot(fc)$coordinates$limits$x)
+})

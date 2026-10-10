@@ -18,7 +18,8 @@
 \code{\link{find_cut}}.}
 
 \item{theta_range}{A numeric vector of length 2 specifying the theta range
-shown on the x-axis. Defaults to the full range stored in
+shown on the x-axis. The TIF curves, the vertical lines, and the dots
+outside this range are cut off. Defaults to the full range stored in
 \code{x$tif_data}.}
 
 \item{show_anomalous}{Logical. If \code{TRUE} (default), anomalous TIF

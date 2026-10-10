@@ -569,7 +569,8 @@ find_cut <- function(x,
 #' @param x An object of class \code{"find_cut"} returned by
 #'   \code{\link{find_cut}}.
 #' @param theta_range A numeric vector of length 2 specifying the theta range
-#'   shown on the x-axis. Defaults to the full range stored in
+#'   shown on the x-axis. The TIF curves, the vertical lines, and the dots
+#'   outside this range are cut off. Defaults to the full range stored in
 #'   \code{x$tif_data}.
 #' @param show_anomalous Logical. If \code{TRUE} (default), anomalous TIF
 #'   crossings (negative-slope crossings excluded from the cut scores) are
@@ -866,6 +867,12 @@ plot.find_cut <- function(x,
       fontface    = "bold",
       inherit.aes = FALSE
     )
+  }
+
+  # -- 9. Limit the x-axis to the requested theta range -----------------------
+  # The crossing lines and dots outside the range are cut off, not dropped
+  if (!is.null(theta_range)) {
+    p <- p + ggplot2::coord_cartesian(xlim = theta_range)
   }
 
   p    # return ggplot object (auto-printed when called interactively)

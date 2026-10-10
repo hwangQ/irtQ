@@ -167,6 +167,10 @@
   given, so the marginal indices could exceed 1. Such weights are now
   rescaled to sum to 1, with a warning.
 
+- `plot.find_cut()` with `theta_range` still stretched the x-axis to the
+  crossing lines outside the range. The x-axis now covers the requested
+  range.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
