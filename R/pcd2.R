@@ -354,7 +354,7 @@ pcd2 <- function(x,
   # (1) when no purification is implemented
   # Do only one iteration of IPD analysis
   ipd_rst <-
-    pcd2_one(x = x, data =data, D = D, item.skip = item.skip, missing = missing,
+    pcd2_one(x = x, data = data, D = D, item.skip = item.skip,
              Quadrature = Quadrature, weights = weights, group.mean = group.mean,
              group.var = group.var, crit.val = crit.val)
 
@@ -411,7 +411,7 @@ pcd2 <- function(x,
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # A flagged item which has the largest significant IPD statistic
+        # Find the flagged item with the largest IPD statistic
         flag_max <- which.max(ipd_stat_tmp$pcd2)
 
         # Check an item that is deleted
@@ -443,7 +443,7 @@ pcd2 <- function(x,
         # Conduct IPD analysis using the purified data
         ipd_rst_tmp <-
           pcd2_one(x = x_puri, data = data_puri, D = D, item.skip = item.skip.puri,
-                   missing = missing, Quadrature = Quadrature, weights = weights,
+                   Quadrature = Quadrature, weights = weights,
                    group.mean = group.mean, group.var = group.var,
                    crit.val = crit.val)
 
@@ -454,9 +454,6 @@ pcd2 <- function(x,
 
         # Check if a further IPD item is flagged
         if (is.null(ipd_item_tmp)) {
-
-          # Add no additional IPD item
-          ipd_item <- ipd_item
 
           # Add the IPD statistics for rest of items
           ipd_stat[item_num, 1:3] <- ipd_stat_tmp
@@ -516,7 +513,6 @@ pcd2 <- function(x,
               with_purify = with_purify, crit.val = crit.val)
 
   # return the IPD detection results
-  # class(rst) <- "pcd2"
   rst$call <- cl
   rst
 
@@ -525,7 +521,7 @@ pcd2 <- function(x,
 
 # Pseudo-count D2 method for a single iteration
 pcd2_one <- function(x, data, D = 1, item.skip = NULL,
-                     missing = NA, Quadrature = c(49, 6.0), weights = NULL,
+                     Quadrature = c(49, 6.0), weights = NULL,
                      group.mean = 0.0, group.var = 1.0, crit.val = NULL) {
 
   # confirm and correct all item metadata information
@@ -537,14 +533,8 @@ pcd2_one <- function(x, data, D = 1, item.skip = NULL,
   # extract score categories for all items
   cats <- x$cats
 
-  # extract model names for all items
-  model <- x$model
-
   # count the total number of item in the response data set
   nitem <- ncol(data)
-
-  # count the total number of examinees
-  nstd <- nrow(data)
 
   # check whether the data have the same number of items as indicated in the x argument
   if (nrow(x) != nitem) {
@@ -554,26 +544,17 @@ pcd2_one <- function(x, data, D = 1, item.skip = NULL,
   # count the number of item responses across all items
   n.resp <- Rfast::colsums(!is.na(data))
 
-  # create the initial weights of prior ability distribution when it is not specified
+  # create the weights of the prior ability distribution when it is not specified
   if (is.null(weights)) {
     # create a vector of quad-points
     quadpt <- seq(-Quadrature[2], Quadrature[2], length.out = Quadrature[1])
 
     # create a two column data frame to contain the quad-points and weights
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
-    n.quad <- length(quadpt)
-  } else {
-    quadpt <- weights[, 1]
-    n.quad <- length(quadpt)
-    moments.tmp <- cal_moment(node = quadpt, weight = weights[, 2])
-    group.mean <- moments.tmp[1]
-    group.var <- moments.tmp[2]
   }
 
-  # factorize the response values
   # build the per-item one-hot frequency-category list used downstream
-  # by divide_data() and the pseudo-count D^2 statistic.  See
-  # build_freqcat() (R/util.R) for the output structure.
+  # by divide_data() and the pseudo-count D^2 statistic (see build_freqcat())
   freq.cat <- build_freqcat(data, cats)
 
   # break down the item metadata into several elements
@@ -605,23 +586,22 @@ pcd2_one <- function(x, data, D = 1, item.skip = NULL,
   # compute posterior distribution for all examinees
   post_dist <- posterior(likehd = lmat, weights = weights, idx.std = NULL)
 
-  # compute the expected frequency of score categories across all items
-  # : this is the conditional expectation of item responses with respect
-  #   to posterior likelihood distribution
+  # compute the pseudo-counts (posterior-weighted response counts) of score categories
+  # across all items
   freq_exp_all <-
     base::as.matrix(Matrix::crossprod(post_dist, data_all))
 
-  # list including the expected frequency of score categories for each item
+  # split the pseudo-counts by item
   freq_exp_item <-
     purrr::map(.x = cols.item$cols.all,
                .f = ~ {freq_exp_all[, .x]})
 
-  # sum of the expected frequencies across all score categories for each item
+  # total pseudo-count at each quadrature point for each item
   freq_exp_sum <-
     purrr::map(.x = freq_exp_item,
                .f = ~ {Rfast::rowsums(.x)})
 
-  # compute the expected probabilities of endorsing each score categories for each item
+  # compute the model-implied category probabilities at each quadrature point
   exp_prob_item <-
     trace(elm_item = elm_item, theta = weights[, 1], D = D,
           tcc = FALSE)$prob.cats

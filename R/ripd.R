@@ -423,272 +423,16 @@ ripd.default <- function(x,
   # match.call
   cl <- match.call()
 
-  ## ----------------------------------
-  ## (1) prepare IPD analysis
-  ## ----------------------------------
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # stop when the model includes any polytomous model
-  if (any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-    stop("The current version only supports dichotomous response data.", call. = FALSE)
-  }
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # stop when the model includes any polytomous response data
-  if(any(data > 1, na.rm=TRUE)) {
-    stop("The current version only supports dichotomous response data.", call.=FALSE)
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data[group == focal.name, ]))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[group == focal.name, ][loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of IPD analysis
-  ipd_rst <- ripd_one(
+  # conduct the IPD analysis
+  rst <- ripd_main(
     x = x, data = data, score = score, group = group, focal.name = focal.name,
-    item.skip = item.skip, D = D, alpha = alpha
+    item.skip = item.skip, D = D, alpha = alpha, missing = missing, purify = purify,
+    purify.by = purify.by, max.iter = max.iter, min.resp = min.resp, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+    ncore = ncore, verbose = verbose, ...
   )
-
-  # create two empty lists to contain the results
-  no_purify <- list(ipd_stat = NULL, moments = NULL, ipd_item = NULL, score = NULL)
-  with_purify <- list(
-    purify.by = NULL, ipd_stat = NULL, moments = NULL,
-    ipd_item = NULL, n.iter = NULL, score = NULL, complete = NULL
-  )
-
-  # record the first IPD detection results into the no purification list
-  no_purify$ipd_stat <- ipd_rst$ipd_stat
-  no_purify$ipd_item <- ipd_rst$ipd_item
-  no_purify$moments <- data.frame(
-    id = x$id,
-    ipd_rst$moments$ripdr[, c(1, 3)],
-    ipd_rst$moments$ripds[, c(1, 3)],
-    ipd_rst$covariance, stringsAsFactors = FALSE
-  )
-  names(no_purify$moments) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds",
-                                "sigma.ripds", "covariance")
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected IPD items, statistics, and moments
-    ipd_item <- NULL
-    ipd_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)), ripdr = NA, z.ripdr = NA,
-        ripds = NA, z.ripds = NA, ripdrs = NA, p.ripdr = NA, p.ripds = NA, p.ripdrs = NA,
-        n.ref = NA, n.foc = NA, n.total = NA, n.iter = NA, stringsAsFactors = FALSE
-      )
-    mmt_df <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)), mu.ripdr = NA, sigma.ripdr = NA,
-        mu.ripds = NA, sigma.ripds = NA, covariance = NA, n.iter = NA,
-        stringsAsFactors = FALSE
-      )
-
-    # extract the first IPD analysis results
-    # and check if at least one IPD item is detected
-    ipd_item_tmp <- ipd_rst$ipd_item[[purify.by]]
-    ipd_stat_tmp <- ipd_rst$ipd_stat
-    mmt_df_tmp <- no_purify$moments
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-
-    # start the iteration if any item is detected as an IPD item
-    if (!is.null(ipd_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one IPD item is detected from the no purification IPD analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # a flagged item which has the largest significant IPD statistic
-        flag_max <-
-          switch(purify.by,
-            ripdr = which.max(abs(ipd_stat_tmp$z.ripdr)),
-            ripds = which.max(abs(ipd_stat_tmp$z.ripds)),
-            ripdrs = which.max(ipd_stat_tmp$ripdrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_max]
-
-        # add the deleted item as the IPD item
-        ipd_item <- c(ipd_item, del_item)
-
-        # add the IPD statistics and moments for the detected IPD item
-        ipd_stat[del_item, 1:12] <- ipd_stat_tmp[flag_max, ]
-        ipd_stat[del_item, 13] <- i - 1
-        mmt_df[del_item, 1:6] <- mmt_df_tmp[flag_max, ]
-        mmt_df[del_item, 7] <- i - 1
-
-        # refine the leftover items
-        item_num <- item_num[-flag_max]
-
-        # remove the detected IPD item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
-
-        # remove the detected IPD item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
-
-        # update the locations of the items that should be skipped in the purified data
-        if (!is.null(item.skip)) {
-          item.skip.puri <- c(1:length(item_num))[item_num %in% item.skip]
-        } else {
-          item.skip.puri <- NULL
-        }
-
-        # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- rowSums(!is.na(data_puri[group == focal.name, ]))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[group == focal.name, ][loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates for the studied groups
-        # after deleting the detected IPD item data
-        score_puri <-
-          est_score(
-            x = x_puri, data = data_puri, D = D, method = method,
-            range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-            ncore = ncore, ...)$est.theta
-
-        # replace the scores of the studied group with the purified scores
-        score <- score_puri
-
-        # do IPD analysis using the updated ability estimates
-        ipd_rst_tmp <- ripd_one(
-          x = x_puri, data = data_puri, score = score, group = group,
-          focal.name = focal.name, item.skip = item.skip.puri, D = D,
-          alpha = alpha
-        )
-
-        # extract the IPD analysis results
-        # and check if at least one IPD item is detected
-        ipd_item_tmp <- ipd_rst_tmp$ipd_item[[purify.by]]
-        ipd_stat_tmp <- ipd_rst_tmp$ipd_stat
-        mmt_df_tmp <- data.frame(
-          id = ipd_rst_tmp$ipd_stat$id,
-          ipd_rst_tmp$moments$ripdr[, c(1, 3)],
-          ipd_rst_tmp$moments$ripds[, c(1, 3)],
-          ipd_rst_tmp$covariance, stringsAsFactors = FALSE
-        )
-        names(mmt_df_tmp) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds",
-                               "sigma.ripds", "covariance")
-
-        # check if a further IPD item is flagged
-        if (is.null(ipd_item_tmp)) {
-          # add no additional IPD item
-          ipd_item <- ipd_item
-
-          # add the IPD statistics for rest of items
-          ipd_stat[item_num, 1:12] <- ipd_stat_tmp
-          ipd_stat[item_num, 13] <- i
-          mmt_df[item_num, 1:6] <- mmt_df_tmp
-          mmt_df[item_num, 7] <- i
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged IPD item at the last iteration
-        ipd_item <- c(ipd_item, item_num[ipd_item_tmp])
-
-        # add the IPD statistics for rest of items
-        ipd_stat[item_num, 1:12] <- ipd_stat_tmp
-        ipd_stat[item_num, 13] <- i
-        mmt_df[item_num, 1:6] <- mmt_df_tmp
-        mmt_df[item_num, 7] <- i
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final IPD detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$ipd_stat <- ipd_stat
-      with_purify$moments <- mmt_df
-      with_purify$ipd_item <- sort(ipd_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score
-      with_purify$complete <- complete
-    } else {
-      # in case when no IPD item is detected from the first IPD analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$ipd_stat <- cbind(no_purify$ipd_stat, n.iter = 0)
-      with_purify$moments <- cbind(no_purify$moments, n.iter = 0)
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify, with_purify = with_purify, alpha = alpha)
 
   # return the IPD detection results
-  class(rst) <- "ripd"
   rst$call <- cl
   rst
 }
@@ -721,280 +465,16 @@ ripd.est_irt <- function(x,
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  D <- x$scale.D
-  x <- x$par.est
-
-  ## ----------------------------------
-  ## (1) prepare IPD analysis
-  ## ----------------------------------
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # stop when the model includes any polytomous model
-  if (any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-    stop("The current version only supports dichotomous response data.", call. = FALSE)
-  }
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # stop when the model includes any polytomous response data
-  # if(any(data > 1, na.rm=TRUE)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data[group == focal.name, ]))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[group == focal.name, ][loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of IPD analysis
-  ipd_rst <- ripd_one(
-    x = x, data = data, score = score, group = group, focal.name = focal.name,
-    item.skip = item.skip, D = D, alpha = alpha
+  # conduct the IPD analysis with the data, scaling factor, and items of the object
+  rst <- ripd_main(
+    x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = x$scale.D, alpha = alpha, missing = missing,
+    purify = purify, purify.by = purify.by, max.iter = max.iter, min.resp = min.resp,
+    method = method, range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, ncore = ncore, verbose = verbose, ...
   )
-
-  # create two empty lists to contain the results
-  no_purify <- list(ipd_stat = NULL, moments = NULL, ipd_item = NULL, score = NULL)
-  with_purify <- list(
-    purify.by = NULL, ipd_stat = NULL, moments = NULL,
-    ipd_item = NULL, n.iter = NULL, score = NULL, complete = NULL
-  )
-
-  # record the first IPD detection results into the no purification list
-  no_purify$ipd_stat <- ipd_rst$ipd_stat
-  no_purify$ipd_item <- ipd_rst$ipd_item
-  no_purify$moments <- data.frame(
-    id = x$id,
-    ipd_rst$moments$ripdr[, c(1, 3)],
-    ipd_rst$moments$ripds[, c(1, 3)],
-    ipd_rst$covariance, stringsAsFactors = FALSE
-  )
-  names(no_purify$moments) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds", "sigma.ripds", "covariance")
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected IPD items, statistics, and moments
-    ipd_item <- NULL
-    ipd_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)), ripdr = NA, z.ripdr = NA,
-        ripds = NA, z.ripds = NA, ripdrs = NA, p.ripdr = NA, p.ripds = NA, p.ripdrs = NA,
-        n.ref = NA, n.foc = NA, n.total = NA, n.iter = NA, stringsAsFactors = FALSE
-      )
-    mmt_df <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)), mu.ripdr = NA, sigma.ripdr = NA,
-        mu.ripds = NA, sigma.ripds = NA, covariance = NA, n.iter = NA,
-        stringsAsFactors = FALSE
-      )
-
-    # extract the first IPD analysis results
-    # and check if at least one IPD item is detected
-    ipd_item_tmp <- ipd_rst$ipd_item[[purify.by]]
-    ipd_stat_tmp <- ipd_rst$ipd_stat
-    mmt_df_tmp <- no_purify$moments
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-
-    # start the iteration if any item is detected as an IPD item
-    if (!is.null(ipd_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one IPD item is detected from the no purification IPD analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # a flagged item which has the largest significant IPD statistic
-        flag_max <-
-          switch(purify.by,
-                 ripdr = which.max(abs(ipd_stat_tmp$z.ripdr)),
-                 ripds = which.max(abs(ipd_stat_tmp$z.ripds)),
-                 ripdrs = which.max(ipd_stat_tmp$ripdrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_max]
-
-        # add the deleted item as the IPD item
-        ipd_item <- c(ipd_item, del_item)
-
-        # add the IPD statistics and moments for the detected IPD item
-        ipd_stat[del_item, 1:12] <- ipd_stat_tmp[flag_max, ]
-        ipd_stat[del_item, 13] <- i - 1
-        mmt_df[del_item, 1:6] <- mmt_df_tmp[flag_max, ]
-        mmt_df[del_item, 7] <- i - 1
-
-        # refine the leftover items
-        item_num <- item_num[-flag_max]
-
-        # remove the detected IPD item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
-
-        # remove the detected IPD item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
-
-        # update the locations of the items that should be skipped in the purified data
-        if (!is.null(item.skip)) {
-          item.skip.puri <- c(1:length(item_num))[item_num %in% item.skip]
-        } else {
-          item.skip.puri <- NULL
-        }
-
-        # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- rowSums(!is.na(data_puri[group == focal.name, ]))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[group == focal.name, ][loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates for the studied groups
-        # after deleting the detected IPD item data
-        # score_puri <- est_score(x=x_puri, data=data_puri[group == focal.name, ], D=D, method=method,
-        #                         range=range, norm.prior=norm.prior, nquad=nquad, weights=weights,
-        #                         ncore=ncore, ...)$est.theta
-        score_puri <-
-          est_score(
-            x = x_puri, data = data_puri, D = D, method = method,
-            range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-            ncore = ncore, ...)$est.theta
-
-        # replace the scores of the studied group with the purified scores
-        # score[group == focal.name] <- score_puri
-        score <- score_puri
-
-        # do IPD analysis using the updated ability estimates
-        ipd_rst_tmp <- ripd_one(
-          x = x_puri, data = data_puri, score = score, group = group,
-          focal.name = focal.name, item.skip = item.skip.puri, D = D,
-          alpha = alpha
-        )
-
-        # extract the first IPD analysis results
-        # and check if at least one IPD item is detected
-        ipd_item_tmp <- ipd_rst_tmp$ipd_item[[purify.by]]
-        ipd_stat_tmp <- ipd_rst_tmp$ipd_stat
-        mmt_df_tmp <- data.frame(
-          id = ipd_rst_tmp$ipd_stat$id,
-          ipd_rst_tmp$moments$ripdr[, c(1, 3)],
-          ipd_rst_tmp$moments$ripds[, c(1, 3)],
-          ipd_rst_tmp$covariance, stringsAsFactors = FALSE
-        )
-        names(mmt_df_tmp) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds", "sigma.ripds", "covariance")
-
-        # check if a further IPD item is flagged
-        if (is.null(ipd_item_tmp)) {
-          # add no additional IPD item
-          ipd_item <- ipd_item
-
-          # add the IPD statistics for rest of items
-          ipd_stat[item_num, 1:12] <- ipd_stat_tmp
-          ipd_stat[item_num, 13] <- i
-          mmt_df[item_num, 1:6] <- mmt_df_tmp
-          mmt_df[item_num, 7] <- i
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged IPD item at the last iteration
-        ipd_item <- c(ipd_item, item_num[ipd_item_tmp])
-
-        # add the IPD statistics for rest of items
-        ipd_stat[item_num, 1:12] <- ipd_stat_tmp
-        ipd_stat[item_num, 13] <- i
-        mmt_df[item_num, 1:6] <- mmt_df_tmp
-        mmt_df[item_num, 7] <- i
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final IPD detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$ipd_stat <- ipd_stat
-      with_purify$moments <- mmt_df
-      with_purify$ipd_item <- sort(ipd_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score
-      with_purify$complete <- complete
-    } else {
-      # in case when no IPD item is detected from the first IPD analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$ipd_stat <- cbind(no_purify$ipd_stat, n.iter = 0)
-      with_purify$moments <- cbind(no_purify$moments, n.iter = 0)
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify, with_purify = with_purify, alpha = alpha)
 
   # return the IPD detection results
-  class(rst) <- "ripd"
   rst$call <- cl
   rst
 }
@@ -1026,11 +506,26 @@ ripd.est_item <- function(x,
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  score <- x$score
-  D <- x$scale.D
-  x <- x$par.est
+  # conduct the IPD analysis with the data, ability estimates, scaling factor, and items of the object
+  rst <- ripd_main(
+    x = x$par.est, data = x$data, score = x$score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = x$scale.D, alpha = alpha, missing = missing,
+    purify = purify, purify.by = purify.by, max.iter = max.iter, min.resp = min.resp,
+    method = method, range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, ncore = ncore, verbose = verbose, ...
+  )
+
+  # return the IPD detection results
+  rst$call <- cl
+  rst
+}
+
+
+# This function conducts the IPD analysis shared by the methods of ripd(): it prepares the
+# data and ability estimates, runs the analysis once, and applies the purification procedure
+ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, missing,
+                      purify, purify.by, max.iter, min.resp, method, range, norm.prior,
+                      nquad, weights, ncore, verbose, ...) {
 
   ## ----------------------------------
   ## (1) prepare IPD analysis
@@ -1051,10 +546,10 @@ ripd.est_item <- function(x,
     data[data == missing] <- NA
   }
 
-  # stop when the model includes any polytomous response data
-  # if(any(data > 1, na.rm=TRUE)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
+  # stop when the response data include any polytomous response
+  if (any(data > 1, na.rm = TRUE)) {
+    stop("The current version only supports dichotomous response data.", call. = FALSE)
+  }
 
   # compute the score if score = NULL
   if (!is.null(score)) {
@@ -1063,17 +558,14 @@ ripd.est_item <- function(x,
       score <- as.numeric(data.matrix(score))
     }
   } else {
-    # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
+    # set all responses of focal group examinees with fewer than min.resp responses to NA
     if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data[group == focal.name, ]))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[group == focal.name, ][loc_less, ] <- NA
+      data <- ripd_min_resp(data = data, group = group, focal.name = focal.name,
+                            min.resp = min.resp)
     }
     score <- est_score(
       x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
+      nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
   }
 
   # a) when no purification is set
@@ -1093,19 +585,13 @@ ripd.est_item <- function(x,
   # record the first IPD detection results into the no purification list
   no_purify$ipd_stat <- ipd_rst$ipd_stat
   no_purify$ipd_item <- ipd_rst$ipd_item
-  no_purify$moments <- data.frame(
-    id = x$id,
-    ipd_rst$moments$ripdr[, c(1, 3)],
-    ipd_rst$moments$ripds[, c(1, 3)],
-    ipd_rst$covariance, stringsAsFactors = FALSE
-  )
-  names(no_purify$moments) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds", "sigma.ripds", "covariance")
+  no_purify$moments <- ripd_moments(ipd_rst)
   no_purify$score <- score
 
   # when purification is used
   if (purify) {
     # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
+    purify.by <- match.arg(purify.by, c("ripdrs", "ripdr", "ripds"))
 
     # create an empty vector and empty data frames
     # to contain the detected IPD items, statistics, and moments
@@ -1154,12 +640,12 @@ ripd.est_item <- function(x,
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the largest significant IPD statistic
+        # find the flagged item with the largest IPD statistic
         flag_max <-
           switch(purify.by,
-                 ripdr = which.max(abs(ipd_stat_tmp$z.ripdr)),
-                 ripds = which.max(abs(ipd_stat_tmp$z.ripds)),
-                 ripdrs = which.max(ipd_stat_tmp$ripdrs)
+            ripdr = which.max(abs(ipd_stat_tmp$z.ripdr)),
+            ripds = which.max(abs(ipd_stat_tmp$z.ripds)),
+            ripdrs = which.max(ipd_stat_tmp$ripdrs)
           )
 
         # check an item that is deleted
@@ -1173,6 +659,9 @@ ripd.est_item <- function(x,
         ipd_stat[del_item, 13] <- i - 1
         mmt_df[del_item, 1:6] <- mmt_df_tmp[flag_max, ]
         mmt_df[del_item, 7] <- i - 1
+
+        # find the examinees who responded to the item to be deleted
+        loc_resp <- which(!is.na(data_puri[, flag_max]))
 
         # refine the leftover items
         item_num <- item_num[-flag_max]
@@ -1190,28 +679,30 @@ ripd.est_item <- function(x,
           item.skip.puri <- NULL
         }
 
-        # if min.resp is not NULL, find the examinees of the studied group who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
+        # set all responses of focal group examinees with fewer than min.resp responses to NA
         if (!is.null(min.resp)) {
-          n_resp <- rowSums(!is.na(data_puri[group == focal.name, ]))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[group == focal.name, ][loc_less, ] <- NA
+          data_puri <- ripd_min_resp(data = data_puri, group = group, focal.name = focal.name,
+                                     min.resp = min.resp)
         }
 
-        # compute the updated ability estimates for the studied groups
-        # after deleting the detected IPD item data
-        # score_puri <- est_score(x=x_puri, data=data_puri[group == focal.name, ], D=D, method=method,
-        #                         range=range, norm.prior=norm.prior, nquad=nquad, weights=weights,
-        #                         ncore=ncore, ...)$est.theta
-        score_puri <-
-          est_score(
-            x = x_puri, data = data_puri, D = D, method = method,
-            range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-            ncore = ncore, ...)$est.theta
-
-        # replace the scores of the studied group with the purified scores
-        # score[group == focal.name] <- score_puri
-        score <- score_puri
+        # re-estimate the abilities of all examinees without the flagged items
+        if (i > 1L && ncore == 1 && method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
+          # rescore only the examinees whose responses changed, since the pattern scoring
+          # methods estimate each examinee independently
+          if (length(loc_resp) > 0L) {
+            score[loc_resp] <-
+              est_score(
+                x = x_puri, data = data_puri[loc_resp, , drop = FALSE], D = D, method = method,
+                range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+                ncore = ncore, ...)$est.theta
+          }
+        } else {
+          score <-
+            est_score(
+              x = x_puri, data = data_puri, D = D, method = method,
+              range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+              ncore = ncore, ...)$est.theta
+        }
 
         # do IPD analysis using the updated ability estimates
         ipd_rst_tmp <- ripd_one(
@@ -1220,23 +711,14 @@ ripd.est_item <- function(x,
           alpha = alpha
         )
 
-        # extract the first IPD analysis results
+        # extract the IPD analysis results
         # and check if at least one IPD item is detected
         ipd_item_tmp <- ipd_rst_tmp$ipd_item[[purify.by]]
         ipd_stat_tmp <- ipd_rst_tmp$ipd_stat
-        mmt_df_tmp <- data.frame(
-          id = ipd_rst_tmp$ipd_stat$id,
-          ipd_rst_tmp$moments$ripdr[, c(1, 3)],
-          ipd_rst_tmp$moments$ripds[, c(1, 3)],
-          ipd_rst_tmp$covariance, stringsAsFactors = FALSE
-        )
-        names(mmt_df_tmp) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds", "sigma.ripds", "covariance")
+        mmt_df_tmp <- ripd_moments(ipd_rst_tmp)
 
         # check if a further IPD item is flagged
         if (is.null(ipd_item_tmp)) {
-          # add no additional IPD item
-          ipd_item <- ipd_item
-
           # add the IPD statistics for rest of items
           ipd_stat[item_num, 1:12] <- ipd_stat_tmp
           ipd_stat[item_num, 13] <- i
@@ -1255,8 +737,7 @@ ripd.est_item <- function(x,
       # record the actual number of iteration
       n_iter <- i
 
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
+      # warn when max.iter is reached before the purification is completed
       if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
         warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
         complete <- FALSE
@@ -1301,12 +782,38 @@ ripd.est_item <- function(x,
 
   # return the IPD detection results
   class(rst) <- "ripd"
-  rst$call <- cl
   rst
 }
 
 
-# This function conducts one iteration of IPD analysis using the IRT residual based statistics
+# This function sets all responses of focal group examinees with fewer than min.resp responses to NA
+ripd_min_resp <- function(data, group, focal.name, min.resp) {
+  # find the focal group examinees whose number of responses is less than min.resp
+  loc_foc <- which(group == focal.name)
+  n_resp <- rowSums(!is.na(data[loc_foc, , drop = FALSE]))
+  loc_less <- which(n_resp < min.resp & n_resp > 0)
+
+  # replace all responses of those examinees with NA
+  data[loc_foc[loc_less], ] <- NA
+  data
+}
+
+
+# This function creates the data frame of the null moments of the two statistics
+ripd_moments <- function(ipd_rst) {
+  # combine the means, standard deviations, and covariance
+  mmt_df <- data.frame(
+    id = ipd_rst$ipd_stat$id,
+    ipd_rst$moments$ripdr[, c(1, 3)],
+    ipd_rst$moments$ripds[, c(1, 3)],
+    ipd_rst$covariance, stringsAsFactors = FALSE
+  )
+  names(mmt_df) <- c("id", "mu.ripdr", "sigma.ripdr", "mu.ripds", "sigma.ripds", "covariance")
+  mmt_df
+}
+
+
+# This function conducts one iteration of IPD analysis using the IRT residual-based statistics
 ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1, alpha = 0.05) {
   # break down the item metadata into several elements
   elm_item <- breakdown(x)
@@ -1339,13 +846,14 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   score_ref <- score[loc_ref]
   score_foc <- score[loc_foc]
 
-  # compute the model-predicted probability of answering correctly (a.k.a. model-expected item score)
-  extscore_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = TRUE)$icc
-  extscore_foc <- trace(elm_item = elm_item, theta = score_foc, D = D, tcc = TRUE)$icc
-
-  # compute the model probability of score categories
-  prob_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = FALSE)$prob.cats
-  prob_foc <- trace(elm_item = elm_item, theta = score_foc, D = D, tcc = FALSE)$prob.cats
+  # compute the model-predicted probabilities of answering correctly (a.k.a. model-expected
+  # item scores) and the model probabilities of score categories
+  trace_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = TRUE)
+  trace_foc <- trace(elm_item = elm_item, theta = score_foc, D = D, tcc = TRUE)
+  extscore_ref <- trace_ref$icc
+  extscore_foc <- trace_foc$icc
+  prob_ref <- trace_ref$prob.cats
+  prob_foc <- trace_foc$prob.cats
 
   # replace NA values into the missing data location
   extscore_ref[is.na(resp_ref)] <- NA
@@ -1367,7 +875,6 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
   moments_ripdr <- moments$rdifr
   moments_ripds <- moments$rdifs
   covar <- moments$covariance
-  # poolsd <- moments$poolsd
 
   # compute the chi-square statistics
   chisq <- c()
@@ -1375,7 +882,7 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
     if (i %in% all_miss) {
       chisq[i] <- NaN
     } else {
-      # create a var-covariance matrix between ripdr and ripds
+      # create the variance-covariance matrix of ripdr and ripds
       cov_mat <- array(NA, c(2, 2))
 
       # replace NAs with the analytically computed covariance
