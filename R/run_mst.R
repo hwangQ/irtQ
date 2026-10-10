@@ -677,6 +677,14 @@ run_mst <- function(x,
                  paste(empty_mods, collapse = ", ")), call. = FALSE)
   }
 
+  # --- Pre-compute the mean item location of each module (if bmat is used) ---
+  mod_loc_mean <- NULL
+  if (!is.null(route_method) && route_method == "bmat") {
+    # mean location of the items of each module, used to match modules to the
+    # routing estimate
+    mod_loc_mean <- vapply(item_mod, function(it) mean(mean_loc(it)), numeric(1L))
+  }
+
   # --- Pre-compute EAP quadrature weights for routing (if EAP is used) ---
   popdist_route <- NULL
   if (route_args$method == "EAP") {
@@ -730,6 +738,25 @@ run_mst <- function(x,
                       g = rep(0, 2)),
       item.id  = c("fence.lower", "fence.upper"),
       cats     = 2,
+      model    = "3PLM"
+    )
+  }
+
+  # fence items for the final scoring with MLF (two 3PLM items appended to the
+  # items of each pathway)
+  x_fence_final <- NULL
+  if (final_args$method == "MLF") {
+    # fence difficulties default to the ability range
+    fence_b_final <- if (is.null(final_args$fence.b)) final_args$range
+                     else final_args$fence.b
+
+    # fence item metadata, built once because fence.a and fence.b are fixed
+    x_fence_final <- shape_df(
+      par.drm  = list(a = rep(final_args$fence.a, 2),
+                      b = fence_b_final,
+                      g = rep(0, 2)),
+      item.id  = c("fence.lower", "fence.upper"),
+      cats     = 2L,
       model    = "3PLM"
     )
   }
@@ -968,9 +995,8 @@ run_mst <- function(x,
           # b-matching: select module with mean location closest to current theta
           # theta_route_mat[i, s-1] holds the routing estimate from stage s-1
           theta_prev <- theta_route_mat[i, s - 1L]
-          mod_locs <- vapply(next_possible, function(m) {
-            mean(mean_loc(item_mod[[m]]))   # mean location of module m's items
-          }, numeric(1L))
+          # mean locations of the reachable modules, from the pre-computed values
+          mod_locs <- mod_loc_mean[next_possible]
           mod_s <- next_possible[which.min(abs(mod_locs - theta_prev))]
 
         } else if (!is.null(route_method) && route_method == "mfi") {
@@ -1122,7 +1148,7 @@ run_mst <- function(x,
           est_theta[i]   <- NA_real_
           se_theta[i]    <- NA_real_
           theta_route_mat[i, s] <- NA_real_
-          next   # skip to next examinee
+          next   # ends the stage loop for this examinee (final stage)
         }
 
         # Build item metadata for the full administered path
@@ -1156,18 +1182,6 @@ run_mst <- function(x,
 
           # Build elm_item for the accumulated path
           if (final_args$method == "MLF") {
-            # Determine fence.b
-            fence_b_final <- if (is.null(final_args$fence.b)) final_args$range
-                             else final_args$fence.b
-            # Build fence item metadata
-            x_fence_final <- shape_df(
-              par.drm  = list(a = rep(final_args$fence.a, 2),
-                              b = fence_b_final,
-                              g = rep(0, 2)),
-              item.id  = c("fence.lower", "fence.upper"),
-              cats     = 2L,
-              model    = "3PLM"
-            )
             # Coerce id to character so path items (id may be integer/numeric)
             # bind cleanly with the character fence item IDs
             x_path_aug <- dplyr::bind_rows(
