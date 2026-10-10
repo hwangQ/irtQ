@@ -106,4 +106,10 @@ test_that("cac_lee() does not change weights that sum to one", {
   expect_equal(res$conditional$weights, wts_lee[, 2])
   expect_error(cac_lee(x = x_lee, cutscore = 5, weights = cbind(wts_lee[, 1], NA_real_)),
                "weights")
+  # a negative weight stops even when the weights sum to one
+  wts_neg <- wts_lee
+  wts_neg[1, 2] <- -0.1
+  wts_neg[2, 2] <- wts_neg[2, 2] + sum(wts_lee[, 2]) - sum(wts_neg[, 2])
+  expect_equal(sum(wts_neg[, 2]), 1)
+  expect_error(cac_lee(x = x_lee, cutscore = 5, weights = wts_neg), "nonnegative")
 })

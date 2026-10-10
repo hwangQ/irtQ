@@ -93,3 +93,19 @@ test_that("cac_rud() rescales weights that do not sum to one", {
   expect_equal(res2$marginal, res1$marginal)
   expect_lte(res2$marginal$accuracy[4], 1)
 })
+
+test_that("cac_rud() stops on weights that are negative or have a non-positive sum", {
+  wts <- gen.weight(n = 21, dist = "norm", mu = 0, sigma = 1)
+  se <- rep(0.3, 21)
+  # a negative weight with a sum of one
+  wts_neg <- wts
+  wts_neg[1, 2] <- -0.1
+  wts_neg[2, 2] <- wts_neg[2, 2] + 1 - sum(wts_neg[, 2])
+  expect_equal(sum(wts_neg[, 2]), 1)
+  expect_error(cac_rud(cutscore = c(-0.5, 0.8), weights = wts_neg, se = se), "nonnegative")
+  # a missing weight and a zero sum
+  expect_error(cac_rud(cutscore = c(-0.5, 0.8), weights = cbind(wts[, 1], NA_real_), se = se),
+               "weights")
+  expect_error(cac_rud(cutscore = c(-0.5, 0.8), weights = cbind(wts[, 1], 0), se = se),
+               "weights")
+})

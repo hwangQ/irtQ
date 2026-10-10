@@ -199,9 +199,10 @@ cac_lee <- function(x,
     nodes <- weights[, 1]
     wts <- weights[, 2]
 
-    # stop when the weights are not finite or do not have a positive sum
-    if (!all(is.finite(wts)) || sum(wts) <= 0) {
-      stop("The weights must be finite values with a positive sum.", call. = FALSE)
+    # stop when the weights are not nonnegative finite values with a positive sum
+    if (!all(is.finite(wts)) || any(wts < 0) || sum(wts) <= 0) {
+      stop("The weights must be nonnegative finite values with a positive sum.",
+           call. = FALSE)
     }
 
     # rescale the weights when they do not sum to one

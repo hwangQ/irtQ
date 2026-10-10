@@ -73,6 +73,9 @@ panel_info <- function(route_map) {
   # Transform the format of the route_map to a numeric matrix
   route_map <- as.matrix(route_map)
 
+  # Treat a logical route map as a 0/1 matrix
+  if (is.logical(route_map)) storage.mode(route_map) <- "integer"
+
   # Stop when route_map is not a square binary matrix
   if (!is.numeric(route_map) || nrow(route_map) != ncol(route_map) ||
       anyNA(route_map) || !all(route_map %in% c(0, 1))) {
@@ -85,6 +88,18 @@ panel_info <- function(route_map) {
   # Find the routing module (the module(s) in the first stage):
   # A first-stage module has no incoming transitions -> column sum equals 0
   mod_stg1 <- unname(which(colSums(route_map) == 0))
+
+  # Stop when a module has no transition to or from another module
+  mod_iso <- which(rowSums(route_map) == 0 & colSums(route_map) == 0)
+  if (end_col > 1L && length(mod_iso) > 0L) {
+    stop(sprintf("Module(s) %s in 'route_map' have no transition to or from another module.",
+                 paste(mod_iso, collapse = ", ")), call. = FALSE)
+  }
+
+  # Stop when every module has an incoming transition, which happens when the map has a cycle
+  if (length(mod_stg1) == 0L) {
+    stop("'route_map' must not contain a cycle.", call. = FALSE)
+  }
 
   # Traverse the route map stage by stage to build the config list
   config <- list()

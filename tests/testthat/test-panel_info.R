@@ -25,10 +25,20 @@ test_that("panel_info() finds every stage when module indices do not follow the 
 })
 
 test_that("panel_info() stops on route maps that do not define an MST panel", {
-  # a module without any transition (module 4) leaves a stage without a next stage
+  # a module without any transition (module 4)
   rm <- matrix(0, 4, 4)
   rm[1, 2:3] <- 1
-  expect_error(panel_info(rm), "next stage")
+  expect_error(panel_info(rm), "no transition")
+  # a module before the final stage that does not route to the next stage
+  rm_dead <- matrix(0, 4, 4)
+  rm_dead[1, 2:3] <- 1
+  rm_dead[2, 4] <- 1
+  expect_error(panel_info(rm_dead), "next stage")
+  # a cycle in which every module has an incoming transition
+  cyc2 <- matrix(0, 2, 2)
+  cyc2[1, 2] <- 1
+  cyc2[2, 1] <- 1
+  expect_error(panel_info(cyc2), "cycle")
   # a cycle
   cyc <- matrix(0, 3, 3)
   cyc[1, 2] <- 1
@@ -39,4 +49,8 @@ test_that("panel_info() stops on route maps that do not define an MST panel", {
   expect_error(panel_info(matrix(2, 2, 2)), "binary")
   expect_error(panel_info(matrix(0, 2, 3)), "square")
   expect_error(panel_info(matrix(0, 1, 1)), "two stages")
+})
+
+test_that("panel_info() reads a logical route map as a 0/1 matrix", {
+  expect_equal(panel_info(simMST$route_map == 1), panel_info(simMST$route_map))
 })
