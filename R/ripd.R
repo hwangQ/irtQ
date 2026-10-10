@@ -1,7 +1,7 @@
 #' Residual-based Item Parameter Drift (RIPD) Detection Framework
 #'
-#' This function computes three RIPD statistics--\eqn{RIPD_{R}}, \eqn{RIPD_{S}},
-#' and \eqn{RIPD_{RS}}--for each item. \eqn{RIPD_{R}} captures differences in
+#' This function computes three RIPD statistics, \eqn{RIPD_{R}}, \eqn{RIPD_{S}},
+#' and \eqn{RIPD_{RS}}, for each item. \eqn{RIPD_{R}} captures differences in
 #' mean raw residuals between groups, which is typically indicative of uniform
 #' item parameter drift (IPD). \eqn{RIPD_{S}} captures differences in mean
 #' squared residuals between groups, reflecting nonuniform IPD. \eqn{RIPD_{RS}},
@@ -9,16 +9,26 @@
 #' nonuniform IPD.
 #'
 #' @inheritParams rdif
-#' @param score A numeric vector containing examinees' ability estimates (theta
-#'   values). If not provided, [irtQ::ripd()] will estimate ability parameters
-#'   internally before computing the RIPD statistics. See [irtQ::est_score()]
-#'   for more information on scoring methods. Default is `NULL`.
-#' @param group A numeric or character vector indicating group membership of
-#'   examinees. The length of the vector should be the same as the number of
-#'   rows in the response data matrix.
-#' @param item.skip A numeric vector of item indices to exclude from IPD
-#'   analysis. If NULL, all items are included. Useful for omitting specific
-#'   items based on prior insights.
+#' @param score A numeric vector of examinees' ability estimates (theta values)
+#'   in the same row order as `data`. If `NULL`, the ability estimates are
+#'   computed internally with [irtQ::est_score()] using `method`, `range`,
+#'   `norm.prior`, `nquad`, `weights`, and `ncore`. When `purify = TRUE`, the
+#'   ability estimates of all examinees in both groups are re-estimated
+#'   internally at every purification iteration with these settings, so a
+#'   supplied `score` is used only for the initial (non-purified) analysis. A
+#'   missing value in `score` excludes the examinee from the analysis with a
+#'   warning. Default is `NULL`.
+#' @param group A numeric or character vector indicating the group membership of
+#'   examinees. Its length must equal the number of rows in `data`. Examinees
+#'   whose value equals `focal.name` form the focal group; all other examinees
+#'   are pooled into the reference group (for example, the synthetic reference
+#'   group described in Details).
+#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
+#'   exclude from the IPD analysis. If `NULL`, all items are analyzed. Skipped
+#'   items still contribute to the ability estimates; only their RIPD
+#'   statistics and moments are set to `NA`, and they are never flagged. In CAT,
+#'   this is typically used to skip low-exposure items (see Details). Default is
+#'   `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for hypothesis testing using the RIPD statistics. Default is `0.05`.
 #' @param missing A value indicating missing values in the response data set.
@@ -26,30 +36,46 @@
 #' @param purify.by A character string specifying which RIPD statistic is used
 #'   to perform the purification. Available options are "ripdrs" for
 #'   \eqn{RIPD_{RS}}, "ripdr" for \eqn{RIPD_{R}}, and "ripds" for
-#'   \eqn{RIPD_{S}}.
+#'   \eqn{RIPD_{S}}. Used only when `purify = TRUE`. Default is `"ripdrs"`.
+#' @param max.iter A positive integer specifying the maximum number of
+#'   purification iterations. Default is 10. If the limit is reached while
+#'   flagged items remain, a warning is issued, the items flagged at the last
+#'   iteration are added to the flagged set, and the `complete` element of
+#'   `with_purify` is `FALSE`. Because one item is removed per iteration,
+#'   `max.iter` should be at least the number of items expected to drift (Lim &
+#'   Han, 2026, used 80).
 #' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`.
+#'   item responses required from a focal group examinee for the examinee's
+#'   responses to be used. All responses of focal group examinees with fewer
+#'   than `min.resp` (but at least one) responses are set to `NA` before the
+#'   ability estimation, in the initial analysis and at every purification
+#'   iteration, and these examinees are excluded from the analysis with a
+#'   warning. Reference group examinees are not affected. If `NULL`, no minimum
+#'   is applied. Default is `NULL`.
 #'
-#' @return This function returns a list containing four main components:
+#' @return This function returns an object of class `"ripd"`, a list with the
+#' following elements:
 #'
 #' \item{no_purify}{A list of sub-objects containing the results of IPD analysis
 #' without applying a purification procedure. The sub-objects include:
 #'   \describe{
-#'     \item{ipd_stat}{A data frame summarizing the RIPD analysis results for all
-#'     items. The columns include: item ID, \eqn{RIPD_{R}} statistic, standardized
-#'     \eqn{RIPD_{R}}, \eqn{RIPD_{S}} statistic, standardized \eqn{RIPD_{S}},
-#'     \eqn{RIPD_{RS}} statistic, p-values for \eqn{RIPD_{R}}, \eqn{RIPD_{S}}, and
-#'     \eqn{RIPD_{RS}}, sample sizes for the reference and focal groups, and total
-#'     sample size. Note that \eqn{RIPD_{RS}} does not have a standardized value
-#'     because it is a \eqn{\chi^{2}}-based statistic.}
-#'     \item{moments}{A data frame reporting the first and second moments of the
-#'     RIPD statistics. The columns include: item ID, mean and standard deviation
-#'     of \eqn{RIPD_{R}}, mean and standard deviation of \eqn{RIPD_{S}}, and the
-#'     covariance between \eqn{RIPD_{R}} and \eqn{RIPD_{S}}.}
-#'     \item{ipd_item}{A list of three numeric vectors identifying items flagged
-#'     as drifting by each RIPD statistic: \eqn{RIPD_{R}}, \eqn{RIPD_{S}}, and
-#'     \eqn{RIPD_{RS}}.}
+#'     \item{ipd_stat}{A data frame of RIPD results for all items with the
+#'     columns `id`, `ripdr`, `z.ripdr` (standardized \eqn{RIPD_{R}}), `ripds`,
+#'     `z.ripds` (standardized \eqn{RIPD_{S}}), `ripdrs`, `p.ripdr`, `p.ripds`,
+#'     `p.ripdrs`, `n.ref`, `n.foc`, and `n.total`. `n.ref` and `n.foc` are the
+#'     numbers of examinees in each group who responded to the item. Statistics
+#'     and p-values are rounded to four decimal places and are `NA` for items in
+#'     `item.skip`. \eqn{RIPD_{RS}} has no standardized value because it is a
+#'     \eqn{\chi^{2}}-based statistic.}
+#'     \item{moments}{A data frame of the null means and standard deviations of
+#'     the RIPD statistics with the columns `id`, `mu.ripdr`, `sigma.ripdr`,
+#'     `mu.ripds`, `sigma.ripds`, and `covariance` (the covariance between
+#'     \eqn{RIPD_{R}} and \eqn{RIPD_{S}}). Values are `NA` for items in
+#'     `item.skip`.}
+#'     \item{ipd_item}{A list with the elements `ripdr`, `ripds`, and `ripdrs`,
+#'     each giving the indices (row positions in `x`) of the items flagged by the
+#'     corresponding statistic at level `alpha`. An element is `NULL` when no
+#'     item is flagged.}
 #'     \item{score}{A numeric vector of ability estimates used to compute the RIPD
 #'     statistics.}
 #'   }
@@ -59,26 +85,31 @@
 #' was applied.}
 #'
 #' \item{with_purify}{A list of sub-objects containing the results of IPD analysis
-#' with a purification procedure. The sub-objects include:
+#' with a purification procedure. All elements are `NULL` when `purify = FALSE`.
+#' The sub-objects include:
 #'   \describe{
 #'     \item{purify.by}{A character string indicating the RIPD statistic used for
 #'     purification. Possible values are "ripdr", "ripds", and "ripdrs",
 #'     corresponding to \eqn{RIPD_{R}}, \eqn{RIPD_{S}}, and \eqn{RIPD_{RS}},
 #'     respectively.}
 #'     \item{ipd_stat}{A data frame reporting the RIPD analysis results for
-#'     all items from the final iteration. Same structure as in \code{no_purify},
-#'     with one additional column indicating the iteration number in which each
-#'     result was obtained.}
+#'     all items from the final iteration. Same columns as in \code{no_purify}
+#'     plus `n.iter`. For a flagged item, `n.iter` is the iteration at which it
+#'     was flagged (0 is the initial analysis); for the other items, it is the
+#'     final iteration.}
 #'     \item{moments}{A data frame reporting the moments of RIPD statistics
 #'     from the final iteration. Includes the same columns as in
 #'     \code{no_purify}, with an additional column for the iteration number.}
 #'     \item{ipd_item}{A numeric vector of item indices (row positions in
 #'     \code{x}) identified as IPD items across all purification iterations,
-#'     sorted in ascending order.}
+#'     sorted in ascending order. If \code{max.iter} is reached before
+#'     convergence, the items flagged at the last iteration are also included.
+#'     \code{NULL} if no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the total number of iterations
 #'     performed during the purification process.}
 #'     \item{score}{A numeric vector of purified ability estimates used to
-#'     compute the final RIPD statistics.}
+#'     compute the final RIPD statistics. \code{NULL} when no item is flagged in
+#'     the first analysis, because purification is not carried out.}
 #'     \item{complete}{A logical value indicating whether the purification
 #'     process converged. If \code{FALSE}, the maximum number of iterations
 #'     was reached without convergence.}
@@ -88,7 +119,13 @@
 #' \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
 #' used in hypothesis testing for RIPD statistics.}
 #'
+#' \item{call}{The matched function call.}
+#'
 #' @details
+#' The current version supports dichotomous items only. The function stops if
+#' `x` contains GRM or GPCM items or if `data` contain response values other
+#' than 0 and 1.
+#'
 #' \strong{Theoretical Background: From RDIF to RIPD}
 #'
 #' The RIPD framework directly adapts the residual-based differential item
@@ -96,12 +133,14 @@
 #' to detect item parameter drift (IPD) in computerized adaptive testing (CAT).
 #' Each RIPD statistic (\eqn{RIPD_R}, \eqn{RIPD_S}, \eqn{RIPD_{RS}}) mirrors
 #' its RDIF counterpart (\eqn{RDIF_R}, \eqn{RDIF_S}, \eqn{RDIF_{RS}}) in both
-#' computation and asymptotic theory, with one key adaptation: whereas the
-#' original RDIF framework estimates item parameters once from the pooled data
-#' of both groups, the RIPD framework uses the \emph{original, pre-calibrated}
-#' item parameters from the CAT pool directly, eliminating the need for item
-#' recalibration. This makes RIPD practically scalable for operational CAT
-#' programs, where the response data are sparse and recalibration is often
+#' computation and asymptotic theory, with two key adaptations. First, whereas
+#' the original RDIF framework estimates item parameters once from the pooled
+#' data of both groups, the RIPD framework uses the \emph{original,
+#' pre-calibrated} item parameters from the CAT pool directly, eliminating the
+#' need for item recalibration. Second, the reference group is a synthetic,
+#' drift-free group simulated from the focal group's ability estimates (see
+#' CAT-Specific Workflow). This makes RIPD practically scalable for operational
+#' CAT programs, where the response data are sparse and recalibration is often
 #' impractical.
 #'
 #' IPD in CAT can be viewed as a special case of DIF across time (Lord, 1980;
@@ -120,7 +159,9 @@
 #' are independent but not identically distributed (due to varying predicted
 #' probabilities across examinees with different ability levels), the asymptotic
 #' distributions of the RIPD statistics are established via Lyapunov's central
-#' limit theorem.
+#' limit theorem. Below, \eqn{P_{ij} = P_j(\hat{\theta}_i)}, and \eqn{N_F} and
+#' \eqn{N_R} denote the numbers of focal and reference group examinees who
+#' responded to item \eqn{j}; all sums run over these examinees only.
 #'
 #' \strong{Three RIPD Statistics and Their Asymptotic Distributions}
 #'
@@ -147,10 +188,11 @@
 #' null mean of \eqn{RIPD_{S,j}} is \strong{not zero} in general; it equals
 #' \deqn{\mu_{RIPD_S} = \frac{\sum_{i \in F} P_{ij}(1 - P_{ij})}{N_F} -
 #'   \frac{\sum_{i \in R} P_{ij}(1 - P_{ij})}{N_R},}
-#' which is a function of the predicted probabilities in both groups and
-#' vanishes only when their ability distributions are perfectly matched (as in
-#' the RIPD setup where focal \eqn{\hat{\theta}} values are reused for the
-#' synthetic reference group). The asymptotic variance is also analytically
+#' which depends on the predicted probabilities of the examinees in each group
+#' who responded to item \eqn{j}. Even with a synthetic reference group, the
+#' ability estimates and the administered items of the reference group differ
+#' from those of the focal group, so this null mean is generally nonzero and is
+#' computed item by item. The asymptotic variance is also analytically
 #' derived. A standard Z-test is applied as
 #' \eqn{Z_S = (RIPD_{S,j} - \mu_{RIPD_S}) / \sigma_{RIPD_S}}.
 #'
@@ -187,19 +229,26 @@
 #'   \item \strong{Focal group CAT}: The current cohort of examinees takes the
 #'     CAT using the operational (potentially drifted) item pool. Each examinee
 #'     receives only a subset of items; the resulting response matrix is sparse.
-#'     The ML ability estimates \eqn{\hat{\theta}} from this step are retained.
+#'     The final ability estimates \eqn{\hat{\theta}} (e.g., ML estimates) from
+#'     this step are retained.
 #'   \item \strong{Synthetic reference group construction}: The focal group's
-#'     \eqn{\hat{\theta}} values are treated as true abilities. Item responses
-#'     are generated from the \emph{original} (pre-calibrated, drift-free) item
-#'     parameters, and an independent CAT is administered. This creates a
-#'     synthetic reference group that matches the focal group's ability
-#'     distribution, so that any systematic differences in residuals can be
-#'     attributed to IPD rather than ability confounds. The reference group
-#'     size is controlled by a replication factor: e.g., 1F reuses the focal
-#'     \eqn{\hat{\theta}} values once (N_ref = N_foc), while kF replicates them
-#'     k times. Larger reference groups (3F-8F) reduce sampling variability in
-#'     reference residuals and improve detection power, with marginal gains
-#'     typically diminishing beyond 5F.
+#'     \eqn{\hat{\theta}} values are treated as true abilities. A CAT
+#'     simulation with the same item pool and algorithm settings as in step 1 is
+#'     run, generating item responses from the \emph{original} (pre-calibrated,
+#'     drift-free) item parameters. This creates a synthetic reference group
+#'     that matches the focal group's ability distribution, so that any
+#'     systematic differences in residuals can be attributed to IPD rather than
+#'     ability confounds. The reference group size is controlled by a
+#'     replication factor: e.g., 1F reuses the focal \eqn{\hat{\theta}} values
+#'     once (N_ref = N_foc), while kF replicates them k times. Larger reference
+#'     groups reduce sampling variability in the reference residuals and improve
+#'     detection power. In the simulation study of Lim and Han (2026), power
+#'     gains diminished beyond 5F, and a reference group of at least 8 to 10
+#'     times the focal group size (8F to 10F) was suggested as a practical
+#'     guideline. Note that \code{ripd()} does not simulate the reference group;
+#'     this step must be carried out with a CAT simulation program outside
+#'     irtQ, and the simulated responses and ability estimates are then
+#'     combined with the focal group data.
 #'   \item \strong{RIPD computation with purification}: Residuals are computed
 #'     for both groups using the original item parameters, and the three RIPD
 #'     statistics are evaluated item-by-item. Items whose Z-test (for
@@ -212,18 +261,23 @@
 #'
 #' When \code{purify = TRUE}, an iterative purification procedure adapted from
 #' Lim et al. (2022) is applied to mitigate the bias in ability estimates caused
-#' by drifted items--analogous to the contaminating effect of DIF items on
-#' matching variables. At each iteration:
+#' by drifted items. This is analogous to the contaminating effect of DIF items
+#' on matching variables. At each iteration:
 #' \enumerate{
 #'   \item The item with the most statistically significant drift statistic
 #'     (smallest p-value) among currently unflagged items is identified and
 #'     flagged as a potential IPD item.
-#'   \item Ability estimates are recomputed excluding all currently flagged items.
+#'   \item Ability estimates of all examinees in both groups are recomputed with
+#'     \code{\link{est_score}}, excluding all currently flagged items and using
+#'     the \code{method}, \code{range}, \code{norm.prior}, \code{nquad},
+#'     \code{weights}, and \code{ncore} arguments.
 #'   \item RIPD statistics are recalculated using the updated ability estimates
 #'     for the remaining items.
 #' }
 #' The process continues until no additional items are flagged (convergence) or
-#' the maximum number of iterations (\code{max.iter}) is reached. The statistic
+#' \code{max.iter} is reached. In the latter case, a warning is issued, the
+#' items flagged at the last iteration are added to the flagged set, and
+#' \code{complete} is set to \code{FALSE}. The statistic
 #' used to drive purification is specified by \code{purify.by};
 #' \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 #' types of drift.
@@ -232,10 +286,11 @@
 #'
 #' In CAT contexts, many items in the pool receive few responses and thus lack
 #' sufficient data for reliable IPD analysis. The \code{item.skip} argument
-#' allows users to exclude such items (e.g., low-exposure non-key items) from
-#' the analysis. In practice, key items for RIPD evaluation are typically
-#' identified through a preliminary CAT simulation as those with the highest
-#' average exposure frequencies under the intended operational settings.
+#' excludes such items (e.g., low-exposure non-key items) from the IPD tests.
+#' Skipped items are still used to compute the ability estimates. In practice,
+#' key items for RIPD evaluation are typically identified through a preliminary
+#' CAT simulation as those with the highest average exposure frequencies under
+#' the intended operational settings.
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -245,7 +300,7 @@
 #' ##
 #' ## Background (Lim & Han, 2026):
 #' ##   In CAT-based IPD detection using RIPD, the reference group is
-#' ##   "synthetic" -- created by re-administering a CAT to examinees whose
+#' ##   "synthetic": it is created by re-administering a CAT to examinees whose
 #' ##   true abilities are set equal to the focal group's ML theta estimates,
 #' ##   using the ORIGINAL (pre-drift) item parameters. This eliminates the
 #' ##   need for recalibration and makes RIPD directly applicable to
@@ -265,7 +320,7 @@
 #' data(simIPD)
 #'
 #' ## Step 1. Combine focal and synthetic reference group data
-#' ##         (reference group first, then focal group -- as in the paper)
+#' ##         (the row order does not matter as long as group matches the rows)
 #' data  <- rbind(simIPD$ref_resp,  simIPD$foc_resp)
 #' score <- c(simIPD$ref_score,     simIPD$foc_score)
 #' group <- c(rep(0, nrow(simIPD$ref_resp)),   # 0 = reference
@@ -301,18 +356,21 @@
 #'
 #' ## -- Note on reference group size -----------------------------------------
 #' ## This example uses a 1F reference group (n_ref = n_foc = 3,000).
-#' ## In practice, a larger reference group (3F-8F) substantially improves
-#' ## detection power. To create a 3F reference group, replicate the focal
-#' ## theta estimates and re-run the CAT simulation with original parameters:
+#' ## In practice, a larger reference group improves detection power;
+#' ## Lim and Han (2026) suggest at least 8F to 10F. To create, for example,
+#' ## an 8F reference group, replicate the focal ability estimates and run
+#' ## the same CAT simulation with the original item parameters using a CAT
+#' ## simulation program (irtQ does not provide one):
 #' ##
-#' ##   theta_3F  <- rep(simIPD$foc_score, times = 3)   # 9,000 examinees
-#' ##   resp_3F   <- simdat(x = simIPD$item_par, theta = theta_3F, D = 1.7)
-#' ##   # ... then run CAT and call ripd() with the larger reference group
+#' ##   theta_8F <- rep(simIPD$foc_score, times = 8)   # 24,000 examinees
+#' ##   # simulate a CAT for theta_8F with simIPD$item_par, then call ripd()
+#' ##   # with the simulated responses and final ability estimates
 #' ## -------------------------------------------------------------------------
 #' }
 #'
 #' @seealso [irtQ::rdif()], [irtQ::est_irt()], [irtQ::est_item()],
-#'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()]
+#'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()],
+#'   [irtQ::pcd2()], [irtQ::simIPD]
 #'
 #' @references Lim, H., & Choe, E. M. (2023). Detecting differential item
 #'   functioning in CAT using IRT residual DIF approach. *Journal of Educational
@@ -326,11 +384,18 @@
 #'   parameter drift in CAT. *Journal of Educational and Behavioral Statistics*.
 #'   \doi{10.3102/10769986261460852}.
 #'
+#'   Lord, F. M. (1980). Applications of item response theory to practical
+#'   testing problems. Lawrence Erlbaum Associates.
+#'
+#'   Veerkamp, W. J. J., & Glas, C. A. W. (2000). Detection of known items in
+#'   adaptive testing with a statistical quality control method. *Journal of
+#'   Educational and Behavioral Statistics, 25*(4), 373-389.
+#'   \doi{10.3102/10769986025004373}.
+#'
 #'@export
 ripd <- function(x, ...) UseMethod("ripd")
 
-#' @describeIn ripd Default method for computing the three RIPD statistics using
-#' a data frame `x` that contains item metadata
+#' @describeIn ripd Default method for a data frame `x` containing item metadata.
 #'
 #'@export
 ripd.default <- function(x,
@@ -628,7 +693,9 @@ ripd.default <- function(x,
   rst
 }
 
-#' @describeIn ripd An object created by the function [irtQ::est_irt()].
+#' @describeIn ripd Method for an object of class `est_irt` created by
+#' [irtQ::est_irt()]. The response data and the scaling factor `D` are taken from
+#' the object.
 #'
 #'@export
 ripd.est_irt <- function(x,
@@ -932,7 +999,9 @@ ripd.est_irt <- function(x,
   rst
 }
 
-#' @describeIn ripd An object created by the function [irtQ::est_item()].
+#' @describeIn ripd Method for an object of class `est_item` created by
+#' [irtQ::est_item()]. The response data, ability estimates, and the scaling
+#' factor `D` are taken from the object.
 #'
 #'@export
 ripd.est_item <- function(x,

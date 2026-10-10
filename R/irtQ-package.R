@@ -529,6 +529,7 @@
 #'   Cappaert, K. J., Wen, Y., & Chang, Y. F. (2018). Evaluating CAT-adjusted
 #'   approaches for suspected item parameter drift detection. *Measurement:
 #'   Interdisciplinary Research and Perspectives, 16*(4), 226-238.
+#'   \doi{10.1080/15366367.2018.1511199}.
 #'
 #'   Chalmers, R. P. (2012). mirt: A multidimensional item response theory
 #'   package for the R environment. *Journal of Statistical Software, 48*(6),
@@ -621,6 +622,9 @@
 #'   item functioning among multiple groups using IRT residual DIF framework.
 #'   *Journal of Educational Measurement, 61*(4), 656-681.
 #'
+#'   Lord, F. M. (1980). Applications of item response theory to practical
+#'   testing problems. Lawrence Erlbaum Associates.
+#'
 #'   Lord, F. M., & Wingersky, M. S. (1984). Comparison of IRT true-score and
 #'   equipercentile observed-score "equatings." *Applied Psychological
 #'   Measurement, 8*(4), 453-461. \doi{10.1177/014662168400800409}.
@@ -697,7 +701,7 @@
 #'
 #'   Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
 #'   goodness-of-fit test statistic in IRT models. *Journal of Educational
-#'   Measurement, 37*(1), 58-75.
+#'   Measurement, 37*(1), 58-75. \doi{10.1111/j.1745-3984.2000.tb01076.x}.
 #'
 #'   Thissen, D. (1982). Marginal maximum likelihood estimation for the
 #'   one-parameter logistic model. *Psychometrika, 47*, 175-186.
@@ -713,6 +717,11 @@
 #'
 #'   Thissen, D., & Wainer, H. (1982). Some standard errors in item response
 #'   theory. *Psychometrika, 47*, 397-412.
+#'
+#'   Veerkamp, W. J. J., & Glas, C. A. W. (2000). Detection of known items in
+#'   adaptive testing with a statistical quality control method. *Journal of
+#'   Educational and Behavioral Statistics, 25*(4), 373-389.
+#'   \doi{10.3102/10769986025004373}.
 #'
 #'   Wainer, H., & Mislevy, R. J. (1990). Item response theory, item
 #'   calibration, and proficiency estimation. In H. Wainer (Ed.), *Computer

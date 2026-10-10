@@ -1,8 +1,8 @@
-#' Pseudo-count D2 method
+#' Pseudo-Count D2 Method for Item Parameter Drift Detection
 #'
-#' This function calculates the Pseudo-count \eqn{D^{2}} statistic
+#' This function calculates the pseudo-count \eqn{D^{2}} statistic
 #' to evaluate item parameter drift, as described by Cappaert et al. (2018) and
-#' Stone (2000). The Pseudo-count \eqn{D^{2}} statistic is designed to detect
+#' Stone (2000). The pseudo-count \eqn{D^{2}} statistic is designed to detect
 #' item parameter drift efficiently without requiring item recalibration, making
 #' it especially valuable in computerized adaptive testing (CAT) environments.
 #' This method compares observed and expected response frequencies across
@@ -10,67 +10,83 @@
 #' pseudo-frequencies are computed using the posterior distribution of each
 #' examinee's ability, whereas the expected frequencies are the response
 #' probabilities implied by the item parameters in the item bank (Stone, 2000).
-#' This provides a sensitive measure of item parameter drift, helping to
-#' ensure the stability and accuracy of the test over time.
+#' The current version supports dichotomous items only.
 #'
 #' @inheritParams rdif
 #' @inheritParams est_irt
 #' @param x A data frame containing item metadata (e.g., item parameters, number
 #'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
 #'   [irtQ::simdat()] for more details about the item metadata. This data frame
-#'   can be easily created using the [irtQ::shape_df()] function.
-#' @param item.skip A numeric vector of item indices to exclude from IPD analysis.
-#'  If `NULL`, all items are included. Useful for omitting specific items based on
-#'  prior insights.
-#' @param weights A two-column matrix or data frame containing the quadrature
-#'   points (in the first column) and their corresponding weights (in the second
-#'   column) for the latent variable prior distribution. If not `NULL`, the
-#'   scale of the latent ability distribution is fixed to match the scale of the
-#'   provided quadrature points and weights. The weights and points can be
-#'   conveniently generated using the function [irtQ::gen.weight()].
-#'
-#'   If `NULL`, a normal prior density is used instead, based on the
-#'   information provided in the `Quadrature`, `group.mean`, and `group.var`
-#'   arguments. Default is `NULL`.
-#' @param group.mean A numeric value specifying the mean of the latent variable
-#'   prior distribution when `weights = NULL`. Default is 0. This value is fixed
-#'   to resolve the indeterminacy of the item parameter scale during
-#'   calibration.
+#'   can be easily created using the [irtQ::shape_df()] function. Only
+#'   dichotomous items are supported; the function stops if `x` contains GRM or
+#'   GPCM items.
+#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
+#'   exclude from the IPD analysis. Skipped items still contribute to the
+#'   posterior ability distributions; only their `pcd2` values are set to `NA`,
+#'   and they are never flagged. If `NULL`, all items are analyzed. Default is
+#'   `NULL`.
+#' @param Quadrature A numeric vector of length two giving the number of
+#'   quadrature points and the symmetric bound (absolute value) of the points.
+#'   For example, `c(49, 6)` specifies 49 evenly spaced points from -6 to 6.
+#'   These points are used to compute each examinee's posterior ability
+#'   distribution when `weights = NULL`. Default is `c(49, 6)`.
+#' @param weights A two-column matrix or data frame of quadrature points (first
+#'   column) and weights (second column) defining the prior ability
+#'   distribution used to compute the posterior distributions. It can be created
+#'   with [irtQ::gen.weight()]. If `NULL`, a normal prior defined by
+#'   `Quadrature`, `group.mean`, and `group.var` is used. Default is `NULL`.
+#' @param group.mean A numeric value specifying the mean of the normal prior
+#'   ability distribution when `weights = NULL`. Default is 0.
 #' @param group.var A positive numeric value specifying the variance of the
-#'   latent variable prior distribution when `weights = NULL`. Default is 1.
-#'   This value is fixed to resolve the indeterminacy of the item parameter
-#'   scale during calibration.
-#' @param crit.val A critical value applied in hypothesis testing using
-#'   the Pseudo-count \eqn{D^{2}} statistic. The user must supply it; no
-#'   default threshold is built in. If `NULL` (default), the statistic is
-#'   reported but no item is flagged and purification is not performed.
-#' @param min.resp A positive integer specifying the minimum required number of
-#'   responses for each evaluated item. Defaults to `NULL`.
+#'   normal prior ability distribution when `weights = NULL`. Default is 1.
+#' @param crit.val A numeric critical value for the pseudo-count \eqn{D^{2}}
+#'   statistic. Items whose statistic is greater than or equal to `crit.val` are
+#'   flagged. Because the statistic has no known null distribution, the critical
+#'   value is usually obtained by bootstrapping (see Examples). If `NULL`
+#'   (default), the statistic is reported but no item is flagged and
+#'   purification is not performed.
+#' @param min.resp A positive integer specifying the minimum number of responses
+#'   an item must have to be analyzed. All responses of items with fewer than
+#'   `min.resp` (but at least one) responses are set to `NA`, so their `pcd2`
+#'   value is `NaN` and `N` is 0, and a warning lists those items. If `NULL`, no
+#'   minimum is applied. Default is `NULL`.
+#' @param purify Logical. Whether to apply the iterative purification
+#'   procedure. Purification is performed only when `crit.val` is also supplied.
+#'   Default is `FALSE`.
+#' @param max.iter A positive integer specifying the maximum number of
+#'   purification iterations. Default is 10. If the limit is reached while
+#'   flagged items remain, a warning is issued, the items flagged at the last
+#'   iteration are added to the flagged set, and the `complete` element of
+#'   `with_purify` is `FALSE`. Because one item is removed per iteration,
+#'   `max.iter` should be at least the number of items expected to drift.
 #'
 #' @details
-#' The Pseudo-count \eqn{D^{2}} statistic quantifies item parameter drift (IPD) by
-#' computing the weighted squared differences between the observed and expected
-#' response frequencies for each score category across ability levels. The
-#' observed pseudo-frequencies are obtained from the posterior distribution of
-#' each examinee's ability, and the expected frequencies are the category
-#' probabilities computed from the item bank parameters (Stone, 2000).
+#' The pseudo-count \eqn{D^{2}} statistic quantifies item parameter drift (IPD)
+#' by computing, across quadrature points, the weighted squared differences
+#' between the observed pseudo-proportion of correct responses and the
+#' proportion expected under the item bank parameters, weighted by the
+#' pseudo-counts. The observed pseudo-counts are obtained from the posterior
+#' distribution of each examinee's ability, and the expected proportions are the
+#' probabilities of a correct response computed from the item bank parameters
+#' (Stone, 2000).
 #'
-#' The Pseudo-count \eqn{D^{2}} statistic is calculated as:
+#' The pseudo-count \eqn{D^{2}} statistic is calculated as:
 #' \deqn{
-#' Pseudo-count D^{2} = \sum_{k=1}^{Q} \left( \frac{r_{0k} + r_{1k}}{N}\right)
+#' D^{2}_{PC} = \sum_{k=1}^{Q} \left( \frac{r_{0k} + r_{1k}}{N}\right)
 #' \left( \frac{r_{1k}}{r_{0k} + r_{1k}} - E_{1k} \right)^2
 #' }
 #'
-#' where \eqn{r_{0k}} and \eqn{r_{1k}} are the pseudo-counts for the incorrect
-#' and correct responses at each ability level \eqn{k}, \eqn{E_{1k}} is the
-#' expected proportion of correct responses at each ability level \eqn{k},
-#' calculated using item parameters from the item bank, and \eqn{N} is the total
-#' count of examinees who received each item.
+#' where \eqn{Q} is the number of quadrature points, \eqn{r_{0k}} and
+#' \eqn{r_{1k}} are the pseudo-counts of incorrect and correct responses at
+#' quadrature point \eqn{k} (the sums of the examinees' posterior probabilities
+#' at that point over the examinees with each response), \eqn{E_{1k}} is the
+#' probability of a correct response at point \eqn{k} under the item bank
+#' parameters, and \eqn{N} is the number of examinees who responded to the item.
 #'
 #' \strong{Critical Value (`crit.val`)}:
 #' The `crit.val` argument specifies the threshold used to flag an item as
-#' exhibiting potential parameter drift. If an item's Pseudo-count \eqn{D^{2}}
-#' value exceeds this threshold, it is identified as a drifted item. If
+#' exhibiting potential parameter drift. If an item's pseudo-count \eqn{D^{2}}
+#' value is greater than or equal to this threshold, the item is flagged. If
 #' `crit.val = NULL`, the function reports the raw statistic without flagging.
 #'
 #' \strong{Minimum Response Count (`min.resp`)}:
@@ -80,23 +96,27 @@
 #' with `NA`. This avoids unreliable estimates based on small sample sizes.
 #'
 #' \strong{Purification Procedure}:
-#' Although Cappaert et al. (2018) did not incorporate purification into their method,
-#' [irtQ::pcd2()] implements an optional iterative purification process similar
-#' to Lim et al. (2022). When `purify = TRUE` and a `crit.val` is provided:
+#' Although Cappaert et al. (2018) did not incorporate purification into their
+#' method, [irtQ::pcd2()] implements an optional iterative purification process
+#' similar to Lim et al. (2022). When `purify = TRUE` and a `crit.val` is
+#' provided:
 #' \itemize{
 #'   \item The procedure begins by identifying items flagged for drift using the initial
-#'   Pseudo-count \eqn{D^{2}} statistics.
-#'   \item In each subsequent iteration, the item with the highest flagged Pseudo-count
+#'   pseudo-count \eqn{D^{2}} statistics.
+#'   \item In each subsequent iteration, the item with the highest flagged pseudo-count
 #'   \eqn{D^{2}} value is removed from the item set, and the statistics are recalculated
 #'   using only the remaining items.
 #'   \item The process continues until no additional items are flagged or the
 #'   number of iterations reaches `max.iter`.
+#'   \item If `max.iter` is reached before convergence, a warning is issued, the
+#'   items flagged at the last iteration are added to the flagged set, and
+#'   `complete` is set to `FALSE`.
 #'   \item All flagged items and statistics are saved, and convergence status is reported.
 #' }
-#' This process ensures that drift detection is not distorted by already-flagged items,
-#' improving the robustness of the results.
+#' This process reduces the influence of already-flagged items on the posterior
+#' distributions used for the remaining items.
 #'
-#' @return This function returns a list containing four main components:
+#' @return This function returns a list with the following elements:
 #'
 #' \item{no_purify}{A list containing the results of Pseudo-count \eqn{D^{2}} analysis
 #' without applying the purification procedure. It includes:
@@ -112,21 +132,25 @@
 #'   }
 #' }
 #'
-#' \item{purify}{A logical value indicating whether the iterative purification
-#' procedure was applied (`TRUE`) or not (`FALSE`).}
+#' \item{purify}{The value of the `purify` argument. Purification is actually
+#' performed only when `crit.val` is also supplied.}
 #'
 #' \item{with_purify}{A list containing the results of Pseudo-count \eqn{D^{2}} analysis
 #' after applying the purification procedure. This list is populated only when both
-#' `purify = TRUE` and `crit.val` is not `NULL`. It includes:
+#' `purify = TRUE` and `crit.val` is not `NULL`; otherwise, all of its elements are `NULL`. It
+#' includes:
 #'   \describe{
 #'     \item{ipd_stat}{A data frame reporting the final Pseudo-count \eqn{D^{2}} statistics
 #'     after purification. Columns include:
 #'     `id` (item ID),
 #'     `pcd2` (the computed \eqn{D^{2}} value),
 #'     `N` (the number of valid responses), and
-#'     `n.iter` (the iteration number in which each item was evaluated).}
-#'     \item{ipd_item}{A numeric vector of item indices flagged as IPD items during
-#'     purification. Items are ordered by the iteration in which they were flagged.}
+#'     `n.iter` (for a flagged item, the iteration at which it was flagged, where
+#'     0 is the initial analysis; for the other items, the final iteration).}
+#'     \item{ipd_item}{A numeric vector of item indices (row positions in `x`)
+#'     flagged as IPD items during purification, sorted in ascending order. The
+#'     iteration at which each item was flagged is given in the `n.iter` column of
+#'     `ipd_stat`. It is `NULL` when no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the number of purification iterations
 #'     completed.}
 #'     \item{complete}{A logical value indicating whether the purification procedure
@@ -138,20 +162,33 @@
 #' \item{crit.val}{A numeric value indicating the critical threshold used to flag
 #' items for parameter drift. If not specified by the user, this will be `NULL`.}
 #'
+#' \item{call}{The matched function call.}
+#'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
+#'
+#' @seealso [irtQ::ripd()], [irtQ::simIPD], [irtQ::gen.weight()]
 #'
 #' @references
 #' Cappaert, K. J., Wen, Y., & Chang, Y. F. (2018). Evaluating CAT-adjusted
 #' approaches for suspected item parameter drift detection. *Measurement:
 #' Interdisciplinary Research and Perspectives, 16*(4), 226-238.
+#' \doi{10.1080/15366367.2018.1511199}.
+#'
+#'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
+#'   item functioning detection framework in item response theory. *Journal of
+#'   Educational Measurement, 59*(1), 80-104. \doi{10.1111/jedm.12313}.
+#'
+#'   Lim, H., & Han, K. T. (2026). IRT residual-based approach to detecting item
+#'   parameter drift in CAT. *Journal of Educational and Behavioral Statistics*.
+#'   \doi{10.3102/10769986261460852}.
 #'
 #'   Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
 #'   goodness-of-fit test statistic in IRT models. *Journal of Educational
-#'   Measurement, 37*(1), 58-75.
+#'   Measurement, 37*(1), 58-75. \doi{10.1111/j.1745-3984.2000.tb01076.x}.
 #'
 #' @examples
 #' ## Example 1: No critical value specified
-#' ## Compute the Pseudo-count D2 statistics for dichotomous items
+#' ## Compute the pseudo-count D2 statistics for dichotomous items
 #' ## Import the "-prm.txt" output file generated by flexMIRT
 #' flex_sam <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
 #'
@@ -165,12 +202,14 @@
 #' # Simulate response data using the item metadata and ability values
 #' data <- simdat(x = x, theta = score, D = 1)
 #'
-#' # Compute the Pseudo-count D2 statistics (no purification applied)
+#' # Compute the pseudo-count D2 statistics (no purification applied)
 #' ps_d2 <- pcd2(x = x, data = data)
 #' print(ps_d2)
 #'
 #' ## Example 2: Applying a critical value with purification
-#' # Compute the Pseudo-count D2 statistics with purification enabled
+#' # crit.val = 0.002 is an arbitrary value for illustration; no drift was
+#' # simulated, so any flagged item is a false positive.
+#' # Compute the pseudo-count D2 statistics with purification enabled
 #' ps_d2_puri <- pcd2(x = x, data = data, crit.val = 0.002, purify = TRUE)
 #' print(ps_d2_puri)
 #'
@@ -233,6 +272,8 @@
 #' cat("Bootstrap critical value (alpha = 0.05):", round(crit_val, 6), "\n")
 #'
 #' ## -- Step 4. Run PCD2 with the bootstrap critical value + purification --
+#' ## A warning lists the pool items that were never administered to the
+#' ## focal group (no response data).
 #' pcd2_result <- pcd2(
 #'   x         = simIPD$item_par,
 #'   data      = simIPD$foc_resp,
