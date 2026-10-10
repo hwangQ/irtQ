@@ -114,8 +114,10 @@ item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
 ...
 ```
 
-Each item belongs to exactly one module, so each row has exactly one 1 and all
-other entries are 0. `reval_mst()` additionally requires that all modules in
+In `simMST`, each item belongs to exactly one module, so each row has exactly
+one 1. In general, an item should belong to at most one module; items of the
+bank that are not used in the panel have rows of 0. `reval_mst()` additionally
+requires a single routing module in the first stage and that all modules in
 the same stage have the same maximum sum score (for dichotomous items, the
 same number of items); it stops with an error otherwise.
 
@@ -657,12 +659,14 @@ Here is the core logic of the recursion:
    method implied by IRT-based summed scoring.
 
    > **Note on linear interpolation (`intpol`)**: When items have non-zero guessing
-   > parameters (e.g., 3PLM), the minimum *achievable* expected sum score exceeds
-   > zero, meaning no valid $\hat\theta$ exists for very low observed scores (those
-   > below the sum of guessing parameters). With `intpol = TRUE` (the default), the
-   > inverse TCC method applies **linear interpolation** between the point
-   > $(\theta_{\min},\, 0)$ and the lowest TCC-reachable score point, so that every
-   > possible sum score receives a valid ability estimate rather than `NA`.
+   > parameters (e.g., 3PLM), the expected sum score never falls to or below the
+   > sum of the guessing parameters, so no $\hat\theta$ exists for observed scores
+   > less than or equal to that sum; no $\hat\theta$ exists for the maximum
+   > possible score either. With `intpol = TRUE` (the default), the low scores are
+   > mapped by **linear interpolation** between the point
+   > $(\theta_{\min},\, 0)$ and the lowest TCC-reachable score point, and the
+   > maximum score receives $\theta_{\max}$ (the two values of `range.tcc`), so
+   > that every possible sum score receives an ability estimate rather than `NA`.
 
 6. **Evaluate**: Compute the conditional mean and variance of $\hat\theta$ given
    the true $\theta$, and derive conditional bias and CSEM.
@@ -846,8 +850,8 @@ each possible observed sum score, computed via the inverse TCC method. These
 are the score-to-$\theta$ mappings used for routing and final ability reporting.
 
 ```{r eq-theta}
-# eq.theta[[stage]][[path]] gives a vector of theta estimates,
-# one per possible observed sum score on that partial path
+# eq.theta[[stage]][, path] gives a vector of theta estimates,
+# one per possible sum score on that partial pathway
 
 # Stage 1, Path 1 (routing module only, 8 items, scores 0-8)
 cat("Theta estimates for Stage 1 (8 items, scores 0-8):\n")
@@ -860,9 +864,10 @@ cat("Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways)
 dim(eval_result$eq.theta$stage.3)
 ```
 
-The number of rows equals the number of possible sum scores (0 through maximum
-score) for items along that pathway. Each column corresponds to one complete
-pathway through the MST.
+Each element of `eq.theta` is a matrix for one stage. The number of rows equals
+the number of possible cumulative sum scores (0 through maximum score) up to
+that stage, and each column corresponds to one partial pathway up to that
+stage; at the last stage, the columns are the complete pathways.
 
 ### Inspecting Test Information by Pathway
 
@@ -1204,14 +1209,16 @@ toward the extremes, where the item pool carries little information and
 MLE behaves quite differently from the inverse-TCC-based recursion. That
 region of close central agreement widens as test length increases.
 
-We reproduce that second condition directly here for the `simMST` panel,
-using the same scoring combination @lim_etal2021 used in their own
-validation: `route_score = list(method = "EAP")` for routing at each interim
-stage, and `final_score = list(method = "ML")` for the reported final score.
-Neither method matches
+We reproduce the scoring combination of that second condition here for the
+`simMST` panel (EAP for routing and ML for the final score):
+`route_score = list(method = "EAP")` for routing at each interim stage, and
+`final_score = list(method = "ML")` for the reported final score. Unlike
+@lim_etal2021, whose simulations routed examinees with the maximum information
+rule, the simulation below routes with the panel's fixed cut scores, the
+routing rule that `reval_mst()` assumes. Neither scoring method matches
 `reval_mst()`'s internal inverse-TCC logic, so the two results are not
-expected to coincide everywhere; the comparison below should reproduce the
-same central-agreement-with-tail-divergence pattern @lim_etal2021 reported.
+expected to coincide everywhere; the comparison below should show the same
+central-agreement-with-tail-divergence pattern @lim_etal2021 reported.
 
 Because the exact values stored in `simMST$theta` are not needed for this
 comparison, we define our own explicit evaluation grid so that the Monte
@@ -1232,8 +1239,7 @@ true_theta <- rep(theta_grid, each = n_reps)
 at every grid point are simulated in a single call by passing the full
 `true_theta` vector. Routing uses the panel's fixed cut scores (matching the
 routing rule `reval_mst()` assumes), with `EAP` routing scores and `ML`
-final scores, the scoring combination @lim_etal2021 used in their own
-Monte Carlo validation:
+final scores, the scoring combination of @lim_etal2021:
 
 ```{r mc-simulate, cache=FALSE}
 sim_mc <- run_mst(
@@ -1478,7 +1484,7 @@ across the *entire* ability range, including the extremes where the
 | `route_score` | list | ML (see `?run_mst`) | Scoring method used at intermediate stages (`ML`, `WL`, `MLF`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
 | `final_score` | list | ML (see `?run_mst`) | Scoring method used for the final reported score |
 | `se` | logical | `TRUE` | Whether to compute standard errors of the final score |
-| `missing` | scalar | `NA` | Value representing a not-administered response in `response` |
+| `missing` | scalar | `NA` | Value marking a missing response in `response` |
 | `verbose` | logical | `TRUE` | Whether to print simulation progress messages to the console |
 | `return_full_resp` | logical | `FALSE` | If `TRUE`, also returns the full *N* x *J* item-level response matrix as `full.resp` |
 
@@ -1486,13 +1492,19 @@ across the *entire* ability range, including the extremes where the
 
 | Component | Description |
 |-----------|-------------|
+| `call` | The matched function call |
 | `est.theta` | Final ability estimate for each simulated examinee |
 | `se.theta` | Standard error of the final ability estimate |
 | `theta.route` | Cumulative ability estimate used for routing after each stage (from all modules taken so far); the last column is the final estimate |
 | `path` | Module pathway taken by each examinee |
 | `true.theta` | The `theta` argument (true abilities), or `NULL` if `theta` was not supplied |
 | `panel` | Panel structure information (from `panel_info()`) |
-| `full.resp` | Full item-level response matrix, if `return_full_resp = TRUE` |
+| `D` | The scaling constant used |
+| `route.method` | The `route_method` argument |
+| `route.score` | The `route_score` list with all defaults filled in |
+| `final.score` | The `final_score` list with all defaults filled in |
+| `N` | Number of examinees |
+| `full.resp` | Full item-level response matrix if `return_full_resp = TRUE`, otherwise `NULL` |
 
 ---
 

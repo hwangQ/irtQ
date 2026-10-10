@@ -51,8 +51,9 @@ Both functions support two estimation approaches:
 Both functions return a list with five elements:
 
 - `$confusion`: a confusion matrix (rows = true level, columns = expected level),
-- `$marginal`: a data frame of marginal CA and CC indices per performance level
-  plus an overall marginal row,
+- `$marginal`: a data frame with one row per true performance level and an
+  overall `marginal` row. Each level row is the contribution of examinees in
+  that true level, and the level rows add up to the overall marginal CA and CC,
 - `$conditional`: a data frame of conditional CA and CC for each theta (or node),
 - `$prob.level`: a data frame of the probability of being assigned to each level
   for each theta (or node),
@@ -248,13 +249,13 @@ where:
 |------------|-------------|
 | `x`        | Item metadata data frame |
 | `cutscore` | Numeric vector of $K - 1$ cut scores defining $K$ performance levels |
-| `weights`  | Two-column matrix of quadrature nodes and weights for D-method (use `gen.weight()`) |
-| `theta`    | Numeric vector of individual ability estimates for P-method |
+| `weights`  | Two-column matrix of quadrature nodes and weights for D-method (use `gen.weight()`); weights that do not sum to 1 are rescaled with a warning |
+| `theta`    | Numeric vector of individual ability estimates for P-method; missing values are excluded with a warning |
 | `D`        | Scaling constant; must match the value used during calibration |
 | `cut.obs`  | `TRUE` (default): cut scores on the observed summed-score scale; `FALSE`: on the theta scale (converted internally via TCC) |
 
-Either `theta` or `weights` must be provided (but not both. If both are supplied, 
-`weights` takes priority and the D-method is applied).
+Either `theta` or `weights` must be provided. If both are supplied, `weights`
+takes priority, the D-method is applied, and `theta` is ignored.
 
 ---
 
@@ -284,9 +285,11 @@ cac_l_d
 
 The output contains:
 
-- `$confusion`: confusion matrix (rows = true performance level, columns = expected
-  level under CA). The diagonal entries correspond to correct classifications.
-- `$marginal`: marginal CA and CC per level, plus an overall row labelled `"marginal"`.
+- `$confusion`: a matrix of expected proportions (rows = true performance level,
+  columns = expected observed level); the entries sum to 1. The diagonal entries
+  correspond to correct classifications.
+- `$marginal`: CA and CC contributed by each true performance level, plus an
+  overall row labelled `"marginal"` that is the sum of the level rows.
 - `$cutscore`: the cut scores used (always on the observed summed-score scale).
 
 #### (2) P-method: average over individual ability estimates
