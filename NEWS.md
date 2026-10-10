@@ -157,6 +157,12 @@
   decision at `alpha` when the distribution was estimated. Set
   `norm.prior = c(0, 1)` to reproduce the earlier results.
 
+- `reval_mst()` took the score distribution of the first stage from
+  module 1 even when the routing module had another number, which gave
+  wrong results without an error. The routing module is now taken from
+  `route_map`, and a first stage with more than one module stops with an
+  error. `run_mst()` still runs such panels.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

@@ -118,3 +118,30 @@ test_that("reval_mst() stops when the module matrix does not match the route map
     "one column per module"
   )
 })
+
+test_that("reval_mst() does not depend on the index of the routing module", {
+  x <- simMST$item_bank
+  md <- simMST$module
+  rm <- simMST$route_map
+  # renumber the modules so that the routing module is module 4
+  new_of_old <- c(4, 1, 2, 3, 5, 6, 7)
+  md2 <- md[, order(new_of_old)]
+  rm2 <- matrix(0, 7, 7)
+  rm2[new_of_old, new_of_old] <- rm
+  rv1 <- reval_mst(x, D = 1.702, route_map = rm, module = md,
+                   cut_score = simMST$cut_score, theta = c(-1, 1))$eval.tb
+  rv2 <- reval_mst(x, D = 1.702, route_map = rm2, module = md2,
+                   cut_score = simMST$cut_score, theta = c(-1, 1))$eval.tb
+  expect_equal(rv2, rv1)
+})
+
+test_that("reval_mst() stops when the first stage has more than one module", {
+  # a 2-2 panel: modules 1 and 2 form stage 1 and modules 3 and 4 form stage 2
+  rm_x <- matrix(0L, 4, 4)
+  rm_x[1:2, 3:4] <- 1L
+  expect_error(
+    reval_mst(x = simMST$item_bank, D = 1.702, route_map = rm_x,
+              module = simMST$module[, 1:4], cut_score = list(0), theta = 0),
+    "single routing module"
+  )
+})

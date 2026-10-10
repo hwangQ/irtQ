@@ -132,6 +132,11 @@ Monte Carlo simulation. With \code{route_method = NULL}, a \code{cut_score} list
 \code{route_score = list(method = "INV.TCC")}, \code{\link[=run_mst]{run_mst()}} follows the
 same design that this function evaluates analytically.
 
+The first stage must have a single routing module, whatever its module
+index, and the function stops with an error when stage 1 has more than one
+module. \code{\link[=run_mst]{run_mst()}} also runs panels with several stage-1 modules, so
+the two functions differ in the panels they support.
+
 All modules in the same stage must have the same maximum sum score (the
 sum of the maximum item scores), for example the same number of items when
 all items are dichotomous. The function stops with an error when this

@@ -71,6 +71,11 @@
 #'   `route_score = list(method = "INV.TCC")`, [irtQ::run_mst()] follows the
 #'   same design that this function evaluates analytically.
 #'
+#'   The first stage must have a single routing module, whatever its module
+#'   index, and the function stops with an error when stage 1 has more than one
+#'   module. [irtQ::run_mst()] also runs panels with several stage-1 modules, so
+#'   the two functions differ in the panels they support.
+#'
 #'   All modules in the same stage must have the same maximum sum score (the
 #'   sum of the maximum item scores), for example the same number of items when
 #'   all items are dichotomous. The function stops with an error when this
@@ -259,6 +264,11 @@ reval_mst <- function(x,
   # Number of stages
   n.stg <- panel_data$n.stage
 
+  # Stop when stage 1 has more than one module
+  if (n.mod[1] != 1L) {
+    stop("The first stage must have a single routing module.", call. = FALSE)
+  }
+
   # Stop when cut_score does not have one vector per stage transition
   if (length(cut_score) != (n.stg - 1)) {
     stop(sprintf(
@@ -445,7 +455,7 @@ reval_mst <- function(x,
     purrr::map(
       .x = cdist_by_th,
       .f = ~ {
-        .x[, 1, drop = FALSE] %>%
+        .x[, panel_data$config[[1]], drop = FALSE] %>%
           unname()
       }
     )
