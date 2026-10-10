@@ -38,3 +38,27 @@ test_that("cac_rud() handles an empty level when quadrature weights are supplied
   expect_equal(nrow(res$marginal), 4L)
   expect_lt(res$marginal$accuracy[3], 1e-10)
 })
+
+test_that("cac_rud() matches hand-computed normal probabilities", {
+  # theta = 0 and se = 1 with cut scores -1 and 1
+  res <- cac_rud(cutscore = c(-1, 1), theta = 0, se = 1)
+  p <- c(stats::pnorm(-1), stats::pnorm(1) - stats::pnorm(-1), 1 - stats::pnorm(1))
+  expect_equal(unname(unlist(res$prob.level[, paste0("p.level.", 1:3)])), p)
+  expect_equal(res$conditional$accuracy, p[2])
+  expect_equal(res$conditional$consistency, sum(p^2))
+  # a theta equal to a cut score belongs to the higher level
+  res_tie <- cac_rud(cutscore = c(-1, 1), theta = 1, se = 0.5)
+  expect_equal(res_tie$conditional$level, 3L)
+  expect_equal(res_tie$conditional$accuracy, 0.5)
+})
+
+test_that("cac_rud() with item metadata matches the reference", {
+  x <- simMST$item_bank[1:20, ]
+  wts <- gen.weight(n = 21, dist = "norm", mu = 0, sigma = 1)
+  res <- cac_rud(x = x, cutscore = c(-0.5, 0.8), weights = wts, D = 1.702)
+  se <- 1 / sqrt(info(x = x, theta = wts[, 1], D = 1.702, tif = TRUE)$tif)
+  ref <- ref_rud(c(-0.5, 0.8), wts[, 1], se, wts[, 2])
+  tot <- res$marginal[res$marginal$level == "marginal", ]
+  expect_equal(tot$accuracy, ref$acc, tolerance = 1e-12)
+  expect_equal(tot$consistency, ref$con, tolerance = 1e-12)
+})

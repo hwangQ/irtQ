@@ -167,7 +167,7 @@ cac_lee <- function(x,
                     cut.obs = TRUE) {
 
   # check if the provided inputs are correct
-  if (is.null(theta) & is.null(weights)) {
+  if (is.null(theta) && is.null(weights)) {
     stop("Either 'theta' or 'weights' argument must be provided; both cannot be NULL",
          call. = FALSE
     )
@@ -182,232 +182,97 @@ cac_lee <- function(x,
   # count the number of levels
   n.lev <- length(cutscore) + 1
 
-  # (1) D method: quadrature points and weights are provided
   if (!is.null(weights)) {
+    # (1) D method: quadrature points and weights are provided
     # extract nodes and weights
     nodes <- weights[, 1]
     wts <- weights[, 2]
-
-    # count the number of thetas
-    n.theta <- length(wts)
-
-    # estimate likelihood functions using the Lord-Wingersky recursion
-    # for each theta, which is the conditional observed score distribution
-    # given each theta; each column is the conditional score distribution for
-    # a given theta
-    lkhd <- lwrc(x = x, theta = weights[, 1], prob = NULL, D = D)
-
-    # count the total number of observed scores for the test
-    n.score <- nrow(lkhd)
-
-    # check the maximum possible observed score
-    max.score <- n.score - 1
-
-    # add the bounds to the cut scores
-    breaks <- c(0, cutscore, n.score)
-
-    # compute the expected true score using the IRT models for each theta
-    tscore <- traceline(x = x, theta = nodes, D = D)$tcc
-
-    # assign the levels to each expected true score
-    level <-
-      cut(
-        x = tscore, breaks = breaks, labels = 1:n.lev,
-        include.lowest = TRUE, right = FALSE, dig.lab = 7
-      )
-
-    # create an empty data frame to contain the conditional
-    # classification accuracy and consistency for each theta value
-    cond_tb <- data.frame(
-      theta = nodes,
-      weights = wts,
-      true.score = tscore,
-      level = level,
-      accuracy = NA_real_,
-      consistency = NA_real_
-    )
-
-    # create an empty matrix to contain the probability
-    # that each examinee with a specific ability is assigned
-    # to each level category
-    ps_tb <- matrix(NA, nrow = n.theta, ncol = n.lev)
-    colnames(ps_tb) <- paste0("p.level.", 1:n.lev)
-
-    # assign the level to each possible observed score
-    loc.lev <-
-      cut(
-        x = 0:max.score, breaks = breaks, labels = 1:n.lev,
-        include.lowest = TRUE, right = FALSE, dig.lab = 7
-      )
-
-    # compute the probability that an examinee with each ability value
-    # is assigned to each level
-    for (i in 1:n.theta) {
-      # the probability that each examinee will be assigned to each level category
-      ps <-
-        data.frame(level = loc.lev, prob = lkhd[, i]) %>%
-        dplyr::summarise(prob = sum(.data$prob), .by = "level") %>%
-        dplyr::pull("prob")
-      ps_tb[i, ] <- ps
-
-      # conditional classification accuracy
-      cond_ca <- ps[level[i]]
-      cond_tb[i, 5] <- cond_ca
-
-      # conditional classification consistency
-      cond_cc <- sum(ps^2)
-      cond_tb[i, 6] <- cond_cc
-    }
-
-    # compute the marginal accuracy and consistency
-    margin_tb <-
-      cond_tb %>%
-      dplyr::group_by(.data$level, .drop = FALSE) %>%
-      dplyr::summarise(
-        accuracy = sum(.data$accuracy * .data$weights),
-        consistency = sum(.data$consistency * .data$weights),
-        .groups = "drop"
-      ) %>%
-      janitor::adorn_totals(where = "row", name = "marginal")
-
-    # add more variables to ps_tb
-    ps_tb2 <-
-      data.frame(
-        theta = nodes, weights = wts,
-        true.score = tscore, level = level,
-        ps_tb
-      )
-
-    # create a cross table between true and expected levels
-    cross_tb <-
-      ps_tb2 %>%
-      dplyr::group_by(.data$level, .drop = FALSE) %>%
-      dplyr::summarise(
-        dplyr::across(
-          dplyr::starts_with("p.level."),
-          ~ {
-            sum(.x * .data$weights)
-          }
-        ),
-        .groups = "drop"
-      ) %>%
-      dplyr::arrange(.data$level) %>%
-      tibble::column_to_rownames("level") %>%
-      data.matrix()
-    dimnames(cross_tb) <- list(True = 1:n.lev, Expected = 1:n.lev)
   } else {
     # (2) P method: individual ability estimates are provided
-    # count the number of thetas
-    n.theta <- length(theta)
+    # use the ability estimates as nodes with uniform weights
+    nodes <- theta
+    wts <- rep(1 / length(theta), length(theta))
+  }
 
-    # assign uniform weights
-    wts <- 1 / n.theta
+  # count the number of thetas
+  n.theta <- length(wts)
 
-    # estimate likelihood functions using the Lord-Wingersky recursion
-    # for each theta, which is the conditional observed score distribution
-    # given each theta; each column is the conditional score distribution for
-    # a given theta
-    lkhd <- lwrc(x = x, theta = theta, prob = NULL, D = D)
+  # estimate likelihood functions using the Lord-Wingersky recursion
+  # for each theta, which is the conditional observed score distribution
+  # given each theta; each column is the conditional score distribution for
+  # a given theta
+  lkhd <- lwrc(x = x, theta = nodes, prob = NULL, D = D)
 
-    # count the total number of observed scores for the test
-    n.score <- nrow(lkhd)
+  # count the total number of observed scores for the test
+  n.score <- nrow(lkhd)
 
-    # check the maximum possible observed score
-    max.score <- n.score - 1
+  # check the maximum possible observed score
+  max.score <- n.score - 1
 
-    # add the bounds to the cut scores
-    breaks <- c(0, cutscore, n.score)
+  # compute the expected true score using the IRT models for each theta
+  tscore <- traceline(x = x, theta = nodes, D = D)$tcc
 
-    # compute the expected true score using the IRT models for each theta
-    tscore <- traceline(x = x, theta = theta, D = D)$tcc
+  # assign the levels to each expected true score; a score equal to a cut
+  # score belongs to the higher level
+  level <- factor(findInterval(tscore, cutscore) + 1L, levels = 1:n.lev)
 
-    # assign the levels to each expected true score
-    level <-
-      cut(
-        x = tscore, breaks = breaks, labels = 1:n.lev,
-        include.lowest = TRUE, right = FALSE, dig.lab = 7
-      )
+  # assign the level to each possible observed score
+  loc.lev <- findInterval(0:max.score, cutscore) + 1L
 
-    # create an empty data frame to contain the conditional
-    # classification accuracy and consistency for each theta value
-    cond_tb <- data.frame(
-      theta = theta,
-      weights = wts,
-      true.score = tscore,
-      level = level,
-      accuracy = NA_real_,
-      consistency = NA_real_
+  # the probability that each examinee with each ability value is assigned to
+  # each level category; a level that contains no observed score has
+  # probability 0
+  ps_tb <- crossprod(lkhd, outer(loc.lev, 1:n.lev, "==") * 1)
+
+  # name the level columns and drop the row names taken from the theta columns
+  dimnames(ps_tb) <- list(NULL, paste0("p.level.", 1:n.lev))
+
+  # conditional classification accuracy and consistency for each theta value
+  cond_tb <- data.frame(
+    theta = nodes,
+    weights = wts,
+    true.score = tscore,
+    level = level,
+    accuracy = ps_tb[cbind(1:n.theta, as.integer(level))],
+    consistency = rowSums(ps_tb^2)
+  )
+
+  # compute the marginal accuracy and consistency
+  margin_tb <-
+    cond_tb %>%
+    dplyr::group_by(.data$level, .drop = FALSE) %>%
+    dplyr::summarise(
+      accuracy = sum(.data$accuracy * .data$weights),
+      consistency = sum(.data$consistency * .data$weights),
+      .groups = "drop"
+    ) %>%
+    janitor::adorn_totals(where = "row", name = "marginal")
+
+  # add more variables to ps_tb
+  ps_tb2 <-
+    data.frame(
+      theta = nodes, weights = wts,
+      true.score = tscore, level = level,
+      ps_tb
     )
 
-    # create an empty matrix to contain the probability
-    # that each examinee with a specific ability is assigned
-    # to each level category
-    ps_tb <- matrix(NA, nrow = n.theta, ncol = n.lev)
-    colnames(ps_tb) <- paste0("p.level.", 1:n.lev)
-
-    # assign the level to each possible observed score
-    loc.lev <-
-      cut(
-        x = 0:max.score, breaks = breaks, labels = 1:n.lev,
-        include.lowest = TRUE, right = FALSE, dig.lab = 7
-      )
-
-    # compute the probability that an examinee with each ability value
-    # is assigned to each level
-    for (i in 1:n.theta) {
-      # the probability that each examinee will be assigned to each level category
-      ps <-
-        data.frame(level = loc.lev, prob = lkhd[, i]) %>%
-        dplyr::summarise(prob = sum(.data$prob), .by = "level") %>%
-        dplyr::pull("prob")
-      ps_tb[i, ] <- ps
-
-      # conditional classification accuracy
-      cond_ca <- ps[level[i]]
-      cond_tb[i, 5] <- cond_ca
-
-      # conditional classification consistency
-      cond_cc <- sum(ps^2)
-      cond_tb[i, 6] <- cond_cc
-    }
-
-    # compute the marginal accuracy and consistency
-    margin_tb <-
-      cond_tb %>%
-      dplyr::group_by(.data$level, .drop = FALSE) %>%
-      dplyr::summarise(
-        accuracy = sum(.data$accuracy * .data$weights),
-        consistency = sum(.data$consistency * .data$weights),
-        .groups = "drop"
-      ) %>%
-      janitor::adorn_totals(where = "row", name = "marginal")
-
-    # add more variables to ps_tb
-    ps_tb2 <-
-      data.frame(
-        theta = theta, weights = wts,
-        true.score = tscore, level = level,
-        ps_tb
-      )
-
-    # create a cross table between true and expected levels
-    cross_tb <-
-      ps_tb2 %>%
-      dplyr::group_by(.data$level, .drop = FALSE) %>%
-      dplyr::summarise(
-        dplyr::across(
-          dplyr::starts_with("p.level."),
-          ~ {
-            sum(.x * .data$weights)
-          }
-        ),
-        .groups = "drop"
-      ) %>%
-      dplyr::arrange(.data$level) %>%
-      tibble::column_to_rownames("level") %>%
-      data.matrix()
-    dimnames(cross_tb) <- list(True = 1:n.lev, Expected = 1:n.lev)
-  }
+  # create a cross table between true and expected levels
+  cross_tb <-
+    ps_tb2 %>%
+    dplyr::group_by(.data$level, .drop = FALSE) %>%
+    dplyr::summarise(
+      dplyr::across(
+        dplyr::starts_with("p.level."),
+        ~ {
+          sum(.x * .data$weights)
+        }
+      ),
+      .groups = "drop"
+    ) %>%
+    dplyr::arrange(.data$level) %>%
+    tibble::column_to_rownames("level") %>%
+    data.matrix()
+  dimnames(cross_tb) <- list(True = 1:n.lev, Expected = 1:n.lev)
 
   # return the results
   rst <- list(
