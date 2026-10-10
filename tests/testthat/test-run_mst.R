@@ -236,9 +236,9 @@ test_that("cut-score routing assigns the module from the cumulative estimate", {
   est2 <- unname(fit$theta.route[, 2])
   expected3 <- vapply(seq_len(nrow(fit$path)), function(i) {
     switch(as.character(fit$path[i, 2]),
-      "2" = if (est2[i] <= cut3[1]) 5L else 6L,
-      "3" = if (est2[i] <= cut3[1]) 5L else if (est2[i] <= cut3[2]) 6L else 7L,
-      "4" = if (est2[i] <= cut3[2]) 6L else 7L)
+      "2" = if (est2[i] < cut3[1]) 5L else 6L,
+      "3" = if (est2[i] < cut3[1]) 5L else if (est2[i] < cut3[2]) 6L else 7L,
+      "4" = if (est2[i] < cut3[2]) 6L else 7L)
   }, integer(1L))
   expect_equal(unname(fit$path[, 3]), expected3)
 })
@@ -256,13 +256,13 @@ test_that("an examinee in module 4 with a middle estimate is routed to module 6"
   cut3    <- cut_mst[[2]]
   est2    <- fit$theta.route[, 2]
   in_mod4 <- fit$path[, 2] == 4L
-  middle  <- in_mod4 & est2 > cut3[1] & est2 <= cut3[2]
+  middle  <- in_mod4 & est2 > cut3[1] & est2 < cut3[2]
   # the simulation has examinees in module 4 whose estimate lies between the cut scores
   expect_gt(sum(middle), 0L)
   # they go to module 6, the easier of the two modules reachable from module 4
   expect_true(all(fit$path[middle, 3] == 6L))
-  # module 4 examinees above the second cut score go to module 7
-  expect_true(all(fit$path[in_mod4 & est2 > cut3[2], 3] == 7L))
+  # module 4 examinees at or above the second cut score go to module 7
+  expect_true(all(fit$path[in_mod4 & est2 >= cut3[2], 3] == 7L))
 })
 
 
