@@ -32,8 +32,10 @@
 #'   before they are supplied.
 #' @param weights A two-column data frame or matrix. The first column holds the
 #'   quadrature points (nodes), and the second column holds the corresponding
-#'   weights, which should sum to 1. [irtQ::gen.weight()] creates such a data
-#'   frame. When `weights` is supplied, `theta` is ignored. Default is `NULL`.
+#'   weights, which should sum to 1; weights that do not sum to 1 are rescaled
+#'   to sum to 1 with a warning (for example, frequencies can be given as
+#'   weights). [irtQ::gen.weight()] creates such a data frame. When `weights`
+#'   is supplied, `theta` is ignored. Default is `NULL`.
 #' @param D A scaling constant used in IRT models to make the logistic function
 #'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1. It is used only when `se` is computed
@@ -246,6 +248,19 @@ cac_rud <- function(x = NULL,
       stop("The numbers of weights and the standard errors must be equal.",
            call. = FALSE
       )
+    }
+
+    # stop when the weights are not finite or do not have a positive sum
+    if (!all(is.finite(wts)) || sum(wts) <= 0) {
+      stop("The weights must be finite values with a positive sum.", call. = FALSE)
+    }
+
+    # rescale the weights when they do not sum to one
+    if (abs(sum(wts) - 1) > 1e-8) {
+      warning("The weights do not sum to 1 and were rescaled to sum to 1.",
+              call. = FALSE
+      )
+      wts <- wts / sum(wts)
     }
   } else {
     # (2) when individual ability estimates and ses are provided

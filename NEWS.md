@@ -163,6 +163,10 @@
   `route_map`, and a first stage with more than one module stops with an
   error. `run_mst()` still runs such panels.
 
+- `cac_lee()` and `cac_rud()` used weights that did not sum to 1 as
+  given, so the marginal indices could exceed 1. Such weights are now
+  rescaled to sum to 1, with a warning.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

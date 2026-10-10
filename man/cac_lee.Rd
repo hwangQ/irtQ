@@ -24,9 +24,11 @@ the P method. It is ignored when \code{weights} is supplied. Missing values
 
 \item{weights}{A two-column data frame or matrix used by the D method. The
 first column holds the quadrature points (nodes), and the second column
-holds the corresponding weights, which should sum to 1.
-\code{\link[=gen.weight]{gen.weight()}} creates such a data frame. When \code{weights} is
-supplied, \code{theta} is ignored. Default is \code{NULL}.}
+holds the corresponding weights, which should sum to 1; weights that do
+not sum to 1 are rescaled to sum to 1 with a warning (for example,
+frequencies can be given as weights). \code{\link[=gen.weight]{gen.weight()}} creates such a
+data frame. When \code{weights} is supplied, \code{theta} is ignored. Default is
+\code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly

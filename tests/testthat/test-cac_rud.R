@@ -80,3 +80,16 @@ test_that("cac_rud() stops on unordered cut scores and non-positive standard err
   expect_error(cac_rud(cutscore = 0, theta = c(0, 1), se = c(0.3, -0.3)), "positive")
   expect_error(cac_rud(cutscore = 0, theta = c(0, 1), se = c(0.3, 0)), "positive")
 })
+
+test_that("cac_rud() rescales weights that do not sum to one", {
+  wts <- gen.weight(n = 21, dist = "norm", mu = 0, sigma = 1)
+  se <- rep(0.3, 21)
+  expect_no_warning(res1 <- cac_rud(cutscore = c(-0.5, 0.8), weights = wts, se = se))
+  # frequencies instead of proportions give the same indices
+  expect_warning(
+    res2 <- cac_rud(cutscore = c(-0.5, 0.8), weights = cbind(wts[, 1], 100 * wts[, 2]), se = se),
+    "rescaled"
+  )
+  expect_equal(res2$marginal, res1$marginal)
+  expect_lte(res2$marginal$accuracy[4], 1)
+})

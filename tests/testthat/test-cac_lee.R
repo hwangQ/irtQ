@@ -91,3 +91,19 @@ test_that("cac_lee() stops on cut scores that are not in ascending order", {
   expect_error(cac_lee(x = x_lee, cutscore = c(15, 5), weights = wts_lee), "ascending")
   expect_error(cac_lee(x = x_lee, cutscore = c(5, 5), weights = wts_lee), "ascending")
 })
+
+test_that("cac_lee() rescales weights that do not sum to one", {
+  expect_warning(
+    res2 <- cac_lee(x = x_lee, cutscore = c(5, 10), weights = cbind(wts_lee[, 1], 2 * wts_lee[, 2])),
+    "rescaled"
+  )
+  res1 <- cac_lee(x = x_lee, cutscore = c(5, 10), weights = wts_lee)
+  expect_equal(res2$marginal, res1$marginal)
+})
+
+test_that("cac_lee() does not change weights that sum to one", {
+  expect_no_warning(res <- cac_lee(x = x_lee, cutscore = c(5, 10), weights = wts_lee))
+  expect_equal(res$conditional$weights, wts_lee[, 2])
+  expect_error(cac_lee(x = x_lee, cutscore = 5, weights = cbind(wts_lee[, 1], NA_real_)),
+               "weights")
+})
