@@ -322,6 +322,11 @@ knitr::opts_chunk$set(
 * `find_cut()` no longer warns about two proper crossings when a crossing lies
   exactly on a grid point.
 
+* `ripd()` results have a `print()` method that prints the flagged items and
+  the RIPD statistics of the analyses without and with purification; `what`
+  selects `"no_purify"` or `"with_purify"`. Before, `print()` listed the whole
+  object, including the ability estimates of every examinee.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

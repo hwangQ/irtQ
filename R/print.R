@@ -519,6 +519,107 @@ print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 
 
 #' @export
+print.ripd <- function(x, digits = max(2L, getOption("digits") - 5L),
+                       what = c("all", "no_purify", "with_purify"), ...) {
+  # choose the results to be printed
+  what <- match.arg(what)
+
+  call.expr <- deparse(x$call)
+  cat("\nCall:\n", paste(call.expr, sep = "\n", collapse = "\n"),
+    "\n\n",
+    sep = ""
+  )
+
+  # check if purification is used
+  purify <- x$purify
+  if (purify) {
+    purify.by <- x$with_purify$purify.by
+    complete <- x$with_purify$complete
+    n.iter <- x$with_purify$n.iter
+    purify.stat <- switch(purify.by,
+      ripdr = "RIPD(R)",
+      ripds = "RIPD(S)",
+      ripdrs = "RIPD(RS)"
+    )
+  }
+
+  ## print the results
+  cat("IPD analysis using three RIPD statistics", "\n\n")
+
+  if (what %in% c("all", "no_purify")) {
+    cat(" 1. Without purification \n\n")
+    cat("  - IPD Items identified by RIPD(R): \n")
+    cat("   ", paste(x$no_purify$ipd_item$ripdr, collapse = ", "), "\n")
+    cat("  - IPD Items identified by RIPD(S): \n")
+    cat("   ", paste(x$no_purify$ipd_item$ripds, collapse = ", "), "\n")
+    cat("  - IPD Items identified by RIPD(RS): \n")
+    cat("   ", paste(x$no_purify$ipd_item$ripdrs, collapse = ", "), "\n")
+    cat("  - RIPD Statistics: \n\n")
+    print_ripd_stat(x$no_purify$ipd_stat, iter = FALSE)
+    cat("Significance level:", x$alpha, "\n\n\n")
+  }
+
+  if (what %in% c("all", "with_purify")) {
+    cat(" 2. With purification \n\n")
+    if (!purify) {
+      cat("  - Purification was not implemented.", "\n\n")
+    } else {
+      cat("  - Completion of purification: ", complete, "\n", sep = "")
+      cat("  - Number of iterations: ", n.iter, "\n", sep = "")
+      cat("  - RIPD statistic used for purification: ", purify.stat, "\n", sep = "")
+      cat("  - IPD Items identified by ", purify.stat, ": \n", sep = "")
+      cat("   ", paste(x$with_purify$ipd_item, collapse = ", "), "\n")
+      cat("  - RIPD Statistics: \n\n")
+      print_ripd_stat(x$with_purify$ipd_stat, iter = TRUE)
+      cat("Significance level:", x$alpha, "\n\n")
+    }
+  }
+
+  invisible(x)
+}
+
+
+# This function prints the table of the RIPD statistics with significance symbols
+print_ripd_stat <- function(ipd_stat, iter = FALSE) {
+  # drop the items without statistics (skipped items and items without responses in a group)
+  has_stat <- !is.na(ipd_stat$ripdrs)
+  tab <- ipd_stat[has_stat, , drop = FALSE]
+
+  # round the statistics and p-values
+  stat_col <- c("ripdr", "p.ripdr", "ripds", "p.ripds", "ripdrs", "p.ripdrs")
+  tab[stat_col] <- lapply(tab[stat_col], round, digits = 3)
+
+  # create the significance symbols of the p-values
+  sig <- function(p) {
+    as.character(stats::symnum(p, c(0, 0.001, 0.01, 0.05, 0.1, 1),
+      symbols = c("***", "**", "*", ".", "")
+    ))
+  }
+
+  # arrange the columns with the symbols after the p-values
+  tab_print <- data.frame(
+    tab[c("id", if (iter) "n.iter", "n.ref", "n.foc", "ripdr", "p.ripdr")],
+    " " = sig(tab$p.ripdr),
+    tab[c("ripds", "p.ripds")],
+    "  " = sig(tab$p.ripds),
+    tab[c("ripdrs", "p.ripdrs")],
+    "   " = sig(tab$p.ripdrs),
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
+
+  print(tab_print, digits = 3, print.gap = NULL, quote = FALSE)
+  cat("\n")
+  cat(
+    "'***'p < 0.001 '**'p < 0.01 '*'p < 0.05 '.'p < 0.1 ' 'p < 1 ",
+    "\n"
+  )
+  if (any(!has_stat)) {
+    cat("Items without statistics (skipped or without responses in a group) are not shown. \n")
+  }
+}
+
+
+#' @export
 print.irtfit <- function(x, ...) {
   call.expr <- deparse(x$call)
   cat("\nCall:\n", paste(call.expr, sep = "\n", collapse = "\n"),

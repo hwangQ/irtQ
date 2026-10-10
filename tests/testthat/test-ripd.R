@@ -212,3 +212,36 @@ test_that("ripd() keeps two degrees of freedom when the covariance matrix is reg
   expect_equal(stat$p.ripdrs, round(pchisq(stat$ripdrs, df = 2, lower.tail = FALSE), 4),
                tolerance = 1e-2)
 })
+
+test_that("print.ripd() prints the results of each analysis and honors what", {
+  sim <- ripd_sim()
+  rst <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", item.skip = 5,
+                               purify = TRUE, verbose = FALSE))
+  has <- function(out, txt) any(grepl(txt, out, fixed = TRUE))
+
+  # both analyses are printed by default
+  out_all <- capture.output(print(rst))
+  expect_true(has(out_all, "Without purification"))
+  expect_true(has(out_all, "Completion of purification"))
+  expect_true(has(out_all, "RIPD statistic used for purification: RIPD(RS)"))
+  expect_true(has(out_all, "Items without statistics"))
+
+  # what selects the analysis
+  out_pur <- capture.output(print(rst, what = "with_purify"))
+  expect_false(has(out_pur, "Without purification"))
+  expect_true(has(out_pur, "Number of iterations"))
+  out_no <- capture.output(print(rst, what = "no_purify"))
+  expect_true(has(out_no, "Without purification"))
+  expect_false(has(out_no, "With purification"))
+  expect_error(print(rst, what = "other"))
+
+  # the object is returned invisibly
+  capture.output(vis <- withVisible(print(rst)))
+  expect_false(vis$visible)
+  expect_identical(vis$value, rst)
+
+  # a result without purification says so
+  rst0 <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f",
+                                verbose = FALSE))
+  expect_true(has(capture.output(print(rst0)), "Purification was not implemented"))
+})

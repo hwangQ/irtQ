@@ -305,6 +305,14 @@
 #' CAT simulation as those with the highest average exposure frequencies under
 #' the intended operational settings.
 #'
+#' \strong{Printing}
+#'
+#' The \code{print()} method of a \code{"ripd"} object shows the flagged items
+#' and the RIPD statistics of the analyses without and with purification. Its
+#' argument \code{what} selects \code{"no_purify"} or \code{"with_purify"}
+#' (default \code{"all"}). Items without statistics (skipped items and items
+#' without responses in a group) are not shown in the tables.
+#'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @examples
