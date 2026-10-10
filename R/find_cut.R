@@ -64,8 +64,9 @@
 #'     adjacent pair (named, e.g., \code{"mod2_vs_mod3"}) holding
 #'     \code{left_module}, \code{right_module}, \code{proper_crossings},
 #'     \code{anomalous_crossings}, and \code{selected_cut}. For a stage with a
-#'     single module, the element also holds a \code{message} and the other
-#'     entries are \code{NULL}.}
+#'     single module, \code{modules} holds that module, \code{mean_locs},
+#'     \code{sorted_order}, and \code{pairs} are \code{NULL}, and a
+#'     \code{message} is added.}
 #'   \item{\code{tif_data}}{A \code{tibble} with columns \code{theta},
 #'     \code{module}, \code{stage}, and \code{tif}, providing TIF curves for
 #'     all modules at all stages (including stage 1). Used by
@@ -90,14 +91,15 @@
 #' \subsection{Solution: TIF-crossing cut scores}{
 #' \code{find_cut()} resolves this problem by computing cut scores from the
 #' TIF curves themselves, rather than relying on pure MFI at the time of
-#' routing. Specifically, for each pair of adjacent modules (ordered by mean
-#' item difficulty), the function finds the theta value at which the harder
-#' module's TIF first overtakes the easier module's TIF \emph{from below}
-#' as theta increases. This crossing point is the natural boundary between
-#' the two modules: below it, the easier module is more informative; above it,
-#' the harder module is more informative. Using this point as a fixed cut
-#' score pre-empts the path reversals that MFI routing produces at the extremes
-#' of the scale.
+#' routing. Specifically, for each pair of modules that are adjacent in module
+#' index (which should follow the order of difficulty; see \emph{Module index
+#' vs. difficulty order}), the function finds the theta value at which the
+#' higher-index module's TIF first overtakes the lower-index module's TIF
+#' \emph{from below} as theta increases. This crossing point is the natural
+#' boundary between the two modules: below it, the lower-index (easier) module
+#' is more informative; above it, the higher-index (harder) module is more
+#' informative. Using this point as a fixed cut score pre-empts the path
+#' reversals that MFI routing produces at the extremes of the scale.
 #' }
 #'
 #' \subsection{Proper vs. anomalous crossings}{

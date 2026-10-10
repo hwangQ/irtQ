@@ -20,7 +20,8 @@
 #'   first column holds the quadrature points (nodes), and the second column
 #'   holds the corresponding weights, which should sum to 1; weights that do
 #'   not sum to 1 are rescaled to sum to 1 with a warning (for example,
-#'   frequencies can be given as weights). [irtQ::gen.weight()] creates such a
+#'   frequencies can be given as weights). The weights must be nonnegative and
+#'   finite and have a positive sum. [irtQ::gen.weight()] creates such a
 #'   data frame. When `weights` is supplied, `theta` is ignored. Default is
 #'   `NULL`.
 #' @param D A scaling constant used in IRT models to make the logistic function
@@ -66,7 +67,7 @@
 #'  - `confusion`: A K x K matrix of expected proportions, with the true levels
 #'    in rows (dimension name `True`) and the expected (observed) levels in
 #'    columns (dimension name `Expected`). The entries are rounded to 7 decimal
-#'    places and sum to 1 when the weights sum to 1.
+#'    places and sum to 1.
 #'  - `marginal`: A data frame with the columns `level`, `accuracy`, and
 #'    `consistency`. The rows for levels 1 to K give the contribution of the
 #'    ability values whose true level is that level, that is, the weighted sums

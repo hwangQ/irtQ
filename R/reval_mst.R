@@ -18,8 +18,8 @@
 #'   of 1 at row *i* and column *j* means that test takers can be routed from
 #'   module *i* to module *j*. This is the same convention as the `transMatrix`
 #'   argument of `randomMST()` in the \pkg{mstR} package (Magis et al., 2017).
-#'   Modules must be numbered stage by stage (see [irtQ::panel_info()]), and the
-#'   first stage must contain a single routing module.
+#'   The stages are found from the transitions (see [irtQ::panel_info()]), and
+#'   the first stage must contain a single routing module.
 #' @param module A binary matrix that assigns the items in `x` to modules. It
 #'   has one row per item (in the order of `x`) and one column per module, and a
 #'   value of 1 at row *j* and column *m* means that item *j* belongs to module
@@ -27,9 +27,12 @@
 #'   in the \pkg{mstR} package (Magis et al., 2017).
 #' @param cut_score A list with one numeric vector per stage transition (the
 #'   number of stages minus one). Element *s* holds the cut scores on the
-#'   ability (theta) metric for routing from stage *s* to stage *s* + 1, in
-#'   ascending order, with one fewer value than the number of modules in stage
-#'   *s* + 1. For example, in a 1-3-3 panel,
+#'   ability (theta) metric for routing from stage *s* to stage *s* + 1, finite
+#'   and in strictly ascending order, with one fewer value than the number of
+#'   modules in stage *s* + 1; cut score *k* separates the *k*-th and the
+#'   (*k* + 1)-th module of that stage in the order of the module indices. A
+#'   `NULL` element is read as an empty vector for a stage with a single
+#'   module. For example, in a 1-3-3 panel,
 #'   `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))`. See **Details**.
 #' @param theta A vector of ability levels (theta) at which the MST panel's
 #'   performance is assessed. This allows for the evaluation of measurement
@@ -102,7 +105,7 @@
 #'   To further detail the `cut_score` argument with an illustration: In a 1-3-3
 #'   MST configuration, the list `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))`
 #'   operates as a decision guide at each stage. Initially, all test takers
-#'   start in the first module. Upon completion, the inverse TCC ability
+#'   start in the routing module. Upon completion, the inverse TCC ability
 #'   estimate of the sum score over all modules taken so far determines the next
 #'   module: estimates below -0.5 route to the first module of the next stage,
 #'   estimates from -0.5 up to but not including 0.5 to the second, and
@@ -118,7 +121,10 @@
 #' `n.module`, and `n.stage`.}
 #'
 #' \item{item.by.mod}{A list of item metadata data frames, one per module, named
-#' `m.1`, `m.2`, etc.}
+#' `m.1`, `m.2`, etc. The item metadata are checked and completed as in
+#' [irtQ::run_mst()], so these are plain data frames with upper-case model names
+#' and without parameter columns that are all `NA`, whatever the class of `x`.
+#' The same holds for `item.by.path`.}
 #'
 #' \item{item.by.path}{A list with one element per stage (`stage.1`, `stage.2`,
 #' ...). Each element is a list of item metadata data frames, one per distinct

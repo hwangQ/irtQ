@@ -30,8 +30,8 @@ used for this purpose. Default is 1.}
 of 1 at row \emph{i} and column \emph{j} means that test takers can be routed from
 module \emph{i} to module \emph{j}. This is the same convention as the \code{transMatrix}
 argument of \code{randomMST()} in the \pkg{mstR} package (Magis et al., 2017).
-Modules must be numbered stage by stage (see \code{\link[=panel_info]{panel_info()}}), and the
-first stage must contain a single routing module.}
+The stages are found from the transitions (see \code{\link[=panel_info]{panel_info()}}), and
+the first stage must contain a single routing module.}
 
 \item{module}{A binary matrix that assigns the items in \code{x} to modules. It
 has one row per item (in the order of \code{x}) and one column per module, and a
@@ -41,9 +41,12 @@ in the \pkg{mstR} package (Magis et al., 2017).}
 
 \item{cut_score}{A list with one numeric vector per stage transition (the
 number of stages minus one). Element \emph{s} holds the cut scores on the
-ability (theta) metric for routing from stage \emph{s} to stage \emph{s} + 1, in
-ascending order, with one fewer value than the number of modules in stage
-\emph{s} + 1. For example, in a 1-3-3 panel,
+ability (theta) metric for routing from stage \emph{s} to stage \emph{s} + 1, finite
+and in strictly ascending order, with one fewer value than the number of
+modules in stage \emph{s} + 1; cut score \emph{k} separates the \emph{k}-th and the
+(\emph{k} + 1)-th module of that stage in the order of the module indices. A
+\code{NULL} element is read as an empty vector for a stage with a single
+module. For example, in a 1-3-3 panel,
 \code{cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))}. See \strong{Details}.}
 
 \item{theta}{A vector of ability levels (theta) at which the MST panel's
@@ -77,7 +80,10 @@ A list with the following seven elements:
 \code{n.module}, and \code{n.stage}.}
 
 \item{item.by.mod}{A list of item metadata data frames, one per module, named
-\code{m.1}, \code{m.2}, etc.}
+\code{m.1}, \code{m.2}, etc. The item metadata are checked and completed as in
+\code{\link[=run_mst]{run_mst()}}, so these are plain data frames with upper-case model names
+and without parameter columns that are all \code{NA}, whatever the class of \code{x}.
+The same holds for \code{item.by.path}.}
 
 \item{item.by.path}{A list with one element per stage (\code{stage.1}, \code{stage.2},
 ...). Each element is a list of item metadata data frames, one per distinct
@@ -163,7 +169,7 @@ analytically, without simulation.
 To further detail the \code{cut_score} argument with an illustration: In a 1-3-3
 MST configuration, the list \code{cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))}
 operates as a decision guide at each stage. Initially, all test takers
-start in the first module. Upon completion, the inverse TCC ability
+start in the routing module. Upon completion, the inverse TCC ability
 estimate of the sum score over all modules taken so far determines the next
 module: estimates below -0.5 route to the first module of the next stage,
 estimates from -0.5 up to but not including 0.5 to the second, and

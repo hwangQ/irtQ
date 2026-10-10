@@ -113,12 +113,15 @@ contains the cut scores for routing from stage \emph{s} to stage
 0.5), c(-0.6, 0.6))} routes examinees whose stage-1 score is below
 \eqn{-0.5} to the easiest stage-2 module, from \eqn{-0.5} up to but not
 including \eqn{0.5} to the medium module, and \eqn{0.5} or above to the
-hardest module. Each element must be in ascending order and have one
-fewer value than the number of modules in stage \emph{s}+1; cut score
+hardest module (the modules numbered from easiest to hardest). Each
+element must contain finite values in strictly ascending order and have
+one fewer value than the number of modules in stage \emph{s}+1; cut score
 \emph{k} separates the \emph{k}-th and the (\emph{k}+1)-th module of that
-stage. The output element \code{cut_score} of \code{\link{find_cut}} can be
-passed directly. Ignored when \code{route_method} is \code{"bmat"} or
-\code{"mfi"}. Default is \code{NULL}.}
+stage in the order of the module indices. A \code{NULL} element is read as
+an empty vector for a stage with a single module. The output element
+\code{cut_score} of \code{\link{find_cut}} can be passed directly.
+Ignored when \code{route_method} is \code{"bmat"} or \code{"mfi"}.
+Default is \code{NULL}.}
 
 \item{route_score}{A named list specifying the scoring method and options
 used to obtain intermediate ability estimates for routing decisions
@@ -315,9 +318,9 @@ missing response is counted as 0 in the sum score, as in
 \code{\link{est_score}}, but no warning is issued. The same rule applies to
 the routing estimates. When all responses up to a non-final stage are
 missing, the routing estimate is 0 after stage 1 and the previous routing
-estimate after a later stage. An examinee with no observed response at all
-receives \code{NA} as the final estimate, and one warning reports the number
-of such examinees.
+estimate after a later stage. An examinee with no observed response to the
+administered items receives \code{NA} as the final estimate, and one warning
+reports the number of such examinees.
 
 \strong{Relation to \code{reval_mst()}}: With \code{route_method = NULL}, a
 \code{cut_score} list, and \code{route_score = list(method = "INV.TCC")},

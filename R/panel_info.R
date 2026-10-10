@@ -39,9 +39,10 @@
 #' The route map must be a square matrix of 0s and 1s, and the modules do not
 #' need to be numbered in the order of the stages. The function stops with an
 #' error when the route map defines a single stage, contains a cycle, has a
-#' module that cannot be reached from a stage-1 module or that belongs to more
-#' than one stage, or has a module before the last stage without a transition
-#' to a module of the next stage.
+#' module with no transition to or from another module, has a module that
+#' cannot be reached from a stage-1 module or that belongs to more than one
+#' stage, or has a module before the last stage without a transition to a
+#' module of the next stage. A logical route map is read as a 0/1 matrix.
 #'
 #' @references
 #'   Magis, D., Yan, D., & von Davier, A. A. (2017). *Computerized adaptive and

@@ -26,7 +26,8 @@ the P method. It is ignored when \code{weights} is supplied. Missing values
 first column holds the quadrature points (nodes), and the second column
 holds the corresponding weights, which should sum to 1; weights that do
 not sum to 1 are rescaled to sum to 1 with a warning (for example,
-frequencies can be given as weights). \code{\link[=gen.weight]{gen.weight()}} creates such a
+frequencies can be given as weights). The weights must be nonnegative and
+finite and have a positive sum. \code{\link[=gen.weight]{gen.weight()}} creates such a
 data frame. When \code{weights} is supplied, \code{theta} is ignored. Default is
 \code{NULL}.}
 
@@ -45,7 +46,7 @@ A list with the following elements:
 \item \code{confusion}: A K x K matrix of expected proportions, with the true levels
 in rows (dimension name \code{True}) and the expected (observed) levels in
 columns (dimension name \code{Expected}). The entries are rounded to 7 decimal
-places and sum to 1 when the weights sum to 1.
+places and sum to 1.
 \item \code{marginal}: A data frame with the columns \code{level}, \code{accuracy}, and
 \code{consistency}. The rows for levels 1 to K give the contribution of the
 ability values whose true level is that level, that is, the weighted sums
