@@ -659,7 +659,8 @@ run_mst <- function(x,
   # reval_mst())
   stage_mods <- panel_data$config
   # When fixed_start is NULL, each examinee is assigned a stage-1 module
-  # by sample() at the start of the per-examinee loop (see below).
+  # by drawing one of the stage-1 modules at the start of the per-examinee loop
+  # (see below).
 
   # Validate cut_score length matches the number of stage transitions
   if (is.null(route_method) && !is.null(cut_score)) {
@@ -676,6 +677,12 @@ run_mst <- function(x,
       cut_s <- cut_score[[s]]
       if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1L] - 1L) ||
           !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {
+        # name the empty vector when the next stage has a single module
+        if (n.mod[s + 1L] == 1L) {
+          stop(sprintf(paste0(
+            "'cut_score[[%d]]' must be empty (numeric(0) or NULL) because ",
+            "stage %d has a single module."), s, s + 1L), call. = FALSE)
+        }
         stop(sprintf(paste0(
           "'cut_score[[%d]]' must contain %d finite value(s) in strictly ascending ",
           "order, one fewer than the number of modules in stage %d."),

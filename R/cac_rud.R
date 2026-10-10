@@ -71,7 +71,7 @@
 #'  - `confusion`: A K x K matrix of expected proportions, with the true levels
 #'    in rows (dimension name `True`) and the expected (observed) levels in
 #'    columns (dimension name `Expected`). The entries are rounded to 7 decimal
-#'    places and sum to 1.
+#'    places and sum to 1 up to rounding.
 #'  - `marginal`: A data frame with the columns `level`, `accuracy`, and
 #'    `consistency`. The rows for levels 1 to K give the contribution of the
 #'    ability values whose true level is that level, that is, the weighted sums

@@ -160,4 +160,10 @@ test_that("reval_mst() treats a NULL cut score element as an empty vector", {
   rv_empty <- reval_mst(x = pnl$x[keep, ], D = 1, route_map = rm_x, module = md,
                         cut_score = list(numeric(0), 0.2), theta = c(-1, 1))$eval.tb
   expect_equal(rv_null, rv_empty)
+  # a non-empty element for a single-module stage stops with a message that names the stage
+  expect_error(
+    reval_mst(x = pnl$x[keep, ], D = 1, route_map = rm_x, module = md,
+              cut_score = list(c(0.1, 0.2), 0.2), theta = 0),
+    "must be empty"
+  )
 })

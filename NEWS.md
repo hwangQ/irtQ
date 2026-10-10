@@ -172,7 +172,8 @@
 - `cac_lee()` and `cac_rud()` used weights that did not sum to 1 as
   given, so the marginal indices could exceed 1. Such weights are now
   rescaled to sum to 1, with a warning. Weights that are missing,
-  negative, or have a non-positive sum now stop with an error.
+  infinite, or negative, or that have a non-positive sum, now stop with
+  an error.
 
 - `plot.find_cut()` with `theta_range` still stretched the x-axis to the
   crossing lines outside the range. The x-axis now covers the requested
@@ -284,7 +285,7 @@
 - `run_mst()` stops with a clear message when `tol` or `max.iter` in
   `route_score` or `final_score` is not valid (a `max.iter` of 0 or 2.5
   never ended), and it warns once about examinees without any observed
-  response.
+  response to the administered items.
 
 - `find_cut()` no longer warns about two proper crossings when a
   crossing lies exactly on a grid point.

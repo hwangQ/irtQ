@@ -283,3 +283,11 @@ test_that("plot.find_cut() limits the x-axis to theta_range", {
   # without theta_range the axis is not limited
   expect_null(plot(fc)$coordinates$limits$x)
 })
+
+test_that("find_cut() reads a logical route map as a 0/1 matrix", {
+  res_num <- find_cut(x = simMST$item_bank, module = simMST$module,
+                      route_map = simMST$route_map, D = 1.702)
+  res_lgl <- find_cut(x = simMST$item_bank, module = simMST$module,
+                      route_map = simMST$route_map == 1, D = 1.702)
+  expect_equal(res_lgl$cut_score, res_num$cut_score)
+})

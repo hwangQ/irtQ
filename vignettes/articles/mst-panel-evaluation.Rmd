@@ -163,9 +163,10 @@ cut_score = list(
 ```
 
 The cut scores of a transition are tied to the modules of the next stage in
-the order of the module indices: the first cut score separates the first and second modules, the second
-separates the second and third. When a module can reach only some of the
-next-stage modules, only the cut scores that separate those modules apply. In
+the order of the module indices: the first cut score separates the first and
+second modules, the second separates the second and third. When a module can
+reach only some of the next-stage modules, only the cut scores that separate
+those modules apply. In
 the route map above, a test taker in M4 can reach only M6 or M7, so the second
 Stage 3 cut score alone decides between them (θ̂ below it goes to M6, θ̂ at or
 above it to M7). `reval_mst()` and `run_mst()` use the same rule.

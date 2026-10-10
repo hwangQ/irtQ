@@ -289,6 +289,12 @@ reval_mst <- function(x,
     cut_s <- cut_score[[s]]
     if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1] - 1) ||
         !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {
+      # name the empty vector when the next stage has a single module
+      if (n.mod[s + 1] == 1) {
+        stop(sprintf(paste0(
+          "'cut_score[[%d]]' must be empty (numeric(0) or NULL) because ",
+          "stage %d has a single module."), s, s + 1), call. = FALSE)
+      }
       stop(sprintf(paste0(
         "'cut_score[[%d]]' must contain %d finite value(s) in strictly ascending ",
         "order, one fewer than the number of modules in stage %d."),

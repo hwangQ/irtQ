@@ -52,7 +52,7 @@ A list with the following elements:
 \item \code{confusion}: A K x K matrix of expected proportions, with the true levels
 in rows (dimension name \code{True}) and the expected (observed) levels in
 columns (dimension name \code{Expected}). The entries are rounded to 7 decimal
-places and sum to 1.
+places and sum to 1 up to rounding.
 \item \code{marginal}: A data frame with the columns \code{level}, \code{accuracy}, and
 \code{consistency}. The rows for levels 1 to K give the contribution of the
 ability values whose true level is that level, that is, the weighted sums

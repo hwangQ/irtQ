@@ -475,4 +475,10 @@ test_that("run_mst() treats a NULL cut score element as an empty vector", {
                        verbose = FALSE)
   expect_equal(fit_null$est.theta, fit_empty$est.theta)
   expect_equal(fit_null$path, fit_empty$path)
+  # a non-empty element for a single-module stage stops with a message that names the stage
+  expect_error(
+    run_mst(x = x_mix[keep, ], route_map = rm_x, module = md, response = resp,
+            D = 1, route_method = NULL, cut_score = list(c(0.1, 0.2), 0.2), verbose = FALSE),
+    "must be empty"
+  )
 })

@@ -237,8 +237,10 @@ find_cut <- function(x,
   if (nrow(x) != nrow(module))
     stop("Number of rows in 'x' must equal number of rows in 'module' (J items).")
   # route_map may be a matrix or a data.frame (panel_info() accepts both)
+  # a logical route_map is read as a 0/1 matrix, as panel_info() does
   if (!(is.matrix(route_map) || is.data.frame(route_map)) ||
-      !all(vapply(as.data.frame(route_map), is.numeric, logical(1L))))
+      !all(vapply(as.data.frame(route_map),
+                  function(z) is.numeric(z) || is.logical(z), logical(1L))))
     stop("'route_map' must be a numeric binary square matrix (M x M).")
   if (ncol(module) != nrow(route_map))
     stop("Number of columns in 'module' (M modules) must equal dimensions of 'route_map'.")
