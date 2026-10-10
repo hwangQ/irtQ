@@ -78,3 +78,54 @@ test_that("pcd2() reads a logical item.skip as item positions", {
   expect_true(all(is.na(r1$no_purify$ipd_stat$pcd2[c(2, 5)])))
   expect_error(pcd2(sim$par, sim$resp, item.skip = 20), "item.skip")
 })
+
+test_that("pcd2() matches an independent implementation", {
+  sim <- pcd2_sim()
+  quad <- seq(-6, 6, length.out = 49)
+  for (D in c(1, 1.702)) {
+    rst <- pcd2(sim$par, sim$resp, D = D)
+    expect_equal(rst$no_purify$ipd_stat$pcd2, pcd2_ref(sim$par, sim$resp, D, quad, dnorm(quad)), tolerance = 1e-10)
+    expect_equal(rst$no_purify$ipd_stat$N, colSums(!is.na(sim$resp)))
+  }
+  quad <- seq(-4, 4, length.out = 31)
+  rst <- pcd2(sim$par, sim$resp, Quadrature = c(31, 4), group.mean = 0.3, group.var = 1.5)
+  expect_equal(rst$no_purify$ipd_stat$pcd2,
+               pcd2_ref(sim$par, sim$resp, 1, quad, dnorm(quad, 0.3, sqrt(1.5))), tolerance = 1e-10)
+})
+
+test_that("pcd2() uses user weights, and their total does not matter", {
+  sim <- pcd2_sim()
+  wt <- gen.weight(n = 21, dist = "norm", mu = 0, sigma = 1)
+  r1 <- pcd2(sim$par, sim$resp, weights = wt)$no_purify$ipd_stat$pcd2
+  wt2 <- wt
+  wt2[, 2] <- wt2[, 2] * 7
+  r2 <- pcd2(sim$par, sim$resp, weights = wt2)$no_purify$ipd_stat$pcd2
+  expect_equal(r1, pcd2_ref(sim$par, sim$resp, 1, wt[, 1], wt[, 2]), tolerance = 1e-10)
+  expect_equal(r1, r2, tolerance = 1e-12)
+})
+
+test_that("pcd2() flags items by crit.val and skips items in item.skip", {
+  sim <- pcd2_sim()
+  stat <- pcd2(sim$par, sim$resp)$no_purify$ipd_stat$pcd2
+  crit <- sort(stat, decreasing = TRUE)[3]
+  rst <- pcd2(sim$par, sim$resp, crit.val = crit)
+  expect_equal(rst$no_purify$ipd_item, sort(order(stat, decreasing = TRUE)[1:3]))
+  expect_null(pcd2(sim$par, sim$resp)$no_purify$ipd_item)
+  top <- which.max(stat)
+  rst2 <- pcd2(sim$par, sim$resp, crit.val = crit, item.skip = top)
+  expect_true(is.na(rst2$no_purify$ipd_stat$pcd2[top]))
+  expect_false(top %in% rst2$no_purify$ipd_item)
+  expect_null(pcd2(sim$par, sim$resp, purify = TRUE)$with_purify$ipd_stat)
+})
+
+test_that("pcd2() purification recomputes the posterior without the removed items", {
+  sim <- pcd2_sim()
+  stat <- pcd2(sim$par, sim$resp)$no_purify$ipd_stat$pcd2
+  top <- which.max(stat)
+  crit <- sort(stat, decreasing = TRUE)[2]
+  rst <- pcd2(sim$par, sim$resp, crit.val = crit, purify = TRUE, max.iter = 1, verbose = FALSE)
+  quad <- seq(-6, 6, length.out = 49)
+  ref <- pcd2_ref(sim$par[-top, ], sim$resp[, -top], 1, quad, dnorm(quad))
+  expect_equal(rst$with_purify$ipd_stat$pcd2[-top], ref, tolerance = 1e-10)
+  expect_equal(rst$with_purify$ipd_stat$n.iter[top], 0)
+})

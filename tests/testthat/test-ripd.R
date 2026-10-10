@@ -245,3 +245,75 @@ test_that("print.ripd() prints the results of each analysis and honors what", {
                                 verbose = FALSE))
   expect_true(has(capture.output(print(rst0)), "Purification was not implemented"))
 })
+
+test_that("ripd() statistics match an independent implementation", {
+  sim <- ripd_sim()
+  for (D in c(1, 1.702)) {
+    score <- suppressWarnings(est_score(sim$par, sim$resp, D = D, method = "ML")$est.theta)
+    rst <- ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f", D = D, verbose = FALSE)
+    ref <- ripd_ref(sim$par, sim$resp, score, sim$group, "f", D)
+    stat <- rst$no_purify$ipd_stat
+    for (v in c("ripdr", "z.ripdr", "ripds", "z.ripds", "ripdrs", "p.ripdr", "p.ripds", "p.ripdrs")) {
+      # the table is rounded to four decimals
+      expect_lt(max(abs(stat[[v]] - ref[[v]])), 1e-4, label = v)
+    }
+    expect_equal(stat$n.ref, ref$n.ref)
+    expect_equal(stat$n.foc, ref$n.foc)
+    mmt <- rst$no_purify$moments
+    expect_equal(mmt$mu.ripdr, rep(0, nrow(sim$par)))
+    expect_equal(mmt$mu.ripds, ref$mu.ripds, tolerance = 1e-12)
+    expect_equal(mmt$sigma.ripdr, ref$sigma.ripdr, tolerance = 1e-12)
+    expect_equal(mmt$sigma.ripds, ref$sigma.ripds, tolerance = 1e-12)
+    expect_equal(mmt$covariance, ref$covariance, tolerance = 1e-12)
+    expect_equal(rst$no_purify$ipd_item$ripdr, which(ref$p.ripdr <= 0.05))
+    expect_equal(as.numeric(rst$no_purify$ipd_item$ripdrs), which(ref$p.ripdrs <= 0.05))
+  }
+})
+
+test_that("ripd() estimates the scores with est_score() when score = NULL", {
+  sim <- ripd_sim()
+  score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1, method = "MAP")$est.theta)
+  r1 <- ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f", verbose = FALSE)
+  r2 <- ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", method = "MAP", verbose = FALSE)
+  expect_identical(r1$no_purify$ipd_stat, r2$no_purify$ipd_stat)
+  expect_identical(r2$no_purify$score, score)
+})
+
+test_that("ripd() methods for est_irt and est_item objects match the default method", {
+  sim <- ripd_sim()
+  resp <- sim$resp
+  resp[is.na(resp)] <- 0
+  fit <- est_irt(data = resp, D = 1, model = "2PLM", cats = 2, verbose = FALSE)
+  r1 <- ripd(fit, group = sim$group, focal.name = "f", verbose = FALSE)
+  r2 <- ripd(fit$par.est, data = fit$data, group = sim$group, focal.name = "f", D = fit$scale.D, verbose = FALSE)
+  expect_identical(r1$no_purify, r2$no_purify)
+  score <- est_score(sim$par, resp, D = 1, method = "ML")$est.theta
+  fit2 <- est_item(x = sim$par, data = resp, score = score, D = 1, verbose = FALSE)
+  r3 <- ripd(fit2, group = sim$group, focal.name = "f", verbose = FALSE)
+  r4 <- ripd(fit2$par.est, data = fit2$data, score = fit2$score, group = sim$group, focal.name = "f",
+             D = fit2$scale.D, verbose = FALSE)
+  expect_identical(r3$no_purify, r4$no_purify)
+})
+
+test_that("ripd() leaves skipped items out of the tests but reports their sample sizes", {
+  sim <- ripd_sim()
+  score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
+  r0 <- ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f", verbose = FALSE)
+  r1 <- ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f",
+             item.skip = c(2, 5), verbose = FALSE)
+  expect_true(all(is.na(r1$no_purify$ipd_stat[c(2, 5), 2:9])))
+  expect_equal(r1$no_purify$ipd_stat$n.total, r0$no_purify$ipd_stat$n.total)
+  expect_equal(r1$no_purify$ipd_stat[-c(2, 5), ], r0$no_purify$ipd_stat[-c(2, 5), ])
+  expect_false(any(c(2, 5) %in% unlist(r1$no_purify$ipd_item)))
+})
+
+test_that("ripd() purification removes the most significant item first", {
+  sim <- ripd_sim()
+  rst <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, verbose = FALSE))
+  first <- which.max(rst$no_purify$ipd_stat$ripdrs)
+  expect_true(first %in% rst$with_purify$ipd_item)
+  expect_equal(unlist(rst$with_purify$ipd_stat[first, 1:12]), unlist(rst$no_purify$ipd_stat[first, ]))
+  expect_equal(rst$with_purify$ipd_stat$n.iter[first], 0)
+  expect_true(rst$with_purify$complete)
+  expect_true(all(rst$with_purify$ipd_stat$n.iter <= rst$with_purify$n.iter))
+})
