@@ -279,7 +279,10 @@ test_that("irtfit() accepts only the defined values of loc.theta, ignoring case"
       "must be either"
     )
   }
-  expect_error(irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = c("average", "middle")), "must be either")
+  expect_error(
+    irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = c("average", "middle")),
+    "must be either"
+  )
   expect_identical(
     irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "Average")$fit_stat,
     irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1)$fit_stat
