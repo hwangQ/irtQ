@@ -239,3 +239,24 @@ test_that("sx2_fit() lowers the df by one for each PCM item given in pcm.loc", {
   expect_equal(f2$fit_stat$df - f1$fit_stat$df, c(rep(0, 10), rep(1, 3)))
   expect_equal(f2$fit_stat$chisq, f1$fit_stat$chisq)
 })
+
+test_that("sx2_fit() stops for a test with a single item", {
+  expect_error(
+    sx2_fit(x_lsat[1, ], data = LSAT6[, 1, drop = FALSE], D = 1),
+    "at least two items"
+  )
+})
+
+test_that("sx2_fit() reads logical responses like 0 and 1", {
+  resp <- as.matrix(LSAT6)
+  expect_identical(
+    sx2_fit(x_lsat, data = resp == 1, D = 1)$fit_stat,
+    sx2_fit(x_lsat, data = resp, D = 1)$fit_stat
+  )
+})
+
+test_that("the error for responses outside the score categories names the items and columns", {
+  resp <- LSAT6
+  resp[, 3] <- resp[, 3] + 1
+  expect_error(sx2_fit(x_lsat, data = resp, D = 1), "V3 [(]column 3[)]")
+})

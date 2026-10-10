@@ -53,7 +53,7 @@ bind.fill <- function(List, type=c("rbind", "cbind"), fill = NA){
 # Convert the response data of the model-data fit functions to a numeric matrix
 # and check that every observed response is a whole number within the score
 # categories of its item
-resp_to_matrix <- function(data, cats) {
+resp_to_matrix <- function(data, cats, id = seq_along(cats)) {
   # convert the responses to a matrix
   resp <- as.matrix(data)
 
@@ -79,6 +79,11 @@ resp_to_matrix <- function(data, cats) {
     resp <- matrix(resp_num, nrow = nrow(resp), dimnames = dimnames(resp))
   }
 
+  # read logical responses as 0 and 1
+  if (is.logical(resp)) {
+    resp <- matrix(as.numeric(resp), nrow = nrow(resp), dimnames = dimnames(resp))
+  }
+
   # flag the items that have an observed response outside their score categories
   max_cat <- matrix(cats - 1, nrow = nrow(resp), ncol = ncol(resp), byrow = TRUE)
   bad_item <- which(colSums(!is.na(resp) & (resp < 0 | resp > max_cat | resp != round(resp)),
@@ -88,7 +93,7 @@ resp_to_matrix <- function(data, cats) {
   if (length(bad_item) > 0L) {
     stop(
       "Responses outside the score categories 0, ..., (cats - 1) are found for item(s) ",
-      paste(bad_item, collapse = ", "), ".",
+      paste0(id[bad_item], " (column ", bad_item, ")", collapse = ", "), ".",
       call. = FALSE
     )
   }

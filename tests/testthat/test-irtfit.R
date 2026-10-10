@@ -150,7 +150,7 @@ test_that("irtfit() keeps working when only one item remains after excluding ite
 
 test_that("irtfit() stops for invalid grouping and score arguments", {
   # a misspelled location of the theta point
-  expect_error(irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "midle"), "should be one of")
+  expect_error(irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "midle"), "must be either")
   expect_identical(
     irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "MIDDLE")$fit_stat,
     irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "middle")$fit_stat
@@ -171,7 +171,7 @@ test_that("plot.irtfit() stops for an unknown type or an item location outside t
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off())
   fit <- irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1)
-  expect_error(plot(fit, item.loc = 1, type = "bothh"), "should be one of")
+  expect_error(plot(fit, item.loc = 1, type = "bothh"), "must be one of")
   expect_error(plot(fit, item.loc = 9), "item.loc")
   expect_error(plot(fit, item.loc = 0), "item.loc")
   expect_error(plot(fit, item.loc = 1.5), "item.loc")
@@ -270,4 +270,55 @@ test_that("irtfit() for est_irt objects uses the data and scaling constant of th
   f2 <- irtfit(mod$par.est, score = theta_chk, data = resp_chk, D = 1.702)
   expect_identical(f1$fit_stat, f2$fit_stat)
   expect_equal(f1$ancillary$scale.D, 1.702)
+})
+
+test_that("irtfit() accepts only the defined values of loc.theta, ignoring case", {
+  for (bad in c("mid", "m", "avg", "midle", "")) {
+    expect_error(
+      irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = bad),
+      "must be either"
+    )
+  }
+  expect_error(irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = c("average", "middle")), "must be either")
+  expect_identical(
+    irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1, loc.theta = "Average")$fit_stat,
+    irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1)$fit_stat
+  )
+})
+
+test_that("plot.irtfit() accepts only the defined values of type, ignoring case", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  fit <- irtfit(x_ft, score = theta_fit, data = resp_ft, D = 1)
+  for (bad in c("bo", "i", "s", "")) {
+    expect_error(plot(fit, item.loc = 1, type = bad), "must be one of")
+  }
+  expect_no_error(plot(fit, item.loc = 1, type = "ICC", show.table = FALSE))
+})
+
+test_that("irtfit() names the items and columns of responses outside the score categories", {
+  r <- resp_ft
+  r[1, 2] <- 2
+  expect_error(irtfit(x_ft, score = theta_fit, data = r, D = 1), paste0(x_ft$id[2], " [(]column 2[)]"))
+})
+
+test_that("irtfit() reads logical responses and a single remaining group", {
+  # a logical response matrix gives the result for the 0/1 matrix
+  x_dich <- x_mix[1:3, ]
+  r01 <- resp_fit[, 1:3]
+  rlg <- r01 == 1
+  expect_identical(
+    irtfit(x_dich, score = theta_fit, data = rlg, D = 1)[c("fit_stat", "contingency.fitstat", "individual.info")],
+    irtfit(x_dich, score = theta_fit, data = r01, D = 1)[c("fit_stat", "contingency.fitstat", "individual.info")]
+  )
+
+  # every ability group is merged into one row
+  expect_warning(
+    fit <- irtfit(x_ft, score = theta_fit[1:60], data = resp_ft[1:60, ], D = 1, min.collapse = 50),
+    "No degrees of freedom"
+  )
+  expect_true(all(vapply(fit$contingency.fitstat, nrow, integer(1)) == 1L))
+  expect_true(all(fit$fit_stat$df.X2 <= 0))
+  expect_true(all(is.na(fit$fit_stat$p.X2)))
+  expect_false(anyNA(fit$fit_stat$p.G2))
 })

@@ -60,6 +60,11 @@ collapse_ftable <- function(x, col, min.collapse = 1) {
 
   # collapse cells
   while (length(loc_less) > 0) {
+    # stop when only one row remains, since no neighbor is left to merge with
+    if (nrow(tmp) == 1L) {
+      break
+    }
+
     # check the last row number in the contingency table
     last.num <- nrow(tmp)
 

@@ -322,7 +322,11 @@ plot.irtfit <- function(x,
 
   ## -------------------------------------------------------------------------
   # draw plots
-  type <- match.arg(tolower(type), choices = c("both", "icc", "sr"))
+  # check the type of plot
+  type <- tolower(type)
+  if (!(length(type) == 1L && type %in% c("both", "icc", "sr"))) {
+    stop("'type' must be one of \"both\", \"icc\", or \"sr\".", call. = FALSE)
+  }
 
   # (1) draw ICC plots
   if (type == "icc") {

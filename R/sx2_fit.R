@@ -191,8 +191,13 @@ sx2_fit.default <- function(x,
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
+  # stop when the test has fewer than two items
+  if (nrow(x) < 2L) {
+    stop("'x' must contain at least two items to compute the S-X2 statistic.", call. = FALSE)
+  }
+
   # transform the response data to a numeric matrix and check the responses
-  data <- resp_to_matrix(data, x$cats)
+  data <- resp_to_matrix(data, x$cats, x$id)
 
   # check missing data
   # replace NAs with 0
@@ -201,6 +206,8 @@ sx2_fit.default <- function(x,
     # find the items that have no response at all
     allmiss <- which(colSums(!na.lg) == 0L)
     data[na.lg] <- 0
+
+    # create the warning message, naming the items without any response
     memo <- "Missing responses are replaced with 0."
     if (length(allmiss) > 0L) {
       memo <- paste0(memo, " Every response is missing for item(s) ", paste(x$id[allmiss], collapse = ", "), ".")

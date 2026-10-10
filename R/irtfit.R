@@ -292,7 +292,10 @@ irtfit.default <- function(x,
   x <- confirm_df(x)
 
   # check the location of the theta point for each group
-  loc.theta <- match.arg(tolower(loc.theta), choices = c("average", "middle"))
+  loc.theta <- tolower(loc.theta)
+  if (!(length(loc.theta) == 1L && loc.theta %in% c("average", "middle"))) {
+    stop("'loc.theta' must be either \"average\" or \"middle\".", call. = FALSE)
+  }
 
   # create a vector of PCM item indicators
   pcm.lg <- logical(nrow(x))
@@ -309,7 +312,7 @@ irtfit.default <- function(x,
   }
 
   # transform the response data to a numeric matrix and check the responses
-  data <- resp_to_matrix(data, x$cats)
+  data <- resp_to_matrix(data, x$cats, x$id)
 
   # stop when the scores do not match the rows of the response data
   if (length(score) != nrow(data)) {
@@ -360,7 +363,7 @@ irtfit.default <- function(x,
 
   # compute item fit statistics and obtain contingency tables across all items
   fits <-
-    purrr::map(1:nrow(x), .f = function(i) {
+    lapply(seq_len(nrow(x)), FUN = function(i) {
       itemfit(
         x_item = x[i, ], score = score, resp = data[, i], group.method = group.method,
         n.width = n.width, loc.theta = loc.theta, D = D, alpha = alpha, overSR = overSR,
