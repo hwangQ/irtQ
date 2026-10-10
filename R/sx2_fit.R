@@ -58,14 +58,16 @@
 #'
 #' The lowest and highest possible summed scores are excluded. For an item with
 #' \eqn{K} score categories, the \eqn{K - 1} lowest remaining summed scores are
-#' pooled into one group, and so are the \eqn{K - 1} highest.
+#' pooled into one group, and so are the \eqn{K - 1} highest. When the test is
+#' so short that the two pooled ranges overlap, each summed score is counted
+#' once, in the lower group.
 #'
 #' The accuracy of the \eqn{\chi^{2}} approximation can be compromised when
 #' expected cell frequencies are too small (Orlando & Thissen, 2000). For
 #' dichotomous items, Orlando and Thissen (2000) merged adjacent summed score
 #' groups so that every expected frequency is at least 1. For polytomous items,
-#' this approach can discard too much information (Kang & Chen, 2008), so Kang
-#' and Chen (2008) instead merged adjacent score categories *within* each summed
+#' this approach can discard too much information, so Kang and Chen (2008)
+#' instead merged adjacent score categories *within* each summed
 #' score group. [irtQ::sx2_fit()] follows both strategies, working from the ends
 #' of the table toward the middle, and `min.collapse` sets the minimum expected
 #' frequency.
@@ -81,8 +83,13 @@
 #' fixed during estimation (for example, with `fix.g = TRUE`, or the items fixed
 #' in FIPC) are still counted, and GPCM items estimated with
 #' `fix.a.gpcm = TRUE` are counted as PCM items only when they are given in
-#' `pcm.loc`.
+#' `pcm.loc`. When no degrees of freedom remain after collapsing (`df` of 0 or
+#' less), `crit.val` and `p` are `NA`, and a warning names the item.
 #'
+#' The test must contain at least two items. Responses in `data` must be
+#' integer scores from 0 to the number of score categories minus 1, with one
+#' column per item. Character and factor responses are read as numbers, logical
+#' responses as 0 and 1, and other responses stop the function with an error.
 #' Missing responses in `data` are replaced with 0 (the lowest score category),
 #' and a warning is issued.
 #'

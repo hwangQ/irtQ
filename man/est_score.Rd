@@ -295,8 +295,8 @@ derivative above) is positive at the lower value and negative at the
 upper value, so that the pair encloses a local maximum, and finds the root
 of the score function between them with \code{\link[stats:uniroot]{stats::uniroot()}} using the
 tolerance \code{tol}. If there is no such pair, the last value of the
-iterations is used. In both cases the estimate is then truncated to
-\code{range}. This step is not carried out when the iterations converge. The
+iterations is used. This search is not carried out when the iterations
+converge. In all cases, the estimate is truncated to \code{range}, and the
 standard error is computed at the final estimate.
 
 For \code{"ML"}, \code{"MLF"}, \code{"WL"}, \code{"MAP"}, and \code{"EAP"}, examinees can be scored

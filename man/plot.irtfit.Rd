@@ -196,8 +196,8 @@ plot(x = fit, item.loc = 3, type = "sr", ci.method = "wald",
 Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991).
 \emph{Fundamentals of item response theory}. Newbury Park, CA: Sage.
 
-Laplace, P. S. (1820). \emph{Theorie analytique des probabilites} (in French).
-Courcier.
+Laplace, P. S. (1820). \emph{Theorie analytique des probabilites} (3rd ed., in
+French). Paris: Courcier.
 
 Newcombe, R. G. (1998). Two-sided confidence intervals for the single
 proportion: comparison of seven methods. \emph{Statistics in Medicine, 17}(8),

@@ -17,8 +17,8 @@
 #'   metadata. This data frame can be easily created using the
 #'   [irtQ::shape_df()] function.
 #' @param score A numeric vector of examinees' ability estimates (theta
-#'   values). Not used by the `est_item` method, which takes the ability
-#'   estimates stored in `x`.
+#'   values). Examinees with a missing ability estimate are excluded. Not used
+#'   by the `est_item` method, which takes the ability estimates stored in `x`.
 #' @param group.method A character string specifying the method used to group
 #'   examinees along the ability scale when computing the \eqn{\chi^{2}} and
 #'   \eqn{G^{2}} fit statistics. Available options are:
@@ -89,9 +89,10 @@
 #' - Yen (1981) used 10 groups of approximately equal size,
 #' - Bock (1960) allowed for flexibility in the number of groups.
 #'
-#' With `loc.theta = "average"`, the expected probabilities are evaluated at the
-#' average ability estimate of each group, which approximates the average of the
-#' model probabilities of the examinees in the group (e.g., Yen, 1981).
+#' With `loc.theta = "average"`, the expected probabilities of each group are
+#' evaluated at the average ability estimate of the group. The probability at
+#' this point approximates the average of the model probabilities of the
+#' examinees in the group (e.g., Yen, 1981).
 #'
 #' Regarding degrees of freedom (*df*), let \eqn{G} be the number of ability
 #' groups after collapsing, \eqn{K} the number of score categories, and
@@ -110,7 +111,14 @@
 #' also applies to `est_irt` and `est_item` objects: parameters fixed during
 #' estimation (for example, with `fix.g = TRUE`, or the items fixed in FIPC) are
 #' still counted, and GPCM items estimated with `fix.a.gpcm = TRUE` are counted
-#' as PCM items only when they are given in `pcm.loc`.
+#' as PCM items only when they are given in `pcm.loc`. When no degrees of
+#' freedom remain for \eqn{\chi^2} after collapsing (`df.X2` of 0 or less),
+#' `crit.val.X2` and `p.X2` are `NA`, and a warning names the item.
+#'
+#' Responses in `data` must be integer scores from 0 to the number of score
+#' categories minus 1, with one column per item. Character and factor responses
+#' are read as numbers, logical responses as 0 and 1, and other responses stop
+#' the function with an error.
 #'
 #' For ability group \eqn{j} with \eqn{N_j} examinees, let \eqn{O_{jk}} and
 #' \eqn{E_{jk}} be the observed proportion and the model-expected probability
@@ -142,7 +150,8 @@
 #'   \item{fit_stat}{A data frame with one row per item and the columns `id`,
 #'   `X2` (\eqn{\chi^{2}}), `G2` (\eqn{G^{2}}), `df.X2`, `df.G2`, `crit.val.X2`
 #'   and `crit.val.G2` (critical values at `alpha`), `p.X2`, `p.G2`, `outfit`,
-#'   `infit`, `N` (the number of examinees who responded to the item), and
+#'   `infit`, `N` (the number of examinees who responded to the item and have
+#'   an ability estimate), and
 #'   `overSR.prop` (the proportion of cells, before collapsing, whose absolute
 #'   standardized residuals exceed `overSR`).}
 #'

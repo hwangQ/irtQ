@@ -169,8 +169,8 @@
 #'   upper value, so that the pair encloses a local maximum, and finds the root
 #'   of the score function between them with [stats::uniroot()] using the
 #'   tolerance `tol`. If there is no such pair, the last value of the
-#'   iterations is used. In both cases the estimate is then truncated to
-#'   `range`. This step is not carried out when the iterations converge. The
+#'   iterations is used. This search is not carried out when the iterations
+#'   converge. In all cases, the estimate is truncated to `range`, and the
 #'   standard error is computed at the final estimate.
 #'
 #'   For `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, and `"EAP"`, examinees can be scored

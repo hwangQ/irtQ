@@ -109,8 +109,9 @@
 - `llike_score()` with `method = "MLF"` stopped with an error under the
   default `fence.b = NULL`. The fences are now placed at -5 and 5, the
   default `range` of `est_score()`. The function also merged examinees
-  whose rows had the same row name and stopped for an examinee without
-  any response, who now gets `NA`.
+  whose rows had the same row name, and an examinee without any
+  response, who stopped the function (`"ML"`, `"MAP"`) or got values
+  from the fence items alone (`"MLF"`), now gets `NA`.
 
 - `lwrc()` stopped with an error for a single `theta` when the test had
   polytomous items.
@@ -126,19 +127,19 @@
   which read as a strong misfit. The critical value and p-value of such
   an item are now `NA`, with a warning that names the item.
 
-- `sx2_fit()` named the columns of the observed frequency table
-  `score.*` with an `exp_freq.` prefix (`exp_freq.score.0`, ...) when
-  the test had a single polytomous item. The columns are now named
-  `score.0`, `score.1`, ... as for tests with several polytomous items.
-  The values are unchanged.
+- `sx2_fit()` named the columns of the observed frequency and proportion
+  tables (`obs_freq` and `obs_prop`) with an `exp_freq.` prefix
+  (`exp_freq.score.0`, ...) when the test had a single polytomous item.
+  The columns are now named `score.0`, `score.1`, ... as for tests with
+  several polytomous items. The values are unchanged.
 
-- `plot()` for an `irtfit` object ignored `xlab.text` when
-  `type = "both"` and always used theta as the x-axis title. The given
-  title is now used, as for the other types.
+- `plot.irtfit()` ignored `xlab.text` when `type = "both"` and always
+  used theta as the x-axis title. The given title is now used, as for
+  the other types.
 
-- `plot()` for an `irtfit` object drew the standardized residuals as
-  blue crosses, instead of red circles, when every plotted residual
-  exceeded `overSR`. Each kind of point now keeps its color and shape.
+- `plot.irtfit()` drew the standardized residuals as blue crosses,
+  instead of red circles, when every plotted residual exceeded `overSR`.
+  Each kind of point now keeps its color and shape.
 
 - `irtfit()` stopped with an error for a logical response matrix and
   when the ability groups of an item were merged into a single row (for
@@ -151,8 +152,10 @@
   distribution was used or estimated in the calibration (for example,
   with `EmpHist = TRUE` or FIPC). When `weights`, `norm.prior`, and
   `nquad` are all omitted, the latent distribution stored in the object
-  is now used. Results for a standard normal calibration change in the
-  third decimal place.
+  is now used. The statistics change slightly for a calibration with a
+  standard normal distribution and can change enough to alter the
+  decision at `alpha` when the distribution was estimated. Set
+  `norm.prior = c(0, 1)` to reproduce the earlier results.
 
 ## Minor Improvements
 
@@ -191,9 +194,9 @@
   columns other than the number of items (it scored the wrong items
   before), when a response is not an integer within the categories of
   its item, and when `method`, `stval.opt`, `tol`, or `max.iter` is not
-  valid (a `max.iter` below 1 removed the iteration limit). For an
-  `est_irt` object, supplying `data` or `D` is now an error instead of
-  being ignored.
+  valid (a `max.iter` below 1 or not a whole number removed the
+  iteration limit). For an `est_irt` object, supplying `data` or `D` is
+  now an error instead of being ignored.
 
 - `est_score()` now has a method for `est_item` objects, as its
   documentation already stated.

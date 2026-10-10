@@ -68,8 +68,8 @@ metadata. This data frame can be easily created using the
 \item{...}{Further arguments passed to or from other methods.}
 
 \item{score}{A numeric vector of examinees' ability estimates (theta
-values). Not used by the \code{est_item} method, which takes the ability
-estimates stored in \code{x}.}
+values). Examinees with a missing ability estimate are excluded. Not used
+by the \code{est_item} method, which takes the ability estimates stored in \code{x}.}
 
 \item{data}{A matrix of examinees' item responses corresponding to the items
 specified in the \code{x} argument. Rows represent examinees and columns
@@ -145,7 +145,8 @@ the following components:
 \item{fit_stat}{A data frame with one row per item and the columns \code{id},
 \code{X2} (\eqn{\chi^{2}}), \code{G2} (\eqn{G^{2}}), \code{df.X2}, \code{df.G2}, \code{crit.val.X2}
 and \code{crit.val.G2} (critical values at \code{alpha}), \code{p.X2}, \code{p.G2}, \code{outfit},
-\code{infit}, \code{N} (the number of examinees who responded to the item), and
+\code{infit}, \code{N} (the number of examinees who responded to the item and have
+an ability estimate), and
 \code{overSR.prop} (the proportion of cells, before collapsing, whose absolute
 standardized residuals exceed \code{overSR}).}
 
@@ -211,9 +212,10 @@ Use \code{n.width} to change the number of groups (default 10). For reference:
 \item Bock (1960) allowed for flexibility in the number of groups.
 }
 
-With \code{loc.theta = "average"}, the expected probabilities are evaluated at the
-average ability estimate of each group, which approximates the average of the
-model probabilities of the examinees in the group (e.g., Yen, 1981).
+With \code{loc.theta = "average"}, the expected probabilities of each group are
+evaluated at the average ability estimate of the group. The probability at
+this point approximates the average of the model probabilities of the
+examinees in the group (e.g., Yen, 1981).
 
 Regarding degrees of freedom (\emph{df}), let \eqn{G} be the number of ability
 groups after collapsing, \eqn{K} the number of score categories, and
@@ -234,7 +236,14 @@ categories \eqn{K} for the GRM and GPCM; an item listed in \code{pcm.loc} has
 also applies to \code{est_irt} and \code{est_item} objects: parameters fixed during
 estimation (for example, with \code{fix.g = TRUE}, or the items fixed in FIPC) are
 still counted, and GPCM items estimated with \code{fix.a.gpcm = TRUE} are counted
-as PCM items only when they are given in \code{pcm.loc}.
+as PCM items only when they are given in \code{pcm.loc}. When no degrees of
+freedom remain for \eqn{\chi^2} after collapsing (\code{df.X2} of 0 or less),
+\code{crit.val.X2} and \code{p.X2} are \code{NA}, and a warning names the item.
+
+Responses in \code{data} must be integer scores from 0 to the number of score
+categories minus 1, with one column per item. Character and factor responses
+are read as numbers, logical responses as 0 and 1, and other responses stop
+the function with an error.
 
 For ability group \eqn{j} with \eqn{N_j} examinees, let \eqn{O_{jk}} and
 \eqn{E_{jk}} be the observed proportion and the model-expected probability

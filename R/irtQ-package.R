@@ -583,8 +583,8 @@
 #'   estimates. *Educational Measurement: Issues and Practice, 29*(3), 8-14.
 #'   \doi{10.1111/j.1745-3992.2010.00179.x}.
 #'
-#'   Laplace, P. S. (1820). *Theorie analytique des probabilites* (in French).
-#'   Courcier.
+#'   Laplace, P. S. (1820). *Theorie analytique des probabilites* (3rd ed., in
+#'   French). Paris: Courcier.
 #'
 #'   Lee, W.-C. (2010). Classification consistency and accuracy for complex
 #'   assessments using item response theory. *Journal of Educational
