@@ -249,9 +249,9 @@
 #' \code{\link{est_score}}, but no warning is issued. The same rule applies to
 #' the routing estimates. When all responses up to a non-final stage are
 #' missing, the routing estimate is 0 after stage 1 and the previous routing
-#' estimate after a later stage. An examinee with no observed response at all
-#' receives \code{NA} as the final estimate, and one warning reports the number
-#' of such examinees.
+#' estimate after a later stage. An examinee with no observed response to the
+#' administered items receives \code{NA} as the final estimate, and one warning
+#' reports the number of such examinees.
 #'
 #' \strong{Relation to \code{reval_mst()}}: With \code{route_method = NULL}, a
 #' \code{cut_score} list, and \code{route_score = list(method = "INV.TCC")},
@@ -668,6 +668,8 @@ run_mst <- function(x,
 
     # Stop when a cut score vector does not separate the modules of the next stage
     for (s in seq_len(n.stg - 1L)) {
+      # treat a NULL element as an empty vector of cut scores
+      if (is.null(cut_score[[s]])) cut_score[s] <- list(numeric(0))
       cut_s <- cut_score[[s]]
       if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1L] - 1L) ||
           !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {
@@ -996,8 +998,9 @@ run_mst <- function(x,
     # Determine starting module for this examinee:
     #   fixed_start non-NULL -> same module for every examinee (ini_mod was integer)
     #   fixed_start NULL     -> uniformly sample from all stage-1 modules
+    # index into the stage-1 modules, since sample() on a single number k draws from 1:k
     current_mod <- if (!is.null(fixed_start)) fixed_start
-                   else sample(stage1_mods, size = 1L)
+                   else stage1_mods[sample.int(length(stage1_mods), size = 1L)]
     # Accumulate item indices and response vector across all administered stages
     items_acc  <- integer(0)       # item row indices in x (item bank)
     resp_acc   <- integer(0)       # corresponding response values
@@ -1283,7 +1286,7 @@ run_mst <- function(x,
   # warn once about the examinees whose responses are all missing
   if (n_all_missing > 0L) {
     warning(sprintf(
-      "%d examinee(s) have no observed response; their final estimates are NA.",
+      "%d examinee(s) have no observed response to the administered items; their final estimates are NA.",
       n_all_missing), call. = FALSE)
   }
 

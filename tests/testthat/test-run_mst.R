@@ -428,13 +428,51 @@ test_that("run_mst() stops when the module matrix does not match the route map",
 test_that("run_mst() warns once about examinees without any observed response", {
   resp_na <- resp_mst
   resp_na[c(2, 5), ] <- NA
-  expect_warning(
-    fit <- run_mst(x = x_mst, route_map = map_mst, module = mod_mst, response = resp_na,
-                   D = 1.702, route_method = NULL, cut_score = cut_mst,
-                   route_score = list(method = "EAP"), final_score = list(method = "ML"),
-                   verbose = FALSE),
-    "2 examinee"
+  # collect every warning and check that exactly one is issued
+  ws <- character(0)
+  fit <- withCallingHandlers(
+    run_mst(x = x_mst, route_map = map_mst, module = mod_mst, response = resp_na,
+            D = 1.702, route_method = NULL, cut_score = cut_mst,
+            route_score = list(method = "EAP"), final_score = list(method = "ML"),
+            verbose = FALSE),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
   )
+  expect_length(ws, 1L)
+  expect_match(ws, "2 examinee")
   expect_true(all(is.na(fit$est.theta[c(2, 5)])))
   expect_false(anyNA(fit$est.theta[-c(2, 5)]))
+})
+
+test_that("run_mst() starts at the routing module when its index is not 1", {
+  # renumber the simMST modules so that the routing module is module 4
+  new_of_old <- c(4, 1, 2, 3, 5, 6, 7)
+  md2 <- mod_mst[, order(new_of_old)]
+  rm2 <- matrix(0, 7, 7)
+  rm2[new_of_old, new_of_old] <- map_mst
+  fit1 <- run_mst(x = x_mst, route_map = map_mst, module = mod_mst, response = resp_mst,
+                  D = 1.702, route_method = NULL, cut_score = cut_mst, verbose = FALSE)
+  fit2 <- run_mst(x = x_mst, route_map = rm2, module = md2, response = resp_mst,
+                  D = 1.702, route_method = NULL, cut_score = cut_mst, verbose = FALSE)
+  expect_true(all(fit2$path[, 1] == 4L))
+  expect_equal(fit2$est.theta, fit1$est.theta)
+})
+
+test_that("run_mst() treats a NULL cut score element as an empty vector", {
+  # a 1-1-2 panel: the cut score element of the transition to the single module of stage 2 is empty
+  keep <- which(rowSums(mod_mix[, 1:4]) > 0)
+  md <- mod_mix[keep, 1:4]
+  rm_x <- matrix(0L, 4, 4)
+  rm_x[1, 2] <- 1L
+  rm_x[2, 3:4] <- 1L
+  resp <- simdat(x = x_mix[keep, ], theta = seq(-2, 2, length.out = 10), D = 1)
+  fit_null <- run_mst(x = x_mix[keep, ], route_map = rm_x, module = md, response = resp,
+                      D = 1, route_method = NULL, cut_score = list(NULL, 0.2), verbose = FALSE)
+  fit_empty <- run_mst(x = x_mix[keep, ], route_map = rm_x, module = md, response = resp,
+                       D = 1, route_method = NULL, cut_score = list(numeric(0), 0.2),
+                       verbose = FALSE)
+  expect_equal(fit_null$est.theta, fit_empty$est.theta)
+  expect_equal(fit_null$path, fit_empty$path)
 })

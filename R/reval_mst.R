@@ -278,6 +278,8 @@ reval_mst <- function(x,
 
   # Stop when a cut score vector does not separate the modules of the next stage
   for (s in seq_len(n.stg - 1)) {
+    # treat a NULL element as an empty vector of cut scores
+    if (is.null(cut_score[[s]])) cut_score[s] <- list(numeric(0))
     cut_s <- cut_score[[s]]
     if (!is.numeric(cut_s) || length(cut_s) != (n.mod[s + 1] - 1) ||
         !all(is.finite(cut_s)) || is.unsorted(cut_s, strictly = TRUE)) {

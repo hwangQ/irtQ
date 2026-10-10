@@ -38,7 +38,8 @@ test_that("reval_mst() equals an exact enumeration on a mixed-format 1-2-3 panel
   for (D in c(1, 1.702)) {
     rv <- reval_mst(x = pnl$x, D = D, route_map = pnl$route_map, module = pnl$module,
                     cut_score = pnl$cut_score, theta = th)$eval.tb
-    bf <- ref_brute_mst(pnl$x, pnl$module, pnl$route_map, pnl$cut_score, th, D = D)
+    bf <- ref_brute_mst(pnl$x, pnl$module, pnl$route_map, pnl$cut_score, th,
+                        cfg = list(1L, 2:3, 4:6), D = D)
     expect_equal(bf$ptot, rep(1, 3), tolerance = 1e-12)
     expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
     expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
@@ -51,7 +52,7 @@ test_that("reval_mst() equals an exact enumeration on the simMST panel", {
   rv <- reval_mst(x = simMST$item_bank, D = 1.702, route_map = simMST$route_map,
                   module = simMST$module, cut_score = simMST$cut_score, theta = th)$eval.tb
   bf <- ref_brute_mst(simMST$item_bank, simMST$module, simMST$route_map,
-                      simMST$cut_score, th, D = 1.702)
+                      simMST$cut_score, th, cfg = list(1L, 2:4, 5:7), D = 1.702)
   expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
   expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
 })
@@ -67,7 +68,7 @@ test_that("reval_mst() accepts 2PLM items whose guessing parameter is missing", 
   rm <- matrix(0, 3, 3)
   rm[1, 2:3] <- 1
   rv <- reval_mst(x2, route_map = rm, module = md, cut_score = list(0), theta = c(-1, 0))$eval.tb
-  bf <- ref_brute_mst(x2, md, rm, list(0), c(-1, 0))
+  bf <- ref_brute_mst(x2, md, rm, list(0), c(-1, 0), cfg = list(1L, 2:3))
   expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
   expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
 })
@@ -106,7 +107,8 @@ test_that("reval_mst() maps the cut scores to the modules in ascending order of 
   th <- c(-1, 0.5)
   rv <- reval_mst(x = pnl$x, D = 1, route_map = rm_x, module = pnl$module,
                   cut_score = pnl$cut_score, theta = th)$eval.tb
-  bf <- ref_brute_mst(pnl$x, pnl$module, rm_x, pnl$cut_score, th)
+  bf <- ref_brute_mst(pnl$x, pnl$module, rm_x, pnl$cut_score, th,
+                      cfg = list(1L, 2:3, 4:6))
   expect_equal(rv$mu, bf$mu, tolerance = 1e-10)
   expect_equal(rv$sigma2, bf$sigma2, tolerance = 1e-10)
 })
@@ -144,4 +146,18 @@ test_that("reval_mst() stops when the first stage has more than one module", {
               module = simMST$module[, 1:4], cut_score = list(0), theta = 0),
     "single routing module"
   )
+})
+
+test_that("reval_mst() treats a NULL cut score element as an empty vector", {
+  # a 1-1-2 panel: the cut score element of the transition to the single module of stage 2 is empty
+  keep <- which(rowSums(pnl$module[, 1:4]) > 0)
+  md <- pnl$module[keep, 1:4]
+  rm_x <- matrix(0L, 4, 4)
+  rm_x[1, 2] <- 1L
+  rm_x[2, 3:4] <- 1L
+  rv_null <- reval_mst(x = pnl$x[keep, ], D = 1, route_map = rm_x, module = md,
+                       cut_score = list(NULL, 0.2), theta = c(-1, 1))$eval.tb
+  rv_empty <- reval_mst(x = pnl$x[keep, ], D = 1, route_map = rm_x, module = md,
+                        cut_score = list(numeric(0), 0.2), theta = c(-1, 1))$eval.tb
+  expect_equal(rv_null, rv_empty)
 })

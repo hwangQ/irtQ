@@ -77,10 +77,10 @@ ref_rud <- function(cut, theta, se, w) {
 # exact evaluation of an MST panel by enumerating every sequence of stage
 # sum scores; routing uses the inverse TCC estimate of the cumulative sum
 # score and the cut scores between the modules of the next stage in module
-# index order (a tie goes to the higher module)
-ref_brute_mst <- function(x, module, route_map, cut_score, theta, D = 1,
+# index order (a tie goes to the higher module); cfg lists the modules of each
+# stage so that the reference does not depend on panel_info()
+ref_brute_mst <- function(x, module, route_map, cut_score, theta, cfg, D = 1,
                           range.tcc = c(-7, 7)) {
-  cfg <- panel_info(route_map)$config
   n.stg <- length(cfg)
   items <- lapply(seq_len(ncol(module)), function(m) which(module[, m] == 1))
   cache <- new.env()
