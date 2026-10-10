@@ -43,6 +43,13 @@ stage by stage, collecting modules reachable from the previous stage. All
 logically possible pathways are enumerated via \code{expand.grid()}, and
 pathways that violate the transition constraints in \code{route_map} are
 removed. The remaining pathways are sorted and returned as a matrix.
+
+The route map must be a square matrix of 0s and 1s, and the modules do not
+need to be numbered in the order of the stages. The function stops with an
+error when the route map defines a single stage, contains a cycle, has a
+module that cannot be reached from a stage-1 module or that belongs to more
+than one stage, or has a module before the last stage without a transition
+to a module of the next stage.
 }
 \examples{
 # Use the 1-3-3 simMST panel route map
