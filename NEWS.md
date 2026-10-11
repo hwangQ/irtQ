@@ -231,7 +231,10 @@
   arguments" when purification removed the item with the most score
   categories from a test with polytomous items. They now work. When
   every item is flagged, the purification stops with a warning and
-  returns all items as flagged with `complete = FALSE`.
+  returns all items as flagged with `complete = FALSE`. The purification
+  also stops with a warning and `complete = FALSE` when `min.resp`,
+  which counts the items that remain, leaves a group without any ability
+  estimate.
 
 - `rdif()` and `crdif()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which

@@ -387,6 +387,27 @@ test_that("crdif() purification stops with a warning when every item is flagged"
   expect_false(anyNA(rst$with_purify$dif_stat$crdifrs))
 })
 
+test_that("crdif() purification stops with a warning when a group has no ability estimate left", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+
+  # min.resp counts the remaining items, so the examinees drop out as the items are removed
+  out <- crt_catch(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                         min.resp = 5, purify = TRUE, alpha = 0.5, verbose = FALSE))
+  expect_true(any(grepl("no examinee of a group", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+
+  # the items that remain keep the results of the previous iteration, and the flagged ones are reported
+  expect_false(anyNA(out$value$with_purify$dif_stat$crdifrs))
+  expect_false(anyNA(out$value$with_purify$dif_stat$n.total))
+  expect_false(anyNA(unlist(out$value$with_purify$moments$cov.crdifrs)))
+  expect_true(all(out$value$with_purify$dif_item %in% seq_len(nrow(sim$x))))
+  expect_lte(max(out$value$with_purify$dif_stat$n.iter), out$value$with_purify$n.iter)
+  rst0 <- suppressWarnings(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                                 min.resp = 5, alpha = 0.5))
+  expect_identical(out$value$no_purify, rst0$no_purify)
+})
+
 test_that("print() of crdif results leaves the significance symbols of skipped items blank", {
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

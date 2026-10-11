@@ -315,6 +315,27 @@ test_that("rdif() purification works when items are removed down to the last one
   expect_identical(out$value$no_purify, rst0$no_purify)
 })
 
+test_that("rdif() purification stops with a warning when a group has no ability estimate left", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+
+  # min.resp counts the remaining items, so the examinees drop out as the items are removed
+  out <- rdt_catch(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                        min.resp = 10, purify = TRUE, alpha = 0.5, verbose = FALSE))
+  expect_true(any(grepl("no examinee of a group", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+
+  # the items that remain keep the results of the previous iteration, and the flagged ones are reported
+  expect_false(anyNA(out$value$with_purify$dif_stat$rdifrs))
+  expect_false(anyNA(out$value$with_purify$dif_stat$n.total))
+  expect_false(anyNA(out$value$with_purify$moments$mu.rdifr))
+  expect_true(all(out$value$with_purify$dif_item %in% seq_len(nrow(sim$x))))
+  expect_lte(max(out$value$with_purify$dif_stat$n.iter), out$value$with_purify$n.iter)
+  rst0 <- suppressWarnings(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                                min.resp = 10, alpha = 0.5))
+  expect_identical(out$value$no_purify, rst0$no_purify)
+})
+
 test_that("rdif() purification works when the item with the most categories is removed", {
   sim <- rdt_sim_poly()
   rst <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, verbose = FALSE)

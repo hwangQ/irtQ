@@ -36,7 +36,9 @@
 #'   responses are set to `NA` before the ability estimation, in the initial
 #'   analysis and at every purification iteration, also when `score` is
 #'   supplied, and these examinees are excluded from the analysis. A warning
-#'   reports the number of examinees excluded in the initial analysis. If
+#'   reports the number of examinees excluded in the initial analysis. A large
+#'   `min.resp` can leave a group without any ability estimate in a later
+#'   purification iteration, which stops the purification with a warning. If
 #'   `NULL`, no minimum is applied. Default is `NULL`. See **Details** for more
 #'   information.
 #'
@@ -167,7 +169,8 @@
 #'     analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
 #'     item is flagged in the initial analysis). The iteration that removes the
-#'     last item is not counted, because the statistics are not recomputed.}
+#'     last item, or after which a group has no ability estimate left, is not
+#'     counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of the ability estimates from the last
 #'     iteration. `NULL` if no item is flagged in the initial analysis, because
 #'     purification is not carried out; the initial estimates are then in
@@ -175,7 +178,8 @@
 #'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
 #'     no remaining item was flagged (including the case in which no item is
 #'     flagged in the initial analysis), and `FALSE` if it stopped because
-#'     `max.iter` was reached or because every item was flagged.}
+#'     `max.iter` was reached, because every item was flagged, or because a
+#'     group had no examinee with an ability estimate left.}
 #'   }
 #' }
 #'
@@ -547,6 +551,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
       # indicate whether the purification stops because every item is flagged
       all_flagged <- FALSE
 
+      # indicate whether the purification stops because a group has no ability estimate left
+      no_score <- FALSE
+
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -620,6 +627,26 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
             quiet_na = TRUE, ...
           )
 
+        # stop the purification when the examinees of a group have all lost their ability estimates;
+        # the remaining items keep the results of the previous iteration
+        if (all(is.na(score_puri[which(group == focal.name)])) ||
+            all(is.na(score_puri[which(group != focal.name)]))) {
+          no_score <- TRUE
+          dif_stat[item_num, 1:13] <- dif_stat_tmp[-flag_del, ]
+          dif_stat[item_num, 14] <- i - 1
+          mmt_list$mu.crdifr[item_num] <- mmt_list_tmp$mu.crdifr[-flag_del]
+          mmt_list$mu.crdifs[item_num] <- mmt_list_tmp$mu.crdifs[-flag_del]
+          mmt_list$mu.crdifrs[item_num] <- mmt_list_tmp$mu.crdifrs[-flag_del]
+          mmt_list$cov.crdifr[item_num] <- mmt_list_tmp$cov.crdifr[-flag_del]
+          mmt_list$cov.crdifs[item_num] <- mmt_list_tmp$cov.crdifs[-flag_del]
+          mmt_list$cov.crdifrs[item_num] <- mmt_list_tmp$cov.crdifrs[-flag_del]
+
+          # add the items flagged at the previous iteration, except the item deleted at this one
+          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_del),
+                                                 seq_along(log_p_tmp)[-flag_del])])
+          break
+        }
+
         # do DIF analysis using the updated ability estimates
         dif_rst_tmp <-
           crdif_one(
@@ -660,12 +687,17 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
 
       # record the actual number of iterations; the statistics are not recomputed in the
       # iteration that removes the last item
-      n_iter <- if (all_flagged) i - 1L else i
+      n_iter <- if (all_flagged || no_score) i - 1L else i
 
       # if every item is flagged, then, return a warning message
       if (all_flagged) {
         warning("All items were flagged during the purification, so the purification stopped ",
                 "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (no_score) {
+        # if a group has no ability estimate left, then, return a warning message
+        warning("The purification stopped because no examinee of a group had enough responses ",
+                "to the remaining items to estimate the ability.", call. = FALSE)
         complete <- FALSE
       } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
         # if the maximum number of iterations is reached before purification is complete,

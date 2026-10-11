@@ -155,7 +155,9 @@ responses of examinees with fewer than \code{min.resp} (but at least one)
 responses are set to \code{NA} before the ability estimation, in the initial
 analysis and at every purification iteration, also when \code{score} is
 supplied, and these examinees are excluded from the analysis. A warning
-reports the number of examinees excluded in the initial analysis. If
+reports the number of examinees excluded in the initial analysis. A large
+\code{min.resp} can leave a group without any ability estimate in a later
+purification iteration, which stops the purification with a warning. If
 \code{NULL}, no minimum is applied. Default is \code{NULL}. See \strong{Details} for more
 information.}
 
@@ -259,7 +261,8 @@ if every item is flagged. \code{NULL} if no item is flagged in the initial
 analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
 item is flagged in the initial analysis). The iteration that removes the
-last item is not counted, because the statistics are not recomputed.}
+last item, or after which a group has no ability estimate left, is not
+counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of the ability estimates from the last
 iteration. \code{NULL} if no item is flagged in the initial analysis, because
 purification is not carried out; the initial estimates are then in
@@ -267,7 +270,8 @@ purification is not carried out; the initial estimates are then in
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because
-\code{max.iter} was reached or because every item was flagged.}
+\code{max.iter} was reached, because every item was flagged, or because a
+group had no examinee with an ability estimate left.}
 }
 }
 
