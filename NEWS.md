@@ -249,6 +249,15 @@
   was flagged even for an `alpha` of 1e-30. The decision now uses the
   unrounded p-values, and the tables still show four decimals.
 
+- `rdif()` computed `RDIF_RS` from arbitrary values, including negative
+  chi-square values, when the covariance matrix of `RDIF_R` and `RDIF_S`
+  was singular, which happens when all examinees who responded to an
+  item have the same probability of a correct response (a tiny constant
+  was added to every entry of the matrix). The statistic is now computed
+  with a generalized inverse and the rank of the matrix as degrees of
+  freedom, and a warning names the items. Results for regular data are
+  unchanged.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

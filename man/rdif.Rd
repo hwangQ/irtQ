@@ -301,6 +301,17 @@ in the inverse of their null covariance matrix. Under the null hypothesis,
 \eqn{RDIF_{RS}} asymptotically follows a \eqn{\chi^{2}} distribution with 2
 degrees of freedom (Lim et al., 2022, Equation 20).
 
+In rare cases, the covariance matrix of \eqn{RDIF_{R}} and \eqn{RDIF_{S}}
+is singular, for example when all examinees who responded to an item have
+the same probability of a correct response, so that \eqn{RDIF_{S}} is a
+linear function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
+Moore-Penrose generalized inverse of the covariance matrix and compared with
+a chi-square distribution whose degrees of freedom equal the rank of the
+matrix (Moore, 1977), and a warning names the item. This handling is not
+part of the original method (Lim et al., 2022) and is added in irtQ. In
+most data the matrix is not singular, and \eqn{RDIF_{RS}} has two degrees of
+freedom.
+
 \code{\link[=rdif]{rdif()}} accepts both dichotomous and polytomous items. For a
 polytomous item, the residual is the observed item score minus the
 model-expected item score, and the null means, variances, and covariance are
@@ -516,6 +527,11 @@ Educational Measurement, 59}(1), 80-104. \doi{10.1111/jedm.12313}.
 Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 detection with the residual DIF framework. Paper presented at the annual
 International Meeting of the Psychometric Society, Prague, Czech Republic.
+
+Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. \emph{Journal of the American
+Statistical Association, 72}(357), 131-137.
+\doi{10.1080/01621459.1977.10479921}.
 
 Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 response theory. \emph{Psychometrika, 54}(3), 427-450.

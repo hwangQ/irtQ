@@ -982,27 +982,11 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
       # create a vector of ripdr and ripds
       est_mu_vec <- cbind(ripdr[i], ripds[i])
 
-      # compute the reciprocal condition number of the covariance matrix
-      rc_cov <- if (all(is.finite(cov_mat))) {
-        tryCatch(rcond(cov_mat), error = function(e) 0)
-      } else {
-        NA_real_
-      }
-
-      if (isTRUE(rc_cov > 1e-10)) {
-        # use the inverse of the covariance matrix when it is well conditioned
-        inv_cov <- solve(cov_mat)
-        chisq[i] <- as.numeric((est_mu_vec - mu_vec) %*% inv_cov %*% t(est_mu_vec - mu_vec))
-      } else if (!is.na(rc_cov)) {
-        # otherwise use the generalized inverse and the rank of the covariance matrix
-        eig <- eigen(cov_mat, symmetric = TRUE)
-        keep <- eig$values > max(eig$values) * 1e-10
-        if (any(keep)) {
-          proj <- crossprod(eig$vectors[, keep, drop = FALSE], t(est_mu_vec - mu_vec))
-          chisq[i] <- sum(proj^2 / eig$values[keep])
-          df_chisq[i] <- sum(keep)
-        }
-      }
+      # compute the chi-square statistic with the inverse or the generalized inverse of the
+      # covariance matrix, and the degrees of freedom
+      qf <- quad_form(cov_mat = cov_mat, dev_vec = t(est_mu_vec - mu_vec), df = 2)
+      chisq[i] <- qf$stat
+      df_chisq[i] <- qf$df
     }
   }
 

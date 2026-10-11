@@ -246,6 +246,41 @@ test_that("rdif() flags items with the unrounded p-values", {
   expect_true(j2 %in% rst2$no_purify$dif_item$rdifrs)
 })
 
+test_that("rdif() uses a generalized inverse when the covariance matrix is singular", {
+  sim <- rdt_sim(miss = 0)
+  x2 <- sim$x[1:8, ]
+  expect_warning(
+    rst <- rdif(x2, sim$resp[, 1:8], score = rep(1, nrow(sim$resp)), group = sim$group, focal.name = "f"),
+    "generalized inverse"
+  )
+  stat <- rst$no_purify$dif_stat
+
+  # with a common ability the squared residual is a linear function of the raw residual
+  expect_equal(stat$rdifrs, stat$z.rdifr^2, tolerance = 1e-3)
+  expect_equal(stat$p.rdifrs, stat$p.rdifr, tolerance = 1e-3)
+  expect_true(all(stat$rdifrs >= 0))
+})
+
+test_that("quad_form() uses the inverse for a regular matrix and the rank for a singular one", {
+  s <- matrix(c(2, 0.5, 0.5, 1), 2)
+  d <- c(0.3, -0.2)
+  qf <- irtQ:::quad_form(s, d, df = 2)
+  expect_equal(qf$stat, drop(t(d) %*% solve(s) %*% d))
+  expect_equal(qf$df, 2)
+  expect_false(qf$reduced)
+
+  # a singular matrix of rank one gives the generalized inverse and one degree of freedom
+  s1 <- matrix(c(1, 2, 2, 4), 2)
+  d1 <- c(1, 2)
+  qf1 <- irtQ:::quad_form(s1, d1, df = 2)
+  expect_equal(qf1$stat, drop(t(d1) %*% (s1 / 25) %*% d1))
+  expect_equal(qf1$df, 1)
+  expect_true(qf1$reduced)
+
+  # a matrix with non-finite values gives a missing statistic
+  expect_true(is.na(irtQ:::quad_form(matrix(NA_real_, 2, 2), d, df = 2)$stat))
+})
+
 test_that("rdif() stops with clear errors for invalid inputs", {
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

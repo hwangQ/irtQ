@@ -111,6 +111,17 @@
 #'   \eqn{RDIF_{RS}} asymptotically follows a \eqn{\chi^{2}} distribution with 2
 #'   degrees of freedom (Lim et al., 2022, Equation 20).
 #'
+#'   In rare cases, the covariance matrix of \eqn{RDIF_{R}} and \eqn{RDIF_{S}}
+#'   is singular, for example when all examinees who responded to an item have
+#'   the same probability of a correct response, so that \eqn{RDIF_{S}} is a
+#'   linear function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
+#'   Moore-Penrose generalized inverse of the covariance matrix and compared with
+#'   a chi-square distribution whose degrees of freedom equal the rank of the
+#'   matrix (Moore, 1977), and a warning names the item. This handling is not
+#'   part of the original method (Lim et al., 2022) and is added in irtQ. In
+#'   most data the matrix is not singular, and \eqn{RDIF_{RS}} has two degrees of
+#'   freedom.
+#'
 #'   [irtQ::rdif()] accepts both dichotomous and polytomous items. For a
 #'   polytomous item, the residual is the observed item score minus the
 #'   model-expected item score, and the null means, variances, and covariance are
@@ -282,6 +293,11 @@
 #'   Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 #'   detection with the residual DIF framework. Paper presented at the annual
 #'   International Meeting of the Psychometric Society, Prague, Czech Republic.
+#'
+#'   Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+#'   construction of chi-squared tests of fit. *Journal of the American
+#'   Statistical Association, 72*(357), 131-137.
+#'   \doi{10.1080/01621459.1977.10479921}.
 #'
 #'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 #'   response theory. *Psychometrika, 54*(3), 427-450.
@@ -564,6 +580,9 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
              focal.name = focal.name, item.skip = item.skip, D = D,
              alpha = alpha)
 
+  # record the items whose covariance matrix is singular
+  singular_id <- dif_rst$singular
+
   # create two empty lists to contain the results
   no_purify <- list(dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL)
   with_purify <- list(
@@ -699,6 +718,9 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           alpha = alpha
         )
 
+        # record the items whose covariance matrix is singular
+        singular_id <- union(singular_id, dif_rst_tmp$singular)
+
         # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
@@ -765,6 +787,13 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
       with_purify$n.iter <- 0
       with_purify$complete <- TRUE
     }
+  }
+
+  # warn that the generalized inverse is used for the items with a singular covariance matrix
+  if (length(singular_id) > 0L) {
+    warning("The covariance matrix of RDIF_R and RDIF_S is singular for item(s) ",
+            paste(singular_id, collapse = ", "), ". RDIF_RS of these items is computed ",
+            "with a generalized inverse and fewer degrees of freedom.", call. = FALSE)
   }
 
   # summarize the results
@@ -869,8 +898,9 @@ rdif_one <- function(x,
   moments_rdifs <- moments$rdifs
   covar <- moments$covariance
 
-  # compute the chi-square statistics
-  chisq <- c()
+  # compute the chi-square statistics and their degrees of freedom
+  chisq <- rep(NA_real_, nitem)
+  df_chisq <- rep(2, nitem)
   for (i in 1:nitem) {
     if (i %in% all_miss) {
       chisq[i] <- NaN
@@ -890,38 +920,16 @@ rdif_one <- function(x,
       # create a vector of rdifr and rdifs
       est_mu_vec <- cbind(rdifr[i], rdifs[i])
 
-      # compute the chi-square statistic
-      inv_cov <- suppressWarnings(tryCatch(
-        {
-          solve(cov_mat, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_cov)) {
-        inv_cov <- suppressWarnings(tryCatch(
-          {
-            solve(cov_mat + 1e-15, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_cov)) {
-          inv_cov <- suppressWarnings(tryCatch(
-            {
-              solve(cov_mat + 1e-10, tol = 1e-200)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-      chisq[i] <- as.numeric((est_mu_vec - mu_vec) %*% inv_cov %*% t(est_mu_vec - mu_vec))
+      # compute the chi-square statistic with the inverse or the generalized inverse of the
+      # covariance matrix, and the degrees of freedom
+      qf <- quad_form(cov_mat = cov_mat, dev_vec = t(est_mu_vec - mu_vec), df = 2)
+      chisq[i] <- qf$stat
+      df_chisq[i] <- qf$df
     }
   }
+
+  # find the items whose covariance matrix is singular
+  singular_id <- x$id[which(df_chisq < 2 & !(seq_len(nitem) %in% item.skip))]
 
   # standardize the two statistics of rdifr and rdifs
   z_stat_rdifr <- (rdifr - moments_rdifr$mu) / moments_rdifr$sigma
@@ -930,7 +938,7 @@ rdif_one <- function(x,
   # calculate p-values for all three statistics
   p_rdifr <- 2 * stats::pnorm(q = abs(z_stat_rdifr), mean = 0, sd = 1, lower.tail = FALSE)
   p_rdifs <- 2 * stats::pnorm(q = abs(z_stat_rdifs), mean = 0, sd = 1, lower.tail = FALSE)
-  p_rdifrs <- stats::pchisq(chisq, df = 2, lower.tail = FALSE)
+  p_rdifrs <- stats::pchisq(chisq, df = df_chisq, lower.tail = FALSE)
 
   # compute total sample size
   n_total <- n_foc + n_ref
@@ -971,7 +979,8 @@ rdif_one <- function(x,
   rst <- list(
     dif_stat = stat_df,
     dif_item = list(rdifr = dif_item_rdifr, rdifs = dif_item_rdifs, rdifrs = dif_item_rdifrs),
-    moments = list(rdifr = moments_rdifr, rdifs = moments_rdifs), covariance = covar, alpha = alpha
+    moments = list(rdifr = moments_rdifr, rdifs = moments_rdifs), covariance = covar, alpha = alpha,
+    singular = singular_id
   )
 
   # return the results

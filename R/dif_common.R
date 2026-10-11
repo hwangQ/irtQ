@@ -169,3 +169,32 @@ check_obj_dots <- function(dots) {
          call. = FALSE)
   }
 }
+
+
+# This function computes the quadratic form of a deviation vector in the inverse of a covariance
+# matrix. When the matrix is singular or nearly singular, it uses the Moore-Penrose generalized
+# inverse and returns the rank of the matrix as the degrees of freedom
+quad_form <- function(cov_mat, dev_vec, df) {
+  # return a missing statistic when the covariance matrix has non-finite values
+  if (!all(is.finite(cov_mat))) {
+    return(list(stat = NA_real_, df = df, reduced = FALSE))
+  }
+
+  # compute the reciprocal condition number of the covariance matrix
+  rc_cov <- tryCatch(rcond(cov_mat), error = function(e) 0)
+
+  # use the inverse of the covariance matrix when it is well conditioned
+  if (rc_cov > 1e-10) {
+    stat <- as.numeric(t(dev_vec) %*% solve(cov_mat) %*% dev_vec)
+    return(list(stat = stat, df = df, reduced = FALSE))
+  }
+
+  # otherwise use the generalized inverse and the rank of the covariance matrix
+  eig <- eigen(cov_mat, symmetric = TRUE)
+  keep <- eig$values > max(eig$values) * 1e-10
+  if (!any(keep)) {
+    return(list(stat = NA_real_, df = df, reduced = FALSE))
+  }
+  proj <- crossprod(eig$vectors[, keep, drop = FALSE], dev_vec)
+  list(stat = sum(proj^2 / eig$values[keep]), df = sum(keep), reduced = sum(keep) < df)
+}
