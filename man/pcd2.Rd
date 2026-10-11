@@ -37,8 +37,9 @@ represent items.}
 closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.}
 
-\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
-exclude from the IPD analysis. Skipped items still contribute to the
+\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}), or a
+logical vector with one value per item, identifying the items to exclude
+from the IPD analysis. Skipped items still contribute to the
 posterior ability distributions; only their \code{pcd2} values are set to \code{NA},
 and they are never flagged. If \code{NULL}, all items are analyzed. Default is
 \code{NULL}.}

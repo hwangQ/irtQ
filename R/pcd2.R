@@ -20,8 +20,9 @@
 #'   can be easily created using the [irtQ::shape_df()] function. Only
 #'   dichotomous items are supported; the function stops if `x` contains GRM or
 #'   GPCM items.
-#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
-#'   exclude from the IPD analysis. Skipped items still contribute to the
+#' @param item.skip A numeric vector of item positions (row numbers of `x`), or a
+#'   logical vector with one value per item, identifying the items to exclude
+#'   from the IPD analysis. Skipped items still contribute to the
 #'   posterior ability distributions; only their `pcd2` values are set to `NA`,
 #'   and they are never flagged. If `NULL`, all items are analyzed. Default is
 #'   `NULL`.

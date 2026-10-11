@@ -24,8 +24,9 @@
 #'   are pooled into the reference group (for example, the synthetic reference
 #'   group described in Details). Examinees with `NA` in `group` are excluded
 #'   from both groups.
-#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
-#'   exclude from the IPD analysis. If `NULL`, all items are analyzed. Skipped
+#' @param item.skip A numeric vector of item positions (row numbers of `x`), or a
+#'   logical vector with one value per item, identifying the items to exclude
+#'   from the IPD analysis. If `NULL`, all items are analyzed. Skipped
 #'   items still contribute to the ability estimates; only their RIPD
 #'   statistics and moments are set to `NA`, and they are never flagged. In CAT,
 #'   this is typically used to skip low-exposure items (see Details). Default is

@@ -129,8 +129,9 @@ from both groups.}
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
 the focal group, set \code{focal.name = 1}.}
 
-\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
-exclude from the IPD analysis. If \code{NULL}, all items are analyzed. Skipped
+\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}), or a
+logical vector with one value per item, identifying the items to exclude
+from the IPD analysis. If \code{NULL}, all items are analyzed. Skipped
 items still contribute to the ability estimates; only their RIPD
 statistics and moments are set to \code{NA}, and they are never flagged. In CAT,
 this is typically used to skip low-exposure items (see Details). Default is
