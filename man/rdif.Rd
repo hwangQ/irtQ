@@ -164,16 +164,20 @@ any ability estimate in a later purification iteration, which stops the
 purification with a warning. If \code{NULL}, no minimum is applied. Default is
 \code{NULL}. See \strong{Details} for more information.}
 
-\item{method}{A character string indicating the scoring method to use.
-Available options are:
+\item{method}{A character string indicating the scoring method used to
+estimate the abilities when \code{score = NULL} and in every purification
+iteration. Available options are:
 \itemize{
 \item \code{"ML"}: Maximum likelihood estimation
+\item \code{"MLF"}: Maximum likelihood estimation with fences
 \item \code{"WL"}: Weighted likelihood estimation (Warm, 1989)
 \item \code{"MAP"}: Maximum a posteriori estimation (Hambleton et al., 1991)
 \item \code{"EAP"}: Expected a posteriori estimation (Bock & Mislevy, 1982)
 }
 
-Default is \code{"ML"}.}
+The methods \code{"EAP.SUM"} and \code{"INV.TCC"} of \code{\link[=est_score]{est_score()}} are not
+supported, because they do not give an ability estimate for each response
+pattern. Default is \code{"ML"}.}
 
 \item{range}{A numeric vector of length two specifying the lower and upper
 bounds of the ability scale. This is used for the following scoring

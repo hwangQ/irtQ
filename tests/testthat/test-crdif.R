@@ -484,6 +484,22 @@ test_that("crdif() purification stops with a warning when a group has no ability
                    grep("excluded during the purification", out2$warnings, value = TRUE))
 })
 
+test_that("crdif() stops for a scoring method without pattern scores when it estimates abilities", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  for (m in c("EAP.SUM", "INV.TCC")) {
+    expect_error(crdif(sim$x, sim$resp, group = sim$group, focal.name = 1, method = m),
+                 "not supported by crdif()", fixed = TRUE)
+    expect_error(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                       method = m, purify = TRUE, verbose = FALSE),
+                 "not supported by crdif()", fixed = TRUE)
+
+    # the method is not used when the scores are supplied and no purification is carried out
+    expect_no_error(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                          method = m))
+  }
+})
+
 test_that("print() of crdif results leaves the significance symbols of skipped items blank", {
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

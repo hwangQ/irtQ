@@ -401,6 +401,22 @@ test_that("rdif() purification stops with a warning when a group has no ability 
                    grep("excluded during the purification", out2$warnings, value = TRUE))
 })
 
+test_that("rdif() stops for a scoring method without pattern scores when it estimates abilities", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  for (m in c("EAP.SUM", "INV.TCC")) {
+    expect_error(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", method = m),
+                 "not supported by rdif()", fixed = TRUE)
+    expect_error(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                      method = m, purify = TRUE, verbose = FALSE),
+                 "not supported by rdif()", fixed = TRUE)
+
+    # the method is not used when the scores are supplied and no purification is carried out
+    expect_no_error(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                         method = m))
+  }
+})
+
 test_that("rdif() purification works when the item with the most categories is removed", {
   sim <- rdt_sim_poly()
   rst <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, verbose = FALSE)

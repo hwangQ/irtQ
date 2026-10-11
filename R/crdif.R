@@ -484,7 +484,7 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
     x = x, data = data, score = score, group = group, focal.name = focal.name,
     item.skip = item.skip, D = D, alpha = alpha, missing = missing, purify = purify,
     max.iter = max.iter, min.resp = min.resp, method = method, range = range,
-    norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+    norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, fn = "crdif()", ...
   )
   data <- prep$data
   score <- prep$score

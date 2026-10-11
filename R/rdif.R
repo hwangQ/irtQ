@@ -65,14 +65,18 @@
 #'   any ability estimate in a later purification iteration, which stops the
 #'   purification with a warning. If `NULL`, no minimum is applied. Default is
 #'   `NULL`. See **Details** for more information.
-#' @param method A character string indicating the scoring method to use.
-#'   Available options are:
+#' @param method A character string indicating the scoring method used to
+#'   estimate the abilities when `score = NULL` and in every purification
+#'   iteration. Available options are:
 #'   - `"ML"`: Maximum likelihood estimation
+#'   - `"MLF"`: Maximum likelihood estimation with fences
 #'   - `"WL"`: Weighted likelihood estimation (Warm, 1989)
 #'   - `"MAP"`: Maximum a posteriori estimation (Hambleton et al., 1991)
 #'   - `"EAP"`: Expected a posteriori estimation (Bock & Mislevy, 1982)
 #'
-#'   Default is `"ML"`.
+#'   The methods `"EAP.SUM"` and `"INV.TCC"` of [irtQ::est_score()] are not
+#'   supported, because they do not give an ability estimate for each response
+#'   pattern. Default is `"ML"`.
 #' @param range A numeric vector of length two specifying the lower and upper
 #'   bounds of the ability scale. This is used for the following scoring
 #'   methods: `"ML"`, `"WL"`, and `"MAP"`. Default is `c(-5, 5)`.

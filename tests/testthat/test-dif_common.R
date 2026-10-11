@@ -69,6 +69,8 @@ test_that("check_min_resp(), check_score(), and check_pattern_method() stop for 
 
   expect_no_error(check_pattern_method("ML"))
   for (bad in list("EAP.SUM", "INV.TCC", c("ML", "EAP"), NULL)) {
-    expect_error(check_pattern_method(bad), "not supported")
+    expect_error(check_pattern_method(bad), "not supported by ripd()", fixed = TRUE)
   }
+  expect_error(check_pattern_method("INV.TCC", fn = "rdif()"), "not supported by rdif()",
+               fixed = TRUE)
 })

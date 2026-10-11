@@ -435,10 +435,13 @@
   item are rescored when `ncore = 1` and `method` is a pattern scoring
   method. Results are unchanged.
 
-- `ripd()` stops with a clear message for `method = "EAP.SUM"` or
-  `"INV.TCC"`, which it does not support, and `ripd()` and `pcd2()` stop
-  with a clear message when `min.resp` is not a single nonnegative
-  number. `ripd()` also stops when `score` is not numeric.
+- `rdif()`, `crdif()`, and `ripd()` stop with a clear message for
+  `method = "EAP.SUM"` or `"INV.TCC"` when they estimate the abilities
+  (`score = NULL` or `purify = TRUE`), because these methods give no
+  ability estimate for each response pattern. Before, `rdif()` and
+  `crdif()` stopped with an obscure message. `ripd()` and `pcd2()` also
+  stop with a clear message when `min.resp` is not a single nonnegative
+  number, and `ripd()` stops when `score` is not numeric.
 
 - The `print()` methods of `rdif()` and `crdif()` leave the significance
   symbol of an item skipped with `item.skip` blank. Before, it showed
