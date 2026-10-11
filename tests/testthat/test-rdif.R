@@ -171,6 +171,25 @@ test_that("rdif() excludes examinees with a missing ability estimate with a warn
   expect_false(anyNA(out$value$with_purify$dif_stat$rdifrs))
 })
 
+test_that("rdif() reports the examinees who lose their ability estimates in the purification once", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+
+  # five examinees respond only to the item that is flagged first and removed in the purification
+  rst0 <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f")
+  first <- which.max(rst0$no_purify$dif_stat$rdifrs)
+  resp <- sim$resp
+  resp[5:9, ] <- NA
+  resp[5:9, first] <- 1
+  out <- rdt_catch(rdif(sim$x, resp, score = score, group = sim$group, focal.name = "f",
+                        purify = TRUE, verbose = FALSE))
+  expect_true(first %in% out$value$with_purify$dif_item)
+  msg <- grep("examinee\\(s\\) were excluded during the purification", out$warnings, value = TRUE)
+  expect_length(msg, 1)
+  expect_gte(as.numeric(sub(" .*", "", msg)), 5)
+  expect_false(any(grepl("NA values are returned", out$warnings)))
+})
+
 test_that("rdif() applies min.resp when the scores are estimated", {
   sim <- rdt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
@@ -197,12 +216,16 @@ test_that("rdif() purification works when items are removed down to the last one
   expect_true(length(rst$with_purify$dif_item) >= 2)
   expect_false(anyNA(rst$with_purify$dif_stat$rdifrs))
 
-  # the function stops when every item is flagged
-  expect_error(
-    suppressWarnings(rdif(x1[1:2, ], resp[, 1:2], group = group, focal.name = 1, purify = TRUE,
-                          alpha = 0.999, verbose = FALSE)),
-    "All items were flagged"
-  )
+  # the purification stops with a warning when every item is flagged
+  out <- rdt_catch(rdif(x1[1:2, ], resp[, 1:2], group = group, focal.name = 1, purify = TRUE,
+                        alpha = 0.999, verbose = FALSE))
+  expect_true(any(grepl("All items were flagged", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_equal(out$value$with_purify$dif_item, 1:2)
+  expect_equal(out$value$with_purify$n.iter, 1)
+  expect_false(anyNA(out$value$with_purify$dif_stat$rdifrs))
+  rst0 <- rdif(x1[1:2, ], resp[, 1:2], group = group, focal.name = 1, alpha = 0.999)
+  expect_identical(out$value$no_purify, rst0$no_purify)
 })
 
 test_that("rdif() purification works when the item with the most categories is removed", {

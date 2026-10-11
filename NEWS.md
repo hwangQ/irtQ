@@ -229,8 +229,9 @@
 - `rdif()` and `crdif()` stopped with an obscure error when purification
   left a single item, and `rdif()` also stopped with "non-conformable
   arguments" when purification removed the item with the most score
-  categories from a test with polytomous items. They now work, and stop
-  with a clear message when every item is flagged.
+  categories from a test with polytomous items. They now work. When
+  every item is flagged, the purification stops with a warning and
+  returns all items as flagged with `complete = FALSE`.
 
 - `rdif()` and `crdif()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which
@@ -389,6 +390,11 @@
   with a clear message when `data` or `D` is passed, because both are
   taken from the object. Before, they were silently ignored or caused an
   obscure error.
+
+- The purification of `rdif()` and `crdif()` no longer repeats the
+  warning of `est_score()` about examinees without responses in every
+  iteration. One warning at the end reports the number of examinees who
+  lost their ability estimates during the purification.
 
 # irtQ 1.3.1
 

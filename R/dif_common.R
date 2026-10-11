@@ -3,23 +3,30 @@
 # independently, so after the first iteration only the examinees who responded to the removed
 # item are rescored
 dif_rescore <- function(x, data, score, loc_resp, first, D, method, range,
-                        norm.prior, nquad, weights, ncore, ...) {
+                        norm.prior, nquad, weights, ncore, quiet_na = FALSE, ...) {
+  # estimate the abilities, and mute the warning about the examinees without any response
+  # when it is reported separately
+  score_est <- function(data_est) {
+    withCallingHandlers(
+      est_score(
+        x = x, data = data_est, D = D, method = method, range = range,
+        norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta,
+      warning = function(w) {
+        if (quiet_na && grepl("^NA values are returned", conditionMessage(w))) {
+          invokeRestart("muffleWarning")
+        }
+      }
+    )
+  }
+
   if (!first && ncore == 1 && method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
     # rescore the examinees who responded to the removed item
     if (length(loc_resp) > 0L) {
-      score[loc_resp] <-
-        est_score(
-          x = x, data = data[loc_resp, , drop = FALSE], D = D, method = method,
-          range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-          ncore = ncore, ...)$est.theta
+      score[loc_resp] <- score_est(data[loc_resp, , drop = FALSE])
     }
   } else {
     # rescore all examinees
-    score <-
-      est_score(
-        x = x, data = data, D = D, method = method,
-        range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-        ncore = ncore, ...)$est.theta
+    score <- score_est(data)
   }
 
   # return the updated ability estimates
@@ -158,6 +165,16 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
 
   # return the checked inputs
   list(data = data, score = score, item.skip = item.skip)
+}
+
+
+# This function warns once about the examinees who lost their ability estimates during the
+# purification of the DIF and IPD functions
+warn_purify_excluded <- function(n_excluded) {
+  if (n_excluded > 0L) {
+    warning(n_excluded, " examinee(s) were excluded during the purification because they had ",
+            "too few responses to the remaining items to estimate the ability.", call. = FALSE)
+  }
 }
 
 

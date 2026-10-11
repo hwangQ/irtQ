@@ -273,6 +273,23 @@ test_that("crdif() excludes examinees with a missing ability estimate with a war
   expect_false(anyNA(out$value$with_purify$dif_stat$crdifrs))
 })
 
+test_that("crdif() reports the examinees who lose their ability estimates in the purification once", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+
+  # five examinees respond only to the fourth item, which is flagged and removed in the purification
+  resp <- sim$resp
+  resp[5:9, ] <- NA
+  resp[5:9, 4] <- 1
+  out <- crt_catch(crdif(sim$x, resp, score = score, group = sim$group, focal.name = 1,
+                         purify = TRUE, verbose = FALSE))
+  expect_true(4 %in% out$value$with_purify$dif_item)
+  msg <- grep("examinee\\(s\\) were excluded during the purification", out$warnings, value = TRUE)
+  expect_length(msg, 1)
+  expect_gte(as.numeric(sub(" .*", "", msg)), 5)
+  expect_false(any(grepl("NA values are returned", out$warnings)))
+})
+
 test_that("crdif() applies min.resp when the scores are estimated", {
   sim <- crt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
@@ -286,13 +303,18 @@ test_that("crdif() applies min.resp when the scores are estimated", {
   expect_identical(out$value$no_purify$dif_stat, r2$no_purify$dif_stat)
 })
 
-test_that("crdif() purification stops when every item is flagged", {
+test_that("crdif() purification stops with a warning when every item is flagged", {
   sim <- crt_sim()
-  expect_error(
-    suppressWarnings(crdif(sim$x[4:5, ], sim$resp[, 4:5], group = sim$group, focal.name = 1,
-                           purify = TRUE, alpha = 0.999, verbose = FALSE)),
-    "All items were flagged"
-  )
+  out <- crt_catch(crdif(sim$x[4:5, ], sim$resp[, 4:5], group = sim$group, focal.name = 1,
+                         purify = TRUE, alpha = 0.999, verbose = FALSE))
+  expect_true(any(grepl("All items were flagged", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_equal(out$value$with_purify$dif_item, 1:2)
+  expect_equal(out$value$with_purify$n.iter, 1)
+  expect_false(anyNA(out$value$with_purify$dif_stat$crdifrs))
+  rst0 <- suppressWarnings(crdif(sim$x[4:5, ], sim$resp[, 4:5], group = sim$group, focal.name = 1,
+                                 alpha = 0.999))
+  expect_identical(out$value$no_purify, rst0$no_purify)
 
   # purification works when one item is left
   rst <- suppressWarnings(crdif(sim$x[3:5, ], sim$resp[, 3:5], group = sim$group, focal.name = 1,

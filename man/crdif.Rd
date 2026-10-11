@@ -248,10 +248,12 @@ analysis, this is \code{no_purify$moments}.}
 \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
 items flagged by the \code{purify.by} statistic, sorted in ascending order. It
 contains the items removed during purification and, if \code{max.iter} is
-reached, the items flagged in the last iteration. \code{NULL} if no item is
-flagged in the initial analysis.}
+reached, the items flagged in the last iteration. It contains all items
+if every item is flagged. \code{NULL} if no item is flagged in the initial
+analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
-item is flagged in the initial analysis).}
+item is flagged in the initial analysis). The iteration that removes the
+last item is not counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of the ability estimates from the last
 iteration. \code{NULL} if no item is flagged in the initial analysis, because
 purification is not carried out; the initial estimates are then in
@@ -259,7 +261,7 @@ purification is not carried out; the initial estimates are then in
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because
-\code{max.iter} was reached.}
+\code{max.iter} was reached or because every item was flagged.}
 }
 }
 

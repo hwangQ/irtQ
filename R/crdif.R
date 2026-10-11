@@ -150,10 +150,12 @@
 #'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
 #'     items flagged by the `purify.by` statistic, sorted in ascending order. It
 #'     contains the items removed during purification and, if `max.iter` is
-#'     reached, the items flagged in the last iteration. `NULL` if no item is
-#'     flagged in the initial analysis.}
+#'     reached, the items flagged in the last iteration. It contains all items
+#'     if every item is flagged. `NULL` if no item is flagged in the initial
+#'     analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
-#'     item is flagged in the initial analysis).}
+#'     item is flagged in the initial analysis). The iteration that removes the
+#'     last item is not counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of the ability estimates from the last
 #'     iteration. `NULL` if no item is flagged in the initial analysis, because
 #'     purification is not carried out; the initial estimates are then in
@@ -161,7 +163,7 @@
 #'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
 #'     no remaining item was flagged (including the case in which no item is
 #'     flagged in the initial analysis), and `FALSE` if it stopped because
-#'     `max.iter` was reached.}
+#'     `max.iter` was reached or because every item was flagged.}
 #'   }
 #' }
 #'
@@ -541,6 +543,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
       # record unique item numbers
       item_num <- 1:nrow(x)
 
+      # indicate whether the purification stops because every item is flagged
+      all_flagged <- FALSE
+
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -582,10 +587,10 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         # refine the leftover items
         item_num <- item_num[-flag_min]
 
-        # stop when no item is left to estimate the abilities
+        # stop the purification when no item is left to estimate the abilities
         if (length(item_num) == 0L) {
-          stop("All items were flagged during the purification, so no item is left to analyze.",
-               call. = FALSE)
+          all_flagged <- TRUE
+          break
         }
 
         # remove the detected DIF item data which has the smallest p-value from the item metadata
@@ -615,7 +620,8 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
           dif_rescore(
             x = x_puri, data = data_puri, score = score_puri, loc_resp = loc_resp,
             first = (i == 1L), D = D, method = method, range = range,
-            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+            quiet_na = TRUE, ...
           )
 
         # do DIF analysis using the updated ability estimates
@@ -656,12 +662,18 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         cat("", "\n")
       }
 
-      # record the actual number of iteration
-      n_iter <- i
+      # record the actual number of iterations; the statistics are not recomputed in the
+      # iteration that removes the last item
+      n_iter <- if (all_flagged) i - 1L else i
 
-      # if the maximum number of iterations is reached before purification is complete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
+      # if every item is flagged, then, return a warning message
+      if (all_flagged) {
+        warning("All items were flagged during the purification, so the purification stopped ",
+                "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
+        # if the maximum number of iterations is reached before purification is complete,
+        # then, return a warning message
         warning("The maximum number of iterations was reached before purification was completed.",
                 call. = FALSE)
         complete <- FALSE
@@ -686,6 +698,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
           cat("Purification is finished.", "\n")
         }
       }
+
+      # warn once about the examinees who lost their ability estimates during the purification
+      warn_purify_excluded(sum(is.na(score_puri) & rowSums(!is.na(data)) > 0))
 
       # record the final DIF detection results with the purification procedure
       with_purify$purify.by <- purify.by

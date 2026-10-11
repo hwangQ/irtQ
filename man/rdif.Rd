@@ -102,7 +102,8 @@ internally with \code{\link[=est_score]{est_score()}} using \code{method}, \code
 \code{nquad}, \code{weights}, and \code{ncore}. When \code{purify = TRUE}, abilities are
 re-estimated internally at every purification iteration, so a supplied
 \code{score} is used only in the initial analysis. A missing value in \code{score}
-excludes the examinee from the analysis with a warning. The \code{est_item}
+excludes the examinee from the analysis, also during purification, with a
+warning. The \code{est_item}
 method has no \code{score} argument; it uses the abilities stored in the object.
 Default is \code{NULL}.}
 
@@ -251,10 +252,12 @@ way as in \code{dif_stat}.}
 \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
 items flagged by the \code{purify.by} statistic, sorted in ascending order. It
 contains the items removed during purification and, if \code{max.iter} is
-reached, the items flagged in the last iteration. \code{NULL} if no item is
-flagged in the initial analysis.}
+reached, the items flagged in the last iteration. It contains all items
+if every item is flagged. \code{NULL} if no item is flagged in the initial
+analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
-item is flagged in the initial analysis).}
+item is flagged in the initial analysis). The iteration that removes the
+last item is not counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of the ability estimates from the last
 iteration. \code{NULL} if no item is flagged in the initial analysis, because
 purification is not carried out; the initial estimates are then in
@@ -262,7 +265,7 @@ purification is not carried out; the initial estimates are then in
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because
-\code{max.iter} was reached.}
+\code{max.iter} was reached or because every item was flagged.}
 }
 }
 
@@ -348,8 +351,11 @@ Examinees whose ability estimate is \code{NA}, such as examinees without any ite
 response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
 computation of the RDIF statistics. A warning reports the number of
 examinees with item responses who are excluded because of a missing value in
-\code{score}. The sample sizes \code{n.ref} and \code{n.foc} count only the examinees who
-are used.
+\code{score}; these examinees stay excluded during purification. During
+purification, an examinee whose responses are all removed with the flagged
+items also has no ability estimate and is excluded, and one warning at the
+end reports the number of such examinees. The sample sizes \code{n.ref} and
+\code{n.foc} count only the examinees who are used.
 
 If no examinee of one of the two groups responded to an item, the
 statistics and p-values of the item are \code{NaN}, and the item is not flagged.
@@ -366,8 +372,9 @@ supplied \code{score} is therefore used only in the initial analysis. The
 procedure stops when no remaining item is flagged or when \code{max.iter}
 iterations have been performed, where \code{max.iter} must be a single whole
 number of at least 1. If no item is flagged in the initial analysis, no
-iteration is performed. The function stops with an error when every item is
-flagged, because no item is left to estimate the abilities.
+iteration is performed. If every item is flagged, the procedure stops with
+a warning, because no item is left to estimate the abilities, and
+\code{complete} is \code{FALSE}.
 
 Scoring based on a small number of item responses can lead to large
 standard errors, potentially reducing the accuracy of DIF detection in the
