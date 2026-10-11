@@ -775,24 +775,14 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           data_puri[loc_less, ] <- NA
         }
 
-        # re-estimate the abilities of all examinees without the flagged items
-        if (i > 1L && ncore == 1 && method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
-          # rescore only the examinees whose responses changed, since the pattern scoring
-          # methods estimate each examinee independently
-          if (length(loc_resp) > 0L) {
-            score[loc_resp] <-
-              est_score(
-                x = x_puri, data = data_puri[loc_resp, , drop = FALSE], D = D, method = method,
-                range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-                ncore = ncore, ...)$est.theta
-          }
-        } else {
-          score <-
-            est_score(
-              x = x_puri, data = data_puri, D = D, method = method,
-              range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
-              ncore = ncore, ...)$est.theta
-        }
+        # re-estimate the abilities without the flagged items; only the examinees who responded
+        # to the deleted item are rescored after the first iteration
+        score <-
+          dif_rescore(
+            x = x_puri, data = data_puri, score = score, loc_resp = loc_resp,
+            first = (i == 1L), D = D, method = method, range = range,
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+          )
 
         # do IPD analysis using the updated ability estimates
         ipd_rst_tmp <- ripd_one(

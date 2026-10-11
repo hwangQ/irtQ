@@ -323,262 +323,16 @@ crdif.default <- function(x,
   # match.call
   cl <- match.call()
 
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of DIF analysis
-  dif_rst <-
-    crdif_one(x = x, data = data, score = score, group = group,
-              focal.name = focal.name, item.skip = item.skip, D = D,
-              alpha = alpha)
-
-  # create two empty lists to contain the results
-  no_purify <- list(dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL)
-  with_purify <- list(
-    purify.by = NULL, dif_stat = NULL, moments = NULL,
-    dif_item = NULL, n.iter = NULL, score = NULL, complete = NULL
+  # conduct the DIF analysis
+  rst <- crdif_main(
+    x = x, data = data, score = score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = D, alpha = alpha, missing = missing, purify = purify,
+    purify.by = purify.by, max.iter = max.iter, min.resp = min.resp, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+    ncore = ncore, verbose = verbose, ...
   )
 
-  # record the first DIF detection results into the no purification list
-  no_purify$dif_stat <- dif_rst$dif_stat
-  no_purify$dif_item <- dif_rst$dif_item
-  no_purify$moments <- dif_rst$moments
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected DIF items, statistics, and moments
-    dif_item <- NULL
-    dif_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)),
-        crdifr = NA, df.crdifr = NA,
-        crdifs = NA, df.crdifs = NA,
-        crdifrs = NA, df.crdifrs = NA,
-        p.crdifr = NA, p.crdifs = NA, p.crdifrs = NA,
-        n.ref = NA, n.foc = NA, n.total = NA, n.iter = NA,
-        stringsAsFactors = FALSE)
-    mmt_list <-
-      purrr::map(
-        .x = dif_rst$moments,
-        .f = ~ {
-          purrr::map(.x = .x, .f = function(k) {
-            NA
-          })
-        }
-      )
-
-    # extract the first DIF analysis results
-    # and check if at least one DIF item is detected
-    dif_item_tmp <- dif_rst$dif_item[[purify.by]]
-    dif_stat_tmp <- dif_rst$dif_stat
-    mmt_list_tmp <- no_purify$moments
-    dif_pval_tmp <- dif_rst$p_val
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-
-    # start the iteration if any item is detected as an DIF item
-    if (!is.null(dif_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # a flagged item which has the smallest significant p-value
-        flag_min <-
-          switch(purify.by,
-                 crdifr = which.min(dif_pval_tmp$crdifr),
-                 crdifs = which.min(dif_pval_tmp$crdifs),
-                 crdifrs = which.min(dif_pval_tmp$crdifrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_min]
-
-        # add the deleted item as the DIF item
-        dif_item <- c(dif_item, del_item)
-
-        # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:13] <- dif_stat_tmp[flag_min, ]
-        dif_stat[del_item, 14] <- i - 1
-        mmt_list$mu.crdifr[[del_item]] <- mmt_list_tmp$mu.crdifr[[flag_min]]
-        mmt_list$mu.crdifs[[del_item]] <- mmt_list_tmp$mu.crdifs[[flag_min]]
-        mmt_list$mu.crdifrs[[del_item]] <- mmt_list_tmp$mu.crdifrs[[flag_min]]
-        mmt_list$cov.crdifr[[del_item]] <- mmt_list_tmp$cov.crdifr[[flag_min]]
-        mmt_list$cov.crdifs[[del_item]] <- mmt_list_tmp$cov.crdifs[[flag_min]]
-        mmt_list$cov.crdifrs[[del_item]] <- mmt_list_tmp$cov.crdifrs[[flag_min]]
-
-        # refine the leftover items
-        item_num <- item_num[-flag_min]
-
-        # remove the detected DIF item data which has the smallest p-value from the item metadata
-        x_puri <- x_puri[-flag_min, ]
-
-        # remove the detected DIF item data which has the smallest p-value from the response data
-        data_puri <- data_puri[, -flag_min]
-
-        # update the locations of the items that should be skipped in the purified data
-        if (!is.null(item.skip)) {
-          item.skip.puri <- c(1:length(item_num))[item_num %in% item.skip]
-        } else {
-          item.skip.puri <- NULL
-        }
-
-        # if min.resp is not NULL, find the examinees who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- rowSums(!is.na(data_puri))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range,
-          norm.prior = norm.prior, nquad = nquad, weights = weights,
-          ncore = ncore, ...)$est.theta
-
-        # do DIF analysis using the updated ability estimates
-        dif_rst_tmp <-
-          crdif_one(
-            x = x_puri, data = data_puri, score = score_puri, group = group,
-            focal.name = focal.name, item.skip = item.skip.puri, D = D,
-            alpha = alpha)
-
-        # extract the first DIF analysis results
-        # and check if at least one DIF item is detected
-        dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
-        dif_stat_tmp <- dif_rst_tmp$dif_stat
-        mmt_list_tmp <- dif_rst_tmp$moments
-        dif_pval_tmp <- dif_rst_tmp$p_val
-
-        # check if a further DIF item is flagged
-        if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
-          # add the DIF statistics for rest of items
-          dif_stat[item_num, 1:13] <- dif_stat_tmp
-          dif_stat[item_num, 14] <- i
-          mmt_list$mu.crdifr[item_num] <- mmt_list_tmp$mu.crdifr
-          mmt_list$mu.crdifs[item_num] <- mmt_list_tmp$mu.crdifs
-          mmt_list$mu.crdifrs[item_num] <- mmt_list_tmp$mu.crdifrs
-          mmt_list$cov.crdifr[item_num] <- mmt_list_tmp$cov.crdifr
-          mmt_list$cov.crdifs[item_num] <- mmt_list_tmp$cov.crdifs
-          mmt_list$cov.crdifrs[item_num] <- mmt_list_tmp$cov.crdifrs
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged DIF item at the last iteration
-        dif_item <- c(dif_item, item_num[dif_item_tmp])
-
-        # add the DIF statistics for rest of items
-        dif_stat[item_num, 1:13] <- dif_stat_tmp
-        dif_stat[item_num, 14] <- i
-        mmt_list$mu.crdifr[item_num] <- mmt_list_tmp$mu.crdifr
-        mmt_list$mu.crdifs[item_num] <- mmt_list_tmp$mu.crdifs
-        mmt_list$mu.crdifrs[item_num] <- mmt_list_tmp$mu.crdifrs
-        mmt_list$cov.crdifr[item_num] <- mmt_list_tmp$cov.crdifr
-        mmt_list$cov.crdifs[item_num] <- mmt_list_tmp$cov.crdifs
-        mmt_list$cov.crdifrs[item_num] <- mmt_list_tmp$cov.crdifrs
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final DIF detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- dif_stat
-      with_purify$moments <- mmt_list
-      with_purify$dif_item <- sort(dif_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score_puri
-      with_purify$complete <- complete
-    } else {
-      # in case when no DIF item is detected from the first DIF analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
-      with_purify$moments <- no_purify$moments
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify,
-              with_purify = with_purify, alpha = alpha)
-
   # return the DIF detection results
-  class(rst) <- "crdif"
   rst$call <- cl
   rst
 }
@@ -612,267 +366,16 @@ crdif.est_irt <- function(x,
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  D <- x$scale.D
-  x <- x$par.est
-
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of DIF analysis
-  dif_rst <-
-    crdif_one(x = x, data = data, score = score, group = group,
-              focal.name = focal.name, item.skip = item.skip, D = D,
-              alpha = alpha)
-
-  # create two empty lists to contain the results
-  no_purify <- list(dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL)
-  with_purify <- list(
-    purify.by = NULL, dif_stat = NULL, moments = NULL,
-    dif_item = NULL, n.iter = NULL, score = NULL, complete = NULL
+  # conduct the DIF analysis with the data, scaling factor, and items of the object
+  rst <- crdif_main(
+    x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = x$scale.D, alpha = alpha, missing = missing,
+    purify = purify, purify.by = purify.by, max.iter = max.iter, min.resp = min.resp,
+    method = method, range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, ncore = ncore, verbose = verbose, ...
   )
 
-  # record the first DIF detection results into the no purification list
-  no_purify$dif_stat <- dif_rst$dif_stat
-  no_purify$dif_item <- dif_rst$dif_item
-  no_purify$moments <- dif_rst$moments
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected DIF items, statistics, and moments
-    dif_item <- NULL
-    dif_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)),
-        crdifr = NA, df.crdifr = NA,
-        crdifs = NA, df.crdifs = NA,
-        crdifrs = NA, df.crdifrs = NA,
-        p.crdifr = NA, p.crdifs = NA, p.crdifrs = NA,
-        n.ref = NA, n.foc = NA, n.total = NA, n.iter = NA,
-        stringsAsFactors = FALSE)
-    mmt_list <-
-      purrr::map(
-        .x = dif_rst$moments,
-        .f = ~ {
-          purrr::map(.x = .x, .f = function(k) {
-            NA
-          })
-        }
-      )
-
-    # extract the first DIF analysis results
-    # and check if at least one DIF item is detected
-    dif_item_tmp <- dif_rst$dif_item[[purify.by]]
-    dif_stat_tmp <- dif_rst$dif_stat
-    mmt_list_tmp <- no_purify$moments
-    dif_pval_tmp <- dif_rst$p_val
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-
-    # start the iteration if any item is detected as an DIF item
-    if (!is.null(dif_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # a flagged item which has the smallest significant p-value
-        flag_min <-
-          switch(purify.by,
-                 crdifr = which.min(dif_pval_tmp$crdifr),
-                 crdifs = which.min(dif_pval_tmp$crdifs),
-                 crdifrs = which.min(dif_pval_tmp$crdifrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_min]
-
-        # add the deleted item as the DIF item
-        dif_item <- c(dif_item, del_item)
-
-        # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:13] <- dif_stat_tmp[flag_min, ]
-        dif_stat[del_item, 14] <- i - 1
-        mmt_list$mu.crdifr[[del_item]] <- mmt_list_tmp$mu.crdifr[[flag_min]]
-        mmt_list$mu.crdifs[[del_item]] <- mmt_list_tmp$mu.crdifs[[flag_min]]
-        mmt_list$mu.crdifrs[[del_item]] <- mmt_list_tmp$mu.crdifrs[[flag_min]]
-        mmt_list$cov.crdifr[[del_item]] <- mmt_list_tmp$cov.crdifr[[flag_min]]
-        mmt_list$cov.crdifs[[del_item]] <- mmt_list_tmp$cov.crdifs[[flag_min]]
-        mmt_list$cov.crdifrs[[del_item]] <- mmt_list_tmp$cov.crdifrs[[flag_min]]
-
-        # refine the leftover items
-        item_num <- item_num[-flag_min]
-
-        # remove the detected DIF item data which has the smallest p-value from the item metadata
-        x_puri <- x_puri[-flag_min, ]
-
-        # remove the detected DIF item data which has the smallest p-value from the response data
-        data_puri <- data_puri[, -flag_min]
-
-        # update the locations of the items that should be skipped in the purified data
-        if (!is.null(item.skip)) {
-          item.skip.puri <- c(1:length(item_num))[item_num %in% item.skip]
-        } else {
-          item.skip.puri <- NULL
-        }
-
-        # if min.resp is not NULL, find the examinees who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- rowSums(!is.na(data_puri))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range,
-          norm.prior = norm.prior, nquad = nquad, weights = weights,
-          ncore = ncore, ...)$est.theta
-
-        # do DIF analysis using the updated ability estimates
-        dif_rst_tmp <-
-          crdif_one(
-            x = x_puri, data = data_puri, score = score_puri, group = group,
-            focal.name = focal.name, item.skip = item.skip.puri, D = D,
-            alpha = alpha)
-
-        # extract the first DIF analysis results
-        # and check if at least one DIF item is detected
-        dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
-        dif_stat_tmp <- dif_rst_tmp$dif_stat
-        mmt_list_tmp <- dif_rst_tmp$moments
-        dif_pval_tmp <- dif_rst_tmp$p_val
-
-        # check if a further DIF item is flagged
-        if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
-          # add the DIF statistics for rest of items
-          dif_stat[item_num, 1:13] <- dif_stat_tmp
-          dif_stat[item_num, 14] <- i
-          mmt_list$mu.crdifr[item_num] <- mmt_list_tmp$mu.crdifr
-          mmt_list$mu.crdifs[item_num] <- mmt_list_tmp$mu.crdifs
-          mmt_list$mu.crdifrs[item_num] <- mmt_list_tmp$mu.crdifrs
-          mmt_list$cov.crdifr[item_num] <- mmt_list_tmp$cov.crdifr
-          mmt_list$cov.crdifs[item_num] <- mmt_list_tmp$cov.crdifs
-          mmt_list$cov.crdifrs[item_num] <- mmt_list_tmp$cov.crdifrs
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged DIF item at the last iteration
-        dif_item <- c(dif_item, item_num[dif_item_tmp])
-
-        # add the DIF statistics for rest of items
-        dif_stat[item_num, 1:13] <- dif_stat_tmp
-        dif_stat[item_num, 14] <- i
-        mmt_list$mu.crdifr[item_num] <- mmt_list_tmp$mu.crdifr
-        mmt_list$mu.crdifs[item_num] <- mmt_list_tmp$mu.crdifs
-        mmt_list$mu.crdifrs[item_num] <- mmt_list_tmp$mu.crdifrs
-        mmt_list$cov.crdifr[item_num] <- mmt_list_tmp$cov.crdifr
-        mmt_list$cov.crdifs[item_num] <- mmt_list_tmp$cov.crdifs
-        mmt_list$cov.crdifrs[item_num] <- mmt_list_tmp$cov.crdifrs
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final DIF detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- dif_stat
-      with_purify$moments <- mmt_list
-      with_purify$dif_item <- sort(dif_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score_puri
-      with_purify$complete <- complete
-    } else {
-      # in case when no DIF item is detected from the first DIF analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
-      with_purify$moments <- no_purify$moments
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify,
-              with_purify = with_purify, alpha = alpha)
-
   # return the DIF detection results
-  class(rst) <- "crdif"
   rst$call <- cl
   rst
 }
@@ -905,11 +408,26 @@ crdif.est_item <- function(x,
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  score <- x$score
-  D <- x$scale.D
-  x <- x$par.est
+  # conduct the DIF analysis with the data, ability estimates, scaling factor, and items of the object
+  rst <- crdif_main(
+    x = x$par.est, data = x$data, score = x$score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = x$scale.D, alpha = alpha, missing = missing,
+    purify = purify, purify.by = purify.by, max.iter = max.iter, min.resp = min.resp,
+    method = method, range = range, norm.prior = norm.prior, nquad = nquad,
+    weights = weights, ncore = ncore, verbose = verbose, ...
+  )
+
+  # return the DIF detection results
+  rst$call <- cl
+  rst
+}
+
+
+# This function conducts the DIF analysis shared by the methods of crdif(): it prepares the
+# data and ability estimates, runs the analysis once, and applies the purification procedure
+crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, missing,
+                       purify, purify.by, max.iter, min.resp, method, range, norm.prior,
+                       nquad, weights, ncore, verbose, ...) {
 
   # confirm and correct all item metadata information
   x <- confirm_df(x)
@@ -965,7 +483,7 @@ crdif.est_item <- function(x,
   # when purification is used
   if (purify) {
     # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
+    purify.by <- match.arg(purify.by, c("crdifrs", "crdifr", "crdifs"))
 
     # create an empty vector and empty data frames
     # to contain the detected DIF items, statistics, and moments
@@ -996,11 +514,12 @@ crdif.est_item <- function(x,
     mmt_list_tmp <- no_purify$moments
     dif_pval_tmp <- dif_rst$p_val
 
-    # copy the response data and item meta data
+    # copy the response data, item meta data, and ability estimates
     x_puri <- x
     data_puri <- data
+    score_puri <- score
 
-    # start the iteration if any item is detected as an DIF item
+    # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
@@ -1021,7 +540,7 @@ crdif.est_item <- function(x,
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the smallest significant p-value
+        # find the flagged item with the smallest p-value
         flag_min <-
           switch(purify.by,
                  crdifr = which.min(dif_pval_tmp$crdifr),
@@ -1044,6 +563,9 @@ crdif.est_item <- function(x,
         mmt_list$cov.crdifr[[del_item]] <- mmt_list_tmp$cov.crdifr[[flag_min]]
         mmt_list$cov.crdifs[[del_item]] <- mmt_list_tmp$cov.crdifs[[flag_min]]
         mmt_list$cov.crdifrs[[del_item]] <- mmt_list_tmp$cov.crdifrs[[flag_min]]
+
+        # find the examinees who responded to the item to be deleted
+        loc_resp <- which(!is.na(data_puri[, flag_min]))
 
         # refine the leftover items
         item_num <- item_num[-flag_min]
@@ -1069,11 +591,14 @@ crdif.est_item <- function(x,
           data_puri[loc_less, ] <- NA
         }
 
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range,
-          norm.prior = norm.prior, nquad = nquad, weights = weights,
-          ncore = ncore, ...)$est.theta
+        # compute the updated ability estimates after deleting the detected DIF item data;
+        # only the examinees who responded to the deleted item are rescored after the first iteration
+        score_puri <-
+          dif_rescore(
+            x = x_puri, data = data_puri, score = score_puri, loc_resp = loc_resp,
+            first = (i == 1L), D = D, method = method, range = range,
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+          )
 
         # do DIF analysis using the updated ability estimates
         dif_rst_tmp <-
@@ -1082,7 +607,7 @@ crdif.est_item <- function(x,
             focal.name = focal.name, item.skip = item.skip.puri, D = D,
             alpha = alpha)
 
-        # extract the first DIF analysis results
+        # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
         dif_stat_tmp <- dif_rst_tmp$dif_stat
@@ -1091,9 +616,6 @@ crdif.est_item <- function(x,
 
         # check if a further DIF item is flagged
         if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
           # add the DIF statistics for rest of items
           dif_stat[item_num, 1:13] <- dif_stat_tmp
           dif_stat[item_num, 14] <- i
@@ -1116,10 +638,11 @@ crdif.est_item <- function(x,
       # record the actual number of iteration
       n_iter <- i
 
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
+      # if the maximum number of iterations is reached before purification is complete,
       # then, return a warning message
       if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
+        warning("The maximum number of iterations was reached before purification was completed.",
+                call. = FALSE)
         complete <- FALSE
 
         # add flagged DIF item at the last iteration
@@ -1167,11 +690,11 @@ crdif.est_item <- function(x,
 
   # return the DIF detection results
   class(rst) <- "crdif"
-  rst$call <- cl
   rst
 }
 
-# This function conducts one iteration of DIF analysis using the IRT residual based statistics
+
+# This function conducts one iteration of DIF analysis using the categorical residual-based statistics
 crdif_one <- function(x,
                       data,
                       score,
@@ -1308,7 +831,7 @@ crdif_one <- function(x,
       }
     )
 
-  # compute the raw residuals
+  # compute the category residuals (one-hot responses minus category probabilities)
   resid_ref <- purrr::map2(.x = freqtab_ref, .y = prob_ref, .f = ~ {
     .x - .y
   })
@@ -1464,15 +987,12 @@ crdif_one <- function(x,
     }
   }
 
-  # degree of freedom for chi-square statistics
+  # degrees of freedom of the chi-square statistics
   df.1 <- cats
   df.1[df.1 == 2] <- 1
   df.2 <- df.1  * 2
 
   # calculate p-values for all three statistics
-  # p_crdifr <- round(stats::pchisq(chisq_r, df=df.1, lower.tail=FALSE), 4)
-  # p_crdifs <- round(stats::pchisq(chisq_s, df=df.1, lower.tail=FALSE), 4)
-  # p_crdifrs <- round(stats::pchisq(chisq_rs, df=df.2, lower.tail=FALSE), 4)
   p_crdifr <- stats::pchisq(chisq_r, df = df.1, lower.tail = FALSE)
   p_crdifs <- stats::pchisq(chisq_s, df = df.1, lower.tail = FALSE)
   p_crdifrs <- stats::pchisq(chisq_rs, df = df.2, lower.tail = FALSE)
