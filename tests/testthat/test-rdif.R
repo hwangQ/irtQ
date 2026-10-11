@@ -348,6 +348,14 @@ test_that("quad_form() uses the inverse for a regular matrix and the rank for a 
   expect_true(is.na(irtQ:::quad_form(matrix(NA_real_, 2, 2), d, df = 2)$stat))
 })
 
+test_that("print() of rdif results leaves the significance symbols of skipped items blank", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  rst <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", item.skip = 2)
+  out <- utils::capture.output(print(rst))
+  expect_false(any(grepl("?", out, fixed = TRUE)))
+})
+
 test_that("rdif() stops with clear errors for invalid inputs", {
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

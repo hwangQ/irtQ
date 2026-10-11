@@ -27,13 +27,13 @@ print.crdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     dplyr::mutate_at(.vars = c(4, 6, 7, 9, 10, 12), round, digits = 3) %>%
     dplyr::mutate(
       " " = stats::symnum(.data$p.crdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                          symbols = c("***", "**", "*", ".", "")
+                          symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "  " = stats::symnum(.data$p.crdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                           symbols = c("***", "**", "*", ".", "")
+                           symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "   " = stats::symnum(.data$p.crdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                            symbols = c("***", "**", "*", ".", "")
+                            symbols = c("***", "**", "*", ".", ""), na = ""
       )
     ) %>%
     dplyr::relocate(" ", .after = "p.crdifr") %>%
@@ -77,13 +77,13 @@ print.crdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
       dplyr::mutate_at(.vars = c(5, 7, 8, 10, 11, 13), round, digits = 3) %>%
       dplyr::mutate(
         " " = stats::symnum(.data$p.crdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                            symbols = c("***", "**", "*", ".", "")
+                            symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "  " = stats::symnum(.data$p.crdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                             symbols = c("***", "**", "*", ".", "")
+                             symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "   " = stats::symnum(.data$p.crdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-                              symbols = c("***", "**", "*", ".", "")
+                              symbols = c("***", "**", "*", ".", ""), na = ""
         )
       ) %>%
       dplyr::relocate(" ", .after = "p.crdifr") %>%
@@ -422,13 +422,13 @@ print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     dplyr::mutate_at(.vars = 4:9, round, digits = 3) %>%
     dplyr::mutate(
       " " = stats::symnum(.data$p.rdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "  " = stats::symnum(.data$p.rdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "   " = stats::symnum(.data$p.rdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       )
     ) %>%
     dplyr::relocate(" ", .after = "p.rdifr") %>%
@@ -462,13 +462,13 @@ print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
       dplyr::mutate_at(.vars = 5:10, round, digits = 3) %>%
       dplyr::mutate(
         " " = stats::symnum(.data$p.rdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "  " = stats::symnum(.data$p.rdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "   " = stats::symnum(.data$p.rdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         )
       ) %>%
       dplyr::relocate(" ", .after = "p.rdifr") %>%

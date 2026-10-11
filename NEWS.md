@@ -413,6 +413,10 @@
   iteration. One warning at the end reports the number of examinees who
   lost their ability estimates during the purification.
 
+- The `print()` methods of `rdif()` and `crdif()` leave the significance
+  symbol of an item skipped with `item.skip` blank. Before, it showed
+  `?`, which the legend does not explain.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

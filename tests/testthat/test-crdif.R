@@ -359,6 +359,14 @@ test_that("crdif() purification stops with a warning when every item is flagged"
   expect_false(anyNA(rst$with_purify$dif_stat$crdifrs))
 })
 
+test_that("print() of crdif results leaves the significance symbols of skipped items blank", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  rst <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1, item.skip = 2)
+  out <- utils::capture.output(print(rst))
+  expect_false(any(grepl("?", out, fixed = TRUE)))
+})
+
 test_that("crdif() stops with clear errors for invalid inputs", {
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
