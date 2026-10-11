@@ -354,6 +354,9 @@ pcd2 <- function(x,
   # Check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))
 
+  # Stop when the minimum number of responses is not a single nonnegative number
+  check_min_resp(min.resp)
+
   # count the number of item responses across all items
   n.resp <- Rfast::colsums(!is.na(data))
 

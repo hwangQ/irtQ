@@ -278,7 +278,7 @@ test_that("ripd() uses a generalized inverse when the covariance matrix is singu
   expect_warning(
     rst <- ripd(x1, resp, score = rep(1, 200), group = rep(1:2, each = 100), focal.name = 2,
                 verbose = FALSE),
-    "singular for item(s) V1, V2", fixed = TRUE
+    "singular or nearly singular for item(s) V1, V2", fixed = TRUE
   )
   stat <- rst$no_purify$ipd_stat
   expect_equal(stat$ripdrs, round(stat$z.ripdr^2, 4), tolerance = 1e-3)
@@ -314,6 +314,89 @@ test_that("ripd() purification removes only flagged items when an item has a sin
   removed <- rst$with_purify$ipd_stat
   removed <- removed[removed$n.iter < rst$with_purify$n.iter, ]
   expect_true(all(removed$p.ripdrs <= alpha))
+})
+
+test_that("ripd() reports the examinees who lose their ability estimates in the purification once", {
+  sim <- ripd_sing_sim()
+
+  # one more examinee responds only to item 1, which is flagged first and removed in the purification
+  resp <- rbind(sim$resp, NA)
+  resp[nrow(resp), 1] <- 1
+  ws <- character()
+  rst <- withCallingHandlers(
+    ripd(sim$x, resp, group = c(sim$group, 1), focal.name = 1, alpha = 0.3, purify = TRUE,
+         verbose = FALSE),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_gte(rst$with_purify$n.iter, 1)
+  expect_true(1 %in% rst$with_purify$ipd_item)
+  expect_equal(sum(grepl("were excluded during the purification", ws)), 1)
+  expect_false(any(grepl("NA values are returned", ws)))
+})
+
+test_that("ripd() warns once about min.resp when the scores are estimated", {
+  sim <- ripd_sim()
+  ws <- character()
+  withCallingHandlers(
+    ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", min.resp = 8, verbose = FALSE),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_length(ws, 1)
+  expect_match(ws, "fewer than 8 responses")
+})
+
+test_that("ripd() warns once about the number of cores during the purification", {
+  skip_on_cran()
+  sim <- ripd_sim()
+  ws <- character()
+  rst <- withCallingHandlers(
+    ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, ncore = 2,
+         verbose = FALSE),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_gte(rst$with_purify$n.iter, 2)
+  expect_equal(sum(grepl("^ncore > 1", ws)), 1)
+})
+
+test_that("ripd() purified scores equal the scores from the remaining items", {
+  sim <- ripd_sing_sim()
+  for (m in c("ML", "EAP")) {
+    rst <- suppressWarnings(ripd(sim$x, sim$resp, group = sim$group, focal.name = 1, method = m,
+                                 alpha = 0.3, purify = TRUE, verbose = FALSE))
+    keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$ipd_item)
+    expect_gte(rst$with_purify$n.iter, 2)
+    sc <- suppressWarnings(est_score(sim$x[keep, ], sim$resp[, keep], D = 1, method = m)$est.theta)
+    expect_identical(rst$with_purify$score, sc)
+  }
+})
+
+test_that("ripd() and pcd2() check min.resp, score, and the scoring method", {
+  sim <- ripd_sing_sim()
+  expect_error(ripd(sim$x, sim$resp, group = sim$group, focal.name = 1, min.resp = "a"), "min.resp")
+  expect_error(ripd(sim$x, sim$resp, group = sim$group, focal.name = 1, min.resp = -1), "min.resp")
+  expect_error(pcd2(sim$x, sim$resp, min.resp = "a"), "min.resp")
+  expect_error(pcd2(sim$x, sim$resp, min.resp = c(1, 2)), "min.resp")
+  expect_error(ripd(sim$x, sim$resp, score = as.character(sim$score), group = sim$group, focal.name = 1),
+               "numeric")
+  for (m in c("EAP.SUM", "INV.TCC")) {
+    expect_error(ripd(sim$x, sim$resp, group = sim$group, focal.name = 1, method = m),
+                 "not supported by ripd")
+    expect_error(ripd(sim$x, sim$resp, score = sim$score, group = sim$group, focal.name = 1,
+                      purify = TRUE, method = m), "not supported by ripd")
+  }
+
+  # the scoring method is not used when the scores are supplied and no purification is requested
+  expect_no_error(suppressWarnings(ripd(sim$x, sim$resp, score = sim$score, group = sim$group,
+                                        focal.name = 1, method = "EAP.SUM")))
 })
 
 test_that("print.ripd() prints the results of each analysis and honors what", {

@@ -596,6 +596,17 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
   # check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))
 
+  # stop when the minimum number of responses is not a single nonnegative number
+  check_min_resp(min.resp)
+
+  # stop when the abilities are estimated or updated with an unsupported scoring method
+  if (is.null(score) || purify) {
+    check_pattern_method(method)
+  }
+
+  # record whether the ability estimates are supplied
+  score_given <- !is.null(score)
+
   # find the focal group examinees with fewer than min.resp responses
   loc_less <- NULL
   if (!is.null(min.resp)) {
@@ -605,14 +616,8 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # transform the scores to a vector form when they are provided
   if (!is.null(score)) {
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-
-    # stop when the scores do not match the rows of the response data
-    if (length(score) != nrow(data)) {
-      stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
-    }
+    # transform the scores to a vector form and check them
+    score <- check_score(score, nrow(data))
 
     # warn that the examinees with responses but without an ability estimate are excluded
     n_na <- sum(is.na(score) & rowSums(!is.na(data)) > 0)
@@ -638,9 +643,12 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # compute the score if score = NULL
   if (is.null(score)) {
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
+    # estimate the abilities; the examinees without a response are excluded without a warning
+    score <- dif_rescore(
+      x = x, data = data, score = NULL, loc_resp = NULL, first = TRUE, D = D, method = method,
+      range = range, norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+      quiet_na = TRUE, ...
+    )
   } else if (length(loc_less) > 0L) {
     # treat the ability estimates of those examinees as missing
     score[loc_less] <- NA
@@ -786,7 +794,8 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           dif_rescore(
             x = x_puri, data = data_puri, score = score, loc_resp = loc_resp,
             first = (i == 1L), D = D, method = method, range = range,
-            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+            quiet_na = TRUE, quiet_ncore = (i > 1L || !score_given), ...
           )
 
         # stop the purification when the examinees of a group have all lost their ability estimates;
@@ -877,6 +886,9 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         }
       }
 
+      # warn once about the examinees who lost their ability estimates during the purification
+      warn_purify_excluded(sum(is.na(score) & rowSums(!is.na(data)) > 0))
+
       # record the final IPD detection results with the purification procedure
       with_purify$purify.by <- purify.by
       with_purify$ipd_stat <- ipd_stat
@@ -897,7 +909,7 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # warn that the generalized inverse is used for the items with a singular covariance matrix
   if (length(singular_id) > 0L) {
-    warning("The covariance matrix of RIPD_R and RIPD_S is singular for item(s) ",
+    warning("The covariance matrix of RIPD_R and RIPD_S is singular or nearly singular for item(s) ",
             paste(singular_id, collapse = ", "), ". RIPD_RS of these items is computed ",
             "with a generalized inverse and fewer degrees of freedom.", call. = FALSE)
   }

@@ -110,10 +110,7 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
   }
 
   # stop when the minimum number of responses is not a single nonnegative number
-  if (!is.null(min.resp) && !(is.numeric(min.resp) && length(min.resp) == 1L &&
-                              is.finite(min.resp) && min.resp >= 0)) {
-    stop("'min.resp' must be NULL or a single nonnegative number.", call. = FALSE)
-  }
+  check_min_resp(min.resp)
 
   # check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))
@@ -135,20 +132,8 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
 
   # compute the score if score = NULL
   if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-
-    # stop when the scores are not numbers
-    if (!is.numeric(score)) {
-      stop("'score' must be a numeric vector.", call. = FALSE)
-    }
-
-    # stop when the scores do not match the rows of the response data
-    if (length(score) != nrow(data)) {
-      stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
-    }
+    # transform the scores to a vector form and check them
+    score <- check_score(score, nrow(data))
 
     # treat the ability estimates of the examinees excluded by min.resp as missing
     score[loc_less] <- NA
@@ -192,6 +177,49 @@ warn_purify_excluded <- function(n_excluded) {
   if (n_excluded > 0L) {
     warning(n_excluded, " examinee(s) were excluded during the purification because they had ",
             "too few responses to the remaining items to estimate the ability.", call. = FALSE)
+  }
+}
+
+
+# This function stops when the minimum number of responses is not NULL or a single nonnegative
+# number
+check_min_resp <- function(min.resp) {
+  if (!is.null(min.resp) && !(is.numeric(min.resp) && length(min.resp) == 1L &&
+                              is.finite(min.resp) && min.resp >= 0)) {
+    stop("'min.resp' must be NULL or a single nonnegative number.", call. = FALSE)
+  }
+}
+
+
+# This function transforms the supplied ability estimates to a vector and stops when they are not
+# numbers or do not match the rows of the response data
+check_score <- function(score, nrow_data) {
+  # transform the scores to a vector form
+  if (is.matrix(score) | is.data.frame(score)) {
+    score <- as.numeric(data.matrix(score))
+  }
+
+  # stop when the scores are not numbers
+  if (!is.numeric(score)) {
+    stop("'score' must be a numeric vector.", call. = FALSE)
+  }
+
+  # stop when the scores do not match the rows of the response data
+  if (length(score) != nrow_data) {
+    stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
+  }
+
+  # return the scores
+  score
+}
+
+
+# This function stops when the scoring method does not give one ability estimate per response
+# pattern, which the IPD functions need to estimate or update the abilities
+check_pattern_method <- function(method) {
+  if (length(method) != 1L || !method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
+    stop("The scoring method ", paste(method, collapse = ", "), " is not supported by ripd(). ",
+         "Use one of \"ML\", \"MLF\", \"WL\", \"MAP\", or \"EAP\".", call. = FALSE)
   }
 }
 
