@@ -99,6 +99,42 @@ crt_sim <- function(seed = 31, miss = 0.25) {
   list(x = x, resp = resp[keep, ], group = group[keep])
 }
 
+# Simulate dichotomous two-group data in which only item 1 is answered by examinees with a common
+# supplied ability, so that the covariance matrix of item 1 is singular and its RDIF_RS has one
+# degree of freedom
+crt_sing_sim <- function(seed = 1) {
+  set.seed(seed)
+  nitem <- 6
+  model <- sample(c("1PLM", "2PLM", "3PLM"), nitem, replace = TRUE)
+  a <- ifelse(model == "1PLM", 1, runif(nitem, 0.7, 2))
+  b <- rnorm(nitem)
+  g <- ifelse(model == "3PLM", runif(nitem, 0.05, 0.25), 0)
+  x <- data.frame(id = paste0("I", seq_len(nitem)), cats = 2, model = model, par.1 = a, par.2 = b,
+                  par.3 = ifelse(model == "3PLM", g, NA), stringsAsFactors = FALSE)
+  drift <- sort(sample(2:nitem, 2))
+  bf <- b
+  bf[drift] <- bf[drift] + sample(c(-1, 1), 2, TRUE) * 0.3
+  af <- a
+  af[drift[1]] <- af[drift[1]] * 0.5
+  thr <- rnorm(300)
+  thf <- rnorm(300, 0.2)
+  sim <- function(th, a, b) {
+    p <- sapply(seq_len(nitem), function(j) g[j] + (1 - g[j]) / (1 + exp(-a[j] * (th - b[j]))))
+    matrix(rbinom(length(p), 1, p), nrow = length(th))
+  }
+  resp <- rbind(sim(thr, a, b), sim(thf, af, bf))
+  resp[sample(length(resp), round(0.3 * length(resp)))] <- NA
+  group <- rep(0:1, each = 300)
+  score <- suppressWarnings(est_score(x, resp, D = 1)$est.theta)
+
+  # only 200 examinees answer item 1, and their supplied abilities are all equal
+  resp[, 1] <- NA
+  idx <- sample(nrow(resp), 200)
+  resp[idx, 1] <- rbinom(200, 1, ifelse(group[idx] == 1, 0.62, 0.5))
+  score[idx] <- 0.7
+  list(x = x, resp = resp, score = score, group = group)
+}
+
 # Evaluate an expression and return its value together with all warning messages
 crt_catch <- function(expr) {
   msgs <- character()
@@ -173,6 +209,26 @@ test_that("crdif() and rdif() agree on all three statistics for binary items", {
   expect_equal(s2$p.crdifrs, s1$p.rdifrs, tolerance = 1e-6)
   expect_equal(s2$df.crdifr, rep(1, sum(b)))
   expect_equal(s2$df.crdifrs, rep(2, sum(b)))
+})
+
+test_that("crdif() purification removes only flagged items when an item has a singular covariance", {
+  sim <- crt_sing_sim()
+  st <- suppressWarnings(crdif(sim$x, sim$resp, score = sim$score, group = sim$group,
+                           focal.name = 1))$no_purify$dif_stat
+  p <- st$p.crdifrs
+
+  # item 1 has the smallest p-value, but another item has the largest statistic
+  j <- which.max(st$crdifrs)
+  expect_false(j == 1)
+  expect_lt(p[1], p[j])
+
+  # only item 1 is flagged, so it is the only item that purification may remove first
+  alpha <- (p[1] + p[j]) / 2
+  rst <- suppressWarnings(crdif(sim$x, sim$resp, score = sim$score, group = sim$group,
+                           focal.name = 1, alpha = alpha, purify = TRUE, verbose = FALSE))
+  expect_identical(rst$no_purify$dif_item$crdifrs, 1L)
+  expect_true(1 %in% rst$with_purify$dif_item)
+  expect_false(j %in% rst$with_purify$dif_item)
 })
 
 test_that("crdif() uses a generalized inverse when a covariance matrix is singular", {
