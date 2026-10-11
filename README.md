@@ -53,8 +53,8 @@ including:
 
 - Detecting differential item functioning (DIF) using RDIF, RDIF-CR
   (categorical residuals), GRDIF (multiple groups), and CATSIB
-- Detecting item parameter drift (IPD) using the RIPD framework and the
-  Pseudo-count D^2 statistic
+- Detecting item parameter drift (IPD) using the residual-based IPD
+  (RIPD) framework and the pseudo-count D2 statistic
 - Computing classification accuracy and consistency indices
 - Designing, evaluating, and simulating multistage-adaptive test (MST)
   panels, including TIF-crossing cut-score selection, recursion-based

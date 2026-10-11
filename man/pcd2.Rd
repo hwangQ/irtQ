@@ -116,8 +116,9 @@ after applying the purification procedure. This list is populated only when both
 \code{purify = TRUE} and \code{crit.val} is not \code{NULL}; otherwise, all of its elements are \code{NULL}. It
 includes:
 \describe{
-\item{ipd_stat}{A data frame reporting the final pseudo-count \eqn{D^{2}} statistics
-after purification. Columns include:
+\item{ipd_stat}{A data frame of the pseudo-count \eqn{D^{2}} statistics for all
+items, taken for each item from the analysis given in \code{n.iter}. Columns
+include:
 \code{id} (item ID),
 \code{pcd2} (the computed \eqn{D^{2}} value),
 \code{N} (the number of valid responses), and
@@ -270,12 +271,14 @@ data(simIPD)
 ## and (b) are not suspected of IPD. In practice, exclude the items you
 ## suspect to have drifted; here the ground truth (simIPD$ipd_item) is
 ## excluded for illustration.
-## The minimum response count follows Lim & Han (2026). Cappaert et al.
-## (2018) did not set such a criterion, but in a CAT pool with uneven
-## exposure, items with few responses have large D2 values that inflate the
-## tail of the null distribution. For the simIPD data, the critical value
-## computed below is about 0.034 when all items with at least one response
-## are used, and about 0.004 with at least 300 responses.
+## The minimum response count follows Lim & Han (2026); it is a practical
+## addition to the procedure of Cappaert et al. (2018), who did not set such
+## a criterion. In a CAT pool with uneven exposure, items with few responses
+## have large D2 values that inflate the tail of the null distribution. For
+## the simIPD data, the critical value computed below is about 0.034 when
+## all items with at least one response are used, about 0.008 with at least
+## 50 responses, about 0.006 with at least 100, and about 0.004 with at
+## least 300.
 min_resp_anchor <- 300
 n_resp          <- colSums(!is.na(simIPD$foc_resp))   # observed responses per item
 anchor_items    <- setdiff(which(n_resp >= min_resp_anchor), simIPD$ipd_item)
@@ -314,7 +317,8 @@ cat("Bootstrap critical value (alpha = 0.05):", round(crit_val, 6), "\n")
 ## -- Step 4. Run PCD2 with the bootstrap critical value + purification --
 ## The statistics of the first analysis (pcd2_result$no_purify) are the same
 ## as those of pcd2_all for the analyzed items, since the same responses are
-## used.
+## used. The same warning about the items that were never administered
+## appears.
 pcd2_result <- pcd2(
   x         = simIPD$item_par,
   data      = simIPD$foc_resp,

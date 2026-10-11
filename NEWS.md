@@ -183,13 +183,15 @@
   estimate: a missing value in `score`, an examinee without any
   response, a focal group examinee left out by `min.resp` (so `min.resp`
   could not be used), or an examinee whose responses were all removed
-  during purification. Such examinees are now excluded, with a warning
-  for the first and the third case, and the function stops when no
-  examinee has an ability estimate. `min.resp` now also applies to the
-  first analysis when `score` is given, and an examinee with a missing
-  value in `score` stays out of the purification. The purification stops
-  with a warning and `complete = FALSE` when `min.resp`, which counts
-  the items that remain, leaves a group without any ability estimate.
+  during purification. Such examinees are now excluded, and the function
+  stops when no examinee has an ability estimate. A warning reports the
+  examinees excluded because of `score` or `min.resp`, and one warning
+  at the end of the purification reports the examinees excluded during
+  it. `min.resp` now also applies to the first analysis when `score` is
+  given, and an examinee with a missing value in `score` stays out of
+  the purification. The purification stops with a warning and
+  `complete = FALSE` when `min.resp`, which counts the items that
+  remain, leaves a group without any ability estimate.
 
 - `ripd()` and `pcd2()` stopped with an obscure error when purification
   left a single item. They now work. When every item is flagged, the
@@ -199,11 +201,11 @@
 - `ripd()` and `pcd2()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which
   gave chi-square values in the hundred thousands), a `group` of the
-  wrong length, and an `item.skip` that was not a set of item positions
-  (an ID given to `pcd2()` added a spurious row and skipped nothing).
-  They now stop with a clear message, a logical `item.skip` is read as
-  item positions, also during purification, and character responses are
-  read as numbers.
+  wrong length (`ripd()`), and an `item.skip` that was not a set of item
+  positions (an ID given to `pcd2()` added a spurious row and skipped
+  nothing). They now stop with a clear message, a logical `item.skip` is
+  read as item positions, also during purification, and character
+  responses are read as numbers.
 
 - `pcd2()` warned about excluded items even when `min.resp` excluded
   none, and worded the warning poorly. It now warns only when items are
@@ -388,6 +390,8 @@
   not define a panel (a module without transitions, a cycle, or a module
   outside the stages) instead of running forever, and it finds every
   stage when the modules are not numbered in the order of the stages.
+  `panel_info()`, `run_mst()`, `reval_mst()`, and `find_cut()` read a
+  logical route map as a 0/1 matrix.
 
 - `reval_mst()` accepts item metadata with a missing guessing parameter,
   such as 2PLM items from `shape_df()`. It checks and completes the item
@@ -423,10 +427,15 @@
   taken from the object, and the `est_item` methods do so for `score` as
   well. Before, they were silently ignored or caused an obscure error.
 
-- The purification of `rdif()` and `crdif()` is faster: after the first
-  iteration, only the examinees who responded to the removed item are
-  rescored when `ncore = 1` and `method` is a pattern scoring method.
-  Results are unchanged.
+- The purification of `rdif()`, `crdif()`, and `ripd()` is faster: after
+  the first iteration, only the examinees who responded to the removed
+  item are rescored when `ncore = 1` and `method` is a pattern scoring
+  method. Results are unchanged.
+
+- `ripd()` stops with a clear message for `method = "EAP.SUM"` or
+  `"INV.TCC"`, which it does not support, and `ripd()` and `pcd2()` stop
+  with a clear message when `min.resp` is not a single nonnegative
+  number. `ripd()` also stops when `score` is not numeric.
 
 - The `print()` methods of `rdif()` and `crdif()` leave the significance
   symbol of an item skipped with `item.skip` blank. Before, it showed

@@ -22,7 +22,8 @@
 #'   examinees. Its length must equal the number of rows in `data`. Examinees
 #'   whose value equals `focal.name` form the focal group; all other examinees
 #'   are pooled into the reference group (for example, the synthetic reference
-#'   group described in Details).
+#'   group described in Details). Examinees with `NA` in `group` are excluded
+#'   from both groups.
 #' @param item.skip A numeric vector of item positions (row numbers of `x`) to
 #'   exclude from the IPD analysis. If `NULL`, all items are analyzed. Skipped
 #'   items still contribute to the ability estimates; only their RIPD
@@ -33,6 +34,18 @@
 #'   for hypothesis testing using the RIPD statistics. Default is `0.05`.
 #' @param missing A value indicating missing values in the response data set.
 #'   Default is NA.
+#' @param method A character string indicating the scoring method used to
+#'   estimate the abilities when `score = NULL` and in every purification
+#'   iteration. Available options are:
+#'   - `"ML"`: Maximum likelihood estimation
+#'   - `"MLF"`: Maximum likelihood estimation with fences
+#'   - `"WL"`: Weighted likelihood estimation
+#'   - `"MAP"`: Maximum a posteriori estimation
+#'   - `"EAP"`: Expected a posteriori estimation
+#'
+#'   The methods `"EAP.SUM"` and `"INV.TCC"` of [irtQ::est_score()] are not
+#'   supported, because they do not give an ability estimate for each response
+#'   pattern. Default is `"ML"`.
 #' @param purify.by A character string specifying which RIPD statistic is used
 #'   to perform the purification. Available options are "ripdrs" for
 #'   \eqn{RIPD_{RS}}, "ripdr" for \eqn{RIPD_{R}}, and "ripds" for
@@ -66,10 +79,11 @@
 #'     columns `id`, `ripdr`, `z.ripdr` (standardized \eqn{RIPD_{R}}), `ripds`,
 #'     `z.ripds` (standardized \eqn{RIPD_{S}}), `ripdrs`, `p.ripdr`, `p.ripds`,
 #'     `p.ripdrs`, `n.ref`, `n.foc`, and `n.total`. `n.ref` and `n.foc` are the
-#'     numbers of examinees in each group who responded to the item. Statistics
-#'     and p-values are rounded to four decimal places and are `NA` for items in
-#'     `item.skip`. \eqn{RIPD_{RS}} has no standardized value because it is a
-#'     \eqn{\chi^{2}}-based statistic.}
+#'     numbers of examinees in each group who responded to the item and have an
+#'     ability estimate. Statistics and p-values are rounded to four decimal
+#'     places, and items are flagged using the unrounded p-values; they are `NA`
+#'     for items in `item.skip`. \eqn{RIPD_{RS}} has no standardized value
+#'     because it is a \eqn{\chi^{2}}-based statistic.}
 #'     \item{moments}{A data frame of the null means and standard deviations of
 #'     the RIPD statistics with the columns `id`, `mu.ripdr`, `sigma.ripdr`,
 #'     `mu.ripds`, `sigma.ripds`, and `covariance` (the covariance between
@@ -95,14 +109,14 @@
 #'     purification. Possible values are "ripdr", "ripds", and "ripdrs",
 #'     corresponding to \eqn{RIPD_{R}}, \eqn{RIPD_{S}}, and \eqn{RIPD_{RS}},
 #'     respectively.}
-#'     \item{ipd_stat}{A data frame reporting the RIPD analysis results for
-#'     all items from the final iteration. Same columns as in \code{no_purify}
-#'     plus `n.iter`. For a flagged item, `n.iter` is the iteration at which it
-#'     was flagged (0 is the initial analysis); for the other items, it is the
-#'     final iteration.}
-#'     \item{moments}{A data frame reporting the moments of RIPD statistics
-#'     from the final iteration. Includes the same columns as in
-#'     \code{no_purify}, with an additional column for the iteration number.}
+#'     \item{ipd_stat}{A data frame of the RIPD results for all items with the
+#'     same columns as in \code{no_purify} plus `n.iter`, the analysis from
+#'     which each row is taken. For a flagged item, `n.iter` is the iteration
+#'     at which it was flagged (0 is the initial analysis); for the other items,
+#'     it is the final iteration.}
+#'     \item{moments}{A data frame of the null moments for all items with the
+#'     same columns as in \code{no_purify} plus `n.iter`, taken from the same
+#'     analysis as the corresponding row of `ipd_stat`.}
 #'     \item{ipd_item}{A numeric vector of item indices (row positions in
 #'     \code{x}) identified as IPD items across all purification iterations,
 #'     sorted in ascending order. If \code{max.iter} is reached before
@@ -219,8 +233,9 @@
 #' applying \eqn{RIPD_R} and \eqn{RIPD_S} separately to the same item.
 #'
 #' In rare cases, the covariance matrix of \eqn{RIPD_R} and \eqn{RIPD_S} is
-#' singular, for example when all examinees who responded to an item have the
-#' same probability of a correct response, so that \eqn{RIPD_S} is a linear
+#' singular or nearly singular (its reciprocal condition number is 1e-10 or
+#' less), for example when all examinees who responded to an item have the same
+#' probability of a correct response, so that \eqn{RIPD_S} is a linear
 #' function of \eqn{RIPD_R}. Then \eqn{RIPD_{RS}} is computed with the
 #' Moore-Penrose generalized inverse of the covariance matrix and compared with
 #' a chi-square distribution whose degrees of freedom equal the rank of the

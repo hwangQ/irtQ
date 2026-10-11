@@ -518,6 +518,12 @@ print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 }
 
 
+#' @describeIn ripd Print method for an object of class `ripd`. It prints the
+#' flagged items and the RIPD statistics of the analyses without and with
+#' purification (see **Printing** in Details).
+#' @param what A character string selecting the results to print: `"all"`
+#'   (default), `"no_purify"`, or `"with_purify"`.
+#' @param digits Not used; kept for consistency with the other print methods.
 #' @export
 print.ripd <- function(x, digits = max(2L, getOption("digits") - 5L),
                        what = c("all", "no_purify", "with_purify"), ...) {

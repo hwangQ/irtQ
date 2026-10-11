@@ -28,9 +28,10 @@
 #'     identified by a preliminary CAT simulation as the most frequently
 #'     administered and therefore most relevant for IPD analysis.}
 #'   \item{item.skip}{An integer vector of length 270 giving the row indices of
-#'     non-key items that should be excluded from RIPD analysis
+#'     non-key items that should be excluded from the IPD analysis
 #'     (i.e., the complement of \code{key_item} in \code{1:360}).
-#'     Pass this vector to the \code{item.skip} argument of \code{ripd()}.}
+#'     Pass this vector to the \code{item.skip} argument of \code{ripd()} or
+#'     \code{pcd2()}.}
 #'   \item{ipd_item}{A numeric vector of length 18 giving the row indices of
 #'     items that were subjected to IPD manipulation.  These 18 items (5% of
 #'     the 360-item pool) had both their discrimination (\emph{a}) and difficulty
