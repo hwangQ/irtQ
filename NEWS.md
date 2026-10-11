@@ -221,10 +221,12 @@
 - `rdif()` and `crdif()` stopped with an obscure error when an examinee
   had no ability estimate: a missing value in `score`, an examinee
   without any response, an examinee left out by `min.resp` (so
-  `min.resp` could not be used when `score = NULL`), or an examinee
-  whose responses were all removed during purification. Such examinees
-  are now excluded, with a warning for the first and the third case, and
-  the functions stop when no examinee has an ability estimate.
+  `min.resp` could not exclude any examinee), or an examinee whose
+  responses were all removed during purification. Such examinees are now
+  excluded, and the functions stop when no examinee has an ability
+  estimate. A warning reports the examinees excluded because of `score`
+  or `min.resp`, and one warning at the end of the purification reports
+  the examinees excluded during the purification.
 
 - `rdif()` and `crdif()` stopped with an obscure error when purification
   left a single item, and `rdif()` also stopped with "non-conformable
@@ -242,10 +244,11 @@
   that is not in `group`, an `item.skip` that was not a set of item
   positions (a logical `item.skip` skipped only the first item during
   purification), an `alpha` outside (0, 1), a `max.iter` that was not a
-  positive whole number, and a `group` with more than two values (the
-  values other than `focal.name` were pooled into the reference group).
-  They now stop with a clear message; use `grdif()` to compare more than
-  two groups. Character responses are read as numbers.
+  positive whole number when `purify = TRUE`, and a `group` with more
+  than two values (the values other than `focal.name` were pooled into
+  the reference group). They now stop with a clear message; use
+  `grdif()` to compare more than two groups. Character responses are
+  read as numbers.
 
 - `rdif()` compared the p-values rounded to four decimals with `alpha`,
   so an item with a p-value just above `alpha` (for example, 0.05004 for
@@ -266,28 +269,27 @@
   with chi-square distributions with K and 2K degrees of freedom,
   although the category residuals of each examinee sum to zero, so the
   covariance matrices have ranks K - 1 and 2K - 1. The tests were
-  therefore conservative (about 2% of the DIF-free items were flagged at
-  `alpha = 0.05`). The degrees of freedom are now K - 1, K, and 2K - 1,
-  and the statistics are computed without adding a small constant to a
-  singular covariance matrix, which changed them in the fourth decimal.
-  Results for dichotomous items are unchanged.
+  therefore conservative (about 2% to 3% of the DIF-free items were
+  flagged by `RDIF_R-CR` and `RDIF_RS-CR` at `alpha = 0.05`). The
+  degrees of freedom are now K - 1, K, and 2K - 1, and the statistics
+  are computed without adding a small constant to a singular covariance
+  matrix, which changed them in the fourth decimal. Results for
+  dichotomous items are unchanged.
 
-- The purification of `rdif()` and `crdif()` now removes, in each
-  iteration, the flagged item with the smallest p-value of the
-  `purify.by` statistic, compared on the log scale. `crdif()` took the
-  item with the smallest p-value among all items, which was the item
-  listed first when several p-values were too small to be represented
-  (they were 0), and `rdif()` took the largest `RDIF_RS`, which is not
-  the smallest p-value when the degrees of freedom differ (a singular
-  covariance matrix) and could remove an item that was not flagged.
+- The purification of `crdif()` removed the item with the smallest
+  p-value, which was the item listed first when several p-values were
+  too small to be represented (they were 0). The purification of
+  `rdif()` and `crdif()` now removes the flagged item with the smallest
+  p-value of the `purify.by` statistic, compared on the log scale, so
+  the choice also holds for an item of `rdif()` whose `RDIF_RS` has
+  fewer degrees of freedom because of a singular covariance matrix.
   Results for regular data are unchanged.
 
-- `rdif()` and `crdif()` ignored `min.resp` in the first analysis when
-  `score` was supplied, and applied it only during purification, so the
-  analyses with and without purification used different examinees.
-  `min.resp` is now applied from the first analysis, with or without
-  `score`: the scores of the examinees with fewer than `min.resp`
-  responses are set to missing and these examinees are excluded.
+- `rdif()` and `crdif()` ignored `min.resp` in the initial analysis when
+  `score` was supplied. `min.resp` is now applied from the initial
+  analysis, with or without `score`: the scores of the examinees with
+  fewer than `min.resp` responses are set to missing and these examinees
+  are excluded.
 
 ## Minor Improvements
 
@@ -408,13 +410,13 @@
 
 - The `est_irt` and `est_item` methods of `rdif()` and `crdif()` stop
   with a clear message when `data` or `D` is passed, because both are
-  taken from the object. Before, they were silently ignored or caused an
-  obscure error.
+  taken from the object, and the `est_item` methods do so for `score` as
+  well. Before, they were silently ignored or caused an obscure error.
 
-- The purification of `rdif()` and `crdif()` no longer repeats the
-  warning of `est_score()` about examinees without responses in every
-  iteration. One warning at the end reports the number of examinees who
-  lost their ability estimates during the purification.
+- The purification of `rdif()` and `crdif()` is faster: after the first
+  iteration, only the examinees who responded to the removed item are
+  rescored when `ncore = 1` and `method` is a pattern scoring method.
+  Results are unchanged.
 
 - The `print()` methods of `rdif()` and `crdif()` leave the significance
   symbol of an item skipped with `item.skip` blank. Before, it showed

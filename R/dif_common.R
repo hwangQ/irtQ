@@ -1,7 +1,7 @@
 # This function updates the ability estimates after an item is removed during the purification
 # of the DIF and IPD functions. With the pattern scoring methods, the examinees are scored
 # independently, so after the first iteration only the examinees who responded to the removed
-# item are rescored
+# item are rescored when a single core is used
 dif_rescore <- function(x, data, score, loc_resp, first, D, method, range,
                         norm.prior, nquad, weights, ncore, quiet_na = FALSE,
                         quiet_ncore = FALSE, ...) {

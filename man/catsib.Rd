@@ -62,9 +62,9 @@ the focal group, set \code{focal.name = 1}.}
 
 \item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
 exclude from the analysis. Skipped items still contribute to the ability
-estimates, but their results (statistics, p-values, and moments) are set to
-\code{NA}, and they are never flagged or removed during purification. If \code{NULL},
-all items are analyzed. Default is \code{NULL}.}
+estimates, but their results (\code{beta}, \code{se}, \code{z.beta}, \code{p}, and the
+contingency table) are set to \code{NA}, and they are never flagged or removed
+during purification. If \code{NULL}, all items are analyzed. Default is \code{NULL}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly

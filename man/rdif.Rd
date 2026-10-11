@@ -151,17 +151,18 @@ purification results is \code{FALSE}, and the items flagged in the last
 iteration are added to the flagged items. This argument is not passed to
 \code{\link[=est_score]{est_score()}}.}
 
-\item{min.resp}{A positive integer specifying the minimum number of item
-responses that an examinee must have to be used in the analysis. All
-responses of examinees with fewer than \code{min.resp} (but at least one)
-responses are set to \code{NA} before the ability estimation, in the initial
-analysis and at every purification iteration, also when \code{score} is
-supplied, and these examinees are excluded from the analysis. A warning
-reports the number of examinees excluded in the initial analysis. A large
-\code{min.resp} can leave a group without any ability estimate in a later
-purification iteration, which stops the purification with a warning. If
-\code{NULL}, no minimum is applied. Default is \code{NULL}. See \strong{Details} for more
-information.}
+\item{min.resp}{A single nonnegative number, usually a positive integer,
+specifying the minimum number of item responses that an examinee must have
+to be used in the analysis. All responses of examinees with fewer than
+\code{min.resp} (but at least one) responses are set to \code{NA} before the ability
+estimation, in the initial analysis and at every purification iteration,
+also when \code{score} is supplied, and these examinees are excluded from the
+analysis. A warning reports the number of examinees excluded in the initial
+analysis, and one warning at the end of the purification reports the
+examinees excluded during it. A large \code{min.resp} can leave a group without
+any ability estimate in a later purification iteration, which stops the
+purification with a warning. If \code{NULL}, no minimum is applied. Default is
+\code{NULL}. See \strong{Details} for more information.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:
@@ -315,9 +316,10 @@ in the inverse of their null covariance matrix. Under the null hypothesis,
 degrees of freedom (Lim et al., 2022, Equation 20).
 
 In rare cases, the covariance matrix of \eqn{RDIF_{R}} and \eqn{RDIF_{S}}
-is singular, for example when all examinees who responded to an item have
-the same probability of a correct response, so that \eqn{RDIF_{S}} is a
-linear function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
+is singular or nearly singular (its reciprocal condition number is 1e-10 or
+less), for example when all examinees who responded to an item have the
+same probability of a correct response, so that \eqn{RDIF_{S}} is a linear
+function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
 Moore-Penrose generalized inverse of the covariance matrix and compared with
 a chi-square distribution whose degrees of freedom equal the rank of the
 matrix (Moore, 1977), and a warning names the item. This handling is not
@@ -355,16 +357,18 @@ must match the number of rows in the response data, where each element
 corresponds to an examinee. Once \code{group} is specified, a single numeric or
 character value must be provided in the \code{focal.name} argument to indicate
 which level in \code{group} represents the focal group. Use \code{\link[=grdif]{grdif()}} to
-compare more than two groups.
+compare more than two groups. Examinees with \code{NA} in \code{group} are excluded
+from both groups.
 
 Examinees whose ability estimate is \code{NA}, such as examinees without any item
 response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
 computation of the RDIF statistics. A warning reports the number of
 examinees with item responses who are excluded because of a missing value in
 \code{score}; these examinees stay excluded during purification. During
-purification, an examinee whose responses are all removed with the flagged
-items also has no ability estimate and is excluded, and one warning at the
-end reports the number of such examinees. The sample sizes \code{n.ref} and
+purification, an examinee whose remaining responses are all removed with
+the flagged items, or who has fewer than \code{min.resp} responses to the
+remaining items, has no ability estimate and is excluded, and one warning
+at the end reports the number of such examinees. The sample sizes \code{n.ref} and
 \code{n.foc} count only the examinees who are used.
 
 If no examinee of one of the two groups responded to an item, the

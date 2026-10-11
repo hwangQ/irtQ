@@ -45,6 +45,11 @@
 #'   the focal group's distribution, and `"ref"` for the reference group's
 #'   distribution. Default is `"comb"`. See the **Details** section below for
 #'   more information.
+#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
+#'   exclude from the analysis. Skipped items still contribute to the ability
+#'   estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
+#'   contingency table) are set to `NA`, and they are never flagged or removed
+#'   during purification. If `NULL`, all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for the hypothesis test associated with the CATSIB (*beta*) statistic.
 #'   Default is 0.05.

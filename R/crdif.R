@@ -18,9 +18,10 @@
 #'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
 #'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
 #'   re-estimated internally at every purification iteration, so a supplied
-#'   `score` is used only in the initial analysis. The `est_item` method has no
-#'   `score` argument; it uses the abilities stored in the object. Default is
-#'   `NULL`.
+#'   `score` is used only in the initial analysis. A missing value in `score`
+#'   excludes the examinee from the analysis, also during purification, with a
+#'   warning. The `est_item` method has no `score` argument; it uses the
+#'   abilities stored in the object. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the tests. An item is flagged by a statistic when its p-value is less
 #'   than or equal to `alpha`. The comparison uses unrounded p-values, although
@@ -30,17 +31,18 @@
 #'   purification: `"crdifrs"` for \eqn{RDIF_{RS}-CR}, `"crdifr"` for
 #'   \eqn{RDIF_{R}-CR}, or `"crdifs"` for \eqn{RDIF_{S}-CR}. Used only when
 #'   `purify = TRUE`. Default is `"crdifrs"`.
-#' @param min.resp A positive integer specifying the minimum number of item
-#'   responses that an examinee must have to be used in the analysis. All
-#'   responses of examinees with fewer than `min.resp` (but at least one)
-#'   responses are set to `NA` before the ability estimation, in the initial
-#'   analysis and at every purification iteration, also when `score` is
-#'   supplied, and these examinees are excluded from the analysis. A warning
-#'   reports the number of examinees excluded in the initial analysis. A large
-#'   `min.resp` can leave a group without any ability estimate in a later
-#'   purification iteration, which stops the purification with a warning. If
-#'   `NULL`, no minimum is applied. Default is `NULL`. See **Details** for more
-#'   information.
+#' @param min.resp A single nonnegative number, usually a positive integer,
+#'   specifying the minimum number of item responses that an examinee must have
+#'   to be used in the analysis. All responses of examinees with fewer than
+#'   `min.resp` (but at least one) responses are set to `NA` before the ability
+#'   estimation, in the initial analysis and at every purification iteration,
+#'   also when `score` is supplied, and these examinees are excluded from the
+#'   analysis. A warning reports the number of examinees excluded in the initial
+#'   analysis, and one warning at the end of the purification reports the
+#'   examinees excluded during it. A large `min.resp` can leave a group without
+#'   any ability estimate in a later purification iteration, which stops the
+#'   purification with a warning. If `NULL`, no minimum is applied. Default is
+#'   `NULL`. See **Details** for more information.
 #'
 #' @details
 #' According to Penfield (2010), differential item functioning (DIF) in
@@ -82,26 +84,22 @@
 #' residuals, and \eqn{RDIF_{RS}-CR} uses the two vectors combined. Under the
 #' null hypothesis of no DIF, each statistic asymptotically follows a chi-square
 #' distribution whose degrees of freedom equal the rank of the covariance matrix
-#' (Moore, 1977). For an item with K score categories (K of 3 or more), the K raw
-#' residuals of each examinee sum to zero, so the elements of the
+#' (Moore, 1977). For an item with K score categories (K of 3 or more), the K
+#' category residuals of each examinee sum to zero, so the elements of the
 #' \eqn{RDIF_{R}-CR} vector also sum to zero and its covariance matrix has rank
-#' K - 1. \eqn{RDIF_{R}-CR} therefore has K - 1 degrees of freedom and is
+#' K - 1. \eqn{RDIF_{R}-CR} therefore has K - 1 degrees of freedom. It is
 #' computed after dropping one score category, which gives the same value as the
-#' Moore-Penrose generalized inverse of the full covariance matrix. The squared
-#' residuals are not subject to such a constraint, so \eqn{RDIF_{S}-CR} has K
-#' degrees of freedom, and \eqn{RDIF_{RS}-CR} has 2K - 1. For a dichotomous item,
-#' the two category residuals are the negatives of each other, so only the
-#' residual for score category 1 is used, and the three statistics have 1, 1, and
-#' 2 degrees of freedom; then \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the
-#' squares of the standardized \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of
-#' [irtQ::rdif()], \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values
-#' and flagged items are identical to those of [irtQ::rdif()].
-#'
-#' The purification procedure, the `min.resp` argument, the handling of
-#' examinees with `NA` ability estimates, and the coding of `group` follow
-#' [irtQ::rdif()] (see its Details). The p-value, not the statistic, is used to
-#' choose the item to remove because the degrees of freedom of the RDIF-CR
-#' statistics differ between items with different numbers of score categories.
+#' Moore-Penrose generalized inverse of the full covariance matrix, and the same
+#' category is dropped from the raw residual part of \eqn{RDIF_{RS}-CR}. The
+#' squared residuals are not subject to a constraint that holds for all
+#' examinees, so \eqn{RDIF_{S}-CR} has K degrees of freedom, and
+#' \eqn{RDIF_{RS}-CR} has 2K - 1. For a dichotomous item, the two category
+#' residuals are the negatives of each other, so only the residual for score
+#' category 1 is used, and the three statistics have 1, 1, and 2 degrees of
+#' freedom; then \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the squares of the
+#' standardized \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of [irtQ::rdif()],
+#' \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values and flagged
+#' items are identical to those of [irtQ::rdif()].
 #'
 #' In rare cases, for example when all examinees who responded to an item have
 #' the same category probabilities, a covariance matrix has an even lower rank.
@@ -109,6 +107,13 @@
 #' compared with a chi-square distribution whose degrees of freedom equal the
 #' rank, and a warning names the item. The columns `df.crdifr`, `df.crdifs`, and
 #' `df.crdifrs` of `dif_stat` report the degrees of freedom used.
+#'
+#' The purification procedure, the `min.resp` argument, the handling of
+#' examinees with `NA` ability estimates, the coding of `group`, and the `NaN`
+#' results of an item to which no examinee of one group responded follow
+#' [irtQ::rdif()] (see its Details). The p-value, not the statistic, is used to
+#' choose the item to remove because the degrees of freedom of the RDIF-CR
+#' statistics differ between items with different numbers of score categories.
 #'
 #' @return This function returns an object of class `"crdif"`, which is a list
 #' with the following five components:

@@ -53,17 +53,18 @@
 #'   purification results is `FALSE`, and the items flagged in the last
 #'   iteration are added to the flagged items. This argument is not passed to
 #'   [irtQ::est_score()].
-#' @param min.resp A positive integer specifying the minimum number of item
-#'   responses that an examinee must have to be used in the analysis. All
-#'   responses of examinees with fewer than `min.resp` (but at least one)
-#'   responses are set to `NA` before the ability estimation, in the initial
-#'   analysis and at every purification iteration, also when `score` is
-#'   supplied, and these examinees are excluded from the analysis. A warning
-#'   reports the number of examinees excluded in the initial analysis. A large
-#'   `min.resp` can leave a group without any ability estimate in a later
-#'   purification iteration, which stops the purification with a warning. If
-#'   `NULL`, no minimum is applied. Default is `NULL`. See **Details** for more
-#'   information.
+#' @param min.resp A single nonnegative number, usually a positive integer,
+#'   specifying the minimum number of item responses that an examinee must have
+#'   to be used in the analysis. All responses of examinees with fewer than
+#'   `min.resp` (but at least one) responses are set to `NA` before the ability
+#'   estimation, in the initial analysis and at every purification iteration,
+#'   also when `score` is supplied, and these examinees are excluded from the
+#'   analysis. A warning reports the number of examinees excluded in the initial
+#'   analysis, and one warning at the end of the purification reports the
+#'   examinees excluded during it. A large `min.resp` can leave a group without
+#'   any ability estimate in a later purification iteration, which stops the
+#'   purification with a warning. If `NULL`, no minimum is applied. Default is
+#'   `NULL`. See **Details** for more information.
 #' @param method A character string indicating the scoring method to use.
 #'   Available options are:
 #'   - `"ML"`: Maximum likelihood estimation
@@ -121,9 +122,10 @@
 #'   degrees of freedom (Lim et al., 2022, Equation 20).
 #'
 #'   In rare cases, the covariance matrix of \eqn{RDIF_{R}} and \eqn{RDIF_{S}}
-#'   is singular, for example when all examinees who responded to an item have
-#'   the same probability of a correct response, so that \eqn{RDIF_{S}} is a
-#'   linear function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
+#'   is singular or nearly singular (its reciprocal condition number is 1e-10 or
+#'   less), for example when all examinees who responded to an item have the
+#'   same probability of a correct response, so that \eqn{RDIF_{S}} is a linear
+#'   function of \eqn{RDIF_{R}}. Then \eqn{RDIF_{RS}} is computed with the
 #'   Moore-Penrose generalized inverse of the covariance matrix and compared with
 #'   a chi-square distribution whose degrees of freedom equal the rank of the
 #'   matrix (Moore, 1977), and a warning names the item. This handling is not
@@ -161,16 +163,18 @@
 #'   corresponds to an examinee. Once `group` is specified, a single numeric or
 #'   character value must be provided in the `focal.name` argument to indicate
 #'   which level in `group` represents the focal group. Use [irtQ::grdif()] to
-#'   compare more than two groups.
+#'   compare more than two groups. Examinees with `NA` in `group` are excluded
+#'   from both groups.
 #'
 #'   Examinees whose ability estimate is `NA`, such as examinees without any item
 #'   response or examinees with `NA` in a supplied `score`, are excluded from the
 #'   computation of the RDIF statistics. A warning reports the number of
 #'   examinees with item responses who are excluded because of a missing value in
 #'   `score`; these examinees stay excluded during purification. During
-#'   purification, an examinee whose responses are all removed with the flagged
-#'   items also has no ability estimate and is excluded, and one warning at the
-#'   end reports the number of such examinees. The sample sizes `n.ref` and
+#'   purification, an examinee whose remaining responses are all removed with
+#'   the flagged items, or who has fewer than `min.resp` responses to the
+#'   remaining items, has no ability estimate and is excluded, and one warning
+#'   at the end reports the number of such examinees. The sample sizes `n.ref` and
 #'   `n.foc` count only the examinees who are used.
 #'
 #'   If no examinee of one of the two groups responded to an item, the
@@ -700,11 +704,11 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           break
         }
 
-        # remove the detected DIF item data which has the largest statistic from the item metadata
+        # remove the detected DIF item data which has the smallest p-value from the item metadata
         # and drop the item parameter columns that no remaining item uses
         x_puri <- trim_par_cols(x_puri[-flag_del, , drop = FALSE])
 
-        # remove the detected DIF item data which has the largest statistic from the response data
+        # remove the detected DIF item data which has the smallest p-value from the response data
         data_puri <- data_puri[, -flag_del, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
@@ -843,7 +847,7 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # warn that the generalized inverse is used for the items with a singular covariance matrix
   if (length(singular_id) > 0L) {
-    warning("The covariance matrix of RDIF_R and RDIF_S is singular for item(s) ",
+    warning("The covariance matrix of RDIF_R and RDIF_S is singular or nearly singular for item(s) ",
             paste(singular_id, collapse = ", "), ". RDIF_RS of these items is computed ",
             "with a generalized inverse and fewer degrees of freedom.", call. = FALSE)
   }
