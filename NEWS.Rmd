@@ -217,6 +217,31 @@ knitr::opts_chunk$set(
   freedom, and a warning names the items. Results for regular data are
   unchanged.
 
+* `rdif()` and `crdif()` stopped with an obscure error when an examinee had no
+  ability estimate: a missing value in `score`, an examinee without any
+  response, an examinee left out by `min.resp` (so `min.resp` could not be used
+  when `score = NULL`), or an examinee whose responses were all removed during
+  purification. Such examinees are now excluded, with a warning for the first
+  and the third case, and the functions stop when no examinee has an ability
+  estimate.
+
+* `rdif()` and `crdif()` stopped with an obscure error when purification left a
+  single item, and `rdif()` also stopped with "non-conformable arguments" when
+  purification removed the item with the most score categories from a test with
+  polytomous items. They now work, and stop with a clear message when every
+  item is flagged.
+
+* `rdif()` and `crdif()` silently accepted responses outside the score
+  categories (for example, an unrecorded missing code such as -9, which flagged
+  every item), a `group` of the wrong length, a `focal.name` that is not in
+  `group`, an `item.skip` that was not a set of item positions (a logical
+  `item.skip` skipped only the first item during purification), an `alpha`
+  outside (0, 1), a `max.iter` that was not a positive whole number, and a
+  `group` with more than two values (the values other than `focal.name` were
+  pooled into the reference group). They now stop with a clear message; use
+  `grdif()` to compare more than two groups. Character responses are read as
+  numbers.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.
@@ -326,6 +351,10 @@ knitr::opts_chunk$set(
   the RIPD statistics of the analyses without and with purification; `what`
   selects `"no_purify"` or `"with_purify"`. Before, `print()` listed the whole
   object, including the ability estimates of every examinee.
+
+* The `est_irt` and `est_item` methods of `rdif()` and `crdif()` stop with a
+  clear message when `data` or `D` is passed, because both are taken from the
+  object. Before, they were silently ignored or caused an obscure error.
 
 # irtQ 1.3.1
 

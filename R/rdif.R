@@ -16,9 +16,10 @@
 #'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
 #'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
 #'   re-estimated internally at every purification iteration, so a supplied
-#'   `score` is used only in the initial analysis. The `est_item` method has no
-#'   `score` argument; it uses the abilities stored in the object. Default is
-#'   `NULL`.
+#'   `score` is used only in the initial analysis. A missing value in `score`
+#'   excludes the examinee from the analysis with a warning. The `est_item`
+#'   method has no `score` argument; it uses the abilities stored in the object.
+#'   Default is `NULL`.
 #' @param group A numeric or character vector indicating examinees' group
 #'   membership. The length of the vector must match the number of rows in the
 #'   response data matrix.
@@ -132,10 +133,19 @@
 #'
 #'   The `group` argument should be a vector containing exactly two distinct
 #'   values (either numeric or character), representing the reference and focal
-#'   groups. Its length must match the number of rows in the response data,
-#'   where each element corresponds to an examinee. Once `group` is specified, a
-#'   single numeric or character value must be provided in the `focal.name`
-#'   argument to indicate which level in `group` represents the focal group.
+#'   groups, and the function stops when it contains more than two. Its length
+#'   must match the number of rows in the response data, where each element
+#'   corresponds to an examinee. Once `group` is specified, a single numeric or
+#'   character value must be provided in the `focal.name` argument to indicate
+#'   which level in `group` represents the focal group. Use [irtQ::grdif()] to
+#'   compare more than two groups.
+#'
+#'   Examinees whose ability estimate is `NA`, such as examinees without any item
+#'   response or examinees with `NA` in a supplied `score`, are excluded from the
+#'   computation of the RDIF statistics. A warning reports the number of
+#'   examinees with item responses who are excluded because of a missing value in
+#'   `score`. The sample sizes `n.ref` and `n.foc` count only the examinees who
+#'   are used.
 #'
 #'   If no examinee of one of the two groups responded to an item, the
 #'   statistics and p-values of the item are `NaN`, and the item is not flagged.
@@ -150,8 +160,10 @@
 #'   `method`, and the RDIF statistics of the remaining items are recomputed. A
 #'   supplied `score` is therefore used only in the initial analysis. The
 #'   procedure stops when no remaining item is flagged or when `max.iter`
-#'   iterations have been performed. If no item is flagged in the initial
-#'   analysis, no iteration is performed.
+#'   iterations have been performed, where `max.iter` must be a single whole
+#'   number of at least 1. If no item is flagged in the initial analysis, no
+#'   iteration is performed. The function stops with an error when every item is
+#'   flagged, because no item is left to estimate the abilities.
 #'
 #'   Scoring based on a small number of item responses can lead to large
 #'   standard errors, potentially reducing the accuracy of DIF detection in the
@@ -455,6 +467,9 @@ rdif.est_irt <- function(x,
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling factor is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the DIF analysis with the data, scaling factor, and items of the object
   rst <- rdif_main(
     x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
@@ -498,6 +513,9 @@ rdif.est_item <- function(x,
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling factor is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the DIF analysis with the data, ability estimates, scaling factor, and items of the object
   rst <- rdif_main(
     x = x$par.est, data = x$data, score = x$score, group = group, focal.name = focal.name,
@@ -525,32 +543,16 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
-  }
+  # check the inputs and prepare the response data and ability estimates
+  prep <- dif_prepare(
+    x = x, data = data, score = score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = D, alpha = alpha, missing = missing, purify = purify,
+    max.iter = max.iter, min.resp = min.resp, method = method, range = range,
+    norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+  )
+  data <- prep$data
+  score <- prep$score
+  item.skip <- prep$item.skip
 
   # a) when no purification is set
   # do only one iteration of DIF analysis
@@ -613,11 +615,6 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
       # record unique item numbers
       item_num <- 1:nrow(x)
 
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -655,11 +652,18 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         # refine the leftover items
         item_num <- item_num[-flag_max]
 
+        # stop when no item is left to estimate the abilities
+        if (length(item_num) == 0L) {
+          stop("All items were flagged during the purification, so no item is left to analyze.",
+               call. = FALSE)
+        }
+
         # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
+        # and drop the item parameter columns that no remaining item uses
+        x_puri <- trim_par_cols(x_puri[-flag_max, , drop = FALSE])
 
         # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
+        data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -806,6 +810,13 @@ rdif_one <- function(x,
   ## ---------------------------------
   # compute the two statistics
   ## ---------------------------------
+  # treat the responses of examinees without an ability estimate as missing
+  na_score <- is.na(score)
+  if (any(na_score)) {
+    data[na_score, ] <- NA
+    score[na_score] <- 0
+  }
+
   # find the location of examinees for the reference and the focal groups
   loc_ref <- which(group != focal.name)
   loc_foc <- which(group == focal.name)

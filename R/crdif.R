@@ -366,6 +366,9 @@ crdif.est_irt <- function(x,
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling factor is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the DIF analysis with the data, scaling factor, and items of the object
   rst <- crdif_main(
     x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
@@ -408,6 +411,9 @@ crdif.est_item <- function(x,
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling factor is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the DIF analysis with the data, ability estimates, scaling factor, and items of the object
   rst <- crdif_main(
     x = x$par.est, data = x$data, score = x$score, group = group, focal.name = focal.name,
@@ -432,33 +438,16 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
+  # check the inputs and prepare the response data and ability estimates
+  prep <- dif_prepare(
+    x = x, data = data, score = score, group = group, focal.name = focal.name,
+    item.skip = item.skip, D = D, alpha = alpha, missing = missing, purify = purify,
+    max.iter = max.iter, min.resp = min.resp, method = method, range = range,
+    norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
+  )
+  data <- prep$data
+  score <- prep$score
+  item.skip <- prep$item.skip
 
   # a) when no purification is set
   # do only one iteration of DIF analysis
@@ -524,11 +513,6 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
       # record unique item numbers
       item_num <- 1:nrow(x)
 
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -570,11 +554,17 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         # refine the leftover items
         item_num <- item_num[-flag_min]
 
+        # stop when no item is left to estimate the abilities
+        if (length(item_num) == 0L) {
+          stop("All items were flagged during the purification, so no item is left to analyze.",
+               call. = FALSE)
+        }
+
         # remove the detected DIF item data which has the smallest p-value from the item metadata
-        x_puri <- x_puri[-flag_min, ]
+        x_puri <- x_puri[-flag_min, , drop = FALSE]
 
         # remove the detected DIF item data which has the smallest p-value from the response data
-        data_puri <- data_puri[, -flag_min]
+        data_puri <- data_puri[, -flag_min, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -715,6 +705,13 @@ crdif_one <- function(x,
 
   # check the number of items
   nitem <- length(cats)
+
+  # treat the responses of examinees without an ability estimate as missing
+  na_score <- is.na(score)
+  if (any(na_score)) {
+    data[na_score, ] <- NA
+    score[na_score] <- 0
+  }
 
   ## ---------------------------------
   # compute the CRDIF statistics

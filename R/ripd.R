@@ -579,20 +579,8 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
   # transform the response data to a numeric matrix and check the responses
   data <- resp_to_matrix(data, x$cats, x$id)
 
-  # stop when the group vector does not match the rows of the response data
-  if (length(group) != nrow(data)) {
-    stop("The length of 'group' must equal the number of rows in 'data'.", call. = FALSE)
-  }
-
-  # stop when the focal group is not a single value found in the group vector
-  if (length(focal.name) != 1L || !any(group == focal.name, na.rm = TRUE)) {
-    stop("'focal.name' must be a single value found in 'group'.", call. = FALSE)
-  }
-
-  # stop when there is no examinee in the reference group
-  if (!any(group != focal.name, na.rm = TRUE)) {
-    stop("'group' must contain at least one examinee of the reference group.", call. = FALSE)
-  }
+  # check the group vector and the focal group
+  check_group(group, focal.name, nrow(data))
 
   # check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))

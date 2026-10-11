@@ -101,9 +101,10 @@ parameters in \code{x} (see \strong{Details}). If \code{NULL}, abilities are est
 internally with \code{\link[=est_score]{est_score()}} using \code{method}, \code{range}, \code{norm.prior},
 \code{nquad}, \code{weights}, and \code{ncore}. When \code{purify = TRUE}, abilities are
 re-estimated internally at every purification iteration, so a supplied
-\code{score} is used only in the initial analysis. The \code{est_item} method has no
-\code{score} argument; it uses the abilities stored in the object. Default is
-\code{NULL}.}
+\code{score} is used only in the initial analysis. A missing value in \code{score}
+excludes the examinee from the analysis with a warning. The \code{est_item}
+method has no \code{score} argument; it uses the abilities stored in the object.
+Default is \code{NULL}.}
 
 \item{group}{A numeric or character vector indicating examinees' group
 membership. The length of the vector must match the number of rows in the
@@ -322,10 +323,19 @@ constant \code{D} are taken from the object. When \code{x} is an object of class
 
 The \code{group} argument should be a vector containing exactly two distinct
 values (either numeric or character), representing the reference and focal
-groups. Its length must match the number of rows in the response data,
-where each element corresponds to an examinee. Once \code{group} is specified, a
-single numeric or character value must be provided in the \code{focal.name}
-argument to indicate which level in \code{group} represents the focal group.
+groups, and the function stops when it contains more than two. Its length
+must match the number of rows in the response data, where each element
+corresponds to an examinee. Once \code{group} is specified, a single numeric or
+character value must be provided in the \code{focal.name} argument to indicate
+which level in \code{group} represents the focal group. Use \code{\link[=grdif]{grdif()}} to
+compare more than two groups.
+
+Examinees whose ability estimate is \code{NA}, such as examinees without any item
+response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
+computation of the RDIF statistics. A warning reports the number of
+examinees with item responses who are excluded because of a missing value in
+\code{score}. The sample sizes \code{n.ref} and \code{n.foc} count only the examinees who
+are used.
 
 If no examinee of one of the two groups responded to an item, the
 statistics and p-values of the item are \code{NaN}, and the item is not flagged.
@@ -340,8 +350,10 @@ re-estimated from the remaining items with the scoring method specified in
 \code{method}, and the RDIF statistics of the remaining items are recomputed. A
 supplied \code{score} is therefore used only in the initial analysis. The
 procedure stops when no remaining item is flagged or when \code{max.iter}
-iterations have been performed. If no item is flagged in the initial
-analysis, no iteration is performed.
+iterations have been performed, where \code{max.iter} must be a single whole
+number of at least 1. If no item is flagged in the initial analysis, no
+iteration is performed. The function stops with an error when every item is
+flagged, because no item is left to estimate the abilities.
 
 Scoring based on a small number of item responses can lead to large
 standard errors, potentially reducing the accuracy of DIF detection in the
