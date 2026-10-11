@@ -151,9 +151,15 @@ purification results is \code{FALSE}, and the items flagged in the last
 iteration are added to the flagged items. This argument is not passed to
 \code{\link[=est_score]{est_score()}}.}
 
-\item{min.resp}{A positive integer specifying the minimum number of valid
-item responses required from an examinee in order to compute an ability
-estimate. Default is \code{NULL}. See \strong{Details} for more information.}
+\item{min.resp}{A positive integer specifying the minimum number of item
+responses that an examinee must have to be used in the analysis. All
+responses of examinees with fewer than \code{min.resp} (but at least one)
+responses are set to \code{NA} before the ability estimation, in the initial
+analysis and at every purification iteration, also when \code{score} is
+supplied, and these examinees are excluded from the analysis. A warning
+reports the number of examinees excluded in the initial analysis. If
+\code{NULL}, no minimum is applied. Default is \code{NULL}. See \strong{Details} for more
+information.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:
@@ -378,14 +384,17 @@ a warning, because no item is left to estimate the abilities, and
 
 Scoring based on a small number of item responses can lead to large
 standard errors, potentially reducing the accuracy of DIF detection in the
-RDIF framework. The \code{min.resp} argument can be used to exclude examinees
-with insufficient response data from scoring, especially during the
-purification process. For example, if \code{min.resp} is not NULL (e.g.,
-\code{min.resp = 5}), examinees who responded to fewer than five items will have
-all their responses treated as missing (i.e., NA). As a result, their
-ability estimates will also be missing and will not be used in the
-computation of RDIF statistics. If \code{min.resp = NULL}, a score will be
-computed for any examinee with at least one valid item response.
+RDIF framework. The \code{min.resp} argument excludes such examinees. For
+example, if \code{min.resp = 5}, examinees who responded to fewer than five items
+(but at least one) have all their responses treated as missing (i.e., \code{NA})
+before the abilities are estimated, in the initial analysis and at every
+purification iteration. As a result, their ability estimates are missing,
+and they are not used in the computation of the RDIF statistics. When
+\code{score} is supplied, the scores of these examinees are also treated as
+missing in the initial analysis. During purification, the count is based on
+the items that remain after the flagged items are removed, and an examinee
+excluded once stays excluded. If \code{min.resp = NULL}, a score is computed for
+any examinee with at least one valid item response.
 }
 \section{Methods (by class)}{
 \itemize{

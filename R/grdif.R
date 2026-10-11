@@ -19,6 +19,9 @@
 #'   c(1, 2, 3)`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for hypothesis testing using the GRDIF statistics. Default is `0.05`.
+#' @param min.resp A positive integer specifying the minimum number of valid
+#'   item responses required from an examinee in order to compute an ability
+#'   estimate. Default is `NULL`. See **Details** for more information.
 #' @param purify.by A character string specifying which GRDIF statistic is used
 #'   to perform the purification. Available options are "grdifrs" for
 #'   \eqn{GRDIF_{RS}}, "grdifr" for \eqn{GRDIF_{R}}, and "grdifs" for

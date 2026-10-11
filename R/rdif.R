@@ -53,9 +53,15 @@
 #'   purification results is `FALSE`, and the items flagged in the last
 #'   iteration are added to the flagged items. This argument is not passed to
 #'   [irtQ::est_score()].
-#' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`. See **Details** for more information.
+#' @param min.resp A positive integer specifying the minimum number of item
+#'   responses that an examinee must have to be used in the analysis. All
+#'   responses of examinees with fewer than `min.resp` (but at least one)
+#'   responses are set to `NA` before the ability estimation, in the initial
+#'   analysis and at every purification iteration, also when `score` is
+#'   supplied, and these examinees are excluded from the analysis. A warning
+#'   reports the number of examinees excluded in the initial analysis. If
+#'   `NULL`, no minimum is applied. Default is `NULL`. See **Details** for more
+#'   information.
 #' @param method A character string indicating the scoring method to use.
 #'   Available options are:
 #'   - `"ML"`: Maximum likelihood estimation
@@ -186,14 +192,17 @@
 #'
 #'   Scoring based on a small number of item responses can lead to large
 #'   standard errors, potentially reducing the accuracy of DIF detection in the
-#'   RDIF framework. The `min.resp` argument can be used to exclude examinees
-#'   with insufficient response data from scoring, especially during the
-#'   purification process. For example, if `min.resp` is not NULL (e.g.,
-#'   `min.resp = 5`), examinees who responded to fewer than five items will have
-#'   all their responses treated as missing (i.e., NA). As a result, their
-#'   ability estimates will also be missing and will not be used in the
-#'   computation of RDIF statistics. If `min.resp = NULL`, a score will be
-#'   computed for any examinee with at least one valid item response.
+#'   RDIF framework. The `min.resp` argument excludes such examinees. For
+#'   example, if `min.resp = 5`, examinees who responded to fewer than five items
+#'   (but at least one) have all their responses treated as missing (i.e., `NA`)
+#'   before the abilities are estimated, in the initial analysis and at every
+#'   purification iteration. As a result, their ability estimates are missing,
+#'   and they are not used in the computation of the RDIF statistics. When
+#'   `score` is supplied, the scores of these examinees are also treated as
+#'   missing in the initial analysis. During purification, the count is based on
+#'   the items that remain after the flagged items are removed, and an examinee
+#'   excluded once stays excluded. If `min.resp = NULL`, a score is computed for
+#'   any examinee with at least one valid item response.
 #'
 #' @return This function returns an object of class `"rdif"`, which is a list
 #' with the following five components:

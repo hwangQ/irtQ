@@ -30,9 +30,15 @@
 #'   purification: `"crdifrs"` for \eqn{RDIF_{RS}-CR}, `"crdifr"` for
 #'   \eqn{RDIF_{R}-CR}, or `"crdifs"` for \eqn{RDIF_{S}-CR}. Used only when
 #'   `purify = TRUE`. Default is `"crdifrs"`.
-#' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`. See **Details** for more information.
+#' @param min.resp A positive integer specifying the minimum number of item
+#'   responses that an examinee must have to be used in the analysis. All
+#'   responses of examinees with fewer than `min.resp` (but at least one)
+#'   responses are set to `NA` before the ability estimation, in the initial
+#'   analysis and at every purification iteration, also when `score` is
+#'   supplied, and these examinees are excluded from the analysis. A warning
+#'   reports the number of examinees excluded in the initial analysis. If
+#'   `NULL`, no minimum is applied. Default is `NULL`. See **Details** for more
+#'   information.
 #'
 #' @details
 #' According to Penfield (2010), differential item functioning (DIF) in

@@ -205,6 +205,30 @@ test_that("rdif() applies min.resp when the scores are estimated", {
   expect_equal(r1$no_purify$dif_stat$n.total, unname(colSums(!is.na(resp))))
 })
 
+test_that("rdif() applies min.resp also when the scores are supplied", {
+  sim <- rdt_sim()
+  n_resp <- rowSums(!is.na(sim$resp))
+  drop_row <- n_resp < 8
+  resp <- sim$resp
+  resp[drop_row, ] <- NA
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  score_na <- score
+  score_na[drop_row] <- NA
+  out <- rdt_catch(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", min.resp = 8))
+  r3 <- out$value
+  expect_true(any(grepl("fewer than 8 responses", out$warnings)))
+  r4 <- rdif(sim$x, resp, score = score_na, group = sim$group, focal.name = "f")
+  expect_identical(r3$no_purify$dif_stat, r4$no_purify$dif_stat)
+  expect_equal(r3$no_purify$dif_stat$n.total, unname(colSums(!is.na(resp))))
+
+  # the examinees stay excluded during purification
+  keep4 <- n_resp >= 4 | n_resp == 0
+  out2 <- rdt_catch(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                         min.resp = 4, purify = TRUE, verbose = FALSE))
+  expect_false(anyNA(out2$value$with_purify$dif_stat$rdifrs))
+  expect_true(all(out2$value$with_purify$dif_stat$n.total <= sum(keep4 & n_resp > 0)))
+})
+
 test_that("rdif() purification works when items are removed down to the last one", {
   x1 <- shape_df(par.drm = list(a = c(1, 1.2, 0.9), b = c(0, 0.5, -0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1

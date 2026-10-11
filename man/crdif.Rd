@@ -149,9 +149,15 @@ purification results is \code{FALSE}, and the items flagged in the last
 iteration are added to the flagged items. This argument is not passed to
 \code{\link[=est_score]{est_score()}}.}
 
-\item{min.resp}{A positive integer specifying the minimum number of valid
-item responses required from an examinee in order to compute an ability
-estimate. Default is \code{NULL}. See \strong{Details} for more information.}
+\item{min.resp}{A positive integer specifying the minimum number of item
+responses that an examinee must have to be used in the analysis. All
+responses of examinees with fewer than \code{min.resp} (but at least one)
+responses are set to \code{NA} before the ability estimation, in the initial
+analysis and at every purification iteration, also when \code{score} is
+supplied, and these examinees are excluded from the analysis. A warning
+reports the number of examinees excluded in the initial analysis. If
+\code{NULL}, no minimum is applied. Default is \code{NULL}. See \strong{Details} for more
+information.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:

@@ -325,6 +325,21 @@ test_that("crdif() applies min.resp when the scores are estimated", {
   expect_identical(out$value$no_purify$dif_stat, r2$no_purify$dif_stat)
 })
 
+test_that("crdif() applies min.resp also when the scores are supplied", {
+  sim <- crt_sim()
+  n_resp <- rowSums(!is.na(sim$resp))
+  drop_row <- n_resp < 4
+  resp <- sim$resp
+  resp[drop_row, ] <- NA
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  score_na <- score
+  score_na[drop_row] <- NA
+  out <- crt_catch(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1, min.resp = 4))
+  expect_true(any(grepl("fewer than 4 responses", out$warnings)))
+  r4 <- crdif(sim$x, resp, score = score_na, group = sim$group, focal.name = 1)
+  expect_identical(out$value$no_purify$dif_stat, r4$no_purify$dif_stat)
+})
+
 test_that("crdif() purification stops with a warning when every item is flagged", {
   sim <- crt_sim()
   out <- crt_catch(crdif(sim$x[4:5, ], sim$resp[, 4:5], group = sim$group, focal.name = 1,

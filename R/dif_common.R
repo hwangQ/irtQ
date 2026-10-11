@@ -115,6 +115,21 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
   # check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))
 
+  # if min.resp is not NULL, find the examinees who have the number of responses
+  # less than specified value (e.g., 5). Then, replace their all responses with NA
+  loc_less <- integer(0)
+  if (!is.null(min.resp)) {
+    n_resp <- rowSums(!is.na(data))
+    loc_less <- which(n_resp < min.resp & n_resp > 0)
+
+    # warn that the examinees with too few responses are excluded
+    if (length(loc_less) > 0L) {
+      warning(length(loc_less), " examinee(s) with fewer than ", min.resp,
+              " responses were excluded.", call. = FALSE)
+    }
+    data[loc_less, ] <- NA
+  }
+
   # compute the score if score = NULL
   if (!is.null(score)) {
     # transform scores to a vector form
@@ -131,20 +146,10 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
     if (length(score) != nrow(data)) {
       stop("The length of 'score' must equal the number of rows in 'data'.", call. = FALSE)
     }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- rowSums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
 
-      # warn that the examinees with too few responses are excluded
-      if (length(loc_less) > 0L) {
-        warning(length(loc_less), " examinee(s) with fewer than ", min.resp,
-                " responses were excluded.", call. = FALSE)
-      }
-      data[loc_less, ] <- NA
-    }
+    # treat the ability estimates of the examinees excluded by min.resp as missing
+    score[loc_less] <- NA
+  } else {
     score <- est_score(
       x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
       nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta

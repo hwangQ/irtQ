@@ -48,6 +48,9 @@
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for the hypothesis test associated with the CATSIB (*beta*) statistic.
 #'   Default is 0.05.
+#' @param min.resp A positive integer specifying the minimum number of valid
+#'   item responses required from an examinee in order to compute an ability
+#'   estimate. Default is `NULL`. See **Details** for more information.
 #' @param ... Additional arguments passed to the [irtQ::est_score()] function.
 #'
 #' @details In the CATSIB procedure (Nandakumar & Roussos, 2004),

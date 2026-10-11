@@ -279,6 +279,13 @@
   covariance matrix) and could remove an item that was not flagged.
   Results for regular data are unchanged.
 
+- `rdif()` and `crdif()` ignored `min.resp` in the first analysis when
+  `score` was supplied, and applied it only during purification, so the
+  analyses with and without purification used different examinees.
+  `min.resp` is now applied from the first analysis, with or without
+  `score`: the scores of the examinees with fewer than `min.resp`
+  responses are set to missing and these examinees are excluded.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
