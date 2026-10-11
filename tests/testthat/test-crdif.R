@@ -312,6 +312,34 @@ test_that("crdif() reports the examinees who lose their ability estimates in the
   expect_false(any(grepl("NA values are returned", out$warnings)))
 })
 
+test_that("crdif() purification removes the item with the smallest p-value first", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  rst <- suppressWarnings(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                                purify = TRUE, verbose = FALSE))
+  ref <- crt_ref(sim$x, sim$resp, score, sim$group, 1, 1)
+  first <- which.min(ref$p.crdifrs)
+  expect_true(first %in% rst$with_purify$dif_item)
+  expect_equal(rst$with_purify$dif_stat$n.iter[first], 0)
+  expect_true(rst$with_purify$complete)
+
+  # the final scores are the estimates without the flagged items
+  keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$dif_item)
+  sc <- suppressWarnings(est_score(sim$x[keep, ], sim$resp[, keep], D = 1)$est.theta)
+  expect_equal(rst$with_purify$score, sc)
+})
+
+test_that("crdif() reports an incomplete purification when max.iter is reached", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  out <- crt_catch(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
+                         purify = TRUE, max.iter = 1, alpha = 0.3, verbose = FALSE))
+  rst <- out$value
+  expect_true(any(grepl("maximum number of iterations", out$warnings)))
+  expect_false(rst$with_purify$complete)
+  expect_equal(rst$with_purify$n.iter, 1)
+})
+
 test_that("crdif() applies min.resp when the scores are estimated", {
   sim <- crt_sim()
   n_resp <- rowSums(!is.na(sim$resp))

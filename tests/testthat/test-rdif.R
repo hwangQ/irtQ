@@ -190,6 +190,69 @@ test_that("rdif() reports the examinees who lose their ability estimates in the 
   expect_false(any(grepl("NA values are returned", out$warnings)))
 })
 
+test_that("rdif() statistics match an independent implementation", {
+  sim <- rdt_sim()
+  for (D in c(1, 1.702)) {
+    score <- suppressWarnings(est_score(sim$x, sim$resp, D = D, method = "ML")$est.theta)
+    rst <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", D = D)
+    ref <- rdt_ref(sim$x, sim$resp, score, sim$group, "f", D)
+    stat <- rst$no_purify$dif_stat
+    for (v in c("rdifr", "z.rdifr", "rdifs", "z.rdifs", "rdifrs", "p.rdifr", "p.rdifs", "p.rdifrs")) {
+      expect_lt(max(abs(stat[[v]] - ref[[v]])), 1e-4)
+    }
+    expect_equal(stat$n.ref, ref$n.ref)
+    expect_equal(stat$n.foc, ref$n.foc)
+    mmt <- rst$no_purify$moments
+    expect_equal(mmt$mu.rdifr, rep(0, nrow(sim$x)))
+    expect_equal(mmt$mu.rdifs, ref$mu.rdifs, tolerance = 1e-8)
+    expect_equal(mmt$sigma.rdifr, ref$sigma.rdifr, tolerance = 1e-8)
+    expect_equal(mmt$sigma.rdifs, ref$sigma.rdifs, tolerance = 1e-8)
+    expect_equal(mmt$covariance, ref$covariance, tolerance = 1e-8)
+    expect_equal(rst$no_purify$dif_item$rdifr, which(ref$p.rdifr <= 0.05))
+    expect_equal(rst$no_purify$dif_item$rdifrs, which(ref$p.rdifrs <= 0.05))
+  }
+})
+
+test_that("rdif() estimates the scores with est_score() when score = NULL", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1, method = "MAP")$est.theta)
+  r1 <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f")
+  r2 <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", method = "MAP")
+  expect_identical(r1$no_purify$dif_stat, r2$no_purify$dif_stat)
+  expect_identical(r2$no_purify$score, score)
+})
+
+test_that("rdif() purification removes the item with the smallest p-value first", {
+  sim <- rdt_sim()
+  rst <- suppressWarnings(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f",
+                               purify = TRUE, verbose = FALSE))
+  ref <- rdt_ref(sim$x, sim$resp, rst$no_purify$score, sim$group, "f", 1)
+  first <- which.min(ref$p.rdifrs)
+  expect_true(first %in% rst$with_purify$dif_item)
+  expect_equal(unlist(rst$with_purify$dif_stat[first, 1:12]), unlist(rst$no_purify$dif_stat[first, ]))
+  expect_equal(rst$with_purify$dif_stat$n.iter[first], 0)
+  expect_true(rst$with_purify$complete)
+  expect_true(all(rst$with_purify$dif_stat$n.iter <= rst$with_purify$n.iter))
+
+  # the final scores are the estimates without the flagged items
+  keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$dif_item)
+  sc <- suppressWarnings(est_score(sim$x[keep, ], sim$resp[, keep], D = 1)$est.theta)
+  expect_equal(rst$with_purify$score, sc)
+})
+
+test_that("rdif() reports an incomplete purification when max.iter is reached", {
+  sim <- rdt_sim()
+  expect_warning(
+    rst <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE,
+                max.iter = 1, alpha = 0.3, verbose = FALSE),
+    "maximum number of iterations"
+  )
+  expect_false(rst$with_purify$complete)
+  expect_equal(rst$with_purify$n.iter, 1)
+  last <- which(rst$with_purify$dif_stat$n.iter == 1 & rst$with_purify$dif_stat$p.rdifrs <= 0.3)
+  expect_true(all(last %in% rst$with_purify$dif_item))
+})
+
 test_that("rdif() applies min.resp when the scores are estimated", {
   sim <- rdt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
