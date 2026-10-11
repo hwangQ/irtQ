@@ -62,13 +62,15 @@ crt_ref <- function(x, resp, score, group, focal, D) {
     qr <- crt_quad(Crr, R)
     qs <- crt_quad(Css, S)
     qrs <- crt_quad(Call, c(R, S))
-    df1 <- if (K == 2) 1 else K
+    dfr <- if (K == 2) 1 else K - 1
+    dfs <- if (K == 2) 1 else K
     out <- rbind(out, data.frame(
       crdifr = qr$chi, crdifs = qs$chi, crdifrs = qrs$chi,
       rank.r = qr$rank, rank.s = qs$rank, rank.rs = qrs$rank,
-      p.crdifr = pchisq(qr$chi, df1, lower.tail = FALSE),
-      p.crdifs = pchisq(qs$chi, df1, lower.tail = FALSE),
-      p.crdifrs = pchisq(qrs$chi, 2 * df1, lower.tail = FALSE),
+      df.r = dfr, df.s = dfs, df.rs = dfr + dfs,
+      p.crdifr = pchisq(qr$chi, dfr, lower.tail = FALSE),
+      p.crdifs = pchisq(qs$chi, dfs, lower.tail = FALSE),
+      p.crdifrs = pchisq(qrs$chi, dfr + dfs, lower.tail = FALSE),
       n.ref = r$n, n.foc = f$n
     ))
     mom[[j]] <- list(mu.s = f$mu - r$mu, Crr = Crr, Css = Css, Call = Call)
@@ -106,6 +108,109 @@ crt_catch <- function(expr) {
   })
   list(value = value, warnings = msgs)
 }
+
+test_that("crdif() statistics match a first-principles implementation", {
+  sim <- crt_sim()
+  for (D in c(1, 1.702)) {
+    score <- suppressWarnings(est_score(sim$x, sim$resp, D = D, method = "ML")$est.theta)
+    rst <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1, D = D)
+    ref <- crt_ref(sim$x, sim$resp, score, sim$group, 1, D)
+    stat <- rst$no_purify$dif_stat
+    for (v in c("crdifr", "crdifs", "crdifrs", "p.crdifr", "p.crdifs", "p.crdifrs")) {
+      expect_lt(max(abs(stat[[v]] - ref[[v]])), 1e-4)
+    }
+    expect_equal(stat$n.ref, ref$n.ref)
+    expect_equal(stat$n.foc, ref$n.foc)
+
+    # the degrees of freedom are the ranks of the covariance matrices:
+    # K - 1, K, and 2K - 1 for a polytomous item and 1, 1, and 2 for a binary item
+    expect_equal(stat$df.crdifr, ifelse(sim$x$cats == 2, 1, sim$x$cats - 1))
+    expect_equal(stat$df.crdifs, ifelse(sim$x$cats == 2, 1, sim$x$cats))
+    expect_equal(stat$df.crdifrs, stat$df.crdifr + stat$df.crdifs)
+    expect_equal(stat$df.crdifr, ref$df.r)
+    expect_equal(stat$df.crdifs, ref$df.s)
+    expect_equal(stat$df.crdifrs, ref$df.rs)
+    mom <- attr(ref, "moments")
+    for (j in seq_len(nrow(sim$x))) {
+      expect_equal(unname(rst$no_purify$moments$mu.crdifs[[j]]), unname(mom[[j]]$mu.s), tolerance = 1e-8)
+      expect_equal(unname(rst$no_purify$moments$cov.crdifr[[j]]), unname(mom[[j]]$Crr), tolerance = 1e-8)
+      expect_equal(unname(rst$no_purify$moments$cov.crdifs[[j]]), unname(mom[[j]]$Css), tolerance = 1e-8)
+      expect_equal(unname(rst$no_purify$moments$cov.crdifrs[[j]]), unname(mom[[j]]$Call), tolerance = 1e-8)
+    }
+    expect_equal(rst$no_purify$dif_item$crdifrs, which(ref$p.crdifrs <= 0.05))
+  }
+})
+
+test_that("crdif() covariance of the raw categorical residuals has rank K - 1", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  rst <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1)
+  ref <- crt_ref(sim$x, sim$resp, score, sim$group, 1, 1)
+  poly <- sim$x$cats > 2
+
+  # the residuals of the score categories sum to zero for each examinee
+  for (j in which(poly)) {
+    cv <- rst$no_purify$moments$cov.crdifr[[j]]
+    expect_lt(max(abs(cv %*% rep(1, ncol(cv)))), 1e-12)
+  }
+  expect_equal(ref$rank.r[poly], sim$x$cats[poly] - 1)
+  expect_equal(ref$rank.s[poly], sim$x$cats[poly])
+  expect_equal(ref$rank.rs[poly], 2 * sim$x$cats[poly] - 1)
+})
+
+test_that("crdif() and rdif() agree on all three statistics for binary items", {
+  sim <- crt_sim()
+  b <- sim$x$cats == 2
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  r1 <- rdif(sim$x[b, ], sim$resp[, b], score = score, group = sim$group, focal.name = 1)
+  r2 <- crdif(sim$x[b, ], sim$resp[, b], score = score, group = sim$group, focal.name = 1)
+  s1 <- r1$no_purify$dif_stat
+  s2 <- r2$no_purify$dif_stat
+  expect_equal(s2$crdifr, s1$z.rdifr^2, tolerance = 1e-3)
+  expect_equal(s2$crdifs, s1$z.rdifs^2, tolerance = 1e-3)
+  expect_equal(s2$crdifrs, s1$rdifrs, tolerance = 1e-6)
+  expect_equal(s2$p.crdifr, s1$p.rdifr, tolerance = 1e-3)
+  expect_equal(s2$p.crdifrs, s1$p.rdifrs, tolerance = 1e-6)
+  expect_equal(s2$df.crdifr, rep(1, sum(b)))
+  expect_equal(s2$df.crdifrs, rep(2, sum(b)))
+})
+
+test_that("crdif() uses a generalized inverse when a covariance matrix is singular", {
+  sim <- crt_sim(miss = 0)
+  b <- sim$x$cats == 2
+  expect_warning(
+    rst <- crdif(sim$x[b, ], sim$resp[, b], score = rep(1, nrow(sim$resp)), group = sim$group,
+                 focal.name = 1),
+    "generalized inverse"
+  )
+  stat <- rst$no_purify$dif_stat
+
+  # with a common ability the squared residual is a linear function of the raw residual
+  expect_equal(stat$crdifrs, stat$crdifr, tolerance = 1e-6)
+  expect_equal(stat$df.crdifrs, rep(1, sum(b)))
+  expect_true(all(stat$crdifrs >= 0))
+})
+
+test_that("crdif() keeps the nominal level of the tests under no DIF", {
+  skip_on_cran()
+  set.seed(2026)
+  cats <- c(3, 4, 5, 4, 3)
+  x <- shape_df(par.prm = list(a = runif(5, 0.8, 1.8), d = lapply(cats, function(k) sort(rnorm(k - 1)))),
+                cats = cats, model = c("GRM", "GPCM", "GRM", "GPCM", "GRM"))
+  group <- rep(0:1, each = 1000)
+  rate <- replicate(150, {
+    theta <- rnorm(2000)
+    resp <- simdat(x, theta = theta, D = 1)
+    st <- crdif(x, resp, score = theta, group = group, focal.name = 1)$no_purify$dif_stat
+    c(r = mean(st$p.crdifr <= 0.05), rs = mean(st$p.crdifrs <= 0.05))
+  })
+
+  # the rates with the degrees of freedom K and 2K would be about 0.02 and 0.03
+  expect_gt(mean(rate["r", ]), 0.03)
+  expect_lt(mean(rate["r", ]), 0.075)
+  expect_gt(mean(rate["rs", ]), 0.03)
+  expect_lt(mean(rate["rs", ]), 0.075)
+})
 
 test_that("crdif() methods for est_irt and est_item objects match the default method", {
   sim <- crt_sim(miss = 0)

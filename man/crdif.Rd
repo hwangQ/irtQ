@@ -203,7 +203,7 @@ without applying a purification procedure. The sub-objects include:
 \item{dif_stat}{A data frame with one row per item and the columns \code{id},
 \code{crdifr}, \code{df.crdifr}, \code{crdifs}, \code{df.crdifs}, \code{crdifrs}, \code{df.crdifrs},
 \code{p.crdifr}, \code{p.crdifs}, \code{p.crdifrs}, \code{n.ref}, \code{n.foc}, and \code{n.total}: the
-item ID, each RDIF-CR statistic followed by its degrees of freedom, the
+item ID, each RDIF-CR statistic followed by the degrees of freedom used, the
 p-values of the three statistics, the numbers of examinees in the
 reference and focal groups who responded to the item, and their sum.
 Statistics and p-values are rounded to four decimal places.}
@@ -313,14 +313,34 @@ observed item score minus the expected item score. In this example, the
 residual would be \eqn{2 - 1.95 = 0.05}. To detect net DIF, use
 \code{\link[=rdif]{rdif()}}.
 
-For dichotomous items, \code{\link[=crdif]{crdif()}} and \code{\link[=rdif]{rdif()}} lead to the same
-conclusions. The two category residuals of a binary item are the negatives of
-each other, so only the residual for score category 1 is used. Then
-\eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the squares of the standardized
-\eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of \code{\link[=rdif]{rdif()}} and are
-compared with a chi-square distribution with one degree of freedom,
-\eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values and flagged items
-are identical.
+\eqn{RDIF_{R}-CR} is the quadratic form of the vector of category-level
+differences in mean raw residuals between the focal and reference groups,
+centered at its null mean, in a generalized inverse of its null covariance
+matrix. \eqn{RDIF_{S}-CR} is the corresponding statistic for the mean squared
+residuals, and \eqn{RDIF_{RS}-CR} uses the two vectors combined. Under the
+null hypothesis of no DIF, each statistic asymptotically follows a chi-square
+distribution whose degrees of freedom equal the rank of the covariance matrix
+(Moore, 1977). For an item with K score categories (K of 3 or more), the K raw
+residuals of each examinee sum to zero, so the elements of the
+\eqn{RDIF_{R}-CR} vector also sum to zero and its covariance matrix has rank
+K - 1. \eqn{RDIF_{R}-CR} therefore has K - 1 degrees of freedom and is
+computed after dropping one score category, which gives the same value as the
+Moore-Penrose generalized inverse of the full covariance matrix. The squared
+residuals are not subject to such a constraint, so \eqn{RDIF_{S}-CR} has K
+degrees of freedom, and \eqn{RDIF_{RS}-CR} has 2K - 1. For a dichotomous item,
+the two category residuals are the negatives of each other, so only the
+residual for score category 1 is used, and the three statistics have 1, 1, and
+2 degrees of freedom; then \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the
+squares of the standardized \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of
+\code{\link[=rdif]{rdif()}}, \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values
+and flagged items are identical to those of \code{\link[=rdif]{rdif()}}.
+
+In rare cases, for example when all examinees who responded to an item have
+the same category probabilities, a covariance matrix has an even lower rank.
+Then the statistic is computed with the Moore-Penrose generalized inverse and
+compared with a chi-square distribution whose degrees of freedom equal the
+rank, and a warning names the item. The columns \code{df.crdifr}, \code{df.crdifs}, and
+\code{df.crdifrs} of \code{dif_stat} report the degrees of freedom used.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -464,6 +484,11 @@ Educational Measurement, 59}(1), 80-104. \doi{10.1111/jedm.12313}.
 Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 detection with the residual DIF framework. Paper presented at the annual
 International Meeting of the Psychometric Society, Prague, Czech Republic.
+
+Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. \emph{Journal of the American
+Statistical Association, 72}(357), 131-137.
+\doi{10.1080/01621459.1977.10479921}.
 
 Penfield, R. D. (2010). Distinguishing between net and global DIF in
 polytomous items. \emph{Journal of Educational Measurement, 47}(2), 129-149.

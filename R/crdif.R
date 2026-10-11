@@ -67,14 +67,34 @@
 #' residual would be \eqn{2 - 1.95 = 0.05}. To detect net DIF, use
 #' [irtQ::rdif()].
 #'
-#' For dichotomous items, [irtQ::crdif()] and [irtQ::rdif()] lead to the same
-#' conclusions. The two category residuals of a binary item are the negatives of
-#' each other, so only the residual for score category 1 is used. Then
-#' \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the squares of the standardized
-#' \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of [irtQ::rdif()] and are
-#' compared with a chi-square distribution with one degree of freedom,
-#' \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values and flagged items
-#' are identical.
+#' \eqn{RDIF_{R}-CR} is the quadratic form of the vector of category-level
+#' differences in mean raw residuals between the focal and reference groups,
+#' centered at its null mean, in a generalized inverse of its null covariance
+#' matrix. \eqn{RDIF_{S}-CR} is the corresponding statistic for the mean squared
+#' residuals, and \eqn{RDIF_{RS}-CR} uses the two vectors combined. Under the
+#' null hypothesis of no DIF, each statistic asymptotically follows a chi-square
+#' distribution whose degrees of freedom equal the rank of the covariance matrix
+#' (Moore, 1977). For an item with K score categories (K of 3 or more), the K raw
+#' residuals of each examinee sum to zero, so the elements of the
+#' \eqn{RDIF_{R}-CR} vector also sum to zero and its covariance matrix has rank
+#' K - 1. \eqn{RDIF_{R}-CR} therefore has K - 1 degrees of freedom and is
+#' computed after dropping one score category, which gives the same value as the
+#' Moore-Penrose generalized inverse of the full covariance matrix. The squared
+#' residuals are not subject to such a constraint, so \eqn{RDIF_{S}-CR} has K
+#' degrees of freedom, and \eqn{RDIF_{RS}-CR} has 2K - 1. For a dichotomous item,
+#' the two category residuals are the negatives of each other, so only the
+#' residual for score category 1 is used, and the three statistics have 1, 1, and
+#' 2 degrees of freedom; then \eqn{RDIF_{R}-CR} and \eqn{RDIF_{S}-CR} equal the
+#' squares of the standardized \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of
+#' [irtQ::rdif()], \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values
+#' and flagged items are identical to those of [irtQ::rdif()].
+#'
+#' In rare cases, for example when all examinees who responded to an item have
+#' the same category probabilities, a covariance matrix has an even lower rank.
+#' Then the statistic is computed with the Moore-Penrose generalized inverse and
+#' compared with a chi-square distribution whose degrees of freedom equal the
+#' rank, and a warning names the item. The columns `df.crdifr`, `df.crdifs`, and
+#' `df.crdifrs` of `dif_stat` report the degrees of freedom used.
 #'
 #' @return This function returns an object of class `"crdif"`, which is a list
 #' with the following five components:
@@ -85,7 +105,7 @@
 #'     \item{dif_stat}{A data frame with one row per item and the columns `id`,
 #'     `crdifr`, `df.crdifr`, `crdifs`, `df.crdifs`, `crdifrs`, `df.crdifrs`,
 #'     `p.crdifr`, `p.crdifs`, `p.crdifrs`, `n.ref`, `n.foc`, and `n.total`: the
-#'     item ID, each RDIF-CR statistic followed by its degrees of freedom, the
+#'     item ID, each RDIF-CR statistic followed by the degrees of freedom used, the
 #'     p-values of the three statistics, the numbers of examinees in the
 #'     reference and focal groups who responded to the item, and their sum.
 #'     Statistics and p-values are rounded to four decimal places.}
@@ -174,6 +194,11 @@
 #'   Lim, H., Malatesta, J., & Lee, Y. (2024, July). Advancing polytomous DIF
 #'   detection with the residual DIF framework. Paper presented at the annual
 #'   International Meeting of the Psychometric Society, Prague, Czech Republic.
+#'
+#'   Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+#'   construction of chi-squared tests of fit. *Journal of the American
+#'   Statistical Association, 72*(357), 131-137.
+#'   \doi{10.1080/01621459.1977.10479921}.
 #'
 #'   Penfield, R. D. (2010). Distinguishing between net and global DIF in
 #'   polytomous items. *Journal of Educational Measurement, 47*(2), 129-149.
@@ -456,6 +481,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
               focal.name = focal.name, item.skip = item.skip, D = D,
               alpha = alpha)
 
+  # record the items whose covariance matrix is singular
+  singular_id <- dif_rst$singular
+
   # create two empty lists to contain the results
   no_purify <- list(dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL)
   with_purify <- list(
@@ -597,6 +625,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
             focal.name = focal.name, item.skip = item.skip.puri, D = D,
             alpha = alpha)
 
+        # record the items whose covariance matrix is singular
+        singular_id <- union(singular_id, dif_rst_tmp$singular)
+
         # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
@@ -672,6 +703,14 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
       with_purify$n.iter <- 0
       with_purify$complete <- TRUE
     }
+  }
+
+  # warn that the generalized inverse is used for the items with a singular covariance matrix
+  if (length(singular_id) > 0L) {
+    warning("A covariance matrix of the RDIF-CR statistics has a lower rank than expected for ",
+            "item(s) ", paste(singular_id, collapse = ", "), ". The statistics of these items ",
+            "are computed with a generalized inverse, and the rank of each matrix is used as ",
+            "the degrees of freedom.", call. = FALSE)
   }
 
   # summarize the results
@@ -863,136 +902,55 @@ crdif_one <- function(x,
   cov_rdifs <- moments$cov.rdifs
   cov_rdifrs <- moments$cov.rdifrs
 
-  # compute the chi-square statistics
-  chisq_r <- c()
-  chisq_s <- c()
-  chisq_rs <- c()
+  # degrees of freedom of the chi-square statistics: the ranks of the covariance matrices,
+  # which are K - 1, K, and 2K - 1 for a polytomous item with K score categories
+  # and 1, 1, and 2 for a dichotomous item
+  df_r <- ifelse(cats.mod > 1, cats.mod - 1, 1)
+  df_s <- cats.mod
+  df_rs <- df_r + df_s
+
+  # compute the chi-square statistics and their degrees of freedom
+  chisq_r <- chisq_s <- chisq_rs <- rep(NaN, nitem)
+  reduced_loc <- rep(FALSE, nitem)
   for (i in 1:nitem) {
-    if (i %in% all_miss) {
-      chisq_r[i] <- NaN
-      chisq_s[i] <- NaN
-      chisq_rs[i] <- NaN
-    } else {
-      # covariance matrices for rdifr and rdifs
-      cov_r <- cov_rdifr[[i]]
-      cov_s <- cov_rdifs[[i]]
-      cov_rs <- cov_rdifrs[[i]]
+    if (!i %in% all_miss) {
+      # the raw residuals of the score categories sum to zero, so the first category is
+      # dropped from the raw residual statistic of a polytomous item; this gives the same
+      # quadratic form as the generalized inverse of the full covariance matrix
+      loc_r <- if (cats.mod[i] > 1) 2:cats.mod[i] else 1
+      loc_rs <- c(loc_r, cats.mod[i] + seq_len(cats.mod[i]))
 
-      # create a vector of mean rdifr and mean rdifs
-      mu_r <- cbind(mu_rdifr[[i]])
-      mu_s <- cbind(mu_rdifs[[i]])
-      mu_rs <- cbind(c(mu_rdifr[[i]], mu_rdifs[[i]]))
+      # create the vectors of the differences between the statistics and their means
+      dev_r_all <- as.numeric(rdifr[[i]] - mu_rdifr[[i]])
+      dev_s <- as.numeric(rdifs[[i]] - mu_rdifs[[i]])
+      dev_r <- dev_r_all[loc_r]
+      dev_rs <- c(dev_r_all, dev_s)[loc_rs]
 
-      # create a vector of rdifr and rdifs
-      est_r <- cbind(rdifr[[i]])
-      est_s <- cbind(rdifs[[i]])
-      est_rs <- cbind(c(rdifr[[i]], rdifs[[i]]))
+      # compute the chi-square statistics with the covariance matrices
+      qf_r <- quad_form(cov_mat = cov_rdifr[[i]][loc_r, loc_r, drop = FALSE], dev_vec = dev_r,
+                        df = length(loc_r))
+      qf_s <- quad_form(cov_mat = cov_rdifs[[i]], dev_vec = dev_s, df = length(dev_s))
+      qf_rs <- quad_form(cov_mat = cov_rdifrs[[i]][loc_rs, loc_rs, drop = FALSE], dev_vec = dev_rs,
+                         df = length(loc_rs))
+      chisq_r[i] <- qf_r$stat
+      chisq_s[i] <- qf_s$stat
+      chisq_rs[i] <- qf_rs$stat
 
-      # compute the inverse of covariance matrix
-      inv_cov_r <- suppressWarnings(tryCatch(
-        {
-          solve(cov_r, tol = 1e-15)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      inv_cov_s <- suppressWarnings(tryCatch(
-        {
-          solve(cov_s, tol = 1e-15)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      inv_cov_rs <- suppressWarnings(tryCatch(
-        {
-          solve(cov_rs, tol = 1e-15)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_cov_r)) {
-        inv_cov_r <- suppressWarnings(tryCatch(
-          {
-            solve(cov_r + 1e-15, tol = 1e-25)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_cov_r)) {
-          inv_cov_r <- suppressWarnings(tryCatch(
-            {
-              solve(cov_r + 1e-10, tol = 1e-25)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-      if (is.null(inv_cov_s)) {
-        inv_cov_s <- suppressWarnings(tryCatch(
-          {
-            solve(cov_s + 1e-15, tol = 1e-25)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_cov_s)) {
-          inv_cov_s <- suppressWarnings(tryCatch(
-            {
-              solve(cov_s + 1e-10, tol = 1e-25)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-      if (is.null(inv_cov_rs)) {
-        inv_cov_rs <- suppressWarnings(tryCatch(
-          {
-            solve(cov_rs + 1e-15, tol = 1e-25)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_cov_rs)) {
-          inv_cov_rs <- suppressWarnings(tryCatch(
-            {
-              solve(cov_rs + 1e-10, tol = 1e-25)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-
-      # compute the chi-square statistic
-      chisq_r[i] <-
-        as.numeric(t(est_r - mu_r) %*% inv_cov_r %*% (est_r - mu_r))
-      chisq_s[i] <-
-        as.numeric(t(est_s - mu_s) %*% inv_cov_s %*% (est_s - mu_s))
-      chisq_rs[i] <-
-        as.numeric(t(est_rs - mu_rs) %*% inv_cov_rs %*% (est_rs - mu_rs))
+      # use the rank of a singular covariance matrix as the degrees of freedom
+      df_r[i] <- qf_r$df
+      df_s[i] <- qf_s$df
+      df_rs[i] <- qf_rs$df
+      reduced_loc[i] <- qf_r$reduced | qf_s$reduced | qf_rs$reduced
     }
   }
 
-  # degrees of freedom of the chi-square statistics
-  df.1 <- cats
-  df.1[df.1 == 2] <- 1
-  df.2 <- df.1  * 2
+  # find the items whose covariance matrix is singular
+  singular_id <- x$id[which(reduced_loc & !(seq_len(nitem) %in% item.skip))]
 
   # calculate p-values for all three statistics
-  p_crdifr <- stats::pchisq(chisq_r, df = df.1, lower.tail = FALSE)
-  p_crdifs <- stats::pchisq(chisq_s, df = df.1, lower.tail = FALSE)
-  p_crdifrs <- stats::pchisq(chisq_rs, df = df.2, lower.tail = FALSE)
+  p_crdifr <- stats::pchisq(chisq_r, df = df_r, lower.tail = FALSE)
+  p_crdifs <- stats::pchisq(chisq_s, df = df_s, lower.tail = FALSE)
+  p_crdifrs <- stats::pchisq(chisq_rs, df = df_rs, lower.tail = FALSE)
   p_val <- list(crdifr = p_crdifr, crdifs = p_crdifs, crdifrs = p_crdifrs)
 
   # compute total sample size
@@ -1003,11 +961,11 @@ crdif_one <- function(x,
     data.frame(
       id = x$id,
       crdifr = round(chisq_r, 4),
-      df.crdifr = df.1,
+      df.crdifr = df_r,
       crdifs = round(chisq_s, 4),
-      df.crdifs = df.1,
+      df.crdifs = df_s,
       crdifrs = round(chisq_rs, 4),
-      df.crdifrs = df.2,
+      df.crdifrs = df_rs,
       p.crdifr = round(p_crdifr, 4),
       p.crdifs = round(p_crdifs, 4),
       p.crdifrs = round(p_crdifrs, 4),
@@ -1074,7 +1032,8 @@ crdif_one <- function(x,
     ),
     moments = mmt_list,
     alpha = alpha,
-    p_val = p_val
+    p_val = p_val,
+    singular = singular_id
   )
 
   # return the results

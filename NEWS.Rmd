@@ -256,6 +256,15 @@ knitr::opts_chunk$set(
   inverse and the rank of the matrix as degrees of freedom, and a warning names
   the items. Results for regular data are unchanged.
 
+* `crdif()` compared `RDIF_R-CR` and `RDIF_RS-CR` of polytomous items with
+  chi-square distributions with K and 2K degrees of freedom, although the
+  category residuals of each examinee sum to zero, so the covariance matrices
+  have ranks K - 1 and 2K - 1. The tests were therefore conservative (about 2%
+  of the DIF-free items were flagged at `alpha = 0.05`). The degrees of freedom
+  are now K - 1, K, and 2K - 1, and the statistics are computed without adding
+  a small constant to a singular covariance matrix, which changed them in the
+  fourth decimal. Results for dichotomous items are unchanged.
+
 ## Minor Improvements
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.
