@@ -225,6 +225,27 @@ test_that("rdif() reads character responses as numbers", {
   expect_identical(r1$no_purify$dif_stat, r3$no_purify$dif_stat)
 })
 
+test_that("rdif() flags items with the unrounded p-values", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  ref <- rdt_ref(sim$x, sim$resp, score, sim$group, "f", 1)
+
+  # an item whose rounded p-value exceeds its unrounded p-value
+  j <- which(round(ref$p.rdifr, 4) > ref$p.rdifr & ref$p.rdifr < 0.9)[1]
+  expect_false(is.na(j))
+  a <- ref$p.rdifr[j] * (1 + 1e-9)
+  rst <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", D = 1, alpha = a)
+  expect_true(j %in% rst$no_purify$dif_item$rdifr)
+  expect_equal(rst$no_purify$dif_stat$p.rdifr[j], round(ref$p.rdifr[j], 4))
+
+  # the same holds for RDIF_S and RDIF_RS
+  j2 <- which(round(ref$p.rdifrs, 4) > ref$p.rdifrs & ref$p.rdifrs < 0.9)[1]
+  expect_false(is.na(j2))
+  rst2 <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", D = 1,
+               alpha = ref$p.rdifrs[j2] * (1 + 1e-9))
+  expect_true(j2 %in% rst2$no_purify$dif_item$rdifrs)
+})
+
 test_that("rdif() stops with clear errors for invalid inputs", {
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

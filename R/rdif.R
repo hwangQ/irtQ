@@ -32,7 +32,10 @@
 #'   `NA`, and they are never flagged or removed during purification. If `NULL`,
 #'   all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
-#'   for hypothesis testing using the RDIF statistics. Default is `0.05`.
+#'   of the tests. An item is flagged by a statistic when its p-value is less
+#'   than or equal to `alpha`. The comparison uses unrounded p-values, although
+#'   the p-values reported in `dif_stat` are rounded to four decimal places.
+#'   Default is `0.05`.
 #' @param missing  A value indicating missing responses in the data set. Default
 #'   is `NA`.
 #' @param purify Logical. Indicates whether to apply a purification procedure.
@@ -925,9 +928,9 @@ rdif_one <- function(x,
   z_stat_rdifs <- (rdifs - moments_rdifs$mu) / moments_rdifs$sigma
 
   # calculate p-values for all three statistics
-  p_rdifr <- round(2 * stats::pnorm(q = abs(z_stat_rdifr), mean = 0, sd = 1, lower.tail = FALSE), 4)
-  p_rdifs <- round(2 * stats::pnorm(q = abs(z_stat_rdifs), mean = 0, sd = 1, lower.tail = FALSE), 4)
-  p_rdifrs <- round(stats::pchisq(chisq, df = 2, lower.tail = FALSE), 4)
+  p_rdifr <- 2 * stats::pnorm(q = abs(z_stat_rdifr), mean = 0, sd = 1, lower.tail = FALSE)
+  p_rdifs <- 2 * stats::pnorm(q = abs(z_stat_rdifs), mean = 0, sd = 1, lower.tail = FALSE)
+  p_rdifrs <- stats::pchisq(chisq, df = 2, lower.tail = FALSE)
 
   # compute total sample size
   n_total <- n_foc + n_ref
@@ -939,7 +942,7 @@ rdif_one <- function(x,
       rdifr = round(rdifr, 4), z.rdifr = round(z_stat_rdifr, 4),
       rdifs = round(rdifs, 4), z.rdifs = round(z_stat_rdifs, 4),
       rdifrs = round(chisq, 4),
-      p.rdifr = p_rdifr, p.rdifs = p_rdifs, p.rdifrs = p_rdifrs,
+      p.rdifr = round(p_rdifr, 4), p.rdifs = round(p_rdifs, 4), p.rdifrs = round(p_rdifrs, 4),
       n.ref = n_ref, n.foc = n_foc, n.total = n_total, stringsAsFactors = FALSE
     )
   rownames(stat_df) <- NULL
@@ -956,7 +959,7 @@ rdif_one <- function(x,
     covar[item.skip] <- NA
   }
 
-  # find the flagged items
+  # find the flagged items using the unrounded p-values
   dif_item_rdifr <- as.numeric(which(p_rdifr <= alpha))
   dif_item_rdifs <- as.numeric(which(p_rdifs <= alpha))
   dif_item_rdifrs <- which(p_rdifrs <= alpha)

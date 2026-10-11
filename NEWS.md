@@ -243,6 +243,12 @@
   They now stop with a clear message; use `grdif()` to compare more than
   two groups. Character responses are read as numbers.
 
+- `rdif()` compared the p-values rounded to four decimals with `alpha`,
+  so an item with a p-value just above `alpha` (for example, 0.05004 for
+  `alpha = 0.05`) was flagged, and an item with a p-value below 0.00005
+  was flagged even for an `alpha` of 1e-30. The decision now uses the
+  unrounded p-values, and the tables still show four decimals.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
