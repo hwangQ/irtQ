@@ -810,7 +810,7 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
       with_purify$purify.by <- purify.by
       with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
       with_purify$moments <- cbind(no_purify$moments, n.iter = 0)
-      with_purify$n.iter <- 0
+      with_purify$n.iter <- 0L
       with_purify$complete <- TRUE
     }
   }
@@ -1001,8 +1001,8 @@ rdif_one <- function(x,
   )
 
   # find the flagged items using the unrounded p-values
-  dif_item_rdifr <- as.numeric(which(p_rdifr <= alpha))
-  dif_item_rdifs <- as.numeric(which(p_rdifs <= alpha))
+  dif_item_rdifr <- as.integer(which(p_rdifr <= alpha))
+  dif_item_rdifs <- as.integer(which(p_rdifs <= alpha))
   dif_item_rdifrs <- which(p_rdifrs <= alpha)
   if(length(dif_item_rdifr) == 0) dif_item_rdifr <- NULL
   if(length(dif_item_rdifs) == 0) dif_item_rdifs <- NULL

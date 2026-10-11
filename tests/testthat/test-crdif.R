@@ -367,6 +367,15 @@ test_that("print() of crdif results leaves the significance symbols of skipped i
   expect_false(any(grepl("?", out, fixed = TRUE)))
 })
 
+test_that("crdif() returns the number of iterations as an integer when no item is flagged", {
+  sim <- crt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  none <- crdif(sim$x[1:3, ], sim$resp[, 1:3], score = score, group = sim$group, focal.name = 1,
+                alpha = 1e-4, purify = TRUE, verbose = FALSE)
+  expect_null(none$with_purify$dif_item)
+  expect_identical(none$with_purify$n.iter, 0L)
+})
+
 test_that("crdif() stops with clear errors for invalid inputs", {
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)

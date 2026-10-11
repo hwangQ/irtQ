@@ -417,6 +417,11 @@
   symbol of an item skipped with `item.skip` blank. Before, it showed
   `?`, which the legend does not explain.
 
+- The `dif_item` elements `rdifr` and `rdifs` of the `no_purify` results
+  of `rdif()` are integer vectors like `rdifrs`, and `n.iter` of the
+  `with_purify` results of `rdif()` and `crdif()` is the integer 0 when
+  no item is flagged in the initial analysis. The values are unchanged.
+
 # irtQ 1.3.1
 
 ## Bug Fixes
