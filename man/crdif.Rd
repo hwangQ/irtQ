@@ -114,8 +114,9 @@ response data matrix.}
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
 the focal group, set \code{focal.name = 1}.}
 
-\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
-exclude from the analysis. Skipped items still contribute to the ability
+\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}), or a
+logical vector with one value per item, identifying the items to exclude
+from the analysis. Skipped items still contribute to the ability
 estimates, but their results (statistics, p-values, and moments) are set to
 \code{NA}, and they are never flagged or removed during purification. If \code{NULL},
 all items are analyzed. Default is \code{NULL}.}
@@ -262,9 +263,10 @@ analysis, this is \code{no_purify$moments}.}
 \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
 items flagged by the \code{purify.by} statistic, sorted in ascending order. It
 contains the items removed during purification and, if \code{max.iter} is
-reached, the items flagged in the last iteration. It contains all items
-if every item is flagged. \code{NULL} if no item is flagged in the initial
-analysis.}
+reached or the purification stops because a group has no ability
+estimate left, the items flagged in the last iteration (iteration
+\code{n.iter}). It contains all items if every item is flagged. \code{NULL} if no
+item is flagged in the initial analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
 item is flagged in the initial analysis). The iteration that removes the
 last item, or after which a group has no ability estimate left, is not

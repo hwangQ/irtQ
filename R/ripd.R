@@ -58,14 +58,16 @@
 #'   `with_purify` is `FALSE`. Because one item is removed per iteration,
 #'   `max.iter` should be at least the number of items expected to drift (Lim &
 #'   Han, 2026, used 80).
-#' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from a focal group examinee for the examinee's
-#'   responses to be used. All responses of focal group examinees with fewer
-#'   than `min.resp` (but at least one) responses are set to `NA` before the
-#'   ability estimation, in the initial analysis and at every purification
-#'   iteration, and these examinees are excluded from the analysis. A warning
-#'   reports the number of examinees excluded in the initial analysis. A large
-#'   `min.resp` can leave the focal group without any ability estimate in a later
+#' @param min.resp A single nonnegative number, usually a positive integer,
+#'   specifying the minimum number of valid item responses required from a
+#'   focal group examinee for the examinee's responses to be used. All
+#'   responses of focal group examinees with fewer than `min.resp` (but at least
+#'   one) responses are set to `NA` before the ability estimation, in the
+#'   initial analysis and at every purification iteration, and these examinees
+#'   are excluded from the analysis. A warning reports the number of examinees
+#'   excluded in the initial analysis, and one warning at the end of the
+#'   purification reports the examinees excluded during it. A large `min.resp`
+#'   can leave the focal group without any ability estimate in a later
 #'   purification iteration, which stops the purification with a warning.
 #'   Reference group examinees are not affected. If `NULL`, no minimum is
 #'   applied. Default is `NULL`.
@@ -121,8 +123,10 @@
 #'     \item{ipd_item}{A numeric vector of item indices (row positions in
 #'     \code{x}) identified as IPD items across all purification iterations,
 #'     sorted in ascending order. If \code{max.iter} is reached before
-#'     convergence, the items flagged at the last iteration are also included.
-#'     \code{NULL} if no item is flagged in the initial analysis.}
+#'     convergence or the purification stops because a group has no ability
+#'     estimate left, the items flagged at the last iteration (iteration
+#'     \code{n.iter}) are also included. It contains all items if every item is
+#'     flagged. \code{NULL} if no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the total number of iterations
 #'     performed during the purification process. The iteration that removes the
 #'     last item, or after which a group has no ability estimate left, is not
@@ -298,9 +302,10 @@
 #' by drifted items. This is analogous to the contaminating effect of DIF items
 #' on matching variables. At each iteration:
 #' \enumerate{
-#'   \item The item with the most statistically significant drift statistic
-#'     (smallest p-value) among currently unflagged items is identified and
-#'     flagged as a potential IPD item.
+#'   \item Among the remaining items flagged by the \code{purify.by} statistic,
+#'     the item with the smallest p-value (compared on the log scale) is
+#'     removed and added to the flagged set. For \eqn{RIPD_R} and
+#'     \eqn{RIPD_S}, this is the item with the largest absolute z value.
 #'   \item Ability estimates of all examinees in both groups are recomputed with
 #'     \code{\link{est_score}}, excluding all currently flagged items and using
 #'     the \code{method}, \code{range}, \code{norm.prior}, \code{nquad},
@@ -319,6 +324,11 @@
 #' of the focal group has an ability estimate left (see \code{min.resp}); the
 #' remaining items then keep the results of the previous iteration, and the
 #' items flagged in that iteration are added to the flagged items.
+#' Examinees without any response have no ability estimate and are excluded.
+#' During purification, an examinee whose remaining responses are all removed
+#' with the flagged items, or who has fewer than \code{min.resp} responses to
+#' the remaining items, is also excluded, and one warning at the end reports the
+#' number of such examinees.
 #' The statistic used to drive purification is specified by \code{purify.by};
 #' \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 #' types of drift.
@@ -450,11 +460,13 @@
 #'   Educational and Behavioral Statistics, 25*(4), 373-389.
 #'   \doi{10.3102/10769986025004373}.
 #'
+#' @order 1
 #'@export
 ripd <- function(x, ...) UseMethod("ripd")
 
 #' @describeIn ripd Default method for a data frame `x` containing item metadata.
 #'
+#' @order 2
 #'@export
 ripd.default <- function(x,
                          data,
@@ -499,6 +511,7 @@ ripd.default <- function(x,
 #' [irtQ::est_irt()]. The response data and the scaling factor `D` are taken from
 #' the object.
 #'
+#' @order 3
 #'@export
 ripd.est_irt <- function(x,
                          score = NULL,
@@ -544,6 +557,7 @@ ripd.est_irt <- function(x,
 #' [irtQ::est_item()]. The response data, ability estimates, and the scaling
 #' factor `D` are taken from the object.
 #'
+#' @order 4
 #'@export
 ripd.est_item <- function(x,
                           group,

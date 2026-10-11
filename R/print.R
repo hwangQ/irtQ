@@ -524,6 +524,7 @@ print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 #' @param what A character string selecting the results to print: `"all"`
 #'   (default), `"no_purify"`, or `"with_purify"`.
 #' @param digits Not used; kept for consistency with the other print methods.
+#' @order 5
 #' @export
 print.ripd <- function(x, digits = max(2L, getOption("digits") - 5L),
                        what = c("all", "no_purify", "with_purify"), ...) {

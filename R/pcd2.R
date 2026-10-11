@@ -46,8 +46,9 @@
 #'   value is usually obtained by bootstrapping (see Examples). If `NULL`
 #'   (default), the statistic is reported but no item is flagged and
 #'   purification is not performed.
-#' @param min.resp A positive integer specifying the minimum number of responses
-#'   an item must have to be analyzed. All responses of items with fewer than
+#' @param min.resp A single nonnegative number, usually a positive integer,
+#'   specifying the minimum number of responses an item must have to be
+#'   analyzed. All responses of items with fewer than
 #'   `min.resp` (but at least one) responses are set to `NA`, so their `pcd2`
 #'   value is `NaN` and `N` is 0, and a warning lists those items. If `NULL`, no
 #'   minimum is applied. Default is `NULL`.
@@ -155,7 +156,8 @@
 #'     \item{ipd_item}{A numeric vector of item indices (row positions in `x`)
 #'     flagged as IPD items during purification, sorted in ascending order. The
 #'     iteration at which each item was flagged is given in the `n.iter` column of
-#'     `ipd_stat`. It is `NULL` when no item is flagged in the initial analysis.}
+#'     `ipd_stat`. It contains all items if every item is flagged. It is `NULL`
+#'     when no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the number of purification iterations
 #'     completed. The iteration that removes the last item is not counted,
 #'     because the statistics are not recomputed.}

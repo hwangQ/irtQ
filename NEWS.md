@@ -224,13 +224,11 @@
   correct response (a tiny constant was added to every entry of the
   matrix). The statistic is now computed with a generalized inverse and
   the rank of the matrix as degrees of freedom, and a warning names the
-  items. Results for regular data are unchanged.
-
-- The purification of `ripd()` removes the flagged item with the
-  smallest p-value of the `purify.by` statistic, compared on the log
-  scale, so the choice also holds for an item whose `RIPD_RS` has fewer
-  degrees of freedom because of a singular covariance matrix. Results
-  for regular data are unchanged.
+  items. Because the degrees of freedom can then differ between items,
+  the purification removes the flagged item with the smallest p-value of
+  the `purify.by` statistic, compared on the log scale, instead of the
+  item with the largest statistic. Results for regular data are
+  unchanged.
 
 - `rdif()` and `crdif()` stopped with an obscure error when an examinee
   had no ability estimate: a missing value in `score`, an examinee
@@ -262,8 +260,9 @@
   positive whole number when `purify = TRUE`, and a `group` with more
   than two values (the values other than `focal.name` were pooled into
   the reference group). They now stop with a clear message; use
-  `grdif()` to compare more than two groups. Character responses are
-  read as numbers.
+  `grdif()` to compare more than two groups. A logical `item.skip` is
+  read as item positions, also during purification, and character
+  responses are read as numbers.
 
 - `rdif()` compared the p-values rounded to four decimals with `alpha`,
   so an item with a p-value just above `alpha` (for example, 0.05004 for
@@ -434,6 +433,10 @@
   the first iteration, only the examinees who responded to the removed
   item are rescored when `ncore = 1` and `method` is a pattern scoring
   method. Results are unchanged.
+
+- The purification of `rdif()`, `crdif()`, and `ripd()` gives the
+  warning of `est_score()` about `ncore > 1` once instead of at every
+  iteration.
 
 - `rdif()`, `crdif()`, and `ripd()` stop with a clear message for
   `method = "EAP.SUM"` or `"INV.TCC"` when they estimate the abilities

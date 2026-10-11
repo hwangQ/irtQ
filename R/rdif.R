@@ -27,8 +27,9 @@
 #' @param focal.name A single numeric or character value specifying the focal
 #'   group. For instance, given `group = c(0, 1, 0, 1, 1)` and '1' indicating
 #'   the focal group, set `focal.name = 1`.
-#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
-#'   exclude from the analysis. Skipped items still contribute to the ability
+#' @param item.skip A numeric vector of item positions (row numbers of `x`), or a
+#'   logical vector with one value per item, identifying the items to exclude
+#'   from the analysis. Skipped items still contribute to the ability
 #'   estimates, but their results (statistics, p-values, and moments) are set to
 #'   `NA`, and they are never flagged or removed during purification. If `NULL`,
 #'   all items are analyzed. Default is `NULL`.
@@ -278,9 +279,10 @@
 #'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
 #'     items flagged by the `purify.by` statistic, sorted in ascending order. It
 #'     contains the items removed during purification and, if `max.iter` is
-#'     reached, the items flagged in the last iteration. It contains all items
-#'     if every item is flagged. `NULL` if no item is flagged in the initial
-#'     analysis.}
+#'     reached or the purification stops because a group has no ability
+#'     estimate left, the items flagged in the last iteration (iteration
+#'     `n.iter`). It contains all items if every item is flagged. `NULL` if no
+#'     item is flagged in the initial analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
 #'     item is flagged in the initial analysis). The iteration that removes the
 #'     last item, or after which a group has no ability estimate left, is not

@@ -169,9 +169,10 @@
 #'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
 #'     items flagged by the `purify.by` statistic, sorted in ascending order. It
 #'     contains the items removed during purification and, if `max.iter` is
-#'     reached, the items flagged in the last iteration. It contains all items
-#'     if every item is flagged. `NULL` if no item is flagged in the initial
-#'     analysis.}
+#'     reached or the purification stops because a group has no ability
+#'     estimate left, the items flagged in the last iteration (iteration
+#'     `n.iter`). It contains all items if every item is flagged. `NULL` if no
+#'     item is flagged in the initial analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
 #'     item is flagged in the initial analysis). The iteration that removes the
 #'     last item, or after which a group has no ability estimate left, is not
