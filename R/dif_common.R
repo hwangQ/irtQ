@@ -99,15 +99,10 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
   }
 
   # stop when the significance level is not a single value between 0 and 1
-  if (!is.numeric(alpha) || length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1) {
-    stop("'alpha' must be a single number between 0 and 1.", call. = FALSE)
-  }
+  check_alpha(alpha)
 
   # stop when the maximum number of iterations is not a positive whole number
-  if (purify && !(is.numeric(max.iter) && length(max.iter) == 1L && is.finite(max.iter) &&
-                  max.iter >= 1 && max.iter == round(max.iter))) {
-    stop("'max.iter' must be a single positive whole number when purify = TRUE.", call. = FALSE)
-  }
+  check_max_iter(max.iter, purify)
 
   # stop when the minimum number of responses is not a single nonnegative number
   check_min_resp(min.resp)
@@ -216,6 +211,24 @@ check_score <- function(score, nrow_data) {
 
   # return the scores
   score
+}
+
+
+# This function stops when the significance level is not a single value between 0 and 1
+check_alpha <- function(alpha) {
+  if (!is.numeric(alpha) || length(alpha) != 1L || is.na(alpha) || alpha <= 0 || alpha >= 1) {
+    stop("'alpha' must be a single number between 0 and 1.", call. = FALSE)
+  }
+}
+
+
+# This function stops when the purification is requested and the maximum number of iterations is
+# not a positive whole number
+check_max_iter <- function(max.iter, purify) {
+  if (purify && !(is.numeric(max.iter) && length(max.iter) == 1L && is.finite(max.iter) &&
+                  max.iter >= 1 && max.iter == round(max.iter))) {
+    stop("'max.iter' must be a single positive whole number when purify = TRUE.", call. = FALSE)
+  }
 }
 
 

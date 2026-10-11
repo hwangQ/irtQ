@@ -156,7 +156,7 @@ test_that("ripd() reads a logical item.skip as item positions during purificatio
 })
 
 test_that("ripd() returns all items as flagged with a warning when purification flags every item", {
-  # alpha = 1 flags every item at every iteration
+  # an alpha close to 1 flags every item at every iteration
   x1 <- shape_df(par.drm = list(a = c(1, 1.2), b = c(0, 0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1
   x2$par.2 <- x2$par.2 + c(2, -2)
@@ -164,14 +164,14 @@ test_that("ripd() returns all items as flagged with a warning when purification 
   resp <- rbind(simdat(x1, theta = rnorm(500), D = 1), simdat(x2, theta = rnorm(500), D = 1))
   group <- rep(0:1, each = 500)
   expect_warning(
-    rst <- ripd(x1, resp, group = group, focal.name = 1, purify = TRUE, alpha = 1, verbose = FALSE),
+    rst <- ripd(x1, resp, group = group, focal.name = 1, purify = TRUE, alpha = 0.999, verbose = FALSE),
     "All items were flagged"
   )
   expect_false(rst$with_purify$complete)
   expect_equal(rst$with_purify$ipd_item, 1:2)
   expect_equal(rst$with_purify$n.iter, 1)
   expect_false(anyNA(rst$with_purify$ipd_stat$ripdrs))
-  rst0 <- ripd(x1, resp, group = group, focal.name = 1, alpha = 1)
+  rst0 <- ripd(x1, resp, group = group, focal.name = 1, alpha = 0.999)
   expect_identical(rst$no_purify, rst0$no_purify)
 })
 
@@ -265,6 +265,17 @@ test_that("ripd() stops with clear errors for invalid inputs", {
   xp <- shape_df(par.prm = list(a = 1, d = list(c(0, 1))), cats = 3, model = "GPCM")
   expect_error(ripd(rbind(sim$par, xp), cbind(sim$resp, 0), score = score, group = sim$group, focal.name = "f"),
                "dichotomous")
+
+  # alpha must be a single number between 0 and 1, and max.iter a positive whole number for purification
+  run <- function(...) ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f",
+                            verbose = FALSE, ...)
+  expect_error(run(alpha = "a"), "alpha")
+  expect_error(run(alpha = 2), "alpha")
+  expect_error(run(alpha = c(0.01, 0.05)), "alpha")
+  expect_error(run(alpha = NA), "alpha")
+  expect_error(run(purify = TRUE, max.iter = 0), "max.iter")
+  expect_error(run(purify = TRUE, max.iter = 2.5), "max.iter")
+  expect_no_error(run(max.iter = 2.5))
 })
 
 test_that("ripd() flags items with the unrounded p-values", {
@@ -495,6 +506,13 @@ test_that("ripd() methods for est_irt and est_item objects match the default met
   r4 <- ripd(fit2$par.est, data = fit2$data, score = fit2$score, group = sim$group, focal.name = "f",
              D = fit2$scale.D, verbose = FALSE)
   expect_identical(r3$no_purify, r4$no_purify)
+
+  # the data and the scaling factor are taken from the object
+  expect_error(ripd(fit, data = resp, group = sim$group, focal.name = "f"), "taken from the object")
+  expect_error(ripd(fit2, D = 1.7, group = sim$group, focal.name = "f"), "taken from the object")
+
+  # the ability estimates are also taken from an est_item object
+  expect_error(ripd(fit2, score = score, group = sim$group, focal.name = "f"), "taken from the object")
 })
 
 test_that("ripd() leaves skipped items out of the tests but reports their sample sizes", {

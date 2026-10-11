@@ -523,6 +523,9 @@ ripd.est_irt <- function(x,
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling factor is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the IPD analysis with the data, scaling factor, and items of the object
   rst <- ripd_main(
     x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
@@ -563,6 +566,10 @@ ripd.est_item <- function(x,
 
   # match.call
   cl <- match.call()
+
+  # stop when the response data, the ability estimates, or the scaling factor is passed, since they
+  # are taken from the object
+  check_obj_dots(list(...), obj_score = TRUE)
 
   # conduct the IPD analysis with the data, ability estimates, scaling factor, and items of the object
   rst <- ripd_main(
@@ -612,6 +619,12 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # check the positions of the items to be skipped
   item.skip <- check_item_skip(item.skip, nrow(x))
+
+  # stop when the significance level is not a single value between 0 and 1
+  check_alpha(alpha)
+
+  # stop when the maximum number of iterations is not a positive whole number
+  check_max_iter(max.iter, purify)
 
   # stop when the minimum number of responses is not a single nonnegative number
   check_min_resp(min.resp)
