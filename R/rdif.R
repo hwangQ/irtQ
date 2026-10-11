@@ -403,29 +403,15 @@
 #' )
 #' print(dif_nopuri_2)
 #'
-#' # (b)-1 Compute RDIF statistics with purification based on RDIF(R)
-#' dif_puri_r <- rdif(
-#'   x = est_par, data = data, score = score,
-#'   group = group, focal.name = 1, D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "rdifr"
-#' )
-#' print(dif_puri_r)
-#'
-#' # (b)-2 Compute RDIF statistics with purification based on RDIF(S)
-#' dif_puri_s <- rdif(
-#'   x = est_par, data = data, score = score,
-#'   group = group, focal.name = 1, D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "rdifs"
-#' )
-#' print(dif_puri_s)
-#'
-#' # (b)-3 Compute RDIF statistics with purification based on RDIF(RS)
+#' # (b) Compute RDIF statistics with purification based on RDIF(RS)
 #' dif_puri_rs <- rdif(
 #'   x = est_par, data = data, score = score,
 #'   group = group, focal.name = 1, D = 1, alpha = 0.05,
 #'   purify = TRUE, purify.by = "rdifrs"
 #' )
 #' print(dif_puri_rs)
+#'
+#' # purify.by = "rdifr" or "rdifs" can be used in the same way.
 #'
 #' }
 #'

@@ -306,29 +306,18 @@
 #' )
 #' print(dif_nopuri)
 #'
-#' # (b) DIF detection with purification using RDIF_{R}-CR
-#' dif_puri_1 <- crdif(
-#'   x = x, data = data, score = score,
-#'   group = group, focal.name = 1, D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "crdifr"
-#' )
-#' print(dif_puri_1)
-#'
-#' # (c) DIF detection with purification using RDIF_{S}-CR
-#' dif_puri_2 <- crdif(
-#'   x = x, data = data, score = score,
-#'   group = group, focal.name = 1, D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "crdifs"
-#' )
-#' print(dif_puri_2)
-#'
-#' # (d) DIF detection with purification using RDIF_{RS}-CR
-#' dif_puri_3 <- crdif(
-#'   x = x, data = data, score = score,
-#'   group = group, focal.name = 1, D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "crdifrs"
-#' )
-#' print(dif_puri_3)
+#' # (b) DIF detection with purification using RDIF_{RS}-CR (not run: it takes
+#' #     about 15 seconds because the abilities of the examinees are
+#' #     re-estimated at every iteration)
+#' #
+#' #   dif_puri <- crdif(
+#' #     x = x, data = data, score = score,
+#' #     group = group, focal.name = 1, D = 1, alpha = 0.05,
+#' #     purify = TRUE, purify.by = "crdifrs"
+#' #   )
+#' #   print(dif_puri)
+#' #
+#' #   purify.by = "crdifr" or "crdifs" can be used in the same way.
 #'
 #' }
 #' @export
