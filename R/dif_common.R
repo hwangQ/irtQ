@@ -3,16 +3,19 @@
 # independently, so after the first iteration only the examinees who responded to the removed
 # item are rescored
 dif_rescore <- function(x, data, score, loc_resp, first, D, method, range,
-                        norm.prior, nquad, weights, ncore, quiet_na = FALSE, ...) {
+                        norm.prior, nquad, weights, ncore, quiet_na = FALSE,
+                        quiet_ncore = FALSE, ...) {
   # estimate the abilities, and mute the warning about the examinees without any response
-  # when it is reported separately
+  # when it is reported separately and the warning about the number of cores when it was
+  # already given
   score_est <- function(data_est) {
     withCallingHandlers(
       est_score(
         x = x, data = data_est, D = D, method = method, range = range,
         norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta,
       warning = function(w) {
-        if (quiet_na && grepl("^NA values are returned", conditionMessage(w))) {
+        if ((quiet_na && grepl("^NA values are returned", conditionMessage(w))) ||
+            (quiet_ncore && grepl("^ncore > 1 is not recommended", conditionMessage(w)))) {
           invokeRestart("muffleWarning")
         }
       }
@@ -150,9 +153,12 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
     # treat the ability estimates of the examinees excluded by min.resp as missing
     score[loc_less] <- NA
   } else {
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta
+    # estimate the abilities; the examinees without a response are excluded without a warning
+    score <- dif_rescore(
+      x = x, data = data, score = NULL, loc_resp = NULL, first = TRUE, D = D, method = method,
+      range = range, norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+      quiet_na = TRUE, ...
+    )
   }
 
   # stop when no examinee has an ability estimate
@@ -190,12 +196,17 @@ warn_purify_excluded <- function(n_excluded) {
 }
 
 
-# This function stops when the response data or the scaling factor D is passed through '...'
-# to a method for an estimation object, which takes them from the object
-check_obj_dots <- function(dots) {
+# This function stops when the response data, the scaling factor D, or (for an est_item object)
+# the ability estimates are passed through '...' to a method for an estimation object, which
+# takes them from the object
+check_obj_dots <- function(dots, obj_score = FALSE) {
   if (any(c("data", "D") %in% names(dots))) {
     stop("The response data and the scaling factor D are taken from the object 'x'.",
          call. = FALSE)
+  }
+  if (obj_score && "score" %in% names(dots)) {
+    stop("The response data, the ability estimates, and the scaling factor D are taken from ",
+         "the object 'x'.", call. = FALSE)
   }
 }
 

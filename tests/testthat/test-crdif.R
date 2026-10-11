@@ -251,6 +251,16 @@ test_that("crdif() methods for est_irt and est_item objects match the default me
   # the data and the scaling factor are taken from the object
   expect_error(crdif(fit, data = sim$resp, group = sim$group, focal.name = 1), "taken from the object")
   expect_error(crdif(fit2, D = 1.7, group = sim$group, focal.name = 1), "taken from the object")
+
+  # the ability estimates are also taken from an est_item object
+  expect_error(crdif(fit2, score = score, group = sim$group, focal.name = 1), "taken from the object")
+})
+
+test_that("crdif() warns once about min.resp when the scores are estimated", {
+  sim <- crt_sim()
+  out <- crt_catch(crdif(sim$x, sim$resp, group = sim$group, focal.name = 1, min.resp = 5))
+  expect_length(out$warnings, 1)
+  expect_match(out$warnings, "fewer than 5 responses")
 })
 
 test_that("crdif() leaves skipped items out of the tests and the purification", {

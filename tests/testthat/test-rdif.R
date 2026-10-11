@@ -118,6 +118,25 @@ test_that("rdif() methods for est_irt and est_item objects match the default met
   # the data and the scaling factor are taken from the object
   expect_error(rdif(fit, data = resp, group = sim$group, focal.name = "f"), "taken from the object")
   expect_error(rdif(fit2, D = 1.7, group = sim$group, focal.name = "f"), "taken from the object")
+
+  # the ability estimates are also taken from an est_item object
+  expect_error(rdif(fit2, score = score, group = sim$group, focal.name = "f"), "taken from the object")
+})
+
+test_that("rdif() warns once about min.resp when the scores are estimated", {
+  sim <- rdt_sim()
+  out <- rdt_catch(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", min.resp = 8))
+  expect_length(out$warnings, 1)
+  expect_match(out$warnings, "fewer than 8 responses")
+})
+
+test_that("rdif() warns once about the number of cores during the purification", {
+  skip_on_cran()
+  sim <- rdt_sim()
+  out <- rdt_catch(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE,
+                        ncore = 2, verbose = FALSE))
+  expect_gte(out$value$with_purify$n.iter, 2)
+  expect_equal(sum(grepl("^ncore > 1", out$warnings)), 1)
 })
 
 test_that("rdif() leaves skipped items out of the tests and the purification", {

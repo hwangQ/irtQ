@@ -396,7 +396,8 @@ knitr::opts_chunk$set(
 
 * The `est_irt` and `est_item` methods of `rdif()` and `crdif()` stop with a
   clear message when `data` or `D` is passed, because both are taken from the
-  object. Before, they were silently ignored or caused an obscure error.
+  object, and the `est_item` methods do so for `score` as well. Before, they
+  were silently ignored or caused an obscure error.
 
 * The purification of `rdif()` and `crdif()` no longer repeats the warning of
   `est_score()` about examinees without responses in every iteration. One

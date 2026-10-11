@@ -443,8 +443,9 @@ crdif.est_item <- function(x,
   # match.call
   cl <- match.call()
 
-  # stop when the response data or the scaling factor is passed, since they are taken from the object
-  check_obj_dots(list(...))
+  # stop when the response data, the ability estimates, or the scaling factor is passed, since they
+  # are taken from the object
+  check_obj_dots(list(...), obj_score = TRUE)
 
   # conduct the DIF analysis with the data, ability estimates, scaling factor, and items of the object
   rst <- crdif_main(
@@ -469,6 +470,9 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
 
   # confirm and correct all item metadata information
   x <- confirm_df(x)
+
+  # record whether the ability estimates are supplied
+  score_given <- !is.null(score)
 
   # check the inputs and prepare the response data and ability estimates
   prep <- dif_prepare(
@@ -624,7 +628,7 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
             x = x_puri, data = data_puri, score = score_puri, loc_resp = loc_resp,
             first = (i == 1L), D = D, method = method, range = range,
             norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
-            quiet_na = TRUE, ...
+            quiet_na = TRUE, quiet_ncore = (i > 1L || !score_given), ...
           )
 
         # stop the purification when the examinees of a group have all lost their ability estimates;
