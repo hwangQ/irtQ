@@ -278,8 +278,9 @@ performed during the purification process. The iteration that removes the
 last item, or after which a group has no ability estimate left, is not
 counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of purified ability estimates used to
-compute the final RIPD statistics. \code{NULL} when no item is flagged in
-the first analysis, because purification is not carried out.}
+compute the final RIPD statistics, from the last iteration counted in
+\code{n.iter}. \code{NULL} when no item is flagged in the first analysis,
+because purification is not carried out.}
 \item{complete}{A logical value indicating whether the purification
 process converged. \code{FALSE} if the procedure stopped because the
 maximum number of iterations was reached, because every item was flagged,

@@ -269,9 +269,9 @@ item is flagged in the initial analysis). The iteration that removes the
 last item, or after which a group has no ability estimate left, is not
 counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of the ability estimates from the last
-iteration. \code{NULL} if no item is flagged in the initial analysis, because
-purification is not carried out; the initial estimates are then in
-\code{no_purify$score}.}
+iteration counted in \code{n.iter}. \code{NULL} if no item is flagged in the initial
+analysis, because purification is not carried out; the initial estimates
+are then in \code{no_purify$score}.}
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because

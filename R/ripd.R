@@ -128,8 +128,9 @@
 #'     last item, or after which a group has no ability estimate left, is not
 #'     counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of purified ability estimates used to
-#'     compute the final RIPD statistics. \code{NULL} when no item is flagged in
-#'     the first analysis, because purification is not carried out.}
+#'     compute the final RIPD statistics, from the last iteration counted in
+#'     \code{n.iter}. \code{NULL} when no item is flagged in the first analysis,
+#'     because purification is not carried out.}
 #'     \item{complete}{A logical value indicating whether the purification
 #'     process converged. \code{FALSE} if the procedure stopped because the
 #'     maximum number of iterations was reached, because every item was flagged,
@@ -804,6 +805,9 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           data_puri[loc_less, ] <- NA
         }
 
+        # keep the ability estimates of the previous iteration in case the purification stops
+        score_prev <- score
+
         # re-estimate the abilities without the flagged items; only the examinees who responded
         # to the deleted item are rescored after the first iteration
         score <-
@@ -819,6 +823,7 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         if (all(is.na(score[which(group == focal.name)])) ||
             all(is.na(score[which(group != focal.name)]))) {
           no_score <- TRUE
+          score <- score_prev
           ipd_stat[item_num, 1:12] <- ipd_stat_tmp[-flag_max, ]
           ipd_stat[item_num, 13] <- i - 1
           mmt_df[item_num, 1:6] <- mmt_df_tmp[-flag_max, ]

@@ -389,6 +389,16 @@ test_that("rdif() purification stops with a warning when a group has no ability 
   rst0 <- suppressWarnings(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
                                 min.resp = 10, alpha = 0.5))
   expect_identical(out$value$no_purify, rst0$no_purify)
+
+  # the returned scores and the examinees reported as excluded are those of the last iteration counted
+  out2 <- rdt_catch(rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f",
+                         min.resp = 10, purify = TRUE, alpha = 0.5, verbose = FALSE,
+                         max.iter = out$value$with_purify$n.iter))
+  expect_identical(out$value$with_purify$dif_stat, out2$value$with_purify$dif_stat)
+  expect_identical(out$value$with_purify$score, out2$value$with_purify$score)
+  expect_false(all(is.na(out$value$with_purify$score[sim$group == "f"])))
+  expect_identical(grep("excluded during the purification", out$warnings, value = TRUE),
+                   grep("excluded during the purification", out2$warnings, value = TRUE))
 })
 
 test_that("rdif() purification works when the item with the most categories is removed", {

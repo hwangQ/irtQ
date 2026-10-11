@@ -200,6 +200,22 @@ test_that("ripd() purification stops with a warning when a group has no ability 
   rst0 <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", min.resp = 10,
                                 alpha = 0.5))
   expect_identical(rst$no_purify, rst0$no_purify)
+
+  # the returned scores and the examinees reported as excluded are those of the last iteration counted
+  ws2 <- character()
+  rst2 <- withCallingHandlers(
+    ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", min.resp = 10, purify = TRUE,
+         alpha = 0.5, verbose = FALSE, max.iter = rst$with_purify$n.iter),
+    warning = function(w) {
+      ws2 <<- c(ws2, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_identical(rst$with_purify$ipd_stat, rst2$with_purify$ipd_stat)
+  expect_identical(rst$with_purify$score, rst2$with_purify$score)
+  expect_false(all(is.na(rst$with_purify$score[sim$group == "f"])))
+  expect_identical(grep("excluded during the purification", ws, value = TRUE),
+                   grep("excluded during the purification", ws2, value = TRUE))
 })
 
 test_that("ripd() keeps the examinees with a missing supplied score out of the purification", {

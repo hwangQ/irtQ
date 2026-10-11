@@ -191,7 +191,9 @@
   given, and an examinee with a missing value in `score` stays out of
   the purification. The purification stops with a warning and
   `complete = FALSE` when `min.resp`, which counts the items that
-  remain, leaves a group without any ability estimate.
+  remain, leaves a group without any ability estimate; `score` and the
+  number of examinees reported as excluded then belong to the last
+  iteration whose statistics are reported.
 
 - `ripd()` and `pcd2()` stopped with an obscure error when purification
   left a single item. They now work. When every item is flagged, the
@@ -248,7 +250,8 @@
   returns all items as flagged with `complete = FALSE`. The purification
   also stops with a warning and `complete = FALSE` when `min.resp`,
   which counts the items that remain, leaves a group without any ability
-  estimate.
+  estimate; `score` and the number of examinees reported as excluded
+  then belong to the last iteration whose statistics are reported.
 
 - `rdif()` and `crdif()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which

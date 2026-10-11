@@ -282,9 +282,9 @@
 #'     last item, or after which a group has no ability estimate left, is not
 #'     counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of the ability estimates from the last
-#'     iteration. `NULL` if no item is flagged in the initial analysis, because
-#'     purification is not carried out; the initial estimates are then in
-#'     `no_purify$score`.}
+#'     iteration counted in `n.iter`. `NULL` if no item is flagged in the initial
+#'     analysis, because purification is not carried out; the initial estimates
+#'     are then in `no_purify$score`.}
 #'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
 #'     no remaining item was flagged (including the case in which no item is
 #'     flagged in the initial analysis), and `FALSE` if it stopped because
@@ -726,6 +726,9 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           data_puri[loc_less, ] <- NA
         }
 
+        # keep the ability estimates of the previous iteration in case the purification stops
+        score_prev <- score_puri
+
         # compute the updated ability estimates after deleting the detected DIF item data;
         # only the examinees who responded to the deleted item are rescored after the first iteration
         score_puri <-
@@ -741,6 +744,7 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         if (all(is.na(score_puri[which(group == focal.name)])) ||
             all(is.na(score_puri[which(group != focal.name)]))) {
           no_score <- TRUE
+          score_puri <- score_prev
           dif_stat[item_num, 1:12] <- dif_stat_tmp[-flag_del, ]
           dif_stat[item_num, 13] <- i - 1
           mmt_df[item_num, 1:6] <- mmt_df_tmp[-flag_del, ]
