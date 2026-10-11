@@ -16,8 +16,8 @@
 #'   ability estimates of all examinees in both groups are re-estimated
 #'   internally at every purification iteration with these settings, so a
 #'   supplied `score` is used only for the initial (non-purified) analysis. A
-#'   missing value in `score` excludes the examinee from the analysis with a
-#'   warning. Default is `NULL`.
+#'   missing value in `score` excludes the examinee from the analysis, also
+#'   during purification, with a warning. Default is `NULL`.
 #' @param group A numeric or character vector indicating the group membership of
 #'   examinees. Its length must equal the number of rows in `data`. Examinees
 #'   whose value equals `focal.name` form the focal group; all other examinees
@@ -50,9 +50,11 @@
 #'   than `min.resp` (but at least one) responses are set to `NA` before the
 #'   ability estimation, in the initial analysis and at every purification
 #'   iteration, and these examinees are excluded from the analysis. A warning
-#'   reports the number of examinees excluded in the initial analysis. Reference
-#'   group examinees are not affected. If `NULL`, no minimum is applied. Default
-#'   is `NULL`.
+#'   reports the number of examinees excluded in the initial analysis. A large
+#'   `min.resp` can leave the focal group without any ability estimate in a later
+#'   purification iteration, which stops the purification with a warning.
+#'   Reference group examinees are not affected. If `NULL`, no minimum is
+#'   applied. Default is `NULL`.
 #'
 #' @return This function returns an object of class `"ripd"`, a list with the
 #' following elements:
@@ -107,13 +109,16 @@
 #'     convergence, the items flagged at the last iteration are also included.
 #'     \code{NULL} if no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the total number of iterations
-#'     performed during the purification process.}
+#'     performed during the purification process. The iteration that removes the
+#'     last item, or after which a group has no ability estimate left, is not
+#'     counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of purified ability estimates used to
 #'     compute the final RIPD statistics. \code{NULL} when no item is flagged in
 #'     the first analysis, because purification is not carried out.}
 #'     \item{complete}{A logical value indicating whether the purification
-#'     process converged. If \code{FALSE}, the maximum number of iterations
-#'     was reached without convergence.}
+#'     process converged. \code{FALSE} if the procedure stopped because the
+#'     maximum number of iterations was reached, because every item was flagged,
+#'     or because a group had no examinee with an ability estimate left.}
 #'   }
 #' }
 #'
@@ -289,8 +294,14 @@
 #' The process continues until no additional items are flagged (convergence) or
 #' \code{max.iter} is reached. In the latter case, a warning is issued, the
 #' items flagged at the last iteration are added to the flagged set, and
-#' \code{complete} is set to \code{FALSE}. The function stops with an error when
-#' all items are flagged, because no item is left to estimate the abilities.
+#' \code{complete} is set to \code{FALSE}. If every item is flagged, the
+#' procedure stops with a warning, because no item is left to estimate the
+#' abilities, all items are returned as flagged, and \code{complete} is
+#' \code{FALSE}. The procedure also stops with a warning and \code{complete =
+#' FALSE} when, after an item is removed, no examinee of the reference group or
+#' of the focal group has an ability estimate left (see \code{min.resp}); the
+#' remaining items then keep the results of the previous iteration, and the
+#' items flagged in that iteration are added to the flagged items.
 #' The statistic used to drive purification is specified by \code{purify.by};
 #' \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 #' types of drift.
@@ -608,6 +619,10 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
     if (n_na > 0L) {
       warning(n_na, " examinee(s) with a missing ability estimate were excluded.", call. = FALSE)
     }
+
+    # set all responses of the examinees without an ability estimate to NA, so that they stay
+    # excluded during the purification
+    data[is.na(score), ] <- NA
   }
 
   # warn that the focal group examinees with too few responses are excluded
@@ -701,6 +716,12 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
       # if not, stop and return an error message
       if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
 
+      # indicate whether the purification stops because every item is flagged
+      all_flagged <- FALSE
+
+      # indicate whether the purification stops because a group has no ability estimate left
+      no_score <- FALSE
+
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -733,10 +754,10 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         # refine the leftover items
         item_num <- item_num[-flag_max]
 
-        # stop when no item is left to estimate the abilities
+        # stop the purification when no item is left to estimate the abilities
         if (length(item_num) == 0L) {
-          stop("All items were flagged during the purification, so no item is left to analyze.",
-               call. = FALSE)
+          all_flagged <- TRUE
+          break
         }
 
         # remove the detected IPD item data which has the smallest p-value from the item metadata
@@ -767,6 +788,22 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
             first = (i == 1L), D = D, method = method, range = range,
             norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...
           )
+
+        # stop the purification when the examinees of a group have all lost their ability estimates;
+        # the remaining items keep the results of the previous iteration
+        if (all(is.na(score[which(group == focal.name)])) ||
+            all(is.na(score[which(group != focal.name)]))) {
+          no_score <- TRUE
+          ipd_stat[item_num, 1:12] <- ipd_stat_tmp[-flag_max, ]
+          ipd_stat[item_num, 13] <- i - 1
+          mmt_df[item_num, 1:6] <- mmt_df_tmp[-flag_max, ]
+          mmt_df[item_num, 7] <- i - 1
+
+          # add the items flagged at the previous iteration, except the item deleted at this one
+          ipd_item <- c(ipd_item, item_num[match(setdiff(ipd_item_tmp, flag_max),
+                                                 seq_along(log_p_tmp)[-flag_max])])
+          break
+        }
 
         # do IPD analysis using the updated ability estimates
         ipd_rst_tmp <- ripd_one(
@@ -802,11 +839,23 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         cat("", "\n")
       }
 
-      # record the actual number of iteration
-      n_iter <- i
+      # record the actual number of iterations; the statistics are not recomputed in the
+      # iteration that removes the last item or finds no ability estimate in a group
+      n_iter <- if (all_flagged || no_score) i - 1L else i
 
-      # warn when max.iter is reached before the purification is completed
-      if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
+      # if every item is flagged, then, return a warning message
+      if (all_flagged) {
+        warning("All items were flagged during the purification, so the purification stopped ",
+                "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (no_score) {
+        # if a group has no ability estimate left, then, return a warning message
+        warning("The purification stopped because no examinee of a group had enough responses ",
+                "to the remaining items to estimate the ability.", call. = FALSE)
+        complete <- FALSE
+      } else if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
+        # if the maximum number of iterations is reached before purification is complete,
+        # then, return a warning message
         warning("The maximum number of iterations was reached before purification was completed.",
                 call. = FALSE)
         complete <- FALSE

@@ -30,7 +30,7 @@ pcd2_sim <- function(seed = 21) {
   list(par = par, resp = resp)
 }
 
-test_that("pcd2() purification works down to the last item and stops when no item is left", {
+test_that("pcd2() purification works down to the last item and returns all items when none is left", {
   sim <- pcd2_sim()
   stat <- pcd2(sim$par[1:3, ], sim$resp[, 1:3])$no_purify$ipd_stat$pcd2
   # a critical value that flags the two largest values starts the purification with
@@ -39,11 +39,17 @@ test_that("pcd2() purification works down to the last item and stops when no ite
                                purify = TRUE, max.iter = 5, verbose = FALSE))
   expect_false(anyNA(rst$with_purify$ipd_stat$pcd2))
   expect_gte(rst$with_purify$n.iter, 1)
-  # every item is flagged, so no item is left to analyze
-  expect_error(
-    pcd2(sim$par[1:3, ], sim$resp[, 1:3], crit.val = 1e-10, purify = TRUE, verbose = FALSE),
-    "no item is left"
+  # every item is flagged, so the purification stops with a warning and returns all items
+  expect_warning(
+    rst2 <- pcd2(sim$par[1:3, ], sim$resp[, 1:3], crit.val = 1e-10, purify = TRUE, verbose = FALSE),
+    "All items were flagged"
   )
+  expect_false(rst2$with_purify$complete)
+  expect_equal(rst2$with_purify$ipd_item, 1:3)
+  expect_equal(rst2$with_purify$n.iter, 2)
+  expect_false(anyNA(rst2$with_purify$ipd_stat$pcd2))
+  rst0 <- pcd2(sim$par[1:3, ], sim$resp[, 1:3], crit.val = 1e-10)
+  expect_identical(rst2$no_purify, rst0$no_purify)
 })
 
 test_that("pcd2() warns about min.resp only when an item is excluded", {

@@ -102,8 +102,8 @@ computed internally with \code{\link[=est_score]{est_score()}} using \code{metho
 ability estimates of all examinees in both groups are re-estimated
 internally at every purification iteration with these settings, so a
 supplied \code{score} is used only for the initial (non-purified) analysis. A
-missing value in \code{score} excludes the examinee from the analysis with a
-warning. Default is \code{NULL}.}
+missing value in \code{score} excludes the examinee from the analysis, also
+during purification, with a warning. Default is \code{NULL}.}
 
 \item{group}{A numeric or character vector indicating the group membership of
 examinees. Its length must equal the number of rows in \code{data}. Examinees
@@ -154,9 +154,11 @@ responses to be used. All responses of focal group examinees with fewer
 than \code{min.resp} (but at least one) responses are set to \code{NA} before the
 ability estimation, in the initial analysis and at every purification
 iteration, and these examinees are excluded from the analysis. A warning
-reports the number of examinees excluded in the initial analysis. Reference
-group examinees are not affected. If \code{NULL}, no minimum is applied. Default
-is \code{NULL}.}
+reports the number of examinees excluded in the initial analysis. A large
+\code{min.resp} can leave the focal group without any ability estimate in a later
+purification iteration, which stops the purification with a warning.
+Reference group examinees are not affected. If \code{NULL}, no minimum is
+applied. Default is \code{NULL}.}
 
 \item{method}{A character string indicating the scoring method to use.
 Available options are:
@@ -252,13 +254,16 @@ sorted in ascending order. If \code{max.iter} is reached before
 convergence, the items flagged at the last iteration are also included.
 \code{NULL} if no item is flagged in the initial analysis.}
 \item{n.iter}{An integer indicating the total number of iterations
-performed during the purification process.}
+performed during the purification process. The iteration that removes the
+last item, or after which a group has no ability estimate left, is not
+counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of purified ability estimates used to
 compute the final RIPD statistics. \code{NULL} when no item is flagged in
 the first analysis, because purification is not carried out.}
 \item{complete}{A logical value indicating whether the purification
-process converged. If \code{FALSE}, the maximum number of iterations
-was reached without convergence.}
+process converged. \code{FALSE} if the procedure stopped because the
+maximum number of iterations was reached, because every item was flagged,
+or because a group had no examinee with an ability estimate left.}
 }
 }
 
@@ -443,8 +448,14 @@ for the remaining items.
 The process continues until no additional items are flagged (convergence) or
 \code{max.iter} is reached. In the latter case, a warning is issued, the
 items flagged at the last iteration are added to the flagged set, and
-\code{complete} is set to \code{FALSE}. The function stops with an error when
-all items are flagged, because no item is left to estimate the abilities.
+\code{complete} is set to \code{FALSE}. If every item is flagged, the
+procedure stops with a warning, because no item is left to estimate the
+abilities, all items are returned as flagged, and \code{complete} is
+\code{FALSE}. The procedure also stops with a warning and \code{complete =
+FALSE} when, after an item is removed, no examinee of the reference group or
+of the focal group has an ability estimate left (see \code{min.resp}); the
+remaining items then keep the results of the previous iteration, and the
+items flagged in that iteration are added to the flagged items.
 The statistic used to drive purification is specified by \code{purify.by};
 \code{"ripdrs"} (\eqn{RIPD_{RS}}) is recommended as it is sensitive to both
 types of drift.

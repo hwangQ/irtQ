@@ -128,10 +128,12 @@ flagged as IPD items during purification, sorted in ascending order. The
 iteration at which each item was flagged is given in the \code{n.iter} column of
 \code{ipd_stat}. It is \code{NULL} when no item is flagged in the initial analysis.}
 \item{n.iter}{An integer indicating the number of purification iterations
-completed.}
+completed. The iteration that removes the last item is not counted,
+because the statistics are not recomputed.}
 \item{complete}{A logical value indicating whether the purification procedure
 converged before reaching the maximum number of iterations (\code{max.iter}).
-If \code{FALSE}, the iteration limit was reached before convergence.}
+\code{FALSE} if the iteration limit was reached before convergence or if every
+item was flagged.}
 }
 }
 
@@ -204,8 +206,9 @@ number of iterations reaches \code{max.iter}.
 \item If \code{max.iter} is reached before convergence, a warning is issued, the
 items flagged at the last iteration are added to the flagged set, and
 \code{complete} is set to \code{FALSE}.
-\item The function stops with an error when all items are flagged, because
-no item is left to analyze.
+\item If every item is flagged, the procedure stops with a warning,
+because no item is left to analyze, all items are returned as flagged, and
+\code{complete} is \code{FALSE}.
 \item All flagged items and statistics are saved, and convergence status is reported.
 }
 This process reduces the influence of already-flagged items on the posterior

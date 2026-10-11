@@ -186,11 +186,15 @@
   during purification. Such examinees are now excluded, with a warning
   for the first and the third case, and the function stops when no
   examinee has an ability estimate. `min.resp` now also applies to the
-  first analysis when `score` is given.
+  first analysis when `score` is given, and an examinee with a missing
+  value in `score` stays out of the purification. The purification stops
+  with a warning and `complete = FALSE` when `min.resp`, which counts
+  the items that remain, leaves a group without any ability estimate.
 
 - `ripd()` and `pcd2()` stopped with an obscure error when purification
-  left a single item. They now work, and stop with a clear message when
-  every item is flagged.
+  left a single item. They now work. When every item is flagged, the
+  purification stops with a warning and returns all items as flagged
+  with `complete = FALSE`.
 
 - `ripd()` and `pcd2()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which

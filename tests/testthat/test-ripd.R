@@ -155,7 +155,7 @@ test_that("ripd() reads a logical item.skip as item positions during purificatio
   expect_true(all(is.na(r1$with_purify$ipd_stat[skip_num, 2:9])))
 })
 
-test_that("ripd() stops when purification flags every item", {
+test_that("ripd() returns all items as flagged with a warning when purification flags every item", {
   # alpha = 1 flags every item at every iteration
   x1 <- shape_df(par.drm = list(a = c(1, 1.2), b = c(0, 0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1
@@ -163,10 +163,56 @@ test_that("ripd() stops when purification flags every item", {
   set.seed(5)
   resp <- rbind(simdat(x1, theta = rnorm(500), D = 1), simdat(x2, theta = rnorm(500), D = 1))
   group <- rep(0:1, each = 500)
-  expect_error(
-    ripd(x1, resp, group = group, focal.name = 1, purify = TRUE, alpha = 1, verbose = FALSE),
-    "no item is left"
+  expect_warning(
+    rst <- ripd(x1, resp, group = group, focal.name = 1, purify = TRUE, alpha = 1, verbose = FALSE),
+    "All items were flagged"
   )
+  expect_false(rst$with_purify$complete)
+  expect_equal(rst$with_purify$ipd_item, 1:2)
+  expect_equal(rst$with_purify$n.iter, 1)
+  expect_false(anyNA(rst$with_purify$ipd_stat$ripdrs))
+  rst0 <- ripd(x1, resp, group = group, focal.name = 1, alpha = 1)
+  expect_identical(rst$no_purify, rst0$no_purify)
+})
+
+test_that("ripd() purification stops with a warning when a group has no ability estimate left", {
+  sim <- ripd_sim()
+
+  # min.resp counts the remaining items, so the focal group examinees drop out as the items are removed
+  ws <- character()
+  rst <- withCallingHandlers(
+    ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", min.resp = 10, purify = TRUE,
+         alpha = 0.5, verbose = FALSE),
+    warning = function(w) {
+      ws <<- c(ws, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_true(any(grepl("no examinee of a group", ws)))
+  expect_false(rst$with_purify$complete)
+
+  # the items that remain keep the results of the previous iteration, and the flagged ones are reported
+  expect_false(anyNA(rst$with_purify$ipd_stat$ripdrs))
+  expect_false(anyNA(rst$with_purify$ipd_stat$n.total))
+  expect_false(anyNA(rst$with_purify$moments$mu.ripdr))
+  expect_true(all(rst$with_purify$ipd_item %in% seq_len(nrow(sim$par))))
+  expect_lte(max(rst$with_purify$ipd_stat$n.iter), rst$with_purify$n.iter)
+  rst0 <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", min.resp = 10,
+                                alpha = 0.5))
+  expect_identical(rst$no_purify, rst0$no_purify)
+})
+
+test_that("ripd() keeps the examinees with a missing supplied score out of the purification", {
+  sim <- ripd_sim()
+  score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
+  na_loc <- c(1:30, 701:720)
+  score[na_loc] <- NA
+  rst <- suppressWarnings(ripd(sim$par, sim$resp, score = score, group = sim$group, focal.name = "f",
+                               purify = TRUE, verbose = FALSE))
+  expect_gt(rst$with_purify$n.iter, 0)
+  expect_true(all(is.na(rst$with_purify$score[na_loc])))
+  expect_false(anyNA(rst$with_purify$score[-na_loc][rowSums(!is.na(sim$resp[-na_loc, ])) > 0]))
+  expect_true(all(rst$with_purify$ipd_stat$n.total <= rst$no_purify$ipd_stat$n.total))
 })
 
 test_that("ripd() reads character responses as numbers", {

@@ -111,8 +111,9 @@
 #'   \item If `max.iter` is reached before convergence, a warning is issued, the
 #'   items flagged at the last iteration are added to the flagged set, and
 #'   `complete` is set to `FALSE`.
-#'   \item The function stops with an error when all items are flagged, because
-#'   no item is left to analyze.
+#'   \item If every item is flagged, the procedure stops with a warning,
+#'   because no item is left to analyze, all items are returned as flagged, and
+#'   `complete` is `FALSE`.
 #'   \item All flagged items and statistics are saved, and convergence status is reported.
 #' }
 #' This process reduces the influence of already-flagged items on the posterior
@@ -154,10 +155,12 @@
 #'     iteration at which each item was flagged is given in the `n.iter` column of
 #'     `ipd_stat`. It is `NULL` when no item is flagged in the initial analysis.}
 #'     \item{n.iter}{An integer indicating the number of purification iterations
-#'     completed.}
+#'     completed. The iteration that removes the last item is not counted,
+#'     because the statistics are not recomputed.}
 #'     \item{complete}{A logical value indicating whether the purification procedure
 #'     converged before reaching the maximum number of iterations (`max.iter`).
-#'     If `FALSE`, the iteration limit was reached before convergence.}
+#'     `FALSE` if the iteration limit was reached before convergence or if every
+#'     item was flagged.}
 #'   }
 #' }
 #'
@@ -424,6 +427,9 @@ pcd2 <- function(x,
       # if not, stop and return an error message
       if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
 
+      # Indicate whether the purification stops because every item is flagged
+      all_flagged <- FALSE
+
       # Print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -452,10 +458,10 @@ pcd2 <- function(x,
         # Refine the leftover items
         item_num <- item_num[-flag_max]
 
-        # Stop when no item is left to analyze
+        # Stop the purification when no item is left to analyze
         if (length(item_num) == 0L) {
-          stop("All items were flagged during the purification, so no item is left to analyze.",
-               call. = FALSE)
+          all_flagged <- TRUE
+          break
         }
 
         # Remove the detected IPD item data which has the largest statistic from the item metadata
@@ -499,11 +505,18 @@ pcd2 <- function(x,
         cat("", "\n")
       }
 
-      # Record the actual number of iteration
-      n_iter <- i
+      # Record the actual number of iterations; the statistics are not recomputed in the
+      # iteration that removes the last item
+      n_iter <- if (all_flagged) i - 1L else i
 
-      # Warn when max.iter is reached before the purification is completed
-      if(max.iter == n_iter & !is.null(ipd_item_tmp)) {
+      # If every item is flagged, then, return a warning message
+      if (all_flagged) {
+        warning("All items were flagged during the purification, so the purification stopped ",
+                "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (max.iter == n_iter & !is.null(ipd_item_tmp)) {
+        # If the maximum number of iterations is reached before purification is complete,
+        # then, return a warning message
         warning("The maximum number of iterations was reached before purification was completed.",
                 call. = FALSE)
         complete <- FALSE
