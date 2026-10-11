@@ -218,6 +218,12 @@
   the rank of the matrix as degrees of freedom, and a warning names the
   items. Results for regular data are unchanged.
 
+- The purification of `ripd()` removes the flagged item with the
+  smallest p-value of the `purify.by` statistic, compared on the log
+  scale, so the choice also holds for an item whose `RIPD_RS` has fewer
+  degrees of freedom because of a singular covariance matrix. Results
+  for regular data are unchanged.
+
 - `rdif()` and `crdif()` stopped with an obscure error when an examinee
   had no ability estimate: a missing value in `score`, an examinee
   without any response, an examinee left out by `min.resp` (so

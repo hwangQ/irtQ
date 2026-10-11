@@ -683,6 +683,7 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
     # extract the first IPD analysis results
     # and check if at least one IPD item is detected
     ipd_item_tmp <- ipd_rst$ipd_item[[purify.by]]
+    log_p_tmp <- ipd_rst$log_p[[purify.by]]
     ipd_stat_tmp <- ipd_rst$ipd_stat
     mmt_df_tmp <- no_purify$moments
 
@@ -711,13 +712,8 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # find the flagged item with the largest IPD statistic
-        flag_max <-
-          switch(purify.by,
-            ripdr = which.max(abs(ipd_stat_tmp$z.ripdr)),
-            ripds = which.max(abs(ipd_stat_tmp$z.ripds)),
-            ripdrs = which.max(ipd_stat_tmp$ripdrs)
-          )
+        # find the flagged item with the smallest p-value
+        flag_max <- pick_flagged_item(flag_loc = ipd_item_tmp, log_p = log_p_tmp)
 
         # check an item that is deleted
         del_item <- item_num[flag_max]
@@ -743,10 +739,10 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
                call. = FALSE)
         }
 
-        # remove the detected IPD item data which has the largest statistic from the item metadata
+        # remove the detected IPD item data which has the smallest p-value from the item metadata
         x_puri <- x_puri[-flag_max, , drop = FALSE]
 
-        # remove the detected IPD item data which has the largest statistic from the response data
+        # remove the detected IPD item data which has the smallest p-value from the response data
         data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
@@ -785,6 +781,7 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         # extract the IPD analysis results
         # and check if at least one IPD item is detected
         ipd_item_tmp <- ipd_rst_tmp$ipd_item[[purify.by]]
+        log_p_tmp <- ipd_rst_tmp$log_p[[purify.by]]
         ipd_stat_tmp <- ipd_rst_tmp$ipd_stat
         mmt_df_tmp <- ripd_moments(ipd_rst_tmp)
 
@@ -1029,6 +1026,13 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
     covar[item.skip] <- NA
   }
 
+  # compute the log p-values to choose the item to be removed in the purification
+  log_p <- list(
+    ripdr = log(2) + stats::pnorm(q = -abs(z_stat_ripdr), mean = 0, sd = 1, log.p = TRUE),
+    ripds = log(2) + stats::pnorm(q = -abs(z_stat_ripds), mean = 0, sd = 1, log.p = TRUE),
+    ripdrs = stats::pchisq(chisq, df = df_chisq, lower.tail = FALSE, log.p = TRUE)
+  )
+
   # find the flagged items using the unrounded p-values
   ipd_item_ripdr <- as.numeric(which(p_ripdr <= alpha))
   ipd_item_ripds <- as.numeric(which(p_ripds <= alpha))
@@ -1042,7 +1046,7 @@ ripd_one <- function(x, data, score, group, focal.name, item.skip = NULL, D = 1,
     ipd_stat = stat_df,
     ipd_item = list(ripdr = ipd_item_ripdr, ripds = ipd_item_ripds, ripdrs = ipd_item_ripdrs),
     moments = list(ripdr = moments_ripdr, ripds = moments_ripds), covariance = covar, alpha = alpha,
-    singular = singular_id
+    log_p = log_p, singular = singular_id
   )
 
   # return the results

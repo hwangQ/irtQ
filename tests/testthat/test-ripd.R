@@ -46,6 +46,42 @@ ripd_sim <- function(seed = 11) {
   list(par = par, resp = resp, group = group)
 }
 
+# Simulate dichotomous two-group data in which only item 1 is answered by examinees with a common
+# supplied ability, so that the covariance matrix of item 1 is singular and its RIPD_RS has one
+# degree of freedom
+ripd_sing_sim <- function(seed = 516) {
+  set.seed(seed)
+  nitem <- 6
+  model <- sample(c("1PLM", "2PLM", "3PLM"), nitem, replace = TRUE)
+  a <- ifelse(model == "1PLM", 1, runif(nitem, 0.7, 2))
+  b <- rnorm(nitem)
+  g <- ifelse(model == "3PLM", runif(nitem, 0.05, 0.25), 0)
+  x <- data.frame(id = paste0("I", seq_len(nitem)), cats = 2, model = model, par.1 = a, par.2 = b,
+                  par.3 = ifelse(model == "3PLM", g, NA), stringsAsFactors = FALSE)
+  drift <- sort(sample(nitem, 2))
+  bf <- b
+  bf[drift] <- bf[drift] + sample(c(-1, 1), 2, TRUE) * 0.3
+  af <- a
+  af[drift[1]] <- af[drift[1]] * 0.5
+  thr <- rnorm(300)
+  thf <- rnorm(300, 0.2)
+  sim <- function(th, a, b) {
+    p <- sapply(seq_len(nitem), function(j) g[j] + (1 - g[j]) / (1 + exp(-a[j] * (th - b[j]))))
+    matrix(rbinom(length(p), 1, p), nrow = length(th))
+  }
+  resp <- rbind(sim(thr, a, b), sim(thf, af, bf))
+  resp[sample(length(resp), round(0.3 * length(resp)))] <- NA
+  group <- rep(0:1, each = 300)
+  score <- suppressWarnings(est_score(x, resp, D = 1)$est.theta)
+
+  # only 200 examinees answer item 1, and their supplied abilities are all equal
+  resp[, 1] <- NA
+  idx <- sample(nrow(resp), 200)
+  resp[idx, 1] <- rbinom(200, 1, ifelse(group[idx] == 1, 0.62, 0.5))
+  score[idx] <- 0.7
+  list(x = x, resp = resp, score = score, group = group)
+}
+
 test_that("ripd() excludes examinees with a missing ability estimate with a warning", {
   sim <- ripd_sim()
   score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
@@ -211,6 +247,27 @@ test_that("ripd() keeps two degrees of freedom when the covariance matrix is reg
   stat <- rst$no_purify$ipd_stat
   expect_equal(stat$p.ripdrs, round(pchisq(stat$ripdrs, df = 2, lower.tail = FALSE), 4),
                tolerance = 1e-2)
+})
+
+test_that("ripd() purification removes only flagged items when an item has a singular covariance", {
+  sim <- ripd_sing_sim()
+  st <- suppressWarnings(ripd(sim$x, sim$resp, score = sim$score, group = sim$group,
+                              focal.name = 1))$no_purify$ipd_stat
+
+  # item 1 has the smaller p-value but the smaller RIPD_RS (one degree of freedom)
+  j <- which.max(st$ripdrs)
+  expect_false(j == 1)
+  expect_gt(st$p.ripdrs[j], st$p.ripdrs[1])
+
+  # only item 1 is flagged, so it is the only item that purification may remove first
+  alpha <- (st$p.ripdrs[1] + st$p.ripdrs[j]) / 2
+  rst <- suppressWarnings(ripd(sim$x, sim$resp, score = sim$score, group = sim$group, focal.name = 1,
+                               alpha = alpha, purify = TRUE, verbose = FALSE))
+  expect_equal(as.numeric(rst$no_purify$ipd_item$ripdrs), 1)
+  expect_true(1 %in% rst$with_purify$ipd_item)
+  removed <- rst$with_purify$ipd_stat
+  removed <- removed[removed$n.iter < rst$with_purify$n.iter, ]
+  expect_true(all(removed$p.ripdrs <= alpha))
 })
 
 test_that("print.ripd() prints the results of each analysis and honors what", {
