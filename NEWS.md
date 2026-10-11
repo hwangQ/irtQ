@@ -269,6 +269,16 @@
   singular covariance matrix, which changed them in the fourth decimal.
   Results for dichotomous items are unchanged.
 
+- The purification of `rdif()` and `crdif()` now removes, in each
+  iteration, the flagged item with the smallest p-value of the
+  `purify.by` statistic, compared on the log scale. `crdif()` took the
+  item with the smallest p-value among all items, which was the item
+  listed first when several p-values were too small to be represented
+  (they were 0), and `rdif()` took the largest `RDIF_RS`, which is not
+  the smallest p-value when the degrees of freedom differ (a singular
+  covariance matrix) and could remove an item that was not flagged.
+  Results for regular data are unchanged.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

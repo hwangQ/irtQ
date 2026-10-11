@@ -284,6 +284,26 @@ test_that("rdif() uses a generalized inverse when the covariance matrix is singu
   expect_true(all(stat$rdifrs >= 0))
 })
 
+test_that("pick_flagged_item() chooses the flagged item with the smallest log p-value", {
+  log_p <- c(-1, -50, -3, -4, -10)
+
+  # an unflagged item with a smaller p-value is not chosen
+  expect_equal(irtQ:::pick_flagged_item(c(3, 5), log_p), 5)
+  expect_equal(irtQ:::pick_flagged_item(c(2, 5), log_p), 2)
+
+  # the first item is chosen when the log p-values are tied
+  expect_equal(irtQ:::pick_flagged_item(c(1, 3, 4), c(-2, 0, -7, -7)), 3)
+})
+
+test_that("rdif() keeps the log p-values used to choose the item to be removed", {
+  sim <- rdt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  out <- irtQ:::rdif_one(sim$x, sim$resp, score, sim$group, "f", D = 1)
+  expect_equal(exp(out$log_p$rdifr), out$dif_stat$p.rdifr, tolerance = 1e-3, ignore_attr = TRUE)
+  expect_equal(exp(out$log_p$rdifs), out$dif_stat$p.rdifs, tolerance = 1e-3, ignore_attr = TRUE)
+  expect_equal(exp(out$log_p$rdifrs), out$dif_stat$p.rdifrs, tolerance = 1e-3, ignore_attr = TRUE)
+})
+
 test_that("quad_form() uses the inverse for a regular matrix and the rank for a singular one", {
   s <- matrix(c(2, 0.5, 0.5, 1), 2)
   d <- c(0.3, -0.2)

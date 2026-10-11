@@ -212,6 +212,28 @@ test_that("crdif() keeps the nominal level of the tests under no DIF", {
   expect_lt(mean(rate["rs", ]), 0.075)
 })
 
+test_that("crdif() purification removes the item with the largest statistic when the p-values underflow", {
+  skip_on_cran()
+  set.seed(7)
+  x <- shape_df(par.prm = list(a = rep(1.2, 6), d = lapply(1:6, function(i) c(-1, 0, 1))),
+                cats = 4, model = "GRM")
+  xf <- x
+  xf[1, c("par.2", "par.3", "par.4")] <- xf[1, c("par.2", "par.3", "par.4")] + 2.4
+  xf[2, c("par.2", "par.3", "par.4")] <- xf[2, c("par.2", "par.3", "par.4")] + 3.2
+  resp <- rbind(simdat(x, theta = rnorm(5000), D = 1), simdat(xf, theta = rnorm(5000), D = 1))
+  group <- rep(0:1, each = 5000)
+  rst <- crdif(x, resp, group = group, focal.name = 1, purify = TRUE, verbose = FALSE)
+  stat <- rst$no_purify$dif_stat
+
+  # the p-values of the two items are zero in double precision, and item 2 has the larger statistic
+  expect_equal(pchisq(stat$crdifrs[1:2], stat$df.crdifrs[1:2], lower.tail = FALSE), c(0, 0))
+  expect_gt(stat$crdifrs[2], stat$crdifrs[1])
+
+  # item 2 is removed first
+  expect_equal(rst$with_purify$dif_stat$n.iter[2], 0)
+  expect_equal(rst$with_purify$dif_stat$n.iter[1], 1)
+})
+
 test_that("crdif() methods for est_irt and est_item objects match the default method", {
   sim <- crt_sim(miss = 0)
   fit <- est_irt(data = sim$resp, D = 1, model = c("2PLM", "3PLM", "2PLM", "GRM", "GPCM", "GRM", "GPCM"),

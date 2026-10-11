@@ -89,6 +89,12 @@
 #' [irtQ::rdif()], \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values
 #' and flagged items are identical to those of [irtQ::rdif()].
 #'
+#' The purification procedure, the `min.resp` argument, the handling of
+#' examinees with `NA` ability estimates, and the coding of `group` follow
+#' [irtQ::rdif()] (see its Details). The p-value, not the statistic, is used to
+#' choose the item to remove because the degrees of freedom of the RDIF-CR
+#' statistics differ between items with different numbers of score categories.
+#'
 #' In rare cases, for example when all examinees who responded to an item have
 #' the same category probabilities, a covariance matrix has an even lower rank.
 #' Then the statistic is computed with the Moore-Penrose generalized inverse and
@@ -531,7 +537,7 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
     dif_item_tmp <- dif_rst$dif_item[[purify.by]]
     dif_stat_tmp <- dif_rst$dif_stat
     mmt_list_tmp <- no_purify$moments
-    dif_pval_tmp <- dif_rst$p_val
+    log_p_tmp <- dif_rst$log_p[[purify.by]]
 
     # copy the response data, item meta data, and ability estimates
     x_puri <- x
@@ -558,34 +564,29 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         }
 
         # find the flagged item with the smallest p-value
-        flag_min <-
-          switch(purify.by,
-                 crdifr = which.min(dif_pval_tmp$crdifr),
-                 crdifs = which.min(dif_pval_tmp$crdifs),
-                 crdifrs = which.min(dif_pval_tmp$crdifrs)
-          )
+        flag_del <- pick_flagged_item(flag_loc = dif_item_tmp, log_p = log_p_tmp)
 
         # check an item that is deleted
-        del_item <- item_num[flag_min]
+        del_item <- item_num[flag_del]
 
         # add the deleted item as the DIF item
         dif_item <- c(dif_item, del_item)
 
         # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:13] <- dif_stat_tmp[flag_min, ]
+        dif_stat[del_item, 1:13] <- dif_stat_tmp[flag_del, ]
         dif_stat[del_item, 14] <- i - 1
-        mmt_list$mu.crdifr[[del_item]] <- mmt_list_tmp$mu.crdifr[[flag_min]]
-        mmt_list$mu.crdifs[[del_item]] <- mmt_list_tmp$mu.crdifs[[flag_min]]
-        mmt_list$mu.crdifrs[[del_item]] <- mmt_list_tmp$mu.crdifrs[[flag_min]]
-        mmt_list$cov.crdifr[[del_item]] <- mmt_list_tmp$cov.crdifr[[flag_min]]
-        mmt_list$cov.crdifs[[del_item]] <- mmt_list_tmp$cov.crdifs[[flag_min]]
-        mmt_list$cov.crdifrs[[del_item]] <- mmt_list_tmp$cov.crdifrs[[flag_min]]
+        mmt_list$mu.crdifr[[del_item]] <- mmt_list_tmp$mu.crdifr[[flag_del]]
+        mmt_list$mu.crdifs[[del_item]] <- mmt_list_tmp$mu.crdifs[[flag_del]]
+        mmt_list$mu.crdifrs[[del_item]] <- mmt_list_tmp$mu.crdifrs[[flag_del]]
+        mmt_list$cov.crdifr[[del_item]] <- mmt_list_tmp$cov.crdifr[[flag_del]]
+        mmt_list$cov.crdifs[[del_item]] <- mmt_list_tmp$cov.crdifs[[flag_del]]
+        mmt_list$cov.crdifrs[[del_item]] <- mmt_list_tmp$cov.crdifrs[[flag_del]]
 
         # find the examinees who responded to the item to be deleted
-        loc_resp <- which(!is.na(data_puri[, flag_min]))
+        loc_resp <- which(!is.na(data_puri[, flag_del]))
 
         # refine the leftover items
-        item_num <- item_num[-flag_min]
+        item_num <- item_num[-flag_del]
 
         # stop the purification when no item is left to estimate the abilities
         if (length(item_num) == 0L) {
@@ -594,10 +595,10 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         }
 
         # remove the detected DIF item data which has the smallest p-value from the item metadata
-        x_puri <- x_puri[-flag_min, , drop = FALSE]
+        x_puri <- x_puri[-flag_del, , drop = FALSE]
 
         # remove the detected DIF item data which has the smallest p-value from the response data
-        data_puri <- data_puri[, -flag_min, drop = FALSE]
+        data_puri <- data_puri[, -flag_del, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -639,7 +640,7 @@ crdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, m
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
         dif_stat_tmp <- dif_rst_tmp$dif_stat
         mmt_list_tmp <- dif_rst_tmp$moments
-        dif_pval_tmp <- dif_rst_tmp$p_val
+        log_p_tmp <- dif_rst_tmp$log_p[[purify.by]]
 
         # check if a further DIF item is flagged
         if (is.null(dif_item_tmp)) {
@@ -966,7 +967,13 @@ crdif_one <- function(x,
   p_crdifr <- stats::pchisq(chisq_r, df = df_r, lower.tail = FALSE)
   p_crdifs <- stats::pchisq(chisq_s, df = df_s, lower.tail = FALSE)
   p_crdifrs <- stats::pchisq(chisq_rs, df = df_rs, lower.tail = FALSE)
-  p_val <- list(crdifr = p_crdifr, crdifs = p_crdifs, crdifrs = p_crdifrs)
+
+  # compute the log p-values to choose the item to be removed in the purification
+  log_p <- list(
+    crdifr = stats::pchisq(chisq_r, df = df_r, lower.tail = FALSE, log.p = TRUE),
+    crdifs = stats::pchisq(chisq_s, df = df_s, lower.tail = FALSE, log.p = TRUE),
+    crdifrs = stats::pchisq(chisq_rs, df = df_rs, lower.tail = FALSE, log.p = TRUE)
+  )
 
   # compute total sample size
   n_total <- n_foc + n_ref
@@ -1017,7 +1024,7 @@ crdif_one <- function(x,
     p_crdifr[item.skip] <- NA
     p_crdifs[item.skip] <- NA
     p_crdifrs[item.skip] <- NA
-    p_val <- p_val %>%
+    log_p <- log_p %>%
       purrr::map(.f = ~{
         .x[item.skip] <- NA
         .x})
@@ -1047,7 +1054,7 @@ crdif_one <- function(x,
     ),
     moments = mmt_list,
     alpha = alpha,
-    p_val = p_val,
+    log_p = log_p,
     singular = singular_id
   )
 

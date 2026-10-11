@@ -337,6 +337,12 @@ squares of the standardized \eqn{RDIF_{R}} and \eqn{RDIF_{S}} statistics of
 \code{\link[=rdif]{rdif()}}, \eqn{RDIF_{RS}-CR} equals \eqn{RDIF_{RS}}, and the p-values
 and flagged items are identical to those of \code{\link[=rdif]{rdif()}}.
 
+The purification procedure, the \code{min.resp} argument, the handling of
+examinees with \code{NA} ability estimates, and the coding of \code{group} follow
+\code{\link[=rdif]{rdif()}} (see its Details). The p-value, not the statistic, is used to
+choose the item to remove because the degrees of freedom of the RDIF-CR
+statistics differ between items with different numbers of score categories.
+
 In rare cases, for example when all examinees who responded to an item have
 the same category probabilities, a covariance matrix has an even lower rank.
 Then the statistic is computed with the Moore-Penrose generalized inverse and

@@ -172,11 +172,11 @@
 #'   iterative purification procedure (Lim et al., 2022). When `purify = TRUE`,
 #'   the statistic specified in `purify.by` drives the procedure (e.g.,
 #'   `purify.by = "rdifrs"`). At each iteration, the flagged item with the
-#'   largest absolute standardized statistic (for `"rdifr"` and `"rdifs"`) or the
-#'   largest \eqn{RDIF_{RS}} (for `"rdifrs"`) is removed, the abilities are
-#'   re-estimated from the remaining items with the scoring method specified in
-#'   `method`, and the RDIF statistics of the remaining items are recomputed. A
-#'   supplied `score` is therefore used only in the initial analysis. The
+#'   smallest p-value of the `purify.by` statistic is removed (the p-values are
+#'   compared on the log scale), the abilities are re-estimated from the
+#'   remaining items with the scoring method specified in `method`, and the RDIF
+#'   statistics of the remaining items are recomputed. A supplied `score` is
+#'   therefore used only in the initial analysis. The
 #'   procedure stops when no remaining item is flagged or when `max.iter`
 #'   iterations have been performed, where `max.iter` must be a single whole
 #'   number of at least 1. If no item is flagged in the initial analysis, no
@@ -631,6 +631,7 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
     # extract the first DIF analysis results
     # and check if at least one DIF item is detected
     dif_item_tmp <- dif_rst$dif_item[[purify.by]]
+    log_p_tmp <- dif_rst$log_p[[purify.by]]
     dif_stat_tmp <- dif_rst$dif_stat
     mmt_df_tmp <- no_purify$moments
 
@@ -658,31 +659,26 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # find the flagged item with the largest DIF statistic
-        flag_max <-
-          switch(purify.by,
-                 rdifr = which.max(abs(dif_stat_tmp$z.rdifr)),
-                 rdifs = which.max(abs(dif_stat_tmp$z.rdifs)),
-                 rdifrs = which.max(dif_stat_tmp$rdifrs)
-          )
+        # find the flagged item with the smallest p-value
+        flag_del <- pick_flagged_item(flag_loc = dif_item_tmp, log_p = log_p_tmp)
 
         # check an item that is deleted
-        del_item <- item_num[flag_max]
+        del_item <- item_num[flag_del]
 
         # add the deleted item as the DIF item
         dif_item <- c(dif_item, del_item)
 
         # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:12] <- dif_stat_tmp[flag_max, ]
+        dif_stat[del_item, 1:12] <- dif_stat_tmp[flag_del, ]
         dif_stat[del_item, 13] <- i - 1
-        mmt_df[del_item, 1:6] <- mmt_df_tmp[flag_max, ]
+        mmt_df[del_item, 1:6] <- mmt_df_tmp[flag_del, ]
         mmt_df[del_item, 7] <- i - 1
 
         # find the examinees who responded to the item to be deleted
-        loc_resp <- which(!is.na(data_puri[, flag_max]))
+        loc_resp <- which(!is.na(data_puri[, flag_del]))
 
         # refine the leftover items
-        item_num <- item_num[-flag_max]
+        item_num <- item_num[-flag_del]
 
         # stop the purification when no item is left to estimate the abilities
         if (length(item_num) == 0L) {
@@ -692,10 +688,10 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
         # remove the detected DIF item data which has the largest statistic from the item metadata
         # and drop the item parameter columns that no remaining item uses
-        x_puri <- trim_par_cols(x_puri[-flag_max, , drop = FALSE])
+        x_puri <- trim_par_cols(x_puri[-flag_del, , drop = FALSE])
 
         # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max, drop = FALSE]
+        data_puri <- data_puri[, -flag_del, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -735,6 +731,7 @@ rdif_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
         # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
+        log_p_tmp <- dif_rst_tmp$log_p[[purify.by]]
         dif_stat_tmp <- dif_rst_tmp$dif_stat
         mmt_df_tmp <- rdif_moments(dif_rst_tmp)
 
@@ -987,6 +984,13 @@ rdif_one <- function(x,
     covar[item.skip] <- NA
   }
 
+  # compute the log p-values to choose the item to be removed in the purification
+  log_p <- list(
+    rdifr = log(2) + stats::pnorm(q = -abs(z_stat_rdifr), mean = 0, sd = 1, log.p = TRUE),
+    rdifs = log(2) + stats::pnorm(q = -abs(z_stat_rdifs), mean = 0, sd = 1, log.p = TRUE),
+    rdifrs = stats::pchisq(chisq, df = df_chisq, lower.tail = FALSE, log.p = TRUE)
+  )
+
   # find the flagged items using the unrounded p-values
   dif_item_rdifr <- as.numeric(which(p_rdifr <= alpha))
   dif_item_rdifs <- as.numeric(which(p_rdifs <= alpha))
@@ -1000,7 +1004,7 @@ rdif_one <- function(x,
     dif_stat = stat_df,
     dif_item = list(rdifr = dif_item_rdifr, rdifs = dif_item_rdifs, rdifrs = dif_item_rdifrs),
     moments = list(rdifr = moments_rdifr, rdifs = moments_rdifs), covariance = covar, alpha = alpha,
-    singular = singular_id
+    log_p = log_p, singular = singular_id
   )
 
   # return the results

@@ -168,6 +168,13 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
 }
 
 
+# This function chooses the item to be removed in a purification iteration: among the flagged
+# items, the one with the smallest p-value, which is compared on the log scale to avoid ties at zero
+pick_flagged_item <- function(flag_loc, log_p) {
+  flag_loc[which.min(log_p[flag_loc])]
+}
+
+
 # This function warns once about the examinees who lost their ability estimates during the
 # purification of the DIF and IPD functions
 warn_purify_excluded <- function(n_excluded) {

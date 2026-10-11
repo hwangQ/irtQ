@@ -364,11 +364,11 @@ Similar to other DIF detection approaches, the RDIF framework supports an
 iterative purification procedure (Lim et al., 2022). When \code{purify = TRUE},
 the statistic specified in \code{purify.by} drives the procedure (e.g.,
 \code{purify.by = "rdifrs"}). At each iteration, the flagged item with the
-largest absolute standardized statistic (for \code{"rdifr"} and \code{"rdifs"}) or the
-largest \eqn{RDIF_{RS}} (for \code{"rdifrs"}) is removed, the abilities are
-re-estimated from the remaining items with the scoring method specified in
-\code{method}, and the RDIF statistics of the remaining items are recomputed. A
-supplied \code{score} is therefore used only in the initial analysis. The
+smallest p-value of the \code{purify.by} statistic is removed (the p-values are
+compared on the log scale), the abilities are re-estimated from the
+remaining items with the scoring method specified in \code{method}, and the RDIF
+statistics of the remaining items are recomputed. A supplied \code{score} is
+therefore used only in the initial analysis. The
 procedure stops when no remaining item is flagged or when \code{max.iter}
 iterations have been performed, where \code{max.iter} must be a single whole
 number of at least 1. If no item is flagged in the initial analysis, no
