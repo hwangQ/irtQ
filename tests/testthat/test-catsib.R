@@ -143,6 +143,9 @@ test_that("catsib() purification works down to the last item", {
                            group = sim$group, focal.name = 1, purify = TRUE, alpha = 0.999,
                            method = "MAP", verbose = FALSE))
   expect_true(any(grepl("no bin contained enough examinees", out1$warnings)))
+
+  # the items of the iteration whose results are discarded are not reported as missing
+  expect_false(any(grepl("^No bin contained", out1$warnings)))
   expect_false(out1$value$with_purify$complete)
   expect_identical(out1$value$with_purify$n.iter, 0L)
   expect_equal(out1$value$with_purify$dif_item, out1$value$no_purify$dif_item)
@@ -166,6 +169,16 @@ test_that("catsib() reads character responses as numbers", {
   chr <- as.data.frame(apply(sim$resp, 2, as.character), stringsAsFactors = FALSE)
   r1 <- catsib(NULL, chr, score = sim$score, se = sim$se, group = sim$group, focal.name = 1)
   expect_identical(r1$no_purify$dif_stat, r0$no_purify$dif_stat)
+})
+
+test_that("catsib() ends the purification normally when only skipped items remain", {
+  sim <- cst_sim(3, J = 8, n = c(800, 800))
+  out <- cst_catch(catsib(sim$x, sim$resp, group = sim$group, focal.name = 1, item.skip = 2:8,
+                          purify = TRUE, verbose = FALSE))
+  expect_false(any(grepl("no bin contained enough examinees", out$warnings)))
+  expect_true(out$value$with_purify$complete)
+  expect_identical(out$value$with_purify$n.iter, 1L)
+  expect_equal(out$value$with_purify$dif_item, 1)
 })
 
 test_that("catsib() stops with clear errors for invalid inputs", {
@@ -202,9 +215,16 @@ test_that("catsib() stops with clear errors for invalid inputs", {
   expect_error(run(min.binsize = 1), "min.binsize")
   expect_error(run(max.del = 1), "max.del")
   expect_error(run(score = NULL, method = "INV.TCC"), "not supported by catsib()", fixed = TRUE)
+
+  # polytomous items and responses are refused with the name of the function
+  x_poly <- sim$x
+  x_poly$model[1] <- "GRM"
+  x_poly$cats[1] <- 3L
+  expect_error(run(x = x_poly), "catsib() supports dichotomous items only", fixed = TRUE)
 })
 
 test_that("catsib() leaves skipped items out of the tests and the purification", {
+  skip_on_cran()
   sim <- cst_sim(14)
   r0 <- suppressWarnings(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
                                 focal.name = 1))
@@ -241,10 +261,15 @@ test_that("catsib() flags items with the unrounded p-values", {
 })
 
 test_that("catsib() purification removes the flagged item with the smallest p-value first", {
+  skip_on_cran()
   sim <- cst_sim(8)
-  # the reliability of the scores falls below the floor as many items are removed
-  rst <- suppressWarnings(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
-                                 focal.name = 1, purify = TRUE, max.iter = 20, verbose = FALSE))
+  # the reliability of the scores falls below the lower bound as many items are removed, and one
+  # warning reports it
+  out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                          focal.name = 1, purify = TRUE, max.iter = 20, verbose = FALSE))
+  rst <- out$value
+  expect_gte(rst$with_purify$n.iter, 2)
+  expect_equal(sum(grepl("estimated reliability", out$warnings)), 1)
   first <- which(rst$with_purify$dif_stat$n.iter == 0)
   z0 <- rst$no_purify$dif_stat$z.beta
   expect_equal(first, which.max(abs(z0)))

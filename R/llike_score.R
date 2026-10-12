@@ -3,7 +3,7 @@
 #' This function computes the log-likelihood values for a set of ability
 #' values, given item parameters and response data.
 #'
-#' @inheritParams catsib
+#' @inheritParams rdif
 #' @inheritParams est_score
 #' @param x A data frame containing item metadata (e.g., item parameters, number
 #'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or

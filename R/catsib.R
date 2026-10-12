@@ -482,7 +482,7 @@ catsib <- function(x = NULL,
 
     # stop when the model includes any polytomous model
     if (any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-      stop("The current version only supports dichotomous response data.", call. = FALSE)
+      stop("catsib() supports dichotomous items only.", call. = FALSE)
     }
   }
 
@@ -502,7 +502,7 @@ catsib <- function(x = NULL,
 
   # stop when the model includes any polytomous response data
   if (any(suppressWarnings(as.numeric(data)) > 1, na.rm = TRUE)) {
-    stop("The current version only supports dichotomous response data.", call. = FALSE)
+    stop("catsib() supports dichotomous responses (0 or 1) only.", call. = FALSE)
   }
 
   # stop when the ability estimates are given without their standard errors
@@ -642,11 +642,6 @@ catsib <- function(x = NULL,
 
   # confirm the target ability density function
   weight.group <- match.arg(weight.group)
-  weight.group <- switch(weight.group,
-                         foc = "foc",
-                         ref = "ref",
-                         comb = "comb"
-  )
 
   # set the maximum & minimum number of bins (intervals)
   max.bin <- n.bin[1]
@@ -666,6 +661,9 @@ catsib <- function(x = NULL,
 
   # record the items without a usable bin
   no_bin_id <- dif_rst$no_bin
+
+  # record the lowest reliabilities of the corrected scores of the reference and focal groups
+  rho_min <- dif_rst$rho_raw
 
   # create two empty lists to contain the results
   no_purify <- list(dif_stat = NULL, dif_item = NULL, contingency = NULL)
@@ -824,12 +822,16 @@ catsib <- function(x = NULL,
             alpha = alpha, rho.screen = rho.screen
           )
 
-        # record the items without a usable bin
-        no_bin_id <- union(no_bin_id, dif_rst_tmp$no_bin)
+        # record the lowest reliabilities of the corrected scores
+        rho_min <- pmin(rho_min, dif_rst_tmp$rho_raw, na.rm = TRUE)
+
+        # count the remaining items that are tested
+        n_test <- length(setdiff(seq_len(nrow(x_puri)), item.skip.puri))
 
         # stop the purification when no remaining item has a usable bin; the remaining items keep the
-        # results of the previous iteration
-        if (length(dif_rst_tmp$no_bin) == length(setdiff(seq_len(nrow(x_puri)), item.skip.puri))) {
+        # results of the previous iteration. The skipped items are not counted, so the purification
+        # ends normally when only skipped items remain
+        if (n_test > 0L && length(dif_rst_tmp$no_bin) == n_test) {
           no_test <- TRUE
           score_puri <- score_prev
           se_puri <- se_prev
@@ -843,7 +845,10 @@ catsib <- function(x = NULL,
           break
         }
 
-        # extract the first DIF analysis results
+        # record the items without a usable bin in an iteration whose results are kept
+        no_bin_id <- union(no_bin_id, dif_rst_tmp$no_bin)
+
+        # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item
         log_p_tmp <- dif_rst_tmp$log_p
@@ -926,6 +931,18 @@ catsib <- function(x = NULL,
     }
   }
 
+
+  # warn once when the reliability of the scores of a group was below the lower bound in any analysis
+  if (any(rho_min < 0.05, na.rm = TRUE)) {
+    warning(
+      "The estimated reliability (rho^2) of the ability estimates was below 0.05 ",
+      "for one or more groups (lowest rho^2_ref = ", round(rho_min[1], 3),
+      ", lowest rho^2_foc = ", round(rho_min[2], 3), ") and was set to 0.05. ",
+      "This can occur when some examinees have very large standard errors or when few items ",
+      "are used to estimate the abilities. Interpret the DIF results with caution.",
+      call. = FALSE
+    )
+  }
 
   # warn that the statistics of the items without a usable bin are missing
   if (length(no_bin_id) > 0L) {
@@ -1042,25 +1059,10 @@ catsib_one <- function(data,
   rho_ref2_raw <- suppressWarnings(1 - errvar_ref / sigma2_ref)
   rho_foc2_raw <- suppressWarnings(1 - errvar_foc / sigma2_foc)
 
-  # clamp rho2 to [0.05, 1]: floor of 0.05 prevents corrected scores from
-  # collapsing so tightly around each group's mean that the two groups'
-  # distributions no longer overlap (which produces n.ref=0, n.foc=0 for all
-  # items and prematurely terminates the purification loop with invalid results).
+  # bound rho2 to [0.05, 1]; a negative value would reverse the order of the scores within a group,
+  # and a value near zero would place almost all corrected scores of a group in one bin
   rho_ref2 <- max(0.05, min(1, rho_ref2_raw))
   rho_foc2 <- max(0.05, min(1, rho_foc2_raw))
-
-  # warn when either raw rho2 fell below the 0.05 floor
-  if (rho_ref2_raw < 0.05 || rho_foc2_raw < 0.05) {
-    warning(
-      "The estimated reliability (rho^2) of ability estimates fell below 0.05 ",
-      "for one or more groups (rho^2_ref = ",
-      round(rho_ref2_raw, 3), ", rho^2_foc = ",
-      round(rho_foc2_raw, 3), ") and was floored at 0.05. ",
-      "This typically occurs when too few items remain after purification, ",
-      "leading to large standard errors. Interpret DIF results with caution.",
-      call. = FALSE
-    )
-  }
 
   # apply a regression correction to the ability estimates
   crscore_ref <- mu_ref + rho_ref2 * (score_ref - mu_ref)
@@ -1121,7 +1123,7 @@ catsib_one <- function(data,
   # return the results
   rst <- list(
     dif_stat = dif_stat, dif_item = dif_item, contingency = contingency, log_p = log_p,
-    no_bin = item.id[no_bin]
+    no_bin = item.id[no_bin], rho_raw = c(ref = rho_ref2_raw, foc = rho_foc2_raw)
   )
   rst
 }
