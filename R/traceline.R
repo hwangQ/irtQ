@@ -257,8 +257,6 @@ trace <- function(elm_item, theta, D = 1, tcc = TRUE) {
     # check what poly models were used
     pr.mod <- unique(elm_item$model[idx.prm])
 
-    # check the maximum score category
-    max.cats <- max(elm_item$cats) - 1
     for (mod in pr.mod) {
       # extract the response, model, and item parameters
       lg.prm <- elm_item$model == mod
@@ -290,8 +288,11 @@ trace <- function(elm_item, theta, D = 1, tcc = TRUE) {
 
       # if tcc = TRUE
       if (tcc) {
+        # set the probabilities of the categories an item does not have to 0
+        item.of.row <- rep(seq_along(a), n.theta)
+        P.valid <- P.all * (col(P.all) <= cat.tmp[item.of.row])
         icc_df[, idx.tmp] <-
-          matrix(P.all %*% c(0:max.cats), nrow = n.theta, byrow = TRUE)
+          matrix(P.valid %*% c(0:(ncol(P.all) - 1)), nrow = n.theta, byrow = TRUE)
       }
     }
   }
