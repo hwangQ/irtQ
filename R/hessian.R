@@ -84,7 +84,8 @@ hess_item_drm_inner <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM
     pqf <- fp * q
     hs_aa <- D2 * sum(theta_b^2 * pqf)
     hs_bb <- D2 * a[1]^2 * Rfast::colsums(pqf)
-    hs_ab <- Rfast::colsums(r_i - (fp - ((-D * a) * (theta_b)) * pqf))
+    # the cross derivative of the slope and each difficulty carries the scaling constant D
+    hs_ab <- D * Rfast::colsums(r_i - (fp - ((-D * a) * (theta_b)) * pqf))
 
     # create a hessian matrix
     hess <- diag(c(hs_aa, hs_bb))

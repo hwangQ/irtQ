@@ -380,6 +380,14 @@ knitr::opts_chunk$set(
   0.2, which changed them by up to about 9 percent. The estimates were not
   affected.
 
+* When `D` was not 1, the Hessian of 1PLM items with a common estimated slope
+  (`fix.a.1pl = FALSE`) had a wrong cross term between the slope and the
+  difficulties. In `est_item()` the standard error of the slope came out too
+  small and the optimization could stop short of the maximum; in `est_irt()`
+  and `est_mg()` the M-step followed a different path, which changed the
+  number of EM cycles and the estimates within the convergence tolerance. The
+  Hessian is now correct, and results for `D = 1` are unchanged.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the

@@ -39,6 +39,71 @@ ap_ref <- list(dist = "lnorm", params = c(0.2, 0.5))
 bp_ref <- list(dist = "norm", params = c(0.3, 1.5))
 gp_ref <- list(dist = "beta", params = c(5, 16))
 
+test_that("dichotomous item gradients and Hessians match finite differences", {
+  set.seed(101)
+  nq <- length(theta_q)
+  cases <- list(
+    list(mod = "1PLM", fix.a = FALSE, fix.g = FALSE, par = c(1.2, -0.5, 0.3, 1.1), n1 = 3),
+    list(mod = "1PLM", fix.a = TRUE, fix.g = FALSE, par = 0.4, a.val = 1.3),
+    list(mod = "2PLM", fix.a = TRUE, fix.g = FALSE, par = c(1.4, 0.2)),
+    list(mod = "3PLM", fix.a = TRUE, fix.g = FALSE, par = c(1.6, 0.3, 0.17)),
+    list(mod = "3PLM", fix.a = TRUE, fix.g = TRUE, par = c(1.6, 0.3), g.val = 0.15)
+  )
+  for (D in c(1, 1.702)) {
+    for (pri in c(FALSE, TRUE)) {
+      for (cs in cases) {
+        n1 <- if (is.null(cs$n1)) 1 else cs$n1
+        f_i <- matrix(round(runif(nq * n1, 20, 200)), nq, n1)
+        r_i <- matrix(rbinom(nq * n1, f_i, 0.5), nq, n1)
+        s_i <- f_i - r_i
+        if (n1 == 1) {
+          f_i <- c(f_i)
+          r_i <- c(r_i)
+          s_i <- c(s_i)
+        }
+        a.val <- if (is.null(cs$a.val)) 1 else cs$a.val
+        g.val <- if (is.null(cs$g.val)) 0.2 else cs$g.val
+        common <- list(
+          r_i = r_i, theta = theta_q, mod = cs$mod, D = D, fix.a = cs$fix.a,
+          fix.g = cs$fix.g, a.val = a.val, g.val = g.val, n.1PLM = cs$n1,
+          aprior = ap_ref, bprior = bp_ref, gprior = gp_ref,
+          use.aprior = pri, use.bprior = pri, use.gprior = pri
+        )
+        gr <- function(p) do.call(irtQ:::grad_item_drm, c(list(item_par = p, f_i = f_i), common))
+        he <- function(p) do.call(irtQ:::hess_item_drm_inner, c(list(item_par = p, f_i = f_i), common))
+        nll <- function(p) do.call(irtQ:::loglike_drm, c(list(item_par = p, s_i = s_i), common))
+
+        # closed-form negative log posterior
+        ref <- function(p) {
+          if (cs$mod == "1PLM" && !cs$fix.a) {
+            P <- sapply(p[-1], function(b) drm_ref(theta_q, p[1], b, 0, D))
+            ll <- sum(r_i * log(P) + s_i * log(1 - P))
+            if (pri) {
+              ll <- ll + dlnorm(D * p[1], 0.2, 0.5, log = TRUE) + sum(dnorm(p[-1], 0.3, 1.5, log = TRUE))
+            }
+            return(-ll)
+          }
+          a <- switch(cs$mod, "1PLM" = a.val, p[1])
+          b <- switch(cs$mod, "1PLM" = p[1], p[2])
+          g <- if (cs$mod != "3PLM") 0 else if (cs$fix.g) g.val else p[3]
+          P <- drm_ref(theta_q, a, b, g, D)
+          ll <- sum(r_i * log(P) + s_i * log(1 - P))
+          if (pri) {
+            if (cs$mod != "1PLM") ll <- ll + dlnorm(D * a, 0.2, 0.5, log = TRUE)
+            ll <- ll + dnorm(b, 0.3, 1.5, log = TRUE)
+            if (cs$mod == "3PLM" && !cs$fix.g) ll <- ll + dbeta(g, 5, 16, log = TRUE)
+          }
+          -ll
+        }
+        p0 <- cs$par
+        expect_equal(nll(p0), ref(p0), tolerance = 1e-10)
+        expect_lt(rel_err(gr(p0), fd_grad_ref(ref, p0)), 1e-7)
+        expect_lt(rel_err(he(p0), fd_jac_ref(gr, p0)), 1e-7)
+      }
+    }
+  }
+})
+
 test_that("polytomous item gradients and Hessians match finite differences", {
   set.seed(102)
   nq <- length(theta_q)

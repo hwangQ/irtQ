@@ -111,3 +111,32 @@ test_that("est_irt() SEs are invariant to the scaling constant for rescaled slop
   se_d17[, 1] <- se_d17[, 1] * 1.702
   expect_equal(se_d17, as.matrix(fit_d1$se.est[, -(1:3)]), tolerance = 1e-5, ignore_attr = TRUE)
 })
+
+test_that("est_item() SEs of 1PLM items with a common slope match the observed information", {
+  x0 <- shape_df(par.drm = list(a = rep(1, 5), b = rep(0, 5), g = NA), cats = 2, model = "2PLM")
+  sc <- est_score(x0, LSAT6, D = 1, method = "EAP")$est.theta
+  for (D in c(1, 1.702)) {
+    fit <- est_item(data = LSAT6, score = sc, D = D, model = "1PLM", cats = 2, fix.a.1pl = FALSE, verbose = FALSE)
+    p <- c(fit$par.est$par.1[1], fit$par.est$par.2)
+    nll <- function(v) {
+      -sum(sapply(1:5, function(j) {
+        P <- prob_ref(sc, "2PLM", c(v[1], v[j + 1]), D)[, 2]
+        sum(LSAT6[, j] * log(P) + (1 - LSAT6[, j]) * log(1 - P))
+      }))
+    }
+
+    # central finite-difference Hessian of the negative log-likelihood
+    h <- 1e-4
+    H <- matrix(0, 6, 6)
+    for (i in 1:6) {
+      for (j in 1:6) {
+        ei <- rep(0, 6)
+        ei[i] <- h
+        ej <- rep(0, 6)
+        ej[j] <- h
+        H[i, j] <- (nll(p + ei + ej) - nll(p + ei - ej) - nll(p - ei + ej) + nll(p - ei - ej)) / (4 * h^2)
+      }
+    }
+    expect_equal(c(fit$se.est$par.1[1], fit$se.est$par.2), sqrt(diag(solve(H))), tolerance = 1e-4)
+  }
+})
