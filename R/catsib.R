@@ -442,6 +442,9 @@ catsib <- function(x = NULL,
     item.id <- x$id
   }
 
+  # record whether the ability estimates are supplied
+  score_given <- !is.null(score)
+
   # compute the score if score = NULL
   if (!is.null(score)) {
     # transform scores to a vector form
@@ -524,9 +527,11 @@ catsib <- function(x = NULL,
     dif_stat_tmp <- dif_rst$dif_stat
     contingency_tmp <- dif_rst$contingency
 
-    # copy the response data and item meta data
+    # copy the response data, item meta data, ability estimates, and standard errors
     x_puri <- x
     data_puri <- data
+    score_puri <- score
+    se_puri <- se
 
     # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
@@ -563,6 +568,9 @@ catsib <- function(x = NULL,
         dif_stat[del_item, 9] <- i - 1
         contingency[del_item] <- contingency_tmp[flag_max]
 
+        # find the examinees who responded to the item to be deleted
+        loc_resp <- which(!is.na(data_puri[, flag_max]))
+
         # refine the leftover items
         item_num <- item_num[-flag_max]
 
@@ -587,13 +595,19 @@ catsib <- function(x = NULL,
           data_puri[loc_less, ] <- NA
         }
 
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_rst_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range, norm.prior = norm.prior,
-          nquad = nquad, weights = weights, ncore = ncore, ...
-        )
-        score_puri <- score_rst_puri$est.theta
-        se_puri <- score_rst_puri$se.theta
+        # compute the updated ability estimates and their standard errors after deleting the
+        # detected DIF item data; only the examinees who responded to the deleted item are
+        # rescored after the first iteration
+        score_rst_puri <-
+          dif_rescore(
+            x = x_puri, data = data_puri, score = score_puri, loc_resp = loc_resp,
+            first = (i == 1L), D = D, method = method, range = range,
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+            quiet_na = TRUE, quiet_ncore = (i > 1L || !score_given), se_prev = se_puri,
+            return_se = TRUE, ...
+          )
+        score_puri <- score_rst_puri$score
+        se_puri <- score_rst_puri$se
 
         # do DIF analysis using the updated ability estimates
         item.id <- x_puri$id
@@ -614,9 +628,6 @@ catsib <- function(x = NULL,
 
         # check if a further DIF item is flagged
         if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
           # add the DIF statistics for rest of items
           dif_stat[item_num, 1:8] <- dif_stat_tmp
           dif_stat[item_num, 9] <- i

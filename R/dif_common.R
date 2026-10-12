@@ -4,15 +4,15 @@
 # item are rescored when a single core is used
 dif_rescore <- function(x, data, score, loc_resp, first, D, method, range,
                         norm.prior, nquad, weights, ncore, quiet_na = FALSE,
-                        quiet_ncore = FALSE, ...) {
-  # estimate the abilities, and mute the warning about the examinees without any response
-  # when it is reported separately and the warning about the number of cores when it was
-  # already given
+                        quiet_ncore = FALSE, se_prev = NULL, return_se = FALSE, ...) {
+  # estimate the abilities and their standard errors, and mute the warning about the examinees
+  # without any response when it is reported separately and the warning about the number of
+  # cores when it was already given
   score_est <- function(data_est) {
     withCallingHandlers(
       est_score(
         x = x, data = data_est, D = D, method = method, range = range,
-        norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...)$est.theta,
+        norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore, ...),
       warning = function(w) {
         if ((quiet_na && grepl("^NA values are returned", conditionMessage(w))) ||
             (quiet_ncore && grepl("^ncore > 1 is not recommended", conditionMessage(w)))) {
@@ -25,15 +25,23 @@ dif_rescore <- function(x, data, score, loc_resp, first, D, method, range,
   if (!first && ncore == 1 && method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
     # rescore the examinees who responded to the removed item
     if (length(loc_resp) > 0L) {
-      score[loc_resp] <- score_est(data[loc_resp, , drop = FALSE])
+      score_rst <- score_est(data[loc_resp, , drop = FALSE])
+      score[loc_resp] <- score_rst$est.theta
+      se_prev[loc_resp] <- score_rst$se.theta
     }
   } else {
     # rescore all examinees
-    score <- score_est(data)
+    score_rst <- score_est(data)
+    score <- score_rst$est.theta
+    se_prev <- score_rst$se.theta
   }
 
-  # return the updated ability estimates
-  score
+  # return the updated ability estimates, together with their standard errors when requested
+  if (return_se) {
+    list(score = score, se = se_prev)
+  } else {
+    score
+  }
 }
 
 

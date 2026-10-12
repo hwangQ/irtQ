@@ -396,430 +396,16 @@ grdif.default <- function(x,
   # match.call
   cl <- match.call()
 
-  ## ----------------------------------
-  ## (1) prepare DIF analysis
-  ## ----------------------------------
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      # count the number of responses of each examinee
-      n_resp <- Rfast::rowsums(!is.na(data))
-
-      # find the examinees who responded to fewer items than the minimum
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-
-      # replace all responses of those examinees with NA
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of DIF analysis
-  dif_rst <- grdif_one(x = x, data = data, score = score, group = group, focal.name = focal.name, D = D, alpha = alpha)
-
-  # create two empty lists to contain the results
-  no_purify <- list(
-    dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL,
-    post.hoc = list(by.grdifr = NULL, by.grdifs = NULL, by.grdifrs = NULL)
+  # conduct the DIF analysis
+  rst <- grdif_main(
+    x = x, data = data, score = score, group = group, focal.name = focal.name, D = D,
+    alpha = alpha, missing = missing, purify = purify, purify.by = purify.by,
+    max.iter = max.iter, min.resp = min.resp, post.hoc = post.hoc, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+    ncore = ncore, verbose = verbose, ...
   )
-  with_purify <- list(
-    purify.by = NULL, dif_stat = NULL, moments = NULL,
-    dif_item = NULL, n.iter = NULL, score = NULL, post.hoc = NULL, complete = NULL
-  )
-
-  # record the first DIF detection results into the no purification list
-  no_purify$dif_stat <- dif_rst$dif_stat
-  no_purify$dif_item <- dif_rst$dif_item
-  no_purify$moments <-
-    list(
-      mu = data.frame(id = x$id, dif_rst$moments$mu, stringsAsFactors = FALSE),
-      var = data.frame(id = x$id, dif_rst$moments$var, stringsAsFactors = FALSE),
-      covariance = data.frame(id = x$id, dif_rst$moments$covariance, stringsAsFactors = FALSE)
-    )
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected DIF items, statistics, and moments
-    dif_item <- NULL
-    n_df <-
-      no_purify$dif_stat %>%
-      dplyr::select(dplyr::contains("n.")) %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    dif_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)),
-        grdifr = NA,
-        grdifs = NA,
-        grdifrs = NA,
-        p.grdifr = NA,
-        p.grdifs = NA,
-        p.grdifrs = NA,
-        n_df,
-        n.iter = NA,
-        stringsAsFactors = FALSE
-      )
-    mu_empty <-
-      dif_rst$moments$mu %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    var_empty <-
-      dif_rst$moments$var %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    covar_empty <-
-      dif_rst$moments$covariance %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    mmt_df <-
-      list(
-        mu = data.frame(id = rep(NA_character_, nrow(x)), mu_empty, n.iter = NA, stringsAsFactors = FALSE),
-        var = data.frame(id = x$id, var_empty, n.iter = NA, stringsAsFactors = FALSE),
-        covariance = data.frame(id = x$id, covar_empty, n.iter = NA, stringsAsFactors = FALSE)
-      )
-    ncol.stat <- ncol(dif_stat)
-    ncol.mu <- ncol.var <- ncol(mmt_df$mu)
-    ncol.covar <- ncol(mmt_df$covariance)
-
-    # extract the first DIF analysis results
-    # and check if at least one DIF item is detected
-    dif_item_tmp <- dif_rst$dif_item[[purify.by]]
-    dif_stat_tmp <- dif_rst$dif_stat
-    mmt_df_tmp <- no_purify$moments
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-    score_puri <- score
-
-    # create an empty list to contain the post-hoc list
-    if (post.hoc) {
-      post_df_pury <- list()
-    }
-
-    # start the iteration if any item is detected as a DIF item
-    if (!is.null(dif_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # find the flagged item with the largest value of the purify.by statistic
-        flag_max <-
-          switch(purify.by,
-                 grdifr = which.max(dif_stat_tmp$grdifr),
-                 grdifs = which.max(dif_stat_tmp$grdifs),
-                 grdifrs = which.max(dif_stat_tmp$grdifrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_max]
-
-        # add the deleted item as the DIF item
-        dif_item <- c(dif_item, del_item)
-
-        # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:(ncol.stat - 1)] <- dif_stat_tmp[flag_max, ]
-        dif_stat[del_item, ncol.stat] <- i - 1
-        mmt_df$mu[del_item, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu[flag_max, ]
-        mmt_df$var[del_item, 1:(ncol.var - 1)] <- mmt_df_tmp$var[flag_max, ]
-        mmt_df$covariance[del_item, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance[flag_max, ]
-        mmt_df$mu[del_item, ncol.mu] <- i - 1
-        mmt_df$var[del_item, ncol.var] <- i - 1
-        mmt_df$covariance[del_item, ncol.covar] <- i - 1
-
-        # refine the leftover items
-        item_num <- item_num[-flag_max]
-
-        # post-hoc DIF analysis one flagged item by one flagged item
-        if (post.hoc) {
-          # select the flagged items for the post-hoc DIF analyses
-          item4post <- flag_max
-
-          # item metadata for the flagged items
-          x_post <- x_puri[flag_max, ]
-
-          # find all pairs of the groups
-          pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-          # post-hoc DIF analyses
-          post.stats <- list()
-          for (p in 1:length(pair.g)) {
-            # select a pair of two groups
-            pair.tmp <- pair.g[[p]]
-            group.pair <- paste(pair.tmp, collapse = " & ")
-
-            # find the location of examinees for the two compared groups
-            loc_g1 <- which(group == pair.tmp[1])
-            loc_g2 <- which(group == pair.tmp[2])
-            loc.tmp <- c(loc_g1, loc_g2)
-            focal.name.tmp <- pair.tmp[2]
-
-            # select the group variables for the two groups
-            group.tmp <- group[loc.tmp]
-
-            # select the response data for the two groups
-            data.tmp <- data_puri[c(loc_g1, loc_g2), item4post, drop = FALSE]
-
-            # select the thetas for the two groups
-            score.tmp <- score_puri[c(loc_g1, loc_g2)]
-
-            # DIF analysis
-            dif_post.tmp <-
-              rdif_one(
-                x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-                focal.name = focal.name.tmp, D = D, alpha = alpha
-              )
-
-            # add the stats to the list
-            post.stats[[p]] <-
-              dif_post.tmp$dif_stat %>%
-              dplyr::mutate(group.pair = group.pair) %>%
-              dplyr::relocate("group.pair", .after = "id")
-          }
-
-          # re-organize the stat list
-          post_df_pury[[i]] <-
-            purrr::map_df(.x = post.stats, ~ {
-              .x
-            }) %>%
-            dplyr::mutate(n_iter = i - 1)
-        }
-
-        # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
-
-        # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
-
-        # if min.resp is not NULL, find the examinees who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- Rfast::rowsums(!is.na(data_puri))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range, norm.prior = norm.prior,
-          nquad = nquad, weights = weights, ncore = ncore, ...
-        )$est.theta
-
-        # do DIF analysis using the updated ability estimates
-        dif_rst_tmp <- grdif_one(
-          x = x_puri, data = data_puri, score = score_puri, group = group,
-          focal.name = focal.name, D = D, alpha = alpha
-        )
-
-        # extract the first DIF analysis results
-        # and check if at least one DIF item is detected
-        dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
-        dif_stat_tmp <- dif_rst_tmp$dif_stat
-        mmt_df_tmp <-
-          list(
-            mu = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$mu, stringsAsFactors = FALSE),
-            var = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$var, stringsAsFactors = FALSE),
-            covariance = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$covariance, stringsAsFactors = FALSE)
-          )
-
-        # check if a further DIF item is flagged
-        if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
-          # add the DIF statistics for rest of items
-          dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp
-          dif_stat[item_num, ncol.stat] <- i
-          mmt_df$mu[item_num, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu
-          mmt_df$var[item_num, 1:(ncol.var - 1)] <- mmt_df_tmp$var
-          mmt_df$covariance[item_num, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance
-          mmt_df$mu[item_num, ncol.mu] <- i
-          mmt_df$var[item_num, ncol.var] <- i
-          mmt_df$covariance[item_num, ncol.covar] <- i
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged DIF item at the last iteration
-        dif_item <- c(dif_item, item_num[dif_item_tmp])
-
-        # add the DIF statistics for rest of items
-        dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp
-        dif_stat[item_num, ncol.stat] <- i
-        mmt_df$mu[item_num, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu
-        mmt_df$var[item_num, 1:(ncol.var - 1)] <- mmt_df_tmp$var
-        mmt_df$covariance[item_num, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance
-        mmt_df$mu[item_num, ncol.mu] <- i
-        mmt_df$var[item_num, ncol.var] <- i
-        mmt_df$covariance[item_num, ncol.covar] <- i
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final DIF detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- dif_stat
-      with_purify$moments <- mmt_df
-      with_purify$dif_item <- sort(dif_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score_puri
-      with_purify$complete <- complete
-      if (post.hoc) {
-        with_purify$post.hoc <-
-          post_df_pury %>%
-          dplyr::bind_rows()
-      }
-    } else {
-      # in case when no DIF item is detected from the first DIF analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
-      with_purify$moments <-
-        purrr::map(.x = no_purify$moments, ~ {
-          cbind(.x, n.iter = 0)
-        })
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-
-  # post-hoc DIF analysis for the non-purified DIF analysis results
-  if (post.hoc) {
-    # select the flagged items for the post-hoc DIF analyses
-    item4post <- no_purify$dif_item
-
-    for (i in 1:3) {
-      if (length(item4post[[i]]) != 0) {
-        # item metadata for the flagged items
-        x_post <- x[item4post[[i]], ]
-
-        # find all pairs of the groups
-        pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-        # post-hoc DIF analyses
-        post.stats <- list()
-        for (p in 1:length(pair.g)) {
-          # p <- 1
-          # select a pair of two groups
-          pair.tmp <- pair.g[[p]]
-          group.pair <- paste(pair.tmp, collapse = " & ")
-
-          # find the location of examinees for the two compared groups
-          loc_g1 <- which(group == pair.tmp[1])
-          loc_g2 <- which(group == pair.tmp[2])
-          loc.tmp <- c(loc_g1, loc_g2)
-          focal.name.tmp <- pair.tmp[2]
-
-          # select the group variables for the two groups
-          group.tmp <- group[loc.tmp]
-
-          # select the response data for the two groups
-          data.tmp <- data[c(loc_g1, loc_g2), item4post[[i]], drop = FALSE]
-
-          # select the thetas for the two groups
-          score.tmp <- score[c(loc_g1, loc_g2)]
-
-          # DIF analysis
-          dif_post.tmp <-
-            rdif_one(
-              x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-              focal.name = focal.name.tmp, D = D, alpha = alpha
-            )
-
-          # add the stats to the list
-          post.stats[[p]] <-
-            dif_post.tmp$dif_stat %>%
-            dplyr::mutate(group.pair = group.pair) %>%
-            dplyr::relocate("group.pair", .after = "id")
-        }
-
-        # re-organize the stat list
-        post_df_nopury <-
-          purrr::map(
-            .x = 1:length(item4post[[i]]),
-            .f = function(i) {
-              purrr::map_df(.x = post.stats, ~ {
-                .x[i, ]
-              })
-            }
-          ) %>%
-          dplyr::bind_rows()
-        no_purify$post.hoc[[i]] <- post_df_nopury
-      }
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify, with_purify = with_purify, alpha = alpha)
 
   # return the DIF detection results
-  class(rst) <- "grdif"
   rst$call <- cl
   rst
 }
@@ -836,435 +422,16 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  D <- x$scale.D
-  x <- x$par.est
-
-  ## ----------------------------------
-  ## (1) prepare DIF analysis
-  ## ----------------------------------
-  # confirm and correct all item metadata information
-  x <- confirm_df(x)
-
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
-  }
-
-  # compute the score if score = NULL
-  if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      # count the number of responses of each examinee
-      n_resp <- Rfast::rowsums(!is.na(data))
-
-      # find the examinees who responded to fewer items than the minimum
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-
-      # replace all responses of those examinees with NA
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
-
-  # a) when no purification is set
-  # do only one iteration of DIF analysis
-  dif_rst <- grdif_one(x = x, data = data, score = score, group = group, focal.name = focal.name, D = D, alpha = alpha)
-
-  # create two empty lists to contain the results
-  no_purify <- list(
-    dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL,
-    post.hoc = list(by.grdifr = NULL, by.grdifs = NULL, by.grdifrs = NULL)
+  # conduct the DIF analysis with the data, scaling constant, and items of the object
+  rst <- grdif_main(
+    x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
+    D = x$scale.D, alpha = alpha, missing = missing, purify = purify, purify.by = purify.by,
+    max.iter = max.iter, min.resp = min.resp, post.hoc = post.hoc, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+    ncore = ncore, verbose = verbose, ...
   )
-  with_purify <- list(
-    purify.by = NULL, dif_stat = NULL, moments = NULL,
-    dif_item = NULL, n.iter = NULL, score = NULL, post.hoc = NULL, complete = NULL
-  )
-
-  # record the first DIF detection results into the no purification list
-  no_purify$dif_stat <- dif_rst$dif_stat
-  no_purify$dif_item <- dif_rst$dif_item
-  no_purify$moments <-
-    list(
-      mu = data.frame(id = x$id, dif_rst$moments$mu, stringsAsFactors = FALSE),
-      var = data.frame(id = x$id, dif_rst$moments$var, stringsAsFactors = FALSE),
-      covariance = data.frame(id = x$id, dif_rst$moments$covariance, stringsAsFactors = FALSE)
-    )
-  no_purify$score <- score
-
-  # when purification is used
-  if (purify) {
-    # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
-
-    # create an empty vector and empty data frames
-    # to contain the detected DIF items, statistics, and moments
-    dif_item <- NULL
-    n_df <-
-      no_purify$dif_stat %>%
-      dplyr::select(dplyr::contains("n.")) %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    dif_stat <-
-      data.frame(
-        id = rep(NA_character_, nrow(x)),
-        grdifr = NA,
-        grdifs = NA,
-        grdifrs = NA,
-        p.grdifr = NA,
-        p.grdifs = NA,
-        p.grdifrs = NA,
-        n_df,
-        n.iter = NA,
-        stringsAsFactors = FALSE
-      )
-    mu_empty <-
-      dif_rst$moments$mu %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    var_empty <-
-      dif_rst$moments$var %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    covar_empty <-
-      dif_rst$moments$covariance %>%
-      dplyr::mutate_all(~ {
-        NA_integer_
-      })
-    mmt_df <-
-      list(
-        mu = data.frame(id = rep(NA_character_, nrow(x)), mu_empty, n.iter = NA, stringsAsFactors = FALSE),
-        var = data.frame(id = x$id, var_empty, n.iter = NA, stringsAsFactors = FALSE),
-        covariance = data.frame(id = x$id, covar_empty, n.iter = NA, stringsAsFactors = FALSE)
-      )
-    ncol.stat <- ncol(dif_stat)
-    ncol.mu <- ncol.var <- ncol(mmt_df$mu)
-    ncol.covar <- ncol(mmt_df$covariance)
-
-    # extract the first DIF analysis results
-    # and check if at least one DIF item is detected
-    dif_item_tmp <- dif_rst$dif_item[[purify.by]]
-    dif_stat_tmp <- dif_rst$dif_stat
-    mmt_df_tmp <- no_purify$moments
-
-    # copy the response data and item meta data
-    x_puri <- x
-    data_puri <- data
-    score_puri <- score
-
-    # create an empty list to contain the post-hoc list
-    if (post.hoc) {
-      post_df_pury <- list()
-    }
-
-    # start the iteration if any item is detected as a DIF item
-    if (!is.null(dif_item_tmp)) {
-      # record unique item numbers
-      item_num <- 1:nrow(x)
-
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
-      # print a message
-      if (verbose) {
-        cat("Purification started...", "\n")
-      }
-
-      for (i in 1:max.iter) {
-        # print a message
-        if (verbose) {
-          cat("\r", paste0("Iteration: ", i))
-        }
-
-        # find the flagged item with the largest value of the purify.by statistic
-        flag_max <-
-          switch(purify.by,
-                 grdifr = which.max(dif_stat_tmp$grdifr),
-                 grdifs = which.max(dif_stat_tmp$grdifs),
-                 grdifrs = which.max(dif_stat_tmp$grdifrs)
-          )
-
-        # check an item that is deleted
-        del_item <- item_num[flag_max]
-
-        # add the deleted item as the DIF item
-        dif_item <- c(dif_item, del_item)
-
-        # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:(ncol.stat - 1)] <- dif_stat_tmp[flag_max, ]
-        dif_stat[del_item, ncol.stat] <- i - 1
-        mmt_df$mu[del_item, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu[flag_max, ]
-        mmt_df$var[del_item, 1:(ncol.var - 1)] <- mmt_df_tmp$var[flag_max, ]
-        mmt_df$covariance[del_item, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance[flag_max, ]
-        mmt_df$mu[del_item, ncol.mu] <- i - 1
-        mmt_df$var[del_item, ncol.var] <- i - 1
-        mmt_df$covariance[del_item, ncol.covar] <- i - 1
-
-        # refine the leftover items
-        item_num <- item_num[-flag_max]
-
-        # post-hoc DIF analysis one flagged item by one flagged item
-        if (post.hoc) {
-          # select the flagged items for the post-hoc DIF analyses
-          item4post <- flag_max
-
-          # item metadata for the flagged items
-          x_post <- x_puri[flag_max, ]
-
-          # find all pairs of the groups
-          pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-          # post-hoc DIF analyses
-          post.stats <- list()
-          for (p in 1:length(pair.g)) {
-            # select a pair of two groups
-            pair.tmp <- pair.g[[p]]
-            group.pair <- paste(pair.tmp, collapse = " & ")
-
-            # find the location of examinees for the two compared groups
-            loc_g1 <- which(group == pair.tmp[1])
-            loc_g2 <- which(group == pair.tmp[2])
-            loc.tmp <- c(loc_g1, loc_g2)
-            focal.name.tmp <- pair.tmp[2]
-
-            # select the group variables for the two groups
-            group.tmp <- group[loc.tmp]
-
-            # select the response data for the two groups
-            data.tmp <- data_puri[c(loc_g1, loc_g2), item4post, drop = FALSE]
-
-            # select the thetas for the two groups
-            score.tmp <- score_puri[c(loc_g1, loc_g2)]
-
-            # DIF analysis
-            dif_post.tmp <-
-              rdif_one(
-                x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-                focal.name = focal.name.tmp, D = D, alpha = alpha
-              )
-
-            # add the stats to the list
-            post.stats[[p]] <-
-              dif_post.tmp$dif_stat %>%
-              dplyr::mutate(group.pair = group.pair) %>%
-              dplyr::relocate("group.pair", .after = "id")
-          }
-
-          # re-organize the stat list
-          post_df_pury[[i]] <-
-            purrr::map_df(.x = post.stats, ~ {
-              .x
-            }) %>%
-            dplyr::mutate(n_iter = i - 1)
-        }
-
-        # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
-
-        # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
-
-        # if min.resp is not NULL, find the examinees who have the number of responses
-        # less than specified value (e.g., 5). Then, replace their all responses with NA
-        if (!is.null(min.resp)) {
-          n_resp <- Rfast::rowsums(!is.na(data_puri))
-          loc_less <- which(n_resp < min.resp & n_resp > 0)
-          data_puri[loc_less, ] <- NA
-        }
-
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range, norm.prior = norm.prior,
-          nquad = nquad, weights = weights, ncore = ncore, ...
-        )$est.theta
-
-        # do DIF analysis using the updated ability estimates
-        dif_rst_tmp <- grdif_one(
-          x = x_puri, data = data_puri, score = score_puri, group = group,
-          focal.name = focal.name, D = D, alpha = alpha
-        )
-
-        # extract the first DIF analysis results
-        # and check if at least one DIF item is detected
-        dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
-        dif_stat_tmp <- dif_rst_tmp$dif_stat
-        mmt_df_tmp <-
-          list(
-            mu = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$mu, stringsAsFactors = FALSE),
-            var = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$var, stringsAsFactors = FALSE),
-            covariance = data.frame(id = dif_rst_tmp$dif_stat$id, dif_rst_tmp$moments$covariance, stringsAsFactors = FALSE)
-          )
-
-        # check if a further DIF item is flagged
-        if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
-          # add the DIF statistics for rest of items
-          dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp
-          dif_stat[item_num, ncol.stat] <- i
-          mmt_df$mu[item_num, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu
-          mmt_df$var[item_num, 1:(ncol.var - 1)] <- mmt_df_tmp$var
-          mmt_df$covariance[item_num, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance
-          mmt_df$mu[item_num, ncol.mu] <- i
-          mmt_df$var[item_num, ncol.var] <- i
-          mmt_df$covariance[item_num, ncol.covar] <- i
-
-          break
-        }
-      }
-
-      # print a message
-      if (verbose) {
-        cat("", "\n")
-      }
-
-      # record the actual number of iteration
-      n_iter <- i
-
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
-        complete <- FALSE
-
-        # add flagged DIF item at the last iteration
-        dif_item <- c(dif_item, item_num[dif_item_tmp])
-
-        # add the DIF statistics for rest of items
-        dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp
-        dif_stat[item_num, ncol.stat] <- i
-        mmt_df$mu[item_num, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu
-        mmt_df$var[item_num, 1:(ncol.var - 1)] <- mmt_df_tmp$var
-        mmt_df$covariance[item_num, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance
-        mmt_df$mu[item_num, ncol.mu] <- i
-        mmt_df$var[item_num, ncol.var] <- i
-        mmt_df$covariance[item_num, ncol.covar] <- i
-      } else {
-        complete <- TRUE
-
-        # print a message
-        if (verbose) {
-          cat("Purification is finished.", "\n")
-        }
-      }
-
-      # record the final DIF detection results with the purification procedure
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- dif_stat
-      with_purify$moments <- mmt_df
-      with_purify$dif_item <- sort(dif_item)
-      with_purify$n.iter <- n_iter
-      with_purify$score <- score_puri
-      with_purify$complete <- complete
-      if (post.hoc) {
-        with_purify$post.hoc <-
-          post_df_pury %>%
-          dplyr::bind_rows()
-      }
-    } else {
-      # in case when no DIF item is detected from the first DIF analysis results
-      with_purify$purify.by <- purify.by
-      with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
-      with_purify$moments <-
-        purrr::map(.x = no_purify$moments, ~ {
-          cbind(.x, n.iter = 0)
-        })
-      with_purify$n.iter <- 0
-      with_purify$complete <- TRUE
-    }
-  }
-
-
-  # post-hoc DIF analysis for the non-purified DIF analysis results
-  if (post.hoc) {
-    # select the flagged items for the post-hoc DIF analyses
-    item4post <- no_purify$dif_item
-
-    for (i in 1:3) {
-      if (length(item4post[[i]]) != 0) {
-        # item metadata for the flagged items
-        x_post <- x[item4post[[i]], ]
-
-        # find all pairs of the groups
-        pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-        # post-hoc DIF analyses
-        post.stats <- list()
-        for (p in 1:length(pair.g)) {
-          # p <- 1
-          # select a pair of two groups
-          pair.tmp <- pair.g[[p]]
-          group.pair <- paste(pair.tmp, collapse = " & ")
-
-          # find the location of examinees for the two compared groups
-          loc_g1 <- which(group == pair.tmp[1])
-          loc_g2 <- which(group == pair.tmp[2])
-          loc.tmp <- c(loc_g1, loc_g2)
-          focal.name.tmp <- pair.tmp[2]
-
-          # select the group variables for the two groups
-          group.tmp <- group[loc.tmp]
-
-          # select the response data for the two groups
-          data.tmp <- data[c(loc_g1, loc_g2), item4post[[i]], drop = FALSE]
-
-          # select the thetas for the two groups
-          score.tmp <- score[c(loc_g1, loc_g2)]
-
-          # DIF analysis
-          dif_post.tmp <-
-            rdif_one(
-              x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-              focal.name = focal.name.tmp, D = D, alpha = alpha
-            )
-
-          # add the stats to the list
-          post.stats[[p]] <-
-            dif_post.tmp$dif_stat %>%
-            dplyr::mutate(group.pair = group.pair) %>%
-            dplyr::relocate("group.pair", .after = "id")
-        }
-
-        # re-organize the stat list
-        post_df_nopury <-
-          purrr::map(
-            .x = 1:length(item4post[[i]]),
-            .f = function(i) {
-              purrr::map_df(.x = post.stats, ~ {
-                .x[i, ]
-              })
-            }
-          ) %>%
-          dplyr::bind_rows()
-        no_purify$post.hoc[[i]] <- post_df_nopury
-      }
-    }
-  }
-
-  # summarize the results
-  rst <- list(no_purify = no_purify, purify = purify, with_purify = with_purify, alpha = alpha)
 
   # return the DIF detection results
-  class(rst) <- "grdif"
   rst$call <- cl
   rst
 }
@@ -1283,11 +450,27 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
   # match.call
   cl <- match.call()
 
-  # extract information from an object
-  data <- x$data
-  score <- x$score
-  D <- x$scale.D
-  x <- x$par.est
+  # conduct the DIF analysis with the data, ability estimates, scaling constant, and items of the object
+  rst <- grdif_main(
+    x = x$par.est, data = x$data, score = x$score, group = group, focal.name = focal.name,
+    D = x$scale.D, alpha = alpha, missing = missing, purify = purify, purify.by = purify.by,
+    max.iter = max.iter, min.resp = min.resp, post.hoc = post.hoc, method = method,
+    range = range, norm.prior = norm.prior, nquad = nquad, weights = weights,
+    ncore = ncore, verbose = verbose, ...
+  )
+
+  # return the DIF detection results
+  rst$call <- cl
+  rst
+}
+
+
+# This function conducts the GRDIF analysis shared by the methods of grdif(): it prepares the
+# data and ability estimates, runs the analysis once, applies the purification procedure, and
+# conducts the post-hoc pairwise RDIF analyses
+grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, purify, purify.by,
+                       max.iter, min.resp, post.hoc, method, range, norm.prior, nquad, weights,
+                       ncore, verbose, ...) {
 
   ## ----------------------------------
   ## (1) prepare DIF analysis
@@ -1303,8 +486,11 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
     data[data == missing] <- NA
   }
 
+  # record whether the ability estimates are supplied
+  score_given <- !is.null(score)
+
   # compute the score if score = NULL
-  if (!is.null(score)) {
+  if (score_given) {
     # transform scores to a vector form
     if (is.matrix(score) | is.data.frame(score)) {
       score <- as.numeric(data.matrix(score))
@@ -1356,7 +542,7 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
   # when purification is used
   if (purify) {
     # verify the criterion for purification
-    purify.by <- match.arg(purify.by)
+    purify.by <- match.arg(purify.by, c("grdifrs", "grdifr", "grdifs"))
 
     # create an empty vector and empty data frames
     # to contain the detected DIF items, statistics, and moments
@@ -1411,7 +597,7 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
     dif_stat_tmp <- dif_rst$dif_stat
     mmt_df_tmp <- no_purify$moments
 
-    # copy the response data and item meta data
+    # copy the response data, item meta data, and ability estimates
     x_puri <- x
     data_puri <- data
     score_puri <- score
@@ -1445,9 +631,9 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
         # find the flagged item with the largest value of the purify.by statistic
         flag_max <-
           switch(purify.by,
-            grdifr = which.max(dif_stat_tmp$grdifr),
-            grdifs = which.max(dif_stat_tmp$grdifs),
-            grdifrs = which.max(dif_stat_tmp$grdifrs)
+                 grdifr = which.max(dif_stat_tmp$grdifr),
+                 grdifs = which.max(dif_stat_tmp$grdifs),
+                 grdifrs = which.max(dif_stat_tmp$grdifrs)
           )
 
         # check an item that is deleted
@@ -1466,59 +652,23 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
         mmt_df$var[del_item, ncol.var] <- i - 1
         mmt_df$covariance[del_item, ncol.covar] <- i - 1
 
+        # find the examinees who responded to the item to be deleted
+        loc_resp <- which(!is.na(data_puri[, flag_max]))
+
         # refine the leftover items
         item_num <- item_num[-flag_max]
 
-        # post-hoc DIF analysis one flagged item by one flagged item
+        # post-hoc DIF analysis of the item to be deleted
         if (post.hoc) {
-          # select the flagged items for the post-hoc DIF analyses
-          item4post <- flag_max
-
-          # item metadata for the flagged items
-          x_post <- x_puri[flag_max, ]
-
-          # find all pairs of the groups
-          pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-          # post-hoc DIF analyses
-          post.stats <- list()
-          for (p in 1:length(pair.g)) {
-            # select a pair of two groups
-            pair.tmp <- pair.g[[p]]
-            group.pair <- paste(pair.tmp, collapse = " & ")
-
-            # find the location of examinees for the two compared groups
-            loc_g1 <- which(group == pair.tmp[1])
-            loc_g2 <- which(group == pair.tmp[2])
-            loc.tmp <- c(loc_g1, loc_g2)
-            focal.name.tmp <- pair.tmp[2]
-
-            # select the group variables for the two groups
-            group.tmp <- group[loc.tmp]
-
-            # select the response data for the two groups
-            data.tmp <- data_puri[c(loc_g1, loc_g2), item4post, drop = FALSE]
-
-            # select the thetas for the two groups
-            score.tmp <- score_puri[c(loc_g1, loc_g2)]
-
-            # DIF analysis
-            dif_post.tmp <-
-              rdif_one(
-                x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-                focal.name = focal.name.tmp, D = D, alpha = alpha
-              )
-
-            # add the stats to the list
-            post.stats[[p]] <-
-              dif_post.tmp$dif_stat %>%
-              dplyr::mutate(group.pair = group.pair) %>%
-              dplyr::relocate("group.pair", .after = "id")
-          }
+          # post-hoc DIF analyses for all pairs of the groups
+          post_rst <- grdif_posthoc(
+            x = x_puri[flag_max, ], data = data_puri[, flag_max, drop = FALSE],
+            score = score_puri, group = group, D = D, alpha = alpha
+          )
 
           # re-organize the stat list
           post_df_pury[[i]] <-
-            purrr::map_df(.x = post.stats, ~ {
+            purrr::map_df(.x = post_rst, ~ {
               .x
             }) %>%
             dplyr::mutate(n_iter = i - 1)
@@ -1538,11 +688,15 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
           data_puri[loc_less, ] <- NA
         }
 
-        # compute the updated ability estimates after deleting the detected DIF item data
-        score_puri <- est_score(
-          x = x_puri, data = data_puri, D = D, method = method, range = range, norm.prior = norm.prior,
-          nquad = nquad, weights = weights, ncore = ncore, ...
-        )$est.theta
+        # compute the updated ability estimates after deleting the detected DIF item data;
+        # only the examinees who responded to the deleted item are rescored after the first iteration
+        score_puri <-
+          dif_rescore(
+            x = x_puri, data = data_puri, score = score_puri, loc_resp = loc_resp,
+            first = (i == 1L), D = D, method = method, range = range,
+            norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+            quiet_na = TRUE, quiet_ncore = (i > 1L || !score_given), ...
+          )
 
         # do DIF analysis using the updated ability estimates
         dif_rst_tmp <- grdif_one(
@@ -1563,9 +717,6 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
 
         # check if a further DIF item is flagged
         if (is.null(dif_item_tmp)) {
-          # add no additional DIF item
-          dif_item <- dif_item
-
           # add the DIF statistics for rest of items
           dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp
           dif_stat[item_num, ncol.stat] <- i
@@ -1649,56 +800,19 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
 
     for (i in 1:3) {
       if (length(item4post[[i]]) != 0) {
-        # item metadata for the flagged items
-        x_post <- x[item4post[[i]], ]
-
-        # find all pairs of the groups
-        pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-
-        # post-hoc DIF analyses
-        post.stats <- list()
-        for (p in 1:length(pair.g)) {
-          # p <- 1
-          # select a pair of two groups
-          pair.tmp <- pair.g[[p]]
-          group.pair <- paste(pair.tmp, collapse = " & ")
-
-          # find the location of examinees for the two compared groups
-          loc_g1 <- which(group == pair.tmp[1])
-          loc_g2 <- which(group == pair.tmp[2])
-          loc.tmp <- c(loc_g1, loc_g2)
-          focal.name.tmp <- pair.tmp[2]
-
-          # select the group variables for the two groups
-          group.tmp <- group[loc.tmp]
-
-          # select the response data for the two groups
-          data.tmp <- data[c(loc_g1, loc_g2), item4post[[i]], drop = FALSE]
-
-          # select the thetas for the two groups
-          score.tmp <- score[c(loc_g1, loc_g2)]
-
-          # DIF analysis
-          dif_post.tmp <-
-            rdif_one(
-              x = x_post, data = data.tmp, score = score.tmp, group = group.tmp,
-              focal.name = focal.name.tmp, D = D, alpha = alpha
-            )
-
-          # add the stats to the list
-          post.stats[[p]] <-
-            dif_post.tmp$dif_stat %>%
-            dplyr::mutate(group.pair = group.pair) %>%
-            dplyr::relocate("group.pair", .after = "id")
-        }
+        # post-hoc DIF analyses for all pairs of the groups
+        post_rst <- grdif_posthoc(
+          x = x[item4post[[i]], ], data = data[, item4post[[i]], drop = FALSE],
+          score = score, group = group, D = D, alpha = alpha
+        )
 
         # re-organize the stat list
         post_df_nopury <-
           purrr::map(
             .x = 1:length(item4post[[i]]),
-            .f = function(i) {
-              purrr::map_df(.x = post.stats, ~ {
-                .x[i, ]
+            .f = function(j) {
+              purrr::map_df(.x = post_rst, ~ {
+                .x[j, ]
               })
             }
           ) %>%
@@ -1713,8 +827,44 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
 
   # return the DIF detection results
   class(rst) <- "grdif"
-  rst$call <- cl
   rst
+}
+
+
+# This function conducts the post-hoc RDIF analyses of the given items for all pairs of the groups;
+# the group that comes later in the sorted order is the focal group of a pair
+grdif_posthoc <- function(x, data, score, group, D, alpha) {
+  # find all pairs of the groups
+  pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
+
+  # post-hoc DIF analyses
+  post.stats <- list()
+  for (p in 1:length(pair.g)) {
+    # select a pair of two groups
+    pair.tmp <- pair.g[[p]]
+    group.pair <- paste(pair.tmp, collapse = " & ")
+
+    # find the location of examinees for the two compared groups
+    loc_g1 <- which(group == pair.tmp[1])
+    loc_g2 <- which(group == pair.tmp[2])
+    loc.tmp <- c(loc_g1, loc_g2)
+
+    # DIF analysis of the two groups
+    dif_post.tmp <-
+      rdif_one(
+        x = x, data = data[loc.tmp, , drop = FALSE], score = score[loc.tmp],
+        group = group[loc.tmp], focal.name = pair.tmp[2], D = D, alpha = alpha
+      )
+
+    # add the stats to the list
+    post.stats[[p]] <-
+      dif_post.tmp$dif_stat %>%
+      dplyr::mutate(group.pair = group.pair) %>%
+      dplyr::relocate("group.pair", .after = "id")
+  }
+
+  # return the results
+  post.stats
 }
 
 
@@ -1768,19 +918,17 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
     score[.x]
   })
 
-  # compute the model-expected item scores (for a dichotomous item, the probability of a correct response)
-  extscore_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = TRUE)$icc
-  extscore_foc <-
+  # compute the model-expected item scores (for a dichotomous item, the probability of a correct
+  # response) and the model probabilities of score categories
+  trace_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = TRUE)
+  trace_foc <-
     purrr::map(.x = score_foc, ~ {
-      trace(elm_item = elm_item, theta = .x, D = D, tcc = TRUE)$icc
+      trace(elm_item = elm_item, theta = .x, D = D, tcc = TRUE)
     })
-
-  # compute the model probability of score categories
-  prob_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = FALSE)$prob.cats
-  prob_foc <-
-    purrr::map(.x = score_foc, ~ {
-      trace(elm_item = elm_item, theta = .x, D = D, tcc = FALSE)$prob.cats
-    })
+  extscore_ref <- trace_ref$icc
+  extscore_foc <- purrr::map(.x = trace_foc, "icc")
+  prob_ref <- trace_ref$prob.cats
+  prob_foc <- purrr::map(.x = trace_foc, "prob.cats")
 
   # replace NA values into the missing data location
   extscore_ref[is.na(resp_ref)] <- NA
