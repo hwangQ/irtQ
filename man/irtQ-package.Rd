@@ -632,9 +632,10 @@ Measurement, 47}(1), 1-17. \doi{10.1111/j.1745-3984.2009.00096.x}.
 Li, H.-H., & Stout, W. (1996). A new procedure for detection of crossing
 DIF. \emph{Psychometrika, 61}(4), 647-677. \doi{10.1007/BF02294041}.
 
-Li, Y., & Lissitz, R. (2004). Applications of the analytically derived
-asymptotic standard errors of item response theory item parameter
+Li, Y. H., & Lissitz, R. W. (2004). Applications of the analytically
+derived asymptotic standard errors of item response theory item parameter
 estimates. \emph{Journal of Educational Measurement, 41}(2), 85-117.
+\doi{10.1111/j.1745-3984.2004.tb01109.x}.
 
 Lim, H., & Choe, E. M. (2023). Detecting differential item functioning in
 CAT using IRT residual DIF approach. \emph{Journal of Educational Measurement,
@@ -760,7 +761,7 @@ responses. \emph{Applied Psychological Measurement, 19}(1), 39-49.
 \doi{10.1177/014662169501900105}.
 
 Thissen, D., & Wainer, H. (1982). Some standard errors in item response
-theory. \emph{Psychometrika, 47}, 397-412.
+theory. \emph{Psychometrika, 47}(4), 397-412. \doi{10.1007/BF02293705}.
 
 Veerkamp, W. J. J., & Glas, C. A. W. (2000). Detection of known items in
 adaptive testing with a statistical quality control method. \emph{Journal of

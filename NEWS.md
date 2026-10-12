@@ -403,6 +403,24 @@
   the convergence tolerance. The Hessian is now correct, and results for
   `D = 1` are unchanged.
 
+- `covirt()` underestimated the standard errors of polytomous items by
+  about 10 to 25 percent, because it computed their information with
+  Equation A8 of Li and Lissitz (2004), which treats the category
+  indicators of a response as independent Bernoulli variables. It now
+  uses the information of the multinomial response, whose standard
+  errors agreed with the empirical standard deviations of the estimates
+  in a simulation; see Details of `covirt()`. The results for
+  dichotomous items do not change.
+
+- `covirt()` stopped with an error for a GRM or GPCM item with two score
+  categories. Such an item is now treated as a 2PLM item, and as a 1PLM
+  item with a fixed slope when it is listed in `pcm.loc`.
+
+- `covirt()` printed a message instead of issuing a warning when the
+  information matrix of an item was singular, and the matrix and the
+  vector of standard errors filled with `NA` had no names. It now issues
+  a warning, and the `NA` values carry the parameter names.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When
