@@ -25,7 +25,7 @@ grdif(x, ...)
   min.resp = NULL,
   post.hoc = TRUE,
   method = "ML",
-  range = c(-4, 4),
+  range = c(-5, 5),
   norm.prior = c(0, 1),
   nquad = 41,
   weights = NULL,
@@ -47,7 +47,7 @@ grdif(x, ...)
   min.resp = NULL,
   post.hoc = TRUE,
   method = "ML",
-  range = c(-4, 4),
+  range = c(-5, 5),
   norm.prior = c(0, 1),
   nquad = 41,
   weights = NULL,
@@ -68,7 +68,7 @@ grdif(x, ...)
   min.resp = NULL,
   post.hoc = TRUE,
   method = "ML",
-  range = c(-4, 4),
+  range = c(-5, 5),
   norm.prior = c(0, 1),
   nquad = 41,
   weights = NULL,
@@ -180,7 +180,7 @@ pattern. Default is \code{"ML"}.}
 \item{range}{A numeric vector of length two specifying the lower and upper
 bounds of the ability scale used when abilities are estimated internally
 with the scoring methods \code{"ML"}, \code{"MLF"}, \code{"WL"}, and \code{"MAP"}. Default is
-\code{c(-4, 4)}.}
+\code{c(-5, 5)}, the default of the other DIF functions.}
 
 \item{norm.prior}{A numeric vector of length two specifying the mean and
 standard deviation of the normal prior distribution. These values are used

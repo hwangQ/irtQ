@@ -352,6 +352,12 @@ knitr::opts_chunk$set(
   integer 0 when no item is flagged in the initial analysis.
 
 ## Changes in Behavior
+* The default of `range` in `grdif()` is `c(-5, 5)`, as in `rdif()`, `crdif()`,
+  `ripd()`, `catsib()`, and `est_score()`, instead of `c(-4, 4)`. The ability
+  estimates of the examinees whose ML estimates reach a limit of the range
+  (for example, all responses correct or all wrong) change, and so do the
+  results that depend on them.
+
 * `grdif()` supports dichotomous items only and stops with an error when `x`
   includes a polytomous item, because the GRDIF framework has been evaluated
   for dichotomous items (Lim et al., 2024). Before, polytomous items were

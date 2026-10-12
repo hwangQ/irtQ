@@ -64,7 +64,7 @@
 #' @param range A numeric vector of length two specifying the lower and upper
 #'   bounds of the ability scale used when abilities are estimated internally
 #'   with the scoring methods `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`. Default is
-#'   `c(-4, 4)`.
+#'   `c(-5, 5)`, the default of the other DIF functions.
 #'
 #' @details The GRDIF framework (Lim et al., 2024) generalizes the RDIF
 #'   framework (Lim & Choe, 2023; Lim et al., 2022) to more than two groups. For
@@ -438,7 +438,7 @@ grdif.default <- function(x,
                           min.resp = NULL,
                           post.hoc = TRUE,
                           method = "ML",
-                          range = c(-4, 4),
+                          range = c(-5, 5),
                           norm.prior = c(0, 1),
                           nquad = 41,
                           weights = NULL,
@@ -470,7 +470,7 @@ grdif.default <- function(x,
 #'
 grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, missing = NA, purify = FALSE,
                           purify.by = c("grdifrs", "grdifr", "grdifs"), max.iter = 10, min.resp = NULL, post.hoc = TRUE,
-                          method = "ML", range = c(-4, 4), norm.prior = c(0, 1), nquad = 41, weights = NULL, ncore = 1,
+                          method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41, weights = NULL, ncore = 1,
                           verbose = TRUE, ...) {
   # match.call
   cl <- match.call()
@@ -501,7 +501,7 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
 #'
 grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, purify = FALSE,
                            purify.by = c("grdifrs", "grdifr", "grdifs"), max.iter = 10, min.resp = NULL, post.hoc = TRUE,
-                           method = "ML", range = c(-4, 4), norm.prior = c(0, 1), nquad = 41, weights = NULL, ncore = 1,
+                           method = "ML", range = c(-5, 5), norm.prior = c(0, 1), nquad = 41, weights = NULL, ncore = 1,
                            verbose = TRUE, ...) {
   # match.call
   cl <- match.call()

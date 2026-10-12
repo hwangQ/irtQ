@@ -331,7 +331,7 @@ test_that("grdif() purification removes the flagged item with the smallest p-val
 
   # the final scores are those of the items that were not flagged
   keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$dif_item)
-  sc <- est_score(trim_par_cols(sim$x[keep, ]), sim$resp[, keep], D = 1, range = c(-4, 4))$est.theta
+  sc <- est_score(trim_par_cols(sim$x[keep, ]), sim$resp[, keep], D = 1, range = c(-5, 5))$est.theta
   expect_equal(rst$with_purify$score, sc)
   expect_type(rst$with_purify$n.iter, "integer")
 })
