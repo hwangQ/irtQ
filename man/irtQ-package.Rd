@@ -659,6 +659,7 @@ International Meeting of the Psychometric Society, Prague, Czech Republic.
 Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting differential
 item functioning among multiple groups using IRT residual DIF framework.
 \emph{Journal of Educational Measurement, 61}(4), 656-681.
+\doi{10.1111/jedm.12415}.
 
 Lord, F. M. (1980). Applications of item response theory to practical
 testing problems. Lawrence Erlbaum Associates.

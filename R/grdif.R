@@ -4,178 +4,259 @@
 #' This function computes three GRDIF statistics, \eqn{GRDIF_{R}},
 #' \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}, for analyzing differential item
 #' functioning (DIF) among multiple groups (Lim et al., 2024). They are
-#' specialized to capture uniform DIF, nonuniform DIF, and mixed DIF,
+#' designed mainly to detect uniform DIF, nonuniform DIF, and mixed DIF,
 #' respectively.
 #'
 #' @inheritParams rdif
-#' @param score A numeric vector containing examinees' ability estimates (theta
-#'   values). If not provided, [irtQ::grdif()] will estimate ability parameters
-#'   internally before computing the GRDIF statistics. See [irtQ::est_score()]
-#'   for more information on scoring methods. Default is `NULL`.
-#' @param focal.name A numeric or character vector specifying the levels
-#'   associated with the focal groups. For example, consider `group = c(0, 0, 1,
-#'   2, 2, 3, 3)`, where '1', '2', and '3' indicate three distinct focal groups
-#'   and '0' represents the reference group. In this case, set `focal.name =
-#'   c(1, 2, 3)`.
+#' @param score A numeric vector of examinees' ability estimates (theta values),
+#'   in the same row order as `data`. The estimates should be based on the item
+#'   parameters in `x` (see **Details**). If `NULL`, abilities are estimated
+#'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
+#'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
+#'   re-estimated internally at every purification iteration, so a supplied
+#'   `score` is used only in the initial analysis. The `est_item` method has no
+#'   `score` argument; it uses the abilities stored in the object. Default is
+#'   `NULL`.
+#' @param focal.name A numeric or character vector of the values in `group` that
+#'   identify the focal groups, with at least one value. For example, given
+#'   `group = c(0, 0, 1, 2, 2, 3, 3)`, where '0' indicates the reference group
+#'   and '1', '2', and '3' indicate three focal groups, set `focal.name = c(1,
+#'   2, 3)`. The order of `focal.name` determines the order of the focal groups
+#'   in the results (for example, the columns `n.foc1`, `n.foc2`, and `n.foc3`);
+#'   the GRDIF statistics do not depend on it. All examinees whose group value
+#'   is not in `focal.name` form the reference group (see **Details**).
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
-#'   for hypothesis testing using the GRDIF statistics. Default is `0.05`.
+#'   of the tests. An item is flagged by a statistic when its p-value is less
+#'   than or equal to `alpha`. The same level is used in the post-hoc pairwise
+#'   analyses, without an adjustment for multiple comparisons. Default is
+#'   `0.05`.
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
-#' @param purify.by A character string specifying which GRDIF statistic is used
-#'   to perform the purification. Available options are "grdifrs" for
-#'   \eqn{GRDIF_{RS}}, "grdifr" for \eqn{GRDIF_{R}}, and "grdifs" for
-#'   \eqn{GRDIF_{S}}.
-#' @param post.hoc A logical value indicating whether to perform post-hoc RDIF
-#'   analyses for all possible pairwise group comparisons on items flagged as
-#'   statistically significant. Default is TRUE. See details below.
-#' @param ... Additional arguments passed to the [irtQ::est_score()] function.
+#' @param purify.by A character string specifying the GRDIF statistic used for
+#'   purification: "grdifrs" for \eqn{GRDIF_{RS}}, "grdifr" for
+#'   \eqn{GRDIF_{R}}, or "grdifs" for \eqn{GRDIF_{S}}. Used only when `purify =
+#'   TRUE`. Default is `"grdifrs"`.
+#' @param post.hoc Logical. If `TRUE`, post-hoc pairwise RDIF analyses are
+#'   performed, for every pair of groups, on the items flagged by each GRDIF
+#'   statistic. The p-values of the post-hoc analyses are not adjusted for
+#'   multiple comparisons. See **Details**. Default is `TRUE`.
+#' @param range A numeric vector of length two specifying the lower and upper
+#'   bounds of the ability scale used when abilities are estimated internally
+#'   with the scoring methods `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`. Default is
+#'   `c(-4, 4)`.
 #'
-#' @details
-#' The GRDIF framework (Lim et al., 2024) is a generalized version of the RDIF
-#' detection framework, designed to assess DIF across multiple groups. The
-#' framework includes three statistics: \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and
-#' \eqn{GRDIF_{RS}}, which are tailored to detect uniform, nonuniform, and mixed
-#' DIF, respectively. Under the null hypothesis that the test contains no DIF
-#' items, the statistics \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}
-#' asymptotically follow \eqn{\chi^{2}} distributions with G-1, G-1, and 2(G-1)
-#' degrees of freedom, respectively, where *G* represents the number of
-#' groups being compared. For more information on the GRDIF framework, see
-#' Lim et al. (2024).
+#' @details The GRDIF framework (Lim et al., 2024) generalizes the RDIF
+#'   framework (Lim & Choe, 2023; Lim et al., 2022) to more than two groups. For
+#'   each item and group, the mean raw residual (MRR) and the mean squared
+#'   residual (MSR) are computed, where a residual is the observed item score
+#'   minus the model-expected item score evaluated at the examinee's ability
+#'   estimate. Under the null hypothesis that the item has no DIF between any
+#'   pair of groups, the MRRs and MSRs asymptotically follow normal
+#'   distributions whose means, variances, and covariances are computed
+#'   analytically from the model-predicted probabilities (Lim et al., 2024,
+#'   Equations 2 to 6). \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}
+#'   are quadratic forms of the contrasts between the focal groups and the
+#'   reference group of the MRRs, of the MSRs, and of both, centered at their
+#'   null means, in the inverse of their null covariance matrices (Lim et al.,
+#'   2024, Equation 10). Under the null hypothesis, they asymptotically follow
+#'   \eqn{\chi^{2}} distributions with G-1, G-1, and 2(G-1) degrees of freedom,
+#'   respectively, where G is the number of groups. The statistics do not depend
+#'   on which group is the reference group. For two groups, \eqn{GRDIF_{R}} and
+#'   \eqn{GRDIF_{S}} equal the squares of the standardized \eqn{RDIF_{R}} and
+#'   \eqn{RDIF_{S}} statistics of [irtQ::rdif()], \eqn{GRDIF_{RS}} equals
+#'   \eqn{RDIF_{RS}}, and the p-values are the same.
 #'
-#' The [irtQ::grdif()] function computes all three GRDIF statistics:
-#' \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}. It supports both
-#' dichotomous and polytomous item response data. To compute these statistics,
-#' [irtQ::grdif()] requires: (1) item parameter estimates obtained from aggregate data
-#' (regardless of group membership); (2) examinees' ability estimates (e.g., ML);
-#' and (3) their item response data. Note that ability estimates must be computed
-#' using the item parameters estimated from the aggregate data. The item parameters
-#' should be provided via the `x` argument, the ability estimates via the `score`
-#' argument, and the response data via the `data` argument. If ability estimates
-#' are not supplied (`score = NULL`), [irtQ::grdif()] automatically computes them
-#' using the scoring method specified in the `method` argument (e.g., `method = "ML"`).
+#'   [irtQ::grdif()] accepts both dichotomous and polytomous items. For a
+#'   polytomous item, the residual is the observed item score minus the
+#'   model-expected item score, and the null moments are computed from the
+#'   model-predicted category probabilities in the same way, so the statistics
+#'   assess net DIF as in [irtQ::rdif()]. Lim et al. (2024) developed and
+#'   evaluated the GRDIF framework for dichotomous items.
 #'
-#' The `group` argument accepts a vector of numeric or character values,
-#' indicating the group membership of examinees. The vector may contain multiple
-#' distinct values, where one represents the reference group and the others
-#' represent focal groups. Its length must match the number of rows in the
-#' response data, with each value corresponding to an examinee's group
-#' membership. Once `group` is specified, a numeric or character vector must be
-#' supplied via the `focal.name` argument to define which group(s) in `group`
-#' represent the focal groups. The reference group is defined as the group not
-#' included in `focal.name`.
+#'   To compute the GRDIF statistics, [irtQ::grdif()] requires: (1) item
+#'   parameter estimates obtained from aggregate data (regardless of group
+#'   membership), (2) examinees' ability estimates (e.g., ML), and (3) examinees'
+#'   item response data. Note that the ability estimates must be based on the
+#'   aggregate-data item parameters. The item parameter estimates should be
+#'   provided in the `x` argument, the ability estimates in the `score`
+#'   argument, and the response data in the `data` argument. If ability
+#'   estimates are not provided (i.e., `score = NULL`), [irtQ::grdif()] estimates
+#'   them with the scoring method specified in the `method` argument (e.g.,
+#'   `method = "ML"`). When `x` is an object of class `est_irt`, the item
+#'   parameter estimates, the response data, and the scaling constant `D` are
+#'   taken from the object. When `x` is an object of class `est_item`, the
+#'   ability values stored in the object are also used as `score`.
 #'
-#' Similar to the original RDIF framework for two-group comparisons, the GRDIF
-#' framework supports an iterative purification process. When `purify = TRUE`,
-#' purification is conducted based on the GRDIF statistic specified in the
-#' `purify.by` argument (e.g., `purify.by = "grdifrs"`). During each iteration,
-#' examinees' latent abilities are re-estimated using only the purified items,
-#' with the scoring method determined by the `method` argument. The process
-#' continues until no additional DIF items are flagged or until the number of
-#' iterations reaches the specified `max.iter` limit. For details on the
-#' purification procedure, see Lim et al. (2022).
+#'   The `group` argument accepts a vector of numeric or character values,
+#'   indicating the group membership of examinees. The vector may contain
+#'   multiple distinct values, where one represents the reference group and the
+#'   others represent focal groups. Its length must match the number of rows in
+#'   the response data, with each value corresponding to an examinee's group
+#'   membership. Once `group` is specified, a numeric or character vector must be
+#'   supplied via the `focal.name` argument to define which group(s) in `group`
+#'   represent the focal groups. The reference group is defined as the group not
+#'   included in `focal.name`.
 #'
-#' Scoring based on a limited number of items can lead to large standard errors,
-#' which may compromise the effectiveness of DIF detection within the GRDIF
-#' framework. The `min.resp` argument can be used to exclude ability estimates
-#' with substantial standard errors, especially during the purification process.
-#' For example, if `min.resp` is not NULL (e.g., `min.resp = 5`), examinees whose
-#' total number of responses falls below the specified threshold will have their
-#' responses treated as missing values (i.e., NA). Consequently, their ability
-#' estimates will also be missing and will not be used when computing the GRDIF
-#' statistics. If `min.resp = NULL`, an examinee's score will be computed as long
-#' as at least one response is available.
+#'   As in the RDIF framework, an iterative purification procedure can be applied
+#'   (Lim et al., 2022, 2024). When `purify = TRUE`, the statistic specified in
+#'   `purify.by` drives the procedure (e.g., `purify.by = "grdifrs"`). At each
+#'   iteration, the flagged item with the largest value of the `purify.by`
+#'   statistic is removed, the abilities are re-estimated from the remaining
+#'   items with the scoring method specified in `method`, and the GRDIF
+#'   statistics of the remaining items are recomputed. A supplied `score` is
+#'   therefore used only in the initial analysis. The procedure stops when no
+#'   remaining item is flagged or when `max.iter` iterations have been
+#'   performed. If no item is flagged in the initial analysis, no iteration is
+#'   performed.
 #'
-#' The `post.hoc` argument enables post-hoc RDIF analyses across all possible
-#' pairwise group comparisons for items flagged as statistically significant.
-#' For instance, consider four groups of examinees: A, B, C, and D. If
-#' `post.hoc = TRUE`, the [irtQ::grdif()] function will perform pairwise RDIF analyses
-#' for each flagged item across all group pairs (A-B, A-C, A-D, B-C, B-D, and C-D).
-#' This provides a more detailed understanding of which specific group pairs
-#' exhibit DIF. Note that when purification is enabled (i.e., `purify = TRUE`),
-#' post-hoc RDIF analyses are conducted for each flagged item at each iteration
-#' of the purification process.
+#'   Scoring based on a limited number of items can lead to large standard
+#'   errors, which may compromise the effectiveness of DIF detection within the
+#'   GRDIF framework. The `min.resp` argument can be used to exclude ability
+#'   estimates with substantial standard errors, especially during the
+#'   purification process. For example, if `min.resp` is not `NULL` (e.g.,
+#'   `min.resp = 5`), examinees whose total number of responses falls below the
+#'   specified threshold will have their responses treated as missing values
+#'   (i.e., `NA`). Consequently, their ability estimates will also be missing and
+#'   will not be used when computing the GRDIF statistics. If `min.resp = NULL`,
+#'   an examinee's score will be computed as long as at least one response is
+#'   available.
 #'
-#' @return This function returns a list containing four main components:
+#'   The GRDIF statistics test only whether DIF is present between at least one
+#'   pair of groups (Lim et al., 2024). When `post.hoc = TRUE`, the three RDIF
+#'   statistics of [irtQ::rdif()] are computed for every pair of distinct values
+#'   in `group`, for each item flagged by \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, or
+#'   \eqn{GRDIF_{RS}}. For example, with four groups A, B, C, and D, the pairs
+#'   A-B, A-C, A-D, B-C, B-D, and C-D are compared. Each pairwise analysis uses
+#'   the responses of the examinees in the two groups, their ability estimates
+#'   from the GRDIF analysis, and the item parameters in `x`; the abilities are
+#'   not re-estimated for the pair. In a pair labeled "a & b" in the column
+#'   `group.pair`, the two values are sorted, and b is treated as the focal
+#'   group, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
+#'   b minus those of group a. The p-values are not adjusted for multiple
+#'   comparisons; to control the familywise error rate, compare them with a
+#'   corrected level, for example `alpha` divided by the number of pairs (a
+#'   Bonferroni correction). When `purify = TRUE`, the post-hoc results in
+#'   `with_purify` are computed for each item when it is removed during
+#'   purification, with the ability estimates of that iteration; the items added
+#'   to the flagged items because `max.iter` is reached are not analyzed.
+#'
+#' @return This function returns an object of class `"grdif"`, which is a list
+#' with the following five components:
 #'
 #' \item{no_purify}{A list of sub-objects presenting the results of DIF analysis
 #' without a purification procedure. These include:
 #'   \describe{
-#'     \item{dif_stat}{A data frame summarizing the results of the three GRDIF
-#'     statistics for all evaluated items. Columns include item ID,
-#'     \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}} statistics; their
-#'     corresponding p-values; the sample size of the reference group;
-#'     the sample sizes of the focal groups; and the total sample size.}
-#'     \item{moments}{A list of three data frames reporting the moments of
-#'     mean raw residuals (MRRs) and mean squared residuals (MSRs) across all
-#'     compared groups. The first contains means, the second variances, and
-#'     the third covariances of MRRs and MSRs.}
-#'     \item{dif_item}{A list of three numeric vectors indicating the items
-#'     flagged as potential DIF items by each of the GRDIF statistics
-#'     (\eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}).}
-#'     \item{score}{A numeric vector of ability estimates used to compute
-#'     the GRDIF statistics.}
-#'     \item{post.hoc}{A list of three data frames containing post-hoc RDIF
-#'     analysis results for all possible pairwise group comparisons. Each
-#'     data frame corresponds to the results for items flagged by
-#'     \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}, respectively.}
+#'     \item{dif_stat}{A data frame with one row per item and the columns `id`,
+#'     `grdifr`, `grdifs`, `grdifrs`, `p.grdifr`, `p.grdifs`, `p.grdifrs`,
+#'     `n.ref`, `n.foc1`, `n.foc2`, ..., and `n.total`: the item ID, the three
+#'     GRDIF statistics, their p-values, the numbers of examinees in the
+#'     reference group and in each focal group (in the order of `focal.name`)
+#'     who responded to the item, and their sum. Statistics and p-values are
+#'     rounded to four decimal places.}
+#'     \item{moments}{A list of three data frames, `mu`, `var`, and
+#'     `covariance`, with the null moments of the MRR and MSR of each group,
+#'     computed analytically under the null hypothesis of no DIF (Lim et al.,
+#'     2024, Equations 3 to 5). `mu` and `var` have the columns `id`, `mrr.ref`,
+#'     `msr.ref`, `mrr.foc1`, `msr.foc1`, and so on, with the null means and null
+#'     variances of the MRR and MSR of the reference group and of each focal
+#'     group. `covariance` has the columns `id`, `ref`, `foc1`, and so on, with
+#'     the null covariance between the MRR and MSR of each group.}
+#'     \item{dif_item}{A list with the elements `grdifr`, `grdifs`, and
+#'     `grdifrs`, each giving the positions (rows of `x`) of the items flagged by
+#'     the corresponding statistic, or `NULL` if no item is flagged.}
+#'     \item{score}{A numeric vector of the ability estimates used in the initial
+#'     analysis: the supplied `score`, or the internal estimates when
+#'     `score = NULL`.}
+#'     \item{post.hoc}{A list with the elements `by.grdifr`, `by.grdifs`, and
+#'     `by.grdifrs`. Each element is a data frame with the post-hoc results for
+#'     the items flagged by the corresponding GRDIF statistic, with one row per
+#'     item and pair of groups and the columns `id`, `group.pair`, `rdifr`,
+#'     `z.rdifr`, `rdifs`, `z.rdifs`, `rdifrs`, `p.rdifr`, `p.rdifs`, `p.rdifrs`,
+#'     `n.ref`, `n.foc`, and `n.total`, defined as in the `dif_stat` element of
+#'     [irtQ::rdif()]; `n.ref` and `n.foc` refer to the first and second groups
+#'     in `group.pair`. An element is `NULL` if no item is flagged by the
+#'     statistic or if `post.hoc = FALSE`.}
 #'   }
 #' }
 #'
-#' \item{purify}{A logical value indicating whether the purification process
-#' was applied.}
+#' \item{purify}{A logical value indicating whether purification was requested
+#' (the `purify` argument).}
 #'
-#' \item{with_purify}{A list of sub-objects presenting the results of DIF
-#' analysis with a purification procedure. These include:
+#' \item{with_purify}{A list with the results of the purification procedure. All
+#' elements are `NULL` when `purify = FALSE`. The elements are:
 #'   \describe{
-#'     \item{purify.by}{A character string indicating which GRDIF statistic
-#'      was used for purification: "grdifr", "grdifs", or "grdifrs",
-#'      corresponding to \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}},
-#'      respectively.}
-#'     \item{dif_stat}{A data frame summarizing the GRDIF results across
-#'     iterations. Columns include item ID, the three GRDIF statistics and
-#'     their p-values, sample size of the reference group, sample sizes of
-#'     the focal groups, total sample size, and the iteration number at which
-#'     each statistic was computed.}
-#'     \item{moments}{A list of three data frames showing the MRR and MSR
-#'     moments across iterations. The final column in each data frame indicates
-#'     the iteration in which the statistics were computed.}
-#'     \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of
-#'     the items flagged as DIF by the \code{purify.by} statistic across all
-#'     purification iterations, sorted in ascending order.}
-#'     \item{n.iter}{The total number of iterations executed during the
-#'     purification process.}
-#'     \item{score}{A numeric vector of the final purified ability estimates
-#'     used for computing GRDIF statistics.}
-#'     \item{post.hoc}{A data frame containing the post-hoc RDIF analysis
-#'     results for flagged items across all possible pairwise group comparisons,
-#'     updated at each iteration.}
-#'     \item{complete}{A logical value indicating whether the purification
-#'     process was completed. If `FALSE`, the process reached the maximum number
-#'     of iterations without convergence.}
+#'     \item{purify.by}{A character string indicating which GRDIF statistic was
+#'     used for purification: "grdifr", "grdifs", or "grdifrs", corresponding to
+#'     \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, and \eqn{GRDIF_{RS}}, respectively.}
+#'     \item{dif_stat}{A data frame with the same columns as
+#'     `no_purify$dif_stat` and an additional column `n.iter`. For an item
+#'     removed during purification, the row reports the statistics from the
+#'     iteration in which the item was removed, and `n.iter` is that iteration
+#'     minus 1 (0 for an item removed on the basis of the initial analysis). For
+#'     the other items, the row reports the statistics from the last iteration,
+#'     and `n.iter` is the number of that iteration. If no item is flagged in the
+#'     initial analysis, this is `no_purify$dif_stat` with `n.iter = 0`.}
+#'     \item{moments}{A list of three data frames with the same columns as in
+#'     `no_purify$moments` and an additional column `n.iter`, defined in the
+#'     same way as in `dif_stat`.}
+#'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
+#'     items flagged by the `purify.by` statistic, sorted in ascending order. It
+#'     contains the items removed during purification and, if `max.iter` is
+#'     reached, the items flagged in the last iteration (iteration `n.iter`).
+#'     `NULL` if no item is flagged in the initial analysis.}
+#'     \item{n.iter}{The number of purification iterations performed (0 if no
+#'     item is flagged in the initial analysis).}
+#'     \item{score}{A numeric vector of the ability estimates from the last
+#'     iteration. `NULL` if no item is flagged in the initial analysis, because
+#'     purification is not carried out; the initial estimates are then in
+#'     `no_purify$score`.}
+#'     \item{post.hoc}{A data frame with the same columns as the elements of
+#'     `no_purify$post.hoc` and an additional column `n_iter`. It contains the
+#'     post-hoc results of each item removed during purification, computed with
+#'     the ability estimates of the iteration in which the item was removed;
+#'     `n_iter` is defined as `n.iter` in `dif_stat`. `NULL` if
+#'     `post.hoc = FALSE` or if no item is flagged in the initial analysis.}
+#'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
+#'     no remaining item was flagged (including the case in which no item is
+#'     flagged in the initial analysis), and `FALSE` if it stopped because
+#'     `max.iter` was reached.}
 #'   }
 #' }
 #'
-#' \item{alpha}{The significance level (\eqn{\alpha}) used for hypothesis
-#' testing of the GRDIF statistics.}
+#' \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
+#' used for the tests.}
 #'
+#' \item{call}{The matched function call.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
-#' @seealso [irtQ::rdif()] [irtQ::est_irt()], [irtQ::est_item()],
-#' [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()]
+#' @seealso [irtQ::rdif()], [irtQ::est_irt()], [irtQ::est_item()],
+#'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()]
 #'
-#' @references Lim, H., & Choe, E. M. (2023). Detecting differential item
-#'   functioning in CAT using IRT residual DIF approach. *Journal of Educational
-#'   Measurement, 60*(4), 626-650. \doi{10.1111/jedm.12366}.
+#' @references Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of
+#'   ability in a microcomputer environment. *Applied Psychological Measurement,
+#'   6*(4), 431-444. \doi{10.1177/014662168200600405}.
+#'
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
+#'   item response theory*. Newbury Park, CA: Sage.
+#'
+#'   Lim, H., & Choe, E. M. (2023). Detecting differential item functioning in
+#'   CAT using IRT residual DIF approach. *Journal of Educational Measurement,
+#'   60*(4), 626-650. \doi{10.1111/jedm.12366}.
 #'
 #'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 #'   item functioning detection framework in item response theory. *Journal of
 #'   Educational Measurement, 59*(1), 80-104. \doi{10.1111/jedm.12313}.
 #'
-#'   Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting
-#'   differential item functioning among multiple groups using IRT residual DIF
-#'   framework. *Journal of Educational Measurement, 61*(4), 656-681.
+#'   Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting differential
+#'   item functioning among multiple groups using IRT residual DIF framework.
+#'   *Journal of Educational Measurement, 61*(4), 656-681.
+#'   \doi{10.1111/jedm.12415}.
+#'
+#'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+#'   response theory. *Psychometrika, 54*(3), 427-450.
+#'   \doi{10.1007/BF02294627}.
 #'
 #' @examples
 #' \donttest{
@@ -217,7 +298,8 @@
 #'   dplyr::mutate_at(.vars = "par.2", .funs = function(x) x + c(-0.4, -0.4, -0.5, -0.5))
 #'
 #' # Combine the 4 DIF and 36 non-DIF items for all four groups
-#' # Therefore, the first four items contain uniform DIF across all focal groups
+#' # Therefore, each of the first four items has uniform DIF in two of the three
+#' # focal groups
 #' par_ref <- rbind(difpar_ref, par_nstd)
 #' par_foc1 <- rbind(difpar_foc1, par_nstd)
 #' par_foc2 <- rbind(difpar_foc2, par_nstd)
@@ -278,9 +360,6 @@
 #' )
 #' print(dif_puri_r)
 #'
-#' # Display post-hoc results before purification
-#' print(dif_puri_r$no_purify$post.hoc)
-#'
 #' # Display post-hoc results after purification
 #' print(dif_puri_r$with_purify$post.hoc)
 #' }
@@ -288,8 +367,7 @@
 #' @export
 grdif <- function(x, ...) UseMethod("grdif")
 
-#' @describeIn grdif Default method to compute the three GRDIF statistics for
-#' multiple-group data using a data frame `x` that contains item metadata.
+#' @describeIn grdif Default method for a data frame `x` containing item metadata.
 #'
 #' @import dplyr
 #' @export
@@ -324,11 +402,6 @@ grdif.default <- function(x,
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # stop when the model includes any polytomous model
-  # if(any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
-
   # transform the response data to a matrix form
   data <- data.matrix(data)
 
@@ -336,11 +409,6 @@ grdif.default <- function(x,
   if (!is.na(missing)) {
     data[data == missing] <- NA
   }
-
-  # stop when the model includes any polytomous response data
-  # if(any(data > 1, na.rm=TRUE)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
 
   # compute the score if score = NULL
   if (!is.null(score)) {
@@ -352,13 +420,13 @@ grdif.default <- function(x,
     # if min.resp is not NULL, find the examinees who have the number of responses
     # less than specified value (e.g., 5). Then, replace their all responses with NA
     if (!is.null(min.resp)) {
-      # count the number of responses for each question
+      # count the number of responses of each examinee
       n_resp <- Rfast::rowsums(!is.na(data))
 
-      # find the questions that have less than the minimum number of responses
+      # find the examinees who responded to fewer items than the minimum
       loc_less <- which(n_resp < min.resp & n_resp > 0)
 
-      # replace the responses for those questions with NA
+      # replace all responses of those examinees with NA
       data[loc_less, ] <- NA
     }
     score <- est_score(
@@ -460,7 +528,7 @@ grdif.default <- function(x,
       post_df_pury <- list()
     }
 
-    # start the iteration if any item is detected as an DIF item
+    # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
@@ -481,7 +549,7 @@ grdif.default <- function(x,
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the largest significant GDIF statistic
+        # find the flagged item with the largest value of the purify.by statistic
         flag_max <-
           switch(purify.by,
                  grdifr = which.max(dif_stat_tmp$grdifr),
@@ -756,7 +824,8 @@ grdif.default <- function(x,
   rst
 }
 
-#' @describeIn grdif An object created by the function [irtQ::est_irt()].
+#' @describeIn grdif Method for an object of class `est_irt` created by [irtQ::est_irt()].
+#' The response data and the scaling constant `D` are taken from the object.
 #' @import dplyr
 #' @export
 #'
@@ -778,11 +847,6 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # stop when the model includes any polytomous model
-  # if(any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
-
   # transform the response data to a matrix form
   data <- data.matrix(data)
 
@@ -790,11 +854,6 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
   if (!is.na(missing)) {
     data[data == missing] <- NA
   }
-
-  # stop when the model includes any polytomous response data
-  # if(any(data > 1, na.rm=TRUE)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
 
   # compute the score if score = NULL
   if (!is.null(score)) {
@@ -806,13 +865,13 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
     # if min.resp is not NULL, find the examinees who have the number of responses
     # less than specified value (e.g., 5). Then, replace their all responses with NA
     if (!is.null(min.resp)) {
-      # count the number of responses for each question
+      # count the number of responses of each examinee
       n_resp <- Rfast::rowsums(!is.na(data))
 
-      # find the questions that have less than the minimum number of responses
+      # find the examinees who responded to fewer items than the minimum
       loc_less <- which(n_resp < min.resp & n_resp > 0)
 
-      # replace the responses for those questions with NA
+      # replace all responses of those examinees with NA
       data[loc_less, ] <- NA
     }
     score <- est_score(
@@ -914,7 +973,7 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
       post_df_pury <- list()
     }
 
-    # start the iteration if any item is detected as an DIF item
+    # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
@@ -935,7 +994,7 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the largest significant GDIF statistic
+        # find the flagged item with the largest value of the purify.by statistic
         flag_max <-
           switch(purify.by,
                  grdifr = which.max(dif_stat_tmp$grdifr),
@@ -1211,7 +1270,9 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
 }
 
 
-#' @describeIn grdif An object created by the function [irtQ::est_item()].
+#' @describeIn grdif Method for an object of class `est_item` created by [irtQ::est_item()].
+#' The response data, the ability estimates, and the scaling constant `D` are taken
+#' from the object.
 #' @import dplyr
 #' @export
 #'
@@ -1234,11 +1295,6 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # stop when the model includes any polytomous model
-  # if(any(x$model %in% c("GRM", "GPCM")) | any(x$cats > 2)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
-
   # transform the response data to a matrix form
   data <- data.matrix(data)
 
@@ -1246,11 +1302,6 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
   if (!is.na(missing)) {
     data[data == missing] <- NA
   }
-
-  # stop when the model includes any polytomous response data
-  # if(any(data > 1, na.rm=TRUE)) {
-  #   stop("The current version only supports dichotomous response data.", call.=FALSE)
-  # }
 
   # compute the score if score = NULL
   if (!is.null(score)) {
@@ -1262,13 +1313,13 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
     # if min.resp is not NULL, find the examinees who have the number of responses
     # less than specified value (e.g., 5). Then, replace their all responses with NA
     if (!is.null(min.resp)) {
-      # count the number of responses for each question
+      # count the number of responses of each examinee
       n_resp <- Rfast::rowsums(!is.na(data))
 
-      # find the questions that have less than the minimum number of responses
+      # find the examinees who responded to fewer items than the minimum
       loc_less <- which(n_resp < min.resp & n_resp > 0)
 
-      # replace the responses for those questions with NA
+      # replace all responses of those examinees with NA
       data[loc_less, ] <- NA
     }
     score <- est_score(
@@ -1370,7 +1421,7 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
       post_df_pury <- list()
     }
 
-    # start the iteration if any item is detected as an DIF item
+    # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
@@ -1391,7 +1442,7 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the largest significant GDIF statistic
+        # find the flagged item with the largest value of the purify.by statistic
         flag_max <-
           switch(purify.by,
             grdifr = which.max(dif_stat_tmp$grdifr),
@@ -1667,7 +1718,7 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
 }
 
 
-# This function conducts one iteration of GRDIF analysis using the IRT residual based statistics
+# This function conducts one iteration of the GRDIF analysis
 grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
   # break down the item metadata into several elements
   elm_item <- breakdown(x)
@@ -1717,7 +1768,7 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
     score[.x]
   })
 
-  # compute the model-predicted probability of answering correctly (a.k.a. model-expected item score)
+  # compute the model-expected item scores (for a dichotomous item, the probability of a correct response)
   extscore_ref <- trace(elm_item = elm_item, theta = score_ref, D = D, tcc = TRUE)$icc
   extscore_foc <-
     purrr::map(.x = score_foc, ~ {
@@ -1864,9 +1915,6 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       dcov_r <- dmat_r %*% cov_rdifr %*% t(dmat_r)
       dcov_s <- dmat_s %*% cov_rdifs %*% t(dmat_s)
       dcov_rs <- dmat_rs %*% cov_rdifrs %*% t(dmat_rs)
-      # dcov_r <- tcrossprod(x = (dmat_r %*% cov_rdifr), y = dmat_r)
-      # dcov_s <- tcrossprod(x = (dmat_s %*% cov_rdifs), y = dmat_s)
-      # dcov_rs <- tcrossprod(x = (dmat_rs %*% cov_rdifrs), y = dmat_rs)
 
       # find the inverse of the multiple covariance matrix
       inv_dcov_r <- suppressWarnings(tryCatch(
@@ -1958,9 +2006,6 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       chisq_r[i] <- as.numeric(t(vec_r) %*% inv_dcov_r %*% vec_r)
       chisq_s[i] <- as.numeric(t(vec_s) %*% inv_dcov_s %*% vec_s)
       chisq_rs[i] <- as.numeric(t(vec_rs) %*% inv_dcov_rs %*% vec_rs)
-      # chisq_r[i] <- as.numeric(crossprod(x=vec_r, y=(inv_dcov_r %*% vec_r)))
-      # chisq_s[i] <- as.numeric(crossprod(x=vec_s, y=(inv_dcov_s %*% vec_s)))
-      # chisq_rs[i] <- as.numeric(crossprod(x=vec_rs, y=(inv_dcov_rs %*% vec_rs)))
     }
   }
 
@@ -2136,7 +2181,7 @@ resid_moments_mg <- function(p_ref, p_foc, n_ref, n_foc, resp_ref, resp_foc, cat
     )
 
   # compute the variances of MRR and MSR, respectively, across all groups
-  # use V(aX - bY) = a^2 * V(X) + b^2 * V(Y)
+  # the variance of a group mean is the sum of the conditional variances divided by the squared sample size
   const_ref <- purrr::map(
     .x = var_ref,
     ~ {
@@ -2170,7 +2215,7 @@ resid_moments_mg <- function(p_ref, p_foc, n_ref, n_foc, resp_ref, resp_foc, cat
       stats::setNames(x, c("mrr", "msr"))
     })
 
-  # compute the means and variances of MRR and MSR, respectively, across all group
+  # compute the means of MRR and MSR, respectively, across all groups
   mu_rdif_ref <- purrr::map(.x = mu_ref, ~ {
     colMeans(x = .x, na.rm = TRUE)
   })

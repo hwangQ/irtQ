@@ -12,183 +12,252 @@
 #' @param x A data frame containing item metadata (e.g., item parameters, number
 #'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
 #'   [irtQ::simdat()] for more details about the item metadata. This data frame
-#'   can be easily created using the [irtQ::shape_df()] function.
-#' @param score A numeric vector containing examinees' ability estimates (theta
-#'   values). If not provided, [irtQ::catsib()] will estimate ability parameters
-#'   internally before computing the CATSIB statistics. See [irtQ::est_score()]
-#'   for more information on scoring methods. Default is `NULL`.
-#' @param se A vector of standard errors corresponding to the ability estimates.
-#'   The order of the standard errors must match the order of the ability
-#'   estimates provided in the `score` argument. It must be supplied when
-#'   `score` is supplied. Default is `NULL`.
-#' @param n.bin A numeric vector of two positive integers specifying the maximum
-#'   and minimum numbers of bins (or intervals) on the ability scale. The first
-#'   and second values represent the maximum and minimum numbers of bins,
-#'   respectively. Default is `c(80, 10)`. See the **Details** section below for
-#'   more information.
+#'   can be easily created using the [irtQ::shape_df()] function. `x` is needed
+#'   to estimate the abilities internally, that is, when `score = NULL` or
+#'   `purify = TRUE`. It can be `NULL` when `score` and `se` are supplied and
+#'   `purify = FALSE`; the items are then labeled `item.1`, `item.2`, and so on.
+#'   Default is `NULL`.
+#' @param score A numeric vector of examinees' ability estimates (theta values),
+#'   in the same row order as `data`, with their standard errors in `se`. The
+#'   estimates should be based on the item parameters in `x`. If `NULL`,
+#'   abilities and standard errors are estimated internally with
+#'   [irtQ::est_score()] using `method`, `range`, `norm.prior`, `nquad`,
+#'   `weights`, and `ncore`, and `x` must be supplied. When `purify = TRUE`,
+#'   abilities and standard errors are re-estimated internally at every
+#'   purification iteration, so a supplied `score` is used only in the initial
+#'   analysis. Default is `NULL`.
+#' @param se A numeric vector of the standard errors of the ability estimates in
+#'   `score`, in the same order. The standard errors are used to estimate the
+#'   reliability of the ability estimates in the regression correction (see
+#'   **Details**). It must be supplied when `score` is supplied, and it is
+#'   ignored when `score = NULL`. Default is `NULL`.
+#' @param D A scaling factor in IRT models, used only when abilities are
+#'   estimated internally. Default is `1`.
+#' @param n.bin A numeric vector of two positive integers giving the maximum and
+#'   minimum numbers of equal-width bins (intervals) of the corrected ability
+#'   scale. For each item, the number of bins starts at the maximum and
+#'   decreases by one until the condition set by `max.del` is met; if it is not
+#'   met with the minimum number, the minimum number is used. Default is
+#'   `c(80, 10)`. See **Details**.
 #' @param min.binsize A positive integer specifying the minimum number of
-#'   examinees required in each bin. To ensure stable statistical estimation,
-#'   each bin must contain at least the specified number of examinees from both
-#'   the reference and focal groups in order to be included in the calculation
-#'   of \eqn{\hat{\beta}}. Bins that do not meet this minimum are excluded from
-#'   the computation. Default is 3. See the **Details** section for further
-#'   explanation.
-#' @param max.del A numeric value specifying the maximum allowable proportion of
-#'   examinees that may be excluded from either the reference or focal group
-#'   during the binning process. This threshold is used when determining the
-#'   number of bins on the ability scale automatically. Default is 0.075. See
-#'   the **Details** section for more information.
+#'   examinees of each group in a bin. A bin is used in the computation of
+#'   \eqn{\hat{\beta}} only if it contains at least `min.binsize` examinees of
+#'   both the reference and focal groups who responded to the item. Default is
+#'   `3`, the value used by Nandakumar and Roussos (2004). See **Details**.
+#' @param max.del A numeric value specifying the maximum proportion of the
+#'   examinees of each group who responded to the item that may be excluded
+#'   because they fall in bins that are not used (see `min.binsize`). The number
+#'   of bins is reduced until the excluded proportion is at most `max.del` in
+#'   both groups. Default is `0.075`. See **Details**.
 #' @param weight.group A character string specifying the target ability
-#'   distribution used to compute the expected DIF measure \eqn{\hat{\beta}} and
-#'   its corresponding standard error. Available options are: `"comb"` for the
-#'   combined distribution of both the reference and focal groups, `"foc"` for
-#'   the focal group's distribution, and `"ref"` for the reference group's
-#'   distribution. Default is `"comb"`. See the **Details** section below for
-#'   more information.
+#'   distribution used to weight the bins in \eqn{\hat{\beta}} and its standard
+#'   error: `"comb"` for the combined distribution of the reference and focal
+#'   groups, `"foc"` for the focal group, or `"ref"` for the reference group. The
+#'   weight of a bin is the proportion of the examinees of the target
+#'   distribution in the bins used who fall in that bin. Default is `"comb"`.
 #' @param item.skip A numeric vector of item positions (row numbers of `x`) to
 #'   exclude from the analysis. Skipped items still contribute to the ability
 #'   estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
 #'   contingency table) are set to `NA`, and they are never flagged or removed
 #'   during purification. If `NULL`, all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
-#'   for the hypothesis test associated with the CATSIB (*beta*) statistic.
-#'   Default is 0.05.
+#'   of the two-sided test of the CATSIB statistic. An item is flagged when its
+#'   p-value is less than or equal to `alpha`. Default is `0.05`.
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
-#' @param ... Additional arguments passed to the [irtQ::est_score()] function.
+#' @param range A numeric vector of length two specifying the lower and upper
+#'   bounds of the ability scale. It is used when abilities are estimated
+#'   internally with the scoring methods `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`. In
+#'   addition, ability estimates at or beyond these bounds are excluded when the
+#'   mean, the variance, and the error variance of the ability estimates are
+#'   computed for the regression correction (see **Details**); this also applies
+#'   when `score` is supplied, so `range` should match the bounds used to obtain
+#'   `score`. Default is `c(-5, 5)`.
 #'
-#' @details In the CATSIB procedure (Nandakumar & Roussos, 2004),
-#' \eqn{\hat{\theta}^{\ast}} - the expected value of \eqn{\theta} regressed on
-#' \eqn{\hat{\theta}} - is a continuous variable. The range of
-#' \eqn{\hat{\theta}^{\ast}} is divided into *K* equal-width intervals, and
-#' examinees are classified into one of these *K* intervals based on their
-#' \eqn{\hat{\theta}^{\ast}} values. Any interval containing fewer than three
-#' examinees from either the reference or focal group is excluded from the
-#' computation of \eqn{\hat{\beta}}, the DIF effect size, to ensure statistical
-#' stability. According to Nandakumar and Roussos (2004), the default minimum
-#' bin size is 3, which can be controlled via the `min.binsize` argument.
+#' @details CATSIB (Nandakumar & Roussos, 2004) estimates the amount of DIF in
+#'   an item as \eqn{\hat{\beta} = \sum_{k} (\hat{P}_{R,k} - \hat{P}_{F,k})
+#'   \hat{p}_k}, where \eqn{\hat{P}_{R,k}} and \eqn{\hat{P}_{F,k}} are the
+#'   proportions of correct responses of the reference and focal groups in bin k
+#'   of the corrected ability scale, and \eqn{\hat{p}_k} is the weight of bin k
+#'   (see `weight.group`). A positive \eqn{\hat{\beta}} indicates DIF in favor of
+#'   the reference group. The standard error of \eqn{\hat{\beta}} is estimated
+#'   from the sample variances of the item responses in each bin and group
+#'   (Nandakumar & Roussos, 2004, Equation 10), and the test statistic
+#'   \eqn{\hat{\beta} / \mathrm{SE}(\hat{\beta})} (`z.beta`) is compared with
+#'   the standard normal distribution in a two-sided test. Examinees are matched
+#'   on \eqn{\hat{\theta}^{\ast}}, an estimate of the expected value of
+#'   \eqn{\theta} given \eqn{\hat{\theta}} obtained by the regression correction
+#'   described below. The range of \eqn{\hat{\theta}^{\ast}} is divided into K
+#'   equal-width bins, and examinees are classified into the bins by their
+#'   \eqn{\hat{\theta}^{\ast}}. A bin is used only if it contains at least
+#'   `min.binsize` examinees of both groups who responded to the item;
+#'   Nandakumar and Roussos (2004) required at least three, which is the default.
 #'
-#' To determine an appropriate number of intervals (*K*), [irtQ::catsib()]
-#' automatically decreases *K* from a large starting value (e.g., 80) based on
-#' the rule proposed by Nandakumar and Roussos (2004). Specifically, if more
-#' than 7.5% of examinees in either the reference or focal group would be
-#' excluded due to small bin sizes, the number of bins is reduced by one and the
-#' process is repeated. This continues until the retained examinees in each
-#' group comprise at least 92.5\% of the total. However, to prevent having too
-#' few bins, they recommended a minimum of *K* = 10. Therefore, the default
-#' maximum and minimum number of bins are set to 80 and 10, respectively, via
-#' `n.bin`. Likewise, the maximum allowable proportion of excluded examinees is
-#' set to 0.075 by default through the `max.del` argument.
+#'   To choose the number of bins K, [irtQ::catsib()] follows the rule of
+#'   Nandakumar and Roussos (2004). For each item, K starts at a large value (80
+#'   by default), and if more than 7.5% of the examinees of either group who
+#'   responded to the item would be excluded because they fall in bins that are
+#'   not used, K is reduced by one, until at most 7.5% of each group is excluded.
+#'   Nandakumar and Roussos (2004) did not allow fewer than 20 bins, but they
+#'   reported that a minimum of 10 bins reduced the estimation bias caused by
+#'   excluding examinees from sparse bins. [irtQ::catsib()] therefore uses a
+#'   minimum of 10 bins by default; if the condition is not met with the minimum
+#'   number, the minimum number is used. The maximum and minimum numbers of bins
+#'   are set by `n.bin`, and the maximum proportion of excluded examinees by
+#'   `max.del`.
 #'
-#' When it comes to the target ability distribution used to compute
-#' \eqn{\hat{\beta}}, Li and Stout (1996) and Nandakumar and Roussos (2004)
-#' employed the combined-group target ability distribution, which is the default
-#' option in `weight.group`. See Nandakumar and Roussos (2004) for further
-#' details about the CATSIB method.
+#'   Li and Stout (1996) and Nandakumar and Roussos (2004) used the combined
+#'   distribution of the two groups as the target ability distribution, which is
+#'   the default of `weight.group`. See Nandakumar and Roussos (2004) for further
+#'   details about the CATSIB method.
 #'
-#' Although Nandakumar and Roussos (2004) did not propose a purification
-#' procedure for DIF analysis using CATSIB, [irtQ::catsib()] can implement an
-#' iterative purification process in a manner similar to that of Lim et al.
-#' (2022). Specifically, at each iteration, examinees' latent abilities are
-#' recalculated using the purified set of items and the scoring method specified
-#' in the `method` argument. The iterative purification process terminates
-#' either when no additional DIF items are detected or when the number of
-#' iterations reaches the limit set by `max.iter`. See Lim et al. (2022) for
-#' more details on the purification procedure.
+#'   Because the ability distributions of the reference and focal groups can
+#'   differ (impact), matching examinees directly on \eqn{\hat{\theta}} would
+#'   bias \eqn{\hat{\beta}} toward DIF in favor of the group with the higher mean
+#'   ability. CATSIB therefore applies a regression correction separately in each
+#'   group G (Nandakumar & Roussos, 2004, Equation 7): \eqn{\hat{\theta}^{\ast} =
+#'   \bar{\hat{\theta}}_G + \hat{\rho}^2_G (\hat{\theta} -
+#'   \bar{\hat{\theta}}_G)}, where \eqn{\bar{\hat{\theta}}_G} is the mean of the
+#'   ability estimates in group G and \eqn{\hat{\rho}^2_G = 1 -
+#'   \hat{\sigma}^2_{e,G} / \hat{\sigma}^2_{\hat{\theta},G}} is the estimated
+#'   reliability of the ability estimates in group G. Here
+#'   \eqn{\hat{\sigma}^2_{e,G}} is the mean of the squared standard errors (`se`)
+#'   and \eqn{\hat{\sigma}^2_{\hat{\theta},G}} is the variance of the ability
+#'   estimates in group G. Ability estimates at or beyond a bound of `range` are
+#'   excluded when these quantities are computed, because their standard errors
+#'   are not meaningful; this also applies when `score` is supplied, so `range`
+#'   should match the bounds used to obtain `score`.
 #'
-#' Scoring based on a limited number of items may result in large standard
-#' errors, which can negatively affect the effectiveness of DIF detection using
-#' the CATSIB procedure. The `min.resp` argument can be used to prevent the use
-#' of scores with large standard errors, particularly during the purification
-#' process. For example, if `min.resp` is not NULL (e.g., `min.resp = 5`), item
-#' responses from examinees whose total number of valid responses is below the
-#' specified threshold are treated as missing (i.e., NA). As a result, their
-#' ability estimates are also treated as missing and are excluded from the
-#' CATSIB statistic computation. If `min.resp = NULL`, a score will be computed
-#' for any examinee with at least one valid item response.
+#'   Because \eqn{\hat{\sigma}^2_{e,G}} is a mean of squared standard errors, a
+#'   few examinees with very large standard errors, typically examinees with very
+#'   low or very high scores whose abilities are poorly determined, can make
+#'   \eqn{\hat{\rho}^2_G} much smaller than the reliability of the other ability
+#'   estimates, or even negative. The corrected ability estimates then shrink too
+#'   much toward the group mean, which distorts the matching and can inflate the
+#'   Type I error rate, particularly during purification. To limit this,
+#'   \eqn{\hat{\rho}^2_G} is bounded to the interval \eqn{[0.05, 1]}, and a warning is
+#'   issued when its unbounded value is below 0.05. A negative value would
+#'   reverse the order of the ability estimates within a group, and a value near
+#'   zero would place almost all corrected ability estimates of a group in one
+#'   bin. This bound is not part of the original procedure and is added in irtQ.
+#'   Even with the bound, the corrected ability estimates of the two groups may
+#'   not overlap when the groups differ in ability; then no bin contains
+#'   examinees of both groups, \eqn{\hat{\beta}} and its standard error are 0,
+#'   `z.beta` and the p-value are `NaN`, and the item is not flagged.
 #'
-#' Note that the regression correction (Eq. 7 in Nandakumar & Roussos, 2004)
-#' assumes \eqn{\hat{\rho}^2} (the estimated reliability of ability estimates)
-#' lies in \eqn{[0, 1]}. In practice, however, \eqn{\hat{\rho}^2} can become
-#' negative when the mean squared standard error of ability estimates exceeds the
-#' observed variance of ability estimates - a situation that can arise when (a)
-#' the number of items is very small, (b) a purification procedure removes many
-#' items, or (c) items exhibiting nonuniform DIF inflate the standard errors of
-#' focal group examinees. A negative \eqn{\hat{\rho}^2} causes the regression
-#' correction to amplify rather than attenuate group differences, leading to
-#' inflated Type I error rates. Even a small positive \eqn{\hat{\rho}^2} (e.g.,
-#' 0.03) can collapse the corrected ability scores so tightly around each
-#' group's mean that, when ability impact exists between groups, the two groups'
-#' corrected score distributions no longer overlap. This leaves no bins
-#' containing examinees from both groups, resulting in
-#' \eqn{\hat{\beta} = 0} and \eqn{\text{SE}(\hat{\beta}) = 0} for every item,
-#' which causes the purification loop to terminate early with invalid
-#' statistics. To prevent this correction collapse, [irtQ::catsib()] enforces
-#' a floor of 0.05 on \eqn{\hat{\rho}^2} - i.e.,
-#' \eqn{\hat{\rho}^2 = \max(0.05, \min(1, 1 - \hat{\sigma}_e^2 / \hat{\sigma}_{\hat{\theta}}^2))}
-#' - so that a minimum degree of score spread is always preserved. When the
-#' unclamped \eqn{\hat{\rho}^2} falls below 0.05 for either group, a warning is
-#' issued and DIF results from that iteration should be interpreted with
-#' caution. This situation typically arises during purification when too few
-#' items remain to yield reliable ability estimates. Users should also be aware
-#' that CATSIB, like its predecessor SIBTEST (Shealy & Stout, 1993), was
-#' originally designed and validated for detecting uniform DIF. Its statistical
-#' behavior under nonuniform or mixed DIF conditions has not been formally
-#' evaluated, and caution is warranted when interpreting results for items
-#' suspected of nonuniform DIF.
+#'   CATSIB, like SIBTEST (Shealy & Stout, 1993), was designed and evaluated for
+#'   uniform DIF (Nandakumar & Roussos, 2004). Because \eqn{\hat{\beta}} sums
+#'   signed differences across bins, differences of opposite sign can cancel, so
+#'   its sensitivity to nonuniform or mixed DIF is limited, and results for items
+#'   suspected of nonuniform DIF should be interpreted with caution.
 #'
-#' @return This function returns a list consisting of four elements:
+#'   Nandakumar and Roussos (2004) did not propose a purification procedure for
+#'   CATSIB, but [irtQ::catsib()] can apply an iterative purification procedure
+#'   in the manner of Lim et al. (2022). It requires `x`. When `purify = TRUE`, at
+#'   each iteration the flagged item with the largest absolute value of `z.beta`
+#'   is removed, the abilities and their standard errors are re-estimated from
+#'   the remaining items with the scoring method specified in `method`, and the
+#'   CATSIB statistics of the remaining items are recomputed. Supplied `score`
+#'   and `se` are therefore used only in the initial analysis. The procedure
+#'   stops when no remaining item is flagged or when `max.iter` iterations have
+#'   been performed. If no item is flagged in the initial analysis, no iteration
+#'   is performed.
+#'
+#'   Scoring based on a limited number of items may result in large standard
+#'   errors, which can negatively affect the effectiveness of DIF detection using
+#'   the CATSIB procedure. The `min.resp` argument can be used to prevent the use
+#'   of scores with large standard errors, particularly during the purification
+#'   process. For example, if `min.resp` is not `NULL` (e.g., `min.resp = 5`),
+#'   item responses from examinees whose total number of valid responses is below
+#'   the specified threshold are treated as missing (i.e., `NA`). As a result,
+#'   their ability estimates are also treated as missing and are excluded from
+#'   the CATSIB statistic computation. If `min.resp = NULL`, a score will be
+#'   computed for any examinee with at least one valid item response.
+#'
+#' @return This function returns an object of class `"catsib"`, which is a list
+#' with the following five components:
 #'
 #' \item{no_purify}{A list containing the results of the DIF analysis without
 #' applying a purification procedure. This list includes:
 #'   \describe{
-#'     \item{dif_stat}{A data frame containing the results of the CATSIB
-#'     statistics for all evaluated items. The columns include the item ID,
-#'     CATSIB (*beta*) statistic, standard error of *beta*, standardized *beta*,
-#'     p-value for *beta*, sample size of the reference group, sample size of
-#'     the focal group, and total sample size.}
-#'     \item{dif_item}{A numeric vector identifying items flagged as potential
-#'     DIF items based on the CATSIB statistic.}
-#'     \item{contingency}{A list of contingency tables used for computing the
-#'     CATSIB statistics for each item.}
+#'     \item{dif_stat}{A data frame with one row per item and the columns `id`,
+#'     `beta`, `se`, `z.beta`, `p`, `n.ref`, `n.foc`, and `n.total`: the item ID,
+#'     the CATSIB statistic \eqn{\hat{\beta}}, its standard error, the
+#'     standardized statistic, the two-sided p-value, and the numbers of
+#'     examinees of the reference and focal groups in the bins used to compute
+#'     \eqn{\hat{\beta}}, and their sum. A positive \eqn{\hat{\beta}} indicates
+#'     DIF in favor of the reference group. All values are rounded to four
+#'     decimal places.}
+#'     \item{dif_item}{A numeric vector of the positions (columns of `data`) of
+#'     the flagged items, or `NULL` if no item is flagged.}
+#'     \item{contingency}{A list with one element per item, named by item ID. Each
+#'     element is a data frame with one row per bin used to compute
+#'     \eqn{\hat{\beta}} and the columns `bin` (the interval of corrected ability
+#'     estimates), `n.ref`, `prop.ref`, `var.ref`, `n.foc`, `prop.foc`, and
+#'     `var.foc` (the number of examinees, the proportion of correct responses,
+#'     and the sample variance of the item responses of each group in the bin),
+#'     `n.total`, `weight` (the weight of the bin), `beta` (the weighted
+#'     difference in the proportions of correct responses), and `var.beta` (the
+#'     contribution of the bin to the squared standard error), followed by a row
+#'     named `Total` with the totals of `n.ref`, `n.foc`, `n.total`, `beta`, and
+#'     `var.beta`. The element is `NA` for a skipped item.}
 #'   }
 #' }
 #'
-#' \item{purify}{A logical value indicating whether a purification procedure was
-#' applied.}
+#' \item{purify}{A logical value indicating whether purification was requested
+#' (the `purify` argument).}
 #'
-#' \item{with_purify}{A list containing the results of the DIF analysis with
-#' a purification procedure. This list includes:
+#' \item{with_purify}{A list with the results of the purification procedure. All
+#' elements are `NULL` when `purify = FALSE`. The elements are:
 #'   \describe{
-#'     \item{dif_stat}{A data frame containing the results of the CATSIB
-#'     statistics for all evaluated items. The columns include the item ID,
-#'     CATSIB (*beta*) statistic, standard error of *beta*, standardized *beta*,
-#'     p-value for *beta*, sample size of the reference group, sample size of
-#'     the focal group, total sample size, and the iteration number (*n*) in
-#'     which the CATSIB statistics were computed.}
-#'     \item{dif_item}{A numeric vector identifying items flagged as potential
-#'     DIF items based on the CATSIB statistic.}
-#'     \item{n.iter}{An integer indicating the total number of iterations
-#'     performed during the purification process.}
-#'     \item{complete}{A logical value indicating whether the purification
-#'     process was completed. If FALSE, the process reached the maximum
-#'     number of iterations without full convergence.}
-#'     \item{contingency}{A list of contingency tables used for computing the
-#'     CATSIB statistics for each item during the purification process.}
+#'     \item{dif_stat}{A data frame with the same columns as
+#'     `no_purify$dif_stat` and an additional column `n.iter`. For an item
+#'     removed during purification, the row reports the statistics from the
+#'     iteration in which the item was removed, and `n.iter` is that iteration
+#'     minus 1 (0 for an item removed on the basis of the initial analysis). For
+#'     the other items, the row reports the statistics from the last iteration,
+#'     and `n.iter` is the number of that iteration. If no item is flagged in the
+#'     initial analysis, this is `no_purify$dif_stat` with `n.iter = 0`.}
+#'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
+#'     items flagged by the CATSIB statistic, sorted in ascending order. It
+#'     contains the items removed during purification and, if `max.iter` is
+#'     reached, the items flagged in the last iteration (iteration `n.iter`).
+#'     `NULL` if no item is flagged in the initial analysis.}
+#'     \item{n.iter}{The number of purification iterations performed (0 if no
+#'     item is flagged in the initial analysis).}
+#'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
+#'     no remaining item was flagged (including the case in which no item is
+#'     flagged in the initial analysis), and `FALSE` if it stopped because
+#'     `max.iter` was reached.}
+#'     \item{contingency}{A list with the same structure as
+#'     `no_purify$contingency`. For an item removed during purification, it holds
+#'     the table from the iteration in which the item was removed; for the other
+#'     items, it holds the table from the last iteration. If no item is flagged
+#'     in the initial analysis, this is `no_purify$contingency`.}
 #'   }
 #' }
 #'
-#' \item{alpha}{The significance level \eqn{\alpha} used to compute the p-values
-#' of the CATSIB statistics.}
+#' \item{alpha}{A numeric value indicating the significance level (\eqn{\alpha})
+#' used for the tests.}
+#'
+#' \item{call}{The matched function call.}
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
-#' @seealso [irtQ::rdif()], [irtQ::est_irt], [irtQ::est_item()],
-#'   [irtQ::simdat()], [irtQ::shape_df()], [irtQ::est_score()]
+#' @seealso [irtQ::rdif()], [irtQ::grdif()], [irtQ::est_irt()],
+#'   [irtQ::est_item()], [irtQ::simdat()], [irtQ::shape_df()],
+#'   [irtQ::est_score()]
 #'
-#' @references Li, H.-H., & Stout, W. (1996). A new procedure for detection of
-#'   crossing DIF. *Psychometrika, 61*(4), 647-677. \doi{10.1007/BF02294041}.
+#' @references Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of
+#'   ability in a microcomputer environment. *Applied Psychological Measurement,
+#'   6*(4), 431-444. \doi{10.1177/014662168200600405}.
+#'
+#'   Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals of
+#'   item response theory*. Newbury Park, CA: Sage.
+#'
+#'   Li, H.-H., & Stout, W. (1996). A new procedure for detection of crossing
+#'   DIF. *Psychometrika, 61*(4), 647-677. \doi{10.1007/BF02294041}.
 #'
 #'   Lim, H., Choe, E. M., & Han, K. T. (2022). A residual-based differential
 #'   item functioning detection framework in item response theory. *Journal of
@@ -202,6 +271,10 @@
 #'   separates true bias/DIF from group ability differences and detects test
 #'   bias/DTF as well as item bias/DIF. *Psychometrika, 58*(2), 159-194.
 #'   \doi{10.1007/BF02294572}.
+#'
+#'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
+#'   response theory. *Psychometrika, 54*(3), 427-450.
+#'   \doi{10.1007/BF02294627}.
 #'
 #'
 #' @examples
@@ -273,16 +346,15 @@
 #' # where '1' indicates the focal group
 #' group <- c(rep(0, 500), rep(1, 500))
 #'
-#' # (a)-1 Compute the CATSIB statistic using provided scores,
-#' #       without purification
+#' # (1) Compute the CATSIB statistic using provided scores and standard errors,
+#' #     without purification (x can be NULL in this case)
 #' dif_1 <- catsib(
 #'   x = NULL, data = data, D = 1, score = score, se = se, group = group, focal.name = 1,
 #'   weight.group = "comb", alpha = 0.05, missing = NA, purify = FALSE
 #' )
 #' print(dif_1)
 #'
-#' # (a)-2 Compute the CATSIB statistic using provided scores,
-#' #       with purification
+#' # (2) Compute the CATSIB statistic with purification (x is required)
 #' dif_2 <- catsib(
 #'   x = est_par, data = data, D = 1, score = score, se = se, group = group, focal.name = 1,
 #'   weight.group = "comb", alpha = 0.05, missing = NA, purify = TRUE
@@ -456,7 +528,7 @@ catsib <- function(x = NULL,
     x_puri <- x
     data_puri <- data
 
-    # start the iteration if any item is detected as an DIF item
+    # start the iteration if any item is detected as a DIF item
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
@@ -486,7 +558,7 @@ catsib <- function(x = NULL,
         # add the deleted item as the DIF item
         dif_item <- c(dif_item, del_item)
 
-        # add the DIF statistics and moments for the detected DIF item
+        # add the DIF statistics and the contingency table of the removed item
         dif_stat[del_item, 1:8] <- dif_stat_tmp[flag_max, ]
         dif_stat[del_item, 9] <- i - 1
         contingency[del_item] <- contingency_tmp[flag_max]
@@ -778,7 +850,7 @@ catsib_item <- function(crscore_ref, crscore_foc, resp.ref, resp.foc,
       bin_ref <- cut(crscore_ref, breaks = cutscore, include.lowest = TRUE, dig.lab = 7)
       bin_foc <- cut(crscore_foc, breaks = cutscore, include.lowest = TRUE, dig.lab = 7)
       
-      # exclude bins where candidates' responses are NAs
+      # keep the bins of the examinees who responded to the item
       non.na.ref <- !is.na(resp.ref)
       non.na.foc <- !is.na(resp.foc)
       bin_ref <- bin_ref[non.na.ref]
@@ -788,7 +860,7 @@ catsib_item <- function(crscore_ref, crscore_foc, resp.ref, resp.foc,
       bin.n.ref <- stats::xtabs(~bin_ref, drop.unused.levels = FALSE)
       bin.n.foc <- stats::xtabs(~bin_foc, drop.unused.levels = FALSE)
       
-      # check if the counts of remaining sample is greater than equal to minimum a criterion
+      # check if the proportion of retained examinees is at least 1 - max.del in each group
       isok_ref <- (sum(bin.n.ref[bin.n.ref >= min.binsize & bin.n.foc >= min.binsize]) /
                      sum(bin.n.ref)) >= 1 - max.del
       isok_foc <- (sum(bin.n.foc[bin.n.ref >= min.binsize & bin.n.foc >= min.binsize]) /

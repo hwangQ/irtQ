@@ -259,7 +259,7 @@ print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     sep = ""
   )
 
-  # re-organize the dit stats data.frame
+  # re-organize the data frame of the DIF statistics
   dif_stat_nopurify <-
     x$no_purify$dif_stat %>%
     dplyr::select(
@@ -277,7 +277,7 @@ print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     complete <- x$with_purify$complete
     n.iter <- x$with_purify$n.iter
 
-    # re-organize the dit stats data.frame
+    # re-organize the data frame of the DIF statistics
     dif_stat_purify <-
       x$with_purify$dif_stat %>%
       dplyr::select(
