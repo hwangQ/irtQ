@@ -362,6 +362,14 @@
   of the `with_purify` results is the integer 0 when no item is flagged
   in the initial analysis.
 
+- `catsib()` returned a statistic of 0, a standard error of 0, and a
+  p-value of `NaN` for an item when the corrected ability estimates of
+  the two groups did not overlap, and ended the purification as
+  complete. The statistics of such an item are now `NA`, one warning
+  names the items, and the item is not flagged. The purification stops
+  with a warning and `complete = FALSE` when this happens to every
+  remaining item.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When

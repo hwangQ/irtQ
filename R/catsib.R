@@ -168,9 +168,10 @@
 #'   the ability estimates within a group, and a value near zero would place
 #'   almost all corrected ability estimates of a group in one bin. This bound is
 #'   not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
-#'   not overlap when the groups differ in ability; then no bin contains
-#'   examinees of both groups, \eqn{\hat{\beta}} and its standard error are 0,
-#'   `z.beta` and the p-value are `NaN`, and the item is not flagged.
+#'   not overlap when the groups differ in ability; then no bin contains enough
+#'   examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
+#'   error, `z.beta`, and the p-value are `NA`, one warning names the items, and
+#'   the items are not flagged.
 #'
 #'   CATSIB, like SIBTEST (Shealy & Stout, 1993), was designed and evaluated for
 #'   uniform DIF (Nandakumar & Roussos, 2004). Because \eqn{\hat{\beta}} sums
@@ -193,7 +194,8 @@
 #'   abilities, and `complete` is `FALSE`. The procedure also stops with a
 #'   warning and `complete = FALSE` when, after an item is removed, a group has
 #'   fewer than two ability estimates within `range`, which the regression
-#'   correction requires; the remaining items then keep the results of the
+#'   correction requires, or no bin contains enough examinees of both groups for any
+#'   remaining item; the remaining items then keep the results of the
 #'   previous iteration, and the items flagged in that iteration are added to the
 #'   flagged items.
 #'
@@ -641,6 +643,9 @@ catsib <- function(x = NULL,
       weight.group = weight.group, alpha = alpha, rho.screen = rho.screen
     )
 
+  # record the items without a usable bin
+  no_bin_id <- dif_rst$no_bin
+
   # create two empty lists to contain the results
   no_purify <- list(dif_stat = NULL, dif_item = NULL, contingency = NULL)
   with_purify <- list(
@@ -690,6 +695,9 @@ catsib <- function(x = NULL,
 
       # indicate whether the purification stops because a group has too few ability estimates
       no_score <- FALSE
+
+      # indicate whether the purification stops because no remaining item has a usable bin
+      no_test <- FALSE
 
       # print a message
       if (verbose) {
@@ -795,6 +803,25 @@ catsib <- function(x = NULL,
             alpha = alpha, rho.screen = rho.screen
           )
 
+        # record the items without a usable bin
+        no_bin_id <- union(no_bin_id, dif_rst_tmp$no_bin)
+
+        # stop the purification when no remaining item has a usable bin; the remaining items keep the
+        # results of the previous iteration
+        if (length(dif_rst_tmp$no_bin) == length(setdiff(seq_len(nrow(x_puri)), item.skip.puri))) {
+          no_test <- TRUE
+          score_puri <- score_prev
+          se_puri <- se_prev
+          dif_stat[item_num, 1:8] <- dif_stat_tmp[-flag_del, ]
+          dif_stat[item_num, 9] <- i - 1
+          contingency[item_num] <- contingency_tmp[-flag_del]
+
+          # add the items flagged at the previous iteration, except the item deleted at this one
+          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_del),
+                                                 seq_len(nrow(dif_stat_tmp))[-flag_del])])
+          break
+        }
+
         # extract the first DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item
@@ -820,7 +847,7 @@ catsib <- function(x = NULL,
 
       # record the actual number of iterations; the statistics are not recomputed in the
       # iteration that stops the purification
-      n_iter <- if (all_flagged || no_score) i - 1L else i
+      n_iter <- if (all_flagged || no_score || no_test) i - 1L else i
 
       if (all_flagged) {
         # if every item is flagged, then, return a warning message
@@ -831,6 +858,11 @@ catsib <- function(x = NULL,
         # if a group has too few ability estimates left, then, return a warning message
         warning("The purification stopped because fewer than two examinees of a group had an ",
                 "ability estimate within 'range' for the remaining items.", call. = FALSE)
+        complete <- FALSE
+      } else if (no_test) {
+        # if no remaining item has a usable bin, then, return a warning message
+        warning("The purification stopped because no bin contained enough examinees of both groups ",
+                "for any remaining item after the regression correction.", call. = FALSE)
         complete <- FALSE
       } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
         # if the maximum number of iterations is reached before purification is complete,
@@ -873,6 +905,13 @@ catsib <- function(x = NULL,
     }
   }
 
+
+  # warn that the statistics of the items without a usable bin are missing
+  if (length(no_bin_id) > 0L) {
+    warning("No bin contained enough examinees of both groups after the regression correction for ",
+            "item(s) ", paste(no_bin_id, collapse = ", "), ", so their statistics are missing and ",
+            "they are not flagged.", call. = FALSE)
+  }
 
   # summarize the results
   rst <- list(no_purify = no_purify, purify = purify,
@@ -1029,6 +1068,10 @@ catsib_one <- function(data,
   contingency <- purrr::map(.x = catsib_dif, "contingency")
   names(contingency) <- item.id
 
+  # find the items for which no bin contains enough examinees of both groups
+  no_bin <- vapply(catsib_dif, function(d) isTRUE(d$no_bin), logical(1))
+  no_bin[item.skip] <- FALSE
+
   # keep the unrounded p-values to flag the items and the log p-values to choose the item to be
   # removed in the purification
   p_beta <- dif_stat$p
@@ -1055,7 +1098,10 @@ catsib_one <- function(data,
   if (length(dif_item) == 0) dif_item <- NULL
 
   # return the results
-  rst <- list(dif_stat = dif_stat, dif_item = dif_item, contingency = contingency, log_p = log_p)
+  rst <- list(
+    dif_stat = dif_stat, dif_item = dif_item, contingency = contingency, log_p = log_p,
+    no_bin = item.id[no_bin]
+  )
   rst
 }
 
@@ -1168,6 +1214,22 @@ catsib_item <- function(crscore_ref, crscore_foc, resp.ref, resp.foc,
         var.beta = ((var.ref / n.ref + var.foc / n.foc) * weight^2)
       )
     
+    # when no bin contains enough examinees of both groups, return NAs and mark the item
+    if (nrow(item_df) == 0L) {
+      return(list(
+        dif_stat = data.frame(
+          beta = NA, se = NA, z.beta = NA, p = NA,
+          n.ref = 0, n.foc = 0, n.total = 0
+        ),
+        contingency = data.frame(
+          bin = NA, n.ref = 0, prop.ref = NA, var.ref = NA,
+          n.foc = 0, prop.foc = NA, var.foc = NA,
+          n.total = 0, beta = NA, var.beta = NA
+        ),
+        no_bin = TRUE
+      ))
+    }
+
     # compute the beta statistic and its SE
     beta <- sum(item_df$beta)
     se_beta <- sqrt(sum(item_df$var.beta))

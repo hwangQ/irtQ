@@ -355,9 +355,10 @@ unbounded value is below 0.05. A negative value would reverse the order of
 the ability estimates within a group, and a value near zero would place
 almost all corrected ability estimates of a group in one bin. This bound is
 not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
-not overlap when the groups differ in ability; then no bin contains
-examinees of both groups, \eqn{\hat{\beta}} and its standard error are 0,
-\code{z.beta} and the p-value are \code{NaN}, and the item is not flagged.
+not overlap when the groups differ in ability; then no bin contains enough
+examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
+error, \code{z.beta}, and the p-value are \code{NA}, one warning names the items, and
+the items are not flagged.
 
 CATSIB, like SIBTEST (Shealy & Stout, 1993), was designed and evaluated for
 uniform DIF (Nandakumar & Roussos, 2004). Because \eqn{\hat{\beta}} sums
@@ -380,7 +381,8 @@ procedure stops with a warning, because no item is left to estimate the
 abilities, and \code{complete} is \code{FALSE}. The procedure also stops with a
 warning and \code{complete = FALSE} when, after an item is removed, a group has
 fewer than two ability estimates within \code{range}, which the regression
-correction requires; the remaining items then keep the results of the
+correction requires, or no bin contains enough examinees of both groups for any
+remaining item; the remaining items then keep the results of the
 previous iteration, and the items flagged in that iteration are added to the
 flagged items.
 

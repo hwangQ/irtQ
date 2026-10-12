@@ -137,12 +137,16 @@ test_that("catsib() purification works down to the last item", {
   sim <- cst_sim(9)
   # the abilities are estimated from all items, and two items are analyzed; after the first item is
   # removed, the abilities are estimated from the last item
-  rst <- suppressWarnings(catsib(sim$x[1:2, ], sim$resp[, 1:2], score = sim$score, se = sim$se,
-                                 group = sim$group, focal.name = 1, purify = TRUE, alpha = 0.999,
-                                 method = "MAP", verbose = FALSE))
-  expect_identical(rst$with_purify$n.iter, 1L)
-  expect_equal(rst$with_purify$dif_item, which.max(abs(rst$no_purify$dif_stat$z.beta)))
-  expect_false(anyNA(rst$with_purify$dif_stat$n.iter))
+  # with MAP, the corrected abilities of the groups from one item do not overlap, so no bin is
+  # usable for the last item and the purification stops with a warning
+  out1 <- cst_catch(catsib(sim$x[1:2, ], sim$resp[, 1:2], score = sim$score, se = sim$se,
+                           group = sim$group, focal.name = 1, purify = TRUE, alpha = 0.999,
+                           method = "MAP", verbose = FALSE))
+  expect_true(any(grepl("no bin contained enough examinees", out1$warnings)))
+  expect_false(out1$value$with_purify$complete)
+  expect_identical(out1$value$with_purify$n.iter, 0L)
+  expect_equal(out1$value$with_purify$dif_item, out1$value$no_purify$dif_item)
+  expect_false(anyNA(out1$value$with_purify$dif_stat$n.iter))
 
   # with ML, the ability estimates from one item are at the limits of range, so the purification
   # stops with a warning and keeps the results of the previous iteration
@@ -286,4 +290,20 @@ test_that("catsib() leaves the estimates with large standard errors out of rho^2
                    c(TRUE, TRUE, FALSE, TRUE))
   expect_error(catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1,
                       rho.screen = NA), "rho.screen")
+})
+
+test_that("catsib() gives missing statistics when the corrected abilities of the groups do not overlap", {
+  set.seed(21)
+  n <- 300
+  group <- rep(0:1, each = n)
+  score <- c(rnorm(n, -2, 0.5), rnorm(n, 2, 0.5))
+  se <- rep(0.5, 2 * n)
+  resp <- matrix(rbinom(2 * n * 4, 1, 0.5), ncol = 4)
+  out <- cst_catch(catsib(NULL, resp, score = score, se = se, group = group, focal.name = 1,
+                          rho.screen = FALSE))
+  ds <- out$value$no_purify$dif_stat
+  expect_true(all(is.na(ds[, c("beta", "se", "z.beta", "p")])))
+  expect_true(all(ds$n.total == 0))
+  expect_null(out$value$no_purify$dif_item)
+  expect_true(any(grepl("No bin contained enough examinees of both groups", out$warnings)))
 })
