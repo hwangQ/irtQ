@@ -525,12 +525,16 @@ dif_1 <- catsib(
 )
 print(dif_1)
 
-# (2) Compute the CATSIB statistic with purification (x is required)
-dif_2 <- catsib(
-  x = est_par, data = data, D = 1, score = score, se = se, group = group, focal.name = 1,
-  weight.group = "comb", alpha = 0.05, missing = NA, purify = TRUE
-)
-print(dif_2)
+# (2) Compute the CATSIB statistic with purification (x is required; not
+#     run: it takes about 7 seconds because the abilities of the examinees
+#     are re-estimated at every iteration)
+#
+#   dif_2 <- catsib(
+#     x = est_par, data = data, D = 1, score = score, se = se, group = group,
+#     focal.name = 1, weight.group = "comb", alpha = 0.05, missing = NA,
+#     purify = TRUE
+#   )
+#   print(dif_2)
 }
 
 }

@@ -420,17 +420,22 @@
 #' # Display post-hoc pairwise comparison results
 #' print(dif_nopuri$no_purify$post.hoc)
 #'
-#' # (b) Compute GRDIF statistics with purification
-#' #     based on GRDIF_R, including post-hoc comparisons
-#' dif_puri_r <- grdif(
-#'   x = est_par, data = data, score = score, group = group,
-#'   focal.name = c(1, 2, 3), D = 1, alpha = 0.05,
-#'   purify = TRUE, purify.by = "grdifr", post.hoc = TRUE
-#' )
-#' print(dif_puri_r)
-#'
-#' # Display post-hoc results after purification
-#' print(dif_puri_r$with_purify$post.hoc)
+#' # (b) Compute GRDIF statistics with purification based on GRDIF_R,
+#' #     including post-hoc comparisons (not run: it takes about 10 seconds
+#' #     because the abilities of the examinees are re-estimated at every
+#' #     iteration)
+#' #
+#' #   dif_puri_r <- grdif(
+#' #     x = est_par, data = data, score = score, group = group,
+#' #     focal.name = c(1, 2, 3), D = 1, alpha = 0.05,
+#' #     purify = TRUE, purify.by = "grdifr", post.hoc = TRUE
+#' #   )
+#' #   print(dif_puri_r)
+#' #
+#' #   # Display post-hoc results after purification
+#' #   print(dif_puri_r$with_purify$post.hoc)
+#' #
+#' #   purify.by = "grdifs" or "grdifrs" can be used in the same way.
 #' }
 #'
 #' @export
