@@ -143,6 +143,7 @@ test_that("grdif() statistics match an independent implementation", {
 })
 
 test_that("grdif() methods for est_irt and est_item objects match the default method", {
+  skip_on_cran()
   sim <- grt_sim3()
   fit <- suppressWarnings(est_irt(data = sim$resp, D = 1, model = "2PLM", cats = 2, verbose = FALSE))
   r1 <- grdif(fit, group = sim$group, focal.name = c(1, 2), purify = TRUE, verbose = FALSE)
@@ -284,6 +285,35 @@ test_that("grdif() stops when an item is polytomous", {
     data = sim$resp[, 1:3], D = 1, model = "2PLM", cats = 2, verbose = FALSE
   ))
   expect_no_error(grdif(fit, group = sim$group, focal.name = sim$focal, post.hoc = FALSE))
+
+  # an item of the "GRM" or "GPCM" model is refused also when it has two categories
+  x2 <- sim$x
+  x2$model[1] <- "GRM"
+  expect_error(
+    grdif(x2, sim$resp, group = sim$group, focal.name = sim$focal),
+    "supports dichotomous items only"
+  )
+  x2$model[1] <- "GPCM"
+  expect_error(
+    grdif(x2, sim$resp, group = sim$group, focal.name = sim$focal),
+    "supports dichotomous items only"
+  )
+
+  # the objects with polytomous items are refused
+  set.seed(3)
+  xp <- shape_df(
+    par.prm = list(a = c(1, 1.2, 0.9, 1.1), d = list(c(-1, 0.5), c(-0.5, 1), c(-0.8, 0.8), c(-1.2, 0.2))),
+    cats = 3, model = "GRM"
+  )
+  resp_p <- simdat(xp, theta = rnorm(300), D = 1)
+  group_p <- rep(0:1, each = 150)
+  fit_p <- suppressWarnings(est_irt(data = resp_p, D = 1, model = "GRM", cats = 3, verbose = FALSE))
+  expect_error(grdif(fit_p, group = group_p, focal.name = 1), "supports dichotomous items only")
+  score_p <- est_score(fit_p$par.est, resp_p, D = 1)$est.theta
+  fit_p2 <- suppressWarnings(est_item(
+    x = fit_p$par.est, data = resp_p, score = score_p, D = 1, verbose = FALSE
+  ))
+  expect_error(grdif(fit_p2, group = group_p, focal.name = 1), "supports dichotomous items only")
 })
 
 test_that("grdif() warns once about the number of cores during the purification", {
@@ -406,6 +436,10 @@ test_that("grdif() post-hoc analyses match rdif() for each pair, with the refere
     expect_equal(got[, setdiff(names(got), "group.pair")], two$no_purify$dif_stat)
   }
   expect_true(all(c("z & c", "z & a", "z & b", "c & a", "c & b", "a & b") %in% ph$group.pair))
+
+  # a factor group gives the same pairs and signs as the character group
+  rst_f <- grdif(sim$x, sim$resp, score = score, group = factor(group), focal.name = focal)
+  expect_equal(rst_f$no_purify$post.hoc, rst$no_purify$post.hoc)
 })
 
 test_that("print() of grdif results leaves the significance symbols of missing statistics blank", {

@@ -542,7 +542,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
   x <- confirm_df(x)
 
   # stop when any item is polytomous because the GRDIF framework is for dichotomous items
-  if (any(x$cats != 2L)) {
+  if (any(x$cats != 2L) || any(x$model %in% c("GRM", "GPCM"))) {
     stop("grdif() supports dichotomous items only. The GRDIF framework has been evaluated for ",
          "dichotomous items (Lim et al., 2024).", call. = FALSE)
   }
@@ -950,12 +950,14 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
 # the reference group is the reference group of its pairs, and the focal group listed earlier in
 # focal.name is the reference group of a pair of focal groups
 grdif_posthoc <- function(x, data, score, group, focal.name, D, alpha) {
-  # list the groups in the order of the reference group followed by the focal groups
-  group_ord <- c(unique(group[!is.na(group) & !group %in% focal.name]), focal.name)
+  # list the groups in the order of the reference group followed by the focal groups, as text so
+  # that the group values are matched by their labels also when group is a factor
+  group_ord <- c(as.character(unique(group[!is.na(group) & !group %in% focal.name])),
+                 as.character(focal.name))
 
   # find all pairs of the groups, and put the group listed earlier first in each pair
   pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
-  pair.g <- lapply(pair.g, function(pair) pair[order(match(pair, group_ord))])
+  pair.g <- lapply(pair.g, function(pair) pair[order(match(as.character(pair), group_ord))])
 
   # post-hoc DIF analyses
   post.stats <- list()
