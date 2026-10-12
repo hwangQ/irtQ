@@ -5,6 +5,13 @@
 #'
 #' @inheritParams catsib
 #' @inheritParams est_score
+#' @param x A data frame containing item metadata (e.g., item parameters, number
+#'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
+#'   [irtQ::simdat()] for more details about the item metadata. This data frame
+#'   can be easily created using the [irtQ::shape_df()] function.
+#' @param D A scaling constant used in IRT models to make the logistic function
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
+#'   used for this purpose. Default is 1.
 #' @param theta A numeric vector of ability values at which to evaluate the
 #'   log-likelihood function.
 #' @param method A character string specifying the estimation method. Available

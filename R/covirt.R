@@ -8,7 +8,13 @@
 #' Wainer, 1982). The square roots of the diagonal elements (variances) provide
 #' the asymptotic standard errors of the maximum likelihood estimates.
 #'
-#' @inheritParams catsib
+#' @param x A data frame containing item metadata (e.g., item parameters, number
+#'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
+#'   [irtQ::simdat()] for more details about the item metadata. This data frame
+#'   can be easily created using the [irtQ::shape_df()] function.
+#' @param D A scaling constant used in IRT models to make the logistic function
+#'   closely approximate the normal ogive function. A value of 1.702 is commonly
+#'   used for this purpose. Default is 1.
 #' @param nstd An integer or a vector of integers indicating the sample size(s).
 #'   If a vector is provided, its length must match the number of items in the
 #'   `x` argument. Default is 1,000. See **Details**.

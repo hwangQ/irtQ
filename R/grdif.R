@@ -8,6 +8,18 @@
 #' respectively.
 #'
 #' @inheritParams rdif
+#' @param x A data frame containing item metadata (e.g., item parameters,
+#'   number of categories, IRT model types, etc.), or an object of class
+#'   `est_irt` or `est_item` obtained from [irtQ::est_irt()] or
+#'   [irtQ::est_item()]. All items must be dichotomous (`"1PLM"`, `"2PLM"`,
+#'   `"3PLM"`, or `"DRM"`); the function stops when any item is polytomous.
+#'
+#'   See [irtQ::est_irt()] or [irtQ::simdat()] for more details about the item
+#'   metadata. This data frame can be easily created using the
+#'   [irtQ::shape_df()] function.
+#' @param data A matrix of examinees' scored responses (0 or 1) to the
+#'   dichotomous items specified in the `x` argument. Rows represent examinees
+#'   and columns represent items.
 #' @param score A numeric vector of examinees' ability estimates (theta values),
 #'   in the same row order as `data`. The estimates should be based on the item
 #'   parameters in `x` (see **Details**). If `NULL`, abilities are estimated
@@ -17,6 +29,12 @@
 #'   `score` is used only in the initial analysis. The `est_item` method has no
 #'   `score` argument; it uses the abilities stored in the object. Default is
 #'   `NULL`.
+#' @param group A numeric or character vector of examinees' group membership,
+#'   with one element per row of `data`. It should contain the value of the
+#'   reference group and the values in `focal.name`. Examinees whose value is not
+#'   in `focal.name` form the reference group, and the function stops when they
+#'   have more than one value. Examinees with `NA` in `group` are excluded from
+#'   the analysis.
 #' @param focal.name A numeric or character vector of the values in `group` that
 #'   identify the focal groups, with at least one value. For example, given
 #'   `group = c(0, 0, 1, 2, 2, 3, 3)`, where '0' indicates the reference group
@@ -24,7 +42,8 @@
 #'   2, 3)`. The order of `focal.name` determines the order of the focal groups
 #'   in the results (for example, the columns `n.foc1`, `n.foc2`, and `n.foc3`);
 #'   the GRDIF statistics do not depend on it. All examinees whose group value
-#'   is not in `focal.name` form the reference group (see **Details**).
+#'   is not in `focal.name` form the reference group (see **Details**). Each
+#'   value must be found in `group`, and the values must be distinct.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the tests. An item is flagged by a statistic when its p-value is less
 #'   than or equal to `alpha`. The same level is used in the post-hoc pairwise
@@ -67,12 +86,11 @@
 #'   \eqn{RDIF_{S}} statistics of [irtQ::rdif()], \eqn{GRDIF_{RS}} equals
 #'   \eqn{RDIF_{RS}}, and the p-values are the same.
 #'
-#'   [irtQ::grdif()] accepts both dichotomous and polytomous items. For a
-#'   polytomous item, the residual is the observed item score minus the
-#'   model-expected item score, and the null moments are computed from the
-#'   model-predicted category probabilities in the same way, so the statistics
-#'   assess net DIF as in [irtQ::rdif()]. Lim et al. (2024) developed and
-#'   evaluated the GRDIF framework for dichotomous items.
+#'   [irtQ::grdif()] supports dichotomous items only, because the GRDIF
+#'   framework has been developed and evaluated for dichotomous items (Lim et
+#'   al., 2024). The function stops with an error when `x` includes any item
+#'   with three or more score categories or any item of the "GRM" or "GPCM"
+#'   model.
 #'
 #'   To compute the GRDIF statistics, [irtQ::grdif()] requires: (1) item
 #'   parameter estimates obtained from aggregate data (regardless of group
@@ -88,15 +106,14 @@
 #'   taken from the object. When `x` is an object of class `est_item`, the
 #'   ability values stored in the object are also used as `score`.
 #'
-#'   The `group` argument accepts a vector of numeric or character values,
-#'   indicating the group membership of examinees. The vector may contain
-#'   multiple distinct values, where one represents the reference group and the
-#'   others represent focal groups. Its length must match the number of rows in
-#'   the response data, with each value corresponding to an examinee's group
-#'   membership. Once `group` is specified, a numeric or character vector must be
-#'   supplied via the `focal.name` argument to define which group(s) in `group`
-#'   represent the focal groups. The reference group is defined as the group not
-#'   included in `focal.name`.
+#'   The `group` argument contains the group membership of each examinee as
+#'   numeric or character values, and its length must equal the number of rows
+#'   in `data`. The values listed in `focal.name` identify the focal groups, and
+#'   all other examinees form the reference group. The `group` vector should
+#'   therefore contain one value for the reference group in addition to the
+#'   values in `focal.name`, and the function stops when it contains more than
+#'   one such value. Examinees with `NA` in `group` are excluded from the
+#'   analysis.
 #'
 #'   As in the RDIF framework, an iterative purification procedure can be applied
 #'   (Lim et al., 2022, 2024). When `purify = TRUE`, the statistic specified in
@@ -110,17 +127,27 @@
 #'   performed. If no item is flagged in the initial analysis, no iteration is
 #'   performed.
 #'
-#'   Scoring based on a limited number of items can lead to large standard
-#'   errors, which may compromise the effectiveness of DIF detection within the
-#'   GRDIF framework. The `min.resp` argument can be used to exclude ability
-#'   estimates with substantial standard errors, especially during the
-#'   purification process. For example, if `min.resp` is not `NULL` (e.g.,
-#'   `min.resp = 5`), examinees whose total number of responses falls below the
-#'   specified threshold will have their responses treated as missing values
-#'   (i.e., `NA`). Consequently, their ability estimates will also be missing and
-#'   will not be used when computing the GRDIF statistics. If `min.resp = NULL`,
-#'   an examinee's score will be computed as long as at least one response is
-#'   available.
+#'   Scoring based on a small number of item responses can lead to large
+#'   standard errors, potentially reducing the accuracy of DIF detection in the
+#'   GRDIF framework. The `min.resp` argument excludes such examinees. For
+#'   example, if `min.resp = 5`, examinees who responded to fewer than five
+#'   items (but at least one) have all their responses treated as missing (i.e.,
+#'   `NA`) before the abilities are estimated, in the initial analysis and at
+#'   every purification iteration, and a warning reports their number in the
+#'   initial analysis. As a result, their ability estimates are missing, and they
+#'   are not used in the computation of the GRDIF statistics. When `score` is
+#'   supplied, the scores of these examinees are also treated as missing. During
+#'   purification, the count is based on the items that remain after the flagged
+#'   items are removed, and an examinee excluded once stays excluded. If
+#'   `min.resp = NULL`, a score is computed for any examinee with at least one
+#'   valid item response.
+#'
+#'   Examinees whose ability estimate is `NA`, such as examinees without any item
+#'   response or examinees with `NA` in a supplied `score`, are excluded from the
+#'   computation of the GRDIF statistics and from the post-hoc analyses. A
+#'   warning reports the number of examinees with item responses who are
+#'   excluded because of a missing value in `score`. The sample sizes `n.ref`,
+#'   `n.foc1`, `n.foc2`, and so on count only the examinees who are used.
 #'
 #'   The GRDIF statistics test only whether DIF is present between at least one
 #'   pair of groups (Lim et al., 2024). When `post.hoc = TRUE`, the three RDIF
@@ -422,6 +449,9 @@ grdif.est_irt <- function(x, score = NULL, group, focal.name, alpha = 0.05, miss
   # match.call
   cl <- match.call()
 
+  # stop when the response data or the scaling constant is passed, since they are taken from the object
+  check_obj_dots(list(...))
+
   # conduct the DIF analysis with the data, scaling constant, and items of the object
   rst <- grdif_main(
     x = x$par.est, data = x$data, score = score, group = group, focal.name = focal.name,
@@ -449,6 +479,10 @@ grdif.est_item <- function(x, group, focal.name, alpha = 0.05, missing = NA, pur
                            verbose = TRUE, ...) {
   # match.call
   cl <- match.call()
+
+  # stop when the response data, the ability estimates, or the scaling constant is passed, since
+  # they are taken from the object
+  check_obj_dots(list(...), obj_score = TRUE)
 
   # conduct the DIF analysis with the data, ability estimates, scaling constant, and items of the object
   rst <- grdif_main(
@@ -478,41 +512,25 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
   # confirm and correct all item metadata information
   x <- confirm_df(x)
 
-  # transform the response data to a matrix form
-  data <- data.matrix(data)
-
-  # re-code missing values
-  if (!is.na(missing)) {
-    data[data == missing] <- NA
+  # stop when any item is polytomous because the GRDIF framework is for dichotomous items
+  if (any(x$cats != 2L)) {
+    stop("grdif() supports dichotomous items only. The GRDIF framework has been evaluated for ",
+         "dichotomous items (Lim et al., 2024).", call. = FALSE)
   }
 
   # record whether the ability estimates are supplied
   score_given <- !is.null(score)
 
-  # compute the score if score = NULL
-  if (score_given) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      # count the number of responses of each examinee
-      n_resp <- Rfast::rowsums(!is.na(data))
-
-      # find the examinees who responded to fewer items than the minimum
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-
-      # replace all responses of those examinees with NA
-      data[loc_less, ] <- NA
-    }
-    score <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
-    )$est.theta
-  }
+  # check the inputs and prepare the response data and ability estimates
+  prep <- dif_prepare(
+    x = x, data = data, score = score, group = group, focal.name = focal.name,
+    item.skip = NULL, D = D, alpha = alpha, missing = missing, purify = purify,
+    max.iter = max.iter, min.resp = min.resp, method = method, range = range,
+    norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+    fn = "grdif()", multi_focal = TRUE, ...
+  )
+  data <- prep$data
+  score <- prep$score
 
   # a) when no purification is set
   # do only one iteration of DIF analysis
@@ -612,11 +630,6 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
       # record unique item numbers
       item_num <- 1:nrow(x)
 
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
-
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -662,7 +675,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         if (post.hoc) {
           # post-hoc DIF analyses for all pairs of the groups
           post_rst <- grdif_posthoc(
-            x = x_puri[flag_max, ], data = data_puri[, flag_max, drop = FALSE],
+            x = x_puri[flag_max, , drop = FALSE], data = data_puri[, flag_max, drop = FALSE],
             score = score_puri, group = group, D = D, alpha = alpha
           )
 
@@ -675,10 +688,10 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         }
 
         # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
+        x_puri <- x_puri[-flag_max, , drop = FALSE]
 
         # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
+        data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # if min.resp is not NULL, find the examinees who have the number of responses
         # less than specified value (e.g., 5). Then, replace their all responses with NA
@@ -802,7 +815,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
       if (length(item4post[[i]]) != 0) {
         # post-hoc DIF analyses for all pairs of the groups
         post_rst <- grdif_posthoc(
-          x = x[item4post[[i]], ], data = data[, item4post[[i]], drop = FALSE],
+          x = x[item4post[[i]], , drop = FALSE], data = data[, item4post[[i]], drop = FALSE],
           score = score, group = group, D = D, alpha = alpha
         )
 
@@ -885,8 +898,16 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
   ## ---------------------------------
   # compute the GRDIF statistics
   ## ---------------------------------
-  # find the location of examinees for the reference and the focal groups
-  loc_ref <- which(!group %in% focal.name)
+  # treat the responses of examinees without an ability estimate as missing
+  na_score <- is.na(score)
+  if (any(na_score)) {
+    data[na_score, ] <- NA
+    score[na_score] <- 0
+  }
+
+  # find the location of examinees for the reference and the focal groups;
+  # the examinees without a group are not used
+  loc_ref <- which(!is.na(group) & !group %in% focal.name)
   loc_foc <-
     purrr::map(.x = focal.name, ~ {
       which(group == .x)
@@ -973,13 +994,11 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
   mat.tmp3 <- diag(n.fg * 2)
   dmat_rs <- cbind(mat.tmp1, mat.tmp2, mat.tmp3)
 
-  # compute the chi-square statistics
-  chisq_r <- c()
-  chisq_s <- c()
-  chisq_rs <- c()
+  # compute the chi-square statistics, which are missing for the items that a group did not answer
+  chisq_r <- chisq_s <- chisq_rs <- rep(NA_real_, nitem)
   for (i in 1:nitem) {
     if (i %in% all_miss) {
-      chisq[i] <- NaN
+      chisq_r[i] <- chisq_s[i] <- chisq_rs[i] <- NaN
     } else {
       # vectors of mrr and msr estimates
       mu_mrr_est <- c(mrr_r[i], purrr::map_dbl(.x = mrr_f, ~ {

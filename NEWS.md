@@ -305,6 +305,53 @@
   fewer than `min.resp` responses are set to missing and these examinees
   are excluded.
 
+- `grdif()` stopped with the error "object 'chisq' not found" when a
+  group had no response to an item. The three GRDIF statistics and their
+  p-values of such an item are now `NaN`, and the item is not flagged.
+
+- `grdif()` stopped with an obscure error when an examinee had a missing
+  ability estimate, and `catsib()` left such an examinee out without a
+  message. Both functions now exclude the examinee with a warning, and
+  stop with a message when no examinee has an ability estimate.
+
+- `grdif()` put the examinees whose group is missing into the reference
+  group, while its post-hoc analyses left them out. They are now left
+  out of every analysis, as in the other DIF functions.
+
+- The purification of `grdif()` and `catsib()` stopped with an obscure
+  error when one item was left. `catsib()` now stops the purification
+  with a warning when a group has fewer than two ability estimates
+  within `range` for the remaining items, which happens when a single
+  item is left and `method = "ML"`, and reports the results of the last
+  iteration with `complete = FALSE`.
+
+- `grdif()` and `catsib()` silently computed wrong statistics for some
+  invalid inputs, such as responses outside 0 and 1 or character
+  responses, a `group`, `score`, or `se` whose length does not match
+  `data`, or a `focal.name` that is not found in `group`. They now stop
+  with a clear message. `catsib()` also stops when `min.binsize` is not
+  an integer of 2 or more (with 1, the p-values of all items were
+  missing), when `n.bin` is not the maximum and the minimum number of
+  bins in this order, and when `max.del` is not from 0 to less than 1.
+
+## Changes in Behavior
+
+- `grdif()` supports dichotomous items only and stops with an error when
+  `x` includes a polytomous item, because the GRDIF framework has been
+  evaluated for dichotomous items (Lim et al., 2024). Before, polytomous
+  items were analyzed as net DIF, and the default post-hoc analyses of
+  mixed-format data stopped with an error.
+
+- `grdif()` stops with an error when the examinees whose group is not in
+  `focal.name` belong to more than one group, because they form the
+  reference group. Before, the GRDIF statistics combined them into one
+  reference group while the post-hoc analyses compared them separately.
+
+- `grdif()` and `catsib()` apply `min.resp` from the initial analysis
+  also when `score` is supplied: the scores of the examinees with fewer
+  than `min.resp` responses are set to missing and these examinees are
+  excluded, and a warning reports their number.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the

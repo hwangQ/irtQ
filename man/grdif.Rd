@@ -81,7 +81,8 @@ grdif(x, ...)
 \item{x}{A data frame containing item metadata (e.g., item parameters,
 number of categories, IRT model types, etc.), or an object of class
 \code{est_irt} or \code{est_item} obtained from \code{\link[=est_irt]{est_irt()}} or
-\code{\link[=est_item]{est_item()}}.
+\code{\link[=est_item]{est_item()}}. All items must be dichotomous (\code{"1PLM"}, \code{"2PLM"},
+\code{"3PLM"}, or \code{"DRM"}); the function stops when any item is polytomous.
 
 See \code{\link[=est_irt]{est_irt()}} or \code{\link[=simdat]{simdat()}} for more details about the item
 metadata. This data frame can be easily created using the
@@ -92,9 +93,9 @@ are estimated internally, for example \code{tol} or \code{se}. The \code{est_sco
 arguments \code{max.iter} and \code{missing} cannot be passed this way, because the
 function uses arguments with these names for its own purposes.}
 
-\item{data}{A matrix of examinees' item responses corresponding to the items
-specified in the \code{x} argument. Rows represent examinees and columns
-represent items.}
+\item{data}{A matrix of examinees' scored responses (0 or 1) to the
+dichotomous items specified in the \code{x} argument. Rows represent examinees
+and columns represent items.}
 
 \item{score}{A numeric vector of examinees' ability estimates (theta values),
 in the same row order as \code{data}. The estimates should be based on the item
@@ -106,9 +107,12 @@ re-estimated internally at every purification iteration, so a supplied
 \code{score} argument; it uses the abilities stored in the object. Default is
 \code{NULL}.}
 
-\item{group}{A numeric or character vector indicating examinees' group
-membership. The length of the vector must match the number of rows in the
-response data matrix.}
+\item{group}{A numeric or character vector of examinees' group membership,
+with one element per row of \code{data}. It should contain the value of the
+reference group and the values in \code{focal.name}. Examinees whose value is not
+in \code{focal.name} form the reference group, and the function stops when they
+have more than one value. Examinees with \code{NA} in \code{group} are excluded from
+the analysis.}
 
 \item{focal.name}{A numeric or character vector of the values in \code{group} that
 identify the focal groups, with at least one value. For example, given
@@ -116,7 +120,8 @@ identify the focal groups, with at least one value. For example, given
 and '1', '2', and '3' indicate three focal groups, set \code{focal.name = c(1, 2, 3)}. The order of \code{focal.name} determines the order of the focal groups
 in the results (for example, the columns \code{n.foc1}, \code{n.foc2}, and \code{n.foc3});
 the GRDIF statistics do not depend on it. All examinees whose group value
-is not in \code{focal.name} form the reference group (see \strong{Details}).}
+is not in \code{focal.name} form the reference group (see \strong{Details}). Each
+value must be found in \code{group}, and the values must be distinct.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
@@ -319,12 +324,11 @@ on which group is the reference group. For two groups, \eqn{GRDIF_{R}} and
 \eqn{RDIF_{S}} statistics of \code{\link[=rdif]{rdif()}}, \eqn{GRDIF_{RS}} equals
 \eqn{RDIF_{RS}}, and the p-values are the same.
 
-\code{\link[=grdif]{grdif()}} accepts both dichotomous and polytomous items. For a
-polytomous item, the residual is the observed item score minus the
-model-expected item score, and the null moments are computed from the
-model-predicted category probabilities in the same way, so the statistics
-assess net DIF as in \code{\link[=rdif]{rdif()}}. Lim et al. (2024) developed and
-evaluated the GRDIF framework for dichotomous items.
+\code{\link[=grdif]{grdif()}} supports dichotomous items only, because the GRDIF
+framework has been developed and evaluated for dichotomous items (Lim et
+al., 2024). The function stops with an error when \code{x} includes any item
+with three or more score categories or any item of the "GRM" or "GPCM"
+model.
 
 To compute the GRDIF statistics, \code{\link[=grdif]{grdif()}} requires: (1) item
 parameter estimates obtained from aggregate data (regardless of group
@@ -340,15 +344,14 @@ parameter estimates, the response data, and the scaling constant \code{D} are
 taken from the object. When \code{x} is an object of class \code{est_item}, the
 ability values stored in the object are also used as \code{score}.
 
-The \code{group} argument accepts a vector of numeric or character values,
-indicating the group membership of examinees. The vector may contain
-multiple distinct values, where one represents the reference group and the
-others represent focal groups. Its length must match the number of rows in
-the response data, with each value corresponding to an examinee's group
-membership. Once \code{group} is specified, a numeric or character vector must be
-supplied via the \code{focal.name} argument to define which group(s) in \code{group}
-represent the focal groups. The reference group is defined as the group not
-included in \code{focal.name}.
+The \code{group} argument contains the group membership of each examinee as
+numeric or character values, and its length must equal the number of rows
+in \code{data}. The values listed in \code{focal.name} identify the focal groups, and
+all other examinees form the reference group. The \code{group} vector should
+therefore contain one value for the reference group in addition to the
+values in \code{focal.name}, and the function stops when it contains more than
+one such value. Examinees with \code{NA} in \code{group} are excluded from the
+analysis.
 
 As in the RDIF framework, an iterative purification procedure can be applied
 (Lim et al., 2022, 2024). When \code{purify = TRUE}, the statistic specified in
@@ -362,17 +365,27 @@ remaining item is flagged or when \code{max.iter} iterations have been
 performed. If no item is flagged in the initial analysis, no iteration is
 performed.
 
-Scoring based on a limited number of items can lead to large standard
-errors, which may compromise the effectiveness of DIF detection within the
-GRDIF framework. The \code{min.resp} argument can be used to exclude ability
-estimates with substantial standard errors, especially during the
-purification process. For example, if \code{min.resp} is not \code{NULL} (e.g.,
-\code{min.resp = 5}), examinees whose total number of responses falls below the
-specified threshold will have their responses treated as missing values
-(i.e., \code{NA}). Consequently, their ability estimates will also be missing and
-will not be used when computing the GRDIF statistics. If \code{min.resp = NULL},
-an examinee's score will be computed as long as at least one response is
-available.
+Scoring based on a small number of item responses can lead to large
+standard errors, potentially reducing the accuracy of DIF detection in the
+GRDIF framework. The \code{min.resp} argument excludes such examinees. For
+example, if \code{min.resp = 5}, examinees who responded to fewer than five
+items (but at least one) have all their responses treated as missing (i.e.,
+\code{NA}) before the abilities are estimated, in the initial analysis and at
+every purification iteration, and a warning reports their number in the
+initial analysis. As a result, their ability estimates are missing, and they
+are not used in the computation of the GRDIF statistics. When \code{score} is
+supplied, the scores of these examinees are also treated as missing. During
+purification, the count is based on the items that remain after the flagged
+items are removed, and an examinee excluded once stays excluded. If
+\code{min.resp = NULL}, a score is computed for any examinee with at least one
+valid item response.
+
+Examinees whose ability estimate is \code{NA}, such as examinees without any item
+response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
+computation of the GRDIF statistics and from the post-hoc analyses. A
+warning reports the number of examinees with item responses who are
+excluded because of a missing value in \code{score}. The sample sizes \code{n.ref},
+\code{n.foc1}, \code{n.foc2}, and so on count only the examinees who are used.
 
 The GRDIF statistics test only whether DIF is present between at least one
 pair of groups (Lim et al., 2024). When \code{post.hoc = TRUE}, the three RDIF

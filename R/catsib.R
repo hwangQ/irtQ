@@ -35,11 +35,12 @@
 #'   estimated internally. Default is `1`.
 #' @param n.bin A numeric vector of two positive integers giving the maximum and
 #'   minimum numbers of equal-width bins (intervals) of the corrected ability
-#'   scale. For each item, the number of bins starts at the maximum and
+#'   scale, in this order (the maximum must not be smaller than the minimum).
+#'   For each item, the number of bins starts at the maximum and
 #'   decreases by one until the condition set by `max.del` is met; if it is not
 #'   met with the minimum number, the minimum number is used. Default is
 #'   `c(80, 10)`. See **Details**.
-#' @param min.binsize A positive integer specifying the minimum number of
+#' @param min.binsize An integer of 2 or more specifying the minimum number of
 #'   examinees of each group in a bin. A bin is used in the computation of
 #'   \eqn{\hat{\beta}} only if it contains at least `min.binsize` examinees of
 #'   both the reference and focal groups who responded to the item. Default is
@@ -48,7 +49,8 @@
 #'   examinees of each group who responded to the item that may be excluded
 #'   because they fall in bins that are not used (see `min.binsize`). The number
 #'   of bins is reduced until the excluded proportion is at most `max.del` in
-#'   both groups. Default is `0.075`. See **Details**.
+#'   both groups. It must be at least 0 and less than 1. Default is `0.075`.
+#'   See **Details**.
 #' @param weight.group A character string specifying the target ability
 #'   distribution used to weight the bins in \eqn{\hat{\beta}} and its standard
 #'   error: `"comb"` for the combined distribution of the reference and focal
@@ -164,16 +166,32 @@
 #'   been performed. If no item is flagged in the initial analysis, no iteration
 #'   is performed.
 #'
-#'   Scoring based on a limited number of items may result in large standard
-#'   errors, which can negatively affect the effectiveness of DIF detection using
-#'   the CATSIB procedure. The `min.resp` argument can be used to prevent the use
-#'   of scores with large standard errors, particularly during the purification
-#'   process. For example, if `min.resp` is not `NULL` (e.g., `min.resp = 5`),
-#'   item responses from examinees whose total number of valid responses is below
-#'   the specified threshold are treated as missing (i.e., `NA`). As a result,
-#'   their ability estimates are also treated as missing and are excluded from
-#'   the CATSIB statistic computation. If `min.resp = NULL`, a score will be
-#'   computed for any examinee with at least one valid item response.
+#'   Scoring based on a small number of item responses can lead to large
+#'   standard errors, potentially reducing the accuracy of DIF detection with
+#'   CATSIB. The `min.resp` argument excludes such examinees. For example, if
+#'   `min.resp = 5`, examinees who responded to fewer than five items (but at
+#'   least one) have all their responses treated as missing (i.e., `NA`) before
+#'   the abilities are estimated, in the initial analysis and at every
+#'   purification iteration, and a warning reports their number in the initial
+#'   analysis. As a result, their ability estimates are missing, and they are not
+#'   used in the computation of the CATSIB statistics. When `score` is supplied,
+#'   the scores of these examinees are also treated as missing. During
+#'   purification, the count is based on the items that remain after the flagged
+#'   items are removed, and an examinee excluded once stays excluded. If
+#'   `min.resp = NULL`, a score is computed for any examinee with at least one
+#'   valid item response.
+#'
+#'   Examinees whose ability estimate is `NA`, such as examinees without any item
+#'   response or examinees with `NA` in a supplied `score`, are excluded from the
+#'   analysis, and a warning reports the number of examinees with item responses
+#'   who are excluded because of a missing value in `score`. The sample sizes
+#'   `n.ref` and `n.foc` count only the examinees in the bins used to compute
+#'   \eqn{\hat{\beta}}.
+#'
+#'   The `group` argument should contain exactly two distinct values, one for the
+#'   reference group and one for the focal group identified by `focal.name`, and
+#'   its length must equal the number of rows in `data`. Examinees with `NA` in
+#'   `group` are excluded from the analysis.
 #'
 #' @return This function returns an object of class `"catsib"`, which is a list
 #' with the following five components:
@@ -413,8 +431,14 @@ catsib <- function(x = NULL,
     }
   }
 
+  # stop when the abilities must be estimated but the item metadata are not provided
+  if (is.null(score) && is.null(x)) {
+    stop("To estimate the abilities, the item metadata must be provided in the argument 'x' ",
+         "when 'score' is not supplied.", call. = FALSE)
+  }
+
   # transform the response data to a matrix form
-  data <- data.matrix(data)
+  data <- as.matrix(data)
 
   # re-code missing values
   if (!is.na(missing)) {
@@ -422,7 +446,7 @@ catsib <- function(x = NULL,
   }
 
   # stop when the model includes any polytomous response data
-  if (any(data > 1, na.rm = TRUE)) {
+  if (any(suppressWarnings(as.numeric(data)) > 1, na.rm = TRUE)) {
     stop("The current version only supports dichotomous response data.", call. = FALSE)
   }
 
@@ -442,33 +466,118 @@ catsib <- function(x = NULL,
     item.id <- x$id
   }
 
+  # transform the response data to a numeric matrix and check the responses
+  data <- resp_to_matrix(data, rep(2, length(item.id)), item.id)
+
+  # check the group vector and the focal group
+  check_group(group, focal.name, nrow(data))
+
+  # stop when the group vector has more than two groups
+  if (length(unique(group[!is.na(group)])) > 2L) {
+    stop("'group' must contain exactly two groups (the reference and focal groups).", call. = FALSE)
+  }
+
+  # stop when the significance level is not a single value between 0 and 1
+  check_alpha(alpha)
+
+  # stop when the maximum number of iterations is not a positive whole number
+  check_max_iter(max.iter, purify)
+
+  # stop when the minimum number of responses is not a single nonnegative number
+  check_min_resp(min.resp)
+
+  # stop when the abilities are estimated or updated with an unsupported scoring method
+  if (is.null(score) || purify) {
+    check_pattern_method(method, fn = "catsib()")
+  }
+
+  # check the positions of the items to be skipped
+  item.skip <- check_item_skip(item.skip, length(item.id))
+
+  # stop when the numbers of bins are not two positive whole numbers in decreasing order
+  if (!(is.numeric(n.bin) && length(n.bin) == 2L && all(is.finite(n.bin)) && all(n.bin >= 1) &&
+        all(n.bin == round(n.bin)) && n.bin[1] >= n.bin[2])) {
+    stop("'n.bin' must contain two positive whole numbers, the maximum and the minimum numbers ",
+         "of bins, in this order.", call. = FALSE)
+  }
+
+  # stop when the minimum bin size cannot give the variance of the responses in a bin
+  if (!(is.numeric(min.binsize) && length(min.binsize) == 1L && is.finite(min.binsize) &&
+        min.binsize >= 2 && min.binsize == round(min.binsize))) {
+    stop("'min.binsize' must be a single whole number of 2 or more.", call. = FALSE)
+  }
+
+  # stop when the maximum proportion of excluded examinees is not a single proportion
+  if (!(is.numeric(max.del) && length(max.del) == 1L && is.finite(max.del) && max.del >= 0 &&
+        max.del < 1)) {
+    stop("'max.del' must be a single number from 0 to less than 1.", call. = FALSE)
+  }
+
   # record whether the ability estimates are supplied
   score_given <- !is.null(score)
 
+  # if min.resp is not NULL, find the examinees who have the number of responses
+  # less than specified value (e.g., 5). Then, replace their all responses with NA
+  loc_less <- integer(0)
+  if (!is.null(min.resp)) {
+    n_resp <- rowSums(!is.na(data))
+    loc_less <- which(n_resp < min.resp & n_resp > 0)
+
+    # warn that the examinees with too few responses are excluded
+    if (length(loc_less) > 0L) {
+      warning(length(loc_less), " examinee(s) with fewer than ", min.resp,
+              " responses were excluded.", call. = FALSE)
+    }
+    data[loc_less, ] <- NA
+  }
+
   # compute the score if score = NULL
   if (!is.null(score)) {
-    # transform scores to a vector form
-    if (is.matrix(score) | is.data.frame(score)) {
-      score <- as.numeric(data.matrix(score))
-    }
-    # transform scores to a vector form
+    # transform the scores to a vector form and check them
+    score <- check_score(score, nrow(data))
+
+    # transform the standard errors to a vector form
     if (is.matrix(se) | is.data.frame(se)) {
       se <- as.numeric(data.matrix(se))
     }
-  } else {
-    # if min.resp is not NULL, find the examinees who have the number of responses
-    # less than specified value (e.g., 5). Then, replace their all responses with NA
-    if (!is.null(min.resp)) {
-      n_resp <- Rfast::rowsums(!is.na(data))
-      loc_less <- which(n_resp < min.resp & n_resp > 0)
-      data[loc_less, ] <- NA
+
+    # stop when the standard errors are not numbers or do not match the rows of the response data
+    if (!is.numeric(se) || length(se) != nrow(data)) {
+      stop("'se' must be a numeric vector whose length equals the number of rows in 'data'.",
+           call. = FALSE)
     }
-    score_rst <- est_score(
-      x = x, data = data, D = D, method = method, range = range, norm.prior = norm.prior,
-      nquad = nquad, weights = weights, ncore = ncore, ...
+
+    # treat the ability estimates of the examinees excluded by min.resp as missing
+    score[loc_less] <- NA
+    se[loc_less] <- NA
+  } else {
+    # estimate the abilities; the examinees without a response are excluded without a warning
+    score_rst <- dif_rescore(
+      x = x, data = data, score = NULL, loc_resp = NULL, first = TRUE, D = D, method = method,
+      range = range, norm.prior = norm.prior, nquad = nquad, weights = weights, ncore = ncore,
+      quiet_na = TRUE, return_se = TRUE, ...
     )
-    score <- score_rst$est.theta
-    se <- score_rst$se.theta
+    score <- score_rst$score
+    se <- score_rst$se
+  }
+
+  # stop when no examinee has an ability estimate
+  if (all(is.na(score[!is.na(group)]))) {
+    stop("No examinee has an ability estimate.", call. = FALSE)
+  }
+
+  # exclude the examinees with responses but without an ability estimate, with a warning
+  na_score <- is.na(score) & rowSums(!is.na(data)) > 0
+  if (any(na_score)) {
+    warning(sum(na_score), " examinee(s) with a missing ability estimate were excluded.",
+            call. = FALSE)
+    data[na_score, ] <- NA
+  }
+
+  # stop when a group has fewer than two ability estimates to compute the regression correction
+  if (!catsib_enough(score = score, group = group, focal.name = focal.name, range = range)) {
+    stop("Each group must have at least two ability estimates within 'range' to compute ",
+         "the regression correction.", call. = FALSE)
   }
 
   # confirm the target ability density function
@@ -538,10 +647,8 @@ catsib <- function(x = NULL,
       # record unique item numbers
       item_num <- 1:nrow(x)
 
-      # in case when at least one DIF item is detected from the no purification DIF analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
+      # indicate whether the purification stops because a group has too few ability estimates
+      no_score <- FALSE
 
       # print a message
       if (verbose) {
@@ -575,10 +682,10 @@ catsib <- function(x = NULL,
         item_num <- item_num[-flag_max]
 
         # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, ]
+        x_puri <- x_puri[-flag_max, , drop = FALSE]
 
         # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max]
+        data_puri <- data_puri[, -flag_max, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -595,6 +702,10 @@ catsib <- function(x = NULL,
           data_puri[loc_less, ] <- NA
         }
 
+        # keep the ability estimates of the previous iteration in case the purification stops
+        score_prev <- score_puri
+        se_prev <- se_puri
+
         # compute the updated ability estimates and their standard errors after deleting the
         # detected DIF item data; only the examinees who responded to the deleted item are
         # rescored after the first iteration
@@ -608,6 +719,23 @@ catsib <- function(x = NULL,
           )
         score_puri <- score_rst_puri$score
         se_puri <- score_rst_puri$se
+
+        # stop the purification when fewer than two examinees of a group have an ability estimate
+        # to compute the regression correction; the remaining items keep the results of the
+        # previous iteration
+        if (!catsib_enough(score = score_puri, group = group, focal.name = focal.name, range = range)) {
+          no_score <- TRUE
+          score_puri <- score_prev
+          se_puri <- se_prev
+          dif_stat[item_num, 1:8] <- dif_stat_tmp[-flag_max, ]
+          dif_stat[item_num, 9] <- i - 1
+          contingency[item_num] <- contingency_tmp[-flag_max]
+
+          # add the items flagged at the previous iteration, except the item deleted at this one
+          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_max),
+                                                 seq_len(nrow(dif_stat_tmp))[-flag_max])])
+          break
+        }
 
         # do DIF analysis using the updated ability estimates
         item.id <- x_puri$id
@@ -642,12 +770,18 @@ catsib <- function(x = NULL,
         cat("", "\n")
       }
 
-      # record the actual number of iteration
-      n_iter <- i
+      # record the actual number of iterations; the statistics are not recomputed in the
+      # iteration that stops the purification
+      n_iter <- if (no_score) i - 1L else i
 
-      # if the iteration reached out the maximum number of iteration but the purification was incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
+      if (no_score) {
+        # if a group has too few ability estimates left, then, return a warning message
+        warning("The purification stopped because fewer than two examinees of a group had an ",
+                "ability estimate within 'range' for the remaining items.", call. = FALSE)
+        complete <- FALSE
+      } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
+        # if the iteration reached out the maximum number of iteration but the purification was incomplete,
+        # then, return a warning message
         warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
         complete <- FALSE
 
@@ -666,6 +800,9 @@ catsib <- function(x = NULL,
           cat("Purification is finished.", "\n")
         }
       }
+
+      # warn once about the examinees who lost their ability estimates during the purification
+      warn_purify_excluded(sum(is.na(score_puri) & rowSums(!is.na(data)) > 0))
 
       # record the final DIF detection results with the purification procedure
       with_purify$dif_stat <- dif_stat
@@ -691,6 +828,17 @@ catsib <- function(x = NULL,
   class(rst) <- "catsib"
   rst$call <- cl
   rst
+}
+
+
+# This function checks whether each of the two groups has at least two ability estimates within
+# the range used to compute the regression correction
+catsib_enough <- function(score, group, focal.name, range) {
+  # find the ability estimates strictly within the range
+  in_range <- !is.na(score) & score > range[1] & score < range[2]
+
+  # count the estimates of the focal group and the reference group
+  sum(in_range[which(group == focal.name)]) >= 2L && sum(in_range[which(group != focal.name)]) >= 2L
 }
 
 

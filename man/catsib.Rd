@@ -81,12 +81,13 @@ estimated internally. Default is \code{1}.}
 
 \item{n.bin}{A numeric vector of two positive integers giving the maximum and
 minimum numbers of equal-width bins (intervals) of the corrected ability
-scale. For each item, the number of bins starts at the maximum and
+scale, in this order (the maximum must not be smaller than the minimum).
+For each item, the number of bins starts at the maximum and
 decreases by one until the condition set by \code{max.del} is met; if it is not
 met with the minimum number, the minimum number is used. Default is
 \code{c(80, 10)}. See \strong{Details}.}
 
-\item{min.binsize}{A positive integer specifying the minimum number of
+\item{min.binsize}{An integer of 2 or more specifying the minimum number of
 examinees of each group in a bin. A bin is used in the computation of
 \eqn{\hat{\beta}} only if it contains at least \code{min.binsize} examinees of
 both the reference and focal groups who responded to the item. Default is
@@ -96,7 +97,8 @@ both the reference and focal groups who responded to the item. Default is
 examinees of each group who responded to the item that may be excluded
 because they fall in bins that are not used (see \code{min.binsize}). The number
 of bins is reduced until the excluded proportion is at most \code{max.del} in
-both groups. Default is \code{0.075}. See \strong{Details}.}
+both groups. It must be at least 0 and less than 1. Default is \code{0.075}.
+See \strong{Details}.}
 
 \item{weight.group}{A character string specifying the target ability
 distribution used to weight the bins in \eqn{\hat{\beta}} and its standard
@@ -350,16 +352,32 @@ stops when no remaining item is flagged or when \code{max.iter} iterations have
 been performed. If no item is flagged in the initial analysis, no iteration
 is performed.
 
-Scoring based on a limited number of items may result in large standard
-errors, which can negatively affect the effectiveness of DIF detection using
-the CATSIB procedure. The \code{min.resp} argument can be used to prevent the use
-of scores with large standard errors, particularly during the purification
-process. For example, if \code{min.resp} is not \code{NULL} (e.g., \code{min.resp = 5}),
-item responses from examinees whose total number of valid responses is below
-the specified threshold are treated as missing (i.e., \code{NA}). As a result,
-their ability estimates are also treated as missing and are excluded from
-the CATSIB statistic computation. If \code{min.resp = NULL}, a score will be
-computed for any examinee with at least one valid item response.
+Scoring based on a small number of item responses can lead to large
+standard errors, potentially reducing the accuracy of DIF detection with
+CATSIB. The \code{min.resp} argument excludes such examinees. For example, if
+\code{min.resp = 5}, examinees who responded to fewer than five items (but at
+least one) have all their responses treated as missing (i.e., \code{NA}) before
+the abilities are estimated, in the initial analysis and at every
+purification iteration, and a warning reports their number in the initial
+analysis. As a result, their ability estimates are missing, and they are not
+used in the computation of the CATSIB statistics. When \code{score} is supplied,
+the scores of these examinees are also treated as missing. During
+purification, the count is based on the items that remain after the flagged
+items are removed, and an examinee excluded once stays excluded. If
+\code{min.resp = NULL}, a score is computed for any examinee with at least one
+valid item response.
+
+Examinees whose ability estimate is \code{NA}, such as examinees without any item
+response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
+analysis, and a warning reports the number of examinees with item responses
+who are excluded because of a missing value in \code{score}. The sample sizes
+\code{n.ref} and \code{n.foc} count only the examinees in the bins used to compute
+\eqn{\hat{\beta}}.
+
+The \code{group} argument should contain exactly two distinct values, one for the
+reference group and one for the focal group identified by \code{focal.name}, and
+its length must equal the number of rows in \code{data}. Examinees with \code{NA} in
+\code{group} are excluded from the analysis.
 }
 \examples{
 \donttest{

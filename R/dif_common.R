@@ -65,6 +65,36 @@ check_group <- function(group, focal.name, nrow_data) {
 }
 
 
+# This function stops when the group vector or the focal groups are invalid for a multiple-group
+# analysis, in which every value of 'group' not in 'focal.name' is the reference group
+check_group_mg <- function(group, focal.name, nrow_data) {
+  # stop when the group vector does not match the rows of the response data
+  if (length(group) != nrow_data) {
+    stop("The length of 'group' must equal the number of rows in 'data'.", call. = FALSE)
+  }
+
+  # stop when the focal groups are not distinct values found in the group vector
+  if (length(focal.name) == 0L || anyNA(focal.name) || anyDuplicated(focal.name) > 0L ||
+      !all(focal.name %in% group)) {
+    stop("'focal.name' must contain distinct values, each found in 'group'.", call. = FALSE)
+  }
+
+  # find the groups that are not focal groups
+  ref_name <- unique(group[!is.na(group) & !(group %in% focal.name)])
+
+  # stop when there is no examinee in the reference group
+  if (length(ref_name) == 0L) {
+    stop("'group' must contain at least one examinee of the reference group.", call. = FALSE)
+  }
+
+  # stop when more than one group is left as the reference group
+  if (length(ref_name) > 1L) {
+    stop("'group' must contain exactly one reference group, which is the group not included ",
+         "in 'focal.name'.", call. = FALSE)
+  }
+}
+
+
 # This function drops the item parameter columns that no remaining item uses, which are the
 # columns beyond the larger of three and the maximum number of score categories
 trim_par_cols <- function(x) {
@@ -81,11 +111,11 @@ trim_par_cols <- function(x) {
 }
 
 
-# This function checks the inputs of rdif() and crdif(), recodes the missing responses, and
+# This function checks the inputs of rdif(), crdif(), and grdif(), recodes the missing responses, and
 # returns the response matrix, the ability estimates, and the positions of the items to be skipped
 dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, missing,
                         purify, max.iter, min.resp, method, range, norm.prior, nquad,
-                        weights, ncore, fn = "rdif()", ...) {
+                        weights, ncore, fn = "rdif()", multi_focal = FALSE, ...) {
   # transform the response data to a matrix form
   data <- as.matrix(data)
 
@@ -97,13 +127,18 @@ dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, 
   # transform the response data to a numeric matrix and check the responses
   data <- resp_to_matrix(data, x$cats, x$id)
 
-  # check the group vector and the focal group
-  check_group(group, focal.name, nrow(data))
+  if (multi_focal) {
+    # check the group vector and the focal groups of a multiple-group analysis
+    check_group_mg(group, focal.name, nrow(data))
+  } else {
+    # check the group vector and the focal group
+    check_group(group, focal.name, nrow(data))
 
-  # stop when the group vector has more than two groups
-  if (length(unique(group[!is.na(group)])) > 2L) {
-    stop("'group' must contain exactly two groups (the reference and focal groups). ",
-         "Use grdif() for more than two groups.", call. = FALSE)
+    # stop when the group vector has more than two groups
+    if (length(unique(group[!is.na(group)])) > 2L) {
+      stop("'group' must contain exactly two groups (the reference and focal groups). ",
+           "Use grdif() for more than two groups.", call. = FALSE)
+    }
   }
 
   # stop when the significance level is not a single value between 0 and 1
