@@ -109,9 +109,13 @@ item difficulty (or threshold) parameters during calibration. Default is
 3PLM guessing parameters during calibration. Default is \code{TRUE}.}
 
 \item{aprior, bprior, gprior}{A list specifying the prior distribution for all
-item discrimination (slope), difficulty (or threshold), guessing
-parameters. Three distributions are supported: Beta, Log-normal, and
-Normal. The list must have two elements:
+item discrimination (slope), difficulty (or threshold), and guessing
+parameters. The slope prior is placed on \code{D} times the slope, that is,
+the density in \code{aprior} is evaluated at \code{D * a}; with \code{D = 1} (the
+default), this is the slope itself. The priors also enter the information
+matrix from which the standard errors are computed. Three distributions
+are supported: Beta, Log-normal, and Normal. The list must have two
+elements:
 \itemize{
 \item \code{dist}: A character string, one of \code{"beta"}, \code{"lnorm"}, or \code{"norm"}.
 \item \code{params}: A numeric vector of length two giving the distribution's
@@ -163,7 +167,11 @@ and their corresponding standard errors.}
 according to the item metadata format.}
 
 \item{se.est}{A data frame of standard errors for the item parameter
-estimates, computed based on the observed information functions}
+estimates, computed from the inverse of the observed information matrix
+(the Hessian of the negative log-likelihood, plus the negative second
+derivatives of the log prior densities when priors are used). The abilities
+in \code{score} are treated as known, so their estimation error is not reflected
+in the standard errors.}
 
 \item{pos.par}{A data frame indicating the position of each item parameter
 within the estimation vector. Useful for interpreting the variance-covariance

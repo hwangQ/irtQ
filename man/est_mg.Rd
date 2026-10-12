@@ -169,9 +169,13 @@ item difficulty (or threshold) parameters during calibration. Default is
 3PLM guessing parameters during calibration. Default is \code{TRUE}.}
 
 \item{aprior, bprior, gprior}{A list specifying the prior distribution for all
-item discrimination (slope), difficulty (or threshold), guessing
-parameters. Three distributions are supported: Beta, Log-normal, and
-Normal. The list must have two elements:
+item discrimination (slope), difficulty (or threshold), and guessing
+parameters. The slope prior is placed on \code{D} times the slope, that is,
+the density in \code{aprior} is evaluated at \code{D * a}; with \code{D = 1} (the
+default), this is the slope itself. The priors also enter the information
+matrix from which the standard errors are computed. Three distributions
+are supported: Beta, Log-normal, and Normal. The list must have two
+elements:
 \itemize{
 \item \code{dist}: A character string, one of \code{"beta"}, \code{"lnorm"}, or \code{"norm"}.
 \item \code{params}: A numeric vector of length two giving the distribution's
@@ -327,8 +331,11 @@ the item metadata structure.}
 
 \item{se.est}{A list with the same structure as \code{estimates}, but containing only
 the standard errors of the item parameter estimates. Note that the standard
-errors are calculated using the cross-product approximation method
-(Meilijson, 1989).}
+errors are computed from the inverse of the information matrix, which is the
+cross-product (empirical) information matrix of the marginal log-likelihood
+evaluated at the final estimates (Meilijson, 1989), plus the prior
+information (the negative second derivatives of the log prior densities) for
+the parameters that have prior distributions.}
 
 \item{pos.par}{A data frame indicating the position index of each estimated
 item parameter. This index is based on the combined data set across all groups
@@ -412,10 +419,13 @@ cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"} wi
 new items to calibrate, the single EM cycle is not judged by \code{Etol} and
 only the M-step check applies. For FIPC with all items fixed, see \code{Etol}.}
 
-\item{test.2}{Second-order test result indicating whether the information matrix
-is positive definite, a necessary condition for identifying a local maximum.
-The message reports a possible local maximum only when the first-order test
-is also satisfied.}
+\item{test.2}{A message indicating whether the information matrix used for the
+standard errors (see \code{se.est}) is positive definite. Because the
+cross-product information matrix is positive semidefinite by construction,
+this check detects a singular (rank-deficient) information matrix, for
+example due to unidentified parameters; it is not a second-order test of
+the log-likelihood surface. The message reports a possible local maximum
+only when the first-order test is also satisfied.}
 
 \item{var.note}{A note indicating whether the variance-covariance matrix
 was successfully obtained from the information matrix.}

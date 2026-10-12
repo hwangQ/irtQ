@@ -19,7 +19,11 @@
 #'   and their corresponding standard errors.}
 #'   \item{par.est}{A data frame containing only the item parameter estimates.}
 #'   \item{se.est}{A data frame containing the standard errors of the item parameter
-#'   estimates, calculated using the cross-product approximation method (Meilijson, 1989).}
+#'   estimates, computed from the inverse of the information matrix: the
+#'   cross-product (empirical) information matrix of the marginal log-likelihood
+#'   evaluated at the final estimates (Meilijson, 1989), plus the prior information
+#'   (the negative second derivatives of the log prior densities) for the
+#'   parameters that have prior distributions.}
 #'   \item{pos.par}{A data frame indicating the position index of each estimated
 #'   item parameter. This is useful when interpreting the variance-covariance matrix.}
 #'   \item{covariance}{A variance-covariance matrix of the item parameter estimates.}
@@ -55,8 +59,11 @@
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}
 #'   \item{test.1}{A message indicating whether the convergence criteria were met
 #'   (M-step convergence and the EM criterion).}
-#'   \item{test.2}{Result of the second-order test indicating whether the
-#'   information matrix was positive definite (a condition for maximum likelihood).}
+#'   \item{test.2}{A message indicating whether the information matrix used for the
+#'   standard errors was positive definite. Because the cross-product information
+#'   matrix is positive semidefinite by construction, this check detects a
+#'   singular (rank-deficient) information matrix; it is not a second-order test
+#'   of the log-likelihood surface.}
 #'   \item{var.note}{A note indicating whether the variance-covariance matrix was
 #'   successfully derived from the information matrix.}
 #'   \item{fipc}{Logical value indicating whether Fixed Item Parameter Calibration
@@ -81,7 +88,11 @@
 #'   parameter estimates (without standard errors).}
 #'   \item{se.est}{Same structure as `estimates`, but containing only the standard
 #'   errors of the item parameter estimates. The standard errors are computed
-#'   using the cross-product approximation method (Meilijson, 1989).}
+#'   from the inverse of the information matrix: the cross-product (empirical)
+#'   information matrix of the marginal log-likelihood evaluated at the final
+#'   estimates (Meilijson, 1989), plus the prior information (the negative second
+#'   derivatives of the log prior densities) for the parameters that have prior
+#'   distributions.}
 #'   \item{pos.par}{A data frame indicating the position index of each estimated
 #'   parameter. This index is based on the combined item set across all groups
 #'   and is useful when interpreting the variance-covariance matrix.}
@@ -125,8 +136,11 @@
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}
 #'   \item{test.1}{A message indicating whether the convergence criteria were met
 #'   (M-step convergence and the EM criterion).}
-#'   \item{test.2}{Second-order condition test result indicating whether the
-#'   information matrix is positive definite.}
+#'   \item{test.2}{A message indicating whether the information matrix used for the
+#'   standard errors was positive definite. Because the cross-product information
+#'   matrix is positive semidefinite by construction, this check detects a
+#'   singular (rank-deficient) information matrix; it is not a second-order test
+#'   of the log-likelihood surface.}
 #'   \item{var.note}{A note indicating whether the variance-covariance matrix
 #'   was successfully derived from the information matrix.}
 #'   \item{fipc}{Logical value indicating whether Fixed Item Parameter Calibration
@@ -145,7 +159,11 @@
 #'   and their corresponding standard errors.}
 #'   \item{par.est}{A data frame containing only the item parameter estimates.}
 #'   \item{se.est}{A data frame containing the standard errors of the item parameter
-#'   estimates, computed using observed information functions.}
+#'   estimates, computed from the inverse of the observed information matrix (the
+#'   Hessian of the negative log-likelihood, plus the negative second derivatives
+#'   of the log prior densities when priors are used). The abilities in `score`
+#'   are treated as known, so their estimation error is not reflected in the
+#'   standard errors.}
 #'   \item{pos.par}{A data frame indicating the position index of each estimated
 #'   item parameter. This is useful when interpreting the variance-covariance matrix.}
 #'   \item{covariance}{A variance-covariance matrix of the item parameter estimates.}

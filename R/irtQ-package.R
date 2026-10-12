@@ -147,8 +147,9 @@
 #' the [irtQ::est_irt()] function, which implements marginal maximum likelihood
 #' estimation via the expectation-maximization (MMLE-EM) algorithm
 #' (Bock & Aitkin, 1981). The function returns item parameter estimates
-#' along with their standard errors, computed using the cross-product
-#' approximation method (Meilijson, 1989).
+#' along with their standard errors, computed from the cross-product
+#' approximation of the information matrix (Meilijson, 1989), to which the
+#' information of any item parameter priors is added.
 #'
 #' The \pkg{irtQ} package supports calibration for mixed-format tests containing
 #' both dichotomous and polytomous items. It also provides a flexible set of

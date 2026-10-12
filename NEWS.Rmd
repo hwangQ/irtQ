@@ -435,8 +435,9 @@ knitr::opts_chunk$set(
   results that depend on them.
 
 * `grdif()` supports dichotomous items only and stops with an error when `x`
-  includes a polytomous item, because the GRDIF framework has been evaluated
-  for dichotomous items (Lim et al., 2024). Before, polytomous items were
+  includes a polytomous item or an item of the "GRM" or "GPCM" model, also
+  one with two categories, because the GRDIF framework has been evaluated for
+  dichotomous items (Lim et al., 2024). Before, polytomous items were
   analyzed as net DIF, and the default post-hoc analyses of mixed-format data
   could stop with an error.
 
@@ -613,6 +614,14 @@ knitr::opts_chunk$set(
   ridge to its diagonal instead of random numbers. The results are
   deterministic, and the random number stream of the user is no longer used by
   the estimation.
+
+* The help pages of `est_irt()`, `est_mg()`, `est_item()`, and `getirt()` now
+  describe how the standard errors are computed: the information of the item
+  parameter priors is added to the cross-product information matrix of
+  `est_irt()` and `est_mg()`, and `est_item()` uses the observed information
+  with the abilities treated as known. They also state that `test.2` checks
+  whether the information matrix is singular, and that the slope prior
+  `aprior` is placed on `D` times the slope.
 
 # irtQ 1.3.1
 

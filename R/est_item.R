@@ -73,7 +73,11 @@
 #'   according to the item metadata format.}
 #'
 #'   \item{se.est}{A data frame of standard errors for the item parameter
-#'   estimates, computed based on the observed information functions}
+#'   estimates, computed from the inverse of the observed information matrix
+#'   (the Hessian of the negative log-likelihood, plus the negative second
+#'   derivatives of the log prior densities when priors are used). The abilities
+#'   in `score` are treated as known, so their estimation error is not reflected
+#'   in the standard errors.}
 #'
 #'   \item{pos.par}{A data frame indicating the position of each item parameter
 #'   within the estimation vector. Useful for interpreting the variance-covariance
