@@ -305,3 +305,16 @@ test_that("grdif() flags items with the unrounded p-values", {
                alpha = alpha, post.hoc = FALSE)
   expect_identical(j %in% rst$no_purify$dif_item$grdifrs, ref$p.grdifrs[j] <= alpha)
 })
+
+test_that("grdif() uses a generalized inverse when a covariance matrix is singular", {
+  sim <- grt_sim(seed = 5)
+
+  # every examinee has the same ability estimate, so the MSR is a linear function of the MRR
+  out <- grt_catch(grdif(sim$x, sim$resp, score = rep(0.5, nrow(sim$resp)), group = sim$group,
+                         focal.name = sim$focal, post.hoc = FALSE))
+  ds <- out$value$no_purify$dif_stat
+  expect_true(any(grepl("singular or nearly singular", out$warnings)))
+  expect_equal(ds$grdifrs, ds$grdifr, tolerance = 1e-3)
+  expect_equal(ds$p.grdifrs, ds$p.grdifr, tolerance = 1e-3)
+  expect_false(anyNA(ds$p.grdifrs))
+})

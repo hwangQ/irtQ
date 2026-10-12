@@ -340,6 +340,14 @@
   it. The unrounded p-values are now compared; the tables still show
   four decimals.
 
+- `grdif()` computed `GRDIF_R`, `GRDIF_S`, and `GRDIF_RS` from arbitrary
+  values when the covariance matrix of an item was singular or nearly
+  singular, for example when all examinees of a group had the same
+  ability estimate, and could stop with an error. The statistics now use
+  a generalized inverse, the degrees of freedom are the rank of the
+  matrix instead of G - 1, G - 1, and 2(G - 1), and one warning names
+  the items. Results for regular data are unchanged.
+
 ## Changes in Behavior
 
 - `grdif()` supports dichotomous items only and stops with an error when

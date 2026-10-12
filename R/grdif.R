@@ -107,6 +107,19 @@
 #'   taken from the object. When `x` is an object of class `est_item`, the
 #'   ability values stored in the object are also used as `score`.
 #'
+#'   In rare cases, the covariance matrix of the contrasts that define
+#'   \eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, or \eqn{GRDIF_{RS}} is singular or nearly
+#'   singular (its reciprocal condition number is 1e-10 or less), for example
+#'   when all examinees of a group who responded to an item have the same
+#'   probability of a correct response, so that the MSR is a linear function of
+#'   the MRR. Then the statistic is computed with the Moore-Penrose generalized
+#'   inverse of the covariance matrix and compared with a chi-square
+#'   distribution whose degrees of freedom equal the rank of the matrix (Moore,
+#'   1977), and one warning names the items. This handling is not part of the
+#'   original method (Lim et al., 2024) and is added in irtQ. In most data the
+#'   matrix is not singular, and the degrees of freedom are G-1, G-1, and
+#'   2(G-1).
+#'
 #'   The `group` argument contains the group membership of each examinee as
 #'   numeric or character values, and its length must equal the number of rows
 #'   in `data`. The values listed in `focal.name` identify the focal groups, and
@@ -281,6 +294,11 @@
 #'   item functioning among multiple groups using IRT residual DIF framework.
 #'   *Journal of Educational Measurement, 61*(4), 656-681.
 #'   \doi{10.1111/jedm.12415}.
+#'
+#'   Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+#'   construction of chi-squared tests of fit. *Journal of the American
+#'   Statistical Association, 72*(357), 131-137.
+#'   \doi{10.1080/01621459.1977.10479921}.
 #'
 #'   Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 #'   response theory. *Psychometrika, 54*(3), 427-450.
@@ -537,6 +555,12 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
   # do only one iteration of DIF analysis
   dif_rst <- grdif_one(x = x, data = data, score = score, group = group, focal.name = focal.name, D = D, alpha = alpha)
 
+  # record the items whose covariance matrix is singular
+  singular_id <- dif_rst$singular
+
+  # record the items whose covariance matrix is singular in the post-hoc analyses
+  singular_post <- NULL
+
   # create two empty lists to contain the results
   no_purify <- list(
     dif_stat = NULL, moments = NULL, dif_item = NULL, score = NULL,
@@ -679,10 +703,11 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
             x = x_puri[flag_max, , drop = FALSE], data = data_puri[, flag_max, drop = FALSE],
             score = score_puri, group = group, D = D, alpha = alpha
           )
+          singular_post <- union(singular_post, post_rst$singular)
 
           # re-organize the stat list
           post_df_pury[[i]] <-
-            purrr::map_df(.x = post_rst, ~ {
+            purrr::map_df(.x = post_rst$stats, ~ {
               .x
             }) %>%
             dplyr::mutate(n_iter = i - 1)
@@ -717,6 +742,9 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
           x = x_puri, data = data_puri, score = score_puri, group = group,
           focal.name = focal.name, D = D, alpha = alpha
         )
+
+        # record the items whose covariance matrix is singular
+        singular_id <- union(singular_id, dif_rst_tmp$singular)
 
         # extract the first DIF analysis results
         # and check if at least one DIF item is detected
@@ -819,13 +847,15 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
           x = x[item4post[[i]], , drop = FALSE], data = data[, item4post[[i]], drop = FALSE],
           score = score, group = group, D = D, alpha = alpha
         )
+        post.stats <- post_rst$stats
+        singular_post <- union(singular_post, post_rst$singular)
 
         # re-organize the stat list
         post_df_nopury <-
           purrr::map(
             .x = 1:length(item4post[[i]]),
             .f = function(j) {
-              purrr::map_df(.x = post_rst, ~ {
+              purrr::map_df(.x = post.stats, ~ {
                 .x[j, ]
               })
             }
@@ -834,6 +864,19 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         no_purify$post.hoc[[i]] <- post_df_nopury
       }
     }
+  }
+
+  # warn that the generalized inverse is used for the items with a singular covariance matrix
+  if (length(singular_id) > 0L) {
+    warning("The covariance matrix of GRDIF_R, GRDIF_S, or GRDIF_RS is singular or nearly singular ",
+            "for item(s) ", paste(singular_id, collapse = ", "), ". The statistic of these items is ",
+            "computed with a generalized inverse and fewer degrees of freedom.", call. = FALSE)
+  }
+  if (length(singular_post) > 0L) {
+    warning("In the post-hoc analyses, the covariance matrix of RDIF_R and RDIF_S is singular or ",
+            "nearly singular for item(s) ", paste(singular_post, collapse = ", "), ". RDIF_RS of ",
+            "these items is computed with a generalized inverse and fewer degrees of freedom.",
+            call. = FALSE)
   }
 
   # summarize the results
@@ -853,6 +896,7 @@ grdif_posthoc <- function(x, data, score, group, D, alpha) {
 
   # post-hoc DIF analyses
   post.stats <- list()
+  singular <- NULL
   for (p in 1:length(pair.g)) {
     # select a pair of two groups
     pair.tmp <- pair.g[[p]]
@@ -870,6 +914,9 @@ grdif_posthoc <- function(x, data, score, group, D, alpha) {
         group = group[loc.tmp], focal.name = pair.tmp[2], D = D, alpha = alpha
       )
 
+    # record the items whose covariance matrix is singular
+    singular <- union(singular, dif_post.tmp$singular)
+
     # add the stats to the list
     post.stats[[p]] <-
       dif_post.tmp$dif_stat %>%
@@ -878,7 +925,7 @@ grdif_posthoc <- function(x, data, score, group, D, alpha) {
   }
 
   # return the results
-  post.stats
+  list(stats = post.stats, singular = singular)
 }
 
 
@@ -997,6 +1044,8 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
 
   # compute the chi-square statistics, which are missing for the items that a group did not answer
   chisq_r <- chisq_s <- chisq_rs <- rep(NA_real_, nitem)
+  df_r <- df_s <- rep(n.fg, nitem)
+  df_rs <- rep(n.fg * 2, nitem)
   for (i in 1:nitem) {
     if (i %in% all_miss) {
       chisq_r[i] <- chisq_s[i] <- chisq_rs[i] <- NaN
@@ -1084,103 +1133,27 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       dcov_s <- dmat_s %*% cov_rdifs %*% t(dmat_s)
       dcov_rs <- dmat_rs %*% cov_rdifrs %*% t(dmat_rs)
 
-      # find the inverse of the multiple covariance matrix
-      inv_dcov_r <- suppressWarnings(tryCatch(
-        {
-          solve(dcov_r, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_dcov_r)) {
-        inv_dcov_r <- suppressWarnings(tryCatch(
-          {
-            solve(dcov_r + 1e-15, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_dcov_r)) {
-          inv_dcov_r <- suppressWarnings(tryCatch(
-            {
-              solve(dcov_r + 1e-10, tol = 1e-200)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-      inv_dcov_s <- suppressWarnings(tryCatch(
-        {
-          solve(dcov_s, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_dcov_s)) {
-        inv_dcov_s <- suppressWarnings(tryCatch(
-          {
-            solve(dcov_s + 1e-15, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_dcov_s)) {
-          inv_dcov_s <- suppressWarnings(tryCatch(
-            {
-              solve(dcov_s + 1e-10, tol = 1e-200)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-      inv_dcov_rs <- suppressWarnings(tryCatch(
-        {
-          solve(dcov_rs, tol = 1e-200)
-        },
-        error = function(e) {
-          NULL
-        }
-      ))
-      if (is.null(inv_dcov_rs)) {
-        inv_dcov_rs <- suppressWarnings(tryCatch(
-          {
-            solve(dcov_rs + 1e-15, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-        if (is.null(inv_dcov_rs)) {
-          inv_dcov_rs <- suppressWarnings(tryCatch(
-            {
-              solve(dcov_rs + 1e-10, tol = 1e-200)
-            },
-            error = function(e) {
-              NULL
-            }
-          ))
-        }
-      }
-
-      # compute the chi-square statistic
-      chisq_r[i] <- as.numeric(t(vec_r) %*% inv_dcov_r %*% vec_r)
-      chisq_s[i] <- as.numeric(t(vec_s) %*% inv_dcov_s %*% vec_s)
-      chisq_rs[i] <- as.numeric(t(vec_rs) %*% inv_dcov_rs %*% vec_rs)
+      # compute the chi-square statistics with the inverse or the generalized inverse of the
+      # covariance matrices, and the degrees of freedom
+      qf_r <- quad_form(cov_mat = dcov_r, dev_vec = vec_r, df = n.fg)
+      qf_s <- quad_form(cov_mat = dcov_s, dev_vec = vec_s, df = n.fg)
+      qf_rs <- quad_form(cov_mat = dcov_rs, dev_vec = vec_rs, df = n.fg * 2)
+      chisq_r[i] <- qf_r$stat
+      chisq_s[i] <- qf_s$stat
+      chisq_rs[i] <- qf_rs$stat
+      df_r[i] <- qf_r$df
+      df_s[i] <- qf_s$df
+      df_rs[i] <- qf_rs$df
     }
   }
 
   # calculate p-values for all three statistics
-  p_grdifr <- stats::pchisq(chisq_r, df = n.fg, lower.tail = FALSE)
-  p_grdifs <- stats::pchisq(chisq_s, df = n.fg, lower.tail = FALSE)
-  p_grdifrs <- stats::pchisq(chisq_rs, df = n.fg * 2, lower.tail = FALSE)
+  p_grdifr <- stats::pchisq(chisq_r, df = df_r, lower.tail = FALSE)
+  p_grdifs <- stats::pchisq(chisq_s, df = df_s, lower.tail = FALSE)
+  p_grdifrs <- stats::pchisq(chisq_rs, df = df_rs, lower.tail = FALSE)
+
+  # find the items whose covariance matrix is singular
+  singular_id <- x$id[which(df_r < n.fg | df_s < n.fg | df_rs < n.fg * 2)]
 
   # create a data.frame of sample sizes
   names(n_foc) <- paste0("n.foc", 1:n.fg)
@@ -1241,7 +1214,7 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       grdifs = dif_item_grdifs,
       grdifrs = dif_item_grdifrs
     ),
-    moments = mmt_df, alpha = alpha
+    moments = mmt_df, alpha = alpha, singular = singular_id
   )
 
   # return the results

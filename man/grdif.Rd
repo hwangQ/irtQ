@@ -345,6 +345,19 @@ parameter estimates, the response data, and the scaling constant \code{D} are
 taken from the object. When \code{x} is an object of class \code{est_item}, the
 ability values stored in the object are also used as \code{score}.
 
+In rare cases, the covariance matrix of the contrasts that define
+\eqn{GRDIF_{R}}, \eqn{GRDIF_{S}}, or \eqn{GRDIF_{RS}} is singular or nearly
+singular (its reciprocal condition number is 1e-10 or less), for example
+when all examinees of a group who responded to an item have the same
+probability of a correct response, so that the MSR is a linear function of
+the MRR. Then the statistic is computed with the Moore-Penrose generalized
+inverse of the covariance matrix and compared with a chi-square
+distribution whose degrees of freedom equal the rank of the matrix (Moore,
+1977), and one warning names the items. This handling is not part of the
+original method (Lim et al., 2024) and is added in irtQ. In most data the
+matrix is not singular, and the degrees of freedom are G-1, G-1, and
+2(G-1).
+
 The \code{group} argument contains the group membership of each examinee as
 numeric or character values, and its length must equal the number of rows
 in \code{data}. The values listed in \code{focal.name} identify the focal groups, and
@@ -546,6 +559,11 @@ Lim, H., Zhu, D., Choe, E. M., & Han, K. T. (2024). Detecting differential
 item functioning among multiple groups using IRT residual DIF framework.
 \emph{Journal of Educational Measurement, 61}(4), 656-681.
 \doi{10.1111/jedm.12415}.
+
+Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. \emph{Journal of the American
+Statistical Association, 72}(357), 131-137.
+\doi{10.1080/01621459.1977.10479921}.
 
 Warm, T. A. (1989). Weighted likelihood estimation of ability in item
 response theory. \emph{Psychometrika, 54}(3), 427-450.
