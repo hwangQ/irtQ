@@ -307,3 +307,11 @@ test_that("catsib() gives missing statistics when the corrected abilities of the
   expect_null(out$value$no_purify$dif_item)
   expect_true(any(grepl("No bin contained enough examinees of both groups", out$warnings)))
 })
+
+test_that("print() of catsib results leaves the significance symbols of skipped items blank", {
+  sim <- cst_sim(12)
+  rst <- suppressWarnings(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                                 focal.name = 1, item.skip = 2))
+  out <- utils::capture.output(print(rst))
+  expect_false(any(grepl("?", out, fixed = TRUE)))
+})

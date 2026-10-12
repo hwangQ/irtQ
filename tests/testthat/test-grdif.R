@@ -407,3 +407,12 @@ test_that("grdif() post-hoc analyses match rdif() for each pair, with the refere
   }
   expect_true(all(c("z & c", "z & a", "z & b", "c & a", "c & b", "a & b") %in% ph$group.pair))
 })
+
+test_that("print() of grdif results leaves the significance symbols of missing statistics blank", {
+  sim <- grt_sim(seed = 4)
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  resp <- sim$resp
+  resp[sim$group == "f2", 4] <- NA
+  rst <- grdif(sim$x, resp, score = score, group = sim$group, focal.name = sim$focal)
+  expect_false(any(grepl("?", utils::capture.output(print(rst)), fixed = TRUE)))
+})

@@ -154,13 +154,13 @@ print.grdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     dplyr::mutate_at(.vars = (n.col - 5):n.col, "round", digits = 3) %>%
     dplyr::mutate(
       " " = stats::symnum(.data$p.grdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "  " = stats::symnum(.data$p.grdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       ),
       "   " = stats::symnum(.data$p.grdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       )
     ) %>%
     dplyr::relocate(" ", .after = "p.grdifr") %>%
@@ -194,13 +194,13 @@ print.grdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
       dplyr::mutate_at(.vars = (n.col - 6):(n.col + 1), "round", digits = 3) %>%
       dplyr::mutate(
         " " = stats::symnum(.data$p.grdifr, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "  " = stats::symnum(.data$p.grdifs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         ),
         "   " = stats::symnum(.data$p.grdifrs, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-          symbols = c("***", "**", "*", ".", "")
+          symbols = c("***", "**", "*", ".", ""), na = ""
         )
       ) %>%
       dplyr::relocate(" ", .after = "p.grdifr") %>%
@@ -268,7 +268,7 @@ print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
     ) %>%
     dplyr::mutate_at(.vars = 5:8, round, digits = 3) %>%
     dplyr::mutate(" " = stats::symnum(.data$p, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-      symbols = c("***", "**", "*", ".", "")
+      symbols = c("***", "**", "*", ".", ""), na = ""
     ))
 
   # check if purification is used
@@ -286,7 +286,7 @@ print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
       ) %>%
       dplyr::mutate_at(.vars = 6:9, round, digits = 3) %>%
       dplyr::mutate(" " = stats::symnum(.data$p, c(0, 0.001, 0.01, 0.05, 0.1, 1),
-        symbols = c("***", "**", "*", ".", "")
+        symbols = c("***", "**", "*", ".", ""), na = ""
       ))
   }
 

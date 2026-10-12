@@ -539,6 +539,11 @@ knitr::opts_chunk$set(
   and the `est_item` method when `score` is passed, as those of `rdif()` and
   `crdif()` do.
 
+* The `print()` methods of `grdif()` and `catsib()` leave the significance
+  symbol of an item with a missing p-value blank, as those of `rdif()` and
+  `crdif()` do for an item skipped with `item.skip`. Before, it showed `?`,
+  which the legend does not explain.
+
 * The `print()` methods of `rdif()` and `crdif()` leave the significance symbol
   of an item skipped with `item.skip` blank. Before, it showed `?`, which the
   legend does not explain.
