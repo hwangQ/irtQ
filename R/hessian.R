@@ -1,8 +1,8 @@
 # This function analytically computes a hessian matrix of dichotomous item parameters
 # Also, adjust the hessian matrix if the matrix is singular by adding small random values
-hess_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
-                          nstd, fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
-                          aprior = list(dist = "lnorm", params = c(1, 0.5)),
+hess_item_drm <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
+                          fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
+                          aprior = list(dist = "lnorm", params = c(0, 0.5)),
                           bprior = list(dist = "norm", params = c(0.0, 1.0)),
                           gprior = list(dist = "beta", params = c(5, 16)),
                           use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
@@ -13,8 +13,8 @@ hess_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM"
   # without changing the public wrapper's call sites.
   # compute the hessian for DRM items
   hess <- hess_item_drm_inner(
-    item_par = item_par, f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
-    nstd = nstd, fix.a = fix.a, fix.g = fix.g, a.val = a.val, g.val = g.val, n.1PLM = n.1PLM,
+    item_par = item_par, f_i = f_i, r_i = r_i, theta = theta, mod = mod, D = D,
+    fix.a = fix.a, fix.g = fix.g, a.val = a.val, g.val = g.val, n.1PLM = n.1PLM,
     aprior = aprior, bprior = bprior, gprior = gprior, use.aprior = use.aprior,
     use.bprior = use.bprior, use.gprior = use.gprior, p_cache = p_cache
   )
@@ -51,15 +51,15 @@ hess_item_drm <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM"
 
 # This function analytically computes a hessian matrix of dichotomous item parameters
 #' @importFrom Rfast Outer colsums
-hess_item_drm_inner <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
-                                nstd, fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
-                                aprior = list(dist = "lnorm", params = c(1, 0.5)),
+hess_item_drm_inner <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
+                                fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
+                                aprior = list(dist = "lnorm", params = c(0, 0.5)),
                                 bprior = list(dist = "norm", params = c(0.0, 1.0)),
                                 gprior = list(dist = "beta", params = c(5, 16)),
                                 use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                                 p_cache = NULL) {
   # `p_cache`, when non-NULL, is the drm() probability matrix for the
-  # active branch - reused so the hessian shares one P(theta) with
+  # active branch, reused so that the hessian shares one P(theta) with
   # loglike_drm / grad_item_drm at the same nlminb evaluation point.
   # count the number of item parameters to be estimated
   n.par <- length(item_par)
@@ -348,7 +348,7 @@ hess_item_drm_inner <- function(item_par, f_i, r_i, s_i, theta, mod = c("1PLM", 
 # This function analytically computes a hessian matrix of polytomous item parameters
 # Also, adjust the hessian matrix if the matrix is singular by adding small random values
 hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FALSE, a.val = 1,
-                          aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                          aprior = list(dist = "lnorm", params = c(0, 0.5)),
                           bprior = list(dist = "norm", params = c(0.0, 1.0)),
                           use.aprior = FALSE, use.bprior = FALSE,
                           adjust = TRUE,
@@ -395,7 +395,7 @@ hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FAL
 # This function analytically computes a hessian matrix of polytomous item parameters
 #' @importFrom Rfast Outer coldiffs colsums rowsums colCumSums
 hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FALSE, a.val = 1,
-                                aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                                aprior = list(dist = "lnorm", params = c(0, 0.5)),
                                 bprior = list(dist = "norm", params = c(0.0, 1.0)),
                                 use.aprior = FALSE, use.bprior = FALSE,
                                 prob_cache = NULL) {
@@ -420,7 +420,7 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
     m <- length(d)
 
     # calculate all the probabilities greater than equal to each threshold;
-    # reuse cached allPst and P when supplied - identical to calling drm()
+    # reuse cached allPst and P when supplied (identical to calling drm())
     if (is.null(prob_cache)) {
       allPst <- drm(theta = theta, a = rep(a, m), b = d, g = 0, D = D)
       allQst <- 1 - allPst[, , drop = FALSE]
@@ -518,7 +518,7 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
       m <- length(d) - 1
 
       # calculate category probabilities (theta_d, numer, denom, P);
-      # reuse cached values when supplied - skips the expensive
+      # reuse cached values when supplied, which skips the expensive
       # Outer + colCumSums + exp block already paid by loglike / grad
       Da <- D * a
       if (is.null(prob_cache)) {
@@ -567,6 +567,7 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
       d2bb_denom <- tcrossprod(x = ((Da)^2 * numer), y = dsmat)
       d2ab_denom <- tcrossprod(x = ((-D) * numer * (1 + a * w1cum)), y = dsmat)
       d1b_denom2 <- (2 * denom) * d1b_denom
+      # nstd must equal length(theta), the number of rows of the probability matrix
       Dvec <- array(D, c(nstd, 1))
 
       # compute the hessian matrix
@@ -689,6 +690,7 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
       denom4 <- denom2^2
       d2bb_denom <- tcrossprod(x = ((Da)^2 * numer), y = dsmat)
       d1b_denom2 <- (2 * denom) * d1b_denom
+      # nstd must equal length(theta), the number of rows of the probability matrix
       Dvec <- array(D, c(nstd, 1))
 
       # compute the hessian matrix
@@ -729,7 +731,6 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
         hess_tr <- t(hess)
         hess[upper.tri(hess)] <- hess_tr[upper.tri(hess_tr)]
       } else {
-        # hess <- matrix(hess_bb, nrow=1, ncol=1)
         hess <- array(hess_bb, c(1, 1))
       }
 
@@ -756,11 +757,11 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
 }
 
 
-# This function computes the hessian matrix of the negative log likelihood of priors for an item
-# This function is used to compute the cross-product information matrix
+# This function computes the Hessian matrix of the negative log prior densities of the parameters of an item;
+# info_prior() adds it to the cross-product information matrix
 hess_prior <- function(item_par, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"), D = 1,
                        fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE,
-                       aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                       aprior = list(dist = "lnorm", params = c(0, 0.5)),
                        bprior = list(dist = "norm", params = c(0.0, 1.0)),
                        gprior = list(dist = "beta", params = c(5, 16)),
                        use.aprior = FALSE, use.bprior = FALSE, use.gprior = FALSE) {
@@ -777,7 +778,7 @@ hess_prior <- function(item_par, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"),
     # for PRM models
     # compute the hessian matrix
     hess <- hess_prior_prm(
-      item_par = item_par, pr.mod = mod, D = D, fix.a = fix.a.gpcm,
+      item_par = item_par, D = D, fix.a = fix.a.gpcm,
       aprior = aprior, bprior = bprior, use.aprior = use.aprior, use.bprior = use.bprior
     )
   }
@@ -786,18 +787,18 @@ hess_prior <- function(item_par, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"),
   hess
 }
 
-# This function computes the hessian matrix of the negative log likelihood of priors for an dichotomous item
-# This function is used to compute the cross-product information matrix
+# This function computes the Hessian matrix of the negative log prior densities of the parameters of a dichotomous
+# item; info_prior() adds it to the cross-product information matrix
 hess_prior_drm <- function(item_par, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
                            fix.a = FALSE, fix.g = TRUE,
-                           aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
                            bprior = list(dist = "norm", params = c(0.0, 1.0)),
                            gprior = list(dist = "beta", params = c(5, 16)),
                            use.aprior = FALSE, use.bprior = FALSE, use.gprior = FALSE) {
   # consider DRM as 3PLM
   if (mod == "DRM") mod <- "3PLM"
 
-  # transform item parameters as numeric values
+  # count the number of item parameters to be estimated
   n.par <- length(item_par)
 
   # create an empty hessian matrix
@@ -923,13 +924,13 @@ hess_prior_drm <- function(item_par, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D =
 }
 
 
-# This function computes the hessian matrix of the negative log likelihood of priors for an polytomous item
-# This function is used to compute the cross-product information matrix
-hess_prior_prm <- function(item_par, pr.mod, D = 1, fix.a = FALSE,
-                           aprior = list(dist = "lnorm", params = c(1, 0.5)),
+# This function computes the Hessian matrix of the negative log prior densities of the parameters of a polytomous
+# item; info_prior() adds it to the cross-product information matrix
+hess_prior_prm <- function(item_par, D = 1, fix.a = FALSE,
+                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
                            bprior = list(dist = "norm", params = c(0.0, 1.0)),
                            use.aprior = FALSE, use.bprior = FALSE) {
-  # transform item parameters as numeric values
+  # count the number of item parameters to be estimated
   n.par <- length(item_par)
 
   # create an empty hessian matrix

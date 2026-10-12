@@ -177,9 +177,9 @@ integrand <- function(elm_item, theta, dens, D = 1, pcm.a = FALSE) {
   if (!is.null(idx.drm)) {
     # extract required information (par.3 is NA for 1PLM/2PLM; substitute 0)
     item_par <- c(
-      elm_item$par[idx.drm, 1],
-      elm_item$par[idx.drm, 2],
-      elm_item$par[idx.drm, 3]
+      elm_item$pars[idx.drm, 1],
+      elm_item$pars[idx.drm, 2],
+      elm_item$pars[idx.drm, 3]
     )
     item_par[is.na(item_par)] <- 0
     cats <- elm_item$cats[idx.drm]
@@ -224,7 +224,7 @@ integrand <- function(elm_item, theta, dens, D = 1, pcm.a = FALSE) {
     # extract required information
     cats <- elm_item$cats[idx.prm]
     model <- elm_item$model[idx.prm]
-    item_par <- stats::na.exclude(elm_item$par[idx.prm, ])
+    item_par <- stats::na.exclude(elm_item$pars[idx.prm, ])
 
     # compute a product of the probabilities p and q
     ps <- trace(elm_item = elm_item, theta = theta, D = D, tcc = FALSE)$prob.cats[[1]]

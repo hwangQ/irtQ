@@ -121,7 +121,7 @@ test_that("prm() GPCM probabilities stay above zero for very large slopes", {
   # the log-likelihood from these probabilities is finite
   ll <- irtQ:::loglike_prm(
     item_par = c(100, -1, 0, 1), r_i = matrix(1, 49, 4), theta = th,
-    pr.mod = "GPCM", D = 1.702, nstd = 1000
+    pr.mod = "GPCM", D = 1.702
   )
   expect_true(is.finite(ll))
 })

@@ -1,7 +1,7 @@
 # This function is an internal function used in the 'est_item' function.
 estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"), score.cat, D = 1, nstd,
                         fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1, g.val = .2, n.1PLM = NULL,
-                        aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                        aprior = list(dist = "lnorm", params = c(0, 0.5)),
                         bprior = list(dist = "norm", params = c(0.0, 1.0)),
                         gprior = list(dist = "beta", params = c(5, 16)),
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
@@ -11,7 +11,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
   # n.1PLM only matters for the (!fix.a & mod=="1PLM") branch, so it is NULL otherwise
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
     drm_fns <- make_drm_optim_fns(
-      f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D, nstd = nstd,
+      f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
       fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val,
       n.1PLM = if (!fix.a.1pl & mod == "1PLM") n.1PLM else NULL,
       aprior = aprior, bprior = bprior, gprior = gprior,
@@ -50,7 +50,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
     # estimate the standard error of estimates
     # (single call, so no p_cache is passed)
     hess <- hess_item_drm(est$par,
-      f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D, nstd = nstd,
+      f_i = f_i, r_i = r_i, theta = theta, mod = mod, D = D,
       fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val, n.1PLM = n.1PLM,
       aprior = aprior, bprior = bprior, gprior = gprior,
       use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
@@ -138,8 +138,8 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
       # estimate the standard error of estimates
       # (single call after optimization; cache not needed)
       hess <- hess_item_drm(est$par,
-        f_i = f_i, r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
-        nstd = nstd, fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val, n.1PLM = NULL,
+        f_i = f_i, r_i = r_i, theta = theta, mod = mod, D = D,
+        fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val, n.1PLM = NULL,
         aprior = aprior, bprior = bprior, gprior = gprior,
         use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
         adjust = FALSE
@@ -237,7 +237,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
 # This function is an internal function used in the 'est_irt' function.
 estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"), score.cat, D = 1, n.quad,
                         fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1, g.val = .2, n.1PLM = NULL,
-                        aprior = list(dist = "lnorm", params = c(1, 0.5)),
+                        aprior = list(dist = "lnorm", params = c(0, 0.5)),
                         bprior = list(dist = "norm", params = c(0.0, 1.0)),
                         gprior = list(dist = "beta", params = c(5, 16)),
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
@@ -250,7 +250,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
     drm_fns <- make_drm_optim_fns(
       f_i = f_i, r_i = r_i, s_i = s_i, theta = quadpt,
-      mod = mod, D = D, nstd = n.quad,
+      mod = mod, D = D,
       fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val,
       n.1PLM = if (!fix.a.1pl & mod == "1PLM") n.1PLM else NULL,
       aprior = aprior, bprior = bprior, gprior = gprior,

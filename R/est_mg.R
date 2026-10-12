@@ -1233,7 +1233,7 @@ est_mg_em <- function(x = NULL,
     info.prior <- info_prior(
       elm_item = elm_item, D = D, loc_1p_const = loc_1p_const,
       loc_else = loc_else, n.1PLM = n.1PLM, fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g,
-      a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val, aprior = aprior, bprior = bprior,
+      aprior = aprior, bprior = bprior,
       gprior = gprior, use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
       reloc.par = param_loc$reloc.par
     )
@@ -2093,7 +2093,7 @@ est_mg_fipc <- function(x = NULL,
       info.prior <- info_prior(
         elm_item = elm_item_new, D = D, loc_1p_const = loc_1p_const,
         loc_else = loc_else, n.1PLM = n.1PLM, fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g,
-        a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val, aprior = aprior, bprior = bprior,
+        aprior = aprior, bprior = bprior,
         gprior = gprior, use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
         reloc.par = param_loc$reloc.par
       )
