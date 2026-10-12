@@ -66,8 +66,9 @@
 #'   items to exclude from the analysis. Skipped items still contribute to the
 #'   ability estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
 #'   contingency table) are set to `NA`, and they are never flagged or removed
-#'   during purification; their sample sizes are still reported. If `NULL`, all
-#'   items are analyzed. Default is `NULL`.
+#'   during purification; their sample sizes (`n.ref`, `n.foc`, and `n.total`)
+#'   are still reported, as the sample sizes of the items skipped in [rdif()]
+#'   and [crdif()] are. If `NULL`, all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the two-sided test of the CATSIB statistic. An item is flagged when its
 #'   p-value is less than or equal to `alpha`. The comparison uses unrounded
@@ -696,10 +697,7 @@ catsib <- function(x = NULL,
       weight.group = weight.group, alpha = alpha, rho.screen = rho.screen
     )
 
-  # record the items without a usable bin
-  no_bin_id <- dif_rst$no_bin
-
-  # record the lowest reliabilities of the corrected scores of the reference and focal groups
+  # record the lowest reliabilities of the ability estimates of the reference and focal groups
   rho_min <- dif_rst$rho_raw
 
   # create two empty lists to contain the results
@@ -859,9 +857,6 @@ catsib <- function(x = NULL,
             alpha = alpha, rho.screen = rho.screen
           )
 
-        # record the lowest reliabilities of the corrected scores
-        rho_min <- pmin(rho_min, dif_rst_tmp$rho_raw, na.rm = TRUE)
-
         # count the remaining items that are tested
         n_test <- length(setdiff(seq_len(nrow(x_puri)), item.skip.puri))
 
@@ -882,8 +877,8 @@ catsib <- function(x = NULL,
           break
         }
 
-        # record the items without a usable bin in an iteration whose results are kept
-        no_bin_id <- union(no_bin_id, dif_rst_tmp$no_bin)
+        # record the lowest reliabilities of the ability estimates in an iteration whose results are kept
+        rho_min <- pmin(rho_min, dif_rst_tmp$rho_raw, na.rm = TRUE)
 
         # extract the DIF analysis results
         # and check if at least one DIF item is detected
@@ -980,6 +975,11 @@ catsib <- function(x = NULL,
       call. = FALSE
     )
   }
+
+  # find the items whose statistics are missing in the reported tables, except the skipped items
+  na_item <- which(is.na(no_purify$dif_stat$beta))
+  if (purify) na_item <- union(na_item, which(is.na(with_purify$dif_stat$beta)))
+  no_bin_id <- no_purify$dif_stat$id[setdiff(sort(na_item), item.skip)]
 
   # warn that the statistics of the items without a usable bin are missing
   if (length(no_bin_id) > 0L) {

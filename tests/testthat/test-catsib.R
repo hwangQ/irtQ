@@ -146,6 +146,9 @@ test_that("catsib() purification works down to the last item", {
 
   # the items of the iteration whose results are discarded are not reported as missing
   expect_false(any(grepl("^No bin contained", out1$warnings)))
+
+  # the reliability of the iteration whose results are discarded is not reported
+  expect_false(any(grepl("estimated reliability", out1$warnings)))
   expect_false(out1$value$with_purify$complete)
   expect_identical(out1$value$with_purify$n.iter, 0L)
   expect_equal(out1$value$with_purify$dif_item, out1$value$no_purify$dif_item)
@@ -339,4 +342,47 @@ test_that("print() of catsib results leaves the significance symbols of skipped 
                                  focal.name = 1, item.skip = 2))
   out <- utils::capture.output(print(rst))
   expect_false(any(grepl("?", out, fixed = TRUE)))
+})
+
+test_that("catsib() names in the warning only the items with missing statistics in the reported tables", {
+  skip_on_cran()
+  for (seed in c(43, 45, 46)) {
+    sim <- cst_sim(seed, J = 14, n = c(200, 160), miss = 0.2)
+    out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                            focal.name = 1, purify = TRUE, max.iter = 15, alpha = 0.3,
+                            min.binsize = 25, n.bin = c(30, 5), verbose = FALSE))
+    rst <- out$value
+    na_item <- union(which(is.na(rst$no_purify$dif_stat$beta)), which(is.na(rst$with_purify$dif_stat$beta)))
+    warned <- out$warnings[grepl("^No bin contained", out$warnings)]
+    listed <- if (length(warned) == 0L) {
+      character()
+    } else {
+      strsplit(sub("^.*item[(]s[)] (.*), so their statistics.*$", "\\1", warned), ", ")[[1]]
+    }
+    expect_identical(sort(listed), sort(rst$no_purify$dif_stat$id[na_item]))
+  }
+
+  # an item without a usable bin in an iteration of the purification only is not reported when its
+  # statistics are computed in the reported tables
+  sim <- cst_sim(45, J = 14, n = c(200, 160), miss = 0.2)
+  out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                          focal.name = 1, purify = TRUE, max.iter = 15, alpha = 0.3,
+                          min.binsize = 25, n.bin = c(30, 5), verbose = FALSE))
+  expect_false(anyNA(out$value$with_purify$dif_stat$beta))
+  expect_false(any(grepl("^No bin contained", out$warnings)))
+})
+
+test_that("catsib() does not name skipped items in the warning about missing statistics", {
+  set.seed(21)
+  n <- 300
+  group <- rep(0:1, each = n)
+  score <- c(rnorm(n, -2, 0.5), rnorm(n, 2, 0.5))
+  se <- rep(0.5, 2 * n)
+  resp <- matrix(rbinom(2 * n * 4, 1, 0.5), ncol = 4)
+  out <- cst_catch(catsib(NULL, resp, score = score, se = se, group = group, focal.name = 1,
+                          rho.screen = FALSE, item.skip = 2))
+  warned <- out$warnings[grepl("^No bin contained", out$warnings)]
+  expect_length(warned, 1L)
+  expect_match(warned, "item(s) item.1, item.3, item.4,", fixed = TRUE)
+  expect_false(grepl("item.2", warned, fixed = TRUE))
 })
