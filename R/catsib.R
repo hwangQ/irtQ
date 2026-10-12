@@ -17,6 +17,9 @@
 #'   `purify = TRUE`. It can be `NULL` when `score` and `se` are supplied and
 #'   `purify = FALSE`; the items are then labeled `item.1`, `item.2`, and so on.
 #'   Default is `NULL`.
+#' @param data A matrix of examinees' scored responses (0 or 1). Rows represent
+#'   examinees and columns represent items, in the order of the rows of `x` when
+#'   `x` is supplied.
 #' @param score A numeric vector of examinees' ability estimates (theta values),
 #'   in the same row order as `data`, with their standard errors in `se`. The
 #'   estimates should be based on the item parameters in `x`. If `NULL`,
@@ -25,7 +28,8 @@
 #'   `weights`, and `ncore`, and `x` must be supplied. When `purify = TRUE`,
 #'   abilities and standard errors are re-estimated internally at every
 #'   purification iteration, so a supplied `score` is used only in the initial
-#'   analysis. Default is `NULL`.
+#'   analysis. A missing value in `score` excludes the examinee from the
+#'   analysis, also during purification, with a warning. Default is `NULL`.
 #' @param se A numeric vector of the standard errors of the ability estimates in
 #'   `score`, in the same order. The standard errors are used to estimate the
 #'   reliability of the ability estimates in the regression correction (see
@@ -57,19 +61,31 @@
 #'   groups, `"foc"` for the focal group, or `"ref"` for the reference group. The
 #'   weight of a bin is the proportion of the examinees of the target
 #'   distribution in the bins used who fall in that bin. Default is `"comb"`.
-#' @param item.skip A numeric vector of item positions (row numbers of `x`) to
-#'   exclude from the analysis. Skipped items still contribute to the ability
-#'   estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
+#' @param item.skip A numeric vector of item positions (columns of `data`, or
+#'   rows of `x`), or a logical vector with one value per item, identifying the
+#'   items to exclude from the analysis. Skipped items still contribute to the
+#'   ability estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
 #'   contingency table) are set to `NA`, and they are never flagged or removed
-#'   during purification. If `NULL`, all items are analyzed. Default is `NULL`.
+#'   during purification; their sample sizes are still reported. If `NULL`, all
+#'   items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the two-sided test of the CATSIB statistic. An item is flagged when its
 #'   p-value is less than or equal to `alpha`. The comparison uses unrounded
 #'   p-values, although the p-values reported in `dif_stat` are rounded to four
 #'   decimal places. Default is `0.05`.
-#' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`. See **Details** for more information.
+#' @param min.resp A single nonnegative number, usually a positive integer,
+#'   specifying the minimum number of item responses that an examinee must have
+#'   to be used in the analysis. All responses of examinees with fewer than
+#'   `min.resp` (but at least one) responses are set to `NA` before the ability
+#'   estimation, in the initial analysis and at every purification iteration,
+#'   also when `score` is supplied, and these examinees are excluded from the
+#'   analysis. A warning reports the number of examinees excluded in the initial
+#'   analysis, and one warning at the end of the purification reports the
+#'   examinees excluded during it. A large `min.resp` can leave a group with
+#'   fewer than two ability estimates within `range` in a later purification
+#'   iteration, which stops the purification with a warning. If `NULL`, no
+#'   minimum is applied. Default is `NULL`. See **Details** for more
+#'   information.
 #' @param method A character string indicating the scoring method used to
 #'   estimate the abilities when `score = NULL` and in every purification
 #'   iteration. Available options are:
@@ -99,7 +115,12 @@
 #'   regression correction. These examinees are still matched and used to
 #'   compute \eqn{\hat{\beta}}. If `FALSE`, \eqn{\hat{\rho}^2_G} is computed
 #'   from all ability estimates within `range`, as in Nandakumar and Roussos
-#'   (2004). Default is `TRUE`. See **Details**.
+#'   (2004, Equation 7). The screening is not part of the original procedure and
+#'   is added in irtQ. Default is `TRUE`. See **Details**.
+#' @param ... Additional arguments passed to [irtQ::est_score()] when abilities
+#'   are estimated internally, for example `tol`. The `est_score()` arguments
+#'   `se`, `max.iter`, and `missing` cannot be passed this way, because
+#'   [irtQ::catsib()] uses arguments with these names for its own purposes.
 #'
 #' @details CATSIB (Nandakumar & Roussos, 2004) estimates the amount of DIF in
 #'   an item as \eqn{\hat{\beta} = \sum_{k} (\hat{P}_{R,k} - \hat{P}_{F,k})
@@ -173,17 +194,18 @@
 #'   estimates and are used in the matching and in the computation of
 #'   \eqn{\hat{\beta}}. This screening is not part of the original procedure
 #'   (Nandakumar & Roussos, 2004) and is added in irtQ; set `rho.screen = FALSE`
-#'   to compute \eqn{\hat{\rho}^2_G} from all examinees as in the original
-#'   procedure. Even with the screening, the Type I error rate of CATSIB can be
-#'   higher than the nominal level, and in data without DIF the purification can
-#'   increase the number of false positives. In addition, \eqn{\hat{\rho}^2_G}
-#'   is bounded to the interval \eqn{[0.05, 1]}, and a warning is issued when its
-#'   unbounded value is below 0.05. A negative value would reverse the order of
-#'   the ability estimates within a group, and a value near zero would place
-#'   almost all corrected ability estimates of a group in one bin. This bound is
-#'   not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
-#'   not overlap when the groups differ in ability; then no bin contains enough
-#'   examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
+#'   to compute \eqn{\hat{\rho}^2_G} from all ability estimates within `range` as
+#'   in the original procedure. Even with the screening, the Type I error rate
+#'   of CATSIB can be higher than the nominal level, and in data without DIF the
+#'   purification can increase the number of false positives. In addition,
+#'   \eqn{\hat{\rho}^2_G} is bounded to the interval \eqn{[0.05, 1]}, and a
+#'   warning is issued when its unbounded value is below 0.05. A negative value
+#'   would reverse the order of the ability estimates within a group, and a value
+#'   near zero would place almost all corrected ability estimates of a group in
+#'   one bin. This bound is not part of the original procedure and is added in
+#'   irtQ. Even with the bound, the corrected ability estimates of the two groups
+#'   may not overlap when the groups differ in ability; then no bin contains
+#'   enough examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
 #'   error, `z.beta`, and the p-value are `NA`, one warning names the items, and
 #'   the items are not flagged.
 #'
@@ -202,8 +224,8 @@
 #'
 #'   Nandakumar and Roussos (2004) did not propose a purification procedure for
 #'   CATSIB, but [irtQ::catsib()] can apply an iterative purification procedure
-#'   in the manner of Lim et al. (2022). It requires `x`. When `purify = TRUE`, at
-#'   each iteration the flagged item with the smallest p-value is removed (the
+#'   in the manner of Lim et al. (2022). It requires `x`. When `purify = TRUE`,
+#'   at each iteration the flagged item with the smallest p-value is removed (the
 #'   p-values are compared on the log scale), the abilities and their standard
 #'   errors are re-estimated from the remaining items with the scoring method
 #'   specified in `method`, and the CATSIB statistics of the remaining items are
@@ -215,8 +237,8 @@
 #'   abilities, and `complete` is `FALSE`. The procedure also stops with a
 #'   warning and `complete = FALSE` when, after an item is removed, a group has
 #'   fewer than two ability estimates within `range`, which the regression
-#'   correction requires, or no bin contains enough examinees of both groups for any
-#'   remaining item; the remaining items then keep the results of the
+#'   correction requires, or no bin contains enough examinees of both groups
+#'   for any remaining item; the remaining items then keep the results of the
 #'   previous iteration, and the items flagged in that iteration are added to the
 #'   flagged items.
 #'
@@ -238,14 +260,20 @@
 #'   Examinees whose ability estimate is `NA`, such as examinees without any item
 #'   response or examinees with `NA` in a supplied `score`, are excluded from the
 #'   analysis, and a warning reports the number of examinees with item responses
-#'   who are excluded because of a missing value in `score`. The sample sizes
-#'   `n.ref` and `n.foc` count only the examinees in the bins used to compute
-#'   \eqn{\hat{\beta}}.
+#'   who are excluded because of a missing value in `score`; these examinees stay
+#'   excluded during purification. During purification, an examinee whose
+#'   remaining responses are all removed with the flagged items, or who has fewer
+#'   than `min.resp` responses to the remaining items, has no ability estimate
+#'   and is excluded, and one warning at the end reports the number of such
+#'   examinees. The sample sizes `n.ref` and `n.foc` count only the examinees in
+#'   the bins used to compute \eqn{\hat{\beta}}.
 #'
 #'   The `group` argument should contain exactly two distinct values, one for the
 #'   reference group and one for the focal group identified by `focal.name`, and
 #'   its length must equal the number of rows in `data`. Examinees with `NA` in
-#'   `group` are excluded from the analysis.
+#'   `group` are excluded from the analysis. The function stops when the
+#'   reference group or the focal group has fewer than two ability estimates
+#'   within `range`, because the regression correction cannot be computed.
 #'
 #' @return This function returns an object of class `"catsib"`, which is a list
 #' with the following five components:
@@ -272,8 +300,8 @@
 #'     `n.total`, `weight` (the weight of the bin), `beta` (the weighted
 #'     difference in the proportions of correct responses), and `var.beta` (the
 #'     contribution of the bin to the squared standard error), followed by a row
-#'     named `Total` with the totals of `n.ref`, `n.foc`, `n.total`, `beta`, and
-#'     `var.beta`. The element is `NA` for a skipped item.}
+#'     whose `bin` is `Total`, with the totals of `n.ref`, `n.foc`, `n.total`,
+#'     `beta`, and `var.beta`. The element is `NA` for a skipped item.}
 #'   }
 #' }
 #'
@@ -293,15 +321,20 @@
 #'     initial analysis, this is `no_purify$dif_stat` with `n.iter = 0`.}
 #'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
 #'     items flagged by the CATSIB statistic, sorted in ascending order. It
-#'     contains the items removed during purification and, if `max.iter` is
-#'     reached, the items flagged in the last iteration (iteration `n.iter`).
-#'     `NULL` if no item is flagged in the initial analysis.}
+#'     contains the items removed during purification and, if the purification
+#'     stops before it is complete (see `complete`) with items left, the items
+#'     flagged in the last iteration (iteration `n.iter`). It contains all items
+#'     if every item is flagged. `NULL` if no item is flagged in the initial
+#'     analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
-#'     item is flagged in the initial analysis).}
+#'     item is flagged in the initial analysis). An iteration after which the
+#'     statistics cannot be recomputed (see **Details**) is not counted.}
 #'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
 #'     no remaining item was flagged (including the case in which no item is
 #'     flagged in the initial analysis), and `FALSE` if it stopped because
-#'     `max.iter` was reached.}
+#'     `max.iter` was reached, because every item was flagged, because a group
+#'     had fewer than two ability estimates within `range`, or because no
+#'     remaining item had a usable bin.}
 #'     \item{contingency}{A list with the same structure as
 #'     `no_purify$contingency`. For an item removed during purification, it holds
 #'     the table from the iteration in which the item was removed; for the other

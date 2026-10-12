@@ -103,9 +103,10 @@ parameters in \code{x} (see \strong{Details}). If \code{NULL}, abilities are est
 internally with \code{\link[=est_score]{est_score()}} using \code{method}, \code{range}, \code{norm.prior},
 \code{nquad}, \code{weights}, and \code{ncore}. When \code{purify = TRUE}, abilities are
 re-estimated internally at every purification iteration, so a supplied
-\code{score} is used only in the initial analysis. The \code{est_item} method has no
-\code{score} argument; it uses the abilities stored in the object. Default is
-\code{NULL}.}
+\code{score} is used only in the initial analysis. A missing value in \code{score}
+excludes the examinee from the analysis, also during purification, with a
+warning. The \code{est_item} method has no \code{score} argument; it uses the
+abilities stored in the object. Default is \code{NULL}.}
 
 \item{group}{A numeric or character vector of examinees' group membership,
 with one element per row of \code{data}. It should contain the value of the
@@ -153,9 +154,18 @@ purification results is \code{FALSE}, and the items flagged in the last
 iteration are added to the flagged items. This argument is not passed to
 \code{\link[=est_score]{est_score()}}.}
 
-\item{min.resp}{A positive integer specifying the minimum number of valid
-item responses required from an examinee in order to compute an ability
-estimate. Default is \code{NULL}. See \strong{Details} for more information.}
+\item{min.resp}{A single nonnegative number, usually a positive integer,
+specifying the minimum number of item responses that an examinee must have
+to be used in the analysis. All responses of examinees with fewer than
+\code{min.resp} (but at least one) responses are set to \code{NA} before the ability
+estimation, in the initial analysis and at every purification iteration,
+also when \code{score} is supplied, and these examinees are excluded from the
+analysis. A warning reports the number of examinees excluded in the initial
+analysis, and one warning at the end of the purification reports the
+examinees excluded during it. A large \code{min.resp} can leave a group without
+any ability estimate in a later purification iteration, which stops the
+purification with a warning. If \code{NULL}, no minimum is applied. Default is
+\code{NULL}. See \strong{Details} for more information.}
 
 \item{post.hoc}{Logical. If \code{TRUE}, post-hoc pairwise RDIF analyses are
 performed, for every pair of groups, on the items flagged by each GRDIF
@@ -270,14 +280,18 @@ same way as in \code{dif_stat}.}
 \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
 items flagged by the \code{purify.by} statistic, sorted in ascending order. It
 contains the items removed during purification and, if \code{max.iter} is
-reached, the items flagged in the last iteration (iteration \code{n.iter}).
-\code{NULL} if no item is flagged in the initial analysis.}
+reached or the purification stops because a group has no ability
+estimate left, the items flagged in the last iteration (iteration
+\code{n.iter}). It contains all items if every item is flagged. \code{NULL} if no
+item is flagged in the initial analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
-item is flagged in the initial analysis).}
+item is flagged in the initial analysis). The iteration that removes the
+last item, or after which a group has no ability estimate left, is not
+counted, because the statistics are not recomputed.}
 \item{score}{A numeric vector of the ability estimates from the last
-iteration. \code{NULL} if no item is flagged in the initial analysis, because
-purification is not carried out; the initial estimates are then in
-\code{no_purify$score}.}
+iteration counted in \code{n.iter}. \code{NULL} if no item is flagged in the
+initial analysis, because purification is not carried out; the initial
+estimates are then in \code{no_purify$score}.}
 \item{post.hoc}{A data frame with the same columns as the elements of
 \code{no_purify$post.hoc} and an additional column \code{n_iter}. It contains the
 post-hoc results of each item removed during purification, computed with
@@ -287,7 +301,8 @@ the ability estimates of the iteration in which the item was removed;
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because
-\code{max.iter} was reached.}
+\code{max.iter} was reached, because every item was flagged, or because a
+group had no examinee with an ability estimate left.}
 }
 }
 
@@ -405,8 +420,16 @@ Examinees whose ability estimate is \code{NA}, such as examinees without any ite
 response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
 computation of the GRDIF statistics and from the post-hoc analyses. A
 warning reports the number of examinees with item responses who are
-excluded because of a missing value in \code{score}. The sample sizes \code{n.ref},
-\code{n.foc1}, \code{n.foc2}, and so on count only the examinees who are used.
+excluded because of a missing value in \code{score}; these examinees stay
+excluded during purification. During purification, an examinee whose
+remaining responses are all removed with the flagged items, or who has fewer
+than \code{min.resp} responses to the remaining items, has no ability estimate
+and is excluded, and one warning at the end reports the number of such
+examinees. The sample sizes \code{n.ref}, \code{n.foc1}, \code{n.foc2}, and so on count
+only the examinees who are used.
+
+If no examinee of one of the groups responded to an item, the GRDIF
+statistics and p-values of the item are \code{NaN}, and the item is not flagged.
 
 The GRDIF statistics test only whether DIF is present between at least one
 pair of groups (Lim et al., 2024). When \code{post.hoc = TRUE}, the three RDIF
@@ -422,13 +445,15 @@ pair, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
 b minus those of group a. The reference group of the GRDIF analysis is the
 reference group of every pair that includes it (Lim et al., 2024, Equation
 14), and for a pair of focal groups, the group listed earlier in
-\code{focal.name} is the reference group. The p-values are not adjusted for multiple
-comparisons; to control the familywise error rate, compare them with a
-corrected level, for example \code{alpha} divided by the number of pairs (a
-Bonferroni correction). When \code{purify = TRUE}, the post-hoc results in
+\code{focal.name} is the reference group. The p-values are not adjusted for
+multiple comparisons; to control the familywise error rate, compare them
+with a corrected level, for example \code{alpha} divided by the number of pairs
+(a Bonferroni correction). When \code{purify = TRUE}, the post-hoc results in
 \code{with_purify} are computed for each item when it is removed during
 purification, with the ability estimates of that iteration; the items added
-to the flagged items because \code{max.iter} is reached are not analyzed.
+to the flagged items when the purification ends before it is complete
+(\code{max.iter} reached or no ability estimate left in a group) are not
+analyzed.
 }
 \section{Methods (by class)}{
 \itemize{

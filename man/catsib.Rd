@@ -43,9 +43,9 @@ to estimate the abilities internally, that is, when \code{score = NULL} or
 \code{purify = FALSE}; the items are then labeled \code{item.1}, \code{item.2}, and so on.
 Default is \code{NULL}.}
 
-\item{data}{A matrix of examinees' item responses corresponding to the items
-specified in the \code{x} argument. Rows represent examinees and columns
-represent items.}
+\item{data}{A matrix of examinees' scored responses (0 or 1). Rows represent
+examinees and columns represent items, in the order of the rows of \code{x} when
+\code{x} is supplied.}
 
 \item{score}{A numeric vector of examinees' ability estimates (theta values),
 in the same row order as \code{data}, with their standard errors in \code{se}. The
@@ -55,7 +55,8 @@ abilities and standard errors are estimated internally with
 \code{weights}, and \code{ncore}, and \code{x} must be supplied. When \code{purify = TRUE},
 abilities and standard errors are re-estimated internally at every
 purification iteration, so a supplied \code{score} is used only in the initial
-analysis. Default is \code{NULL}.}
+analysis. A missing value in \code{score} excludes the examinee from the
+analysis, also during purification, with a warning. Default is \code{NULL}.}
 
 \item{se}{A numeric vector of the standard errors of the ability estimates in
 \code{score}, in the same order. The standard errors are used to estimate the
@@ -71,11 +72,13 @@ response data matrix.}
 group. For instance, given \code{group = c(0, 1, 0, 1, 1)} and '1' indicating
 the focal group, set \code{focal.name = 1}.}
 
-\item{item.skip}{A numeric vector of item positions (row numbers of \code{x}) to
-exclude from the analysis. Skipped items still contribute to the ability
-estimates, but their results (\code{beta}, \code{se}, \code{z.beta}, \code{p}, and the
+\item{item.skip}{A numeric vector of item positions (columns of \code{data}, or
+rows of \code{x}), or a logical vector with one value per item, identifying the
+items to exclude from the analysis. Skipped items still contribute to the
+ability estimates, but their results (\code{beta}, \code{se}, \code{z.beta}, \code{p}, and the
 contingency table) are set to \code{NA}, and they are never flagged or removed
-during purification. If \code{NULL}, all items are analyzed. Default is \code{NULL}.}
+during purification; their sample sizes are still reported. If \code{NULL}, all
+items are analyzed. Default is \code{NULL}.}
 
 \item{D}{A scaling factor in IRT models, used only when abilities are
 estimated internally. Default is \code{1}.}
@@ -129,9 +132,19 @@ purification results is \code{FALSE}, and the items flagged in the last
 iteration are added to the flagged items. This argument is not passed to
 \code{\link[=est_score]{est_score()}}.}
 
-\item{min.resp}{A positive integer specifying the minimum number of valid
-item responses required from an examinee in order to compute an ability
-estimate. Default is \code{NULL}. See \strong{Details} for more information.}
+\item{min.resp}{A single nonnegative number, usually a positive integer,
+specifying the minimum number of item responses that an examinee must have
+to be used in the analysis. All responses of examinees with fewer than
+\code{min.resp} (but at least one) responses are set to \code{NA} before the ability
+estimation, in the initial analysis and at every purification iteration,
+also when \code{score} is supplied, and these examinees are excluded from the
+analysis. A warning reports the number of examinees excluded in the initial
+analysis, and one warning at the end of the purification reports the
+examinees excluded during it. A large \code{min.resp} can leave a group with
+fewer than two ability estimates within \code{range} in a later purification
+iteration, which stops the purification with a warning. If \code{NULL}, no
+minimum is applied. Default is \code{NULL}. See \strong{Details} for more
+information.}
 
 \item{method}{A character string indicating the scoring method used to
 estimate the abilities when \code{score = NULL} and in every purification
@@ -191,12 +204,13 @@ variance, and the error variance that define \eqn{\hat{\rho}^2_G} in the
 regression correction. These examinees are still matched and used to
 compute \eqn{\hat{\beta}}. If \code{FALSE}, \eqn{\hat{\rho}^2_G} is computed
 from all ability estimates within \code{range}, as in Nandakumar and Roussos
-(2004). Default is \code{TRUE}. See \strong{Details}.}
+(2004, Equation 7). The screening is not part of the original procedure and
+is added in irtQ. Default is \code{TRUE}. See \strong{Details}.}
 
 \item{...}{Additional arguments passed to \code{\link[=est_score]{est_score()}} when abilities
-are estimated internally, for example \code{tol} or \code{se}. The \code{est_score()}
-arguments \code{max.iter} and \code{missing} cannot be passed this way, because the
-function uses arguments with these names for its own purposes.}
+are estimated internally, for example \code{tol}. The \code{est_score()} arguments
+\code{se}, \code{max.iter}, and \code{missing} cannot be passed this way, because
+\code{\link[=catsib]{catsib()}} uses arguments with these names for its own purposes.}
 }
 \value{
 This function returns an object of class \code{"catsib"}, which is a list
@@ -224,8 +238,8 @@ and the sample variance of the item responses of each group in the bin),
 \code{n.total}, \code{weight} (the weight of the bin), \code{beta} (the weighted
 difference in the proportions of correct responses), and \code{var.beta} (the
 contribution of the bin to the squared standard error), followed by a row
-named \code{Total} with the totals of \code{n.ref}, \code{n.foc}, \code{n.total}, \code{beta}, and
-\code{var.beta}. The element is \code{NA} for a skipped item.}
+whose \code{bin} is \code{Total}, with the totals of \code{n.ref}, \code{n.foc}, \code{n.total},
+\code{beta}, and \code{var.beta}. The element is \code{NA} for a skipped item.}
 }
 }
 
@@ -245,15 +259,20 @@ and \code{n.iter} is the number of that iteration. If no item is flagged in the
 initial analysis, this is \code{no_purify$dif_stat} with \code{n.iter = 0}.}
 \item{dif_item}{A numeric vector of the positions (rows of \code{x}) of the
 items flagged by the CATSIB statistic, sorted in ascending order. It
-contains the items removed during purification and, if \code{max.iter} is
-reached, the items flagged in the last iteration (iteration \code{n.iter}).
-\code{NULL} if no item is flagged in the initial analysis.}
+contains the items removed during purification and, if the purification
+stops before it is complete (see \code{complete}) with items left, the items
+flagged in the last iteration (iteration \code{n.iter}). It contains all items
+if every item is flagged. \code{NULL} if no item is flagged in the initial
+analysis.}
 \item{n.iter}{The number of purification iterations performed (0 if no
-item is flagged in the initial analysis).}
+item is flagged in the initial analysis). An iteration after which the
+statistics cannot be recomputed (see \strong{Details}) is not counted.}
 \item{complete}{A logical value. \code{TRUE} if the procedure stopped because
 no remaining item was flagged (including the case in which no item is
 flagged in the initial analysis), and \code{FALSE} if it stopped because
-\code{max.iter} was reached.}
+\code{max.iter} was reached, because every item was flagged, because a group
+had fewer than two ability estimates within \code{range}, or because no
+remaining item had a usable bin.}
 \item{contingency}{A list with the same structure as
 \code{no_purify$contingency}. For an item removed during purification, it holds
 the table from the iteration in which the item was removed; for the other
@@ -348,17 +367,18 @@ beyond the spread of the group. They still receive corrected ability
 estimates and are used in the matching and in the computation of
 \eqn{\hat{\beta}}. This screening is not part of the original procedure
 (Nandakumar & Roussos, 2004) and is added in irtQ; set \code{rho.screen = FALSE}
-to compute \eqn{\hat{\rho}^2_G} from all examinees as in the original
-procedure. Even with the screening, the Type I error rate of CATSIB can be
-higher than the nominal level, and in data without DIF the purification can
-increase the number of false positives. In addition, \eqn{\hat{\rho}^2_G}
-is bounded to the interval \eqn{[0.05, 1]}, and a warning is issued when its
-unbounded value is below 0.05. A negative value would reverse the order of
-the ability estimates within a group, and a value near zero would place
-almost all corrected ability estimates of a group in one bin. This bound is
-not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
-not overlap when the groups differ in ability; then no bin contains enough
-examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
+to compute \eqn{\hat{\rho}^2_G} from all ability estimates within \code{range} as
+in the original procedure. Even with the screening, the Type I error rate
+of CATSIB can be higher than the nominal level, and in data without DIF the
+purification can increase the number of false positives. In addition,
+\eqn{\hat{\rho}^2_G} is bounded to the interval \eqn{[0.05, 1]}, and a
+warning is issued when its unbounded value is below 0.05. A negative value
+would reverse the order of the ability estimates within a group, and a value
+near zero would place almost all corrected ability estimates of a group in
+one bin. This bound is not part of the original procedure and is added in
+irtQ. Even with the bound, the corrected ability estimates of the two groups
+may not overlap when the groups differ in ability; then no bin contains
+enough examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
 error, \code{z.beta}, and the p-value are \code{NA}, one warning names the items, and
 the items are not flagged.
 
@@ -377,8 +397,8 @@ suspected of nonuniform DIF should be interpreted with caution.
 
 Nandakumar and Roussos (2004) did not propose a purification procedure for
 CATSIB, but \code{\link[=catsib]{catsib()}} can apply an iterative purification procedure
-in the manner of Lim et al. (2022). It requires \code{x}. When \code{purify = TRUE}, at
-each iteration the flagged item with the smallest p-value is removed (the
+in the manner of Lim et al. (2022). It requires \code{x}. When \code{purify = TRUE},
+at each iteration the flagged item with the smallest p-value is removed (the
 p-values are compared on the log scale), the abilities and their standard
 errors are re-estimated from the remaining items with the scoring method
 specified in \code{method}, and the CATSIB statistics of the remaining items are
@@ -390,8 +410,8 @@ procedure stops with a warning, because no item is left to estimate the
 abilities, and \code{complete} is \code{FALSE}. The procedure also stops with a
 warning and \code{complete = FALSE} when, after an item is removed, a group has
 fewer than two ability estimates within \code{range}, which the regression
-correction requires, or no bin contains enough examinees of both groups for any
-remaining item; the remaining items then keep the results of the
+correction requires, or no bin contains enough examinees of both groups
+for any remaining item; the remaining items then keep the results of the
 previous iteration, and the items flagged in that iteration are added to the
 flagged items.
 
@@ -413,14 +433,20 @@ valid item response.
 Examinees whose ability estimate is \code{NA}, such as examinees without any item
 response or examinees with \code{NA} in a supplied \code{score}, are excluded from the
 analysis, and a warning reports the number of examinees with item responses
-who are excluded because of a missing value in \code{score}. The sample sizes
-\code{n.ref} and \code{n.foc} count only the examinees in the bins used to compute
-\eqn{\hat{\beta}}.
+who are excluded because of a missing value in \code{score}; these examinees stay
+excluded during purification. During purification, an examinee whose
+remaining responses are all removed with the flagged items, or who has fewer
+than \code{min.resp} responses to the remaining items, has no ability estimate
+and is excluded, and one warning at the end reports the number of such
+examinees. The sample sizes \code{n.ref} and \code{n.foc} count only the examinees in
+the bins used to compute \eqn{\hat{\beta}}.
 
 The \code{group} argument should contain exactly two distinct values, one for the
 reference group and one for the focal group identified by \code{focal.name}, and
 its length must equal the number of rows in \code{data}. Examinees with \code{NA} in
-\code{group} are excluded from the analysis.
+\code{group} are excluded from the analysis. The function stops when the
+reference group or the focal group has fewer than two ability estimates
+within \code{range}, because the regression correction cannot be computed.
 }
 \examples{
 \donttest{

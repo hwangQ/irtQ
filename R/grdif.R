@@ -26,9 +26,10 @@
 #'   internally with [irtQ::est_score()] using `method`, `range`, `norm.prior`,
 #'   `nquad`, `weights`, and `ncore`. When `purify = TRUE`, abilities are
 #'   re-estimated internally at every purification iteration, so a supplied
-#'   `score` is used only in the initial analysis. The `est_item` method has no
-#'   `score` argument; it uses the abilities stored in the object. Default is
-#'   `NULL`.
+#'   `score` is used only in the initial analysis. A missing value in `score`
+#'   excludes the examinee from the analysis, also during purification, with a
+#'   warning. The `est_item` method has no `score` argument; it uses the
+#'   abilities stored in the object. Default is `NULL`.
 #' @param group A numeric or character vector of examinees' group membership,
 #'   with one element per row of `data`. It should contain the value of the
 #'   reference group and the values in `focal.name`. Examinees whose value is not
@@ -50,9 +51,6 @@
 #'   the p-values reported in `dif_stat` are rounded to four decimal places. The
 #'   same level is used in the post-hoc pairwise analyses, without an adjustment
 #'   for multiple comparisons. Default is `0.05`.
-#' @param min.resp A positive integer specifying the minimum number of valid
-#'   item responses required from an examinee in order to compute an ability
-#'   estimate. Default is `NULL`. See **Details** for more information.
 #' @param purify.by A character string specifying the GRDIF statistic used for
 #'   purification: "grdifrs" for \eqn{GRDIF_{RS}}, "grdifr" for
 #'   \eqn{GRDIF_{R}}, or "grdifs" for \eqn{GRDIF_{S}}. Used only when `purify =
@@ -167,8 +165,16 @@
 #'   response or examinees with `NA` in a supplied `score`, are excluded from the
 #'   computation of the GRDIF statistics and from the post-hoc analyses. A
 #'   warning reports the number of examinees with item responses who are
-#'   excluded because of a missing value in `score`. The sample sizes `n.ref`,
-#'   `n.foc1`, `n.foc2`, and so on count only the examinees who are used.
+#'   excluded because of a missing value in `score`; these examinees stay
+#'   excluded during purification. During purification, an examinee whose
+#'   remaining responses are all removed with the flagged items, or who has fewer
+#'   than `min.resp` responses to the remaining items, has no ability estimate
+#'   and is excluded, and one warning at the end reports the number of such
+#'   examinees. The sample sizes `n.ref`, `n.foc1`, `n.foc2`, and so on count
+#'   only the examinees who are used.
+#'
+#'   If no examinee of one of the groups responded to an item, the GRDIF
+#'   statistics and p-values of the item are `NaN`, and the item is not flagged.
 #'
 #'   The GRDIF statistics test only whether DIF is present between at least one
 #'   pair of groups (Lim et al., 2024). When `post.hoc = TRUE`, the three RDIF
@@ -184,13 +190,15 @@
 #'   b minus those of group a. The reference group of the GRDIF analysis is the
 #'   reference group of every pair that includes it (Lim et al., 2024, Equation
 #'   14), and for a pair of focal groups, the group listed earlier in
-#'   `focal.name` is the reference group. The p-values are not adjusted for multiple
-#'   comparisons; to control the familywise error rate, compare them with a
-#'   corrected level, for example `alpha` divided by the number of pairs (a
-#'   Bonferroni correction). When `purify = TRUE`, the post-hoc results in
+#'   `focal.name` is the reference group. The p-values are not adjusted for
+#'   multiple comparisons; to control the familywise error rate, compare them
+#'   with a corrected level, for example `alpha` divided by the number of pairs
+#'   (a Bonferroni correction). When `purify = TRUE`, the post-hoc results in
 #'   `with_purify` are computed for each item when it is removed during
 #'   purification, with the ability estimates of that iteration; the items added
-#'   to the flagged items because `max.iter` is reached are not analyzed.
+#'   to the flagged items when the purification ends before it is complete
+#'   (`max.iter` reached or no ability estimate left in a group) are not
+#'   analyzed.
 #'
 #' @return This function returns an object of class `"grdif"`, which is a list
 #' with the following five components:
@@ -254,14 +262,18 @@
 #'     \item{dif_item}{A numeric vector of the positions (rows of `x`) of the
 #'     items flagged by the `purify.by` statistic, sorted in ascending order. It
 #'     contains the items removed during purification and, if `max.iter` is
-#'     reached, the items flagged in the last iteration (iteration `n.iter`).
-#'     `NULL` if no item is flagged in the initial analysis.}
+#'     reached or the purification stops because a group has no ability
+#'     estimate left, the items flagged in the last iteration (iteration
+#'     `n.iter`). It contains all items if every item is flagged. `NULL` if no
+#'     item is flagged in the initial analysis.}
 #'     \item{n.iter}{The number of purification iterations performed (0 if no
-#'     item is flagged in the initial analysis).}
+#'     item is flagged in the initial analysis). The iteration that removes the
+#'     last item, or after which a group has no ability estimate left, is not
+#'     counted, because the statistics are not recomputed.}
 #'     \item{score}{A numeric vector of the ability estimates from the last
-#'     iteration. `NULL` if no item is flagged in the initial analysis, because
-#'     purification is not carried out; the initial estimates are then in
-#'     `no_purify$score`.}
+#'     iteration counted in `n.iter`. `NULL` if no item is flagged in the
+#'     initial analysis, because purification is not carried out; the initial
+#'     estimates are then in `no_purify$score`.}
 #'     \item{post.hoc}{A data frame with the same columns as the elements of
 #'     `no_purify$post.hoc` and an additional column `n_iter`. It contains the
 #'     post-hoc results of each item removed during purification, computed with
@@ -271,7 +283,8 @@
 #'     \item{complete}{A logical value. `TRUE` if the procedure stopped because
 #'     no remaining item was flagged (including the case in which no item is
 #'     flagged in the initial analysis), and `FALSE` if it stopped because
-#'     `max.iter` was reached.}
+#'     `max.iter` was reached, because every item was flagged, or because a
+#'     group had no examinee with an ability estimate left.}
 #'   }
 #' }
 #'
