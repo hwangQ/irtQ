@@ -70,6 +70,20 @@
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
+#' @param method A character string indicating the scoring method used to
+#'   estimate the abilities when `score = NULL` and in every purification
+#'   iteration. Available options are:
+#'   - `"ML"`: Maximum likelihood estimation
+#'   - `"MLF"`: Maximum likelihood estimation with fences
+#'   - `"WL"`: Weighted likelihood estimation (Warm, 1989)
+#'   - `"MAP"`: Maximum a posteriori estimation (Hambleton et al., 1991)
+#'   - `"EAP"`: Expected a posteriori estimation (Bock & Mislevy, 1982)
+#'
+#'   The methods `"EAP.SUM"` and `"INV.TCC"` of [irtQ::est_score()] are not
+#'   supported, because they do not give an ability estimate for each response
+#'   pattern. `"ML"` or `"WL"` is recommended, because the regression
+#'   correction assumes unbiased ability estimates (see **Details**). Default is
+#'   `"ML"`.
 #' @param range A numeric vector of length two specifying the lower and upper
 #'   bounds of the ability scale. It is used when abilities are estimated
 #'   internally with the scoring methods `"ML"`, `"MLF"`, `"WL"`, and `"MAP"`. In
@@ -172,6 +186,13 @@
 #'   examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
 #'   error, `z.beta`, and the p-value are `NA`, one warning names the items, and
 #'   the items are not flagged.
+#'
+#'   The regression correction assumes that the ability estimates are unbiased,
+#'   that is, that \eqn{\hat{\theta}} equals \eqn{\theta} plus an error with
+#'   mean zero. The Bayesian estimates (`"MAP"` and `"EAP"`) are already shrunk
+#'   toward the prior mean, so the correction shrinks them a second time. Use
+#'   `"ML"` or `"WL"`, especially when the abilities are re-estimated during the
+#'   purification.
 #'
 #'   CATSIB, like SIBTEST (Shealy & Stout, 1993), was designed and evaluated for
 #'   uniform DIF (Nandakumar & Roussos, 2004). Because \eqn{\hat{\beta}} sums

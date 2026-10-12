@@ -146,7 +146,9 @@ iteration. Available options are:
 
 The methods \code{"EAP.SUM"} and \code{"INV.TCC"} of \code{\link[=est_score]{est_score()}} are not
 supported, because they do not give an ability estimate for each response
-pattern. Default is \code{"ML"}.}
+pattern. \code{"ML"} or \code{"WL"} is recommended, because the regression
+correction assumes unbiased ability estimates (see \strong{Details}). Default is
+\code{"ML"}.}
 
 \item{range}{A numeric vector of length two specifying the lower and upper
 bounds of the ability scale. It is used when abilities are estimated
@@ -359,6 +361,13 @@ not overlap when the groups differ in ability; then no bin contains enough
 examinees of both groups for an item, \eqn{\hat{\beta}}, its standard
 error, \code{z.beta}, and the p-value are \code{NA}, one warning names the items, and
 the items are not flagged.
+
+The regression correction assumes that the ability estimates are unbiased,
+that is, that \eqn{\hat{\theta}} equals \eqn{\theta} plus an error with
+mean zero. The Bayesian estimates (\code{"MAP"} and \code{"EAP"}) are already shrunk
+toward the prior mean, so the correction shrinks them a second time. Use
+\code{"ML"} or \code{"WL"}, especially when the abilities are re-estimated during the
+purification.
 
 CATSIB, like SIBTEST (Shealy & Stout, 1993), was designed and evaluated for
 uniform DIF (Nandakumar & Roussos, 2004). Because \eqn{\hat{\beta}} sums
