@@ -533,11 +533,16 @@ knitr::opts_chunk$set(
   with an obscure message. `ripd()` and `pcd2()` also stop with a clear message
   when `min.resp` is not a single nonnegative number, and `ripd()` stops when
   `score` is not numeric, when `alpha` is not a single number between 0 and 1
-  (an `alpha` of 1 or a text value flagged every item), or when `max.iter` is
+  (an `alpha` of 1 or more, or a text value, flagged every item), or when `max.iter` is
   not a positive whole number and `purify = TRUE`. The `est_irt` and `est_item`
   methods of `ripd()` stop with a clear message when `data` or `D` is passed,
   and the `est_item` method when `score` is passed, as those of `rdif()` and
   `crdif()` do.
+
+* `pcd2()` stops with a clear message when `max.iter` is not a positive whole
+  number and `purify = TRUE`, and when `crit.val` is not `NULL` or a single
+  nonnegative number. Before, it accepted `max.iter = 2.5`, and a text
+  `crit.val` flagged no item without a message.
 
 * The `print()` methods of `grdif()` and `catsib()` leave the significance
   symbol of an item with a missing p-value blank, as those of `rdif()` and

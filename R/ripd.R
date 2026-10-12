@@ -645,7 +645,7 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
 
   # stop when the abilities are estimated or updated with an unsupported scoring method
   if (is.null(score) || purify) {
-    check_pattern_method(method)
+    check_pattern_method(method, fn = "ripd()")
   }
 
   # record whether the ability estimates are supplied
@@ -762,11 +762,6 @@ ripd_main <- function(x, data, score, group, focal.name, item.skip, D, alpha, mi
     if (!is.null(ipd_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
-
-      # in case when at least one IPD item is detected from the no purification IPD analysis
-      # in this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
 
       # indicate whether the purification stops because every item is flagged
       all_flagged <- FALSE

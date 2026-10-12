@@ -54,6 +54,15 @@ test_that("dif_rescore() rescores all examinees in the first iteration and mutes
   expect_no_warning(do.call(dif_rescore, c(args, list(quiet_na = TRUE))))
 })
 
+test_that("check_crit_val() stops for invalid values", {
+  expect_null(check_crit_val(NULL))
+  expect_no_error(check_crit_val(0))
+  expect_no_error(check_crit_val(0.002))
+  for (bad in list("a", -1, c(1, 2), NA, Inf)) {
+    expect_error(check_crit_val(bad), "crit.val")
+  }
+})
+
 test_that("check_min_resp(), check_score(), and check_pattern_method() stop for invalid values", {
   expect_null(check_min_resp(NULL))
   expect_no_error(check_min_resp(0))
@@ -67,9 +76,9 @@ test_that("check_min_resp(), check_score(), and check_pattern_method() stop for 
   expect_error(check_score(c("a", "b"), 2), "numeric")
   expect_error(check_score(c(0, 1), 3), "length")
 
-  expect_no_error(check_pattern_method("ML"))
+  expect_no_error(check_pattern_method("ML", fn = "ripd()"))
   for (bad in list("EAP.SUM", "INV.TCC", c("ML", "EAP"), NULL)) {
-    expect_error(check_pattern_method(bad), "not supported by ripd()", fixed = TRUE)
+    expect_error(check_pattern_method(bad, fn = "ripd()"), "not supported by ripd()", fixed = TRUE)
   }
   expect_error(check_pattern_method("INV.TCC", fn = "rdif()"), "not supported by rdif()",
                fixed = TRUE)

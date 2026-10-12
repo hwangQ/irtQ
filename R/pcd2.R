@@ -364,6 +364,12 @@ pcd2 <- function(x,
   # Stop when the minimum number of responses is not a single nonnegative number
   check_min_resp(min.resp)
 
+  # Stop when the maximum number of iterations is not a positive whole number
+  check_max_iter(max.iter, purify)
+
+  # Stop when the critical value is not a single nonnegative number
+  check_crit_val(crit.val)
+
   # count the number of item responses across all items
   n.resp <- Rfast::colsums(!is.na(data))
 
@@ -431,11 +437,6 @@ pcd2 <- function(x,
 
       # Record unique item numbers
       item_num <- 1:nrow(x)
-
-      # In case when at least one IPD item is detected from the no purification IPD analysis:
-      # In this case, the maximum number of iteration must be greater than 0.
-      # if not, stop and return an error message
-      if (max.iter < 1) stop("The maximum iteration (i.e., max.iter) must be greater than 0 when purify = TRUE.", call. = FALSE)
 
       # Indicate whether the purification stops because every item is flagged
       all_flagged <- FALSE

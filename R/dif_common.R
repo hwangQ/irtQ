@@ -115,7 +115,7 @@ trim_par_cols <- function(x) {
 # returns the response matrix, the ability estimates, and the positions of the items to be skipped
 dif_prepare <- function(x, data, score, group, focal.name, item.skip, D, alpha, missing,
                         purify, max.iter, min.resp, method, range, norm.prior, nquad,
-                        weights, ncore, fn = "rdif()", multi_focal = FALSE, ...) {
+                        weights, ncore, fn, multi_focal = FALSE, ...) {
   # transform the response data to a matrix form
   data <- as.matrix(data)
 
@@ -275,9 +275,18 @@ check_max_iter <- function(max.iter, purify) {
 }
 
 
+# This function stops when the critical value is not NULL or a single nonnegative number
+check_crit_val <- function(crit.val) {
+  if (!is.null(crit.val) && !(is.numeric(crit.val) && length(crit.val) == 1L &&
+                              is.finite(crit.val) && crit.val >= 0)) {
+    stop("'crit.val' must be NULL or a single nonnegative number.", call. = FALSE)
+  }
+}
+
+
 # This function stops when the scoring method does not give one ability estimate per response
 # pattern, which the DIF and IPD functions need to estimate or update the abilities
-check_pattern_method <- function(method, fn = "ripd()") {
+check_pattern_method <- function(method, fn) {
   if (length(method) != 1L || !method %in% c("ML", "MLF", "WL", "MAP", "EAP")) {
     stop("The scoring method ", paste(method, collapse = ", "), " is not supported by ", fn, ". ",
          "Use one of \"ML\", \"MLF\", \"WL\", \"MAP\", or \"EAP\".", call. = FALSE)

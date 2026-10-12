@@ -135,3 +135,14 @@ test_that("pcd2() purification recomputes the posterior without the removed item
   expect_equal(rst$with_purify$ipd_stat$pcd2[-top], ref, tolerance = 1e-10)
   expect_equal(rst$with_purify$ipd_stat$n.iter[top], 0)
 })
+
+test_that("pcd2() stops for an invalid max.iter or crit.val", {
+  sim <- pcd2_sim()
+  for (bad in list(0, 2.5, "a", NA, c(1, 2))) {
+    expect_error(pcd2(sim$par, sim$resp, crit.val = 0.001, purify = TRUE, max.iter = bad), "max.iter")
+  }
+  expect_no_error(pcd2(sim$par, sim$resp, max.iter = 2.5))
+  for (bad in list("a", -1, c(1, 2), NA, Inf)) {
+    expect_error(pcd2(sim$par, sim$resp, crit.val = bad), "crit.val")
+  }
+})
