@@ -159,14 +159,21 @@
 #'   Nandakumar and Roussos (2004) did not propose a purification procedure for
 #'   CATSIB, but [irtQ::catsib()] can apply an iterative purification procedure
 #'   in the manner of Lim et al. (2022). It requires `x`. When `purify = TRUE`, at
-#'   each iteration the flagged item with the largest absolute value of `z.beta`
-#'   is removed, the abilities and their standard errors are re-estimated from
-#'   the remaining items with the scoring method specified in `method`, and the
-#'   CATSIB statistics of the remaining items are recomputed. Supplied `score`
-#'   and `se` are therefore used only in the initial analysis. The procedure
-#'   stops when no remaining item is flagged or when `max.iter` iterations have
-#'   been performed. If no item is flagged in the initial analysis, no iteration
-#'   is performed.
+#'   each iteration the flagged item with the smallest p-value is removed (the
+#'   p-values are compared on the log scale), the abilities and their standard
+#'   errors are re-estimated from the remaining items with the scoring method
+#'   specified in `method`, and the CATSIB statistics of the remaining items are
+#'   recomputed. Supplied `score` and `se` are therefore used only in the initial
+#'   analysis. The procedure stops when no remaining item is flagged or when
+#'   `max.iter` iterations have been performed. If no item is flagged in the
+#'   initial analysis, no iteration is performed. If every item is flagged, the
+#'   procedure stops with a warning, because no item is left to estimate the
+#'   abilities, and `complete` is `FALSE`. The procedure also stops with a
+#'   warning and `complete = FALSE` when, after an item is removed, a group has
+#'   fewer than two ability estimates within `range`, which the regression
+#'   correction requires; the remaining items then keep the results of the
+#'   previous iteration, and the items flagged in that iteration are added to the
+#'   flagged items.
 #'
 #'   Scoring based on a small number of item responses can lead to large
 #'   standard errors, potentially reducing the accuracy of DIF detection with
@@ -635,6 +642,7 @@ catsib <- function(x = NULL,
     # extract the first DIF analysis results
     # and check if at least one DIF item is detected
     dif_item_tmp <- dif_rst$dif_item
+    log_p_tmp <- dif_rst$log_p
     dif_stat_tmp <- dif_rst$dif_stat
     contingency_tmp <- dif_rst$contingency
 
@@ -648,6 +656,9 @@ catsib <- function(x = NULL,
     if (!is.null(dif_item_tmp)) {
       # record unique item numbers
       item_num <- 1:nrow(x)
+
+      # indicate whether the purification stops because every item is flagged
+      all_flagged <- FALSE
 
       # indicate whether the purification stops because a group has too few ability estimates
       no_score <- FALSE
@@ -663,31 +674,37 @@ catsib <- function(x = NULL,
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # a flagged item which has the largest significant DIF statistic
-        flag_max <- which.max(abs(dif_stat_tmp$z.beta))
+        # find the flagged item with the smallest p-value
+        flag_del <- pick_flagged_item(flag_loc = dif_item_tmp, log_p = log_p_tmp)
 
         # check an item that is deleted
-        del_item <- item_num[flag_max]
+        del_item <- item_num[flag_del]
 
         # add the deleted item as the DIF item
         dif_item <- c(dif_item, del_item)
 
         # add the DIF statistics and the contingency table of the removed item
-        dif_stat[del_item, 1:8] <- dif_stat_tmp[flag_max, ]
+        dif_stat[del_item, 1:8] <- dif_stat_tmp[flag_del, ]
         dif_stat[del_item, 9] <- i - 1
-        contingency[del_item] <- contingency_tmp[flag_max]
+        contingency[del_item] <- contingency_tmp[flag_del]
 
         # find the examinees who responded to the item to be deleted
-        loc_resp <- which(!is.na(data_puri[, flag_max]))
+        loc_resp <- which(!is.na(data_puri[, flag_del]))
 
         # refine the leftover items
-        item_num <- item_num[-flag_max]
+        item_num <- item_num[-flag_del]
 
-        # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, , drop = FALSE]
+        # stop the purification when no item is left to estimate the abilities
+        if (length(item_num) == 0L) {
+          all_flagged <- TRUE
+          break
+        }
 
-        # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max, drop = FALSE]
+        # remove the detected DIF item data which has the smallest p-value from the item metadata
+        x_puri <- x_puri[-flag_del, , drop = FALSE]
+
+        # remove the detected DIF item data which has the smallest p-value from the response data
+        data_puri <- data_puri[, -flag_del, drop = FALSE]
 
         # update the locations of the items that should be skipped in the purified data
         if (!is.null(item.skip)) {
@@ -729,13 +746,13 @@ catsib <- function(x = NULL,
           no_score <- TRUE
           score_puri <- score_prev
           se_puri <- se_prev
-          dif_stat[item_num, 1:8] <- dif_stat_tmp[-flag_max, ]
+          dif_stat[item_num, 1:8] <- dif_stat_tmp[-flag_del, ]
           dif_stat[item_num, 9] <- i - 1
-          contingency[item_num] <- contingency_tmp[-flag_max]
+          contingency[item_num] <- contingency_tmp[-flag_del]
 
           # add the items flagged at the previous iteration, except the item deleted at this one
-          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_max),
-                                                 seq_len(nrow(dif_stat_tmp))[-flag_max])])
+          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_del),
+                                                 seq_len(nrow(dif_stat_tmp))[-flag_del])])
           break
         }
 
@@ -753,6 +770,7 @@ catsib <- function(x = NULL,
         # extract the first DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item
+        log_p_tmp <- dif_rst_tmp$log_p
         dif_stat_tmp <- dif_rst_tmp$dif_stat
         contingency_tmp <- dif_rst_tmp$contingency
 
@@ -774,17 +792,23 @@ catsib <- function(x = NULL,
 
       # record the actual number of iterations; the statistics are not recomputed in the
       # iteration that stops the purification
-      n_iter <- if (no_score) i - 1L else i
+      n_iter <- if (all_flagged || no_score) i - 1L else i
 
-      if (no_score) {
+      if (all_flagged) {
+        # if every item is flagged, then, return a warning message
+        warning("All items were flagged during the purification, so the purification stopped ",
+                "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (no_score) {
         # if a group has too few ability estimates left, then, return a warning message
         warning("The purification stopped because fewer than two examinees of a group had an ",
                 "ability estimate within 'range' for the remaining items.", call. = FALSE)
         complete <- FALSE
       } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        # if the iteration reached out the maximum number of iteration but the purification was incomplete,
+        # if the maximum number of iterations is reached before purification is complete,
         # then, return a warning message
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
+        warning("The maximum number of iterations was reached before purification was completed.",
+                call. = FALSE)
         complete <- FALSE
 
         # add flagged DIF item at the last iteration
@@ -815,7 +839,7 @@ catsib <- function(x = NULL,
     } else {
       # in case when no DIF item is detected from the first DIF analysis results
       with_purify$dif_stat <- cbind(no_purify$dif_stat, n.iter = 0)
-      with_purify$n.iter <- 0
+      with_purify$n.iter <- 0L
       with_purify$complete <- TRUE
       with_purify$contingency <- no_purify$contingency
     }
@@ -950,8 +974,10 @@ catsib_one <- function(data,
   contingency <- purrr::map(.x = catsib_dif, "contingency")
   names(contingency) <- item.id
 
-  # keep the unrounded p-values to flag the items
+  # keep the unrounded p-values to flag the items and the log p-values to choose the item to be
+  # removed in the purification
   p_beta <- dif_stat$p
+  log_p <- log(2) + stats::pnorm(q = -abs(dif_stat$z.beta), mean = 0, sd = 1, log.p = TRUE)
 
   # round the statistics
   dif_stat <-
@@ -965,6 +991,7 @@ catsib_one <- function(data,
   if (!is.null(item.skip)) {
     dif_stat[item.skip, 2:5] <- NA
     p_beta[item.skip] <- NA
+    log_p[item.skip] <- NA
     contingency[item.skip] <- NA
   }
 
@@ -973,7 +1000,7 @@ catsib_one <- function(data,
   if (length(dif_item) == 0) dif_item <- NULL
 
   # return the results
-  rst <- list(dif_stat = dif_stat, dif_item = dif_item, contingency = contingency)
+  rst <- list(dif_stat = dif_stat, dif_item = dif_item, contingency = contingency, log_p = log_p)
   rst
 }
 

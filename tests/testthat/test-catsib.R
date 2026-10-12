@@ -233,3 +233,32 @@ test_that("catsib() flags items with the unrounded p-values", {
                                  focal.name = 1, alpha = alpha))
   expect_identical(j %in% rst$no_purify$dif_item, ref$p[j] <= alpha)
 })
+
+test_that("catsib() purification removes the flagged item with the smallest p-value first", {
+  sim <- cst_sim(8)
+  # the reliability of the scores falls below the floor as many items are removed
+  rst <- suppressWarnings(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                                 focal.name = 1, purify = TRUE, max.iter = 20, verbose = FALSE))
+  first <- which(rst$with_purify$dif_stat$n.iter == 0)
+  z0 <- rst$no_purify$dif_stat$z.beta
+  expect_equal(first, which.max(abs(z0)))
+  expect_true(all(rst$with_purify$dif_item %in% seq_len(nrow(sim$x))))
+  expect_type(rst$with_purify$n.iter, "integer")
+
+  # the statistics of the remaining items are those computed with the scores from these items
+  keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$dif_item)
+  if (rst$with_purify$complete) {
+    es <- est_score(sim$x[keep, ], sim$resp[, keep], D = 1, range = c(-5, 5))
+    ref <- cst_ref(sim$resp[, keep], es$est.theta, es$se.theta, sim$group, 1, screen = TRUE)
+    expect_lt(max(abs(rst$with_purify$dif_stat$beta[keep] - ref$beta)), 5.1e-5)
+  }
+})
+
+test_that("catsib() reports an incomplete purification when max.iter is reached", {
+  sim <- cst_sim(10)
+  out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                          focal.name = 1, purify = TRUE, max.iter = 1, alpha = 0.3, verbose = FALSE))
+  expect_true(any(grepl("maximum number of iterations", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_true(length(out$value$with_purify$dif_item) > 1)
+})

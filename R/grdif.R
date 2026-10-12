@@ -132,14 +132,21 @@
 #'   As in the RDIF framework, an iterative purification procedure can be applied
 #'   (Lim et al., 2022, 2024). When `purify = TRUE`, the statistic specified in
 #'   `purify.by` drives the procedure (e.g., `purify.by = "grdifrs"`). At each
-#'   iteration, the flagged item with the largest value of the `purify.by`
-#'   statistic is removed, the abilities are re-estimated from the remaining
-#'   items with the scoring method specified in `method`, and the GRDIF
-#'   statistics of the remaining items are recomputed. A supplied `score` is
-#'   therefore used only in the initial analysis. The procedure stops when no
-#'   remaining item is flagged or when `max.iter` iterations have been
-#'   performed. If no item is flagged in the initial analysis, no iteration is
-#'   performed.
+#'   iteration, the flagged item with the smallest p-value of the `purify.by`
+#'   statistic is removed (the p-values are compared on the log scale), the
+#'   abilities are re-estimated from the remaining items with the scoring method
+#'   specified in `method`, and the GRDIF statistics of the remaining items are
+#'   recomputed. A supplied `score` is therefore used only in the initial
+#'   analysis. The procedure stops when no remaining item is flagged or when
+#'   `max.iter` iterations have been performed. If no item is flagged in the
+#'   initial analysis, no iteration is performed. If every item is flagged, the
+#'   procedure stops with a warning, because no item is left to estimate the
+#'   abilities, and `complete` is `FALSE`. The procedure also stops with a
+#'   warning and `complete = FALSE` when, after an item is removed, no examinee
+#'   of the reference group or of a focal group has an ability estimate left
+#'   (see `min.resp` below); the remaining items then keep the results and the
+#'   scores of the previous iteration, and the items flagged in that iteration
+#'   are added to the flagged items.
 #'
 #'   Scoring based on a small number of item responses can lead to large
 #'   standard errors, potentially reducing the accuracy of DIF detection in the
@@ -637,6 +644,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
     # extract the first DIF analysis results
     # and check if at least one DIF item is detected
     dif_item_tmp <- dif_rst$dif_item[[purify.by]]
+    log_p_tmp <- dif_rst$log_p[[purify.by]]
     dif_stat_tmp <- dif_rst$dif_stat
     mmt_df_tmp <- no_purify$moments
 
@@ -655,6 +663,12 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
       # record unique item numbers
       item_num <- 1:nrow(x)
 
+      # indicate whether the purification stops because every item is flagged
+      all_flagged <- FALSE
+
+      # indicate whether the purification stops because a group has no ability estimate left
+      no_score <- FALSE
+
       # print a message
       if (verbose) {
         cat("Purification started...", "\n")
@@ -666,41 +680,36 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
           cat("\r", paste0("Iteration: ", i))
         }
 
-        # find the flagged item with the largest value of the purify.by statistic
-        flag_max <-
-          switch(purify.by,
-                 grdifr = which.max(dif_stat_tmp$grdifr),
-                 grdifs = which.max(dif_stat_tmp$grdifs),
-                 grdifrs = which.max(dif_stat_tmp$grdifrs)
-          )
+        # find the flagged item with the smallest p-value
+        flag_del <- pick_flagged_item(flag_loc = dif_item_tmp, log_p = log_p_tmp)
 
         # check an item that is deleted
-        del_item <- item_num[flag_max]
+        del_item <- item_num[flag_del]
 
         # add the deleted item as the DIF item
         dif_item <- c(dif_item, del_item)
 
         # add the DIF statistics and moments for the detected DIF item
-        dif_stat[del_item, 1:(ncol.stat - 1)] <- dif_stat_tmp[flag_max, ]
+        dif_stat[del_item, 1:(ncol.stat - 1)] <- dif_stat_tmp[flag_del, ]
         dif_stat[del_item, ncol.stat] <- i - 1
-        mmt_df$mu[del_item, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu[flag_max, ]
-        mmt_df$var[del_item, 1:(ncol.var - 1)] <- mmt_df_tmp$var[flag_max, ]
-        mmt_df$covariance[del_item, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance[flag_max, ]
+        mmt_df$mu[del_item, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu[flag_del, ]
+        mmt_df$var[del_item, 1:(ncol.var - 1)] <- mmt_df_tmp$var[flag_del, ]
+        mmt_df$covariance[del_item, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance[flag_del, ]
         mmt_df$mu[del_item, ncol.mu] <- i - 1
         mmt_df$var[del_item, ncol.var] <- i - 1
         mmt_df$covariance[del_item, ncol.covar] <- i - 1
 
         # find the examinees who responded to the item to be deleted
-        loc_resp <- which(!is.na(data_puri[, flag_max]))
+        loc_resp <- which(!is.na(data_puri[, flag_del]))
 
         # refine the leftover items
-        item_num <- item_num[-flag_max]
+        item_num <- item_num[-flag_del]
 
         # post-hoc DIF analysis of the item to be deleted
         if (post.hoc) {
           # post-hoc DIF analyses for all pairs of the groups
           post_rst <- grdif_posthoc(
-            x = x_puri[flag_max, , drop = FALSE], data = data_puri[, flag_max, drop = FALSE],
+            x = x_puri[flag_del, , drop = FALSE], data = data_puri[, flag_del, drop = FALSE],
             score = score_puri, group = group, D = D, alpha = alpha
           )
           singular_post <- union(singular_post, post_rst$singular)
@@ -713,11 +722,17 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
             dplyr::mutate(n_iter = i - 1)
         }
 
-        # remove the detected DIF item data which has the largest statistic from the item metadata
-        x_puri <- x_puri[-flag_max, , drop = FALSE]
+        # stop the purification when no item is left to estimate the abilities
+        if (length(item_num) == 0L) {
+          all_flagged <- TRUE
+          break
+        }
 
-        # remove the detected DIF item data which has the largest statistic from the response data
-        data_puri <- data_puri[, -flag_max, drop = FALSE]
+        # remove the detected DIF item data which has the smallest p-value from the item metadata
+        x_puri <- x_puri[-flag_del, , drop = FALSE]
+
+        # remove the detected DIF item data which has the smallest p-value from the response data
+        data_puri <- data_puri[, -flag_del, drop = FALSE]
 
         # if min.resp is not NULL, find the examinees who have the number of responses
         # less than specified value (e.g., 5). Then, replace their all responses with NA
@@ -726,6 +741,9 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
           loc_less <- which(n_resp < min.resp & n_resp > 0)
           data_puri[loc_less, ] <- NA
         }
+
+        # keep the ability estimates of the previous iteration in case the purification stops
+        score_prev <- score_puri
 
         # compute the updated ability estimates after deleting the detected DIF item data;
         # only the examinees who responded to the deleted item are rescored after the first iteration
@@ -737,6 +755,27 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
             quiet_na = TRUE, quiet_ncore = (i > 1L || !score_given), ...
           )
 
+        # stop the purification when the examinees of a group have all lost their ability estimates;
+        # the remaining items keep the results of the previous iteration
+        if (any(vapply(unique(group[!is.na(group)]), function(g) all(is.na(score_puri[which(group == g)])),
+                       logical(1)))) {
+          no_score <- TRUE
+          score_puri <- score_prev
+          dif_stat[item_num, 1:(ncol.stat - 1)] <- dif_stat_tmp[-flag_del, ]
+          dif_stat[item_num, ncol.stat] <- i - 1
+          mmt_df$mu[item_num, 1:(ncol.mu - 1)] <- mmt_df_tmp$mu[-flag_del, ]
+          mmt_df$var[item_num, 1:(ncol.var - 1)] <- mmt_df_tmp$var[-flag_del, ]
+          mmt_df$covariance[item_num, 1:(ncol.covar - 1)] <- mmt_df_tmp$covariance[-flag_del, ]
+          mmt_df$mu[item_num, ncol.mu] <- i - 1
+          mmt_df$var[item_num, ncol.var] <- i - 1
+          mmt_df$covariance[item_num, ncol.covar] <- i - 1
+
+          # add the items flagged at the previous iteration, except the item deleted at this one
+          dif_item <- c(dif_item, item_num[match(setdiff(dif_item_tmp, flag_del),
+                                                 seq_along(log_p_tmp)[-flag_del])])
+          break
+        }
+
         # do DIF analysis using the updated ability estimates
         dif_rst_tmp <- grdif_one(
           x = x_puri, data = data_puri, score = score_puri, group = group,
@@ -746,9 +785,10 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         # record the items whose covariance matrix is singular
         singular_id <- union(singular_id, dif_rst_tmp$singular)
 
-        # extract the first DIF analysis results
+        # extract the DIF analysis results
         # and check if at least one DIF item is detected
         dif_item_tmp <- dif_rst_tmp$dif_item[[purify.by]]
+        log_p_tmp <- dif_rst_tmp$log_p[[purify.by]]
         dif_stat_tmp <- dif_rst_tmp$dif_stat
         mmt_df_tmp <-
           list(
@@ -778,13 +818,25 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         cat("", "\n")
       }
 
-      # record the actual number of iteration
-      n_iter <- i
+      # record the actual number of iterations; the statistics are not recomputed in the
+      # iteration that stops the purification
+      n_iter <- if (all_flagged || no_score) i - 1L else i
 
-      # if the iteration reached out the maximum number of iteration but the purification is incomplete,
-      # then, return a warning message
-      if (max.iter == n_iter & !is.null(dif_item_tmp)) {
-        warning("The iteration reached out the maximum number of iteration before purification is completed.", call. = FALSE)
+      if (all_flagged) {
+        # if every item is flagged, then, return a warning message
+        warning("All items were flagged during the purification, so the purification stopped ",
+                "with no item left to analyze.", call. = FALSE)
+        complete <- FALSE
+      } else if (no_score) {
+        # if a group has no ability estimate left, then, return a warning message
+        warning("The purification stopped because no examinee of a group had enough responses ",
+                "to the remaining items to estimate the ability.", call. = FALSE)
+        complete <- FALSE
+      } else if (max.iter == n_iter & !is.null(dif_item_tmp)) {
+        # if the maximum number of iterations is reached before purification is complete,
+        # then, return a warning message
+        warning("The maximum number of iterations was reached before purification was completed.",
+                call. = FALSE)
         complete <- FALSE
 
         # add flagged DIF item at the last iteration
@@ -808,6 +860,9 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         }
       }
 
+      # warn once about the examinees who lost their ability estimates during the purification
+      warn_purify_excluded(sum(is.na(score_puri) & rowSums(!is.na(data)) > 0))
+
       # record the final DIF detection results with the purification procedure
       with_purify$purify.by <- purify.by
       with_purify$dif_stat <- dif_stat
@@ -829,7 +884,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         purrr::map(.x = no_purify$moments, ~ {
           cbind(.x, n.iter = 0)
         })
-      with_purify$n.iter <- 0
+      with_purify$n.iter <- 0L
       with_purify$complete <- TRUE
     }
   }
@@ -1177,6 +1232,13 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
     )
   rownames(stat_df) <- NULL
 
+  # compute the log p-values to choose the item to be removed in the purification
+  log_p <- list(
+    grdifr = stats::pchisq(chisq_r, df = df_r, lower.tail = FALSE, log.p = TRUE),
+    grdifs = stats::pchisq(chisq_s, df = df_s, lower.tail = FALSE, log.p = TRUE),
+    grdifrs = stats::pchisq(chisq_rs, df = df_rs, lower.tail = FALSE, log.p = TRUE)
+  )
+
   # find the flagged items
   dif_item_grdifr <- which(p_grdifr <= alpha)
   dif_item_grdifs <- which(p_grdifs <= alpha)
@@ -1214,7 +1276,7 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       grdifs = dif_item_grdifs,
       grdifrs = dif_item_grdifrs
     ),
-    moments = mmt_df, alpha = alpha, singular = singular_id
+    moments = mmt_df, alpha = alpha, log_p = log_p, singular = singular_id
   )
 
   # return the results

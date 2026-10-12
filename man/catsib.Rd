@@ -345,14 +345,21 @@ suspected of nonuniform DIF should be interpreted with caution.
 Nandakumar and Roussos (2004) did not propose a purification procedure for
 CATSIB, but \code{\link[=catsib]{catsib()}} can apply an iterative purification procedure
 in the manner of Lim et al. (2022). It requires \code{x}. When \code{purify = TRUE}, at
-each iteration the flagged item with the largest absolute value of \code{z.beta}
-is removed, the abilities and their standard errors are re-estimated from
-the remaining items with the scoring method specified in \code{method}, and the
-CATSIB statistics of the remaining items are recomputed. Supplied \code{score}
-and \code{se} are therefore used only in the initial analysis. The procedure
-stops when no remaining item is flagged or when \code{max.iter} iterations have
-been performed. If no item is flagged in the initial analysis, no iteration
-is performed.
+each iteration the flagged item with the smallest p-value is removed (the
+p-values are compared on the log scale), the abilities and their standard
+errors are re-estimated from the remaining items with the scoring method
+specified in \code{method}, and the CATSIB statistics of the remaining items are
+recomputed. Supplied \code{score} and \code{se} are therefore used only in the initial
+analysis. The procedure stops when no remaining item is flagged or when
+\code{max.iter} iterations have been performed. If no item is flagged in the
+initial analysis, no iteration is performed. If every item is flagged, the
+procedure stops with a warning, because no item is left to estimate the
+abilities, and \code{complete} is \code{FALSE}. The procedure also stops with a
+warning and \code{complete = FALSE} when, after an item is removed, a group has
+fewer than two ability estimates within \code{range}, which the regression
+correction requires; the remaining items then keep the results of the
+previous iteration, and the items flagged in that iteration are added to the
+flagged items.
 
 Scoring based on a small number of item responses can lead to large
 standard errors, potentially reducing the accuracy of DIF detection with

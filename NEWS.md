@@ -348,6 +348,20 @@
   matrix instead of G - 1, G - 1, and 2(G - 1), and one warning names
   the items. Results for regular data are unchanged.
 
+- The purification of `grdif()` and `catsib()` removed the item with the
+  largest statistic (`catsib()`: the largest absolute `z.beta`) among
+  all items, which was not always a flagged item, instead of the flagged
+  item with the smallest p-value as `rdif()` and `crdif()` do. They now
+  remove the flagged item with the smallest p-value. They also stop with
+  a warning and `complete = FALSE` when every item is flagged or when a
+  group has no ability estimate left (`catsib()`: fewer than two within
+  `range`), and return the results of the last counted iteration, as
+  `rdif()` and `crdif()` do. Examinees who lost their ability estimates
+  during the purification are reported by one warning. The warning for
+  an incomplete purification now reads as that of `rdif()`, and `n.iter`
+  of the `with_purify` results is the integer 0 when no item is flagged
+  in the initial analysis.
+
 ## Changes in Behavior
 
 - `grdif()` supports dichotomous items only and stops with an error when

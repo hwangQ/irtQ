@@ -318,3 +318,66 @@ test_that("grdif() uses a generalized inverse when a covariance matrix is singul
   expect_equal(ds$p.grdifrs, ds$p.grdifr, tolerance = 1e-3)
   expect_false(anyNA(ds$p.grdifrs))
 })
+
+test_that("grdif() purification removes the flagged item with the smallest p-value first", {
+  sim <- grt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  rst <- grdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = sim$focal,
+               purify = TRUE, purify.by = "grdifr", post.hoc = FALSE, verbose = FALSE)
+  first <- rst$with_purify$dif_stat$n.iter == 0
+  p0 <- rst$no_purify$dif_stat$grdifr
+  expect_equal(which(first), which.max(p0))
+  expect_true(rst$with_purify$complete)
+
+  # the final scores are those of the items that were not flagged
+  keep <- setdiff(seq_len(nrow(sim$x)), rst$with_purify$dif_item)
+  sc <- est_score(trim_par_cols(sim$x[keep, ]), sim$resp[, keep], D = 1, range = c(-4, 4))$est.theta
+  expect_equal(rst$with_purify$score, sc)
+  expect_type(rst$with_purify$n.iter, "integer")
+})
+
+test_that("grdif() purification stops with a warning when all items are flagged", {
+  sim <- grt_sim3()
+  out <- grt_catch(grdif(sim$x[1:2, ], sim$resp[, 1:2], group = sim$group, focal.name = c(1, 2),
+                         purify = TRUE, alpha = 0.999, verbose = FALSE))
+  expect_true(any(grepl("All items were flagged", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_equal(out$value$with_purify$dif_item, 1:2)
+  expect_identical(out$value$with_purify$n.iter, 1L)
+  expect_false(anyNA(out$value$with_purify$dif_stat$grdifrs))
+  expect_setequal(unique(out$value$with_purify$post.hoc$id), sim$x$id[1:2])
+  r0 <- grdif(sim$x[1:2, ], sim$resp[, 1:2], group = sim$group, focal.name = c(1, 2), alpha = 0.999)
+  expect_identical(out$value$no_purify, r0$no_purify)
+})
+
+test_that("grdif() purification stops with a warning when a group has no ability estimate left", {
+  sim <- grt_sim(seed = 3, miss = 0.3)
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  args <- list(x = sim$x, data = sim$resp, score = score, group = sim$group, focal.name = sim$focal,
+               min.resp = 8, purify = TRUE, alpha = 0.9, post.hoc = FALSE, verbose = FALSE)
+  out <- grt_catch(do.call(grdif, args))
+  expect_true(any(grepl("no examinee of a group", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_false(anyNA(out$value$with_purify$dif_stat$grdifrs))
+  expect_false(anyNA(out$value$with_purify$moments$mu$msr.ref))
+
+  # the returned results are those of the last iteration counted
+  out2 <- grt_catch(do.call(grdif, utils::modifyList(args, list(max.iter = out$value$with_purify$n.iter))))
+  keep <- out$value$with_purify$dif_stat$n.iter == out$value$with_purify$n.iter
+  expect_identical(out$value$with_purify$dif_stat[keep, ], out2$value$with_purify$dif_stat[keep, ])
+  expect_identical(out$value$with_purify$score, out2$value$with_purify$score)
+  for (g in unique(sim$group)) {
+    expect_false(all(is.na(out$value$with_purify$score[sim$group == g])))
+  }
+})
+
+test_that("grdif() reports an incomplete purification when max.iter is reached", {
+  sim <- grt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  out <- grt_catch(grdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = sim$focal,
+                         purify = TRUE, max.iter = 1, post.hoc = FALSE, verbose = FALSE))
+  expect_true(any(grepl("maximum number of iterations", out$warnings)))
+  expect_false(out$value$with_purify$complete)
+  expect_true(length(out$value$with_purify$dif_item) > 1)
+})
+

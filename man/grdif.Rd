@@ -370,14 +370,21 @@ analysis.
 As in the RDIF framework, an iterative purification procedure can be applied
 (Lim et al., 2022, 2024). When \code{purify = TRUE}, the statistic specified in
 \code{purify.by} drives the procedure (e.g., \code{purify.by = "grdifrs"}). At each
-iteration, the flagged item with the largest value of the \code{purify.by}
-statistic is removed, the abilities are re-estimated from the remaining
-items with the scoring method specified in \code{method}, and the GRDIF
-statistics of the remaining items are recomputed. A supplied \code{score} is
-therefore used only in the initial analysis. The procedure stops when no
-remaining item is flagged or when \code{max.iter} iterations have been
-performed. If no item is flagged in the initial analysis, no iteration is
-performed.
+iteration, the flagged item with the smallest p-value of the \code{purify.by}
+statistic is removed (the p-values are compared on the log scale), the
+abilities are re-estimated from the remaining items with the scoring method
+specified in \code{method}, and the GRDIF statistics of the remaining items are
+recomputed. A supplied \code{score} is therefore used only in the initial
+analysis. The procedure stops when no remaining item is flagged or when
+\code{max.iter} iterations have been performed. If no item is flagged in the
+initial analysis, no iteration is performed. If every item is flagged, the
+procedure stops with a warning, because no item is left to estimate the
+abilities, and \code{complete} is \code{FALSE}. The procedure also stops with a
+warning and \code{complete = FALSE} when, after an item is removed, no examinee
+of the reference group or of a focal group has an ability estimate left
+(see \code{min.resp} below); the remaining items then keep the results and the
+scores of the previous iteration, and the items flagged in that iteration
+are added to the flagged items.
 
 Scoring based on a small number of item responses can lead to large
 standard errors, potentially reducing the accuracy of DIF detection in the
