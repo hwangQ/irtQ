@@ -382,6 +382,18 @@
   its own maximum when a logit exceeds 100 in absolute value; results
   below that range are unchanged.
 
+- `est_irt()` and `est_mg()` computed the standard errors of GRM and
+  GPCM items with `D = 1` whatever `D` was. With `D` other than 1, such
+  as 1.702, the standard errors of polytomous items were about 1.5 to
+  1.8 times too large, those of the dichotomous items of the same test
+  were also affected, and so were `covariance` and `test.2`. The
+  estimates were not affected.
+
+- With `fix.g = TRUE` and a `g.val` other than 0.2, `est_irt()` and
+  `est_mg()` computed the standard errors of 3PLM items as if the
+  guessing parameter were 0.2, which changed them by up to about 9
+  percent. The estimates were not affected.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When

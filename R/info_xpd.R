@@ -145,18 +145,20 @@ info_xpd <- function(elm_item, freq.cat, post_dist, quadpt, nstd,
       # synthetic gradient call (probes the model's actual npar after
       # all fix.* flags are applied, which avoids re-deriving the table)
       npar_k <- if (score.cat == 2L) {
+        # the fixed guessing value g.val of the calibration is passed on
         ncol(grad_llike(
           item_par = item_par, f_i = rep(1, ntheta), r_i = rep(0, ntheta),
           theta = quadpt, n.theta = ntheta, mod = mod, D = D,
-          fix.g = fix.g, a.val.1pl = a.val.1pl, g.val = .2, n.1PLM = NULL
+          fix.g = fix.g, a.val.1pl = a.val.1pl, g.val = g.val, n.1PLM = NULL
         ))
       } else {
         # polytomous probe: synthetic r_i = e_1 (ntheta x cats)
         r_probe <- matrix(0, nrow = ntheta, ncol = score.cat)
         r_probe[, 1L] <- 1
+        # the scaling constant D of the calibration is passed on
         ncol(grad_llike(
           item_par = item_par, r_i = r_probe, theta = quadpt, n.theta = ntheta,
-          mod = mod, D = 1, fix.a.gpcm = ifelse(mod == "GPCM", fix.a.gpcm, FALSE),
+          mod = mod, D = D, fix.a.gpcm = ifelse(mod == "GPCM", fix.a.gpcm, FALSE),
           a.val.gpcm = a.val.gpcm, n.1PLM = NULL
         ))
       }
@@ -171,18 +173,20 @@ info_xpd <- function(elm_item, freq.cat, post_dist, quadpt, nstd,
           # binary item: synthetic f_i = 1 (responded), r_i = 1{c==2}
           f_syn <- rep(1, ntheta)
           r_syn <- if (c == 2L) rep(1, ntheta) else rep(0, ntheta)
+          # the fixed guessing value g.val of the calibration is passed on
           grad_syn <- grad_llike(
             item_par = item_par, f_i = f_syn, r_i = r_syn,
             theta = quadpt, n.theta = ntheta, mod = mod, D = D,
-            fix.g = fix.g, a.val.1pl = a.val.1pl, g.val = .2, n.1PLM = NULL
+            fix.g = fix.g, a.val.1pl = a.val.1pl, g.val = g.val, n.1PLM = NULL
           )
         } else {
           # polytomous item: synthetic r_i = e_c (ntheta x cats)
           r_syn <- matrix(0, nrow = ntheta, ncol = score.cat)
           r_syn[, c] <- 1
+          # the scaling constant D of the calibration is passed on
           grad_syn <- grad_llike(
             item_par = item_par, r_i = r_syn, theta = quadpt, n.theta = ntheta,
-            mod = mod, D = 1, fix.a.gpcm = ifelse(mod == "GPCM", fix.a.gpcm, FALSE),
+            mod = mod, D = D, fix.a.gpcm = ifelse(mod == "GPCM", fix.a.gpcm, FALSE),
             a.val.gpcm = a.val.gpcm, n.1PLM = NULL
           )
         }
