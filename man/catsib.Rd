@@ -29,6 +29,7 @@ catsib(
   weights = NULL,
   ncore = 1,
   verbose = TRUE,
+  rho.screen = TRUE,
   ...
 )
 }
@@ -181,6 +182,15 @@ statistics themselves are not computed in parallel. Default is \code{1}.}
 \item{verbose}{Logical. If \code{TRUE}, the progress of the purification procedure
 is printed to the console. Default is \code{TRUE}.}
 
+\item{rho.screen}{Logical. If \code{TRUE}, the ability estimates whose squared
+standard error is equal to or greater than the variance of the ability
+estimates of their group are left out of the computation of the mean, the
+variance, and the error variance that define \eqn{\hat{\rho}^2_G} in the
+regression correction. These examinees are still matched and used to
+compute \eqn{\hat{\beta}}. If \code{FALSE}, \eqn{\hat{\rho}^2_G} is computed
+from all ability estimates within \code{range}, as in Nandakumar and Roussos
+(2004). Default is \code{TRUE}. See \strong{Details}.}
+
 \item{...}{Additional arguments passed to \code{\link[=est_score]{est_score()}} when abilities
 are estimated internally, for example \code{tol} or \code{se}. The \code{est_score()}
 arguments \code{max.iter} and \code{missing} cannot be passed this way, because the
@@ -325,13 +335,26 @@ low or very high scores whose abilities are poorly determined, can make
 \eqn{\hat{\rho}^2_G} much smaller than the reliability of the other ability
 estimates, or even negative. The corrected ability estimates then shrink too
 much toward the group mean, which distorts the matching and can inflate the
-Type I error rate, particularly during purification. To limit this,
-\eqn{\hat{\rho}^2_G} is bounded to the interval \eqn{[0.05, 1]}, and a warning is
-issued when its unbounded value is below 0.05. A negative value would
-reverse the order of the ability estimates within a group, and a value near
-zero would place almost all corrected ability estimates of a group in one
-bin. This bound is not part of the original procedure and is added in irtQ.
-Even with the bound, the corrected ability estimates of the two groups may
+Type I error rate, particularly during purification. When \code{rho.screen = TRUE} (the default), the examinees whose squared standard error is greater
+than or equal to \eqn{\hat{\sigma}^2_{\hat{\theta},G}} of their group are
+left out of the computation of the mean, the variance, and the error
+variance that define \eqn{\hat{\rho}^2_G}, unless fewer than two
+estimates would be left. For these examinees the individual reliability
+\eqn{1 - SE^2 / \hat{\sigma}^2_{\hat{\theta},G}} is zero or negative, that
+is, their ability estimates carry no information about their abilities
+beyond the spread of the group. They still receive corrected ability
+estimates and are used in the matching and in the computation of
+\eqn{\hat{\beta}}. This screening is not part of the original procedure
+(Nandakumar & Roussos, 2004) and is added in irtQ; set \code{rho.screen = FALSE}
+to compute \eqn{\hat{\rho}^2_G} from all examinees as in the original
+procedure. Even with the screening, the Type I error rate of CATSIB can be
+higher than the nominal level, and in data without DIF the purification can
+increase the number of false positives. In addition, \eqn{\hat{\rho}^2_G}
+is bounded to the interval \eqn{[0.05, 1]}, and a warning is issued when its
+unbounded value is below 0.05. A negative value would reverse the order of
+the ability estimates within a group, and a value near zero would place
+almost all corrected ability estimates of a group in one bin. This bound is
+not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
 not overlap when the groups differ in ability; then no bin contains
 examinees of both groups, \eqn{\hat{\beta}} and its standard error are 0,
 \code{z.beta} and the p-value are \code{NaN}, and the item is not flagged.

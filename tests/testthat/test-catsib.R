@@ -85,20 +85,22 @@ test_that("catsib() statistics match an independent implementation", {
   )
   for (st in sets) {
     sim <- cst_sim(st$seed, miss = st$miss)
-    rst <- suppressWarnings(catsib(
-      x = NULL, data = sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1,
-      weight.group = st$wg, min.binsize = st$mb, n.bin = st$nb, item.skip = st$skip
-    ))
-    ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, n.bin = st$nb, min.binsize = st$mb,
-                   weight.group = st$wg)
-    ref[st$skip, c("beta", "se", "z.beta", "p")] <- NA
-    ds <- rst$no_purify$dif_stat
-    expect_lt(max(abs(as.matrix(ds[, c("beta", "se", "z.beta", "p")]) -
-                        as.matrix(ref[, c("beta", "se", "z.beta", "p")])), na.rm = TRUE), 5.1e-5)
-    expect_identical(is.na(ds$p), is.na(ref$p))
-    expect_equal(ds$n.ref, ref$n.ref)
-    expect_equal(ds$n.foc, ref$n.foc)
-    expect_equal(rst$no_purify$dif_item, as.numeric(which(ref$p <= 0.05)))
+    for (scr in c(FALSE, TRUE)) {
+      rst <- suppressWarnings(catsib(
+        x = NULL, data = sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1,
+        weight.group = st$wg, min.binsize = st$mb, n.bin = st$nb, item.skip = st$skip, rho.screen = scr
+      ))
+      ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, n.bin = st$nb, min.binsize = st$mb,
+                     weight.group = st$wg, screen = scr)
+      ref[st$skip, c("beta", "se", "z.beta", "p")] <- NA
+      ds <- rst$no_purify$dif_stat
+      expect_lt(max(abs(as.matrix(ds[, c("beta", "se", "z.beta", "p")]) -
+                          as.matrix(ref[, c("beta", "se", "z.beta", "p")])), na.rm = TRUE), 5.1e-5)
+      expect_identical(is.na(ds$p), is.na(ref$p))
+      expect_equal(ds$n.ref, ref$n.ref)
+      expect_equal(ds$n.foc, ref$n.foc)
+      expect_equal(rst$no_purify$dif_item, as.numeric(which(ref$p <= 0.05)))
+    }
   }
 })
 
@@ -226,7 +228,7 @@ test_that("catsib() warns once about the number of cores during the purification
 
 test_that("catsib() flags items with the unrounded p-values", {
   sim <- cst_sim(7)
-  ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1)
+  ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, screen = TRUE)
   j <- which(abs(ref$p - round(ref$p, 4)) > 1e-5 & ref$p > 0.01)[1]
   alpha <- (ref$p[j] + round(ref$p[j], 4)) / 2
   rst <- suppressWarnings(catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group,
@@ -261,4 +263,27 @@ test_that("catsib() reports an incomplete purification when max.iter is reached"
   expect_true(any(grepl("maximum number of iterations", out$warnings)))
   expect_false(out$value$with_purify$complete)
   expect_true(length(out$value$with_purify$dif_item) > 1)
+})
+
+test_that("catsib() leaves the estimates with large standard errors out of rho^2 only when rho.screen = TRUE", {
+  sim <- cst_sim(4)
+  ref0 <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1)
+  ref1 <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, screen = TRUE)
+  expect_true(any(attr(ref1, "rho2") > attr(ref0, "rho2")))
+  r0 <- catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1,
+               rho.screen = FALSE)
+  r1 <- catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1)
+  expect_lt(max(abs(r0$no_purify$dif_stat$beta - ref0$beta)), 5.1e-5)
+  expect_lt(max(abs(r1$no_purify$dif_stat$beta - ref1$beta)), 5.1e-5)
+
+  # the screened examinees are still matched and counted
+  expect_equal(r1$no_purify$dif_stat$n.total, ref1$n.ref + ref1$n.foc)
+
+  # the screening is not applied when fewer than two estimates would be left
+  use <- c(TRUE, TRUE, TRUE, NA)
+  expect_identical(rho_screen(score = c(-1, 0, 1, NA), se = c(0.1, 5, 5, 1), use = use), use)
+  expect_identical(rho_screen(score = c(-1, 0, 1, 2), se = c(0.1, 0.2, 5, 1), use = rep(TRUE, 4)),
+                   c(TRUE, TRUE, FALSE, TRUE))
+  expect_error(catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group, focal.name = 1,
+                      rho.screen = NA), "rho.screen")
 })

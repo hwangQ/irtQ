@@ -352,6 +352,18 @@ knitr::opts_chunk$set(
   integer 0 when no item is flagged in the initial analysis.
 
 ## Changes in Behavior
+* `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
+  ability estimates of a few examinees have very large standard errors, the
+  estimated reliability (rho^2) of the regression correction can be far below
+  the reliability of the other estimates, or negative, which shrinks the
+  corrected abilities too much and inflates the Type I error rate. With
+  `rho.screen = TRUE`, the examinees whose squared standard error is equal to
+  or greater than the variance of the ability estimates of their group are left
+  out of the computation of rho^2 only; they are still matched and tested. This
+  changes the default results of `catsib()`, and the warning about rho^2
+  falling below 0.05 is given less often. `rho.screen = FALSE` gives the
+  results of earlier versions.
+
 * The post-hoc pairwise analyses of `grdif()` take the reference group as the
   reference group of every pair that includes it, and, for a pair of focal
   groups, the group listed earlier in `focal.name`. Before, the group that came

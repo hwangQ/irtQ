@@ -78,6 +78,14 @@
 #'   computed for the regression correction (see **Details**); this also applies
 #'   when `score` is supplied, so `range` should match the bounds used to obtain
 #'   `score`. Default is `c(-5, 5)`.
+#' @param rho.screen Logical. If `TRUE`, the ability estimates whose squared
+#'   standard error is equal to or greater than the variance of the ability
+#'   estimates of their group are left out of the computation of the mean, the
+#'   variance, and the error variance that define \eqn{\hat{\rho}^2_G} in the
+#'   regression correction. These examinees are still matched and used to
+#'   compute \eqn{\hat{\beta}}. If `FALSE`, \eqn{\hat{\rho}^2_G} is computed
+#'   from all ability estimates within `range`, as in Nandakumar and Roussos
+#'   (2004). Default is `TRUE`. See **Details**.
 #'
 #' @details CATSIB (Nandakumar & Roussos, 2004) estimates the amount of DIF in
 #'   an item as \eqn{\hat{\beta} = \sum_{k} (\hat{P}_{R,k} - \hat{P}_{F,k})
@@ -139,13 +147,27 @@
 #'   \eqn{\hat{\rho}^2_G} much smaller than the reliability of the other ability
 #'   estimates, or even negative. The corrected ability estimates then shrink too
 #'   much toward the group mean, which distorts the matching and can inflate the
-#'   Type I error rate, particularly during purification. To limit this,
-#'   \eqn{\hat{\rho}^2_G} is bounded to the interval \eqn{[0.05, 1]}, and a warning is
-#'   issued when its unbounded value is below 0.05. A negative value would
-#'   reverse the order of the ability estimates within a group, and a value near
-#'   zero would place almost all corrected ability estimates of a group in one
-#'   bin. This bound is not part of the original procedure and is added in irtQ.
-#'   Even with the bound, the corrected ability estimates of the two groups may
+#'   Type I error rate, particularly during purification. When `rho.screen =
+#'   TRUE` (the default), the examinees whose squared standard error is greater
+#'   than or equal to \eqn{\hat{\sigma}^2_{\hat{\theta},G}} of their group are
+#'   left out of the computation of the mean, the variance, and the error
+#'   variance that define \eqn{\hat{\rho}^2_G}, unless fewer than two
+#'   estimates would be left. For these examinees the individual reliability
+#'   \eqn{1 - SE^2 / \hat{\sigma}^2_{\hat{\theta},G}} is zero or negative, that
+#'   is, their ability estimates carry no information about their abilities
+#'   beyond the spread of the group. They still receive corrected ability
+#'   estimates and are used in the matching and in the computation of
+#'   \eqn{\hat{\beta}}. This screening is not part of the original procedure
+#'   (Nandakumar & Roussos, 2004) and is added in irtQ; set `rho.screen = FALSE`
+#'   to compute \eqn{\hat{\rho}^2_G} from all examinees as in the original
+#'   procedure. Even with the screening, the Type I error rate of CATSIB can be
+#'   higher than the nominal level, and in data without DIF the purification can
+#'   increase the number of false positives. In addition, \eqn{\hat{\rho}^2_G}
+#'   is bounded to the interval \eqn{[0.05, 1]}, and a warning is issued when its
+#'   unbounded value is below 0.05. A negative value would reverse the order of
+#'   the ability estimates within a group, and a value near zero would place
+#'   almost all corrected ability estimates of a group in one bin. This bound is
+#'   not part of the original procedure and is added in irtQ. Even with the bound, the corrected ability estimates of the two groups may
 #'   not overlap when the groups differ in ability; then no bin contains
 #'   examinees of both groups, \eqn{\hat{\beta}} and its standard error are 0,
 #'   `z.beta` and the p-value are `NaN`, and the item is not flagged.
@@ -416,6 +438,7 @@ catsib <- function(x = NULL,
                    weights = NULL,
                    ncore = 1,
                    verbose = TRUE,
+                   rho.screen = TRUE,
                    ...) {
   # match.call
   cl <- match.call()
@@ -522,6 +545,11 @@ catsib <- function(x = NULL,
     stop("'max.del' must be a single number from 0 to less than 1.", call. = FALSE)
   }
 
+  # stop when rho.screen is not a single logical value
+  if (!is.logical(rho.screen) || length(rho.screen) != 1L || is.na(rho.screen)) {
+    stop("'rho.screen' must be TRUE or FALSE.", call. = FALSE)
+  }
+
   # record whether the ability estimates are supplied
   score_given <- !is.null(score)
 
@@ -610,7 +638,7 @@ catsib <- function(x = NULL,
       data = data, group = group, focal.name = focal.name, item.skip = item.skip,
       score = score, se = se, range = range, item.id = item.id, max.bin = max.bin,
       min.bin = min.bin, min.binsize = min.binsize, max.del = max.del,
-      weight.group = weight.group, alpha = alpha
+      weight.group = weight.group, alpha = alpha, rho.screen = rho.screen
     )
 
   # create two empty lists to contain the results
@@ -764,7 +792,7 @@ catsib <- function(x = NULL,
             item.skip = item.skip.puri, score = score_puri, se = se_puri,
             range = range, item.id = item.id, max.bin = max.bin, min.bin = min.bin,
             min.binsize = min.binsize, max.del = max.del, weight.group = weight.group,
-            alpha = alpha
+            alpha = alpha, rho.screen = rho.screen
           )
 
         # extract the first DIF analysis results
@@ -868,6 +896,21 @@ catsib_enough <- function(score, group, focal.name, range) {
 }
 
 
+# This function leaves out of the computation of rho^2 the scores whose squared standard error is
+# equal to or greater than the variance of the scores of a group; the screening is not applied
+# when fewer than two scores would be left
+rho_screen <- function(score, se, use) {
+  # find the scores whose squared standard error is not smaller than the variance of the scores
+  out <- which(use & se^2 >= stats::var(score[use], na.rm = TRUE))
+
+  # leave out those scores when at least two scores remain
+  if (length(out) > 0L && sum(use, na.rm = TRUE) - length(out) >= 2L) {
+    use[out] <- FALSE
+  }
+  use
+}
+
+
 # This function performs a regression correction for ability estimates and, then
 # computes the beta statistic and its SE for all items
 catsib_one <- function(data,
@@ -883,7 +926,8 @@ catsib_one <- function(data,
                        min.binsize = 3,
                        max.del = 0.075,
                        weight.group,
-                       alpha = 0.05) {
+                       alpha = 0.05,
+                       rho.screen = TRUE) {
 
   ## ------------------------------------------
   ## prepare data sets
@@ -910,18 +954,29 @@ catsib_one <- function(data,
   ## ------------------------------------------
   ## a regression correction for theta scores
   ## ------------------------------------------
-  # compute the mean and variance of scores for each group
+  # find the scores used to compute the mean, variance, and error variance of each group;
   # note that, the bound scores are excluded.
   lb_score <- range[1]
   up_score <- range[2]
-  mu_ref <- mean(score_ref[score_ref > lb_score & score_ref < up_score], na.rm = TRUE)
-  mu_foc <- mean(score_foc[score_foc > lb_score & score_foc < up_score], na.rm = TRUE)
-  sigma2_ref <- stats::var(score_ref[score_ref > lb_score & score_ref < up_score], na.rm = TRUE)
-  sigma2_foc <- stats::var(score_foc[score_foc > lb_score & score_foc < up_score], na.rm = TRUE)
+  use_ref <- score_ref > lb_score & score_ref < up_score
+  use_foc <- score_foc > lb_score & score_foc < up_score
+
+  # when rho.screen = TRUE, leave out the scores whose squared standard error is equal to or
+  # greater than the variance of the scores of the group
+  if (rho.screen) {
+    use_ref <- rho_screen(score = score_ref, se = se_ref, use = use_ref)
+    use_foc <- rho_screen(score = score_foc, se = se_foc, use = use_foc)
+  }
+
+  # compute the mean and variance of scores for each group
+  mu_ref <- mean(score_ref[use_ref], na.rm = TRUE)
+  mu_foc <- mean(score_foc[use_foc], na.rm = TRUE)
+  sigma2_ref <- stats::var(score_ref[use_ref], na.rm = TRUE)
+  sigma2_foc <- stats::var(score_foc[use_foc], na.rm = TRUE)
 
   # compute the error variance of scores for each group
-  errvar_ref <- mean((se_ref^2)[score_ref > lb_score & score_ref < up_score], na.rm = TRUE)
-  errvar_foc <- mean((se_foc^2)[score_foc > lb_score & score_foc < up_score], na.rm = TRUE)
+  errvar_ref <- mean((se_ref^2)[use_ref], na.rm = TRUE)
+  errvar_foc <- mean((se_foc^2)[use_foc], na.rm = TRUE)
 
   # compute the raw (unclamped) squared correlation (reliability) between theta estimate and true theta
   rho_ref2_raw <- suppressWarnings(1 - errvar_ref / sigma2_ref)
