@@ -174,3 +174,48 @@ test_that("GPCM derivatives stay finite and consistent for large slopes", {
     }
   }
 })
+
+test_that("a singular Hessian is repaired deterministically without using random numbers", {
+  # a rank-one matrix is singular and the repaired matrix is invertible
+  hs <- matrix(c(2, 2, 2, 2), 2, 2)
+  fixed <- irtQ:::ridge_hess(hs)
+  expect_error(solve(hs, tol = 1e-200))
+  expect_silent(solve(fixed, tol = 1e-200))
+  expect_true(all(is.finite(fixed)))
+  expect_equal(fixed - hs, diag(diag(fixed - hs)))
+
+  # an invertible matrix is returned unchanged
+  expect_identical(irtQ:::ridge_hess(diag(2)), diag(2))
+
+  # items without any response give a zero Hessian, which is singular
+  th <- theta_q
+  zero <- rep(0, length(th))
+  set.seed(1)
+  seed0 <- get(".Random.seed", envir = globalenv())
+  h_drm_1 <- irtQ:::hess_item_drm(
+    c(1.2, 0.1), f_i = zero, r_i = zero, theta = th, mod = "2PLM", D = 1.702,
+    fix.a = FALSE, fix.g = FALSE, adjust = TRUE
+  )
+  h_drm_2 <- irtQ:::hess_item_drm(
+    c(1.2, 0.1), f_i = zero, r_i = zero, theta = th, mod = "2PLM", D = 1.702,
+    fix.a = FALSE, fix.g = FALSE, adjust = TRUE
+  )
+  h_prm_1 <- irtQ:::hess_item_prm(
+    c(1.2, -0.5, 0.6), r_i = matrix(0, length(th), 3), theta = th, pr.mod = "GRM", D = 1,
+    nstd = length(th), adjust = TRUE
+  )
+  h_prm_2 <- irtQ:::hess_item_prm(
+    c(1.2, -0.5, 0.6), r_i = matrix(0, length(th), 3), theta = th, pr.mod = "GRM", D = 1,
+    nstd = length(th), adjust = TRUE
+  )
+
+  # the repaired matrices are identical across calls, finite, and invertible
+  expect_identical(h_drm_1, h_drm_2)
+  expect_identical(h_prm_1, h_prm_2)
+  expect_true(all(is.finite(h_drm_1)) && all(is.finite(h_prm_1)))
+  expect_silent(solve(h_drm_1, tol = 1e-200))
+  expect_silent(solve(h_prm_1, tol = 1e-200))
+
+  # the random number stream of the user is untouched
+  expect_identical(get(".Random.seed", envir = globalenv()), seed0)
+})

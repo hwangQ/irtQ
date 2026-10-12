@@ -635,6 +635,12 @@
   `with_purify` results of `rdif()` and `crdif()` is the integer 0 when
   no item is flagged in the initial analysis. The values are unchanged.
 
+- When the Hessian of an item is singular during the estimation of
+  `est_irt()`, `est_mg()`, and `est_item()`, it is now repaired by
+  adding a ridge to its diagonal instead of random numbers. The results
+  are deterministic, and the random number stream of the user is no
+  longer used by the estimation.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

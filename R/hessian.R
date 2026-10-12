@@ -1,5 +1,31 @@
-# This function analytically computes a hessian matrix of dichotomous item parameters
-# Also, adjust the hessian matrix if the matrix is singular by adding small random values
+# This function makes a singular hessian matrix invertable by adding a ridge to its diagonal
+# The ridge starts at 1e-8 times the largest absolute diagonal element (1e-8 if that is 0 or not finite)
+# and grows tenfold until the matrix can be inverted, so the result is deterministic
+ridge_hess <- function(hess) {
+  # check if the hessian is invertable; a ridge cannot repair a matrix with non-finite elements
+  inv <- suppressWarnings(tryCatch(solve(hess, tol = 1e-200), error = function(e) NULL))
+  if (!is.null(inv) || !all(is.finite(hess))) {
+    return(hess)
+  }
+
+  # set the initial ridge
+  ridge <- max(abs(diag(hess))) * 1e-8
+  if (!is.finite(ridge) || ridge == 0) ridge <- 1e-8
+
+  # increase the ridge until the matrix can be inverted
+  while (is.null(inv)) {
+    hess_ridge <- hess + diag(ridge, nrow(hess))
+    inv <- suppressWarnings(tryCatch(solve(hess_ridge, tol = 1e-200), error = function(e) NULL))
+    ridge <- ridge * 10
+  }
+
+  hess_ridge
+}
+
+
+# This function analytically computes the Hessian matrix of the negative log-likelihood (plus the negative log
+# priors) of dichotomous item parameters, that is, the observed information
+# If adjust = TRUE and the matrix is singular, a ridge is added to its diagonal until it can be inverted
 hess_item_drm <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
                           fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
@@ -19,30 +45,9 @@ hess_item_drm <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3P
     use.bprior = use.bprior, use.gprior = use.gprior, p_cache = p_cache
   )
 
-  # check if the hessian is invertable
-  # if not, add small random constants to all hessian elements
+  # make the hessian invertable by adding a ridge to its diagonal when it is singular
   if (adjust) {
-    tmp <- suppressWarnings(tryCatch(
-      {
-        solve(hess, tol = 1e-200)
-      },
-      error = function(e) {
-        NULL
-      }
-    ))
-    if (is.null(tmp)) {
-      while (is.null(tmp)) {
-        hess <- hess + stats::rnorm(length(hess), mean = 0, sd = 0.01)
-        tmp <- suppressWarnings(tryCatch(
-          {
-            solve(hess, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-      }
-    }
+    hess <- ridge_hess(hess)
   }
 
   # return the results
@@ -346,8 +351,9 @@ hess_item_drm_inner <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM
 
 
 
-# This function analytically computes a hessian matrix of polytomous item parameters
-# Also, adjust the hessian matrix if the matrix is singular by adding small random values
+# This function analytically computes the Hessian matrix of the negative log-likelihood (plus the negative log
+# priors) of polytomous item parameters, that is, the observed information
+# If adjust = TRUE and the matrix is singular, a ridge is added to its diagonal until it can be inverted
 hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FALSE, a.val = 1,
                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
                           bprior = list(dist = "norm", params = c(0.0, 1.0)),
@@ -364,29 +370,9 @@ hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FAL
     prob_cache = prob_cache
   )
 
-  # check if the hess is invertable
+  # make the hessian invertable by adding a ridge to its diagonal when it is singular
   if (adjust) {
-    tmp <- suppressWarnings(tryCatch(
-      {
-        solve(hess, tol = 1e-200)
-      },
-      error = function(e) {
-        NULL
-      }
-    ))
-    if (is.null(tmp)) {
-      while (is.null(tmp)) {
-        hess <- hess + stats::rnorm(length(hess), mean = 0, sd = 0.01)
-        tmp <- suppressWarnings(tryCatch(
-          {
-            solve(hess, tol = 1e-200)
-          },
-          error = function(e) {
-            NULL
-          }
-        ))
-      }
-    }
+    hess <- ridge_hess(hess)
   }
 
   # return the results
