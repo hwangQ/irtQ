@@ -179,9 +179,12 @@
 #'   the responses of the examinees in the two groups, their ability estimates
 #'   from the GRDIF analysis, and the item parameters in `x`; the abilities are
 #'   not re-estimated for the pair. In a pair labeled "a & b" in the column
-#'   `group.pair`, the two values are sorted, and b is treated as the focal
-#'   group, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
-#'   b minus those of group a. The p-values are not adjusted for multiple
+#'   `group.pair`, a is the reference group and b is the focal group of the
+#'   pair, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
+#'   b minus those of group a. The reference group of the GRDIF analysis is the
+#'   reference group of every pair that includes it (Lim et al., 2024, Equation
+#'   14), and for a pair of focal groups, the group listed earlier in
+#'   `focal.name` is the reference group. The p-values are not adjusted for multiple
 #'   comparisons; to control the familywise error rate, compare them with a
 #'   corrected level, for example `alpha` divided by the number of pairs (a
 #'   Bonferroni correction). When `purify = TRUE`, the post-hoc results in
@@ -710,7 +713,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
           # post-hoc DIF analyses for all pairs of the groups
           post_rst <- grdif_posthoc(
             x = x_puri[flag_del, , drop = FALSE], data = data_puri[, flag_del, drop = FALSE],
-            score = score_puri, group = group, D = D, alpha = alpha
+            score = score_puri, group = group, focal.name = focal.name, D = D, alpha = alpha
           )
           singular_post <- union(singular_post, post_rst$singular)
 
@@ -900,7 +903,7 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
         # post-hoc DIF analyses for all pairs of the groups
         post_rst <- grdif_posthoc(
           x = x[item4post[[i]], , drop = FALSE], data = data[, item4post[[i]], drop = FALSE],
-          score = score, group = group, D = D, alpha = alpha
+          score = score, group = group, focal.name = focal.name, D = D, alpha = alpha
         )
         post.stats <- post_rst$stats
         singular_post <- union(singular_post, post_rst$singular)
@@ -944,10 +947,15 @@ grdif_main <- function(x, data, score, group, focal.name, D, alpha, missing, pur
 
 
 # This function conducts the post-hoc RDIF analyses of the given items for all pairs of the groups;
-# the group that comes later in the sorted order is the focal group of a pair
-grdif_posthoc <- function(x, data, score, group, D, alpha) {
-  # find all pairs of the groups
+# the reference group is the reference group of its pairs, and the focal group listed earlier in
+# focal.name is the reference group of a pair of focal groups
+grdif_posthoc <- function(x, data, score, group, focal.name, D, alpha) {
+  # list the groups in the order of the reference group followed by the focal groups
+  group_ord <- c(unique(group[!is.na(group) & !group %in% focal.name]), focal.name)
+
+  # find all pairs of the groups, and put the group listed earlier first in each pair
   pair.g <- utils::combn(x = sort(unique(group)), m = 2, simplify = FALSE)
+  pair.g <- lapply(pair.g, function(pair) pair[order(match(pair, group_ord))])
 
   # post-hoc DIF analyses
   post.stats <- list()

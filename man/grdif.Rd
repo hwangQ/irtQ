@@ -417,9 +417,12 @@ A-B, A-C, A-D, B-C, B-D, and C-D are compared. Each pairwise analysis uses
 the responses of the examinees in the two groups, their ability estimates
 from the GRDIF analysis, and the item parameters in \code{x}; the abilities are
 not re-estimated for the pair. In a pair labeled "a & b" in the column
-\code{group.pair}, the two values are sorted, and b is treated as the focal
-group, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
-b minus those of group a. The p-values are not adjusted for multiple
+\code{group.pair}, a is the reference group and b is the focal group of the
+pair, so \eqn{RDIF_{R}} and \eqn{RDIF_{S}} are the residual means of group
+b minus those of group a. The reference group of the GRDIF analysis is the
+reference group of every pair that includes it (Lim et al., 2024, Equation
+14), and for a pair of focal groups, the group listed earlier in
+\code{focal.name} is the reference group. The p-values are not adjusted for multiple
 comparisons; to control the familywise error rate, compare them with a
 corrected level, for example \code{alpha} divided by the number of pairs (a
 Bonferroni correction). When \code{purify = TRUE}, the post-hoc results in

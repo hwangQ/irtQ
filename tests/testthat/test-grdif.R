@@ -381,3 +381,29 @@ test_that("grdif() reports an incomplete purification when max.iter is reached",
   expect_true(length(out$value$with_purify$dif_item) > 1)
 })
 
+
+test_that("grdif() post-hoc analyses match rdif() for each pair, with the reference group as the reference of its pairs", {
+  sim <- grt_sim()
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+
+  # the reference group is sorted after the focal groups, and the focal groups are not in sorted order
+  group <- unname(c(r = "z", f1 = "c", f2 = "a", f3 = "b")[sim$group])
+  focal <- c("c", "a", "b")
+  rst <- grdif(sim$x, sim$resp, score = score, group = group, focal.name = focal)
+  flag <- rst$no_purify$dif_item$grdifrs
+  expect_gt(length(flag), 0)
+  ph <- rst$no_purify$post.hoc$by.grdifrs
+  pairs <- utils::combn(sort(unique(group)), 2, simplify = FALSE)
+  expect_equal(nrow(ph), length(flag) * length(pairs))
+  for (p in pairs) {
+    p <- p[order(match(p, c("z", focal)))]
+    keep <- group %in% p
+    two <- rdif(sim$x[flag, ], sim$resp[keep, flag, drop = FALSE], score = score[keep],
+                group = group[keep], focal.name = p[2])
+    got <- ph[ph$group.pair == paste(p, collapse = " & "), ]
+    rownames(got) <- NULL
+    expect_equal(got$id, sim$x$id[flag])
+    expect_equal(got[, setdiff(names(got), "group.pair")], two$no_purify$dif_stat)
+  }
+  expect_true(all(c("z & c", "z & a", "z & b", "c & a", "c & b", "a & b") %in% ph$group.pair))
+})

@@ -364,6 +364,15 @@
 
 ## Changes in Behavior
 
+- The post-hoc pairwise analyses of `grdif()` take the reference group
+  as the reference group of every pair that includes it, and, for a pair
+  of focal groups, the group listed earlier in `focal.name`. Before, the
+  group that came later in the sorted order of the group values was the
+  focal group, so the signs of `rdifr` and `rdifs` were reversed, and
+  `group.pair` was labeled in the sorted order, when the reference group
+  came later than a focal group. The other statistics, the p-values, and
+  the flags do not change.
+
 - The default of `range` in `grdif()` is `c(-5, 5)`, as in `rdif()`,
   `crdif()`, `ripd()`, `catsib()`, and `est_score()`, instead of
   `c(-4, 4)`. The ability estimates of the examinees whose ML estimates
