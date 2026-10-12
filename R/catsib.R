@@ -64,7 +64,9 @@
 #'   during purification. If `NULL`, all items are analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the two-sided test of the CATSIB statistic. An item is flagged when its
-#'   p-value is less than or equal to `alpha`. Default is `0.05`.
+#'   p-value is less than or equal to `alpha`. The comparison uses unrounded
+#'   p-values, although the p-values reported in `dif_stat` are rounded to four
+#'   decimal places. Default is `0.05`.
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
@@ -944,22 +946,30 @@ catsib_one <- function(data,
   # extract the DIF analysis results
   dif_stat <-
     purrr::map(.x = catsib_dif, "dif_stat") %>%
-    do.call(what = "rbind") %>%
+    do.call(what = "rbind")
+  contingency <- purrr::map(.x = catsib_dif, "contingency")
+  names(contingency) <- item.id
+
+  # keep the unrounded p-values to flag the items
+  p_beta <- dif_stat$p
+
+  # round the statistics
+  dif_stat <-
+    dif_stat %>%
     dplyr::mutate_if("is.numeric", "round", digits = 4) %>%
     dplyr::mutate(id = item.id) %>%
     dplyr::relocate("id", .before = "beta")
-  contingency <- purrr::map(.x = catsib_dif, "contingency")
-  names(contingency) <- item.id
 
   # when there are items that should be skipped for the DIF analysis
   # insert NAs to the corresponding results of the items
   if (!is.null(item.skip)) {
     dif_stat[item.skip, 2:5] <- NA
+    p_beta[item.skip] <- NA
     contingency[item.skip] <- NA
   }
 
-  # find the flagged items
-  dif_item <- as.numeric(which(dif_stat$p <= alpha))
+  # find the flagged items using the unrounded p-values
+  dif_item <- as.numeric(which(p_beta <= alpha))
   if (length(dif_item) == 0) dif_item <- NULL
 
   # return the results

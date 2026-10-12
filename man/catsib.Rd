@@ -109,7 +109,9 @@ distribution in the bins used who fall in that bin. Default is \code{"comb"}.}
 
 \item{alpha}{A numeric value specifying the significance level (\eqn{\alpha})
 of the two-sided test of the CATSIB statistic. An item is flagged when its
-p-value is less than or equal to \code{alpha}. Default is \code{0.05}.}
+p-value is less than or equal to \code{alpha}. The comparison uses unrounded
+p-values, although the p-values reported in \code{dif_stat} are rounded to four
+decimal places. Default is \code{0.05}.}
 
 \item{missing}{A value indicating missing responses in the data set. Default
 is \code{NA}.}

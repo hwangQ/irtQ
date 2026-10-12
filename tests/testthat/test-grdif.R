@@ -294,3 +294,14 @@ test_that("grdif() warns once about the number of cores during the purification"
   expect_gte(out$value$with_purify$n.iter, 2)
   expect_equal(sum(grepl("^ncore > 1", out$warnings)), 1)
 })
+
+test_that("grdif() flags items with the unrounded p-values", {
+  sim <- grt_sim(seed = 6)
+  score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
+  ref <- grt_ref(sim$x, sim$resp, score, sim$group, sim$focal, 1)
+  j <- which(abs(ref$p.grdifrs - round(ref$p.grdifrs, 4)) > 1e-5 & ref$p.grdifrs > 0.01)[1]
+  alpha <- (ref$p.grdifrs[j] + round(ref$p.grdifrs[j], 4)) / 2
+  rst <- grdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = sim$focal,
+               alpha = alpha, post.hoc = FALSE)
+  expect_identical(j %in% rst$no_purify$dif_item$grdifrs, ref$p.grdifrs[j] <= alpha)
+})

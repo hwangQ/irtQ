@@ -46,9 +46,10 @@
 #'   value must be found in `group`, and the values must be distinct.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the tests. An item is flagged by a statistic when its p-value is less
-#'   than or equal to `alpha`. The same level is used in the post-hoc pairwise
-#'   analyses, without an adjustment for multiple comparisons. Default is
-#'   `0.05`.
+#'   than or equal to `alpha`. The comparison uses unrounded p-values, although
+#'   the p-values reported in `dif_stat` are rounded to four decimal places. The
+#'   same level is used in the post-hoc pairwise analyses, without an adjustment
+#'   for multiple comparisons. Default is `0.05`.
 #' @param min.resp A positive integer specifying the minimum number of valid
 #'   item responses required from an examinee in order to compute an ability
 #'   estimate. Default is `NULL`. See **Details** for more information.
@@ -1177,9 +1178,9 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
   }
 
   # calculate p-values for all three statistics
-  p_grdifr <- round(stats::pchisq(chisq_r, df = n.fg, lower.tail = FALSE), 4)
-  p_grdifs <- round(stats::pchisq(chisq_s, df = n.fg, lower.tail = FALSE), 4)
-  p_grdifrs <- round(stats::pchisq(chisq_rs, df = n.fg * 2, lower.tail = FALSE), 4)
+  p_grdifr <- stats::pchisq(chisq_r, df = n.fg, lower.tail = FALSE)
+  p_grdifs <- stats::pchisq(chisq_s, df = n.fg, lower.tail = FALSE)
+  p_grdifrs <- stats::pchisq(chisq_rs, df = n.fg * 2, lower.tail = FALSE)
 
   # create a data.frame of sample sizes
   names(n_foc) <- paste0("n.foc", 1:n.fg)
@@ -1195,9 +1196,9 @@ grdif_one <- function(x, data, score, group, focal.name, D = 1, alpha = 0.05) {
       grdifr = round(chisq_r, 4),
       grdifs = round(chisq_s, 4),
       grdifrs = round(chisq_rs, 4),
-      p.grdifr = p_grdifr,
-      p.grdifs = p_grdifs,
-      p.grdifrs = p_grdifrs,
+      p.grdifr = round(p_grdifr, 4),
+      p.grdifs = round(p_grdifs, 4),
+      p.grdifrs = round(p_grdifrs, 4),
       n_df,
       stringsAsFactors = FALSE
     )

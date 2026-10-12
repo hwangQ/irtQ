@@ -223,3 +223,13 @@ test_that("catsib() warns once about the number of cores during the purification
   expect_gte(out$value$with_purify$n.iter, 2)
   expect_equal(sum(grepl("^ncore > 1", out$warnings)), 1)
 })
+
+test_that("catsib() flags items with the unrounded p-values", {
+  sim <- cst_sim(7)
+  ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1)
+  j <- which(abs(ref$p - round(ref$p, 4)) > 1e-5 & ref$p > 0.01)[1]
+  alpha <- (ref$p[j] + round(ref$p[j], 4)) / 2
+  rst <- suppressWarnings(catsib(NULL, sim$resp, score = sim$score, se = sim$se, group = sim$group,
+                                 focal.name = 1, alpha = alpha))
+  expect_identical(j %in% rst$no_purify$dif_item, ref$p[j] <= alpha)
+})

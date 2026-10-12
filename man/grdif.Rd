@@ -129,9 +129,10 @@ used for this purpose. Default is 1.}
 
 \item{alpha}{A numeric value specifying the significance level (\eqn{\alpha})
 of the tests. An item is flagged by a statistic when its p-value is less
-than or equal to \code{alpha}. The same level is used in the post-hoc pairwise
-analyses, without an adjustment for multiple comparisons. Default is
-\code{0.05}.}
+than or equal to \code{alpha}. The comparison uses unrounded p-values, although
+the p-values reported in \code{dif_stat} are rounded to four decimal places. The
+same level is used in the post-hoc pairwise analyses, without an adjustment
+for multiple comparisons. Default is \code{0.05}.}
 
 \item{missing}{A value indicating missing responses in the data set. Default
 is \code{NA}.}

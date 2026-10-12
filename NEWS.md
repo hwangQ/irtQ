@@ -334,6 +334,12 @@
   missing), when `n.bin` is not the maximum and the minimum number of
   bins in this order, and when `max.del` is not from 0 to less than 1.
 
+- `grdif()` and `catsib()` compared the p-values rounded to four
+  decimals with `alpha`, so an item whose p-value was within rounding of
+  `alpha` could be flagged wrongly, and the purification could remove
+  it. The unrounded p-values are now compared; the tables still show
+  four decimals.
+
 ## Changes in Behavior
 
 - `grdif()` supports dichotomous items only and stops with an error when
