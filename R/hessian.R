@@ -525,15 +525,15 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
         theta_d <- (Rfast::Outer(x = theta, y = d, oper = "-"))
         z <- Da * theta_d
         cumsum_z <- t(Rfast::colCumSums(z))
-        if (any(cumsum_z > 700)) {
-          cumsum_z <- (cumsum_z / max(cumsum_z)) * 700
-        }
-        if (any(cumsum_z < -700)) {
-          cumsum_z <- -(cumsum_z / min(cumsum_z)) * 700
+        # subtract the row maximum so that exp() and the powers of the denominator stay finite
+        if (any(abs(cumsum_z) > 100)) {
+          cumsum_z <- cumsum_z - Rfast::rowMaxs(cumsum_z, value = TRUE)
         }
         numer <- exp(cumsum_z) # numerator
         denom <- Rfast::rowsums(numer)
         P <- (numer / denom)
+        # keep the probabilities above zero so that their logarithms are finite
+        P[P < .Machine$double.xmin] <- .Machine$double.xmin
       } else {
         theta_d <- prob_cache$theta_d
         numer <- prob_cache$numer
@@ -660,15 +660,15 @@ hess_item_prm_inner <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a
         theta_d <- (Rfast::Outer(x = theta, y = d, oper = "-"))
         z <- Da * theta_d
         cumsum_z <- t(Rfast::colCumSums(z))
-        if (any(cumsum_z > 700)) {
-          cumsum_z <- (cumsum_z / max(cumsum_z)) * 700
-        }
-        if (any(cumsum_z < -700)) {
-          cumsum_z <- -(cumsum_z / min(cumsum_z)) * 700
+        # subtract the row maximum so that exp() and the powers of the denominator stay finite
+        if (any(abs(cumsum_z) > 100)) {
+          cumsum_z <- cumsum_z - Rfast::rowMaxs(cumsum_z, value = TRUE)
         }
         numer <- exp(cumsum_z) # numerator
         denom <- Rfast::rowsums(numer)
         P <- numer / denom
+        # keep the probabilities above zero so that their logarithms are finite
+        P[P < .Machine$double.xmin] <- .Machine$double.xmin
       } else {
         theta_d <- prob_cache$theta_d
         numer <- prob_cache$numer

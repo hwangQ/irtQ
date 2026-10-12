@@ -3,7 +3,7 @@
 # arguments once and returns three closures that share a single P(theta)
 # cache, so each nlminb evaluation point computes drm()/prm() at most
 # once instead of three times (once per closure). The cached P is the
-# return value of drm()/prm() for the active model branch.
+# return value of drm() or prm() for the active model branch.
 #
 # Cache hits in practice. nlminb (PORT) typically evaluates objective,
 # then gradient, then hessian at the same accepted iterate, with line
@@ -182,15 +182,15 @@ make_prm_optim_fns <- function(r_i, theta, pr.mod, D, nstd,
       theta_d <- Rfast::Outer(x = theta, y = d_full, oper = "-")
       z <- Da * theta_d
       cumsum_z <- t(Rfast::colCumSums(z))
-      if (any(cumsum_z > 700)) {
-        cumsum_z <- (cumsum_z / max(cumsum_z)) * 700
-      }
-      if (any(cumsum_z < -700)) {
-        cumsum_z <- -(cumsum_z / min(cumsum_z)) * 700
+      # subtract the row maximum so that exp() and the powers of the denominator stay finite
+      if (any(abs(cumsum_z) > 100)) {
+        cumsum_z <- cumsum_z - Rfast::rowMaxs(cumsum_z, value = TRUE)
       }
       numer <- exp(cumsum_z)
       denom <- Rfast::rowsums(numer)
       P <- numer / denom
+      # keep the probabilities above zero so that their logarithms are finite
+      P[P < .Machine$double.xmin] <- .Machine$double.xmin
       prob <- list(theta_d = theta_d, numer = numer, denom = denom, P = P)
     }
 

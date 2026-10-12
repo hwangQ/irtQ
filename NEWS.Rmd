@@ -362,6 +362,13 @@ knitr::opts_chunk$set(
   The purification stops with a warning and `complete = FALSE` when this
   happens to every remaining item.
 
+* The estimation of GPCM items with large slopes in `est_irt()`, `est_mg()`,
+  and `est_item()` rescaled the cumulative logits of a response by a common
+  factor once they exceeded 700 in absolute value, which distorted the
+  objective function, and the gradient and the Hessian became `NaN` for
+  smaller values. Each row is now shifted by its own maximum when a logit
+  exceeds 100 in absolute value; results below that range are unchanged.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the
