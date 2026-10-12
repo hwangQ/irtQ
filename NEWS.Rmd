@@ -311,45 +311,49 @@ knitr::opts_chunk$set(
   analysis, as in the other DIF functions.
 
 * The purification of `grdif()` and `catsib()` stopped with an obscure error
-  when one item was left. `catsib()` now stops the purification with a warning
-  when a group has fewer than two ability estimates within `range` for the
-  remaining items, which happens when a single item is left and `method = "ML"`,
-  and reports the results of the last iteration with `complete = FALSE`.
+  when one item was left, so it could not end when every item was flagged.
+  It now stops with a warning and `complete = FALSE` when every item is
+  flagged or when a group has no ability estimate left (`catsib()`: fewer than
+  two within `range`, which happens when a single item is left and
+  `method = "ML"`), and the remaining items keep the results of the last
+  counted iteration, as in `rdif()` and `crdif()`. The flagged item with the
+  smallest p-value is removed at each iteration, as in `rdif()` and `crdif()`;
+  for regular data this is the item removed before. One warning reports the
+  examinees who lost their ability estimates during the purification, the
+  warning for an incomplete purification reads as that of `rdif()`, and
+  `n.iter` of the `with_purify` results is the integer 0 when no item is
+  flagged in the initial analysis.
 
 * `grdif()` and `catsib()` silently computed wrong statistics for some invalid
-  inputs, such as responses outside 0 and 1 or character responses, a `group`,
-  `score`, or `se` whose length does not match `data`, or a `focal.name` that
-  is not found in `group`. They now stop with a clear message. `catsib()` also
-  stops when `min.binsize` is not an integer of 2 or more (with 1, the
-  p-values of all items were missing), when `n.bin` is not the maximum and the
-  minimum number of bins in this order, and when `max.del` is not from 0 to
-  less than 1.
+  inputs, such as character responses, responses outside 0 and 1, or a
+  `group`, `score`, or `se` whose length does not match `data`, and stopped
+  with an obscure message for others, such as a `focal.name` that is not
+  found in `group` or `method = "EAP.SUM"` or `"INV.TCC"`. They now stop with
+  a clear message, also for an `alpha` outside (0, 1), a `max.iter` that is
+  not a positive whole number when `purify = TRUE`, or an invalid `min.resp`.
+  The `est_item` method of `grdif()` stops when `score` is passed, which it
+  ignored before, and the `est_irt` and `est_item` methods stop when `data`
+  or `D` is passed. `catsib()` also stops when `min.binsize` is not an
+  integer of 2 or more (with 1, the p-values of all items were missing), when
+  `n.bin` is not the maximum and the minimum number of bins in this order, and
+  when `max.del` is not from 0 to less than 1.
+
+* A logical `item.skip` of `catsib()` skipped the wrong items during the
+  purification, so a skipped item could be tested, flagged, and removed. It is
+  now read as item positions, also during the purification.
 
 * `grdif()` and `catsib()` compared the p-values rounded to four decimals with
   `alpha`, so an item whose p-value was within rounding of `alpha` could be
   flagged wrongly, and the purification could remove it. The unrounded p-values
   are now compared; the tables still show four decimals.
 
-* `grdif()` computed `GRDIF_R`, `GRDIF_S`, and `GRDIF_RS` from arbitrary
-  values when the covariance matrix of an item was singular or nearly singular,
-  for example when all examinees of a group had the same ability estimate, and
-  could stop with an error. The statistics now use a generalized inverse, the
-  degrees of freedom are the rank of the matrix instead of G - 1, G - 1, and
-  2(G - 1), and one warning names the items. Results for regular data are
-  unchanged.
-
-* The purification of `grdif()` and `catsib()` removed the item with the
-  largest statistic (`catsib()`: the largest absolute `z.beta`) among all
-  items, which was not always a flagged item, instead of the flagged item with
-  the smallest p-value as `rdif()` and `crdif()` do. They now remove the flagged
-  item with the smallest p-value. They also stop with a warning and
-  `complete = FALSE` when every item is flagged or when a group has no ability
-  estimate left (`catsib()`: fewer than two within `range`), and return the
-  results of the last counted iteration, as `rdif()` and `crdif()` do.
-  Examinees who lost their ability estimates during the purification are
-  reported by one warning. The warning for an incomplete purification now reads
-  as that of `rdif()`, and `n.iter` of the `with_purify` results is the
-  integer 0 when no item is flagged in the initial analysis.
+* `grdif()` computed `GRDIF_R`, `GRDIF_S`, and `GRDIF_RS` after adding small
+  constants to the covariance matrix of an item when the matrix was singular
+  or nearly singular, for example when all examinees of a group had the same
+  ability estimate, and could stop with an error. The statistics now use a
+  generalized inverse, the degrees of freedom are the rank of the matrix
+  instead of G - 1, G - 1, and 2(G - 1), and one warning names the items.
+  Results for regular data are unchanged.
 
 * `catsib()` returned a statistic of 0, a standard error of 0, and a p-value of
   `NaN` for an item when the corrected ability estimates of the two groups did
@@ -366,18 +370,20 @@ knitr::opts_chunk$set(
   corrected abilities too much and inflates the Type I error rate. With
   `rho.screen = TRUE`, the examinees whose squared standard error is equal to
   or greater than the variance of the ability estimates of their group are left
-  out of the computation of rho^2 only; they are still matched and tested. This
-  changes the default results of `catsib()`, and the warning about rho^2
-  falling below 0.05 is given less often. `rho.screen = FALSE` gives the
-  results of earlier versions.
+  out of the computation of the group mean, the variance, and the error
+  variance used in the regression correction; they are still matched and
+  tested. This changes the default results of `catsib()`. The warning about
+  rho^2 falling below 0.05 is given less often, and once per call instead of at
+  every purification iteration. `rho.screen = FALSE` computes rho^2 as earlier
+  versions did.
 
 * The post-hoc pairwise analyses of `grdif()` take the reference group as the
   reference group of every pair that includes it, and, for a pair of focal
   groups, the group listed earlier in `focal.name`. Before, the group that came
-  later in the sorted order of the group values was the focal group, so the
-  signs of `rdifr` and `rdifs` were reversed, and `group.pair` was labeled in
-  the sorted order, when the reference group came later than a focal group. The
-  other statistics, the p-values, and the flags do not change.
+  later in the sorted order of the group values was the focal group of a pair.
+  When the two orders differ, `group.pair` is labeled in the new order, the
+  signs of `rdifr`, `z.rdifr`, `rdifs`, and `z.rdifs` are reversed, and `n.ref`
+  and `n.foc` are swapped. `rdifrs`, the p-values, and the flags do not change.
 
 * The default of `range` in `grdif()` is `c(-5, 5)`, as in `rdif()`, `crdif()`,
   `ripd()`, `catsib()`, and `est_score()`, instead of `c(-4, 4)`. The ability
@@ -389,7 +395,7 @@ knitr::opts_chunk$set(
   includes a polytomous item, because the GRDIF framework has been evaluated
   for dichotomous items (Lim et al., 2024). Before, polytomous items were
   analyzed as net DIF, and the default post-hoc analyses of mixed-format data
-  stopped with an error.
+  could stop with an error.
 
 * `grdif()` stops with an error when the examinees whose group is not in
   `focal.name` belong to more than one group, because they form the reference
@@ -518,13 +524,14 @@ knitr::opts_chunk$set(
   object, and the `est_item` methods do so for `score` as well. Before, they
   were silently ignored or caused an obscure error.
 
-* The purification of `rdif()`, `crdif()`, and `ripd()` is faster: after the
-  first iteration, only the examinees who responded to the removed item are
-  rescored when `ncore = 1` and `method` is a pattern scoring method. Results
-  are unchanged.
+* The purification of `rdif()`, `crdif()`, `ripd()`, `grdif()`, and `catsib()`
+  is faster: after the first iteration, only the examinees who responded to
+  the removed item are rescored when `ncore = 1` and `method` is a pattern
+  scoring method. Results are unchanged.
 
-* The purification of `rdif()`, `crdif()`, and `ripd()` gives the warning of
-  `est_score()` about `ncore > 1` once instead of at every iteration.
+* The purification of `rdif()`, `crdif()`, `ripd()`, `grdif()`, and `catsib()`
+  gives the warning of `est_score()` about `ncore > 1` once instead of at
+  every iteration.
 
 * `rdif()`, `crdif()`, and `ripd()` stop with a clear message for
   `method = "EAP.SUM"` or `"INV.TCC"` when they estimate the abilities
@@ -533,11 +540,11 @@ knitr::opts_chunk$set(
   with an obscure message. `ripd()` and `pcd2()` also stop with a clear message
   when `min.resp` is not a single nonnegative number, and `ripd()` stops when
   `score` is not numeric, when `alpha` is not a single number between 0 and 1
-  (an `alpha` of 1 or more, or a text value, flagged every item), or when `max.iter` is
-  not a positive whole number and `purify = TRUE`. The `est_irt` and `est_item`
-  methods of `ripd()` stop with a clear message when `data` or `D` is passed,
-  and the `est_item` method when `score` is passed, as those of `rdif()` and
-  `crdif()` do.
+  (an `alpha` of 1 or more, or a text value, flagged every item), or when
+  `max.iter` is not a positive whole number and `purify = TRUE`. The `est_irt`
+  and `est_item` methods of `ripd()` stop with a clear message when `data` or
+  `D` is passed, and the `est_item` method when `score` is passed, as those of
+  `rdif()` and `crdif()` do.
 
 * `pcd2()` stops with a clear message when `max.iter` is not a positive whole
   number and `purify = TRUE`, and when `crit.val` is not `NULL` or a single
