@@ -145,6 +145,9 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
         adjust = FALSE
       )
     } else {
+      # keep the starting values for a refit with ordered GRM thresholds
+      startval.in <- startval
+
       # build the cached (objective, gradient, hessian) trio for PRM
       prm_fns <- make_prm_optim_fns(
         r_i = r_i, theta = theta, pr.mod = mod, D = D, nstd = nstd,
@@ -186,6 +189,14 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
           objective = prm_fns$objective,
           gradient = prm_fns$gradient,
           control = control, lower = lower, upper = upper
+        )
+      }
+
+      # refit with ordered thresholds when the GRM thresholds are not in increasing order
+      if (mod == "GRM" && is.unsorted(est$par[-1], strictly = TRUE)) {
+        est <- est_grm_ordered(
+          startval = startval.in, prm_fns = prm_fns, control = control,
+          lower = lower, upper = upper
         )
       }
 
@@ -334,6 +345,9 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
         )
       }
     } else {
+      # keep the starting values for a refit with ordered GRM thresholds
+      startval.in <- startval
+
       # build the cached (objective, gradient, hessian) trio for PRM
       prm_fns <- make_prm_optim_fns(
         r_i = r_i, theta = quadpt, pr.mod = mod, D = D, nstd = n.quad,
@@ -389,6 +403,14 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
           control = control, lower = lower, upper = upper
         )
       }
+
+      # refit with ordered thresholds when the GRM thresholds are not in increasing order
+      if (mod == "GRM" && is.unsorted(est$par[-1], strictly = TRUE)) {
+        est <- est_grm_ordered(
+          startval = startval.in, prm_fns = prm_fns, control = control,
+          lower = lower, upper = upper
+        )
+      }
     }
   }
 
@@ -396,4 +418,78 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
   rst <- list(pars = est$par, convergence = est$convergence, objective = est$objective)
 
   rst
+}
+
+
+# This function re-estimates the parameters of a GRM item with its thresholds
+# kept in increasing order.  The thresholds are written as b_1 and the logs of
+# the gaps b_k - b_(k-1), so every point visited by nlminb has ordered
+# thresholds.  It is used only when the unconstrained fit returns thresholds
+# that are not ordered: grm() truncates the negative category probabilities of
+# such a fit at 1e-10, so the category probabilities no longer sum to one and
+# the objective is not a valid likelihood there.
+est_grm_ordered <- function(startval, prm_fns, control, lower, upper) {
+  # number of thresholds
+  m <- length(startval) - 1L
+
+  # smallest gap and largest log gap allowed between adjacent thresholds
+  min.gap <- 1e-8
+  max.lgap <- 20
+
+  # starting values on the transformed scale (sorted thresholds, positive gaps)
+  b0 <- sort(startval[-1])
+  phi0 <- c(startval[1], b0[1], log(pmax(diff(b0), min.gap)))
+
+  # map the transformed parameters (a, b_1, log gaps) back to (a, b_1, ..., b_m)
+  to_par <- function(phi) c(phi[1], cumsum(c(phi[2], exp(phi[-(1:2)]))))
+
+  # Jacobian d(a, b_1, ..., b_m) / d(a, b_1, log gaps)
+  jacob <- function(phi) {
+    J <- diag(m + 1L)
+
+    # every threshold moves one-to-one with b_1
+    J[2:(m + 1L), 2] <- 1
+
+    # threshold k depends on the log gap j through exp(log gap j) when k >= j
+    for (j in seq_len(m)[-1]) J[(j + 1L):(m + 1L), j + 1L] <- exp(phi[j + 1L])
+    J
+  }
+
+  # objective, gradient, and hessian on the transformed scale (chain rule)
+  obj <- function(phi) prm_fns$objective(to_par(phi))
+  grd <- function(phi) as.vector(crossprod(jacob(phi), prm_fns$gradient(to_par(phi))))
+  hss <- function(phi) {
+    J <- jacob(phi)
+    gb <- prm_fns$gradient(to_par(phi))[-1]
+
+    # second-derivative term of the transformation: exp(log gap j) * sum_{k >= j} g_k
+    curv <- c(0, 0, exp(phi[-(1:2)]) * rev(cumsum(rev(gb)))[-1])
+    crossprod(J, prm_fns$hessian(to_par(phi)) %*% J) + diag(curv, m + 1L)
+  }
+
+  # bounds on the transformed scale (the slope keeps its own bounds)
+  lower.phi <- c(lower[1], -Inf, rep(log(min.gap), m - 1L))
+  upper.phi <- c(upper[1], Inf, rep(max.lgap, m - 1L))
+
+  # estimate with the hessian first, and only with the gradient when that fails
+  est <- tryCatch(
+    {
+      stats::nlminb(phi0,
+        objective = obj, gradient = grd, hessian = hss,
+        control = control, lower = lower.phi, upper = upper.phi
+      )
+    },
+    error = function(e) {
+      NULL
+    }
+  )
+  if (is.null(est) || est$convergence > 0L) {
+    est <- stats::nlminb(phi0,
+      objective = obj, gradient = grd,
+      control = control, lower = lower.phi, upper = upper.phi
+    )
+  }
+
+  # return the estimates on the original scale
+  list(par = to_par(est$par), convergence = est$convergence, objective = est$objective)
 }

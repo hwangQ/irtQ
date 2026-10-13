@@ -415,6 +415,17 @@ knitr::opts_chunk$set(
   unchanged. `pcd2()` also no longer returns `NaN` when a quadrature point has
   no posterior mass.
 
+* `est_irt()`, `est_mg()`, and `est_item()` could return the thresholds of a
+  GRM item in a decreasing order, which is not a valid solution because the
+  category probabilities then sum to more than 1 and the reported
+  log-likelihood is inflated. It happened mostly in small samples or when a
+  score category has few responses (for example, in 13 of 40 simulated data
+  sets with five categories and 300 examinees). When the unconstrained
+  estimates are not in increasing order, the item is now estimated again with
+  its thresholds kept in increasing order. Results of items whose thresholds
+  were already ordered are unchanged. Fits with a GRM item whose thresholds
+  were reversed should be rerun.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the
