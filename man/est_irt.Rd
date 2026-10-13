@@ -280,10 +280,11 @@ estimates.}
 \item{loglikelihood}{The marginal log-likelihood, calculated as the sum of
 the log-likelihoods across all items.}
 
-\item{aic}{Akaike Information Criterion (AIC) based on the log-likelihood.}
+\item{aic}{Akaike information criterion,
+\code{-2 * loglikelihood + 2 * npar.est}.}
 
-\item{bic}{Bayesian Information Criterion (BIC) based on the
-log-likelihood.}
+\item{bic}{Bayesian information criterion,
+\code{-2 * loglikelihood + npar.est * log(ncase)}.}
 
 \item{group.par}{A data frame containing the mean, variance, and standard
 deviation of the latent variable prior distribution.}
@@ -316,7 +317,10 @@ parameters.}
 \item{gprior}{A list describing the prior distribution used for guessing
 parameters.}
 
-\item{npar.est}{The total number of parameters estimated.}
+\item{npar.est}{The number of freely estimated parameters used for \code{aic}
+and \code{bic}: the estimated item parameters, the mean and variance of the
+latent distribution when they are estimated, and the weights of the
+empirical histogram when \code{EmpHist = TRUE}. See Details.}
 
 \item{niter}{The number of completed EM cycles.}
 
@@ -356,6 +360,12 @@ was successfully obtained from the information matrix.}
 
 \item{fix.loc}{A vector of integers specifying the row locations of fixed items
 when FIPC was applied.}
+
+\item{npar.detail}{An integer vector with the elements \code{item} (free item
+parameters), \code{dist} (mean and variance of the latent distribution), and
+\code{weight} (weights of the empirical histogram), whose sum is \code{npar.est}.
+It is the last element of the object and is not available in objects
+created by earlier versions.}
 
 Note that you can easily extract components from the output using the
 \code{\link[=getirt]{getirt()}} function.
@@ -504,6 +514,22 @@ error of 99999 means that it could not be obtained). Before the estimation,
 one warning lists the IDs of these items; the items fixed in FIPC are not
 checked. A parameter with a prior distribution, such as the guessing
 parameter of a 3PLM item with \code{use.gprior = TRUE}, can still be stable.
+
+The information criteria are \code{aic = -2 * loglikelihood + 2 * npar.est} and
+\code{bic = -2 * loglikelihood + npar.est * log(ncase)}. Here \code{loglikelihood} is
+the marginal log-likelihood without the prior densities of the item
+parameters, and \code{ncase} is the number of examinees. \code{npar.est} is the number
+of freely estimated parameters, which consists of (a) the item parameters
+that are estimated (a slope shared by 1PLM items is counted once; fixed
+parameters and the items fixed in FIPC are not counted), (b) the mean and
+variance of the latent distribution when they are estimated, which is the
+case with FIPC and \code{EmpHist = FALSE} (2 values), and (c) the weights of the
+empirical histogram when \code{EmpHist = TRUE}. Without FIPC, the histogram is
+rescaled to the mean and variance given by \code{group.mean} and \code{group.var}, so
+its Q weights, where Q is the number of quadrature points, have Q - 3 free
+values (the sum of the weights and the two moments are fixed). With FIPC, the
+histogram is not rescaled, so the weights have Q - 1 free values. The counts
+by type are returned in \code{npar.detail}.
 }
 \examples{
 \donttest{

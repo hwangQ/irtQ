@@ -357,11 +357,12 @@ the \code{overall} component contains the total log-likelihood summed across
 all unique items from all groups, while the \code{group} component provides
 group-specific log-likelihood values.}
 
-\item{aic}{A model fit statistic based on the Akaike Information Criterion (AIC),
-calculated from the log-likelihood of all unique items.}
+\item{aic}{Akaike information criterion, \code{-2 * loglikelihood + 2 * npar.est},
+calculated from the overall log-likelihood.}
 
-\item{bic}{A model fit statistic based on the Bayesian Information Criterion (BIC),
-calculated from the log-likelihood of all unique items.}
+\item{bic}{Bayesian information criterion,
+\code{-2 * loglikelihood + npar.est * log(ncase)}, calculated from the overall
+log-likelihood and the overall number of examinees.}
 
 \item{group.par}{A list containing summary statistics (i.e., mean, variance,
 and standard deviation) of the latent variable prior distributions across
@@ -402,7 +403,10 @@ parameters.}
 \item{gprior}{A list describing the prior distribution used for guessing
 parameters.}
 
-\item{npar.est}{The total number of parameters estimated across all unique items.}
+\item{npar.est}{The number of freely estimated parameters used for \code{aic} and
+\code{bic}: the estimated item parameters of all unique items, the means and
+variances of the free groups when they have normal distributions, and the
+weights of the empirical histograms when \code{EmpHist = TRUE}. See Details.}
 
 \item{niter}{The number of completed EM cycles.}
 
@@ -441,6 +445,12 @@ was successfully obtained from the information matrix.}
 \item{fix.loc}{A list containing two internal objects (i.e., overall and group)
 indicating the locations of fixed items when FIPC is applied. The structure
 of the list matches that of the 'estimates' component.}
+
+\item{npar.detail}{An integer vector with the elements \code{item} (free item
+parameters), \code{dist} (means and variances of the latent distributions of
+all groups), and \code{weight} (weights of the empirical histograms of all
+groups), whose sum is \code{npar.est}. It is the last element of the object and
+is not available in objects created by earlier versions.}
 
 Note that you can easily extract components from the output using the
 \code{\link[=getirt]{getirt()}} function.
@@ -545,6 +555,22 @@ then specify:
 
 Note that when both \code{fix.loc} and \code{fix.id} are provided, the information
 in \code{fix.id} takes precedence and overrides \code{fix.loc}.
+
+The information criteria are \code{aic = -2 * loglikelihood + 2 * npar.est} and
+\code{bic = -2 * loglikelihood + npar.est * log(ncase)}, where \code{loglikelihood} is
+the overall marginal log-likelihood without the prior densities of the item
+parameters and \code{ncase} is the overall number of examinees. \code{npar.est} is the
+number of freely estimated parameters, which consists of (a) the item
+parameters that are estimated across all unique items (a slope shared by
+1PLM items is counted once; fixed parameters and the items fixed in FIPC are
+not counted), (b) the mean and variance of each group in \code{free.group} when
+\code{EmpHist = FALSE} (2 values per group), and (c) the weights of the empirical
+histograms when \code{EmpHist = TRUE}. The histogram of a group in \code{free.group}
+is not rescaled, so its Q weights, where Q is the number of quadrature
+points, have Q - 1 free values (the sum of the weights is fixed). The
+histogram of any other group is rescaled to the mean and variance given by
+\code{group.mean} and \code{group.var}, so its weights have Q - 3 free values. The
+counts by type are returned in \code{npar.detail}.
 }
 \examples{
 \donttest{

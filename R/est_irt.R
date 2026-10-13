@@ -310,6 +310,22 @@
 #' checked. A parameter with a prior distribution, such as the guessing
 #' parameter of a 3PLM item with `use.gprior = TRUE`, can still be stable.
 #'
+#' The information criteria are `aic = -2 * loglikelihood + 2 * npar.est` and
+#' `bic = -2 * loglikelihood + npar.est * log(ncase)`. Here `loglikelihood` is
+#' the marginal log-likelihood without the prior densities of the item
+#' parameters, and `ncase` is the number of examinees. `npar.est` is the number
+#' of freely estimated parameters, which consists of (a) the item parameters
+#' that are estimated (a slope shared by 1PLM items is counted once; fixed
+#' parameters and the items fixed in FIPC are not counted), (b) the mean and
+#' variance of the latent distribution when they are estimated, which is the
+#' case with FIPC and `EmpHist = FALSE` (2 values), and (c) the weights of the
+#' empirical histogram when `EmpHist = TRUE`. Without FIPC, the histogram is
+#' rescaled to the mean and variance given by `group.mean` and `group.var`, so
+#' its Q weights, where Q is the number of quadrature points, have Q - 3 free
+#' values (the sum of the weights and the two moments are fixed). With FIPC, the
+#' histogram is not rescaled, so the weights have Q - 1 free values. The counts
+#' by type are returned in `npar.detail`.
+#'
 #' @return This function returns an object of class `est_irt`. The returned
 #'   object contains the following components:
 #'
@@ -336,10 +352,11 @@
 #'   \item{loglikelihood}{The marginal log-likelihood, calculated as the sum of
 #'   the log-likelihoods across all items.}
 #'
-#'   \item{aic}{Akaike Information Criterion (AIC) based on the log-likelihood.}
+#'   \item{aic}{Akaike information criterion,
+#'   `-2 * loglikelihood + 2 * npar.est`.}
 #'
-#'   \item{bic}{Bayesian Information Criterion (BIC) based on the
-#'   log-likelihood.}
+#'   \item{bic}{Bayesian information criterion,
+#'   `-2 * loglikelihood + npar.est * log(ncase)`.}
 #'
 #'   \item{group.par}{A data frame containing the mean, variance, and standard
 #'   deviation of the latent variable prior distribution.}
@@ -372,7 +389,10 @@
 #'   \item{gprior}{A list describing the prior distribution used for guessing
 #'    parameters.}
 #'
-#'   \item{npar.est}{The total number of parameters estimated.}
+#'   \item{npar.est}{The number of freely estimated parameters used for `aic`
+#'   and `bic`: the estimated item parameters, the mean and variance of the
+#'   latent distribution when they are estimated, and the weights of the
+#'   empirical histogram when `EmpHist = TRUE`. See Details.}
 #'
 #'   \item{niter}{The number of completed EM cycles.}
 #'
@@ -412,6 +432,12 @@
 #'
 #'   \item{fix.loc}{A vector of integers specifying the row locations of fixed items
 #'   when FIPC was applied.}
+#'
+#'   \item{npar.detail}{An integer vector with the elements `item` (free item
+#'   parameters), `dist` (mean and variance of the latent distribution), and
+#'   `weight` (weights of the empirical histogram), whose sum is `npar.est`.
+#'   It is the last element of the object and is not available in objects
+#'   created by earlier versions.}
 #'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.
@@ -828,6 +854,11 @@ est_irt <- function(x = NULL,
   # return the estimation results
   class(est_par) <- "est_irt"
   est_par$call <- cl
+
+  # place the counts of the free parameters after the call
+  npar.detail <- est_par$npar.detail
+  est_par$npar.detail <- NULL
+  est_par$npar.detail <- npar.detail
   est_par
 }
 
@@ -1320,8 +1351,16 @@ est_irt_em <- function(x = NULL,
   if (use.bprior) bprior.dist <- bprior else bprior.dist <- NULL
   if (use.gprior) gprior.dist <- gprior else gprior.dist <- NULL
   
+  # count the free parameters: the item parameters, and the weights of the empirical
+  # histogram, whose number of free values is the number of quadrature points minus
+  # three (sum to one, mean, and variance are fixed); the normal distribution is fixed
+  npar.item <- length(param_loc$reloc.par)
+  npar.dist <- 0L
+  npar.weight <- if (EmpHist) n.quad - 3L else 0L
+  npar.est <- npar.item + npar.dist + npar.weight
+  npar.detail <- c(item = npar.item, dist = npar.dist, weight = npar.weight)
+
   # statistics based on the loglikelihood of the fitted model:
-  npar.est <- length(param_loc$reloc.par)
   neg2llke <- -2 * llike
   aic <- 2 * npar.est + neg2llke
   bic <- npar.est * log(nstd) + neg2llke
@@ -1339,7 +1378,7 @@ est_irt_em <- function(x = NULL,
     group.par = group.par, weights = weights, posterior.dist = post_dist, data = data, scale.D = D, ncase = nstd, nitem = nrow(par_df),
     Etol = Etol, MaxE = MaxE, aprior = aprior.dist, bprior = bprior.dist, gprior = gprior.dist, npar.est = npar.est, niter = r, maxpar.diff = max.diff,
     EMtime = est_time1, SEtime = est_time2, TotalTime = est_time3, test.1 = memo3, test.2 = memo4, var.note = memo5, fipc = FALSE,
-    fipc.method = NULL, fix.loc = NULL
+    fipc.method = NULL, fix.loc = NULL, npar.detail = npar.detail
   )
   
   if (verbose) {
@@ -2030,12 +2069,17 @@ est_irt_fipc <- function(x = NULL,
   if (use.bprior) bprior.dist <- bprior else bprior.dist <- NULL
   if (use.gprior) gprior.dist <- gprior else gprior.dist <- NULL
   
+  # count the free parameters: the item parameters to be estimated, and the latent
+  # distribution, which is estimated without rescaling (the mean and variance of the
+  # normal distribution, or the quadrature points minus one weights of the empirical
+  # histogram, whose sum is one)
+  npar.item <- if (!is.null(x_new)) length(param_loc$reloc.par) else 0L
+  npar.dist <- if (EmpHist) 0L else 2L
+  npar.weight <- if (EmpHist) n.quad - 1L else 0L
+  npar.est <- npar.item + npar.dist + npar.weight
+  npar.detail <- c(item = npar.item, dist = npar.dist, weight = npar.weight)
+
   # statistics based on the loglikelihood of the fitted model:
-  if (!is.null(x_new)) {
-    npar.est <- length(param_loc$reloc.par) + 2
-  } else {
-    npar.est <- 2
-  }
   neg2llke <- -2 * llike
   aic <- 2 * npar.est + neg2llke
   bic <- npar.est * log(nstd) + neg2llke
@@ -2053,7 +2097,7 @@ est_irt_fipc <- function(x = NULL,
     aic = aic, bic = bic, group.par = group.par, weights = weights, posterior.dist = post_dist, data = data_all, scale.D = D, ncase = nstd,
     nitem = nitem.all, Etol = Etol, MaxE = MaxE, aprior = aprior.dist, bprior = bprior.dist, gprior = gprior.dist, npar.est = npar.est,
     niter = r, maxpar.diff = max.diff, EMtime = est_time1, SEtime = est_time2, TotalTime = est_time3, test.1 = memo3, test.2 = memo4,
-    var.note = memo5, fipc = TRUE, fipc.method = fipc.method, fix.loc = fix.loc
+    var.note = memo5, fipc = TRUE, fipc.method = fipc.method, fix.loc = fix.loc, npar.detail = npar.detail
   )
 
   if (verbose) {

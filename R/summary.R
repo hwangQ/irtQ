@@ -35,6 +35,7 @@ summary.est_irt <- function(object, ...) {
   Etol <- object$Etol
   weights <- object$weights
   npar.est <- object$npar.est
+  npar.detail <- object$npar.detail
   fix.loc <- object$fix.loc
   niter <- object$niter
   maxpar.diff <- object$maxpar.diff
@@ -52,7 +53,7 @@ summary.est_irt <- function(object, ...) {
 
   out <- list(
     call.expr = call.expr, nitem = nitem, ncase = ncase, MaxE = MaxE, Etol = Etol,
-    weights = weights, npar.est = npar.est, fix.loc = fix.loc, niter = niter,
+    weights = weights, npar.est = npar.est, npar.detail = npar.detail, fix.loc = fix.loc, niter = niter,
     maxpar.diff = maxpar.diff, EMtime = EMtime, SEtime = SEtime, TotalTime = TotalTime,
     test.1 = test.1, test.2 = test.2, var.note = var.note, loglikelihood = loglikelihood,
     aic = aic, bic = bic, estimates = estimates, group.par = group.par
@@ -71,6 +72,7 @@ summary.est_mg <- function(object, ...) {
   Etol <- object$Etol
   weights <- object$weights
   npar.est <- object$npar.est
+  npar.detail <- object$npar.detail
   niter <- object$niter
   maxpar.diff <- object$maxpar.diff
   EMtime <- object$EMtime
@@ -96,7 +98,7 @@ summary.est_mg <- function(object, ...) {
 
   out <- list(
     call.expr = call.expr, nitem = nitem, ncase = ncase, MaxE = MaxE, Etol = Etol,
-    weights = weights, npar.est = npar.est, fix.loc = fix.loc, niter = niter,
+    weights = weights, npar.est = npar.est, npar.detail = npar.detail, fix.loc = fix.loc, niter = niter,
     maxpar.diff = maxpar.diff, EMtime = EMtime, SEtime = SEtime, TotalTime = TotalTime,
     test.1 = test.1, test.2 = test.2, var.note = var.note, loglikelihood = loglikelihood,
     aic = aic, bic = bic, estimates = estimates, group.par = group.par, group.name = group.name,

@@ -347,6 +347,13 @@ print.summary.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), 
   cat(" Number of rectangular quadrature points: ", nrow(x$weights[[1]]), "\n", sep = "")
   cat(" Minimum & Maximum quadrature points: ", x$weights[[1]][1, 1], ", ", -x$weights[[1]][1, 1], "\n", sep = "")
   cat(" Number of free parameters: ", x$npar.est, "\n", sep = "")
+
+  # show the counts of the free parameters by type when they are available
+  if (!is.null(x$npar.detail)) {
+    cat("   - Item parameters: ", x$npar.detail[["item"]], "\n", sep = "")
+    cat("   - Latent distribution parameters (mean and variance): ", x$npar.detail[["dist"]], "\n", sep = "")
+    cat("   - Latent distribution weights (empirical histogram): ", x$npar.detail[["weight"]], "\n", sep = "")
+  }
   cat(" Number of fixed items: \n", sep = "")
   cat("  Overall: ", length(x$fix.loc$overall), "\n", sep = "")
   cat("  By group: ", paste(paste(purrr::map_dbl(.x = x$fix.loc$group, length), "(", x$group.name, ")", sep = ""), collapse = ", "), "\n", sep = "")
@@ -678,6 +685,13 @@ print.summary.est_irt <- function(x, digits = max(2L, getOption("digits") - 5L),
   cat(" Number of rectangular quadrature points: ", nrow(x$weights), "\n", sep = "")
   cat(" Minimum & Maximum quadrature points: ", x$weights[1, 1], ", ", -x$weights[1, 1], "\n", sep = "")
   cat(" Number of free parameters: ", x$npar.est, "\n", sep = "")
+
+  # show the counts of the free parameters by type when they are available
+  if (!is.null(x$npar.detail)) {
+    cat("   - Item parameters: ", x$npar.detail[["item"]], "\n", sep = "")
+    cat("   - Latent distribution parameters (mean and variance): ", x$npar.detail[["dist"]], "\n", sep = "")
+    cat("   - Latent distribution weights (empirical histogram): ", x$npar.detail[["weight"]], "\n", sep = "")
+  }
   cat(" Number of fixed items: ", length(x$fix.loc), "\n", sep = "")
   cat(" Number of E-step cycles completed: ", x$niter, "\n", sep = "")
   cat(" Maximum parameter change: ", x$maxpar.diff, "\n\n", sep = "")

@@ -248,6 +248,22 @@
 #' Note that when both `fix.loc` and `fix.id` are provided, the information
 #' in `fix.id` takes precedence and overrides `fix.loc`.
 #'
+#' The information criteria are `aic = -2 * loglikelihood + 2 * npar.est` and
+#' `bic = -2 * loglikelihood + npar.est * log(ncase)`, where `loglikelihood` is
+#' the overall marginal log-likelihood without the prior densities of the item
+#' parameters and `ncase` is the overall number of examinees. `npar.est` is the
+#' number of freely estimated parameters, which consists of (a) the item
+#' parameters that are estimated across all unique items (a slope shared by
+#' 1PLM items is counted once; fixed parameters and the items fixed in FIPC are
+#' not counted), (b) the mean and variance of each group in `free.group` when
+#' `EmpHist = FALSE` (2 values per group), and (c) the weights of the empirical
+#' histograms when `EmpHist = TRUE`. The histogram of a group in `free.group`
+#' is not rescaled, so its Q weights, where Q is the number of quadrature
+#' points, have Q - 1 free values (the sum of the weights is fixed). The
+#' histogram of any other group is rescaled to the mean and variance given by
+#' `group.mean` and `group.var`, so its weights have Q - 3 free values. The
+#' counts by type are returned in `npar.detail`.
+#'
 #' @return This function returns an object of class `est_mg`. The returned
 #'   object contains the following components:
 #'
@@ -287,11 +303,12 @@
 #'   all unique items from all groups, while the `group` component provides
 #'   group-specific log-likelihood values.}
 #'
-#' \item{aic}{A model fit statistic based on the Akaike Information Criterion (AIC),
-#'   calculated from the log-likelihood of all unique items.}
+#' \item{aic}{Akaike information criterion, `-2 * loglikelihood + 2 * npar.est`,
+#'   calculated from the overall log-likelihood.}
 #'
-#' \item{bic}{A model fit statistic based on the Bayesian Information Criterion (BIC),
-#'   calculated from the log-likelihood of all unique items.}
+#' \item{bic}{Bayesian information criterion,
+#'   `-2 * loglikelihood + npar.est * log(ncase)`, calculated from the overall
+#'   log-likelihood and the overall number of examinees.}
 #'
 #' \item{group.par}{A list containing summary statistics (i.e., mean, variance,
 #'   and standard deviation) of the latent variable prior distributions across
@@ -332,7 +349,10 @@
 #' \item{gprior}{A list describing the prior distribution used for guessing
 #'    parameters.}
 #'
-#' \item{npar.est}{The total number of parameters estimated across all unique items.}
+#' \item{npar.est}{The number of freely estimated parameters used for `aic` and
+#'   `bic`: the estimated item parameters of all unique items, the means and
+#'   variances of the free groups when they have normal distributions, and the
+#'   weights of the empirical histograms when `EmpHist = TRUE`. See Details.}
 #'
 #' \item{niter}{The number of completed EM cycles.}
 #'
@@ -371,6 +391,12 @@
 #' \item{fix.loc}{A list containing two internal objects (i.e., overall and group)
 #'   indicating the locations of fixed items when FIPC is applied. The structure
 #'   of the list matches that of the 'estimates' component.}
+#'
+#' \item{npar.detail}{An integer vector with the elements `item` (free item
+#'   parameters), `dist` (means and variances of the latent distributions of
+#'   all groups), and `weight` (weights of the empirical histograms of all
+#'   groups), whose sum is `npar.est`. It is the last element of the object and
+#'   is not available in objects created by earlier versions.}
 #'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.
@@ -703,6 +729,11 @@ est_mg <- function(x = NULL,
   # return the estimation results
   class(est_par) <- "est_mg"
   est_par$call <- cl
+
+  # place the counts of the free parameters after the call
+  npar.detail <- est_par$npar.detail
+  est_par$npar.detail <- NULL
+  est_par$npar.detail <- npar.detail
   est_par
 }
 
@@ -1423,8 +1454,15 @@ est_mg_em <- function(x = NULL,
   if (use.bprior) bprior.dist <- bprior else bprior.dist <- NULL
   if (use.gprior) gprior.dist <- gprior else gprior.dist <- NULL
 
-  # statistics based on the loglikelihood of the fitted model:
-  npar.est <- length(param_loc$reloc.par) + length(free.group) * 2
+  # count the free parameters: the item parameters, the mean and variance of each free
+  # group with a normal distribution, and the weights of each empirical histogram, whose
+  # number of free values is the number of quadrature points minus one for a free group
+  # (sum to one) and minus three for a reference group (sum to one, mean, and variance fixed)
+  npar.item <- length(param_loc$reloc.par)
+  npar.dist <- if (EmpHist) 0L else length(free.group) * 2L
+  npar.weight <- if (EmpHist) length(free.group) * (n.quad - 1L) + length(ref.group) * (n.quad - 3L) else 0L
+  npar.est <- npar.item + npar.dist + npar.weight
+  npar.detail <- c(item = npar.item, dist = npar.dist, weight = npar.weight)
   neg2llke <- -2 * llike
   aic <- 2 * npar.est + neg2llke
   bic <- npar.est * log(nstd) + neg2llke
@@ -1445,7 +1483,8 @@ est_mg_em <- function(x = NULL,
     scale.D = D, ncase = list(overall = nstd, group = nstd.gr), nitem = list(overall = nitem, group = nitem.gr),
     Etol = Etol, MaxE = MaxE, aprior = aprior.dist, bprior = bprior.dist, gprior = gprior.dist, npar.est = npar.est,
     niter = r, maxpar.diff = max.diff, EMtime = est_time1, SEtime = est_time2, TotalTime = est_time3, test.1 = memo3,
-    test.2 = memo4, var.note = memo5, fipc = FALSE, fipc.method = NULL, fix.loc = list(overall = NULL, group = NULL)
+    test.2 = memo4, var.note = memo5, fipc = FALSE, fipc.method = NULL, fix.loc = list(overall = NULL, group = NULL),
+    npar.detail = npar.detail
   )
 
   if (verbose) {
@@ -2333,12 +2372,15 @@ est_mg_fipc <- function(x = NULL,
   if (use.bprior) bprior.dist <- bprior else bprior.dist <- NULL
   if (use.gprior) gprior.dist <- gprior else gprior.dist <- NULL
 
-  # statistics based on the loglikelihood of the fitted model:
-  if (!is.null(x_new)) {
-    npar.est <- length(param_loc$reloc.par) + length(free.group) * 2
-  } else {
-    npar.est <- length(free.group) * 2
-  }
+  # count the free parameters: the item parameters to be estimated, the mean and variance of
+  # each free group with a normal distribution, and the weights of each empirical histogram,
+  # whose number of free values is the number of quadrature points minus one for a free group
+  # (sum to one) and minus three for a reference group (sum to one, mean, and variance fixed)
+  npar.item <- if (!is.null(x_new)) length(param_loc$reloc.par) else 0L
+  npar.dist <- if (EmpHist) 0L else length(free.group) * 2L
+  npar.weight <- if (EmpHist) length(free.group) * (n.quad - 1L) + length(ref.group) * (n.quad - 3L) else 0L
+  npar.est <- npar.item + npar.dist + npar.weight
+  npar.detail <- c(item = npar.item, dist = npar.dist, weight = npar.weight)
   neg2llke <- -2 * llike
   aic <- 2 * npar.est + neg2llke
   bic <- npar.est * log(nstd) + neg2llke
@@ -2359,7 +2401,8 @@ est_mg_fipc <- function(x = NULL,
     scale.D = D, ncase = list(overall = nstd, group = nstd.gr), nitem = list(overall = nitem.all, group = nitem.gr),
     Etol = Etol, MaxE = MaxE, aprior = aprior.dist, bprior = bprior.dist, gprior = gprior.dist, npar.est = npar.est,
     niter = r, maxpar.diff = max.diff, EMtime = est_time1, SEtime = est_time2, TotalTime = est_time3, test.1 = memo3,
-    test.2 = memo4, var.note = memo5, fipc = TRUE, fipc.method = fipc.method, fix.loc = list(overall = fix.loc, group = fix.loc.gr)
+    test.2 = memo4, var.note = memo5, fipc = TRUE, fipc.method = fipc.method, fix.loc = list(overall = fix.loc, group = fix.loc.gr),
+    npar.detail = npar.detail
   )
 
   if (verbose) {

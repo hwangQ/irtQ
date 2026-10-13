@@ -455,6 +455,18 @@ knitr::opts_chunk$set(
   which the iteration stopped. It is now measured from the moments of
   `weights`.
 
+* `npar.est`, `aic`, and `bic` of `est_irt()` and `est_mg()` did not count the
+  weights of the empirical histogram (`EmpHist = TRUE`) as free parameters, and
+  `est_irt()` with FIPC counted only the mean and variance of the latent
+  distribution (2 values) even with `EmpHist = TRUE`. With 49 quadrature
+  points, the AIC of a model with an empirical histogram was about 90 too
+  small, which made it look better than a model with a normal distribution.
+  The count now includes the free weights: Q - 3 for a histogram rescaled to a
+  fixed mean and variance (`est_irt()` without FIPC, and the reference groups
+  of `est_mg()`) and Q - 1 for a histogram that is not rescaled (`est_irt()`
+  with FIPC, and the free groups of `est_mg()`), where Q is the number of
+  quadrature points. The values for a normal distribution do not change.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the
@@ -771,6 +783,14 @@ knitr::opts_chunk$set(
 * `catsib()` now stops with an informative message when `score` is supplied
   without `se`. Before, it failed with a "missing value where TRUE/FALSE
   needed" error.
+
+* `est_irt()` and `est_mg()` return a new last element, `npar.detail`, an
+  integer vector with the numbers of free item parameters (`item`), of means
+  and variances of the latent distributions (`dist`), and of weights of the
+  empirical histograms (`weight`); their sum is `npar.est`. The `summary()`
+  output shows these three numbers under "Number of free parameters". Objects
+  created by earlier versions have no `npar.detail`, and their summary shows
+  the total only.
 
 ## Documentation
 * Stated in `?reval_mst` that the recursion is based on inverse TCC
