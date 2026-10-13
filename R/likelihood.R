@@ -23,7 +23,16 @@
 #   D        : scaling constant (1 for the logistic metric; 1.702 approximates the normal ogive)
 #
 # Returns:
-#   list with single element $L: nstd x ntheta numeric matrix of likelihoods.
+#   list with two elements:
+#     $L      : nstd x ntheta numeric matrix of likelihoods.  For an examinee
+#               whose likelihoods sum to less than exp(-700) over the grid (a
+#               long test whose likelihood underflows in exp()), the row is
+#               divided by exp(row maximum of the log-likelihood) so that its
+#               largest element is 1.
+#     $offset : numeric vector of length nstd holding the log of that divisor
+#               (0 for every row that is not rescaled).  The log-likelihood of
+#               examinee i is log(L[i, ]) + offset[i]; posterior() is
+#               unaffected because the divisor cancels within a row.
 #' @importFrom Matrix tcrossprod
 likelihood <- function(elm_item, idx.drm = NULL, idx.prm = NULL,
                        data_drm = NULL, data_prm = NULL, theta, D = 1) {
@@ -123,9 +132,34 @@ likelihood <- function(elm_item, idx.drm = NULL, idx.prm = NULL,
   # may be the integer 0 placeholder, which broadcasts elementwise.
   # base::as.matrix() densifies the sparse-Matrix output of tcrossprod()
   # so that exp() returns a plain numeric matrix usable downstream.
-  L <- exp(base::as.matrix(llike_drm + llike_prm))
+  llike <- base::as.matrix(llike_drm + llike_prm)
 
-  # return the likelihood matrix wrapped in a list to keep a stable
-  # interface for callers that index with $L (Estep, Estep_fipc, pcd2)
-  list(L = L)
+  # convert to the likelihood scale
+  L <- exp(llike)
+
+  # log-scale offset of each examinee (0 unless the row is rescaled below)
+  offset <- numeric(nrow(L))
+
+  # find the rows whose likelihoods underflow: their sum over the grid is below
+  # exp(-700), so every element is close to the double underflow limit or below it
+  idx.uf <- which(rowSums(L) < exp(-700))
+
+  # recompute those rows only after subtracting the row maximum of the
+  # log-likelihood, and keep that maximum as the offset; all other rows keep
+  # exactly the same likelihoods as exp(llike)
+  if (length(idx.uf) > 0L) {
+    row.max <- apply(llike[idx.uf, , drop = FALSE], 1, max)
+
+    # a row with no finite log-likelihood cannot be rescaled
+    idx.ok <- is.finite(row.max)
+    idx.uf <- idx.uf[idx.ok]
+    row.max <- row.max[idx.ok]
+    L[idx.uf, ] <- exp(llike[idx.uf, , drop = FALSE] - row.max)
+    offset[idx.uf] <- row.max
+  }
+
+  # return the likelihood matrix and the log-scale offsets; callers that
+  # need the marginal log-likelihood add the offsets back (Estep, est_irt,
+  # est_mg), while posterior() can use $L directly (Estep, pcd2)
+  list(L = L, offset = offset)
 }

@@ -42,13 +42,14 @@
   theta <- if (is.null(idx.std)) weights[, 1] else weights[[1]][, 1]
 
   # likelihood matrix L(theta_q | response_i) for each examinee
-  # at every quadrature point; used only as the input to the
-  # posterior() Bayes-rule normalization below
-  likehd <- likelihood(elm_item_likehd,
+  # at every quadrature point, with the log-scale offsets of the rows
+  # rescaled against underflow (see likelihood())
+  lik <- likelihood(elm_item_likehd,
     idx.drm = idx.drm, idx.prm = idx.prm,
     data_drm = data_drm, data_prm = data_prm,
     theta = theta, D = D
-  )$L
+  )
+  likehd <- lik$L
 
   # posterior density of ability per examinee (rows sum to 1);
   # idx.std = NULL takes the single-group branch, otherwise the
@@ -64,9 +65,10 @@
   # the returned $elm_item is the caller-chosen one: same as the
   # likelihood-driving elm_item for Estep, the "new items" elm_item
   # for Estep_fipc
+  # (the marginal log-likelihood of examinee i is log(likehd[i, ] %*% w) + offset[i])
   list(
     elm_item = elm_item_return, post_dist = post_dist, freq.exp = freq.exp,
-    likehd = likehd, idx.std = idx.std
+    likehd = likehd, offset = lik$offset, idx.std = idx.std
   )
 }
 
@@ -111,6 +113,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   post_dist <- estep$post_dist
   freq.exp <- estep$freq.exp
   likehd <- estep$likehd
+  offset <- estep$offset
   idx.std <- estep$idx.std
 
   ## ----------------------------------------------------------------------
@@ -437,16 +440,22 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   ## ---------------------------------------------------------------
   # compute the marginal log-likelihood printed for this cycle, which combines the
   # likelihood of the E-step (item parameters before this M-step) with the updated weights
+  # (the log-scale offsets of the rows rescaled in likelihood() are added back)
   if (is.null(idx.std)) {
-    llike <- sum(log(likehd %*% matrix(weights[, 2])))
+    llike <- sum(log(likehd %*% matrix(weights[, 2]))) + sum(offset)
   } else {
     likehd.gr <- purrr::map(.x = idx.std, ~ {
       likehd[.x, ]
     })
-    llike <- purrr::map2(
-      .x = likehd.gr, .y = weights,
-      .f = ~ {
-        sum(log(.x %*% matrix(.y[, 2])))
+
+    # offsets of the examinees in each group
+    offset.gr <- purrr::map(.x = idx.std, ~ {
+      offset[.x]
+    })
+    llike <- purrr::pmap(
+      .l = list(likehd.gr, weights, offset.gr),
+      .f = function(lk, wt, os) {
+        sum(log(lk %*% matrix(wt[, 2]))) + sum(os)
       }
     )
   }

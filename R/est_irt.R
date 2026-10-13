@@ -1125,7 +1125,8 @@ est_irt_em <- function(x = NULL,
   )
   
   # compute the final log of marginal likelihood
-  llike <- sum(log(estep$likehd %*% matrix(weights[, 2])))
+  # (adding back the log-scale offsets of the rows rescaled in likelihood())
+  llike <- sum(log(estep$likehd %*% matrix(weights[, 2]))) + sum(estep$offset)
   
   ## ---------------------------------------------------------------------
   # estimates the information matrix and standard errors of item parameter estimates
@@ -1751,7 +1752,8 @@ est_irt_fipc <- function(x = NULL,
   }
   
   # compute the final log of marginal likelihood
-  llike <- sum(log(estep$likehd %*% matrix(weights[, 2])))
+  # (adding back the log-scale offsets of the rows rescaled in likelihood())
+  llike <- sum(log(estep$likehd %*% matrix(weights[, 2]))) + sum(estep$offset)
   
   # compute the mean and variance of the estimated density distribution
   pop_moments <- cal_moment(node = quadpt, weight = weights[, 2])

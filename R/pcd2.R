@@ -666,7 +666,12 @@ pcd2_one <- function(x, data, D = 1, item.skip = NULL,
     purrr::pmap_dbl(.l = list(x = freq_exp_item, y = freq_exp_sum,
                               z = n.resp, h = exp_prob_item),
                     .f = function(x, y, z, h) {
-                      sum((y / z) * ((x[, 2] / y) - h[, 2])^2)
+                      # contribution of each quadrature point
+                      term <- (y / z) * ((x[, 2] / y) - h[, 2])^2
+
+                      # a point without posterior mass adds nothing (this avoids 0 / 0),
+                      # while an item without responses (z = 0) keeps its NaN value
+                      sum(term[y > 0 | z == 0])
                     })
 
   # create a data frame to contain the computed pcd2 statistics

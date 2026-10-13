@@ -406,6 +406,15 @@ knitr::opts_chunk$set(
   standard errors filled with `NA` had no names. It now issues a warning, and
   the `NA` values carry the parameter names.
 
+* In a test with many items, such as several hundred, the likelihood of an
+  examinee could underflow to 0 at every quadrature point. `est_irt()` and
+  `est_mg()` then stopped with "NA/NaN gradient evaluation", and `pcd2()`
+  returned `NaN` for every item. The likelihood of such an examinee is now
+  rescaled by its largest log-likelihood, and the marginal log-likelihood adds
+  the scale back. Results for tests where no likelihood underflows are
+  unchanged. `pcd2()` also no longer returns `NaN` when a quadrature point has
+  no posterior mass.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the

@@ -1185,10 +1185,15 @@ est_mg_em <- function(x = NULL,
   likehd.gr <- purrr::map(.x = idx.std, ~ {
     estep$likehd[.x, ]
   })
-  llike.gr <- purrr::map2(
-    .x = likehd.gr, .y = weights.gr,
-    .f = ~ {
-      sum(log(.x %*% matrix(.y[, 2])))
+
+  # log-scale offsets of the rows rescaled in likelihood(), by group
+  offset.gr <- purrr::map(.x = idx.std, ~ {
+    estep$offset[.x]
+  })
+  llike.gr <- purrr::pmap(
+    .l = list(likehd.gr, weights.gr, offset.gr),
+    .f = function(lk, wt, os) {
+      sum(log(lk %*% matrix(wt[, 2]))) + sum(os)
     }
   )
   llike <- do.call(what = "sum", args = llike.gr)
@@ -2040,10 +2045,15 @@ est_mg_fipc <- function(x = NULL,
   likehd.gr <- purrr::map(.x = idx.std, ~ {
     estep$likehd[.x, ]
   })
-  llike.gr <- purrr::map2(
-    .x = likehd.gr, .y = weights.gr,
-    .f = ~ {
-      sum(log(.x %*% matrix(.y[, 2])))
+
+  # log-scale offsets of the rows rescaled in likelihood(), by group
+  offset.gr <- purrr::map(.x = idx.std, ~ {
+    estep$offset[.x]
+  })
+  llike.gr <- purrr::pmap(
+    .l = list(likehd.gr, weights.gr, offset.gr),
+    .f = function(lk, wt, os) {
+      sum(log(lk %*% matrix(wt[, 2]))) + sum(os)
     }
   )
   llike <- do.call(what = "sum", args = llike.gr)
