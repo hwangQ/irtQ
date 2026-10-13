@@ -45,9 +45,11 @@
 #'   `"2PLM"`, `"3PLM"`, or `"DRM"`), the function defaults to 2 categories per
 #'   item. This argument is used only when `x = NULL` and `fipc = FALSE`.
 #'   Default is `NULL`.
-#' @param item.id Character vector of item identifiers. If `NULL`, IDs are
-#'   generated automatically. When `fipc = TRUE`, a provided `item.id` will
-#'   override any IDs present in `x`. Default is `NULL`.
+#' @param item.id Character vector of item identifiers. If `NULL`, the IDs in
+#'   `x` are used, or IDs are generated automatically when `x = NULL`. A
+#'   provided `item.id` replaces any IDs in `x`, with or without FIPC, and must
+#'   have one value per item. With `fipc = TRUE`, `fix.id` then refers to the
+#'   new IDs. Default is `NULL`.
 #' @param fix.a.1pl Logical. If `TRUE`, the slope parameters of all 1PLM items
 #'   are fixed to `a.val.1pl`; otherwise, they are constrained to be equal and
 #'   estimated. Default is `FALSE`.
@@ -388,7 +390,9 @@
 #'   mainly detects a singular (rank-deficient) information matrix, for
 #'   example due to unidentified parameters; it is not a second-order test of
 #'   the log-likelihood surface. The message reports a possible local maximum
-#'   only when the first-order test is also satisfied.}
+#'   only when the first-order test is also satisfied. When FIPC is used with
+#'   all items fixed, no information matrix is computed, and the message says
+#'   so.}
 #'
 #'   \item{var.note}{A note indicating whether the variance-covariance matrix
 #'   was successfully obtained from the information matrix.}
@@ -878,7 +882,16 @@ est_irt_em <- function(x = NULL,
   if (!is.null(x)) {
     # confirm and correct all item metadata information
     x <- confirm_df(x)
-    
+
+    # override the item id in x if item.id is not NULL
+    if (!is.null(item.id)) {
+      # stop when item.id does not have one value per item of x
+      if (length(item.id) != nrow(x)) {
+        stop("The length of 'item.id' must be equal to the number of items in 'x'.", call. = FALSE)
+      }
+      x$id <- item.id
+    }
+
     # extract item ids for all items
     id <- x$id
     
@@ -957,13 +970,16 @@ est_irt_em <- function(x = NULL,
     memo2 <- paste0(paste0("item ", loc_allmiss, collapse = ", "), " has/have no item response data. \n")
     stop(memo2, call. = FALSE)
   }
-  
+
+  # stop when a response is not one of the score categories 0, ..., cats - 1
+  check_resp_range(data = data, cats = cats, id = id)
+
   # find the location of 1PLM items in which slope parameters should be constrained to be equal
   # also, find the location of items with other models
   if ("1PLM" %in% model & !fix.a.1pl) {
     loc_1p_const <- which(model == "1PLM")
     loc_else <- which(model != "1PLM")
-    
+
     # count the number of 1PLM items to be constrained
     n.1PLM <- length(loc_1p_const)
   } else {
@@ -971,7 +987,7 @@ est_irt_em <- function(x = NULL,
     loc_else <- 1:nrow(x)
     n.1PLM <- NULL
   }
-  
+
   # record the original location of item parameters to be estimated, and
   # the relocated position of item parameters when computing
   # the variance-covariance matrix of item parameter estimates
@@ -1384,12 +1400,21 @@ est_irt_fipc <- function(x = NULL,
   
   # override the item id in x if item.id is not NULL
   if (!is.null(item.id)) {
+    # stop when item.id does not have one value per item of x
+    if (length(item.id) != nrow(x)) {
+      stop("The length of 'item.id' must be equal to the number of items in 'x'.", call. = FALSE)
+    }
     x$id <- item.id
   }
-  
+
   # check the number of items
   nitem.all <- nrow(x)
-  
+
+  # check that 'x' and 'data' contain the same number of items
+  if (nitem.all != ncol(data)) {
+    stop("The number of items included in 'x' and 'data' must be the same.", call. = FALSE)
+  }
+
   # find the items that should be fixed
   if (is.null(fix.loc) & is.null(fix.id)) {
     stop("When 'FIPC = TRUE', the information of which items are fixed \n",
@@ -1404,9 +1429,25 @@ est_irt_fipc <- function(x = NULL,
     ), call. = FALSE)
   }
   if (!is.null(fix.id)) {
+    # stop when an ID in 'fix.id' is not found in the item IDs
+    id.notfound <- setdiff(unique(fix.id), x$id)
+    if (length(id.notfound) > 0L) {
+      stop("The item ID(s) in 'fix.id' not found in the item IDs: ", paste(id.notfound, collapse = ", "), ".",
+           call. = FALSE)
+    }
     fix.loc <- which(x$id %in% unique(fix.id))
   }
-  
+
+  # stop when 'fix.loc' is empty or points outside the rows of 'x'
+  if (length(fix.loc) == 0L || anyNA(fix.loc) || any(!fix.loc %in% seq_len(nitem.all))) {
+    stop("'fix.loc' must contain row positions of 'x' between 1 and ", nitem.all, ".", call. = FALSE)
+  }
+
+  # stop when an item is listed more than once (it would be counted twice in the first E-step)
+  if (anyDuplicated(fix.loc) > 0L) {
+    stop("'fix.loc' must not contain duplicated row positions.", call. = FALSE)
+  }
+
   # check the location of items whose item parameters are estimated
   nofix.loc <- c(1:nitem.all)[!c(1:nitem.all) %in% fix.loc]
   if (length(nofix.loc) == 0L) {
@@ -1452,9 +1493,6 @@ est_irt_fipc <- function(x = NULL,
     x_all[nofix.loc, 1:ncol(x_new)] <- x_new
   }
   
-  # check whether included data are correct
-  # if(nitem.all != ncol(data)) stop("The number of items included in 'x' and 'data' must be the same.", call.=FALSE)
-  
   # recode missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
@@ -1469,7 +1507,10 @@ est_irt_fipc <- function(x = NULL,
     memo2 <- paste0(paste0("item ", loc_allmiss, collapse = ", "), " has/have no item response data. \n")
     stop(memo2, call. = FALSE)
   }
-  
+
+  # stop when a response is not one of the score categories 0, ..., cats - 1
+  check_resp_range(data = data, cats = x$cats, id = x$id)
+
   # save the item response data into the different object
   data_all <- data
   rm(data, envir = environment(), inherits = FALSE)
@@ -1537,6 +1578,11 @@ est_irt_fipc <- function(x = NULL,
     weights <- check_weights(weights)
     quadpt <- weights[, 1]
     n.quad <- length(quadpt)
+
+    # use the moments of the supplied weights as the initial moments of the distribution
+    moments.tmp <- cal_moment(node = quadpt, weight = weights[, 2])
+    group.mean <- moments.tmp[1]
+    group.var <- moments.tmp[2]
   }
 
   # build the per-item one-hot frequency-category list once on the combined
@@ -1908,13 +1954,9 @@ est_irt_fipc <- function(x = NULL,
     # extract the finalized posterior density
     post_dist <- estep$post_dist
     
-    # the second-order test
-    if (test_1st) {
-      memo4 <- "Solution is a possible local maximum."
-    } else {
-      memo4 <- "Solution is not a possible local maximum because convergence criteria are not satisfied."
-    }
-    
+    # the second-order test is not available because the information matrix is not computed
+    memo4 <- "No item parameters are estimated, so the information matrix is not computed."
+
     # compute the standard errors of item parameter estimates
     cov_mat <- NULL
     memo5 <- "Variance-covariance matrix of item parameter estimates was not estimated."
@@ -2001,6 +2043,26 @@ est_irt_fipc <- function(x = NULL,
     cat("Estimation is finished in", est_time3, "seconds.", "\n")
   }
   return(rst)
+}
+
+
+# This function stops when a response in 'data' is not one of the score
+# categories 0, 1, ..., cats - 1 of its item (missing responses are allowed)
+check_resp_range <- function(data, cats, id) {
+  # largest admissible score of each item, laid out like 'data'
+  max.score <- matrix(cats - 1, nrow = nrow(data), ncol = ncol(data), byrow = TRUE)
+
+  # flag negative, too large, or non-integer responses
+  bad <- (data < 0) | (data > max.score) | (data != round(data))
+  loc_bad <- which(Rfast::colsums(bad & !is.na(bad)) > 0L)
+  if (length(loc_bad) > 0L) {
+    stop(paste0(
+      "The responses must be scored as 0, 1, ..., (cats - 1). ",
+      "Out-of-range or non-integer responses were found for item(s) ",
+      paste0(id[loc_bad], " (allowed 0 to ", cats[loc_bad] - 1, ")", collapse = ", "), "."
+    ), call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 

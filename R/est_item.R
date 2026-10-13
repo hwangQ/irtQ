@@ -42,6 +42,9 @@
 #'   models specified in the `model` argument are dichotomous (`"1PLM"`,
 #'   `"2PLM"`, `"3PLM"`, or `"DRM"`), the function defaults to 2 categories per
 #'   item. This argument is used only when `x = NULL`. Default is `NULL`.
+#' @param item.id Character vector of item identifiers, used only when
+#'   `x = NULL`. If `NULL`, IDs are generated automatically. The IDs in `x` are
+#'   used when `x` is supplied. Default is `NULL`.
 #' @param control A named list of options passed directly to [stats::nlminb()]. 
 #'   These parameters define settings for the item parameter estimation process, 
 #'   such as the maximum number of iterations. By default:

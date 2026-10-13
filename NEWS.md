@@ -464,6 +464,17 @@
   number of points is now taken from `weights`. The results for 49
   points are unchanged.
 
+- `est_irt()` with `fipc = TRUE` counted a fixed item twice in the first
+  E-step without notice when `fix.loc` listed it more than once, which
+  changed the estimates of the items to calibrate (by up to 0.45 in an
+  example with `fipc.method = "OEM"`). It now stops with an error.
+
+- With `fipc = TRUE`, all items fixed, and user `weights`, the change in
+  the first EM cycle was measured from the mean and variance of the
+  default distribution instead of those of `weights`, which could shift
+  the cycle at which the iteration stopped. It is now measured from the
+  moments of `weights`.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When
@@ -512,6 +523,22 @@
   also when `score` is supplied: the scores of the examinees with fewer
   than `min.resp` responses are set to missing and these examinees are
   excluded, and a warning reports their number.
+
+- `est_irt()` stops with a clear message that names the items when a
+  response is not a whole number from 0 to the number of score
+  categories minus 1. Before, it stopped with "subscript out of bounds".
+  With `fipc = TRUE` it also stops when `x` and `data` have different
+  numbers of items, when `fix.loc` is empty or points outside the rows
+  of `x`, and when an ID in `fix.id` is not found in the item IDs.
+  Before, an unmatched ID in `fix.id` was dropped without notice.
+
+- A supplied `item.id` replaces the IDs in `x` in `est_irt()` also when
+  `fipc = FALSE`, as it already did with `fipc = TRUE`. Before, it was
+  ignored when `x` was supplied. It must have one value per item.
+
+- For `est_irt()` with FIPC and all items fixed, `test.2` reads "No item
+  parameters are estimated, so the information matrix is not computed.",
+  instead of the message about a possible local maximum.
 
 ## Minor Improvements
 

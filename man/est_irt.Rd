@@ -80,9 +80,11 @@ models specified in the \code{model} argument are dichotomous (\code{"1PLM"},
 item. This argument is used only when \code{x = NULL} and \code{fipc = FALSE}.
 Default is \code{NULL}.}
 
-\item{item.id}{Character vector of item identifiers. If \code{NULL}, IDs are
-generated automatically. When \code{fipc = TRUE}, a provided \code{item.id} will
-override any IDs present in \code{x}. Default is \code{NULL}.}
+\item{item.id}{Character vector of item identifiers. If \code{NULL}, the IDs in
+\code{x} are used, or IDs are generated automatically when \code{x = NULL}. A
+provided \code{item.id} replaces any IDs in \code{x}, with or without FIPC, and must
+have one value per item. With \code{fipc = TRUE}, \code{fix.id} then refers to the
+new IDs. Default is \code{NULL}.}
 
 \item{fix.a.1pl}{Logical. If \code{TRUE}, the slope parameters of all 1PLM items
 are fixed to \code{a.val.1pl}; otherwise, they are constrained to be equal and
@@ -341,7 +343,9 @@ information matrix is positive semidefinite by construction, this check
 mainly detects a singular (rank-deficient) information matrix, for
 example due to unidentified parameters; it is not a second-order test of
 the log-likelihood surface. The message reports a possible local maximum
-only when the first-order test is also satisfied.}
+only when the first-order test is also satisfied. When FIPC is used with
+all items fixed, no information matrix is computed, and the message says
+so.}
 
 \item{var.note}{A note indicating whether the variance-covariance matrix
 was successfully obtained from the information matrix.}
