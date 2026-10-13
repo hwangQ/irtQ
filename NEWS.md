@@ -852,6 +852,25 @@
 
 - Reworded the motivation of `ripd()`.
 
+- Corrected and extended the help page of `est_irt()`. The returned
+  `loglikelihood` is the sum over examinees of the marginal
+  log-likelihood of the response pattern, without the prior densities
+  (it is not a sum over items); `ncase` and `posterior.dist` refer to
+  examinees, not response patterns; `data` is a matrix; and the returned
+  `call` is listed. The help page also describes the response coding (0
+  to the number of categories minus 1), the role of `x`, `item.id`,
+  `weights`, `group.mean`, and `group.var` with and without FIPC, the EM
+  algorithm, the empirical histogram, the two FIPC methods (including
+  that the returned distribution of `fipc.method = "OEM"` is updated
+  once afterward and that the standard errors in `group.par` for FIPC
+  are approximate), the counting of the free parameters, the bounds of
+  the slopes, and the items without a maximum likelihood estimate.
+  `Etol` and `MaxE` are described as the criterion and the maximum
+  number of EM cycles, and the argument tables, the lists in the
+  argument descriptions, and the examples were corrected. The same
+  corrections apply to `getirt()` and to the arguments shared with other
+  help pages.
+
 - In `?simMST`, noted that the item parameters are on the D = 1.702
   scale. In `?find_cut`, clarified that the cut scores in `simMST` were
   obtained with `find_cut()` and softened the statement about path

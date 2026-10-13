@@ -102,7 +102,7 @@ score category is fixed at 0 and is not supplied. For example, a GPCM item
 with five score categories requires four threshold parameters.
 
 An example of a data frame for a single-format test is shown below:
-\tabular{lrlrrrrr}{
+\tabular{lrlrrr}{
 ITEM1  \tab 2 \tab 1PLM \tab 1.000 \tab  1.461 \tab         NA \cr
 ITEM2  \tab 2 \tab 2PLM \tab 1.921 \tab -1.049 \tab         NA \cr
 ITEM3  \tab 2 \tab 3PLM \tab 1.736 \tab  1.501 \tab  0.203 \cr

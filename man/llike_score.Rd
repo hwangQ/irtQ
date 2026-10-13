@@ -22,9 +22,10 @@ of categories, IRT model types, etc.). See \code{\link[=est_irt]{est_irt()}} or
 \code{\link[=simdat]{simdat()}} for more details about the item metadata. This data frame
 can be easily created using the \code{\link[=shape_df]{shape_df()}} function.}
 
-\item{data}{A matrix of examinees' item responses corresponding to the items
-specified in the \code{x} argument. Rows represent examinees and columns
-represent items.}
+\item{data}{A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in \code{x}. Responses
+to an item with K score categories must be integers from 0 to K - 1.
+Missing responses are coded as \code{NA}.}
 
 \item{theta}{A numeric vector of ability values at which to evaluate the
 log-likelihood function.}

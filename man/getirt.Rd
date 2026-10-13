@@ -50,7 +50,11 @@ densities) for the parameters that have prior distributions.}
 \item{pos.par}{A data frame indicating the position index of each estimated
 item parameter. This is useful when interpreting the variance-covariance matrix.}
 \item{covariance}{A variance-covariance matrix of the item parameter estimates.}
-\item{loglikelihood}{The total marginal log-likelihood value summed across all items.}
+\item{loglikelihood}{The marginal log-likelihood of the response data at the
+final estimates: the sum over examinees of the logarithm of the probability
+of each examinee's response pattern, integrated over the latent ability
+distribution. The log prior densities of the item parameters are not
+included.}
 \item{aic}{Akaike Information Criterion (AIC) based on the marginal log-likelihood.}
 \item{bic}{Bayesian Information Criterion (BIC) based on the marginal log-likelihood.}
 \item{group.par}{A data frame containing the mean, variance, and standard
@@ -58,23 +62,24 @@ deviation of the latent variable's prior distribution.}
 \item{weights}{A two-column data frame containing quadrature points
 (first column) and corresponding weights (second column) of the (updated)
 latent trait prior.}
-\item{posterior.dist}{A matrix of normalized posterior densities for all
-response patterns at each quadrature point. Rows represent examinees, and
-columns represent quadrature points.}
-\item{data}{A data frame of the examinee response dataset used in estimation.}
+\item{posterior.dist}{A matrix of the posterior probabilities of the
+quadrature points for each examinee. Rows represent examinees, and
+columns represent quadrature points; each row sums to 1.}
+\item{data}{A matrix of the examinee response dataset used in estimation.}
 \item{scale.D}{The scaling constant (usually 1 or 1.702) used in the IRT model.}
-\item{ncase}{The number of unique response patterns.}
+\item{ncase}{The number of examinees.}
 \item{nitem}{The number of items included in the dataset.}
-\item{Etol}{The convergence criterion for the E-step of the EM algorithm:
+\item{Etol}{The convergence criterion of the EM algorithm:
 the largest absolute change in the item parameter estimates between
 consecutive cycles. For FIPC with all items fixed, it applies to the
 change in the mean and variance of the prior distribution.}
-\item{MaxE}{The maximum number of E-steps allowed during EM estimation.}
+\item{MaxE}{The maximum number of EM cycles allowed during estimation.}
 \item{aprior}{A list describing the prior distribution for item slope parameters.}
 \item{bprior}{A list describing the prior distribution for item difficulty
 (or threshold) parameters.}
 \item{gprior}{A list describing the prior distribution for item guessing parameters.}
-\item{npar.est}{The total number of parameters estimated.}
+\item{npar.est}{The number of freely estimated parameters used for \code{aic} and
+\code{bic}; see \code{\link[=est_irt]{est_irt()}}.}
 \item{niter}{The number of EM cycles completed.}
 \item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
 \item{EMtime}{Computation time (in seconds) for the EM algorithm.}

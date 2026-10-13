@@ -57,3 +57,17 @@ test_that("est_item() returns ordered GRM thresholds when a category is never ob
   fit <- suppressWarnings(est_item(x = x, data = dat, score = th, D = 1.702, verbose = FALSE))
   expect_true(grm_ordered(fit$par.est))
 })
+
+test_that("est_mg() returns ordered GRM thresholds when a category is rare", {
+  # 8 3PLM and 4 five-category GRM items in two groups of 200 examinees
+  set.seed(2001)
+  x <- shape_df(
+    par.drm = list(a = rlnorm(8, 0, 0.3), b = rnorm(8), g = runif(8, 0.1, 0.25)),
+    par.prm = list(a = rlnorm(4, 0, 0.3), d = lapply(1:4, function(i) sort(rnorm(4)))),
+    item.id = paste0("I", 1:12), cats = c(rep(2, 8), rep(5, 4)), model = c(rep("3PLM", 8), rep("GRM", 4)))
+  set.seed(1)
+  dat <- list(g1 = simdat(x = x, theta = rnorm(200), D = 1.702), g2 = simdat(x = x, theta = rnorm(200, 0.3), D = 1.702))
+  fit <- suppressWarnings(est_mg(x = list(x, x), data = dat, group.name = c("G1", "G2"), free.group = "G2", D = 1.702,
+                                 use.gprior = TRUE, se = FALSE, verbose = FALSE))
+  expect_true(grm_ordered(fit$par.est$overall))
+})

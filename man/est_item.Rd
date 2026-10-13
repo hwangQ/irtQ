@@ -42,9 +42,10 @@ both \code{model} and \code{cats} arguments must be specified. See \code{\link[=
 or \code{\link[=simdat]{simdat()}} for more details about the item metadata. Default is
 \code{NULL}.}
 
-\item{data}{A matrix of examinees' item responses corresponding to the items
-specified in the \code{x} argument. Rows represent examinees and columns
-represent items.}
+\item{data}{A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in \code{x}. Responses
+to an item with K score categories must be integers from 0 to K - 1.
+Missing responses are coded as \code{NA}.}
 
 \item{score}{A numeric vector of examinees' ability estimates (theta values).
 The length of this vector must match the number of rows in the response data.}
@@ -85,8 +86,8 @@ slopes fixed to \code{a.val.gpcm}; otherwise, each item's slope is estimated.
 Default is \code{FALSE}.}
 
 \item{fix.g}{Logical. If \code{TRUE}, all 3PLM guessing parameters are fixed to
-\code{g.val}; otherwise, each guessing parameter is estimated. Default is
-\code{FALSE}.}
+\code{g.val}; otherwise, each guessing parameter is estimated. The prior in
+\code{gprior} is then not used. Default is \code{FALSE}.}
 
 \item{a.val.1pl}{Numeric. Value to which the slope parameters of 1PLM items
 are fixed when \code{fix.a.1pl = TRUE}. Default is 1.}
@@ -105,8 +106,9 @@ item discrimination (slope) parameters during calibration. Default is
 item difficulty (or threshold) parameters during calibration. Default is
 \code{FALSE}.}
 
-\item{use.gprior}{Logical. If \code{TRUE}, applies a prior distribution to all
-3PLM guessing parameters during calibration. Default is \code{TRUE}.}
+\item{use.gprior}{Logical. If \code{TRUE}, applies the prior distribution in
+\code{gprior} to the guessing parameters of 3PLM items when they are estimated;
+the prior is not used when \code{fix.g = TRUE}. Default is \code{TRUE}.}
 
 \item{aprior, bprior, gprior}{A list specifying the prior distribution for all
 item discrimination (slope), difficulty (or threshold), and guessing
@@ -132,13 +134,16 @@ Defaults are:
 
 for discrimination, difficulty, and guessing parameters, respectively.}
 
-\item{missing}{A value indicating missing responses in the data set. Default
-is \code{NA}.}
+\item{missing}{A value indicating missing responses in the data set, in
+addition to \code{NA}, which is always treated as missing. Missing responses are
+omitted from the likelihood, which assumes that they are missing at random.
+Default is \code{NA}.}
 
 \item{use.startval}{Logical. If \code{TRUE}, the item parameters provided in the
-item metadata (i.e., the \code{x} argument) are used as starting values for item
-parameter estimation. Otherwise, internally generated starting values are
-used. Default is \code{FALSE}.}
+item metadata (i.e., the \code{x} argument) are used as starting values for the
+items whose parameters are estimated; \code{x} must then be supplied.
+Otherwise, internally generated starting values are used. Default is
+\code{FALSE}.}
 
 \item{control}{A named list of options passed directly to \code{\link[stats:nlminb]{stats::nlminb()}}.
 These parameters define settings for the item parameter estimation process,

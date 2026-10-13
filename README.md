@@ -155,8 +155,8 @@ involves two main steps:
       form and corresponding parameters for each prior. Supported
       distributions include Beta, Log-normal, and Normal.
 
-    If the response data contain missing values, you must specify the
-    missing value code via the `missing` argument.
+    If missing responses are coded with a value other than `NA`, specify
+    that value via the `missing` argument.
 
     By default, the latent ability distribution is assumed to follow a
     standard normal distribution (i.e., N(0, 1)). However, users can
@@ -437,7 +437,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # group.mean = 0
 # group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
-# Etol       = 1e-3                                  # E-step convergence tolerance
+# Etol       = 1e-3                                  # EM convergence tolerance
 # MaxE       = 500                                   # Max EM iterations
 mod_ref <- irtQ::est_irt(
   data       = data_ref,                             
@@ -457,7 +457,7 @@ mod_ref <- irtQ::est_irt(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -53907.8298, Max-Change: 1.917401 EM iteration: 2, Loglike: -47810.7610, Max-Change: 0.333348 EM iteration: 3, Loglike: -47780.1401, Max-Change: 0.130911 EM iteration: 4, Loglike: -47777.7493, Max-Change: 0.064179 EM iteration: 5, Loglike: -47776.9296, Max-Change: 0.038227 EM iteration: 6, Loglike: -47776.4542, Max-Change: 0.026209 EM iteration: 7, Loglike: -47776.1402, Max-Change: 0.019566 EM iteration: 8, Loglike: -47775.9185, Max-Change: 0.015306 EM iteration: 9, Loglike: -47775.7539, Max-Change: 0.012285 EM iteration: 10, Loglike: -47775.6263, Max-Change: 0.01001 EM iteration: 11, Loglike: -47775.5239, Max-Change: 0.008238 EM iteration: 12, Loglike: -47775.4394, Max-Change: 0.006834 EM iteration: 13, Loglike: -47775.3679, Max-Change: 0.005706 EM iteration: 14, Loglike: -47775.3064, Max-Change: 0.004795 EM iteration: 15, Loglike: -47775.2525, Max-Change: 0.004052 EM iteration: 16, Loglike: -47775.2048, Max-Change: 0.003444 EM iteration: 17, Loglike: -47775.1621, Max-Change: 0.002944 EM iteration: 18, Loglike: -47775.1234, Max-Change: 0.002529 EM iteration: 19, Loglike: -47775.0882, Max-Change: 0.002184 EM iteration: 20, Loglike: -47775.0558, Max-Change: 0.001895 EM iteration: 21, Loglike: -47775.0259, Max-Change: 0.001652 EM iteration: 22, Loglike: -47774.9980, Max-Change: 0.001446 EM iteration: 23, Loglike: -47774.9719, Max-Change: 0.001271 EM iteration: 24, Loglike: -47774.9473, Max-Change: 0.001121 EM iteration: 25, Loglike: -47774.9241, Max-Change: 0.000993 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.44 seconds.
+#> Estimation is finished in 1.49 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_ref)
@@ -478,15 +478,18 @@ irtQ::summary(mod_ref)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 124
+#>  Number of free parameters: 170
+#>    - Item parameters: 124
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 46
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 25
 #>  Maximum parameter change: 0.0009933655
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.32
+#>  EM algorithm: 1.38
 #>  Standard error computation: 0.05
-#>  Total computation: 1.44
+#>  Total computation: 1.49
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -496,8 +499,8 @@ irtQ::summary(mod_ref)
 #> 
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 95549.84
-#>  Akaike Information Criterion (AIC): 95797.84
-#>  Bayesian Information Criterion (BIC): 96492.35
+#>  Akaike Information Criterion (AIC): 95889.84
+#>  Bayesian Information Criterion (BIC): 96842
 #>  Item Parameters: 
 #>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1    Ref_I1     2   3PLM   0.69  0.15   1.14  0.27   0.19  0.07     NA    NA
@@ -670,10 +673,10 @@ data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
 # gprior      = list(dist = "beta", params = c(5, 16))  # Prior: Beta(5,16) for g
 # Quadrature  = c(49, 6)                      # 49 quadrature points from -6 to 6
 # EmpHist     = TRUE                          # Estimate empirical ability distribution
-# Etol        = 1e-3                          # E-step convergence tolerance
+# Etol        = 1e-3                          # EM convergence tolerance
 # MaxE        = 500                           # Max EM iterations
 # fipc        = TRUE                          # Enable FIPC
-# fipc.method = "MEM"                         # Use Multiple EM cycles
+# fipc.method = "MEM"                         # MWU-MEM: multiple EM cycles, prior updating
 # fix.loc     = c(1:40)                       # Anchor item positions to fix
 mod_fipc <- irtQ::est_irt(
   x           = meta_fipc,                    
@@ -692,7 +695,7 @@ mod_fipc <- irtQ::est_irt(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001386 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.55 seconds.
+#> Estimation is finished in 0.64 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_fipc)
@@ -712,15 +715,18 @@ irtQ::summary(mod_fipc)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 53
+#>  Number of free parameters: 99
+#>    - Item parameters: 51
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 48
 #>  Number of fixed items: 40
 #>  Number of E-step cycles completed: 11
 #>  Maximum parameter change: 0.0009076875
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.48
+#>  EM algorithm: 0.4
 #>  Standard error computation: 0.02
-#>  Total computation: 0.55
+#>  Total computation: 0.64
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -730,8 +736,8 @@ irtQ::summary(mod_fipc)
 #> 
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 120279.9
-#>  Akaike Information Criterion (AIC): 120385.9
-#>  Bayesian Information Criterion (BIC): 120682.7
+#>  Akaike Information Criterion (AIC): 120477.9
+#>  Bayesian Information Criterion (BIC): 121032.4
 #>  Item Parameters: 
 #>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1    Ref_I1     2   3PLM   0.69    NA   1.14    NA   0.19    NA     NA    NA
@@ -1004,7 +1010,7 @@ irtQ::summary(mod_fapc)
 #> 15  New_I15  2000
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.55
+#>  Total computation: 0.57
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.

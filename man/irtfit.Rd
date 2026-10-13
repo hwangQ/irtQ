@@ -71,9 +71,10 @@ metadata. This data frame can be easily created using the
 values). Examinees with a missing ability estimate are excluded. Not used
 by the \code{est_item} method, which takes the ability estimates stored in \code{x}.}
 
-\item{data}{A matrix of examinees' item responses corresponding to the items
-specified in the \code{x} argument. Rows represent examinees and columns
-represent items.}
+\item{data}{A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in \code{x}. Responses
+to an item with K score categories must be integers from 0 to K - 1.
+Missing responses are coded as \code{NA}.}
 
 \item{group.method}{A character string specifying the method used to group
 examinees along the ability scale when computing the \eqn{\chi^{2}} and

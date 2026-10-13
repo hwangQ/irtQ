@@ -131,8 +131,8 @@ In the `irtQ` package, item calibration for a linear test form typically involve
         and corresponding parameters for each prior. Supported distributions
         include Beta, Log-normal, and Normal.
 
-     If the response data contain missing values, you must specify the missing
-     value code via the `missing` argument.
+     If missing responses are coded with a value other than `NA`, specify that
+     value via the `missing` argument.
 
      By default, the latent ability distribution is assumed to follow a standard
      normal distribution (i.e., N(0, 1)). However, users can estimate the empirical
@@ -338,7 +338,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # group.mean = 0
 # group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
-# Etol       = 1e-3                                  # E-step convergence tolerance
+# Etol       = 1e-3                                  # EM convergence tolerance
 # MaxE       = 500                                   # Max EM iterations
 mod_ref <- irtQ::est_irt(
   data       = data_ref,                             
@@ -401,10 +401,10 @@ data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
 # gprior      = list(dist = "beta", params = c(5, 16))  # Prior: Beta(5,16) for g
 # Quadrature  = c(49, 6)                      # 49 quadrature points from -6 to 6
 # EmpHist     = TRUE                          # Estimate empirical ability distribution
-# Etol        = 1e-3                          # E-step convergence tolerance
+# Etol        = 1e-3                          # EM convergence tolerance
 # MaxE        = 500                           # Max EM iterations
 # fipc        = TRUE                          # Enable FIPC
-# fipc.method = "MEM"                         # Use Multiple EM cycles
+# fipc.method = "MEM"                         # MWU-MEM: multiple EM cycles, prior updating
 # fix.loc     = c(1:40)                       # Anchor item positions to fix
 mod_fipc <- irtQ::est_irt(
   x           = meta_fipc,                    

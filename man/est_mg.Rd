@@ -145,8 +145,8 @@ slopes fixed to \code{a.val.gpcm}; otherwise, each item's slope is estimated.
 Default is \code{FALSE}.}
 
 \item{fix.g}{Logical. If \code{TRUE}, all 3PLM guessing parameters are fixed to
-\code{g.val}; otherwise, each guessing parameter is estimated. Default is
-\code{FALSE}.}
+\code{g.val}; otherwise, each guessing parameter is estimated. The prior in
+\code{gprior} is then not used. Default is \code{FALSE}.}
 
 \item{a.val.1pl}{Numeric. Value to which the slope parameters of 1PLM items
 are fixed when \code{fix.a.1pl = TRUE}. Default is 1.}
@@ -165,8 +165,9 @@ item discrimination (slope) parameters during calibration. Default is
 item difficulty (or threshold) parameters during calibration. Default is
 \code{FALSE}.}
 
-\item{use.gprior}{Logical. If \code{TRUE}, applies a prior distribution to all
-3PLM guessing parameters during calibration. Default is \code{TRUE}.}
+\item{use.gprior}{Logical. If \code{TRUE}, applies the prior distribution in
+\code{gprior} to the guessing parameters of 3PLM items when they are estimated;
+the prior is not used when \code{fix.g = TRUE}. Default is \code{TRUE}.}
 
 \item{aprior, bprior, gprior}{A list specifying the prior distribution for all
 item discrimination (slope), difficulty (or threshold), and guessing
@@ -192,16 +193,21 @@ Defaults are:
 
 for discrimination, difficulty, and guessing parameters, respectively.}
 
-\item{missing}{A value indicating missing responses in the data set. Default
-is \code{NA}.}
+\item{missing}{A value indicating missing responses in the data set, in
+addition to \code{NA}, which is always treated as missing. Missing responses are
+omitted from the likelihood, which assumes that they are missing at random.
+Default is \code{NA}.}
 
 \item{Quadrature}{A numeric vector of length two:
 \itemize{
 \item first element: number of quadrature points
 \item second element: symmetric bound (absolute value) for those points
+}
+
 For example, \code{c(49, 6)} specifies 49 evenly spaced points from -6 to 6.
-These points are used in the E-step of the EM algorithm. Default is \code{c(49, 6)}.
-}}
+The points are used to approximate the integral over the latent ability
+distribution in the E-step of the EM algorithm. \code{Quadrature} is ignored
+when \code{weights} is supplied. Default is \code{c(49, 6)}.}
 
 \item{weights}{A two-column matrix or data frame containing the quadrature
 points (in the first column) and the corresponding weights (in the second
@@ -236,9 +242,10 @@ with the item parameters using the approach proposed by Woods (2007).
 Item calibration is then performed relative to the estimated empirical priors.}
 
 \item{use.startval}{Logical. If \code{TRUE}, the item parameters provided in the
-item metadata (i.e., the \code{x} argument) are used as starting values for item
-parameter estimation. Otherwise, internally generated starting values are
-used. Default is \code{FALSE}.}
+item metadata (i.e., the \code{x} argument) are used as starting values for the
+items whose parameters are estimated; \code{x} must then be supplied.
+Otherwise, internally generated starting values are used. Default is
+\code{FALSE}.}
 
 \item{Etol}{A positive numeric value specifying the convergence criterion for
 the E-step of the EM algorithm. Default is 1e-3.
@@ -249,36 +256,39 @@ only the latent ability distributions are estimated, the criterion is
 applied to the largest absolute change in the means and variances of the
 prior distributions.}
 
-\item{MaxE}{A positive integer specifying the maximum number of iterations
-for the E-step in the EM algorithm. Default is \code{500}.}
+\item{MaxE}{A positive integer specifying the maximum number of EM cycles. It
+is set to 1 when \code{fipc.method = "OEM"}. The printed output of the fitted
+object refers to the cycles as E-step cycles. Default is \code{500}.}
 
-\item{control}{A named list of options passed directly to \code{\link[stats:nlminb]{stats::nlminb()}}
-in each M-step optimization of the EM algorithm. By default:
-\code{control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)}, where
+\item{control}{A named list of options passed directly to \code{\link[stats:nlminb]{stats::nlminb()}},
+which maximizes the M-step objective of each item. The default is
+\code{list(eval.max = 500, iter.max = 200, x.tol = 1e-4)}, where
 \itemize{
-\item \code{eval.max} = 500 limits the number of function evaluations
-\item \code{iter.max} = 200 caps the number of internal optimizer iterations
-\item \code{x.tol} = 1e-4 sets the absolute change threshold in parameter values
-below which \code{\link[stats:nlminb]{stats::nlminb()}} considers the solution to have converged
-Users may additionally supply other \code{nlminb()} control options
-(such as \code{abs.tol}, \code{rel.tol}, \code{trace}, etc.) as needed.
-}}
+\item \code{eval.max} is the maximum number of objective function evaluations,
+\item \code{iter.max} is the maximum number of optimizer iterations, and
+\item \code{x.tol} is the X-convergence tolerance of \code{\link[stats:nlminb]{stats::nlminb()}}.
+}
+
+A partial list may be supplied; options that are not supplied keep their
+default values. Other options of \code{\link[stats:nlminb]{stats::nlminb()}}, such as \code{rel.tol} or
+\code{trace}, can also be supplied.}
 
 \item{fipc}{Logical. If \code{TRUE}, multiple-group fixed item parameter
 calibration (MG-FIPC) is applied during item parameter estimation.
 When \code{fipc = TRUE}, the information on which items are fixed
 must be provided via either \code{fix.loc} or \code{fix.id}. See below for details.}
 
-\item{fipc.method}{A character string specifying the FIPC method. Available
-options are:
+\item{fipc.method}{A character string specifying the FIPC method, used only
+when \code{fipc = TRUE}. Available options are:
 \itemize{
 \item \code{"OEM"}: No Prior Weights Updating and One EM Cycle (NWU-OEM; Wainer &
-Mislevy, 1990)
+Mislevy, 1990).
 \item \code{"MEM"}: Multiple Prior Weights Updating and Multiple EM Cycles
-(MWU-MEM; Kim, 2006) When \code{fipc.method = "OEM"}, the maximum number of
-E-steps is automatically set to 1, regardless of the value specified in
-\code{MaxE}.
-}}
+(MWU-MEM; Kim, 2006).
+}
+
+When \code{fipc.method = "OEM"}, a single EM cycle is run regardless of \code{MaxE}.
+See Details. Default is \code{"MEM"}.}
 
 \item{fix.loc}{A list of positive integer vectors. Each internal vector specifies
 the positions of the items to be fixed in the item metadata (i.e., \code{x})
@@ -310,8 +320,10 @@ second and third groups. Thus, you should specify
 Note that if the \code{fix.id} argument is not NULL, the information provided in
 \code{fix.loc} is ignored. See below for details.}
 
-\item{se}{Logical. If \code{FALSE}, standard errors of the item parameter
-estimates are not computed. Default is \code{TRUE}.}
+\item{se}{Logical. If \code{FALSE}, the standard errors and the
+variance-covariance matrix of the item parameter estimates are not
+computed; \code{se.est} is then filled with \code{NA} and \code{covariance} is \code{NULL}.
+Default is \code{TRUE}.}
 
 \item{verbose}{Logical. If \code{FALSE}, all progress messages, including
 information about the EM algorithm process, are suppressed. Default is
