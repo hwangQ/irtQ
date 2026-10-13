@@ -480,11 +480,11 @@
   free parameters, and `est_irt()` with FIPC counted only the mean and
   variance of the latent distribution (2 values) even with
   `EmpHist = TRUE`. With 49 quadrature points, the AIC of a model with
-  an empirical histogram was about 90 too small, which made it look
-  better than a model with a normal distribution. The count now includes
-  the free weights: Q - 3 for a histogram rescaled to a fixed mean and
-  variance (`est_irt()` without FIPC, and the reference groups of
-  `est_mg()`) and Q - 1 for a histogram that is not rescaled
+  an empirical histogram was 92 too small (2 times the 46 weights),
+  which made it look better than a model with a normal distribution. The
+  count now includes the free weights: Q - 3 for a histogram rescaled to
+  a fixed mean and variance (`est_irt()` without FIPC, and the reference
+  groups of `est_mg()`) and Q - 1 for a histogram that is not rescaled
   (`est_irt()` with FIPC, and the free groups of `est_mg()`), where Q is
   the number of quadrature points. The values for a normal distribution
   do not change.
@@ -742,6 +742,33 @@
   singular, and that the slope prior `aprior` is placed on `D` times the
   slope.
 
+- `est_irt()` and `est_mg()` return a new last element, `npar.detail`,
+  an integer vector with the numbers of free item parameters (`item`),
+  of means and variances of the latent distributions (`dist`), and of
+  weights of the empirical histograms (`weight`); their sum is
+  `npar.est`. The `summary()` output shows these three numbers under
+  "Number of free parameters". Objects created by earlier versions have
+  no `npar.detail`, and their summary shows the total only.
+
+- Corrected and extended the help page of `est_irt()`. The returned
+  `loglikelihood` is the sum over examinees of the marginal
+  log-likelihood of the response pattern, without the prior densities
+  (it is not a sum over items); `ncase` and `posterior.dist` refer to
+  examinees, not response patterns; `data` is a matrix; and the returned
+  `call` is listed. The help page also describes the response coding (0
+  to the number of categories minus 1), the role of `x`, `item.id`,
+  `weights`, `group.mean`, and `group.var` with and without FIPC, the EM
+  algorithm, the empirical histogram, the two FIPC methods (including
+  that the returned distribution of `fipc.method = "OEM"` is updated
+  once afterward and that the standard errors in `group.par` for FIPC
+  are approximate), the counting of the free parameters, the bounds of
+  the slopes, and the items without a maximum likelihood estimate.
+  `Etol` and `MaxE` are described as the criterion and the maximum
+  number of EM cycles, and the argument tables, the lists in the
+  argument descriptions, and the examples were corrected. The same
+  corrections apply to `getirt()` and to the arguments shared with other
+  help pages.
+
 # irtQ 1.3.1
 
 ## Bug Fixes
@@ -824,14 +851,6 @@
   supplied without `se`. Before, it failed with a "missing value where
   TRUE/FALSE needed" error.
 
-- `est_irt()` and `est_mg()` return a new last element, `npar.detail`,
-  an integer vector with the numbers of free item parameters (`item`),
-  of means and variances of the latent distributions (`dist`), and of
-  weights of the empirical histograms (`weight`); their sum is
-  `npar.est`. The `summary()` output shows these three numbers under
-  "Number of free parameters". Objects created by earlier versions have
-  no `npar.detail`, and their summary shows the total only.
-
 ## Documentation
 
 - Stated in `?reval_mst` that the recursion is based on inverse TCC
@@ -851,25 +870,6 @@
   stated that `crit.val = NULL` flags no items.
 
 - Reworded the motivation of `ripd()`.
-
-- Corrected and extended the help page of `est_irt()`. The returned
-  `loglikelihood` is the sum over examinees of the marginal
-  log-likelihood of the response pattern, without the prior densities
-  (it is not a sum over items); `ncase` and `posterior.dist` refer to
-  examinees, not response patterns; `data` is a matrix; and the returned
-  `call` is listed. The help page also describes the response coding (0
-  to the number of categories minus 1), the role of `x`, `item.id`,
-  `weights`, `group.mean`, and `group.var` with and without FIPC, the EM
-  algorithm, the empirical histogram, the two FIPC methods (including
-  that the returned distribution of `fipc.method = "OEM"` is updated
-  once afterward and that the standard errors in `group.par` for FIPC
-  are approximate), the counting of the free parameters, the bounds of
-  the slopes, and the items without a maximum likelihood estimate.
-  `Etol` and `MaxE` are described as the criterion and the maximum
-  number of EM cycles, and the argument tables, the lists in the
-  argument descriptions, and the examples were corrected. The same
-  corrections apply to `getirt()` and to the arguments shared with other
-  help pages.
 
 - In `?simMST`, noted that the item parameters are on the D = 1.702
   scale. In `?find_cut`, clarified that the cut scores in `simMST` were
