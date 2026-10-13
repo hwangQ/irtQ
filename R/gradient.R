@@ -535,8 +535,8 @@ grad_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, fix.a = FALSE, a.
 
 
 
-# This function returns, for each row of theta, the gradient of the log-likelihood of an item with respect to its
-# parameters; info_xpd() uses it to build the cross-product information matrix
+# This function returns, for each row of theta, the gradient of the negative log-likelihood of an item with respect
+# to its parameters; info_xpd() uses it to build the cross-product information matrix
 grad_llike <- function(item_par, f_i, r_i, theta, n.theta, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"),
                        D = 1, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1,
                        g.val = .2, n.1PLM = NULL) {
@@ -572,7 +572,7 @@ grad_llike <- function(item_par, f_i, r_i, theta, n.theta, mod = c("1PLM", "2PLM
 }
 
 
-# This function analytically computes a matrix of log-likelihood gradients of dichotomous item parameters,
+# This function analytically computes a matrix of negative log-likelihood gradients of dichotomous item parameters,
 # with one row per theta value; info_xpd() uses it for the cross-product information matrix
 grad_item_drm_se <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
                              fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL) {
@@ -701,7 +701,7 @@ grad_item_drm_se <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", 
   grad
 }
 
-# This function analytically computes a matrix of log-likelihood gradients of polytomous item parameters,
+# This function analytically computes a matrix of negative log-likelihood gradients of polytomous item parameters,
 # with one row per theta value; info_xpd() uses it for the cross-product information matrix
 grad_item_prm_se <- function(item_par, r_i, theta, n.theta, pr.mod, D = 1, fix.a = FALSE, a.val = 1) {
   # count the number of item parameters to be estimated

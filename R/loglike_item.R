@@ -23,7 +23,7 @@ loglike_prm <- function(item_par, r_i, theta, pr.mod = c("GRM", "GPCM"), D = 1,
   # `prob_cache`, when non-NULL, is a list produced by make_prm_optim_fns()
   # carrying pre-computed probability objects for the current (item_par, theta):
   #   GRM  -> $P (clipped category probabilities)
-  #   GPCM -> $P (= numer / denom, equal to the result of prm())
+  #   GPCM -> $P (= numer / denom, equal to the result of prm() up to rounding)
   # loglike_prm only needs $P, so the same cache structure works for both.
   ## -------------------------------------------------------------------------
   if (!fix.a) {
