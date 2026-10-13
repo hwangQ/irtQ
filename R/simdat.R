@@ -214,8 +214,8 @@ simdat <- function(x = NULL,
     # (1) for DRM items
     if (!is.null(idx.drm)) {
       res.drm <- simdat_drm(theta,
-        a = comp$par[idx.drm, 1],
-        b = comp$par[idx.drm, 2], g = comp$par[idx.drm, 3], D = D
+        a = comp$pars[idx.drm, 1],
+        b = comp$pars[idx.drm, 2], g = comp$pars[idx.drm, 3], D = D
       )
       res[, idx.drm] <- res.drm
     }
@@ -223,7 +223,7 @@ simdat <- function(x = NULL,
     # (2) for PRM items
     if (!is.null(idx.prm)) {
       for (i in idx.prm) {
-        par.tmp <- stats::na.exclude(comp$par[i, ])
+        par.tmp <- stats::na.exclude(comp$pars[i, ])
         res[, i] <- simdat_prm(theta,
           a = par.tmp[1], d = par.tmp[-1], D = D,
           pr.model = comp$model[i]

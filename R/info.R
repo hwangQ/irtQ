@@ -157,7 +157,7 @@ info.default <- function(x, theta, D = 1, tif = TRUE, ...) {
     iif_drm <-
       info_drm(
         theta = theta, a = elm_item$pars[idx.drm, 1],
-        b = elm_item$par[idx.drm, 2], g = elm_item$par[idx.drm, 3],
+        b = elm_item$pars[idx.drm, 2], g = elm_item$pars[idx.drm, 3],
         D = D, one.theta = FALSE, grad = FALSE, info = TRUE
       )$II
   } else {
@@ -176,7 +176,7 @@ info.default <- function(x, theta, D = 1, tif = TRUE, ...) {
     for (mod in pr.mod) {
       # extract the response, model, and item parameters of items with more than two categories
       lg.prm <- elm_item$model == mod & elm_item$cats > 2
-      par.tmp <- elm_item$par[lg.prm, , drop = FALSE]
+      par.tmp <- elm_item$pars[lg.prm, , drop = FALSE]
       a <- par.tmp[, 1]
       d <- par.tmp[, -1, drop = FALSE]
 

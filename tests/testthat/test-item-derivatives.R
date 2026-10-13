@@ -187,6 +187,10 @@ test_that("a singular Hessian is repaired deterministically without using random
   # an invertible matrix is returned unchanged
   expect_identical(irtQ:::ridge_hess(diag(2)), diag(2))
 
+  # a finite singular matrix near the largest double that no finite ridge repairs is returned unchanged
+  hs_big <- matrix(.Machine$double.xmax, 2, 2)
+  expect_identical(irtQ:::ridge_hess(hs_big), hs_big)
+
   # items without any response give a zero Hessian, which is singular
   th <- theta_q
   zero <- rep(0, length(th))

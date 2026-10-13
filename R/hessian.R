@@ -1,8 +1,8 @@
-# This function makes a singular hessian matrix invertable by adding a ridge to its diagonal
+# This function makes a singular hessian matrix invertible by adding a ridge to its diagonal
 # The ridge starts at 1e-8 times the largest absolute diagonal element (1e-8 if that is 0 or not finite)
 # and grows tenfold until the matrix can be inverted, so the result is deterministic
 ridge_hess <- function(hess) {
-  # check if the hessian is invertable; a ridge cannot repair a matrix with non-finite elements
+  # check if the hessian is invertible; a ridge cannot repair a matrix with non-finite elements
   inv <- suppressWarnings(tryCatch(solve(hess, tol = 1e-200), error = function(e) NULL))
   if (!is.null(inv) || !all(is.finite(hess))) {
     return(hess)
@@ -12,20 +12,23 @@ ridge_hess <- function(hess) {
   ridge <- max(abs(diag(hess))) * 1e-8
   if (!is.finite(ridge) || ridge == 0) ridge <- 1e-8
 
-  # increase the ridge until the matrix can be inverted
-  while (is.null(inv)) {
+  # increase the ridge until the matrix can be inverted, while the ridge stays finite
+  hess_ridge <- hess
+  while (is.null(inv) && is.finite(ridge)) {
     hess_ridge <- hess + diag(ridge, nrow(hess))
     inv <- suppressWarnings(tryCatch(solve(hess_ridge, tol = 1e-200), error = function(e) NULL))
     ridge <- ridge * 10
   }
 
-  hess_ridge
+  # return the repaired matrix, or the original matrix when no finite ridge repairs it
+  if (is.null(inv) || !all(is.finite(hess_ridge))) hess else hess_ridge
 }
 
 
 # This function analytically computes the Hessian matrix of the negative log-likelihood (plus the negative log
 # priors) of dichotomous item parameters, that is, the observed information
-# If adjust = TRUE and the matrix is singular, a ridge is added to its diagonal until it can be inverted
+# If adjust = TRUE and the matrix is singular with finite elements, a ridge is added to its diagonal until it can
+# be inverted
 hess_item_drm <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3PLM", "DRM"), D = 1,
                           fix.a = FALSE, fix.g = TRUE, a.val = 1, g.val = .2, n.1PLM = NULL,
                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
@@ -45,7 +48,7 @@ hess_item_drm <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", "3P
     use.bprior = use.bprior, use.gprior = use.gprior, p_cache = p_cache
   )
 
-  # make the hessian invertable by adding a ridge to its diagonal when it is singular
+  # make the hessian invertible by adding a ridge to its diagonal when it is singular
   if (adjust) {
     hess <- ridge_hess(hess)
   }
@@ -353,7 +356,8 @@ hess_item_drm_inner <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM
 
 # This function analytically computes the Hessian matrix of the negative log-likelihood (plus the negative log
 # priors) of polytomous item parameters, that is, the observed information
-# If adjust = TRUE and the matrix is singular, a ridge is added to its diagonal until it can be inverted
+# If adjust = TRUE and the matrix is singular with finite elements, a ridge is added to its diagonal until it can
+# be inverted
 hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FALSE, a.val = 1,
                           aprior = list(dist = "lnorm", params = c(0, 0.5)),
                           bprior = list(dist = "norm", params = c(0.0, 1.0)),
@@ -370,7 +374,7 @@ hess_item_prm <- function(item_par, r_i, theta, pr.mod, D = 1, nstd, fix.a = FAL
     prob_cache = prob_cache
   )
 
-  # make the hessian invertable by adding a ridge to its diagonal when it is singular
+  # make the hessian invertible by adding a ridge to its diagonal when it is singular
   if (adjust) {
     hess <- ridge_hess(hess)
   }
