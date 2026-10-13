@@ -78,8 +78,8 @@ items to exclude from the analysis. Skipped items still contribute to the
 ability estimates, but their results (\code{beta}, \code{se}, \code{z.beta}, \code{p}, and the
 contingency table) are set to \code{NA}, and they are never flagged or removed
 during purification; their sample sizes (\code{n.ref}, \code{n.foc}, and \code{n.total})
-are still reported, as the sample sizes of the items skipped in \code{\link[=rdif]{rdif()}}
-and \code{\link[=crdif]{crdif()}} are. If \code{NULL}, all items are analyzed. Default is \code{NULL}.}
+are still reported, as in \code{\link[=rdif]{rdif()}} and \code{\link[=crdif]{crdif()}}. If \code{NULL}, all items are
+analyzed. Default is \code{NULL}.}
 
 \item{D}{A scaling factor in IRT models, used only when abilities are
 estimated internally. Default is \code{1}.}

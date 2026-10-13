@@ -330,9 +330,10 @@ new items to calibrate, the single EM cycle is not judged by \code{Etol} and
 only the M-step check applies. For FIPC with all items fixed, see \code{Etol}.}
 
 \item{test.2}{A message indicating whether the information matrix used
-for the standard errors (see \code{se.est}) is positive definite. Because the
-cross-product information matrix is positive semidefinite by construction,
-this check detects a singular (rank-deficient) information matrix, for
+for the standard errors (see \code{se.est}) is positive definite. Printed
+results label it "Second-order test", but because the cross-product
+information matrix is positive semidefinite by construction, this check
+mainly detects a singular (rank-deficient) information matrix, for
 example due to unidentified parameters; it is not a second-order test of
 the log-likelihood surface. The message reports a possible local maximum
 only when the first-order test is also satisfied.}

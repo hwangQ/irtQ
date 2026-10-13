@@ -67,8 +67,8 @@
 #'   ability estimates, but their results (`beta`, `se`, `z.beta`, `p`, and the
 #'   contingency table) are set to `NA`, and they are never flagged or removed
 #'   during purification; their sample sizes (`n.ref`, `n.foc`, and `n.total`)
-#'   are still reported, as the sample sizes of the items skipped in [rdif()]
-#'   and [crdif()] are. If `NULL`, all items are analyzed. Default is `NULL`.
+#'   are still reported, as in [rdif()] and [crdif()]. If `NULL`, all items are
+#'   analyzed. Default is `NULL`.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   of the two-sided test of the CATSIB statistic. An item is flagged when its
 #'   p-value is less than or equal to `alpha`. The comparison uses unrounded

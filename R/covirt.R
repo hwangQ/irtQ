@@ -52,9 +52,8 @@
 #'
 #' \deqn{I(\xi_s, \xi_t) = N \sum_{q=1}^{Q} A(X_q) \sum_{k=1}^{K}
 #'   \frac{1}{P_k(X_q)} \frac{\partial P_k(X_q)}{\partial \xi_s}
-#'   \frac{\partial P_k(X_q)}{\partial \xi_t},}{I(xi_s, xi_t) = N
-#'   sum_q A(X_q) sum_k [1 / P_k(X_q)] [d P_k(X_q) / d xi_s]
-#'   [d P_k(X_q) / d xi_t],}
+#'   \frac{\partial P_k(X_q)}{\partial \xi_t},}{I(xi_s, xi_t) = N sum_q A(X_q)
+#'   sum_k [1 / P_k(X_q)] [d P_k(X_q) / d xi_s] [d P_k(X_q) / d xi_t],}
 #'
 #' where \eqn{N} is the sample size (`nstd`), \eqn{X_q} and \eqn{A(X_q)} are
 #' the \eqn{Q} quadrature points and weights that represent the ability
@@ -62,12 +61,12 @@
 #' the probability of a response in category \eqn{k} at \eqn{X_q}. This is the
 #' information of a categorical (multinomial) response. For a dichotomous item,
 #' it reduces to the familiar form in which each term is divided by
-#' \eqn{P(X_q) Q(X_q)}, where \eqn{Q(X_q) = 1 - P(X_q)} (Li & Lissitz, 2004,
-#' Equation A4).
+#' \eqn{P(X_q) [1 - P(X_q)]} (Li & Lissitz, 2004, Equation A4).
 #'
 #' For polytomous items, the information above differs from Equation A8 of Li
-#' and Lissitz (2004). Their Equations A6 and A7 write the likelihood of a
-#' response as \eqn{\prod_{k} P_k^{u_k} (1 - P_k)^{1 - u_k}}{prod_k
+#' and Lissitz (2004). Their Equation A6 writes the likelihood of a response
+#' (and Equation A7 its logarithm) as
+#' \eqn{\prod_{k} P_k^{u_k} (1 - P_k)^{1 - u_k}}{prod_k
 #' P_k^u_k (1 - P_k)^(1 - u_k)}, where \eqn{u_k}
 #' is 1 for the observed category and 0 otherwise. The \eqn{K} category
 #' indicators are thus treated as independent Bernoulli variables, and

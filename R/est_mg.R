@@ -260,12 +260,12 @@
 #'   the item metadata structure.}
 #'
 #' \item{se.est}{A list with the same structure as `estimates`, but containing only
-#'   the standard errors of the item parameter estimates. Note that the standard
-#'   errors are computed from the inverse of the information matrix, which is the
-#'   cross-product (empirical) information matrix of the marginal log-likelihood
-#'   evaluated at the final estimates (Meilijson, 1989), plus the prior
-#'   information (the negative second derivatives of the log prior densities) for
-#'   the parameters that have prior distributions.}
+#'   the standard errors of the item parameter estimates. Note that the
+#'   standard errors are computed from the inverse of the information matrix,
+#'   which is the cross-product (empirical) information matrix of the marginal
+#'   log-likelihood evaluated at the final estimates (Meilijson, 1989), plus
+#'   the prior information (the negative second derivatives of the log prior
+#'   densities) for the parameters that have prior distributions.}
 #'
 #' \item{pos.par}{A data frame indicating the position index of each estimated
 #'   item parameter. This index is based on the combined data set across all groups
@@ -349,10 +349,11 @@
 #'   new items to calibrate, the single EM cycle is not judged by `Etol` and
 #'   only the M-step check applies. For FIPC with all items fixed, see `Etol`.}
 #'
-#' \item{test.2}{A message indicating whether the information matrix used for the
-#'   standard errors (see `se.est`) is positive definite. Because the
-#'   cross-product information matrix is positive semidefinite by construction,
-#'   this check detects a singular (rank-deficient) information matrix, for
+#' \item{test.2}{A message indicating whether the information matrix used
+#'   for the standard errors (see `se.est`) is positive definite. Printed
+#'   results label it "Second-order test", but because the cross-product
+#'   information matrix is positive semidefinite by construction, this check
+#'   mainly detects a singular (rank-deficient) information matrix, for
 #'   example due to unidentified parameters; it is not a second-order test of
 #'   the log-likelihood surface. The message reports a possible local maximum
 #'   only when the first-order test is also satisfied.}
