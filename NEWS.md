@@ -375,24 +375,26 @@
   remaining item.
 
 - The estimation of GPCM items with large slopes in `est_irt()`,
-  `est_mg()`, and `est_item()` rescaled the cumulative logits of a
-  response by a common factor once they exceeded 700 in absolute value,
-  which distorted the objective function, and the gradient and the
-  Hessian became `NaN` for smaller values. Each row is now shifted by
-  its own maximum when a logit exceeds 100 in absolute value; results
-  below that range are unchanged.
+  `est_mg()`, and `est_item()` rescaled all cumulative logits by a
+  common factor once one exceeded 700 in absolute value, which distorted
+  the objective function, and the gradient and the Hessian could become
+  `NaN` even for logits well below 700. Each row is now shifted by its
+  own maximum when a logit exceeds 100 in absolute value; results below
+  that range are unchanged.
 
 - `est_irt()` and `est_mg()` computed the standard errors of GRM and
   GPCM items with `D = 1` whatever `D` was. With `D` other than 1, such
-  as 1.702, the standard errors of polytomous items were about 1.5 to
-  1.8 times too large, those of the dichotomous items of the same test
-  were also affected, and so were `covariance` and `test.2`. The
-  estimates were not affected.
+  as 1.702, the standard errors of polytomous items were about 1.4 to 2
+  times too large, those of the dichotomous items of the same test were
+  also affected, and so were `covariance` and `test.2`. The estimates
+  were not affected.
 
 - With `fix.g = TRUE` and a `g.val` other than 0.2, `est_irt()` and
   `est_mg()` computed the standard errors of 3PLM items as if the
-  guessing parameter were 0.2, which changed them by up to about 9
-  percent. The estimates were not affected.
+  guessing parameter were 0.2. The error grows with the distance between
+  `g.val` and 0.2, for example about 9 percent with `g.val = 0.25` and
+  about 25 percent with 0.05 or 0.35 for the `LSAT6` data. The estimates
+  were not affected.
 
 - When `D` was not 1, the Hessian of 1PLM items with a common estimated
   slope (`fix.a.1pl = FALSE`) had a wrong cross term between the slope
@@ -413,8 +415,8 @@
   dichotomous items do not change.
 
 - `covirt()` stopped with an error for a GRM or GPCM item with two score
-  categories. Such an item is now treated as a 2PLM item, and as a 1PLM
-  item with a fixed slope when it is listed in `pcm.loc`.
+  categories. Such an item is now treated as a 2PLM item, and a GPCM
+  item listed in `pcm.loc` as a 1PLM item with a fixed slope.
 
 - `covirt()` printed a message instead of issuing a warning when the
   information matrix of an item was singular, and the matrix and the
@@ -454,9 +456,9 @@
   wrong) change, and so do the results that depend on them.
 
 - `grdif()` supports dichotomous items only and stops with an error when
-  `x` includes a polytomous item or an item of the "GRM" or "GPCM"
-  model, also one with two categories, because the GRDIF framework has
-  been evaluated for dichotomous items (Lim et al., 2024). Before,
+  `x` includes a polytomous item or any item of the "GRM" or "GPCM"
+  model, even one with two score categories, because the GRDIF framework
+  has been evaluated for dichotomous items (Lim et al., 2024). Before,
   polytomous items were analyzed as net DIF, and the default post-hoc
   analyses of mixed-format data could stop with an error.
 
