@@ -27,7 +27,8 @@
 #' @param data A matrix of examinees' item responses, with rows for examinees
 #'   and columns for items in the same order as the items in `x`. Responses
 #'   to an item with K score categories must be integers from 0 to K - 1.
-#'   Missing responses are coded as `NA`.
+#'   Missing responses are coded as `NA` or, in functions that have a
+#'   `missing` argument, as the value given in `missing`.
 #' @param D A scaling constant used in IRT models to make the logistic function
 #'   closely approximate the normal ogive function. A value of 1.702 is commonly
 #'   used for this purpose. Default is 1.
@@ -117,7 +118,9 @@
 #'   supplied, `Quadrature`, `group.mean`, and `group.var` are not used.
 #'   Without FIPC, the mean and variance of this distribution fix the scale:
 #'   the distribution is used as it is when `EmpHist = FALSE`, and its shape is
-#'   updated but rescaled to its mean and variance when `EmpHist = TRUE`. With
+#'   updated but rescaled to its mean and variance when `EmpHist = TRUE`, in
+#'   which case the quadrature points must be equally spaced, because the
+#'   histogram is rescaled by interpolation on an equally spaced grid. With
 #'   FIPC, it is only the initial distribution of the first EM cycle, which is
 #'   then updated (see Details).
 #'
@@ -370,11 +373,11 @@
 #' variance of the latent distribution when they are estimated, which is the
 #' case with FIPC and `EmpHist = FALSE` (2 values), and (c) the weights of the
 #' empirical histogram when `EmpHist = TRUE`. Without FIPC, the histogram is
-#' rescaled to the mean and variance given by `group.mean` and `group.var`, so
-#' its Q weights, where Q is the number of quadrature points, have Q - 3 free
-#' values (the sum of the weights and the two moments are fixed). With FIPC, the
-#' histogram is not rescaled, so the weights have Q - 1 free values. The counts
-#' by type are returned in `npar.detail`.
+#' rescaled to a fixed mean and variance (given by `group.mean` and `group.var`,
+#' or by `weights`), so its Q weights, where Q is the number of quadrature
+#' points, have Q - 3 free values (the sum of the weights and the two moments
+#' are fixed). With FIPC, the histogram is not rescaled, so the weights have
+#' Q - 1 free values. The counts by type are returned in `npar.detail`.
 #'
 #' @return This function returns an object of class `est_irt`. The returned
 #'   object contains the following components:
@@ -439,8 +442,9 @@
 #'   quadrature points and the weights of the final latent ability
 #'   distribution. Without FIPC and with `EmpHist = FALSE`, it is the
 #'   distribution given by `group.mean` and `group.var`, or `weights` as
-#'   supplied. With `fipc.method = "OEM"`, it is the distribution updated once
-#'   after the item parameters were estimated.}
+#'   supplied (rescaled to sum to 1 if needed). With `fipc.method = "OEM"`, it
+#'   is the distribution updated once after the item parameters were
+#'   estimated.}
 #'
 #'   \item{posterior.dist}{A matrix of the posterior probabilities of the
 #'   quadrature points for each examinee, computed at the final estimates, with
@@ -523,8 +527,8 @@
 #'   \item{npar.detail}{An integer vector with the elements `item` (free item
 #'   parameters), `dist` (mean and variance of the latent distribution), and
 #'   `weight` (weights of the empirical histogram), whose sum is `npar.est`.
-#'   It is the last element of the object and is not available in objects
-#'   created by earlier versions.}
+#'   It is the last element of the object; when it is absent, `summary()` shows
+#'   the total only.}
 #'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.

@@ -218,7 +218,9 @@ and weights. The weights and points can be conveniently generated using
 the function \code{\link[=gen.weight]{gen.weight()}}. The weights should sum to 1; weights
 that do not sum to 1 are rescaled to sum to 1 with a warning. The number of
 points may differ from \code{Quadrature[1]}, which is not used when \code{weights}
-is supplied.
+is supplied. When \code{EmpHist = TRUE}, the quadrature points must be equally
+spaced, because the histogram is rescaled by interpolation on an equally
+spaced grid.
 
 If \code{NULL}, a normal prior density is used instead, based on the
 information provided in the \code{Quadrature}, \code{group.mean}, and \code{group.var}
@@ -369,12 +371,13 @@ the \code{overall} component contains the total log-likelihood summed across
 all unique items from all groups, while the \code{group} component provides
 group-specific log-likelihood values.}
 
-\item{aic}{Akaike information criterion, \code{-2 * loglikelihood + 2 * npar.est},
+\item{aic}{Akaike information criterion,
+\code{-2 * loglikelihood$overall + 2 * npar.est},
 calculated from the overall log-likelihood.}
 
 \item{bic}{Bayesian information criterion,
-\code{-2 * loglikelihood + npar.est * log(ncase)}, calculated from the overall
-log-likelihood and the overall number of examinees.}
+\code{-2 * loglikelihood$overall + npar.est * log(ncase$overall)}, calculated
+from the overall log-likelihood and the overall number of examinees.}
 
 \item{group.par}{A list containing summary statistics (i.e., mean, variance,
 and standard deviation) of the latent variable prior distributions across
@@ -461,8 +464,8 @@ of the list matches that of the 'estimates' component.}
 \item{npar.detail}{An integer vector with the elements \code{item} (free item
 parameters), \code{dist} (means and variances of the latent distributions of
 all groups), and \code{weight} (weights of the empirical histograms of all
-groups), whose sum is \code{npar.est}. It is the last element of the object and
-is not available in objects created by earlier versions.}
+groups), whose sum is \code{npar.est}. It is the last element of the object;
+when it is absent, \code{summary()} shows the total only.}
 
 Note that you can easily extract components from the output using the
 \code{\link[=getirt]{getirt()}} function.
@@ -568,21 +571,20 @@ then specify:
 Note that when both \code{fix.loc} and \code{fix.id} are provided, the information
 in \code{fix.id} takes precedence and overrides \code{fix.loc}.
 
-The information criteria are \code{aic = -2 * loglikelihood + 2 * npar.est} and
-\code{bic = -2 * loglikelihood + npar.est * log(ncase)}, where \code{loglikelihood} is
-the overall marginal log-likelihood without the prior densities of the item
-parameters and \code{ncase} is the overall number of examinees. \code{npar.est} is the
-number of freely estimated parameters, which consists of (a) the item
-parameters that are estimated across all unique items (a slope shared by
-1PLM items is counted once; fixed parameters and the items fixed in FIPC are
-not counted), (b) the mean and variance of each group in \code{free.group} when
+The information criteria are \code{aic = -2 * loglikelihood$overall + 2 * npar.est} and \code{bic = -2 * loglikelihood$overall + npar.est * log(ncase$overall)}, where \code{loglikelihood$overall} is the overall marginal
+log-likelihood without the prior densities of the item parameters and
+\code{ncase$overall} is the overall number of examinees. \code{npar.est} is the number
+of freely estimated parameters, which consists of (a) the item parameters
+that are estimated across all unique items (a slope shared by 1PLM items is
+counted once; fixed parameters and the items fixed in FIPC are not counted),
+(b) the mean and variance of each group in \code{free.group} when
 \code{EmpHist = FALSE} (2 values per group), and (c) the weights of the empirical
 histograms when \code{EmpHist = TRUE}. The histogram of a group in \code{free.group}
 is not rescaled, so its Q weights, where Q is the number of quadrature
 points, have Q - 1 free values (the sum of the weights is fixed). The
-histogram of any other group is rescaled to the mean and variance given by
-\code{group.mean} and \code{group.var}, so its weights have Q - 3 free values. The
-counts by type are returned in \code{npar.detail}.
+histogram of any other group is rescaled to a fixed mean and variance, so
+its weights have Q - 3 free values. The counts by type are returned in
+\code{npar.detail}.
 }
 \examples{
 \donttest{

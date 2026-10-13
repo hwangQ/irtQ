@@ -45,7 +45,8 @@ or \code{\link[=simdat]{simdat()}} for more details about the item metadata. Def
 \item{data}{A matrix of examinees' item responses, with rows for examinees
 and columns for items in the same order as the items in \code{x}. Responses
 to an item with K score categories must be integers from 0 to K - 1.
-Missing responses are coded as \code{NA}.}
+Missing responses are coded as \code{NA} or, in functions that have a
+\code{missing} argument, as the value given in \code{missing}.}
 
 \item{score}{A numeric vector of examinees' ability estimates (theta values).
 The length of this vector must match the number of rows in the response data.}

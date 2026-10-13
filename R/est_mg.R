@@ -98,7 +98,9 @@
 #'   the function [irtQ::gen.weight()]. The weights should sum to 1; weights
 #'   that do not sum to 1 are rescaled to sum to 1 with a warning. The number of
 #'   points may differ from `Quadrature[1]`, which is not used when `weights`
-#'   is supplied.
+#'   is supplied. When `EmpHist = TRUE`, the quadrature points must be equally
+#'   spaced, because the histogram is rescaled by interpolation on an equally
+#'   spaced grid.
 #'
 #'   If `NULL`, a normal prior density is used instead, based on the
 #'   information provided in the `Quadrature`, `group.mean`, and `group.var`
@@ -248,21 +250,22 @@
 #' Note that when both `fix.loc` and `fix.id` are provided, the information
 #' in `fix.id` takes precedence and overrides `fix.loc`.
 #'
-#' The information criteria are `aic = -2 * loglikelihood + 2 * npar.est` and
-#' `bic = -2 * loglikelihood + npar.est * log(ncase)`, where `loglikelihood` is
-#' the overall marginal log-likelihood without the prior densities of the item
-#' parameters and `ncase` is the overall number of examinees. `npar.est` is the
-#' number of freely estimated parameters, which consists of (a) the item
-#' parameters that are estimated across all unique items (a slope shared by
-#' 1PLM items is counted once; fixed parameters and the items fixed in FIPC are
-#' not counted), (b) the mean and variance of each group in `free.group` when
+#' The information criteria are `aic = -2 * loglikelihood$overall + 2 *
+#' npar.est` and `bic = -2 * loglikelihood$overall + npar.est *
+#' log(ncase$overall)`, where `loglikelihood$overall` is the overall marginal
+#' log-likelihood without the prior densities of the item parameters and
+#' `ncase$overall` is the overall number of examinees. `npar.est` is the number
+#' of freely estimated parameters, which consists of (a) the item parameters
+#' that are estimated across all unique items (a slope shared by 1PLM items is
+#' counted once; fixed parameters and the items fixed in FIPC are not counted),
+#' (b) the mean and variance of each group in `free.group` when
 #' `EmpHist = FALSE` (2 values per group), and (c) the weights of the empirical
 #' histograms when `EmpHist = TRUE`. The histogram of a group in `free.group`
 #' is not rescaled, so its Q weights, where Q is the number of quadrature
 #' points, have Q - 1 free values (the sum of the weights is fixed). The
-#' histogram of any other group is rescaled to the mean and variance given by
-#' `group.mean` and `group.var`, so its weights have Q - 3 free values. The
-#' counts by type are returned in `npar.detail`.
+#' histogram of any other group is rescaled to a fixed mean and variance, so
+#' its weights have Q - 3 free values. The counts by type are returned in
+#' `npar.detail`.
 #'
 #' @return This function returns an object of class `est_mg`. The returned
 #'   object contains the following components:
@@ -303,12 +306,13 @@
 #'   all unique items from all groups, while the `group` component provides
 #'   group-specific log-likelihood values.}
 #'
-#' \item{aic}{Akaike information criterion, `-2 * loglikelihood + 2 * npar.est`,
+#' \item{aic}{Akaike information criterion,
+#'   `-2 * loglikelihood$overall + 2 * npar.est`,
 #'   calculated from the overall log-likelihood.}
 #'
 #' \item{bic}{Bayesian information criterion,
-#'   `-2 * loglikelihood + npar.est * log(ncase)`, calculated from the overall
-#'   log-likelihood and the overall number of examinees.}
+#'   `-2 * loglikelihood$overall + npar.est * log(ncase$overall)`, calculated
+#'   from the overall log-likelihood and the overall number of examinees.}
 #'
 #' \item{group.par}{A list containing summary statistics (i.e., mean, variance,
 #'   and standard deviation) of the latent variable prior distributions across
@@ -395,8 +399,8 @@
 #' \item{npar.detail}{An integer vector with the elements `item` (free item
 #'   parameters), `dist` (means and variances of the latent distributions of
 #'   all groups), and `weight` (weights of the empirical histograms of all
-#'   groups), whose sum is `npar.est`. It is the last element of the object and
-#'   is not available in objects created by earlier versions.}
+#'   groups), whose sum is `npar.est`. It is the last element of the object;
+#'   when it is absent, `summary()` shows the total only.}
 #'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.

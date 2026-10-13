@@ -50,11 +50,11 @@ densities) for the parameters that have prior distributions.}
 \item{pos.par}{A data frame indicating the position index of each estimated
 item parameter. This is useful when interpreting the variance-covariance matrix.}
 \item{covariance}{A variance-covariance matrix of the item parameter estimates.}
-\item{loglikelihood}{The marginal log-likelihood of the response data at the
-final estimates: the sum over examinees of the logarithm of the probability
-of each examinee's response pattern, integrated over the latent ability
-distribution. The log prior densities of the item parameters are not
-included.}
+\item{loglikelihood}{The marginal log-likelihood of the response data at
+the final estimates: the sum over examinees of the logarithm of the
+probability of each examinee's response pattern, integrated over the
+latent ability distribution. The log prior densities of the item
+parameters are not included.}
 \item{aic}{Akaike Information Criterion (AIC) based on the marginal log-likelihood.}
 \item{bic}{Bayesian Information Criterion (BIC) based on the marginal log-likelihood.}
 \item{group.par}{A data frame containing the mean, variance, and standard
@@ -73,13 +73,14 @@ columns represent quadrature points; each row sums to 1.}
 the largest absolute change in the item parameter estimates between
 consecutive cycles. For FIPC with all items fixed, it applies to the
 change in the mean and variance of the prior distribution.}
-\item{MaxE}{The maximum number of EM cycles allowed during estimation.}
+\item{MaxE}{The maximum number of EM cycles allowed during estimation (1
+when \code{fipc.method = "OEM"}).}
 \item{aprior}{A list describing the prior distribution for item slope parameters.}
 \item{bprior}{A list describing the prior distribution for item difficulty
 (or threshold) parameters.}
 \item{gprior}{A list describing the prior distribution for item guessing parameters.}
-\item{npar.est}{The number of freely estimated parameters used for \code{aic} and
-\code{bic}; see \code{\link[=est_irt]{est_irt()}}.}
+\item{npar.est}{The number of freely estimated parameters used for \code{aic}
+and \code{bic}; see \code{\link[=est_irt]{est_irt()}}.}
 \item{niter}{The number of EM cycles completed.}
 \item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
 \item{EMtime}{Computation time (in seconds) for the EM algorithm.}
@@ -92,7 +93,8 @@ for the standard errors was positive definite. Printed results label it
 "Second-order test", but because the cross-product information matrix is
 positive semidefinite by construction, this check mainly detects a
 singular (rank-deficient) information matrix; it is not a second-order
-test of the log-likelihood surface.}
+test of the log-likelihood surface. When FIPC is used with all items
+fixed, no information matrix is computed, and the message says so.}
 \item{var.note}{A note indicating whether the variance-covariance matrix was
 successfully derived from the information matrix.}
 \item{fipc}{Logical value indicating whether Fixed Item Parameter Calibration
@@ -160,7 +162,8 @@ change in the mean and variance of the prior distribution.}
 \item{bprior}{A list describing the prior distribution for item difficulty
 parameters.}
 \item{gprior}{A list describing the prior distribution for item guessing parameters.}
-\item{npar.est}{Total number of parameters estimated across all unique items.}
+\item{npar.est}{The number of freely estimated parameters used for \code{aic}
+and \code{bic}; see \code{\link[=est_mg]{est_mg()}}.}
 \item{niter}{Number of EM cycles completed.}
 \item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
 \item{EMtime}{Computation time (in seconds) for EM estimation.}

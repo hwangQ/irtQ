@@ -55,7 +55,8 @@ items in FIPC, whose parameters are held at the values in \code{x}. If
 \item{data}{A matrix of examinees' item responses, with rows for examinees
 and columns for items in the same order as the items in \code{x}. Responses
 to an item with K score categories must be integers from 0 to K - 1.
-Missing responses are coded as \code{NA}.}
+Missing responses are coded as \code{NA} or, in functions that have a
+\code{missing} argument, as the value given in \code{missing}.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
@@ -170,7 +171,9 @@ with a warning. The number of points may differ from \code{Quadrature[1]}. If
 supplied, \code{Quadrature}, \code{group.mean}, and \code{group.var} are not used.
 Without FIPC, the mean and variance of this distribution fix the scale:
 the distribution is used as it is when \code{EmpHist = FALSE}, and its shape is
-updated but rescaled to its mean and variance when \code{EmpHist = TRUE}. With
+updated but rescaled to its mean and variance when \code{EmpHist = TRUE}, in
+which case the quadrature points must be equally spaced, because the
+histogram is rescaled by interpolation on an equally spaced grid. With
 FIPC, it is only the initial distribution of the first EM cycle, which is
 then updated (see Details).
 
@@ -332,8 +335,9 @@ observed and are therefore usually too small.}
 quadrature points and the weights of the final latent ability
 distribution. Without FIPC and with \code{EmpHist = FALSE}, it is the
 distribution given by \code{group.mean} and \code{group.var}, or \code{weights} as
-supplied. With \code{fipc.method = "OEM"}, it is the distribution updated once
-after the item parameters were estimated.}
+supplied (rescaled to sum to 1 if needed). With \code{fipc.method = "OEM"}, it
+is the distribution updated once after the item parameters were
+estimated.}
 
 \item{posterior.dist}{A matrix of the posterior probabilities of the
 quadrature points for each examinee, computed at the final estimates, with
@@ -416,8 +420,8 @@ in \code{x}, also when the items were specified with \code{fix.id}; \code{NULL} 
 \item{npar.detail}{An integer vector with the elements \code{item} (free item
 parameters), \code{dist} (mean and variance of the latent distribution), and
 \code{weight} (weights of the empirical histogram), whose sum is \code{npar.est}.
-It is the last element of the object and is not available in objects
-created by earlier versions.}
+It is the last element of the object; when it is absent, \code{summary()} shows
+the total only.}
 
 Note that you can easily extract components from the output using the
 \code{\link[=getirt]{getirt()}} function.
@@ -616,11 +620,11 @@ parameters and the items fixed in FIPC are not counted), (b) the mean and
 variance of the latent distribution when they are estimated, which is the
 case with FIPC and \code{EmpHist = FALSE} (2 values), and (c) the weights of the
 empirical histogram when \code{EmpHist = TRUE}. Without FIPC, the histogram is
-rescaled to the mean and variance given by \code{group.mean} and \code{group.var}, so
-its Q weights, where Q is the number of quadrature points, have Q - 3 free
-values (the sum of the weights and the two moments are fixed). With FIPC, the
-histogram is not rescaled, so the weights have Q - 1 free values. The counts
-by type are returned in \code{npar.detail}.
+rescaled to a fixed mean and variance (given by \code{group.mean} and \code{group.var},
+or by \code{weights}), so its Q weights, where Q is the number of quadrature
+points, have Q - 3 free values (the sum of the weights and the two moments
+are fixed). With FIPC, the histogram is not rescaled, so the weights have
+Q - 1 free values. The counts by type are returned in \code{npar.detail}.
 }
 \examples{
 \donttest{
