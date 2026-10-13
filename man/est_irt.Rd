@@ -151,16 +151,21 @@ For example, \code{c(49, 6)} specifies 49 evenly spaced points from -6 to 6.
 These points are used in the E-step of the EM algorithm. Default is \code{c(49, 6)}.
 }}
 
-\item{weights}{A two-column matrix or data frame containing the quadrature
-points (in the first column) and their corresponding weights (in the second
-column) for the latent variable prior distribution. If not \code{NULL}, the
-scale of the latent ability distribution is fixed to match the scale of the
-provided quadrature points and weights. The weights and points can be
-conveniently generated using the function \code{\link[=gen.weight]{gen.weight()}}.
+\item{weights}{A two-column matrix or data frame of quadrature points (first
+column) and weights (second column) that defines the latent ability
+distribution; it can be created with \code{\link[=gen.weight]{gen.weight()}}. The weights
+should sum to 1; weights that do not sum to 1 are rescaled to sum to 1
+with a warning. The number of points may differ from \code{Quadrature[1]}. If
+supplied, \code{Quadrature}, \code{group.mean}, and \code{group.var} are not used.
+Without FIPC, the mean and variance of this distribution fix the scale:
+the distribution is used as it is when \code{EmpHist = FALSE}, and its shape is
+updated but rescaled to its mean and variance when \code{EmpHist = TRUE}. With
+FIPC, it is only the initial distribution of the first EM cycle, which is
+then updated (see Details).
 
-If \code{NULL}, a normal prior density is used instead, based on the
-information provided in the \code{Quadrature}, \code{group.mean}, and \code{group.var}
-arguments. Default is \code{NULL}.}
+If \code{NULL}, a normal distribution with mean \code{group.mean} and variance
+\code{group.var} at the points given by \code{Quadrature} is used. Default is
+\code{NULL}.}
 
 \item{group.mean}{A numeric value specifying the mean of the latent variable
 prior distribution when \code{weights = NULL}. Default is 0. This value is fixed

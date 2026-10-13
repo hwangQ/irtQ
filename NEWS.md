@@ -444,6 +444,26 @@
   Results of items whose thresholds were already ordered are unchanged.
   Fits with a GRM item whose thresholds were reversed should be rerun.
 
+- When the second column of `weights` did not sum to 1, `est_irt()` and
+  `est_mg()` reported a log-likelihood, AIC, and BIC that were off by
+  `N` times the log of the sum, and a variance in `group.par` that was
+  multiplied by the sum. With `EmpHist = TRUE` the empirical histogram
+  was rescaled to that wrong variance, which changed the scale of the
+  item parameters (by up to 1.8 in an example with a sum of 4). The
+  weights are now rescaled to sum to 1 with the warning "The weights do
+  not sum to 1 and were rescaled to sum to 1.", as in `cac_lee()` and
+  `cac_rud()`; weights that are negative, not finite, or sum to zero
+  stop with an error. Weights that sum to 1 give the same results as
+  before.
+
+- With `EmpHist = TRUE` and user `weights` whose number of quadrature
+  points is not 49 (the default of `Quadrature[1]`), `est_irt()` and
+  `est_mg()` stopped with an error such as "non-conformable arguments"
+  when there were fewer points, and extrapolated the upper tail of the
+  empirical histogram from the wrong point when there were more. The
+  number of points is now taken from `weights`. The results for 49
+  points are unchanged.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When

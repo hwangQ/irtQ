@@ -95,7 +95,10 @@
 #'   latent ability distributions for the groups not specified in the `free.group`
 #'   argument are fixed to match the scale defined by the provided quadrature points
 #'   and weights. The weights and points can be conveniently generated using
-#'   the function [irtQ::gen.weight()].
+#'   the function [irtQ::gen.weight()]. The weights should sum to 1; weights
+#'   that do not sum to 1 are rescaled to sum to 1 with a warning. The number of
+#'   points may differ from `Quadrature[1]`, which is not used when `weights`
+#'   is supplied.
 #'
 #'   If `NULL`, a normal prior density is used instead, based on the
 #'   information provided in the `Quadrature`, `group.mean`, and `group.var`
@@ -1034,6 +1037,9 @@ est_mg_em <- function(x = NULL,
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
     n.quad <- length(quadpt)
   } else {
+    # check the weights and rescale them to sum to one, as the moments below, the
+    # empirical histogram rescaling, and the marginal log-likelihood assume
+    weights <- check_weights(weights)
     quadpt <- weights[, 1]
     n.quad <- length(quadpt)
     moments.tmp <- cal_moment(node = quadpt, weight = weights[, 2])
@@ -1118,7 +1124,7 @@ est_mg_em <- function(x = NULL,
       n.1PLM = n.1PLM, EmpHist = EmpHist, weights = weights.gr, fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g,
       a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val, use.aprior = use.aprior, use.bprior = use.bprior,
       use.gprior = use.gprior, aprior = aprior, bprior = bprior, gprior = gprior, group.mean = group.mean,
-      group.var = group.var, nstd = nstd.gr, Quadrature = Quadrature, control = control,
+      group.var = group.var, nstd = nstd.gr, control = control,
       iter = r, fipc = FALSE, reloc.par = param_loc$reloc.par, ref.group = ref.group,
       free.group = free.group, parbd = parbd
     )
@@ -1797,6 +1803,9 @@ est_mg_fipc <- function(x = NULL,
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
     n.quad <- length(quadpt)
   } else {
+    # check the weights and rescale them to sum to one, as the moments below, the
+    # empirical histogram rescaling, and the marginal log-likelihood assume
+    weights <- check_weights(weights)
     quadpt <- weights[, 1]
     n.quad <- length(quadpt)
     moments.tmp <- cal_moment(node = quadpt, weight = weights[, 2])
@@ -1951,7 +1960,7 @@ est_mg_fipc <- function(x = NULL,
       n.1PLM = n.1PLM, EmpHist = EmpHist, weights = weights.gr, fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g,
       a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val, use.aprior = use.aprior, use.bprior = use.bprior,
       use.gprior = use.gprior, aprior = aprior, bprior = bprior, gprior = gprior, group.mean = group.mean,
-      group.var = group.var, nstd = nstd.gr, Quadrature = Quadrature, control = control,
+      group.var = group.var, nstd = nstd.gr, control = control,
       iter = r, fipc = TRUE, reloc.par = param_loc$reloc.par, ref.group = ref.group,
       free.group = free.group, parbd = parbd
     )

@@ -106,7 +106,7 @@ Estep <- function(elm_item, idx.drm = NULL, idx.prm = NULL,
 Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NULL, loc_1p_const, loc_else, idx4est = NULL,
                   n.1PLM = NULL, EmpHist, weights, fix.a.1pl, fix.a.gpcm, fix.g, a.val.1pl, a.val.gpcm, g.val,
                   use.aprior, use.bprior, use.gprior, aprior, bprior, gprior, group.mean, group.var, nstd,
-                  Quadrature, control, iter = NULL, fipc = FALSE, reloc.par,
+                  control, iter = NULL, fipc = FALSE, reloc.par,
                   ref.group = NULL, free.group = NULL, parbd = NULL) {
   # extract the results of E-step
   elm_item <- estep$elm_item
@@ -329,7 +329,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
         prior_dense2 <-
           scale_prior(
             prior_freq = prior_freq, prior_dense = prior_dense, quadpt = quadpt,
-            scale.par = c(group.mean, group.var), Quadrature = Quadrature
+            scale.par = c(group.mean, group.var)
           )
         weights <- data.frame(theta = quadpt, weight = prior_dense2)
       }
@@ -369,7 +369,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
           ~ {
             scale_prior(
               prior_freq = .x, prior_dense = .y,
-              quadpt = quadpt, scale.par = c(group.mean, group.var), Quadrature = Quadrature
+              quadpt = quadpt, scale.par = c(group.mean, group.var)
             )
           }
         )

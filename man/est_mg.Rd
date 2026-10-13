@@ -209,7 +209,10 @@ column) for the latent ability prior distribution. If not \code{NULL}, the
 latent ability distributions for the groups not specified in the \code{free.group}
 argument are fixed to match the scale defined by the provided quadrature points
 and weights. The weights and points can be conveniently generated using
-the function \code{\link[=gen.weight]{gen.weight()}}.
+the function \code{\link[=gen.weight]{gen.weight()}}. The weights should sum to 1; weights
+that do not sum to 1 are rescaled to sum to 1 with a warning. The number of
+points may differ from \code{Quadrature[1]}, which is not used when \code{weights}
+is supplied.
 
 If \code{NULL}, a normal prior density is used instead, based on the
 information provided in the \code{Quadrature}, \code{group.mean}, and \code{group.var}

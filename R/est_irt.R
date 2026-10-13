@@ -98,16 +98,21 @@
 #'   For example, `c(49, 6)` specifies 49 evenly spaced points from -6 to 6.
 #'   These points are used in the E-step of the EM algorithm. Default is `c(49,
 #'   6)`.
-#' @param weights A two-column matrix or data frame containing the quadrature
-#'   points (in the first column) and their corresponding weights (in the second
-#'   column) for the latent variable prior distribution. If not `NULL`, the
-#'   scale of the latent ability distribution is fixed to match the scale of the
-#'   provided quadrature points and weights. The weights and points can be
-#'   conveniently generated using the function [irtQ::gen.weight()].
+#' @param weights A two-column matrix or data frame of quadrature points (first
+#'   column) and weights (second column) that defines the latent ability
+#'   distribution; it can be created with [irtQ::gen.weight()]. The weights
+#'   should sum to 1; weights that do not sum to 1 are rescaled to sum to 1
+#'   with a warning. The number of points may differ from `Quadrature[1]`. If
+#'   supplied, `Quadrature`, `group.mean`, and `group.var` are not used.
+#'   Without FIPC, the mean and variance of this distribution fix the scale:
+#'   the distribution is used as it is when `EmpHist = FALSE`, and its shape is
+#'   updated but rescaled to its mean and variance when `EmpHist = TRUE`. With
+#'   FIPC, it is only the initial distribution of the first EM cycle, which is
+#'   then updated (see Details).
 #'
-#'   If `NULL`, a normal prior density is used instead, based on the
-#'   information provided in the `Quadrature`, `group.mean`, and `group.var`
-#'   arguments. Default is `NULL`.
+#'   If `NULL`, a normal distribution with mean `group.mean` and variance
+#'   `group.var` at the points given by `Quadrature` is used. Default is
+#'   `NULL`.
 #' @param group.mean A numeric value specifying the mean of the latent variable
 #'   prior distribution when `weights = NULL`. Default is 0. This value is fixed
 #'   to resolve the indeterminacy of the item parameter scale during
@@ -987,6 +992,9 @@ est_irt_em <- function(x = NULL,
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
     n.quad <- length(quadpt)
   } else {
+    # check the weights and rescale them to sum to one, as the moments below, the
+    # empirical histogram rescaling, and the marginal log-likelihood assume
+    weights <- check_weights(weights)
     quadpt <- weights[, 1]
     n.quad <- length(quadpt)
     moments.tmp <- cal_moment(node = quadpt, weight = weights[, 2])
@@ -1062,7 +1070,7 @@ est_irt_em <- function(x = NULL,
       a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val,
       use.aprior = use.aprior, use.bprior = use.bprior, use.gprior = use.gprior,
       aprior = aprior, bprior = bprior, gprior = gprior, group.mean = group.mean,
-      group.var = group.var, nstd = nstd, Quadrature = Quadrature, control = control,
+      group.var = group.var, nstd = nstd, control = control,
       iter = r, fipc = FALSE, reloc.par = param_loc$reloc.par, parbd = parbd
     )
     
@@ -1525,10 +1533,12 @@ est_irt_fipc <- function(x = NULL,
     # create the data.frame containing the quadrature points and weights
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
   } else {
+    # check the weights and rescale them to sum to one, as the first EM cycle uses them
+    weights <- check_weights(weights)
     quadpt <- weights[, 1]
     n.quad <- length(quadpt)
   }
-  
+
   # build the per-item one-hot frequency-category list once on the combined
   # response matrix; data_fix and data_new are the fix.loc and nofix.loc
   # columns of data_all, so list subsetting gives their freq.cat without
@@ -1665,7 +1675,7 @@ est_irt_fipc <- function(x = NULL,
       n.1PLM = n.1PLM, EmpHist = EmpHist, weights = weights, fix.a.1pl = fix.a.1pl, fix.a.gpcm = fix.a.gpcm, fix.g = fix.g,
       a.val.1pl = a.val.1pl, a.val.gpcm = a.val.gpcm, g.val = g.val, use.aprior = use.aprior, use.bprior = use.bprior,
       use.gprior = use.gprior, aprior = aprior, bprior = bprior, gprior = gprior, group.mean = group.mean,
-      group.var = group.var, nstd = nstd, Quadrature = Quadrature, control = control,
+      group.var = group.var, nstd = nstd, control = control,
       iter = r, fipc = TRUE, reloc.par = param_loc$reloc.par, parbd = parbd
     )
     
@@ -1986,9 +1996,30 @@ est_irt_fipc <- function(x = NULL,
     niter = r, maxpar.diff = max.diff, EMtime = est_time1, SEtime = est_time2, TotalTime = est_time3, test.1 = memo3, test.2 = memo4,
     var.note = memo5, fipc = TRUE, fipc.method = fipc.method, fix.loc = fix.loc
   )
-  
+
   if (verbose) {
     cat("Estimation is finished in", est_time3, "seconds.", "\n")
   }
   return(rst)
+}
+
+
+# This function checks the quadrature weights supplied by the user (second
+# column of 'weights') and rescales them to sum to one with a warning
+check_weights <- function(weights) {
+  # extract the weights as a numeric vector
+  wts <- as.numeric(unlist(weights[, 2]))
+
+  # stop when the weights are not nonnegative finite values with a positive sum
+  if (!all(is.finite(wts)) || any(wts < 0) || sum(wts) <= 0) {
+    stop("The weights must be nonnegative finite values with a positive sum.", call. = FALSE)
+  }
+
+  # rescale the weights when they do not sum to one
+  if (abs(sum(wts) - 1) > 1e-8) {
+    warning("The weights do not sum to 1 and were rescaled to sum to 1.", call. = FALSE)
+    weights[, 2] <- wts / sum(wts)
+  }
+
+  weights
 }
