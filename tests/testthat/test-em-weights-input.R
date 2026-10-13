@@ -5,16 +5,6 @@ x12 <- xf[c(1:10, 39:40), ]
 set.seed(1)
 d12 <- simdat(x = x12, theta = rnorm(500), D = 1)
 
-# evaluates an expression and returns its value together with the warning messages it issued
-with_warnings <- function(expr) {
-  msg <- character()
-  val <- withCallingHandlers(expr, warning = function(cond) {
-    msg <<- c(msg, conditionMessage(cond))
-    invokeRestart("muffleWarning")
-  })
-  list(value = val, warnings = msg)
-}
-
 sum_msg <- "The weights do not sum to 1 and were rescaled to sum to 1."
 
 test_that("weights that do not sum to one are rescaled with a warning and give the normalized results", {

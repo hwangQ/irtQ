@@ -495,6 +495,15 @@ a normal  prior distribution is used instead. If \code{fipc = TRUE}, the scale
 parameters of this normal prior are estimated along with the item parameters.
 If \code{fipc = FALSE}, they are fixed to the values specified in \code{group.mean} and
 \code{group.var}.
+
+A maximum likelihood estimate does not exist for an item with a score
+category that has no responses, which includes an item whose responses are
+all the same. The estimates of such an item can be extreme or remain near
+their starting values, and their standard errors are unreliable (a standard
+error of 99999 means that it could not be obtained). Before the estimation,
+one warning lists the IDs of these items; the items fixed in FIPC are not
+checked. A parameter with a prior distribution, such as the guessing
+parameter of a 3PLM item with \code{use.gprior = TRUE}, can still be stable.
 }
 \examples{
 \donttest{

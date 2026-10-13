@@ -44,3 +44,13 @@ indep_marg <- function(x, data, weights, D) {
   li <- indep_lse(lj)
   list(loglik = sum(li), loglik_i = li, post = exp(lj - li))
 }
+
+# evaluates an expression and returns its value together with the warning messages it issued
+with_warnings <- function(expr) {
+  msg <- character()
+  val <- withCallingHandlers(expr, warning = function(cond) {
+    msg <<- c(msg, conditionMessage(cond))
+    invokeRestart("muffleWarning")
+  })
+  list(value = val, warnings = msg)
+}

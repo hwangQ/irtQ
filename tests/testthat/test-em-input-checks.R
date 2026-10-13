@@ -60,3 +60,30 @@ test_that("FIPC with all items fixed compares the first cycle with the moments o
   mom.new <- cal_moment(node = fit$weights[, 1], weight = fit$weights[, 2])
   expect_equal(fit$maxpar.diff, max(abs(mom.new - mom.w)), tolerance = 1e-12)
 })
+
+test_that("est_irt() warns once about items with a score category without responses", {
+  dat <- d12
+  # a constant dichotomous item and a GRM item without responses in category 2
+  dat[, 3] <- 1
+  dat[!is.na(dat[, 11]) & dat[, 11] == 2, 11] <- 1
+  res <- with_warnings(est_irt(x = x12, data = dat, D = 1, MaxE = 3, se = FALSE, verbose = FALSE))
+  msg <- grep("no variation in responses", res$warnings, value = TRUE)
+  expect_length(msg, 1)
+  expect_match(msg, paste0("Item[(]s[)] ", x12$id[3], ", ", x12$id[11], " have a score category"))
+  # no such warning for data in which every category is observed
+  ok <- with_warnings(est_irt(x = x12, data = d12, D = 1, MaxE = 3, se = FALSE, verbose = FALSE))
+  expect_false(any(grepl("no variation in responses", ok$warnings)))
+  # the check does not change the estimates
+  expect_identical(res$value$par.est$id, x12$id)
+})
+
+test_that("est_irt() with FIPC checks only the items to be estimated", {
+  dat <- d12
+  dat[, 3] <- 1
+  dat[!is.na(dat[, 11]) & dat[, 11] == 2, 11] <- 1
+  res <- with_warnings(est_irt(x = x12, data = dat, D = 1, fipc = TRUE, fix.loc = 1:5, MaxE = 3, se = FALSE, verbose = FALSE))
+  msg <- grep("no variation in responses", res$warnings, value = TRUE)
+  expect_length(msg, 1)
+  expect_match(msg, paste0("Item[(]s[)] ", x12$id[11], " have a score category"))
+  expect_false(grepl(x12$id[3], msg, fixed = TRUE))
+})

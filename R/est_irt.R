@@ -301,6 +301,15 @@
 #' If `fipc = FALSE`, they are fixed to the values specified in `group.mean` and
 #' `group.var`.
 #'
+#' A maximum likelihood estimate does not exist for an item with a score
+#' category that has no responses, which includes an item whose responses are
+#' all the same. The estimates of such an item can be extreme or remain near
+#' their starting values, and their standard errors are unreliable (a standard
+#' error of 99999 means that it could not be obtained). Before the estimation,
+#' one warning lists the IDs of these items; the items fixed in FIPC are not
+#' checked. A parameter with a prior distribution, such as the guessing
+#' parameter of a 3PLM item with `use.gprior = TRUE`, can still be stable.
+#'
 #' @return This function returns an object of class `est_irt`. The returned
 #'   object contains the following components:
 #'
@@ -974,6 +983,9 @@ est_irt_em <- function(x = NULL,
   # stop when a response is not one of the score categories 0, ..., cats - 1
   check_resp_range(data = data, cats = cats, id = id)
 
+  # warn about the items whose maximum likelihood estimates do not exist
+  check_item_mle(data = data, cats = cats, id = id)
+
   # find the location of 1PLM items in which slope parameters should be constrained to be equal
   # also, find the location of items with other models
   if ("1PLM" %in% model & !fix.a.1pl) {
@@ -1510,6 +1522,11 @@ est_irt_fipc <- function(x = NULL,
 
   # stop when a response is not one of the score categories 0, ..., cats - 1
   check_resp_range(data = data, cats = x$cats, id = x$id)
+
+  # warn about the items to be estimated whose maximum likelihood estimates do not exist
+  if (!is.null(nofix.loc)) {
+    check_item_mle(data = data[, nofix.loc, drop = FALSE], cats = x$cats[nofix.loc], id = x$id[nofix.loc])
+  }
 
   # save the item response data into the different object
   data_all <- data
@@ -2060,6 +2077,27 @@ check_resp_range <- function(data, cats, id) {
       "The responses must be scored as 0, 1, ..., (cats - 1). ",
       "Out-of-range or non-integer responses were found for item(s) ",
       paste0(id[loc_bad], " (allowed 0 to ", cats[loc_bad] - 1, ")", collapse = ", "), "."
+    ), call. = FALSE)
+  }
+  invisible(NULL)
+}
+
+
+# This function warns, once, about the items that have a score category with no
+# responses (which includes the items with all responses the same): their
+# maximum likelihood estimates do not exist
+check_item_mle <- function(data, cats, id) {
+  # flag the items with at least one score category that nobody chose
+  has.empty <- vapply(seq_len(ncol(data)), function(j) {
+    resp <- data[, j]
+    any(tabulate(resp[!is.na(resp)] + 1L, nbins = cats[j]) == 0L)
+  }, logical(1))
+
+  if (any(has.empty)) {
+    warning(paste0(
+      "Item(s) ", paste(id[has.empty], collapse = ", "),
+      " have a score category with no responses or no variation in responses, ",
+      "so their parameter estimates may be unstable and their standard errors unreliable."
     ), call. = FALSE)
   }
   invisible(NULL)

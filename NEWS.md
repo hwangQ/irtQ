@@ -540,6 +540,13 @@
   parameters are estimated, so the information matrix is not computed.",
   instead of the message about a possible local maximum.
 
+- `est_irt()` issues one warning, with the item IDs, when an item to be
+  estimated has a score category without responses or all its responses
+  are the same. The maximum likelihood estimate does not exist for such
+  an item, and the function returned extreme or starting values with
+  standard errors of 99999 without notice. The estimates are not
+  changed.
+
 ## Minor Improvements
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
