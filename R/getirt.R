@@ -79,6 +79,8 @@
 #'   \item{fipc.method}{The specific method used for FIPC.}
 #'   \item{fix.loc}{An integer vector indicating the positions of fixed items used
 #'   during FIPC.}
+#'   \item{npar.detail}{The numbers of free parameters by type; see
+#'   [irtQ::est_irt()].}
 #' }
 #'
 #'
@@ -158,6 +160,8 @@
 #'   \item{fipc.method}{The method used for FIPC.}
 #'   \item{fix.loc}{A list with `overall` and `group` components specifying the
 #'   locations of fixed items when FIPC was applied.}
+#'   \item{npar.detail}{The numbers of free parameters by type; see
+#'   [irtQ::est_mg()].}
 #' }
 #'
 #'
@@ -258,6 +262,8 @@ getirt.est_irt <- function(x, what, ...) {
     fipc = x$fipc,
     fipc.method = x$fipc.method,
     fix.loc = x$fix.loc,
+    # extract the numbers of free parameters by type
+    npar.detail = x$npar.detail,
     stop(sprintf("Could not extract element \'%s\'", what), call. = FALSE)
   )
 
@@ -300,6 +306,8 @@ getirt.est_mg <- function(x, what, ...) {
     fipc = x$fipc,
     fipc.method = x$fipc.method,
     fix.loc = x$fix.loc,
+    # extract the numbers of free parameters by type
+    npar.detail = x$npar.detail,
     stop(sprintf("Could not extract element \'%s\'", what), call. = FALSE)
   )
 

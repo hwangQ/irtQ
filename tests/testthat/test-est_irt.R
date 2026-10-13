@@ -306,3 +306,16 @@ test_that("getirt() returns the documented posterior.dist and scale.D for est_ir
   expect_true(is.matrix(getirt(fit, what = "posterior.dist")))
   expect_true(is.numeric(getirt(fit, what = "scale.D")))
 })
+
+test_that("getirt() extracts npar.detail from est_irt objects", {
+  fit <- est_irt(
+    data = LSAT6, D = 1, model = "2PLM", cats = 2,
+    Etol = 1e-3, se = FALSE, verbose = FALSE
+  )
+  # the numbers of free parameters by type are returned as stored
+  expect_identical(getirt(fit, what = "npar.detail"), fit$npar.detail)
+  expect_equal(sum(getirt(fit, what = "npar.detail")), fit$npar.est)
+  # an object without the element returns NULL
+  fit$npar.detail <- NULL
+  expect_null(getirt(fit, what = "npar.detail"))
+})

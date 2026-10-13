@@ -74,6 +74,17 @@ test_that("getirt() returns the documented posterior.dist and scale.D for est_mg
   expect_true(is.numeric(getirt(fit, what = "scale.D")))
 })
 
+test_that("getirt() extracts npar.detail from est_mg objects", {
+  dat <- make_two_groups(x_drm10)
+  fit <- run_mg(x_drm10, dat)
+  # the numbers of free parameters by type are returned as stored
+  expect_identical(getirt(fit, what = "npar.detail"), fit$npar.detail)
+  expect_equal(sum(getirt(fit, what = "npar.detail")), fit$npar.est)
+  # an object without the element returns NULL
+  fit$npar.detail <- NULL
+  expect_null(getirt(fit, what = "npar.detail"))
+})
+
 test_that("est_mg() par.est is a list with 'overall' and per-group elements", {
   dat <- make_two_groups(x_drm10)
   fit <- run_mg(x_drm10, dat)

@@ -747,8 +747,9 @@
   of means and variances of the latent distributions (`dist`), and of
   weights of the empirical histograms (`weight`); their sum is
   `npar.est`. The `summary()` output shows these three numbers under
-  "Number of free parameters". Objects created by earlier versions have
-  no `npar.detail`, and their summary shows the total only.
+  "Number of free parameters", and `getirt()` extracts it with
+  `what = "npar.detail"`. Objects created by earlier versions have no
+  `npar.detail`, and their summary shows the total only.
 
 - Corrected and extended the help page of `est_irt()`. The returned
   `loglikelihood` is the sum over examinees of the marginal

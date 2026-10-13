@@ -102,6 +102,8 @@ successfully derived from the information matrix.}
 \item{fipc.method}{The specific method used for FIPC.}
 \item{fix.loc}{An integer vector indicating the positions of fixed items used
 during FIPC.}
+\item{npar.detail}{The numbers of free parameters by type; see
+\code{\link[=est_irt]{est_irt()}}.}
 }
 
 Components that can be extracted from an object of class \code{est_mg} created by
@@ -184,6 +186,8 @@ was successfully derived from the information matrix.}
 \item{fipc.method}{The method used for FIPC.}
 \item{fix.loc}{A list with \code{overall} and \code{group} components specifying the
 locations of fixed items when FIPC was applied.}
+\item{npar.detail}{The numbers of free parameters by type; see
+\code{\link[=est_mg]{est_mg()}}.}
 }
 
 Components that can be extracted from an object of class \code{est_item} created by
