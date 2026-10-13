@@ -1,9 +1,9 @@
 # Internal E-step core shared by Estep() and Estep_fipc().  Both
-# public wrappers compute the same three quantities -- a per-(
-# examinee, theta) likelihood matrix, the posterior density over
-# the ability quadrature, and the per-item expected frequencies
-# of scored categories -- and differ only in argument naming and
-# in whether the elm_item used to evaluate the likelihood is the
+# wrappers compute the same three quantities, namely a likelihood
+# matrix (examinees by quadrature points), the posterior density
+# over the ability quadrature, and the expected frequencies of the
+# score categories of each item, and differ only in argument naming
+# and in whether the elm_item used to evaluate the likelihood is the
 # same as the one returned in the result list.
 #
 # Args:
@@ -28,7 +28,7 @@
 #             multi-group case is a list of such data.frames, in
 #             which case theta is read from weights[[1]][, 1] (all
 #             groups share the same quadrature grid by construction).
-#   D       : scaling constant (1 = logistic, 1.7 ~= normal-ogive).
+#   D       : scaling constant (1 for the logistic metric; 1.702 approximates the normal ogive).
 #   idx.std : NULL for single group, or a list of per-group row
 #             indices into the combined response matrix.
 #' @importFrom Matrix crossprod
@@ -118,10 +118,8 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   ## ----------------------------------------------------------------------
   # create empty vectors to contain results
   est_par <- NULL
-  est_pure <- NULL
   convergence <- NULL
   noconv_items <- NULL
-  se <- NULL
 
   if (!is.null(elm_item)) {
     # the dichotomous items: 1PLM with constrained slope values
@@ -313,10 +311,10 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
       # column sum across all quad points
       prior_freq <- prior_freq2 <- unname(Rfast::colsums(post_dist))
 
-      # prevent that the frequency has less than 1e-20
+      # floor the expected frequencies at 1e-20 for the rescaling
       prior_freq[prior_freq < 1e-20] <- 1e-20
 
-      # normalize the updated prior frequency to obtain prior density function
+      # divide the expected frequencies by the number of examinees to obtain the weights of the latent distribution
       prior_dense <- prior_freq2 / nstd
 
       # update the prior densities
@@ -324,7 +322,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
         # when FIPC is used, no rescaling is applied
         weights <- data.frame(theta = quadpt, weight = prior_dense)
       } else {
-        # rescale the prior density distribution using the same quadrature point by applying Woods (2007) method
+        # rescale the histogram to the target mean and variance on the same quadrature points (Woods, 2007)
         prior_dense2 <-
           scale_prior(
             prior_freq = prior_freq, prior_dense = prior_dense, quadpt = quadpt,
@@ -339,7 +337,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
           unname(Rfast::colsums(.x))
         })
 
-      # prevent that the frequency has less than 1e-20
+      # floor the expected frequencies at 1e-20 for the rescaling
       prior_freq <-
         purrr::map(
           .x = prior_freq,
@@ -349,7 +347,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
           }
         )
 
-      # normalize the updated prior frequency to obtain prior density function
+      # divide the expected frequencies by the number of examinees to obtain the weights of the latent distribution
       prior_dense <- purrr::map2(.x = prior_freq2, .y = nstd, ~ {
         .x / .y
       })
@@ -360,7 +358,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
       prior_freq_free <- prior_freq[free.group]
       prior_dense_free <- prior_dense[free.group]
 
-      # rescale the prior density distribution using the same quadrature point by applying Woods (2007) method
+      # rescale the histogram to the target mean and variance on the same quadrature points (Woods, 2007)
       # rescale the distribution of the reference group first
       prior_dense_ref2 <-
         purrr::map2(
@@ -395,7 +393,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
         # update the prior frequencies
         prior_freq <- unname(Rfast::colsums(post_dist))
 
-        # normalize the updated prior frequency to obtain prior density function
+        # divide the expected frequencies by the number of examinees to obtain the weights of the latent distribution
         prior_dense <- prior_freq / nstd
 
         # compute the mean and sd of the updated prior distribution
@@ -415,7 +413,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
           unname(Rfast::colsums(.x))
         })
 
-      # normalize the updated prior frequency to obtain prior density function
+      # divide the expected frequencies by the number of examinees to obtain the weights of the latent distribution
       prior_dense <- purrr::map2(.x = prior_freq2, .y = nstd, ~ {
         .x / .y
       })
@@ -437,7 +435,8 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   }
 
   ## ---------------------------------------------------------------
-  # compute the sum of loglikelihood values
+  # compute the marginal log-likelihood printed for this cycle, which combines the
+  # likelihood of the E-step (item parameters before this M-step) with the updated weights
   if (is.null(idx.std)) {
     llike <- sum(log(likehd %*% matrix(weights[, 2])))
   } else {
@@ -455,7 +454,7 @@ Mstep <- function(estep, id, cats, model, quadpt, n.quad, D = 1, cols.item = NUL
   # update the item parameters in the elm_item object
   elm_item$pars <- par_df
 
-  # organize the the results
+  # organize the results
   rst <- list(
     elm_item = elm_item, convergence = convergence, noconv_items = noconv_items,
     weights = weights, loglike = llike

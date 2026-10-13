@@ -7,7 +7,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                         control, startval = NULL, lower, upper) {
   # build the cached (objective, gradient, hessian) trio once per call
-  # for DRM models - see make_drm_optim_fns() for the cache mechanics.
+  # for DRM models; see make_drm_optim_fns() for the cache mechanics.
   # n.1PLM only matters for the (!fix.a & mod=="1PLM") branch, so it is NULL otherwise
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
     drm_fns <- make_drm_optim_fns(
@@ -57,7 +57,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
       adjust = FALSE
     )
   } else {
-    # when the item slope parameters are not constrained to be across all items
+    # when the slope parameters are not constrained to be equal across items
     if (mod %in% c("1PLM", "2PLM", "3PLM")) {
       # initial estimation to find better starting values
       # (gradient-only nlminb sweeps with three step.max settings; the
@@ -234,7 +234,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
 }
 
 
-# This function is an internal function used in the 'est_irt' function.
+# This function is an internal function used in the 'est_irt' and 'est_mg' functions.
 estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "GRM", "GPCM"), score.cat, D = 1, n.quad,
                         fix.a.1pl = TRUE, fix.a.gpcm = FALSE, fix.g = FALSE, a.val.1pl = 1, a.val.gpcm = 1, g.val = .2, n.1PLM = NULL,
                         aprior = list(dist = "lnorm", params = c(0, 0.5)),
@@ -243,10 +243,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                         control, startval = NULL, lower, upper, iter = NULL) {
   # build the cached (objective, gradient, hessian) trio once per call
-  # for DRM models - see make_drm_optim_fns() for the cache mechanics.
-  # PRM models skip the trio entirely (drm_fns is never invoked), so
-  # building it here is harmless: the closures are lazy and never call
-  # drm() until used.
+  # for DRM models; see make_drm_optim_fns() for the cache mechanics.
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
     drm_fns <- make_drm_optim_fns(
       f_i = f_i, r_i = r_i, s_i = s_i, theta = quadpt,
@@ -258,7 +255,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
     )
   }
 
-  # estimation of item parameter & standard error
+  # estimation of item parameters
   if (!fix.a.1pl & mod == "1PLM") {
     # when the item slope parameters are constrained to be equal across all 1PLM items
     # estimate the item parameters
@@ -287,9 +284,9 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
       )
     }
   } else {
-    # when the item slope parameters are not constrained to be across all items
+    # when the slope parameters are not constrained to be equal across items
     if (mod %in% c("1PLM", "2PLM", "3PLM")) {
-      # initial estimation to find better starting values
+      # in the first two EM cycles, run short gradient-only searches to find better starting values
       if (iter < 3) {
         tmp_est <- vector("list", 3)
         tmp_est[[1]] <- stats::nlminb(startval,
@@ -345,7 +342,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
         use.aprior = use.aprior, use.bprior = use.bprior
       )
 
-      # initial estimation to find better starting values
+      # in the first two EM cycles, run short gradient-only searches to find better starting values
       if (iter < 3) {
         tmp_est <- vector("list", 3)
         tmp_est[[1]] <- stats::nlminb(startval,

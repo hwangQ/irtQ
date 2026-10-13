@@ -600,8 +600,8 @@ grad_item_drm_se <- function(item_par, f_i, r_i, theta, mod = c("1PLM", "2PLM", 
     grad <- cbind(gr_a, gr_b)
   }
 
-  # (2) 1PLM with a fixed slope (also evaluated for the 2PLM and 3PLM and overwritten below)
-  if (is.null(n.1PLM)) {
+  # (2) 1PLM with a fixed slope
+  if (is.null(n.1PLM) && mod == "1PLM") {
     # assign a and b parameters
     a <- a.val
     b <- item_par

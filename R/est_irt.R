@@ -884,7 +884,7 @@ est_irt_em <- function(x = NULL,
     model <- x$model
     
     # if use.startval = FALSE
-    # create a new item medadata object with starting values
+    # create a new item metadata object with starting values
     if (!use.startval) {
       x <- startval_df(cats = cats, model = model, item.id = id)
     }
@@ -1008,10 +1008,11 @@ est_irt_em <- function(x = NULL,
   idx.prm <- idx.item$idx.prm
   
   # then, divide items into three groups
-  # (1) DRM 1PL items with the constrained slop
+  # (1) DRM 1PL items with the constrained slope
   # (2) other DRM items
   # (3) PRM items
-  if (sum(loc_else) == 0) {
+  # (no item other than the constrained 1PLM items when loc_else is empty)
+  if (length(loc_else) == 0) {
     drm.else <- NULL
   } else {
     drm.else <- loc_else
@@ -1044,7 +1045,6 @@ est_irt_em <- function(x = NULL,
   
   # implement EM algorithm
   time1 <- Sys.time()
-  # par.history <- list()
   for (r in 1:MaxE) {
     # implement E-step
     estep <- Estep(
@@ -1087,14 +1087,10 @@ est_irt_em <- function(x = NULL,
     
     # extract the updated item parameter estimates
     elm_item$pars <- mstep$elm_item$pars
-    # par.history[[r]] <- mstep$par_vec
-    
+
     # extract the updated quadrature points and
     # the corresponding weights of the prior population density
     weights <- mstep$weights
-    
-    # delete 'estep' and 'mstep' object
-    # rm(estep, mstep, envir=environment(), inherits = FALSE)
     
     # terminate the EM step if the convergence criterion is satisfied
     if (converge | r == MaxE) {
@@ -1140,7 +1136,7 @@ est_irt_em <- function(x = NULL,
   # delete 'estep' and 'mstep' object
   rm(estep, mstep, data_drm, data_prm, data_all, envir = environment(), inherits = FALSE)
   
-  # compute the information matrix of item parameter estimates using the cross-product method
+  # compute the information matrix of the item parameter estimates: the cross-product information plus the prior information
   if (se) {
     if (verbose) {
       cat("Computing item parameter var-covariance matrix...", "\n")
@@ -1469,7 +1465,7 @@ est_irt_fipc <- function(x = NULL,
   data_all <- data
   rm(data, envir = environment(), inherits = FALSE)
   
-  # divide the item response data into two groups: fixed (x_fix) and non-fixed (x)
+  # divide the item response data into two groups: fixed (data_fix) and non-fixed (data_new)
   data_fix <- data_all[, fix.loc, drop = FALSE]
   if (!is.null(x_new)) {
     data_new <- data_all[, nofix.loc, drop = FALSE]
@@ -1525,7 +1521,7 @@ est_irt_fipc <- function(x = NULL,
     quadpt <- seq(-Quadrature[2], Quadrature[2], length.out = Quadrature[1])
     n.quad <- length(quadpt)
     
-    # create the data.frame containing the quadurature points and weights
+    # create the data.frame containing the quadrature points and weights
     weights <- gen.weight(dist = "norm", mu = group.mean, sigma = sqrt(group.var), theta = quadpt)
   } else {
     quadpt <- weights[, 1]
@@ -1566,11 +1562,12 @@ est_irt_fipc <- function(x = NULL,
   idx.prm.all <- idx.item.all$idx.prm
   
   # then, divide items in the new test form into three groups
-  # (1) DRM 1PL items with the constrained slop
+  # (1) DRM 1PL items with the constrained slope
   # (2) other DRM items
   # (3) PRM items
+  # (no item other than the constrained 1PLM items when loc_else is empty)
   if (!is.null(x_new)) {
-    if (sum(loc_else) == 0) {
+    if (length(loc_else) == 0) {
       drm.else <- NULL
     } else {
       drm.else <- loc_else
@@ -1773,7 +1770,7 @@ est_irt_fipc <- function(x = NULL,
        envir = environment(), inherits = FALSE
     )
     
-    # compute the information matrix of item parameter estimates using the cross-product method
+    # compute the information matrix of the item parameter estimates: the cross-product information plus the prior information
     if (se) {
       if (verbose) {
         cat("Computing item parameter var-covariance matrix...", "\n")
@@ -1865,7 +1862,7 @@ est_irt_fipc <- function(x = NULL,
     
     # deploy the standard errors into the same row/column layout that
     # holds the item parameter estimates.
-    # 1) for the only new items (see est_irt_em() for the loc.par layout).
+    # 1) for the new items only (see est_irt_em() for the loc.par layout).
     se_df <- loc.par <- param_loc$loc.par
     mask  <- !is.na(loc.par)
     if (se) {
@@ -1874,7 +1871,7 @@ est_irt_fipc <- function(x = NULL,
       se_df[mask] <- NA_real_
     }
     
-    # 2) for the a total test form
+    # 2) for the total test form
     all.col <- max(x_all$cats)
     all.col <- ifelse(all.col == 2, 3, all.col)
     se_all_df <- loc_all.par <- matrix(NA, nrow = nitem.all, ncol = all.col)
@@ -1913,7 +1910,7 @@ est_irt_fipc <- function(x = NULL,
     # record the standard error computation time (NULL)
     est_time2 <- NULL
     
-    # deploy the standard errors on the location of matrix as the item parameter estimates
+    # all standard errors are NA because no item parameter is estimated
     se_df <- loc_all.par <- param_loc$loc.par
     
     # create a full data.frame for the standard error estimates

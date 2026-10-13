@@ -1,4 +1,6 @@
-# rescaling process by applying Woods's (2007) empirical histogram method
+# This function rescales an empirical histogram on fixed quadrature points to a target mean and variance
+# (scale.par), following Woods (2007): the points are standardized and transformed, the frequencies are
+# interpolated back to the original points, extrapolated exponentially at both ends, and renormalized.
 scale_prior <- function(prior_freq, prior_dense, quadpt, scale.par = c(0, 1), Quadrature) {
   # mean and sd of the updated prior distribution
   moments <- cal_moment(node = quadpt, weight = prior_dense)
@@ -54,7 +56,7 @@ scale_prior <- function(prior_freq, prior_dense, quadpt, scale.par = c(0, 1), Qu
   # translated empirical histogram at the original quad points
   prior_freq2 <- c(freq_1, freq_2, freq_3)
 
-  # r-enormalize the empirical histogram
+  # renormalize the empirical histogram
   prior_dense2 <- prior_freq2 / sum(prior_freq2)
 
   # return the prior density
