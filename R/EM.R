@@ -1,6 +1,6 @@
 # Internal E-step core shared by Estep() and Estep_fipc().  Both
 # wrappers compute the same three quantities, namely a likelihood
-# matrix (examinees by quadrature points), the posterior density
+# matrix (examinees by quadrature points), the posterior distribution
 # over the ability quadrature, and the expected frequencies of the
 # score categories of each item, and differ only in argument naming
 # and in whether the elm_item used to evaluate the likelihood is the
@@ -51,7 +51,7 @@
   )
   likehd <- lik$L
 
-  # posterior density of ability per examinee (rows sum to 1);
+  # posterior distribution of ability per examinee (rows sum to 1);
   # idx.std = NULL takes the single-group branch, otherwise the
   # multi-group branch with per-group prior weights
   post_dist <- posterior(likehd = likehd, weights = weights, idx.std = idx.std)

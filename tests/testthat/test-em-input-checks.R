@@ -74,7 +74,8 @@ test_that("est_irt() warns once about items with a score category without respon
   ok <- with_warnings(est_irt(x = x12, data = d12, D = 1, MaxE = 3, se = FALSE, verbose = FALSE))
   expect_false(any(grepl("no variation in responses", ok$warnings)))
   # the check does not change the estimates
-  expect_identical(res$value$par.est$id, x12$id)
+  plain <- suppressWarnings(est_irt(x = x12, data = dat, D = 1, MaxE = 3, se = FALSE, verbose = FALSE))
+  expect_identical(res$value$par.est, plain$par.est)
 })
 
 test_that("est_irt() with FIPC checks only the items to be estimated", {

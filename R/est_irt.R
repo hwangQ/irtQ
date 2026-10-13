@@ -1308,7 +1308,8 @@ est_irt_em <- function(x = NULL,
   # delete 'estep' and 'mstep' object
   rm(estep, mstep, data_drm, data_prm, data_all, envir = environment(), inherits = FALSE)
   
-  # compute the information matrix of the item parameter estimates: the cross-product information plus the prior information
+  # compute the information matrix of the item parameter estimates:
+  # the cross-product information plus the prior information
   if (se) {
     if (verbose) {
       cat("Computing item parameter var-covariance matrix...", "\n")
@@ -1988,7 +1989,8 @@ est_irt_fipc <- function(x = NULL,
        envir = environment(), inherits = FALSE
     )
     
-    # compute the information matrix of the item parameter estimates: the cross-product information plus the prior information
+    # compute the information matrix of the item parameter estimates:
+    # the cross-product information plus the prior information
     if (se) {
       if (verbose) {
         cat("Computing item parameter var-covariance matrix...", "\n")

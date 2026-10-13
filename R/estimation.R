@@ -193,7 +193,7 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
       }
 
       # refit with ordered thresholds when the GRM thresholds are not in increasing order
-      if (mod == "GRM" && is.unsorted(est$par[-1], strictly = TRUE)) {
+      if (mod == "GRM" && isTRUE(is.unsorted(est$par[-1], strictly = TRUE))) {
         est <- est_grm_ordered(
           startval = startval.in, prm_fns = prm_fns, control = control,
           lower = lower, upper = upper
@@ -405,7 +405,7 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
       }
 
       # refit with ordered thresholds when the GRM thresholds are not in increasing order
-      if (mod == "GRM" && is.unsorted(est$par[-1], strictly = TRUE)) {
+      if (mod == "GRM" && isTRUE(is.unsorted(est$par[-1], strictly = TRUE))) {
         est <- est_grm_ordered(
           startval = startval.in, prm_fns = prm_fns, control = control,
           lower = lower, upper = upper

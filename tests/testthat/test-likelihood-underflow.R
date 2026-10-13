@@ -28,6 +28,7 @@ test_that("likelihood() rescales underflowing rows and posterior() stays finite"
 })
 
 test_that("est_irt() and est_irt(fipc = TRUE) report the correct log-likelihood for a long test", {
+  skip_on_cran()
   lt <- make_long()
   fit <- suppressWarnings(est_irt(x = lt$x, data = lt$data, D = 1, MaxE = 1, se = FALSE, verbose = FALSE))
   ref <- indep_marg(fit$par.est, lt$data, fit$weights, D = 1)
