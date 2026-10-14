@@ -947,7 +947,7 @@ est_mg_em <- function(x = NULL,
   # a vector of item ID for the combined data set
   id <- colnames(data)
 
-  # create an item metadata for the combined data est
+  # create an item metadata for the combined data set
   x <-
     dplyr::bind_rows(x.gr) %>%
     dplyr::distinct(.data$id, .keep_all = TRUE)
@@ -981,12 +981,12 @@ est_mg_em <- function(x = NULL,
     if (is.character(free.group)) {
       free.group <- which(group.name %in% free.group)
       if (length(free.group) == 0) {
-        stop("The group(s) in which abiltiy distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
+        stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
       }
       ref.group <- c(1:ngroup)[-free.group]
     } else {
       if (sum(1:ngroup %in% free.group) == 0) {
-        stop("The group(s) in which abiltiy distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
+        stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
       }
       ref.group <- c(1:ngroup)[-free.group]
     }
@@ -1020,7 +1020,7 @@ est_mg_em <- function(x = NULL,
     warning.memo <-
       paste0(
         paste(group.name[nolink.free], collapse = ", "),
-        " group(s) whose ability distribution(s) is(are) freely estimated do(does) share common items with other groups. \n",
+        " group(s) whose ability distribution(s) is(are) freely estimated do(does) not share common items with other groups. \n",
         "Please specify the freely estimated group(s) correctly."
       )
     stop(paste0(warning.memo, " \n"), call. = FALSE)
@@ -1100,10 +1100,11 @@ est_mg_em <- function(x = NULL,
   idx.prm <- idx.item$idx.prm
 
   # then, divide items into three groups
-  # (1) DRM 1PL items with the constrained slop
+  # (1) DRM 1PL items with the constrained slope
   # (2) other DRM items
   # (3) PRM items
-  if (sum(loc_else) == 0) {
+  # (no item other than the constrained 1PLM items when loc_else is empty)
+  if (length(loc_else) == 0) {
     drm.else <- NULL
   } else {
     drm.else <- loc_else
@@ -1527,7 +1528,7 @@ est_mg_fipc <- function(x = NULL,
                         group.var = 1,
                         EmpHist = FALSE,
                         use.startval = FALSE,
-                        Etol = 1e-04,
+                        Etol = 1e-03,
                         MaxE = 500,
                         control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4),
                         fipc = TRUE,
@@ -1649,7 +1650,7 @@ est_mg_fipc <- function(x = NULL,
   # find the locations of items that should be fixed in the combined data set
   fix.loc <- which(id %in% fix.item)
 
-  # create an item metadata for the combined data est
+  # create an item metadata for the combined data set
   x <-
     dplyr::bind_rows(x.gr) %>%
     dplyr::distinct(.data$id, .keep_all = TRUE)
@@ -1717,9 +1718,6 @@ est_mg_fipc <- function(x = NULL,
     x_all[nofix.loc, 1:ncol(x_new)] <- x_new
   }
 
-  # check whether included data are correct
-  # if(nitem.all != ncol(data)) stop("The number of items included in 'x' and 'data' must be the same.", call.=FALSE)
-
   # designate a reference group whose group parameters will be fixed
   if (is.null(free.group)) {
     stop("The free.group argument should not be NULL when FIPC = TRUE.", call. = FALSE)
@@ -1727,12 +1725,12 @@ est_mg_fipc <- function(x = NULL,
   if (is.character(free.group)) {
     free.group <- which(group.name %in% free.group)
     if (length(free.group) == 0) {
-      stop("The group(s) in which abiltiy distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
+      stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
     }
     ref.group <- c(1:ngroup)[-free.group]
   } else {
     if (sum(1:ngroup %in% free.group) == 0) {
-      stop("The group(s) in which abiltiy distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
+      stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
     }
     ref.group <- c(1:ngroup)[-free.group]
   }
@@ -1759,9 +1757,9 @@ est_mg_fipc <- function(x = NULL,
   # check if there exist free groups which do not share common items with other groups
   nolink.free <- free.group[free.group %in% nolink.gr]
 
-  # count the number of fixed items in each group
-  n.fix.gr <- purrr::map_dbl(.x = fix.item.gr, ~ {
-    length(.x)
+  # count the number of fixed items in each group (an item fixed in one group is fixed in all groups)
+  n.fix.gr <- purrr::map_dbl(.x = item.id, ~ {
+    sum(.x %in% fix.item)
   })
 
   # when there exist groups that are specified as free groups but not have fixed items,
@@ -1769,7 +1767,8 @@ est_mg_fipc <- function(x = NULL,
   if (!all(nolink.free %in% which(n.fix.gr != 0))) {
     warning.memo <-
       paste0(
-        paste(group.name[nolink.free[nolink.free %in% which(n.fix.gr != 0)]], collapse = ", "),
+        # names of the free groups that have neither common items nor fixed items
+        paste(group.name[nolink.free[!nolink.free %in% which(n.fix.gr != 0)]], collapse = ", "),
         " group(s) in which ability distribution(s) is(are) freely estimated do(does) not share common items with other groups \n",
         "nor include fixed items. Please specify the freely estimated group(s) correctly."
       )
@@ -1782,7 +1781,8 @@ est_mg_fipc <- function(x = NULL,
   # check the items which have all missing responses
   loc_allmiss <- which(n.resp == 0L)
   if (length(loc_allmiss) > 0L) {
-    allmiss_item <- id[loc_allmiss]
+    # IDs of the columns of the combined data set (id now holds the IDs of the new items only)
+    allmiss_item <- x$id[loc_allmiss]
     memo2 <- paste0(paste0(allmiss_item, collapse = ", "), " has/have no item response data across all groups. \n")
     stop(memo2, call. = FALSE)
   }
@@ -1791,7 +1791,7 @@ est_mg_fipc <- function(x = NULL,
   data_all <- data
   rm(data, envir = environment(), inherits = FALSE)
 
-  # divide the item response data into two groups: fixed (x_fix) and non-fixed (x)
+  # divide the item response data into two groups: fixed (data_fix) and non-fixed (data_new)
   data_fix <- data_all[, fix.loc, drop = FALSE]
   if (!is.null(x_new)) {
     data_new <- data_all[, nofix.loc, drop = FALSE]
@@ -1894,11 +1894,12 @@ est_mg_fipc <- function(x = NULL,
   idx.prm.all <- idx.item.all$idx.prm
 
   # then, divide items in the new test form into three groups
-  # (1) DRM 1PL items with the constrained slop
+  # (1) DRM 1PL items with the constrained slope
   # (2) other DRM items
   # (3) PRM items
   if (!is.null(x_new)) {
-    if (sum(loc_else) == 0) {
+    # (no item other than the constrained 1PLM items when loc_else is empty)
+    if (length(loc_else) == 0) {
       drm.else <- NULL
     } else {
       drm.else <- loc_else
@@ -2244,7 +2245,7 @@ est_mg_fipc <- function(x = NULL,
       se_df[mask] <- NA_real_
     }
 
-    # 2) for the a total test form
+    # 2) for all items of the combined form
     all.col <- max(x_all$cats)
     all.col <- ifelse(all.col == 2, 3, all.col)
     se_all_df <- loc_all.par <- matrix(NA, nrow = nitem.all, ncol = all.col)

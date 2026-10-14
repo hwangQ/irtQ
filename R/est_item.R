@@ -345,7 +345,7 @@ est_item <- function(x = NULL,
     loc_allmiss <- NULL
   }
 
-  # computes the group parameter estimates: mean & var of ability parameters
+  # compute the mean and standard deviation of the abilities
   group.par <- c(mu = mean(score), sigma = stats::sd(score))
 
   # transform scores to a vector if the score has other formats
@@ -405,10 +405,11 @@ est_item <- function(x = NULL,
   idx.prm <- idx.item$idx.prm
 
   # then, divide items into three groups
-  # (1) DRM 1PL items with the constrained slop
+  # (1) DRM 1PL items with the constrained slope
   # (2) other DRM items
   # (3) PRM items
-  if (sum(loc_else) == 0) {
+  # (no item other than the constrained 1PLM items when loc_else is empty)
+  if (length(loc_else) == 0) {
     drm.else <- NULL
   } else {
     drm.else <- loc_else
