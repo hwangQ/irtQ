@@ -542,6 +542,15 @@
   computed. It now reads as in `est_irt()`: "No item parameters are
   estimated, so the information matrix is not computed."
 
+- `est_item()` returned the log-likelihood plus the log prior densities
+  as `loglikelihood` when prior distributions were used, for example for
+  3PLM items with the default `use.gprior = TRUE`, although the help
+  page and the printed "-2loglikelihood" call it the log-likelihood. It
+  now returns the log-likelihood at the final estimates without the log
+  prior densities, as `est_irt()` and `est_mg()` do. The estimates,
+  standard errors, and covariances are unchanged, and so is
+  `loglikelihood` when no prior is used.
+
 ## Changes in Behavior
 
 - `catsib()` has a new argument `rho.screen`, `TRUE` by default. When
@@ -618,6 +627,17 @@
   its responses pooled over the groups, and `est_item()` judges the
   items that have responses.
 
+- In `est_irt()` with FIPC and in `est_mg()`, the convergence of the EM
+  algorithm is now judged by the largest absolute change in all
+  estimated parameters, including the means and variances of the latent
+  ability distributions that are estimated (the FIPC group in
+  `est_irt()` and the groups in `free.group` in `est_mg()`). Previously
+  only the item parameters were compared, so the group parameters could
+  stop short of convergence, especially with the default `Etol = 1e-3`
+  of `est_mg()`. The estimates can differ slightly, and the number of EM
+  cycles can increase. `maxpar.diff` and the "Max-Change" printed during
+  the EM cycles follow the new rule.
+
 ## Minor Improvements
 
 - `est_mg()` checks its inputs and stops with a clear message when
@@ -634,6 +654,9 @@
 - `est_mg()` with FIPC warns when a fixed item has different parameter
   values in different groups. The values of the first group that
   includes the item are used, as before.
+
+- `getirt()` can extract the matched `call` of `est_irt()`, `est_mg()`,
+  and `est_item()` objects with `what = "call"`.
 
 - `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.
@@ -841,6 +864,18 @@
   argument descriptions, and the examples were corrected. The same
   corrections apply to `getirt()` and to the arguments shared with other
   help pages.
+
+- Corrected and extended the help pages of `est_mg()`, `est_item()`, and
+  `getirt()` in the same way. The help page of `est_mg()` now explains
+  `free.group`, the roles of `weights`, `group.mean`, `group.var`, and
+  `EmpHist` for groups in and not in `free.group`, the MG-FIPC algorithm
+  (Kim & Kolen, 2016), and the structure of the returned
+  `loglikelihood`, `group.par`, `posterior.dist`, `data`, `ncase`, and
+  `nitem`. The help page of `est_item()` states that the estimates are
+  Bayes modal when priors are used, that the items are estimated
+  separately, and what `group.par`, `data`, `deleted.item`, and
+  `n.response` contain. The `README` and the reference of Kim and
+  Kolen (2016) were corrected.
 
 # irtQ 1.3.1
 
