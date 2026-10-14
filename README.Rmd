@@ -201,7 +201,7 @@ In the `irtQ` package, FIPC is implemented through the following three steps:
 
 ## 3. Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)
 
-In computerized adaptive testing (CAT), the fixed ability parameter calibration (FAPC) method - also known as Stocking's Method A (Stocking, 1988) - is one of the simplest and most straightforward approaches for calibrating pretest items. It involves estimating item parameters using maximum likelihood (or Bayes modal estimation when prior distributions are used), conditional on known or estimated proficiency values.
+In computerized adaptive testing (CAT), the fixed ability parameter calibration (FAPC) method, also known as Stocking's Method A (Stocking, 1988), is one of the simplest and most straightforward approaches for calibrating pretest items. It involves estimating item parameters using maximum likelihood (or Bayes modal estimation when prior distributions are used), conditional on known or estimated proficiency values.
 
 FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is known to produce accurate and unbiased item parameter estimates when items are randomly administered to examinees, rather than adaptively, which is often the case for pretest items (Ban et al., 2001; Chen & Wang, 2016).
 

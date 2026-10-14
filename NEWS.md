@@ -533,9 +533,10 @@
   information to place the ability scale. `est_irt()` and `est_mg()` now
   stop with a message when the responses to all fixed items show no
   variation (`est_mg()` uses the responses pooled over the groups). When
-  the last search of an item in an M-step fails, the item now keeps its
-  previous values and is reported as not converged, instead of stopping
-  the run.
+  the last search of an item in an M-step fails, or all the short
+  searches for starting values in the first two EM cycles fail, the item
+  now keeps its previous values and is reported as not converged,
+  instead of stopping the run.
 
 - For `est_mg()` with FIPC and all items fixed, `test.2` read "Solution
   is a possible local maximum." although no information matrix is
@@ -635,14 +636,15 @@
   of `data`, when an item ID is repeated within a group, when items with
   the same ID have different models or numbers of score categories in
   different groups, when `free.group` names or numbers a group that does
-  not exist or leaves no reference group without FIPC, when `fix.loc`
-  has the wrong length or repeated positions, when an ID in `fix.id` is
-  not found, and when `fipc.method` is not `"MEM"` or `"OEM"` (also in
-  `est_irt()`).
+  not exist or leaves no reference group without FIPC, when `fix.loc` is
+  not a list with one element per group or has repeated positions, when
+  an ID in `fix.id` is not found, and when `fipc.method` is not `"MEM"`
+  or `"OEM"` (also in `est_irt()`).
 
 - `est_mg()` with FIPC warns when a fixed item has different parameter
   values in different groups. The values of the first group that
-  includes the item are used, as before.
+  includes the item are used, as before. Differences of at most 1e-10
+  are ignored.
 
 - `getirt()` can extract the matched `call` of `est_irt()`, `est_mg()`,
   and `est_item()` objects with `what = "call"`.
@@ -677,6 +679,7 @@
 - The warning for `"DRM"` items reads "All 'DRM' items are treated as
   '3PLM' items." and no longer mentions item parameter estimation,
   because it also appears in functions such as `info()` and `simdat()`.
+  `est_mg()` gives it once, not once for each group.
 
 - `est_score()` stops with a clear message when `data` has a number of
   columns other than the number of items (it scored the wrong items
@@ -821,10 +824,10 @@
   `getirt()` now describe how the standard errors are computed: the
   information of the item parameter priors is added to the cross-product
   information matrix of `est_irt()` and `est_mg()`, and `est_item()`
-  uses the observed information with the abilities treated as known.
-  They also state that `test.2` checks whether the information matrix is
-  singular, and that the slope prior `aprior` is placed on `D` times the
-  slope.
+  uses the observed information with the abilities treated as known. The
+  help pages of `est_irt()`, `est_mg()`, and `getirt()` also state that
+  `test.2` checks whether the information matrix is singular, and that
+  the slope prior `aprior` is placed on `D` times the slope.
 
 - `est_irt()` and `est_mg()` return a new last element, `npar.detail`,
   an integer vector with the numbers of free item parameters (`item`),
@@ -865,6 +868,20 @@
   separately, and what `group.par`, `data`, `deleted.item`, and
   `n.response` contain. The `README` and the reference of Kim and
   Kolen (2016) were corrected.
+
+- The help pages of `est_irt()` and `est_mg()` state that the EM cycles
+  stop on the largest absolute change in the estimated item parameters
+  (with all items fixed in FIPC, in the means and variances of the
+  latent distributions). The estimated means and variances of the latent
+  distributions and the weights of empirical histograms are not part of
+  this criterion, so they can be less converged than the item
+  parameters, and a smaller `Etol` gives more precise values; the
+  default `Etol` of `est_mg()` (`1e-3`) is larger than that of
+  `est_irt()` (`1e-4`). The help pages also state that, with
+  `EmpHist = TRUE`, `group.par` reports the fixed mean and variance of a
+  rescaled histogram, which can differ slightly from the mean and
+  variance of the returned `weights`, and that the standard errors of
+  the item parameters treat the latent distributions as known.
 
 # irtQ 1.3.1
 

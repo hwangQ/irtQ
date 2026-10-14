@@ -247,8 +247,8 @@ steps:
 ## 3. Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)
 
 In computerized adaptive testing (CAT), the fixed ability parameter
-calibration (FAPC) method - also known as Stocking's Method A (Stocking,
-1988) - is one of the simplest and most straightforward approaches for
+calibration (FAPC) method, also known as Stocking's Method A (Stocking,
+1988), is one of the simplest and most straightforward approaches for
 calibrating pretest items. It involves estimating item parameters using
 maximum likelihood (or Bayes modal estimation when prior distributions
 are used), conditional on known or estimated proficiency values.
@@ -694,7 +694,7 @@ mod_fipc <- irtQ::est_irt(
   fix.loc     = c(1:40))                       
 #> Parsing input... 
 #> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001393 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
+#>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001386 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
 #> Computing item parameter var-covariance matrix... 
 #> Estimation is finished in 0.49 seconds.
 
@@ -1011,7 +1011,7 @@ irtQ::summary(mod_fapc)
 #> 15  New_I15  2000
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.53
+#>  Total computation: 0.51
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
