@@ -2,6 +2,7 @@
 
 M <- make_mg_data(seed = 11)
 gn <- c("G1", "G2", "G3")
+# fits stop after two cycles, so calls that do not test the convergence warning suppress it call by call
 q <- function(...) est_mg(..., verbose = FALSE, MaxE = 2, se = FALSE)
 
 test_that("item.id replaces the IDs in x in MG-FIPC", {
@@ -69,19 +70,24 @@ test_that("MG-FIPC with all items fixed reports that the information matrix is n
 test_that("an item keeps its previous values and is marked as not converged when its last search fails", {
   quadpt <- seq(-4, 4, length.out = 21)
   nan_freq <- rep(NaN, 21)
-  # 2PLM item
-  est <- irtQ:::estimation2(
+  # 2PLM item; the NaN frequencies make every search evaluate the objective at NaN
+  r <- with_warnings(irtQ:::estimation2(
     f_i = nan_freq, r_i = nan_freq, s_i = nan_freq, quadpt = quadpt, mod = "2PLM", D = 1, n.quad = 21,
     control = list(eval.max = 50, iter.max = 20), startval = c(1.2, 0.3), lower = c(0.01, -6), upper = c(5, 6), iter = 5
-  )
+  ))
+  est <- r$value
+  expect_true(length(r$warnings) > 0L)
+  expect_true(all(grepl("NA/NaN function evaluation", r$warnings)))
   expect_equal(est$pars, c(1.2, 0.3))
   expect_equal(est$convergence, 1L)
   # 1PLM items that share one slope
-  est1 <- irtQ:::estimation2(
+  r1 <- with_warnings(irtQ:::estimation2(
     f_i = nan_freq, r_i = nan_freq, s_i = nan_freq, quadpt = quadpt, mod = "1PLM", D = 1, n.quad = 21,
     fix.a.1pl = FALSE, n.1PLM = 2, control = list(eval.max = 50, iter.max = 20), startval = c(1, 0.1, -0.2),
     lower = c(0.01, -6, -6), upper = c(5, 6, 6), iter = 5
-  )
+  ))
+  est1 <- r1$value
+  expect_true(all(grepl("NA/NaN function evaluation", r1$warnings)))
   expect_equal(est1$pars, c(1, 0.1, -0.2))
   expect_equal(est1$convergence, 1L)
 })
