@@ -707,6 +707,12 @@ est_mg <- function(x = NULL,
   default_control <- list(eval.max = 500, iter.max = 200, x.tol = 1e-4)
   control <- modifyList(default_control, control)
 
+  # stop when the arguments given per group do not match the groups in 'data'
+  check_mg_args(
+    x = x, data = data, group.name = group.name, model = model, cats = cats,
+    item.id = item.id, fipc = fipc, fipc.method = fipc.method
+  )
+
   # item parameter estimation
   if (!fipc) {
     # item parameter estimation using MMLE-EM algorithm
@@ -870,18 +876,20 @@ est_mg_em <- function(x = NULL,
       })
     names(model.gr) <- group.name
 
-    # score categories for each group test form
-    cats.gr <-
-      purrr::map2(
-        .x = cats, .y = nitem.gr,
-        .f = function(x, y) {
-          if (length(x) == 1) {
-            rep(x, y)
-          } else {
-            x
+    # score categories for each group test form (cats = NULL is handled below)
+    if (!is.null(cats)) {
+      cats.gr <-
+        purrr::map2(
+          .x = cats, .y = nitem.gr,
+          .f = function(x, y) {
+            if (length(x) == 1) {
+              rep(x, y)
+            } else {
+              x
+            }
           }
-        }
-      )
+        )
+    }
 
     # create score category vectors when cats = NULL & all models are dichotomous item models
     if (is.null(cats)) {
@@ -922,11 +930,15 @@ est_mg_em <- function(x = NULL,
       purrr::pmap(
         .l = list(x = cats.gr, y = model.gr, z = item.id),
         ~ {
-          startval_df(cats = ..1, model = ..2, item.id = ..3)
+          # check the metadata as est_irt() does (e.g., "DRM" items become "3PLM" items)
+          confirm_df(startval_df(cats = ..1, model = ..2, item.id = ..3))
         }
       )
     names(x.gr) <- group.name
   }
+
+  # stop when an item ID is repeated within a group or is defined differently across groups
+  check_mg_items(x.gr)
 
   # copy data to data.gr object
   data.gr <- data
@@ -963,6 +975,11 @@ est_mg_em <- function(x = NULL,
   # recode missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
+    # recode the missing values in the response data of each group as well
+    data.gr <- purrr::map(.x = data.gr, ~ {
+      .x[.x == missing] <- NA
+      .x
+    })
   }
 
   # transform a data set to matrix
@@ -974,23 +991,14 @@ est_mg_em <- function(x = NULL,
   # check the total number of items in the combined data
   nitem <- ncol(data)
 
+  # stop when a response is not one of the score categories 0, ..., cats - 1
+  check_resp_range(data = data, cats = cats, id = id)
+
   # designate a reference group whose group parameters will be fixed
-  if (is.null(free.group)) {
-    ref.group <- 1:ngroup
-  } else {
-    if (is.character(free.group)) {
-      free.group <- which(group.name %in% free.group)
-      if (length(free.group) == 0) {
-        stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
-      }
-      ref.group <- c(1:ngroup)[-free.group]
-    } else {
-      if (sum(1:ngroup %in% free.group) == 0) {
-        stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
-      }
-      ref.group <- c(1:ngroup)[-free.group]
-    }
-  }
+  # (stop when a free group does not exist or no reference group is left)
+  grp <- set_mg_groups(free.group = free.group, group.name = group.name, fipc = FALSE)
+  free.group <- grp$free.group
+  ref.group <- grp$ref.group
 
   # find the groups that have no common items with other groups
   pair <-
@@ -1611,6 +1619,12 @@ est_mg_fipc <- function(x = NULL,
     ), call. = FALSE)
   }
   if (!is.null(fix.id)) {
+    # stop when an ID in 'fix.id' is not found in the item IDs of any group
+    id.notfound <- setdiff(unique(fix.id), unlist(item.id))
+    if (length(id.notfound) > 0L) {
+      stop("The item ID(s) in 'fix.id' not found in the item IDs: ", paste(id.notfound, collapse = ", "), ".",
+           call. = FALSE)
+    }
     fix.item <- unique(fix.id)
     fix.item.gr <- purrr::map(.x = item.id, ~ {
       .x[.x %in% fix.item]
@@ -1620,6 +1634,24 @@ est_mg_fipc <- function(x = NULL,
     })
     names(fix.loc.gr) <- group.name
   } else {
+    # stop when 'fix.loc' does not have one element (NULL or row positions) per group
+    fix.loc.chk <- if (is.list(fix.loc)) fix.loc else as.list(fix.loc)
+    if (length(fix.loc.chk) != ngroup) {
+      stop("'fix.loc' must be a list with one element for each of the ", ngroup, " groups.", call. = FALSE)
+    }
+    # groups whose positions are missing, outside the rows of the group's metadata, or repeated
+    bad.loc <- which(vapply(seq_len(ngroup), function(g) {
+      l <- fix.loc.chk[[g]]
+      length(l) > 0L && (anyNA(l) || any(!l %in% seq_len(nitem.gr[g])) || anyDuplicated(l) > 0L)
+    }, logical(1)))
+    if (length(bad.loc) > 0L) {
+      stop("Each element of 'fix.loc' must contain distinct row positions of the item metadata of its group. ",
+           "Check group(s) ", paste(bad.loc, collapse = ", "), ".", call. = FALSE)
+    }
+    # stop when no item is fixed
+    if (sum(lengths(fix.loc.chk)) == 0L) {
+      stop("'fix.loc' must contain at least one fixed item.", call. = FALSE)
+    }
     fix.item.gr <- purrr::map2(.x = item.id, .y = fix.loc, ~ {
       .x[.y]
     })
@@ -1627,6 +1659,9 @@ est_mg_fipc <- function(x = NULL,
     fix.loc.gr <- fix.loc
     names(fix.loc.gr) <- group.name
   }
+
+  # stop when an item ID is repeated within a group or is defined differently across groups
+  check_mg_items(x.gr)
 
   # copy data to data.gr object
   data.gr <- data
@@ -1662,6 +1697,11 @@ est_mg_fipc <- function(x = NULL,
   # recode missing values
   if (!is.na(missing)) {
     data[data == missing] <- NA
+    # recode the missing values in the response data of each group as well
+    data.gr <- purrr::map(.x = data.gr, ~ {
+      .x[.x == missing] <- NA
+      .x
+    })
   }
 
   # transform a data set to matrix
@@ -1722,18 +1762,10 @@ est_mg_fipc <- function(x = NULL,
   if (is.null(free.group)) {
     stop("The free.group argument should not be NULL when FIPC = TRUE.", call. = FALSE)
   }
-  if (is.character(free.group)) {
-    free.group <- which(group.name %in% free.group)
-    if (length(free.group) == 0) {
-      stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group.name argument.", call. = FALSE)
-    }
-    ref.group <- c(1:ngroup)[-free.group]
-  } else {
-    if (sum(1:ngroup %in% free.group) == 0) {
-      stop("The group(s) in which ability distribution(s) is(are) freely estimated do(does) not exist in the group name list.", call. = FALSE)
-    }
-    ref.group <- c(1:ngroup)[-free.group]
-  }
+  # (stop when a free group does not exist)
+  grp <- set_mg_groups(free.group = free.group, group.name = group.name, fipc = TRUE)
+  free.group <- grp$free.group
+  ref.group <- grp$ref.group
 
   # find the groups that have no common items with other groups
   pair <-
@@ -1786,6 +1818,9 @@ est_mg_fipc <- function(x = NULL,
     memo2 <- paste0(paste0(allmiss_item, collapse = ", "), " has/have no item response data across all groups. \n")
     stop(memo2, call. = FALSE)
   }
+
+  # stop when a response is not one of the score categories 0, ..., cats - 1
+  check_resp_range(data = data, cats = x$cats, id = x$id)
 
   # save the item response data into the different object
   data_all <- data
@@ -2414,4 +2449,127 @@ est_mg_fipc <- function(x = NULL,
     cat("Estimation is finished in", est_time3, "seconds.", "\n")
   }
   return(rst)
+}
+
+
+# This function stops when the arguments of est_mg() that are given per group do not
+# have one element for each group in 'data'
+check_mg_args <- function(x, data, group.name, model, cats, item.id, fipc, fipc.method) {
+  # 'data' must be a list with one response data set per group
+  if (!is.list(data) || is.data.frame(data)) {
+    stop("'data' must be a list containing one response data matrix for each group.", call. = FALSE)
+  }
+
+  # number of groups and number of items (columns) in each group's response data
+  ngroup <- length(data)
+  nitem.gr <- vapply(data, NCOL, numeric(1))
+
+  # one unique group name per group
+  if (!is.null(group.name) && (length(group.name) != ngroup || anyDuplicated(group.name) > 0L)) {
+    stop("'group.name' must contain ", ngroup, " unique names, one for each element of 'data'.", call. = FALSE)
+  }
+
+  # the FIPC method must be one of the two available methods
+  if (fipc && !(length(fipc.method) == 1L && fipc.method %in% c("MEM", "OEM"))) {
+    stop("'fipc.method' must be either \"MEM\" or \"OEM\".", call. = FALSE)
+  }
+
+  # the item metadata is a list with one data frame per group, one row per response column
+  if (!is.null(x)) {
+    if (!is.list(x) || is.data.frame(x) || length(x) != ngroup) {
+      stop("'x' must be a list containing the item metadata of each of the ", ngroup, " groups.", call. = FALSE)
+    }
+    # groups whose item metadata and response data have different numbers of items
+    bad.x <- which(vapply(x, NROW, numeric(1)) != nitem.gr)
+    if (length(bad.x) > 0L) {
+      stop("The number of items in 'x' and 'data' must be the same in each group. ",
+           "They differ in group(s) ", paste(bad.x, collapse = ", "), ".", call. = FALSE)
+    }
+  } else if (!fipc) {
+    # model and cats are recycled across the groups only when a single element is given
+    for (arg in list(list(model, "model"), list(cats, "cats"))) {
+      if (!is.null(arg[[1]]) && !length(arg[[1]]) %in% c(1L, ngroup)) {
+        stop("'", arg[[2]], "' must be a list with one element for each of the ", ngroup, " groups.", call. = FALSE)
+      }
+    }
+  }
+
+  # the item IDs are a list with one ID per item of each group
+  if (!is.null(item.id)) {
+    if (!is.list(item.id) || length(item.id) != ngroup) {
+      stop("'item.id' must be a list containing the item IDs of each of the ", ngroup, " groups.", call. = FALSE)
+    }
+    # groups whose item IDs do not have one value per item
+    bad.id <- which(lengths(item.id) != nitem.gr)
+    if (length(bad.id) > 0L) {
+      stop("Each element of 'item.id' must have one ID for each item (column) of the group's response data. ",
+           "Check group(s) ", paste(bad.id, collapse = ", "), ".", call. = FALSE)
+    }
+  }
+
+  invisible(NULL)
+}
+
+
+# This function converts 'free.group' to group indices and finds the reference groups whose
+# latent distributions are fixed; it stops when 'free.group' names a group that does not
+# exist or, without FIPC, leaves no reference group to fix the scale
+set_mg_groups <- function(free.group, group.name, fipc) {
+  # number of groups
+  ngroup <- length(group.name)
+
+  if (is.null(free.group)) {
+    # all groups are reference groups
+    ref.group <- 1:ngroup
+  } else {
+    if (is.character(free.group)) {
+      # stop when a name in 'free.group' is not one of the group names
+      if (!all(free.group %in% group.name)) {
+        stop("The group(s) ", paste(setdiff(free.group, group.name), collapse = ", "),
+             " in 'free.group' do(does) not exist in the group.name argument.", call. = FALSE)
+      }
+      free.group <- which(group.name %in% free.group)
+    } else {
+      # stop when a value in 'free.group' is not one of the group indices
+      if (!all(free.group %in% 1:ngroup)) {
+        stop("The values in 'free.group' must be group indices between 1 and ", ngroup, ".", call. = FALSE)
+      }
+      # count each free group once
+      free.group <- unique(free.group)
+    }
+    ref.group <- c(1:ngroup)[-free.group]
+  }
+
+  # without fixed items, at least one reference group is needed to fix the scale
+  if (!fipc && length(ref.group) == 0L) {
+    stop("At least one group must be left out of 'free.group' so that its latent distribution ",
+         "fixes the scale when fipc = FALSE.", call. = FALSE)
+  }
+
+  list(free.group = free.group, ref.group = ref.group)
+}
+
+
+# This function stops when an item ID is repeated within a group or has different numbers
+# of score categories or different models across groups
+check_mg_items <- function(x.gr) {
+  # item IDs repeated within a group
+  dup.id <- unique(unlist(lapply(x.gr, function(z) z$id[duplicated(z$id)])))
+  if (length(dup.id) > 0L) {
+    stop("Item IDs must be unique within each group. Repeated item ID(s): ",
+         paste(dup.id, collapse = ", "), ".", call. = FALSE)
+  }
+
+  # stack the item metadata of all groups
+  x.all <- dplyr::bind_rows(x.gr)
+
+  # item IDs whose numbers of score categories or models differ across groups
+  n.def <- tapply(paste(x.all$cats, x.all$model), x.all$id, function(k) length(unique(k)))
+  bad.id <- names(n.def)[n.def > 1L]
+  if (length(bad.id) > 0L) {
+    stop("Items with the same ID must have the same number of score categories and the same model ",
+         "in all groups. Check item(s) ", paste(bad.id, collapse = ", "), ".", call. = FALSE)
+  }
+
+  invisible(NULL)
 }

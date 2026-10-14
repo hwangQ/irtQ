@@ -468,6 +468,32 @@ knitr::opts_chunk$set(
   with FIPC, and the free groups of `est_mg()`), where Q is the number of
   quadrature points. The values for a normal distribution do not change.
 
+* `est_mg()` with `x = NULL` stopped with an error when `cats = NULL`, although
+  the help page allows it when all models are dichotomous, and when `model`
+  included `"DRM"`. Both now work, as in `est_irt()`.
+
+* `est_mg()` counted a group that was listed twice in `free.group` twice in
+  `npar.est`, which made `aic` and `bic` too large. It silently treated a group
+  name in `free.group` that is not in `group.name` as a reference group, and it
+  silently dropped a position in `fix.loc` that is outside the rows of `x`, so
+  that a different set of items was fixed. A repeated group is now counted
+  once, and the other two cases stop with an error.
+
+* `est_mg()` ran with a response such as 0.5, which the likelihood and the
+  frequency tables treated differently. Responses must now be whole numbers
+  from 0 to the number of score categories minus 1, as in `est_irt()`.
+
+* With `missing` supplied, the `group` element of `data` returned by `est_mg()`
+  still held the missing-value code, while `overall` had `NA`. Both now have
+  `NA`.
+
+* `est_item()` stopped with an unclear error when `score` was a data frame,
+  contained a missing value, or had a length different from the number of rows
+  of `data`, and when only one item had responses. A data frame `score` now
+  works, and the other cases stop with a clear message or work. The message
+  about items that did not converge numbered the items after the items without
+  responses had been removed; it now uses the positions in the supplied data.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the
@@ -537,6 +563,16 @@ knitr::opts_chunk$set(
   99999 without notice. The estimates are not changed.
 
 ## Minor Improvements
+* `est_mg()` checks its inputs and stops with a clear message when `group.name`
+  does not have one unique name per group, when `x`, `model`, `cats`, or
+  `item.id` does not match the groups or the columns of `data`, when an item ID
+  is repeated within a group, when items with the same ID have different models
+  or numbers of score categories in different groups, when `free.group` names
+  or numbers a group that does not exist or leaves no reference group without
+  FIPC, when `fix.loc` has the wrong length or repeated positions, when an ID
+  in `fix.id` is not found, and when `fipc.method` is not `"MEM"` or `"OEM"`
+  (also in `est_irt()`).
+
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.
 

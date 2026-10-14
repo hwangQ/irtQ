@@ -927,6 +927,11 @@ est_irt <- function(x = NULL,
   default_control <- list(eval.max = 500, iter.max = 200, x.tol = 1e-4)
   control <- modifyList(default_control, control)
 
+  # the FIPC method must be one of the two available methods
+  if (fipc && !(length(fipc.method) == 1L && fipc.method %in% c("MEM", "OEM"))) {
+    stop("'fipc.method' must be either \"MEM\" or \"OEM\".", call. = FALSE)
+  }
+
   # item parameter estimation
   if (!fipc) {
     # item parameter estimation using MMLE-EM algorithm

@@ -322,6 +322,20 @@ est_item <- function(x = NULL,
     data[data == missing] <- NA
   }
 
+  # stop when a response is not one of the score categories 0, ..., cats - 1
+  check_resp_range(data = data.matrix(data), cats = cats, id = x$id)
+
+  # transform scores to a vector if the score has other formats
+  if (is.matrix(score) | is.data.frame(score)) {
+    score <- as.numeric(data.matrix(score))
+  }
+
+  # stop when the scores do not give one finite ability value per examinee
+  if (length(score) != nstd || !all(is.finite(score))) {
+    stop("'score' must contain one finite ability value (no missing value) for each examinee (row) of 'data'.",
+         call. = FALSE)
+  }
+
   # check the number of item responses across all items
   n.resp <- colSums(!is.na(data))
 
@@ -335,7 +349,8 @@ est_item <- function(x = NULL,
     x <- x[-loc_allmiss, ]
     model <- x[, 3]
     cats <- x[, 2]
-    data <- data[, loc_nomiss]
+    # keep the data a data frame even when one item is left
+    data <- data[, loc_nomiss, drop = FALSE]
     memo2 <- paste0(
       paste0("item ", loc_allmiss, collapse = ", "),
       " is/are excluded in the item parameter estimation because the item(s) has/have no item response data."
@@ -347,11 +362,6 @@ est_item <- function(x = NULL,
 
   # compute the mean and standard deviation of the abilities
   group.par <- c(mu = mean(score), sigma = stats::sd(score))
-
-  # transform scores to a vector if the score has other formats
-  if (is.matrix(score) | is.data.frame(score)) {
-    score <- as.numeric(data.matrix(score))
-  }
 
   # copy scores to theta values
   theta <- score
@@ -661,6 +671,8 @@ est_item <- function(x = NULL,
   if (sum(convergence) == 0L) {
     note <- "All item parameters were successfully converged."
   } else {
+    # report the positions in the original data when items with no responses were removed
+    if (length(loc_allmiss) > 0L) noconv_items <- loc_nomiss[noconv_items]
     note <- paste0(paste0("Item ", sort(noconv_items), collapse = ", "), " was(were) not successfully converged.")
   }
 
