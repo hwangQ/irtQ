@@ -13,7 +13,7 @@ The goal of `irtQ` is to fit unidimensional item response theory (IRT)
 models to data that may include both dichotomous and polytomous items.
 The package enables:
 
-- Typical item parameters estimation
+- Typical item parameter estimation
 - Pretest item calibration
 - Multiple-group item calibration
 - Estimation of examinees' latent abilities
@@ -250,8 +250,8 @@ In computerized adaptive testing (CAT), the fixed ability parameter
 calibration (FAPC) method - also known as Stocking's Method A (Stocking,
 1988) - is one of the simplest and most straightforward approaches for
 calibrating pretest items. It involves estimating item parameters using
-maximum likelihood estimation, conditional on known or estimated
-proficiency values.
+maximum likelihood (or Bayes modal estimation when prior distributions
+are used), conditional on known or estimated proficiency values.
 
 FAPC is primarily used to place the parameter estimates of pretest items
 onto the same scale as the operational item parameters. It can also be
@@ -281,7 +281,8 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
 
     The `irtQ::est_item()` function estimates pretest item parameters
     based on provided ability estimates. To use this function, you must
-    specify the following arguments:
+    specify the following arguments (or `x`, an item metadata data
+    frame, in place of `model` and `cats`):
 
     - `data`: A matrix or data frame containing examinees' item
       responses.
@@ -457,7 +458,7 @@ mod_ref <- irtQ::est_irt(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -53907.8298, Max-Change: 1.917401 EM iteration: 2, Loglike: -47810.7610, Max-Change: 0.333348 EM iteration: 3, Loglike: -47780.1401, Max-Change: 0.130911 EM iteration: 4, Loglike: -47777.7493, Max-Change: 0.064179 EM iteration: 5, Loglike: -47776.9296, Max-Change: 0.038227 EM iteration: 6, Loglike: -47776.4542, Max-Change: 0.026209 EM iteration: 7, Loglike: -47776.1402, Max-Change: 0.019566 EM iteration: 8, Loglike: -47775.9185, Max-Change: 0.015306 EM iteration: 9, Loglike: -47775.7539, Max-Change: 0.012285 EM iteration: 10, Loglike: -47775.6263, Max-Change: 0.01001 EM iteration: 11, Loglike: -47775.5239, Max-Change: 0.008238 EM iteration: 12, Loglike: -47775.4394, Max-Change: 0.006834 EM iteration: 13, Loglike: -47775.3679, Max-Change: 0.005706 EM iteration: 14, Loglike: -47775.3064, Max-Change: 0.004795 EM iteration: 15, Loglike: -47775.2525, Max-Change: 0.004052 EM iteration: 16, Loglike: -47775.2048, Max-Change: 0.003444 EM iteration: 17, Loglike: -47775.1621, Max-Change: 0.002944 EM iteration: 18, Loglike: -47775.1234, Max-Change: 0.002529 EM iteration: 19, Loglike: -47775.0882, Max-Change: 0.002184 EM iteration: 20, Loglike: -47775.0558, Max-Change: 0.001895 EM iteration: 21, Loglike: -47775.0259, Max-Change: 0.001652 EM iteration: 22, Loglike: -47774.9980, Max-Change: 0.001446 EM iteration: 23, Loglike: -47774.9719, Max-Change: 0.001271 EM iteration: 24, Loglike: -47774.9473, Max-Change: 0.001121 EM iteration: 25, Loglike: -47774.9241, Max-Change: 0.000993 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.49 seconds.
+#> Estimation is finished in 1.27 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_ref)
@@ -487,9 +488,9 @@ irtQ::summary(mod_ref)
 #>  Maximum parameter change: 0.0009933655
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.38
+#>  EM algorithm: 1.16
 #>  Standard error computation: 0.05
-#>  Total computation: 1.49
+#>  Total computation: 1.27
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -693,9 +694,9 @@ mod_fipc <- irtQ::est_irt(
   fix.loc     = c(1:40))                       
 #> Parsing input... 
 #> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001386 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
+#>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001393 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.64 seconds.
+#> Estimation is finished in 0.49 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_fipc)
@@ -724,9 +725,9 @@ irtQ::summary(mod_fipc)
 #>  Maximum parameter change: 0.0009076875
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.4
+#>  EM algorithm: 0.32
 #>  Standard error computation: 0.02
-#>  Total computation: 0.64
+#>  Total computation: 0.49
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1010,13 +1011,13 @@ irtQ::summary(mod_fapc)
 #> 15  New_I15  2000
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.57
+#>  Total computation: 0.53
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 36901.01
+#>  -2loglikelihood: 36922.69
 #>  Item Parameters: 
 #>          id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1    New_I1     2   3PLM   1.41  0.12   0.58  0.09   0.23  0.03     NA    NA

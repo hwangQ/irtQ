@@ -612,9 +612,10 @@ fit index for polytomous IRT models. \emph{Journal of Educational Measurement,
 Kim, S. (2006). A comparative study of IRT fixed parameter calibration
 methods. \emph{Journal of Educational Measurement, 43}(4), 355-381.
 
-Kim, S., & Kolen, M. J. (2016). Multiple group IRT fixed-parameter
-estimation for maintaining an established ability scale. \emph{Center for
-Advanced Studies in Measurement and Assessment Report, 49.}
+Kim, S., & Kolen, M. J. (2016). \emph{Multiple group IRT fixed-parameter
+estimation for maintaining an established ability scale} (CASMA Research
+Report No. 49). Center for Advanced Studies in Measurement and Assessment,
+University of Iowa.
 
 Kolen, M. J., & Brennan, R. L. (2004). \emph{Test equating, scaling, and
 linking} (2nd ed.). Springer.

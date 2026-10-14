@@ -325,8 +325,13 @@ log prior densities of the item parameters are not included.}
 (mean, variance, and standard deviation of the latent ability
 distribution) and rows \code{estimates} and \code{se}. Without FIPC, the values are
 fixed at \code{group.mean} and \code{group.var} (or at the mean and variance of
-\code{weights}, if supplied) and \code{se} is \code{NA}. With FIPC, the values are the
-mean and variance of the final latent distribution, and \code{se} gives
+\code{weights}, if supplied) and \code{se} is \code{NA}. When \code{EmpHist = TRUE}, the
+empirical histogram is rescaled in each cycle to have this mean and
+variance. Because the rescaling interpolates on the quadrature points, the
+mean and variance computed from the returned \code{weights} can differ slightly
+from the reported values. With FIPC, the values are the mean and variance
+of the final latent distribution (these are the mean and variance of the
+returned \code{weights}), and \code{se} gives
 approximate standard errors, \code{sigma / sqrt(N)} for the mean and
 \code{sigma2 * sqrt(2 / (N - 1))} for the variance, with the delta method for
 \code{sigma}, where \code{N} is the number of examinees; these treat the abilities as
@@ -954,9 +959,10 @@ item parameters: Application of an EM algorithm. \emph{Psychometrika, 46},
 Kim, S. (2006). A comparative study of IRT fixed parameter calibration
 methods. \emph{Journal of Educational Measurement, 43}(4), 355-381.
 
-Kim, S., & Kolen, M. J. (2016). Multiple group IRT fixed-parameter
-estimation for maintaining an established ability scale. \emph{Center for
-Advanced Studies in Measurement and Assessment Report, 49.}
+Kim, S., & Kolen, M. J. (2016). \emph{Multiple group IRT fixed-parameter
+estimation for maintaining an established ability scale} (CASMA Research
+Report No. 49). Center for Advanced Studies in Measurement and Assessment,
+University of Iowa.
 
 Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
 terms. \emph{Journal of the Royal Statistical Society: Series B

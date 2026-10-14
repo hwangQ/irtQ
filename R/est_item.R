@@ -1,9 +1,12 @@
 #' Fixed ability parameter calibration
 #'
 #' This function performs fixed ability parameter calibration (FAPC), often
-#' called Stocking's (1988) Method A, which is the maximum likelihood estimation
-#' of item parameters given ability estimates (Baker & Kim, 2004; Ban et al.,
-#' 2001; Stocking, 1988). It can also be considered a special case of joint
+#' called Stocking's (1988) Method A, which estimates item parameters by
+#' maximum likelihood given ability estimates (Baker & Kim, 2004; Ban et al.,
+#' 2001; Stocking, 1988). When prior distributions are specified for item
+#' parameters (by default, for the guessing parameters of 3PLM items), the
+#' estimates are the modes of the posterior distribution. It can also be
+#' considered a special case of joint
 #' maximum likelihood estimation in which only one cycle of item parameter
 #' estimation is conducted, conditioned on the given ability estimates
 #' (Birnbaum, 1968). FAPC is a potentially useful method for calibrating pretest
@@ -20,22 +23,24 @@
 #'   an empty item metadata frame using the function [irtQ::shape_df()].
 #'
 #'   When `use.startval = TRUE`, the item parameters specified in the metadata
-#'   will be used as starting values for parameter estimation. If `x = NULL`,
-#'   both `model` and `cats` arguments must be specified. See [irtQ::est_irt()]
+#'   will be used as starting values for parameter estimation; otherwise they
+#'   are ignored. If `x = NULL`, the models and numbers of score categories are
+#'   taken from the `model` and `cats` arguments. See [irtQ::est_irt()]
 #'   or [irtQ::simdat()] for more details about the item metadata. Default is
 #'   `NULL`.
-#' @param score A numeric vector of examinees' ability estimates (theta values).
-#' The length of this vector must match the number of rows in the response data.
+#' @param score A numeric vector of examinees' ability estimates (theta values),
+#'   which are treated as known. It must have one finite value per row of
+#'   `data`, in the same order as the rows.
 #' @param model A character vector specifying the IRT model to fit each item.
 #'   Available values are:
 #'   - `"1PLM"`, `"2PLM"`, `"3PLM"`, `"DRM"` for dichotomous items
 #'   - `"GRM"`, `"GPCM"` for polytomous items
 #'
 #'   Here, `"GRM"` denotes the graded response model and `"GPCM"` the
-#'   (generalized) partial credit model. Note that `"DRM"` serves as a general
-#'   label covering all three dichotomous IRT models. If a single model name is
-#'   provided, it is recycled for all items. This argument is only used when `x
-#'   = NULL`. Default is `NULL`.
+#'   (generalized) partial credit model. Note that `"DRM"` is a general label
+#'   for dichotomous items; items labeled `"DRM"` are fitted with the 3PLM, and
+#'   a warning is issued. If a single model name is provided, it is recycled for
+#'   all items. This argument is only used when `x = NULL`. Default is `NULL`.
 #' @param cats Numeric vector specifying the number of score categories per
 #'   item. For dichotomous items, this should be 2. If a single value is
 #'   supplied, it will be recycled across all items. When `cats = NULL` and all
@@ -46,20 +51,27 @@
 #'   `x` are used, or IDs are generated automatically when `x = NULL`. A
 #'   provided `item.id` replaces any IDs in `x` and must have one value per
 #'   item. Default is `NULL`.
-#' @param control A named list of options passed directly to [stats::nlminb()]. 
-#'   These parameters define settings for the item parameter estimation process, 
-#'   such as the maximum number of iterations. By default:
-#'   `control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)`, where  
-#'   - `eval.max` = 500 limits the number of function evaluations  
-#'   - `iter.max` = 200 caps the number of internal optimizer iterations  
-#'   - `x.tol` = 1e-4 sets the absolute change threshold in parameter values  
-#'     below which [stats::nlminb()] considers the solution to have converged  
-#'   Users may additionally supply other `nlminb()` control options  
-#'   (such as `abs.tol`, `rel.tol`, `trace`, etc.) as needed.
+#' @param control A named list of control options for [stats::nlminb()], which
+#'   maximizes the objective of each item (see Details). The default is
+#'   `list(eval.max = 500, iter.max = 200, x.tol = 1e-4)`, where
+#'   - `eval.max` is the maximum number of objective function evaluations,
+#'   - `iter.max` is the maximum number of optimizer iterations, and
+#'   - `x.tol` is the X-convergence tolerance of [stats::nlminb()].
+#'
+#'   A partial list may be supplied; options that are not supplied keep their
+#'   default values. Other options of [stats::nlminb()], such as `rel.tol` or
+#'   `trace`, can also be supplied.
 #' @param verbose Logical. If `FALSE`, all progress messages are suppressed.
 #'   Default is `TRUE`.
 #'
-#' @details In most cases, the function [irtQ::est_item()] returns successfully
+#' @details The parameters of each item are estimated separately by maximizing
+#'   the log-likelihood of its responses given the abilities in `score` (plus
+#'   the log prior densities when priors are used), except that the 1PLM items
+#'   share one slope, estimated jointly with their difficulties, when
+#'   `fix.a.1pl = FALSE`. Missing responses are omitted. Items without any
+#'   response are excluded from the estimation with a warning.
+#'
+#'   In most cases, the function [irtQ::est_item()] returns successfully
 #'   converged item parameter estimates using its default internal starting
 #'   values. However, if convergence issues arise during calibration, one
 #'   possible solution is to use alternative starting values. If item parameter
@@ -102,7 +114,9 @@
 #'   matrix.}
 #'
 #'   \item{covariance}{A variance-covariance matrix of the item parameter
-#'   estimates.}
+#'   estimates. Items are estimated separately, so the covariances between the
+#'   parameters of different items are 0, except among the 1PLM items that
+#'   share a common slope.}
 #'
 #'   \item{loglikelihood}{The log-likelihood of the observed responses given
 #'   the abilities in `score`, summed over the items, at the final estimates.
@@ -112,7 +126,9 @@
 #'   \item{group.par}{A named numeric vector with the mean (`mu`) and the
 #'   standard deviation (`sigma`) of the abilities in `score`.}
 #'
-#'   \item{data}{A data frame of examinees' response data.}
+#'   \item{data}{A data frame of the response data used in the estimation,
+#'   with missing responses as `NA` and without the excluded items (see
+#'   `deleted.item`).}
 #'
 #'   \item{score}{A vector of examinees' ability estimates used as fixed values
 #'   during item parameter estimation.}
@@ -122,15 +138,17 @@
 #'   \item{convergence}{A message indicating whether item parameter estimation
 #'   successfully converged.}
 #'
-#'   \item{nitem}{The total number of items in the response data.}
+#'   \item{nitem}{The number of items in `data` as supplied, including the
+#'   excluded items.}
 #'
-#'   \item{deleted.item}{Items with no response data. These items are excluded
-#'   from the item parameter estimation.}
+#'   \item{deleted.item}{A numeric vector of the positions of the items without
+#'   any response, which are excluded from the estimation (empty if there are
+#'   none). Their rows in `par.est` and `se.est` are `NA`.}
 #'
-#'   \item{npar.est}{The total number of parameters estimated.}
+#'   \item{npar.est}{The number of estimated item parameters.}
 #'
-#'   \item{n.response}{An integer vector indicating the number of valid responses
-#'   for each item used in the item parameter estimation.}
+#'   \item{n.response}{A numeric vector of the numbers of non-missing responses
+#'   to the items, with 0 for the excluded items.}
 #'
 #'   \item{TotalTime}{Total computation time in seconds.}
 #'
@@ -214,7 +232,7 @@
 #' summary(mod3)
 #'
 #' # Extract both item parameter and standard error estimates
-#' getirt(mod2, what = "estimates")
+#' getirt(mod3, what = "estimates")
 #'
 #' }
 #'

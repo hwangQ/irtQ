@@ -37,8 +37,9 @@ categories, IRT model type, etc.) necessary for calibration. You can create
 an empty item metadata frame using the function \code{\link[=shape_df]{shape_df()}}.
 
 When \code{use.startval = TRUE}, the item parameters specified in the metadata
-will be used as starting values for parameter estimation. If \code{x = NULL},
-both \code{model} and \code{cats} arguments must be specified. See \code{\link[=est_irt]{est_irt()}}
+will be used as starting values for parameter estimation; otherwise they
+are ignored. If \code{x = NULL}, the models and numbers of score categories are
+taken from the \code{model} and \code{cats} arguments. See \code{\link[=est_irt]{est_irt()}}
 or \code{\link[=simdat]{simdat()}} for more details about the item metadata. Default is
 \code{NULL}.}
 
@@ -48,8 +49,9 @@ to an item with K score categories must be integers from 0 to K - 1.
 Missing responses are coded as \code{NA} or, in functions that have a
 \code{missing} argument, as the value given in \code{missing}.}
 
-\item{score}{A numeric vector of examinees' ability estimates (theta values).
-The length of this vector must match the number of rows in the response data.}
+\item{score}{A numeric vector of examinees' ability estimates (theta values),
+which are treated as known. It must have one finite value per row of
+\code{data}, in the same order as the rows.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly
@@ -63,9 +65,10 @@ Available values are:
 }
 
 Here, \code{"GRM"} denotes the graded response model and \code{"GPCM"} the
-(generalized) partial credit model. Note that \code{"DRM"} serves as a general
-label covering all three dichotomous IRT models. If a single model name is
-provided, it is recycled for all items. This argument is only used when \code{x = NULL}. Default is \code{NULL}.}
+(generalized) partial credit model. Note that \code{"DRM"} is a general label
+for dichotomous items; items labeled \code{"DRM"} are fitted with the 3PLM, and
+a warning is issued. If a single model name is provided, it is recycled for
+all items. This argument is only used when \code{x = NULL}. Default is \code{NULL}.}
 
 \item{cats}{Numeric vector specifying the number of score categories per
 item. For dichotomous items, this should be 2. If a single value is
@@ -147,18 +150,18 @@ items whose parameters are estimated; \code{x} must then be supplied.
 Otherwise, internally generated starting values are used. Default is
 \code{FALSE}.}
 
-\item{control}{A named list of options passed directly to \code{\link[stats:nlminb]{stats::nlminb()}}.
-These parameters define settings for the item parameter estimation process,
-such as the maximum number of iterations. By default:
-\code{control = list(eval.max = 500, iter.max = 200, x.tol = 1e-4)}, where
+\item{control}{A named list of control options for \code{\link[stats:nlminb]{stats::nlminb()}}, which
+maximizes the objective of each item (see Details). The default is
+\code{list(eval.max = 500, iter.max = 200, x.tol = 1e-4)}, where
 \itemize{
-\item \code{eval.max} = 500 limits the number of function evaluations
-\item \code{iter.max} = 200 caps the number of internal optimizer iterations
-\item \code{x.tol} = 1e-4 sets the absolute change threshold in parameter values
-below which \code{\link[stats:nlminb]{stats::nlminb()}} considers the solution to have converged
-Users may additionally supply other \code{nlminb()} control options
-(such as \code{abs.tol}, \code{rel.tol}, \code{trace}, etc.) as needed.
-}}
+\item \code{eval.max} is the maximum number of objective function evaluations,
+\item \code{iter.max} is the maximum number of optimizer iterations, and
+\item \code{x.tol} is the X-convergence tolerance of \code{\link[stats:nlminb]{stats::nlminb()}}.
+}
+
+A partial list may be supplied; options that are not supplied keep their
+default values. Other options of \code{\link[stats:nlminb]{stats::nlminb()}}, such as \code{rel.tol} or
+\code{trace}, can also be supplied.}
 
 \item{verbose}{Logical. If \code{FALSE}, all progress messages are suppressed.
 Default is \code{TRUE}.}
@@ -185,7 +188,9 @@ within the estimation vector. Useful for interpreting the variance-covariance
 matrix.}
 
 \item{covariance}{A variance-covariance matrix of the item parameter
-estimates.}
+estimates. Items are estimated separately, so the covariances between the
+parameters of different items are 0, except among the 1PLM items that
+share a common slope.}
 
 \item{loglikelihood}{The log-likelihood of the observed responses given
 the abilities in \code{score}, summed over the items, at the final estimates.
@@ -195,7 +200,9 @@ results report -2 times this value as "-2loglikelihood".}
 \item{group.par}{A named numeric vector with the mean (\code{mu}) and the
 standard deviation (\code{sigma}) of the abilities in \code{score}.}
 
-\item{data}{A data frame of examinees' response data.}
+\item{data}{A data frame of the response data used in the estimation,
+with missing responses as \code{NA} and without the excluded items (see
+\code{deleted.item}).}
 
 \item{score}{A vector of examinees' ability estimates used as fixed values
 during item parameter estimation.}
@@ -205,15 +212,17 @@ during item parameter estimation.}
 \item{convergence}{A message indicating whether item parameter estimation
 successfully converged.}
 
-\item{nitem}{The total number of items in the response data.}
+\item{nitem}{The number of items in \code{data} as supplied, including the
+excluded items.}
 
-\item{deleted.item}{Items with no response data. These items are excluded
-from the item parameter estimation.}
+\item{deleted.item}{A numeric vector of the positions of the items without
+any response, which are excluded from the estimation (empty if there are
+none). Their rows in \code{par.est} and \code{se.est} are \code{NA}.}
 
-\item{npar.est}{The total number of parameters estimated.}
+\item{npar.est}{The number of estimated item parameters.}
 
-\item{n.response}{An integer vector indicating the number of valid responses
-for each item used in the item parameter estimation.}
+\item{n.response}{A numeric vector of the numbers of non-missing responses
+to the items, with 0 for the excluded items.}
 
 \item{TotalTime}{Total computation time in seconds.}
 
@@ -224,9 +233,12 @@ Note that you can easily extract components from the output using the
 }
 \description{
 This function performs fixed ability parameter calibration (FAPC), often
-called Stocking's (1988) Method A, which is the maximum likelihood estimation
-of item parameters given ability estimates (Baker & Kim, 2004; Ban et al.,
-2001; Stocking, 1988). It can also be considered a special case of joint
+called Stocking's (1988) Method A, which estimates item parameters by
+maximum likelihood given ability estimates (Baker & Kim, 2004; Ban et al.,
+2001; Stocking, 1988). When prior distributions are specified for item
+parameters (by default, for the guessing parameters of 3PLM items), the
+estimates are the modes of the posterior distribution. It can also be
+considered a special case of joint
 maximum likelihood estimation in which only one cycle of item parameter
 estimation is conducted, conditioned on the given ability estimates
 (Birnbaum, 1968). FAPC is a potentially useful method for calibrating pretest
@@ -237,6 +249,13 @@ item bank to evaluate potential parameter drift (Chen & Wang, 2016; Stocking,
 1988).
 }
 \details{
+The parameters of each item are estimated separately by maximizing
+the log-likelihood of its responses given the abilities in \code{score} (plus
+the log prior densities when priors are used), except that the 1PLM items
+share one slope, estimated jointly with their difficulties, when
+\code{fix.a.1pl = FALSE}. Missing responses are omitted. Items without any
+response are excluded from the estimation with a warning.
+
 In most cases, the function \code{\link[=est_item]{est_item()}} returns successfully
 converged item parameter estimates using its default internal starting
 values. However, if convergence issues arise during calibration, one
@@ -311,7 +330,7 @@ getirt(mod2, what = "se.est")
 summary(mod3)
 
 # Extract both item parameter and standard error estimates
-getirt(mod2, what = "estimates")
+getirt(mod3, what = "estimates")
 
 }
 

@@ -101,8 +101,8 @@ successfully derived from the information matrix.}
 \item{fipc}{Logical value indicating whether Fixed Item Parameter Calibration
 (FIPC) was applied.}
 \item{fipc.method}{The specific method used for FIPC.}
-\item{fix.loc}{An integer vector indicating the positions of fixed items used
-during FIPC.}
+\item{fix.loc}{An integer vector of the positions of the fixed items in
+FIPC, or \code{NULL} without FIPC.}
 \item{npar.detail}{The numbers of free parameters by type; see
 \code{\link[=est_irt]{est_irt()}}.}
 \item{call}{The matched call.}
@@ -131,30 +131,36 @@ second derivatives of the log prior densities) for the parameters that
 have prior distributions.}
 \item{pos.par}{A data frame indicating the position index of each estimated
 parameter. This index is based on the combined item set across all groups
-and is useful when interpreting the variance-covariance matrix.}
+and is useful when interpreting the variance-covariance matrix. It is
+\code{NULL} when all items are fixed in FIPC.}
 \item{covariance}{A variance-covariance matrix for the item parameter
-estimates based on the combined data from all groups.}
+estimates based on the combined data from all groups. It is \code{NULL} when
+\code{se = FALSE} or when all items are fixed in FIPC.}
 \item{loglikelihood}{A list with \code{overall} and \code{group} components:
 \itemize{
-\item \code{overall}: The marginal log-likelihood summed over all unique items across all groups.
-\item \code{group}: Group-specific marginal log-likelihood values.}
+\item \code{overall}: The marginal log-likelihood of the response data of all
+groups at the final estimates (summed over examinees, without the log
+prior densities).
+\item \code{group}: The same sums within the groups.}
 }
 
 \item{aic}{Akaike Information Criterion (AIC) computed from the overall log-likelihood.}
 \item{bic}{Bayesian Information Criterion (BIC) computed from the overall log-likelihood.}
-\item{group.par}{A list of group-specific summary statistics (mean, variance,
-and standard deviation) of the latent trait prior distribution.}
+\item{group.par}{A list of group-specific data frames with the mean,
+variance, and standard deviation of the latent ability distribution and
+their standard errors; see \code{\link[=est_mg]{est_mg()}}.}
 \item{weights}{A list of two-column data frames (one per group) containing
 the quadrature points (first column) and the corresponding weights (second column)
 for the updated prior distributions.}
-\item{posterior.dist}{A matrix of normalized posterior densities for all
-response patterns at each quadrature point. Rows correspond to individuals,
-and columns to quadrature points.}
+\item{posterior.dist}{A matrix of the posterior probabilities of the
+quadrature points for each examinee. Rows represent the examinees of all
+groups in the order of \code{group.name}, and columns represent quadrature
+points; each row sums to 1.}
 \item{data}{A list with \code{overall} and \code{group} components, each containing
 examinee response data.}
 \item{scale.D}{The scaling constant used in the IRT model (typically 1 or 1.702).}
 \item{ncase}{A list with \code{overall} and \code{group} components indicating the
-number of response patterns in each.}
+numbers of examinees.}
 \item{nitem}{A list with \code{overall} and \code{group} components indicating the
 number of items in the respective response sets.}
 \item{Etol}{The convergence criterion of the EM algorithm: the largest
@@ -162,7 +168,8 @@ absolute change in the estimated parameters between consecutive cycles
 (the estimated item parameters and the means and variances of the latent
 ability distributions of the groups in \code{free.group}); see
 \code{\link[=est_mg]{est_mg()}}.}
-\item{MaxE}{Maximum number of E-steps allowed in the EM algorithm.}
+\item{MaxE}{The maximum number of EM cycles allowed during estimation
+(1 when \code{fipc.method = "OEM"}).}
 \item{aprior}{A list describing the prior distribution for item slope parameters.}
 \item{bprior}{A list describing the prior distribution for item difficulty
 parameters.}
@@ -182,7 +189,8 @@ for the standard errors was positive definite. Printed results label it
 "Second-order test", but because the cross-product information matrix is
 positive semidefinite by construction, this check mainly detects a
 singular (rank-deficient) information matrix; it is not a second-order
-test of the log-likelihood surface.}
+test of the log-likelihood surface. When FIPC is used with all items
+fixed, no information matrix is computed, and the message says so.}
 \item{var.note}{A note indicating whether the variance-covariance matrix
 was successfully derived from the information matrix.}
 \item{fipc}{Logical value indicating whether Fixed Item Parameter Calibration
@@ -222,12 +230,13 @@ effects during estimation.}
 \item{scale.D}{The scaling constant (typically 1 or 1.702) used in the IRT model.}
 \item{convergence}{A character string indicating the convergence status of
 the item parameter estimation.}
-\item{nitem}{The total number of items included in the response data.}
-\item{deleted.item}{Items that contained no response data and were excluded
-from estimation.}
+\item{nitem}{The number of items in the response data as supplied,
+including the excluded items.}
+\item{deleted.item}{The positions of the items that contained no response
+data and were excluded from estimation.}
 \item{npar.est}{The total number of estimated item parameters.}
-\item{n.response}{An integer vector indicating the number of responses used
-to estimate parameters for each item.}
+\item{n.response}{A numeric vector of the numbers of responses to the
+items (0 for the excluded items).}
 \item{TotalTime}{Total computation time (in seconds) for the estimation process.}
 \item{call}{The matched call.}
 }

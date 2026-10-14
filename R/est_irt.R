@@ -432,8 +432,13 @@
 #'   (mean, variance, and standard deviation of the latent ability
 #'   distribution) and rows `estimates` and `se`. Without FIPC, the values are
 #'   fixed at `group.mean` and `group.var` (or at the mean and variance of
-#'   `weights`, if supplied) and `se` is `NA`. With FIPC, the values are the
-#'   mean and variance of the final latent distribution, and `se` gives
+#'   `weights`, if supplied) and `se` is `NA`. When `EmpHist = TRUE`, the
+#'   empirical histogram is rescaled in each cycle to have this mean and
+#'   variance. Because the rescaling interpolates on the quadrature points, the
+#'   mean and variance computed from the returned `weights` can differ slightly
+#'   from the reported values. With FIPC, the values are the mean and variance
+#'   of the final latent distribution (these are the mean and variance of the
+#'   returned `weights`), and `se` gives
 #'   approximate standard errors, `sigma / sqrt(N)` for the mean and
 #'   `sigma2 * sqrt(2 / (N - 1))` for the variance, with the delta method for
 #'   `sigma`, where `N` is the number of examinees; these treat the abilities as
@@ -550,9 +555,10 @@
 #'   Kim, S. (2006). A comparative study of IRT fixed parameter calibration
 #'   methods. *Journal of Educational Measurement, 43*(4), 355-381.
 #'
-#'   Kim, S., & Kolen, M. J. (2016). Multiple group IRT fixed-parameter
-#'   estimation for maintaining an established ability scale. *Center for
-#'   Advanced Studies in Measurement and Assessment Report, 49.*
+#'   Kim, S., & Kolen, M. J. (2016). *Multiple group IRT fixed-parameter
+#'   estimation for maintaining an established ability scale* (CASMA Research
+#'   Report No. 49). Center for Advanced Studies in Measurement and Assessment,
+#'   University of Iowa.
 #'
 #'   Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
 #'   terms. *Journal of the Royal Statistical Society: Series B

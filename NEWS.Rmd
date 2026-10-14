@@ -820,6 +820,17 @@ knitr::opts_chunk$set(
   examples were corrected. The same corrections apply to `getirt()` and to the
   arguments shared with other help pages.
 
+* Corrected and extended the help pages of `est_mg()`, `est_item()`, and
+  `getirt()` in the same way. The help page of `est_mg()` now explains
+  `free.group`, the roles of `weights`, `group.mean`, `group.var`, and
+  `EmpHist` for groups in and not in `free.group`, the MG-FIPC algorithm (Kim
+  & Kolen, 2016), and the structure of the returned `loglikelihood`,
+  `group.par`, `posterior.dist`, `data`, `ncase`, and `nitem`. The help page of
+  `est_item()` states that the estimates are Bayes modal when priors are used,
+  that the items are estimated separately, and what `group.par`, `data`,
+  `deleted.item`, and `n.response` contain. The `README` and the reference of
+  Kim and Kolen (2016) were corrected.
+
 # irtQ 1.3.1
 
 ## Bug Fixes
