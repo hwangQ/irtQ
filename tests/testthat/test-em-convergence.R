@@ -12,8 +12,12 @@ irt_items <- function(f) f$par.est[, grepl("^par\\.", names(f$par.est)), drop = 
 irt_mom <- function(f) unlist(f$group.par[1, c("mu", "sigma2")])
 no_mom <- function(f) numeric(0)
 mg_items <- function(f) f$par.est$overall[, grepl("^par\\.", names(f$par.est$overall)), drop = FALSE]
-mg_mom <- function(free) {
-  function(f) unlist(lapply(free, function(g) unlist(f$group.par[[g]]["estimates", c("mu", "sigma2")])))
+# mean and variance of the weights of every group, also those of a rescaled reference histogram
+mg_w_mom <- function(f) {
+  unlist(lapply(f$weights, function(w) {
+    m <- sum(w[, 1] * w[, 2])
+    c(m, sum((w[, 1] - m)^2 * w[, 2]))
+  }))
 }
 
 test_that("est_irt with FIPC stops on the change in the item parameters that are estimated", {
@@ -117,5 +121,6 @@ test_that("est_mg with FIPC, all items fixed, and an empirical histogram stops o
   f <- fit(500)
   expect_lte(f$maxpar.diff, f$Etol)
   f0 <- fit(f$niter - 1)
-  expect_equal(max(abs(mg_mom(2)(f) - mg_mom(2)(f0))), f$maxpar.diff, tolerance = 1e-8)
+  # the moments of all groups are compared, including the rescaled histogram of the reference group
+  expect_equal(max(abs(mg_w_mom(f) - mg_w_mom(f0))), f$maxpar.diff, tolerance = 1e-8)
 })
