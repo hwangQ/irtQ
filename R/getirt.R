@@ -47,9 +47,10 @@
 #'   \item{ncase}{The number of examinees.}
 #'   \item{nitem}{The number of items included in the dataset.}
 #'   \item{Etol}{The convergence criterion of the EM algorithm: the largest
-#'   absolute change in the estimated parameters between consecutive cycles
-#'   (the estimated item parameters and, with FIPC, the mean and variance of
-#'   the latent ability distribution); see [irtQ::est_irt()].}
+#'   absolute change in the estimated item parameters between consecutive
+#'   cycles. For FIPC with all items fixed, it applies to the change in the
+#'   mean and variance of the latent ability distribution; see
+#'   [irtQ::est_irt()].}
 #'   \item{MaxE}{The maximum number of EM cycles allowed during estimation (1
 #'   when `fipc.method = "OEM"`).}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
@@ -59,8 +60,9 @@
 #'   \item{npar.est}{The number of freely estimated parameters used for `aic`
 #'   and `bic`; see [irtQ::est_irt()].}
 #'   \item{niter}{The number of EM cycles completed.}
-#'   \item{maxpar.diff}{The largest absolute change in the estimated
-#'   parameters (see `Etol`) in the last EM cycle.}
+#'   \item{maxpar.diff}{The largest absolute change in the estimated item
+#'   parameters at the last EM cycle (for FIPC with all items fixed, in the
+#'   mean and variance of the latent ability distribution).}
 #'   \item{EMtime}{Computation time (in seconds) for the EM algorithm.}
 #'   \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}
@@ -138,10 +140,10 @@
 #'   \item{nitem}{A list with `overall` and `group` components indicating the
 #'   number of items in the respective response sets.}
 #'   \item{Etol}{The convergence criterion of the EM algorithm: the largest
-#'   absolute change in the estimated parameters between consecutive cycles
-#'   (the estimated item parameters and the means and variances of the latent
-#'   ability distributions of the groups in `free.group`); see
-#'   [irtQ::est_mg()].}
+#'   absolute change in the estimated item parameters between consecutive
+#'   cycles. For FIPC with all items fixed, it applies to the change in the
+#'   means and variances of the latent ability distributions of the groups in
+#'   `free.group`; see [irtQ::est_mg()].}
 #'   \item{MaxE}{The maximum number of EM cycles allowed during estimation
 #'   (1 when `fipc.method = "OEM"`).}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
@@ -151,8 +153,10 @@
 #'   \item{npar.est}{The number of freely estimated parameters used for `aic`
 #'   and `bic`; see [irtQ::est_mg()].}
 #'   \item{niter}{Number of EM cycles completed.}
-#'   \item{maxpar.diff}{The largest absolute change in the estimated
-#'   parameters (see `Etol`) in the last EM cycle.}
+#'   \item{maxpar.diff}{The largest absolute change in the estimated item
+#'   parameters at the last EM cycle (for FIPC with all items fixed, in the
+#'   means and variances of the latent ability distributions of the groups in
+#'   `free.group`).}
 #'   \item{EMtime}{Computation time (in seconds) for EM estimation.}
 #'   \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}

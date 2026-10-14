@@ -595,16 +595,6 @@ knitr::opts_chunk$set(
   `est_mg()` judges an item on its responses pooled over the groups, and
   `est_item()` judges the items that have responses.
 
-* In `est_irt()` with FIPC and in `est_mg()`, the convergence of the EM
-  algorithm is now judged by the largest absolute change in all estimated
-  parameters, including the means and variances of the latent ability
-  distributions that are estimated (the FIPC group in `est_irt()` and the
-  groups in `free.group` in `est_mg()`). Previously only the item parameters
-  were compared, so the group parameters could stop short of convergence,
-  especially with the default `Etol = 1e-3` of `est_mg()`. The estimates can
-  differ slightly, and the number of EM cycles can increase. `maxpar.diff` and
-  the "Max-Change" printed during the EM cycles follow the new rule.
-
 ## Minor Improvements
 * `est_mg()` checks its inputs and stops with a clear message when `group.name`
   does not have one unique name per group, when `x`, `model`, `cats`, or

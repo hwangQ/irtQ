@@ -281,17 +281,22 @@ Otherwise, internally generated starting values are used. Default is
 
 \item{Etol}{A positive numeric value specifying the convergence criterion
 of the EM algorithm. The EM cycles stop when the largest absolute change
-in the estimated parameters between two consecutive cycles is less than
-or equal to \code{Etol}. The estimated parameters are the item parameters
-that are estimated (with MG-FIPC, those of the items that are not fixed)
-and the means and variances of the latent ability distributions of the
-groups in \code{free.group} (as reported in \code{group.par}; with
-\code{EmpHist = TRUE}, the mean and variance of each histogram, not its
-individual weights). \code{Etol} is not used when \code{fipc.method = "OEM"} with
-items to calibrate. The printed output of the fitted object refers to
-this criterion as the convergence criterion of the E-step. Default is
-\code{1e-3}, which is larger than the default of \code{\link[=est_irt]{est_irt()}}; a
-smaller value gives more precise estimates of the group parameters.}
+in the estimated item parameters between two consecutive cycles is less
+than or equal to \code{Etol}. With MG-FIPC, only the parameters of the items
+that are not fixed are compared. The means and variances of the latent
+ability distributions of the groups in \code{free.group}, and the weights of
+the empirical histograms (\code{EmpHist = TRUE}), are not part of the
+criterion, so they can be less converged than the item parameters; a
+smaller \code{Etol} gives more precise estimates of them. In particular, an
+estimated histogram can keep changing very slowly over many cycles
+(toward a spiky distribution) while the log-likelihood barely changes, so
+\code{group.par} and \code{weights} then depend on \code{Etol}. When all items are fixed,
+the criterion is applied to the largest absolute change in the means and
+variances of the latent ability distributions of the groups in
+\code{free.group}. \code{Etol} is not used when \code{fipc.method = "OEM"} with items to
+calibrate. The printed output of the fitted object refers to this
+criterion as the convergence criterion of the E-step. Default is \code{1e-3},
+which is larger than the default of \code{\link[=est_irt]{est_irt()}}.}
 
 \item{MaxE}{A positive integer specifying the maximum number of EM cycles. It
 is set to 1 when \code{fipc.method = "OEM"}. The printed output of the fitted
@@ -484,9 +489,11 @@ weights of the empirical histograms when \code{EmpHist = TRUE}. See Details.}
 
 \item{niter}{The number of completed EM cycles.}
 
-\item{maxpar.diff}{The largest absolute change in the estimated
-parameters (see \code{Etol}) in the last EM cycle. With \code{fipc.method = "OEM"},
-it is the change from the starting values.}
+\item{maxpar.diff}{The largest absolute change in the estimated item
+parameters in the last EM cycle (for MG-FIPC with all items fixed, in the
+means and variances of the latent ability distributions of the groups in
+\code{free.group}). With \code{fipc.method = "OEM"}, it is the change from the
+starting values.}
 
 \item{EMtime}{Time (in seconds) spent on EM cycles.}
 
@@ -497,10 +504,10 @@ when they are not computed.}
 
 \item{test.1}{A message indicating whether the convergence criteria were
 met: the M-step optimization converged for every item and the largest
-absolute change in the estimated parameters (see \code{Etol}) between two
-consecutive EM cycles was less than or equal to \code{Etol}. When
-\code{fipc.method = "OEM"} with new items to calibrate, the single EM cycle is
-not judged by \code{Etol} and only the M-step check applies.}
+absolute change in the parameter estimates between two consecutive EM
+cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"} with
+new items to calibrate, the single EM cycle is not judged by \code{Etol} and
+only the M-step check applies. For FIPC with all items fixed, see \code{Etol}.}
 
 \item{test.2}{A message indicating whether the information matrix used
 for the standard errors (see \code{se.est}) is positive definite. Printed
