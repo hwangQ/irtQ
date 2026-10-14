@@ -324,18 +324,22 @@ test_that("est_mg() FIPC (MEM) estimates pretest items on fixed-item scale", {
   # one element per group -- because each group can fix a different
   # subset of items (see est_mg.R `fix.loc` param doc).  Both groups
   # fix items 1-8 here because they share the same metadata.
-  fit <- do.call(est_mg, c(
-    list(x          = list(meta_fipc, meta_fipc),
-         data       = data_list,
-         group.name = c("G1", "G2"),
-         free.group = "G2",
-         fipc       = TRUE,
-         fipc.method = "MEM",
-         fix.loc    = list(1:8, 1:8),
-         use.gprior = TRUE,
-         gprior     = list(dist = "beta", params = c(5, 16))),
-    MG_ARGS
-  ))
+  # the simulated responses leave a score category of a new item empty, which is warned about
+  expect_warning(
+    fit <- do.call(est_mg, c(
+      list(x          = list(meta_fipc, meta_fipc),
+           data       = data_list,
+           group.name = c("G1", "G2"),
+           free.group = "G2",
+           fipc       = TRUE,
+           fipc.method = "MEM",
+           fix.loc    = list(1:8, 1:8),
+           use.gprior = TRUE,
+           gprior     = list(dist = "beta", params = c(5, 16))),
+      MG_ARGS
+    )),
+    "have a score category with no responses"
+  )
 
   # basic structural checks
   expect_s3_class(fit, "est_mg")
