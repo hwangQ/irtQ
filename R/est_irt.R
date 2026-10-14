@@ -149,13 +149,14 @@
 #'   `FALSE`.
 #' @param Etol A positive numeric value specifying the convergence criterion of
 #'   the EM algorithm. The EM cycles stop when the largest absolute change in
-#'   the estimated item parameters between two consecutive cycles is less than
-#'   or equal to `Etol`. With FIPC, only the parameters of the items that are
-#'   not fixed are compared; when all items are fixed, the criterion is applied
-#'   to the largest absolute change in the mean and variance of the latent
-#'   ability distribution. `Etol` is not used when `fipc.method = "OEM"` with
-#'   items to calibrate. The printed output of the fitted object refers to this
-#'   criterion as the convergence criterion of the E-step. Default is `1e-4`.
+#'   the estimated parameters between two consecutive cycles is less than or
+#'   equal to `Etol`. The estimated parameters are the item parameters that
+#'   are estimated and, with FIPC, the mean and variance of the latent ability
+#'   distribution (as reported in `group.par`; with `EmpHist = TRUE`, the mean
+#'   and variance of the histogram, not its individual weights). `Etol` is not
+#'   used when `fipc.method = "OEM"` with items to calibrate. The printed
+#'   output of the fitted object refers to this criterion as the convergence
+#'   criterion of the E-step. Default is `1e-4`.
 #' @param MaxE A positive integer specifying the maximum number of EM cycles. It
 #'   is set to 1 when `fipc.method = "OEM"`. The printed output of the fitted
 #'   object refers to the cycles as E-step cycles. Default is `500`.
@@ -481,10 +482,9 @@
 #'
 #'   \item{niter}{The number of completed EM cycles.}
 #'
-#'   \item{maxpar.diff}{The largest absolute change in the estimates in the
-#'   last EM cycle (the change in the mean and variance of the latent
-#'   distribution when FIPC is used with all items fixed). With
-#'   `fipc.method = "OEM"`, it is the change from the starting values.}
+#'   \item{maxpar.diff}{The largest absolute change in the estimated
+#'   parameters (see `Etol`) in the last EM cycle. With `fipc.method = "OEM"`,
+#'   it is the change from the starting values.}
 #'
 #'   \item{EMtime}{Time (in seconds) spent on EM cycles.}
 #'
@@ -495,10 +495,10 @@
 #'
 #'   \item{test.1}{A message indicating whether the convergence criteria were
 #'   met: the M-step optimization converged for every item and the largest
-#'   absolute change in the parameter estimates between two consecutive EM
-#'   cycles was less than or equal to `Etol`. When `fipc.method = "OEM"` with
-#'   new items to calibrate, the single EM cycle is not judged by `Etol` and
-#'   only the M-step check applies. For FIPC with all items fixed, see `Etol`.}
+#'   absolute change in the estimated parameters (see `Etol`) between two
+#'   consecutive EM cycles was less than or equal to `Etol`. When
+#'   `fipc.method = "OEM"` with new items to calibrate, the single EM cycle is
+#'   not judged by `Etol` and only the M-step check applies.}
 #'
 #'   \item{test.2}{A message indicating whether the information matrix used
 #'   for the standard errors (see `se.est`) is positive definite. Printed
@@ -1829,10 +1829,8 @@ est_irt_fipc <- function(x = NULL,
   }
   rm(datlist.all, freq_all.cat, envir = environment(), inherits = FALSE)
   
-  # moments of population prior distribution
-  if (is.null(x_new)) {
-    mmt_dist_old <- c(group.mean, group.var)
-  }
+  # moments of the starting prior distribution
+  mmt_dist_old <- c(group.mean, group.var)
   
   # create the lower and upper bounds of the item parameters
   if (!is.null(x_new)) {
@@ -1896,16 +1894,19 @@ est_irt_fipc <- function(x = NULL,
     
     if (!is.null(x_new)) {
       # compute the difference between previous and updated item parameter estimates
-      diff_par <- mstep$elm_item$pars - elm_item_new$pars
-      # convergence statistic: largest absolute parameter change
-      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
+      diff_item <- mstep$elm_item$pars - elm_item_new$pars
     } else {
-      # compute the mean and variance of the updated prior distribution
-      mmt_dist_new <- cal_moment(node = mstep$weights$theta, weight = mstep$weights$weight)
-      diff_par <- mmt_dist_new - mmt_dist_old
-      # convergence statistic: largest absolute change in prior mean and variance
-      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
+      # no item parameters are estimated when all items are fixed
+      diff_item <- NULL
     }
+
+    # compute the mean and variance of the updated prior distribution
+    mmt_dist_new <- cal_moment(node = mstep$weights$theta, weight = mstep$weights$weight)
+    diff_par <- c(diff_item, mmt_dist_new - mmt_dist_old)
+
+    # convergence statistic: largest absolute change in the estimated item parameters
+    # and in the mean and variance of the prior distribution
+    max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
     
     # log-likelihood value
     llike <- mstep$loglike
@@ -1921,14 +1922,15 @@ est_irt_fipc <- function(x = NULL,
     # check the convergence of EM algorithm; a non-finite change is not converged
     converge <- is.finite(max.diff) && max.diff <= Etol
     
-    # extract the updated item (or group) parameter estimates
+    # extract the updated item parameter estimates
     # and update the new and all item parameters
     if (!is.null(x_new)) {
       elm_item_new$pars <- mstep$elm_item$pars
       elm_item_all$pars[nofix.loc, 1:ncol(elm_item_new$pars)] <- elm_item_new$pars
-    } else {
-      mmt_dist_old <- mmt_dist_new
     }
+
+    # keep the moments of the updated prior distribution for the next comparison
+    mmt_dist_old <- mmt_dist_new
     
     # extract the updated quadrature points and
     # the corresponding weights of the prior population density

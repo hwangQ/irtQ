@@ -122,14 +122,19 @@
 #'   ability prior distributions across all groups are estimated simultaneously
 #'   with the item parameters using the approach proposed by Woods (2007).
 #'   Item calibration is then performed relative to the estimated empirical priors.
-#' @param Etol A positive numeric value specifying the convergence criterion for
-#'   the E-step of the EM algorithm. Default is 1e-3. 
-#'   Specifically, the EM algorithm terminates when the largest absolute difference
-#'   in item parameter estimates between consecutive iterations is less than or
-#'   equal to this value. When MG-FIPC is used and all items are fixed, so that
-#'   only the latent ability distributions are estimated, the criterion is
-#'   applied to the largest absolute change in the means and variances of the
-#'   prior distributions.
+#' @param Etol A positive numeric value specifying the convergence criterion
+#'   of the EM algorithm. The EM cycles stop when the largest absolute change
+#'   in the estimated parameters between two consecutive cycles is less than
+#'   or equal to `Etol`. The estimated parameters are the item parameters
+#'   that are estimated (with MG-FIPC, those of the items that are not fixed)
+#'   and the means and variances of the latent ability distributions of the
+#'   groups in `free.group` (as reported in `group.par`; with
+#'   `EmpHist = TRUE`, the mean and variance of each histogram, not its
+#'   individual weights). `Etol` is not used when `fipc.method = "OEM"` with
+#'   items to calibrate. The printed output of the fitted object refers to
+#'   this criterion as the convergence criterion of the E-step. Default is
+#'   `1e-3`, which is larger than the default of [irtQ::est_irt()]; a
+#'   smaller value gives more precise estimates of the group parameters.
 #' @param fipc Logical. If `TRUE`, multiple-group fixed item parameter
 #'   calibration (MG-FIPC) is applied during item parameter estimation.
 #'   When `fipc = TRUE`, the information on which items are fixed
@@ -375,8 +380,9 @@
 #'
 #' \item{niter}{The number of completed EM cycles.}
 #'
-#' \item{maxpar.diff}{The largest absolute change in the estimates in
-#'   the last EM cycle.}
+#' \item{maxpar.diff}{The largest absolute change in the estimated
+#'   parameters (see `Etol`) in the last EM cycle. With `fipc.method = "OEM"`,
+#'   it is the change from the starting values.}
 #'
 #' \item{EMtime}{Time (in seconds) spent on EM cycles.}
 #'
@@ -386,10 +392,10 @@
 #'
 #' \item{test.1}{A message indicating whether the convergence criteria were
 #'   met: the M-step optimization converged for every item and the largest
-#'   absolute change in the parameter estimates between two consecutive EM
-#'   cycles was less than or equal to `Etol`. When `fipc.method = "OEM"` with
-#'   new items to calibrate, the single EM cycle is not judged by `Etol` and
-#'   only the M-step check applies. For FIPC with all items fixed, see `Etol`.}
+#'   absolute change in the estimated parameters (see `Etol`) between two
+#'   consecutive EM cycles was less than or equal to `Etol`. When
+#'   `fipc.method = "OEM"` with new items to calibrate, the single EM cycle is
+#'   not judged by `Etol` and only the M-step check applies.}
 #'
 #' \item{test.2}{A message indicating whether the information matrix used
 #'   for the standard errors (see `se.est`) is positive definite. Printed
@@ -1180,6 +1186,9 @@ est_mg_em <- function(x = NULL,
     cat("Estimating item parameters...", "\n")
   }
 
+  # moments of the starting prior distributions of the free groups
+  mmt_dist_old <- matrix(rep(c(group.mean, group.var), length(free.group)), nrow = 2)
+
   # implement EM algorithm
   time1 <- Sys.time()
   for (r in 1:MaxE) {
@@ -1203,8 +1212,14 @@ est_mg_em <- function(x = NULL,
     )
 
     # compute the difference between previous and updated item parameter estimates
-    diff_par <- mstep$elm_item$pars - elm_item$pars
-    # convergence statistic: largest absolute parameter change
+    diff_item <- mstep$elm_item$pars - elm_item$pars
+
+    # compute the mean and variance of the updated prior distribution of each free group
+    mmt_dist_new <- cal_moment_gr(mstep$weights, free.group)
+    diff_par <- c(diff_item, mmt_dist_new - mmt_dist_old)
+
+    # convergence statistic: largest absolute change in the item parameters
+    # and in the means and variances of the free groups
     max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
 
     # loglikelihood value
@@ -1224,6 +1239,9 @@ est_mg_em <- function(x = NULL,
 
     # extract the updated item parameter estimates
     elm_item$pars <- mstep$elm_item$pars
+
+    # keep the moments of the updated prior distributions for the next comparison
+    mmt_dist_old <- mmt_dist_new
 
     # the quadrature points and the corresponding weights of the prior population density
     weights.gr <- mstep$weights
@@ -2013,10 +2031,8 @@ est_mg_fipc <- function(x = NULL,
   }
   rm(datlist.all, freq_all.cat, envir = environment(), inherits = FALSE)
 
-  # moments of population prior distribution
-  if (is.null(x_new)) {
-    mmt_dist_old <- matrix(rep(c(group.mean, group.var), ngroup), ncol = ngroup)
-  }
+  # moments of the starting prior distributions of the free groups
+  mmt_dist_old <- matrix(rep(c(group.mean, group.var), length(free.group)), nrow = 2)
 
   # create the lower and upper bounds of the item parameters
   if (!is.null(x_new)) {
@@ -2089,19 +2105,19 @@ est_mg_fipc <- function(x = NULL,
 
     if (!is.null(x_new)) {
       # compute the difference between previous and updated item parameter estimates
-      diff_par <- mstep$elm_item$pars - elm_item_new$pars
-      # convergence statistic: largest absolute parameter change
-      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
+      diff_item <- mstep$elm_item$pars - elm_item_new$pars
     } else {
-      # compute the mean and variance of the updated prior distribution
-      mmt_dist_new <-
-        as.matrix(purrr::map_dfc(.x = mstep$weights, ~ {
-          cal_moment(node = .x$theta, weight = .x$weight)
-        }))
-      diff_par <- mmt_dist_new - mmt_dist_old
-      # convergence statistic: largest absolute change in prior mean and variance
-      max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
+      # no item parameters are estimated when all items are fixed
+      diff_item <- NULL
     }
+
+    # compute the mean and variance of the updated prior distribution of each free group
+    mmt_dist_new <- cal_moment_gr(mstep$weights, free.group)
+    diff_par <- c(diff_item, mmt_dist_new - mmt_dist_old)
+
+    # convergence statistic: largest absolute change in the estimated item parameters
+    # and in the means and variances of the free groups
+    max.diff <- suppressWarnings(max(abs(diff_par), na.rm = TRUE))
 
     # loglikelihood value
     llike <- do.call(what = "sum", args = mstep$loglike)
@@ -2118,14 +2134,15 @@ est_mg_fipc <- function(x = NULL,
     # check the convergence of EM algorithm; a non-finite change is not converged
     converge <- is.finite(max.diff) && max.diff <= Etol
 
-    # extract the updated item (or group) parameter estimates
+    # extract the updated item parameter estimates
     # and update the new and all item parameters
     if (!is.null(x_new)) {
       elm_item_new$pars <- mstep$elm_item$pars
       elm_item_all$pars[nofix.loc, 1:ncol(elm_item_new$pars)] <- elm_item_new$pars
-    } else {
-      mmt_dist_old <- mmt_dist_new
     }
+
+    # keep the moments of the updated prior distributions for the next comparison
+    mmt_dist_old <- mmt_dist_new
 
     # extract the updated quadrature points and
     # the corresponding weights of the prior population density
@@ -2586,6 +2603,13 @@ set_mg_groups <- function(free.group, group.name, fipc) {
   }
 
   list(free.group = free.group, ref.group = ref.group)
+}
+
+
+# This function returns the mean and variance of the latent distributions of the listed groups
+# as the columns of a matrix with two rows, using the same definition as the reported 'group.par'
+cal_moment_gr <- function(weights, groups) {
+  unname(vapply(weights[groups], function(w) cal_moment(node = w$theta, weight = w$weight), numeric(2)))
 }
 
 

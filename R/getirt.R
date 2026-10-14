@@ -46,10 +46,10 @@
 #'   \item{scale.D}{The scaling constant (usually 1 or 1.702) used in the IRT model.}
 #'   \item{ncase}{The number of examinees.}
 #'   \item{nitem}{The number of items included in the dataset.}
-#'   \item{Etol}{The convergence criterion of the EM algorithm:
-#'   the largest absolute change in the item parameter estimates between
-#'   consecutive cycles. For FIPC with all items fixed, it applies to the
-#'   change in the mean and variance of the prior distribution.}
+#'   \item{Etol}{The convergence criterion of the EM algorithm: the largest
+#'   absolute change in the estimated parameters between consecutive cycles
+#'   (the estimated item parameters and, with FIPC, the mean and variance of
+#'   the latent ability distribution); see [irtQ::est_irt()].}
 #'   \item{MaxE}{The maximum number of EM cycles allowed during estimation (1
 #'   when `fipc.method = "OEM"`).}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
@@ -59,7 +59,8 @@
 #'   \item{npar.est}{The number of freely estimated parameters used for `aic`
 #'   and `bic`; see [irtQ::est_irt()].}
 #'   \item{niter}{The number of EM cycles completed.}
-#'   \item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
+#'   \item{maxpar.diff}{The largest absolute change in the estimated
+#'   parameters (see `Etol`) in the last EM cycle.}
 #'   \item{EMtime}{Computation time (in seconds) for the EM algorithm.}
 #'   \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}
@@ -130,10 +131,11 @@
 #'   number of response patterns in each.}
 #'   \item{nitem}{A list with `overall` and `group` components indicating the
 #'   number of items in the respective response sets.}
-#'   \item{Etol}{The convergence criterion for the E-step of the EM algorithm:
-#'   the largest absolute change in the item parameter estimates between
-#'   consecutive cycles. For FIPC with all items fixed, it applies to the
-#'   change in the mean and variance of the prior distribution.}
+#'   \item{Etol}{The convergence criterion of the EM algorithm: the largest
+#'   absolute change in the estimated parameters between consecutive cycles
+#'   (the estimated item parameters and the means and variances of the latent
+#'   ability distributions of the groups in `free.group`); see
+#'   [irtQ::est_mg()].}
 #'   \item{MaxE}{Maximum number of E-steps allowed in the EM algorithm.}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
 #'   \item{bprior}{A list describing the prior distribution for item difficulty
@@ -142,7 +144,8 @@
 #'   \item{npar.est}{The number of freely estimated parameters used for `aic`
 #'   and `bic`; see [irtQ::est_mg()].}
 #'   \item{niter}{Number of EM cycles completed.}
-#'   \item{maxpar.diff}{The largest absolute change in the estimates in the last EM cycle.}
+#'   \item{maxpar.diff}{The largest absolute change in the estimated
+#'   parameters (see `Etol`) in the last EM cycle.}
 #'   \item{EMtime}{Computation time (in seconds) for EM estimation.}
 #'   \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}

@@ -252,14 +252,19 @@ items whose parameters are estimated; \code{x} must then be supplied.
 Otherwise, internally generated starting values are used. Default is
 \code{FALSE}.}
 
-\item{Etol}{A positive numeric value specifying the convergence criterion for
-the E-step of the EM algorithm. Default is 1e-3.
-Specifically, the EM algorithm terminates when the largest absolute difference
-in item parameter estimates between consecutive iterations is less than or
-equal to this value. When MG-FIPC is used and all items are fixed, so that
-only the latent ability distributions are estimated, the criterion is
-applied to the largest absolute change in the means and variances of the
-prior distributions.}
+\item{Etol}{A positive numeric value specifying the convergence criterion
+of the EM algorithm. The EM cycles stop when the largest absolute change
+in the estimated parameters between two consecutive cycles is less than
+or equal to \code{Etol}. The estimated parameters are the item parameters
+that are estimated (with MG-FIPC, those of the items that are not fixed)
+and the means and variances of the latent ability distributions of the
+groups in \code{free.group} (as reported in \code{group.par}; with
+\code{EmpHist = TRUE}, the mean and variance of each histogram, not its
+individual weights). \code{Etol} is not used when \code{fipc.method = "OEM"} with
+items to calibrate. The printed output of the fitted object refers to
+this criterion as the convergence criterion of the E-step. Default is
+\code{1e-3}, which is larger than the default of \code{\link[=est_irt]{est_irt()}}; a
+smaller value gives more precise estimates of the group parameters.}
 
 \item{MaxE}{A positive integer specifying the maximum number of EM cycles. It
 is set to 1 when \code{fipc.method = "OEM"}. The printed output of the fitted
@@ -428,8 +433,9 @@ weights of the empirical histograms when \code{EmpHist = TRUE}. See Details.}
 
 \item{niter}{The number of completed EM cycles.}
 
-\item{maxpar.diff}{The largest absolute change in the estimates in
-the last EM cycle.}
+\item{maxpar.diff}{The largest absolute change in the estimated
+parameters (see \code{Etol}) in the last EM cycle. With \code{fipc.method = "OEM"},
+it is the change from the starting values.}
 
 \item{EMtime}{Time (in seconds) spent on EM cycles.}
 
@@ -439,10 +445,10 @@ the last EM cycle.}
 
 \item{test.1}{A message indicating whether the convergence criteria were
 met: the M-step optimization converged for every item and the largest
-absolute change in the parameter estimates between two consecutive EM
-cycles was less than or equal to \code{Etol}. When \code{fipc.method = "OEM"} with
-new items to calibrate, the single EM cycle is not judged by \code{Etol} and
-only the M-step check applies. For FIPC with all items fixed, see \code{Etol}.}
+absolute change in the estimated parameters (see \code{Etol}) between two
+consecutive EM cycles was less than or equal to \code{Etol}. When
+\code{fipc.method = "OEM"} with new items to calibrate, the single EM cycle is
+not judged by \code{Etol} and only the M-step check applies.}
 
 \item{test.2}{A message indicating whether the information matrix used
 for the standard errors (see \code{se.est}) is positive definite. Printed
