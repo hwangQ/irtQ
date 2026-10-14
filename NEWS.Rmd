@@ -578,11 +578,13 @@ knitr::opts_chunk$set(
   parameters are estimated, so the information matrix is not computed.",
   instead of the message about a possible local maximum.
 
-* `est_irt()` issues one warning, with the item IDs, when an item to be
-  estimated has a score category without responses or all its responses are
-  the same. The maximum likelihood estimate does not exist for such an item,
-  and the function returned extreme or starting values with standard errors of
-  99999 without notice. The estimates are not changed.
+* `est_irt()`, `est_mg()`, and `est_item()` issue one warning, with the item
+  IDs, when an item to be estimated has a score category without responses or
+  all its responses are the same. The maximum likelihood estimate does not
+  exist for such an item, and the functions returned extreme or starting values
+  with standard errors of 99999 without notice. The estimates are not changed.
+  `est_mg()` judges an item on its responses pooled over the groups, and
+  `est_item()` judges the items that have responses.
 
 ## Minor Improvements
 * `est_mg()` checks its inputs and stops with a clear message when `group.name`

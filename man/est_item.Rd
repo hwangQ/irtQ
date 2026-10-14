@@ -236,6 +236,16 @@ possible solution is to use alternative starting values. If item parameter
 values are already specified in the item metadata (i.e., the \code{x} argument),
 they can be used as starting values for item parameter calibration by
 setting \code{use.startval = TRUE}.
+
+A maximum likelihood estimate does not exist for an item with a score
+category that has no responses, which includes an item whose responses are
+all the same. The estimates of such an item can be extreme or remain near
+their starting values, and their standard errors are unreliable (a standard
+error of 99999 means that it could not be obtained). After the items
+without any response are excluded, one warning lists the IDs of the
+remaining items of this kind. A parameter with a prior distribution, such
+as the guessing parameter of a 3PLM item with \code{use.gprior = TRUE}, can
+still be stable.
 }
 \examples{
 ## Import the "-prm.txt" output file from flexMIRT

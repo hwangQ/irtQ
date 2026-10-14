@@ -66,6 +66,16 @@
 #'   they can be used as starting values for item parameter calibration by
 #'   setting `use.startval = TRUE`.
 #'
+#'   A maximum likelihood estimate does not exist for an item with a score
+#'   category that has no responses, which includes an item whose responses are
+#'   all the same. The estimates of such an item can be extreme or remain near
+#'   their starting values, and their standard errors are unreliable (a standard
+#'   error of 99999 means that it could not be obtained). After the items
+#'   without any response are excluded, one warning lists the IDs of the
+#'   remaining items of this kind. A parameter with a prior distribution, such
+#'   as the guessing parameter of a 3PLM item with `use.gprior = TRUE`, can
+#'   still be stable.
+#'
 #' @return This function returns an object of class `est_item`. The returned
 #'   object contains the following components:
 #'
@@ -359,6 +369,9 @@ est_item <- function(x = NULL,
   } else {
     loc_allmiss <- NULL
   }
+
+  # warn about the items whose maximum likelihood estimates do not exist
+  check_item_mle(data = data.matrix(data), cats = cats, id = x$id)
 
   # compute the mean and standard deviation of the abilities
   group.par <- c(mu = mean(score), sigma = stats::sd(score))

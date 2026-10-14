@@ -571,6 +571,18 @@ then specify:
 Note that when both \code{fix.loc} and \code{fix.id} are provided, the information
 in \code{fix.id} takes precedence and overrides \code{fix.loc}.
 
+A maximum likelihood estimate does not exist for an item with a score
+category that has no responses, which includes an item whose responses are
+all the same. The estimates of such an item can be extreme or remain near
+their starting values, and their standard errors are unreliable (a standard
+error of 99999 means that it could not be obtained). Before the estimation,
+one warning lists the IDs of these items. Because the parameters of an item
+are common to all the groups that include it, the responses of an item are
+pooled over these groups; an item that is constant in one group but varies in
+another is not flagged. The items fixed in MG-FIPC are not checked. A
+parameter with a prior distribution, such as the guessing parameter of a
+3PLM item with \code{use.gprior = TRUE}, can still be stable.
+
 The information criteria are \code{aic = -2 * loglikelihood$overall + 2 * npar.est} and \code{bic = -2 * loglikelihood$overall + npar.est * log(ncase$overall)}, where \code{loglikelihood$overall} is the overall marginal
 log-likelihood without the prior densities of the item parameters and
 \code{ncase$overall} is the overall number of examinees. \code{npar.est} is the number

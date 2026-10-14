@@ -250,6 +250,18 @@
 #' Note that when both `fix.loc` and `fix.id` are provided, the information
 #' in `fix.id` takes precedence and overrides `fix.loc`.
 #'
+#' A maximum likelihood estimate does not exist for an item with a score
+#' category that has no responses, which includes an item whose responses are
+#' all the same. The estimates of such an item can be extreme or remain near
+#' their starting values, and their standard errors are unreliable (a standard
+#' error of 99999 means that it could not be obtained). Before the estimation,
+#' one warning lists the IDs of these items. Because the parameters of an item
+#' are common to all the groups that include it, the responses of an item are
+#' pooled over these groups; an item that is constant in one group but varies in
+#' another is not flagged. The items fixed in MG-FIPC are not checked. A
+#' parameter with a prior distribution, such as the guessing parameter of a
+#' 3PLM item with `use.gprior = TRUE`, can still be stable.
+#'
 #' The information criteria are `aic = -2 * loglikelihood$overall + 2 *
 #' npar.est` and `bic = -2 * loglikelihood$overall + npar.est *
 #' log(ncase$overall)`, where `loglikelihood$overall` is the overall marginal
@@ -1045,6 +1057,10 @@ est_mg_em <- function(x = NULL,
     stop(memo2, call. = FALSE)
   }
 
+  # warn about the items whose maximum likelihood estimates do not exist, using the
+  # responses pooled over all groups because the parameters are common to the groups
+  check_item_mle(data = data, cats = cats, id = id)
+
   # find the location of 1PLM items in which slope parameters should be constrained to be equal
   # also, find the location of other items
   if ("1PLM" %in% model & !fix.a.1pl) {
@@ -1829,6 +1845,12 @@ est_mg_fipc <- function(x = NULL,
 
   # stop when the responses to all fixed items show no variation (pooled over all groups)
   check_fix_info(data = data[, fix.loc, drop = FALSE], id = x$id[fix.loc])
+
+  # warn about the items to be estimated whose maximum likelihood estimates do not exist,
+  # using the responses pooled over all groups
+  if (!is.null(nofix.loc)) {
+    check_item_mle(data = data[, nofix.loc, drop = FALSE], cats = x$cats[nofix.loc], id = x$id[nofix.loc])
+  }
 
   # save the item response data into the different object
   data_all <- data
