@@ -326,27 +326,25 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
     if (mod %in% c("1PLM", "2PLM", "3PLM")) {
       # in the first two EM cycles, run short gradient-only searches to find better starting values
       if (iter < 3) {
-        tmp_est <- vector("list", 3)
-        tmp_est[[1]] <- stats::nlminb(startval,
-          objective = drm_fns$objective,
-          gradient = drm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 1),
-          lower = lower, upper = upper
-        )
-        tmp_est[[2]] <- stats::nlminb(startval,
-          objective = drm_fns$objective,
-          gradient = drm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 2),
-          lower = lower, upper = upper
-        )
-        tmp_est[[3]] <- stats::nlminb(startval,
-          objective = drm_fns$objective,
-          gradient = drm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), trace = 0, step.min = 0.01, step.max = 3),
-          lower = lower, upper = upper
-        )
-        tmp_num <- which.min(c(tmp_est[[1]]$objective, tmp_est[[2]]$objective, tmp_est[[3]]$objective))
-        startval <- tmp_est[[tmp_num]]$par
+        # a failed search is kept as NULL
+        tmp_est <- lapply(c(1, 2, 3), function(step.max) {
+          tryCatch(
+            stats::nlminb(startval,
+              objective = drm_fns$objective,
+              gradient = drm_fns$gradient,
+              control = list(
+                eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5),
+                trace = 0, step.min = 0.01, step.max = step.max
+              ),
+              lower = lower, upper = upper
+            ),
+            error = function(e) NULL
+          )
+        })
+        # use the best successful short search, or keep the starting values when all of them fail
+        tmp_ok <- !vapply(tmp_est, is.null, logical(1))
+        tmp_num <- which.min(vapply(tmp_est[tmp_ok], function(e) e$objective, numeric(1)))
+        if (length(tmp_num) == 1L) startval <- tmp_est[tmp_ok][[tmp_num]]$par
       }
 
       # estimate the item parameters
@@ -392,27 +390,25 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
 
       # in the first two EM cycles, run short gradient-only searches to find better starting values
       if (iter < 3) {
-        tmp_est <- vector("list", 3)
-        tmp_est[[1]] <- stats::nlminb(startval,
-          objective = prm_fns$objective,
-          gradient = prm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 1, trace = 0),
-          lower = lower, upper = upper
-        )
-        tmp_est[[2]] <- stats::nlminb(startval,
-          objective = prm_fns$objective,
-          gradient = prm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 2, trace = 0),
-          lower = lower, upper = upper
-        )
-        tmp_est[[3]] <- stats::nlminb(startval,
-          objective = prm_fns$objective,
-          gradient = prm_fns$gradient,
-          control = list(eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5), step.min = 0.01, step.max = 3, trace = 0),
-          lower = lower, upper = upper
-        )
-        tmp_num <- which.min(c(tmp_est[[1]]$objective, tmp_est[[2]]$objective, tmp_est[[3]]$objective))
-        startval <- tmp_est[[tmp_num]]$par
+        # a failed search is kept as NULL
+        tmp_est <- lapply(c(1, 2, 3), function(step.max) {
+          tryCatch(
+            stats::nlminb(startval,
+              objective = prm_fns$objective,
+              gradient = prm_fns$gradient,
+              control = list(
+                eval.max = 40 - (iter * 10), iter.max = 25 - (iter * 5),
+                step.min = 0.01, step.max = step.max, trace = 0
+              ),
+              lower = lower, upper = upper
+            ),
+            error = function(e) NULL
+          )
+        })
+        # use the best successful short search, or keep the starting values when all of them fail
+        tmp_ok <- !vapply(tmp_est, is.null, logical(1))
+        tmp_num <- which.min(vapply(tmp_est[tmp_ok], function(e) e$objective, numeric(1)))
+        if (length(tmp_num) == 1L) startval <- tmp_est[tmp_ok][[tmp_num]]$par
       }
 
       # estimate the item parameters

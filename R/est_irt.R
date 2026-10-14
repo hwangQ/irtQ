@@ -2235,6 +2235,33 @@ est_irt_fipc <- function(x = NULL,
 }
 
 
+# This function converts a response data set to a numeric matrix by the values of the
+# responses: character and factor columns are read as numbers, and a value that is not
+# a number becomes -1 so that the range check flags it
+resp_as_numeric <- function(data) {
+  # read the values of a vector as numbers
+  read_num <- function(v) {
+    # numeric and logical values are used as they are
+    if (is.numeric(v) || is.logical(v)) {
+      return(v)
+    }
+    z <- suppressWarnings(as.numeric(as.character(v)))
+    # a value that is not a number is flagged as out of range
+    z[is.na(z) & !is.na(v)] <- -1
+    z
+  }
+
+  if (is.data.frame(data)) {
+    # read each column by its values
+    data[] <- lapply(data, read_num)
+  } else if (!is.numeric(data) && !is.logical(data)) {
+    # read a character matrix by its values
+    data <- matrix(read_num(as.vector(data)), nrow = nrow(data), dimnames = dimnames(data))
+  }
+  data.matrix(data)
+}
+
+
 # This function stops when a response in 'data' is not one of the score
 # categories 0, 1, ..., cats - 1 of its item (missing responses are allowed)
 check_resp_range <- function(data, cats, id) {

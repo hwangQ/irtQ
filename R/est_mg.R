@@ -939,9 +939,9 @@ est_mg_em <- function(x = NULL,
   # extract information about the number of score categories and models
   if (!is.null(x)) {
     # confirm and correct all item metadata information
-    x.gr <- purrr::map(.x = x, ~ {
+    x.gr <- warn_drm_once(purrr::map(.x = x, ~ {
       confirm_df(.x)
-    })
+    }))
     names(x.gr) <- group.name
 
     # override the item IDs in x when item.id is supplied
@@ -1049,7 +1049,7 @@ est_mg_em <- function(x = NULL,
     names(cats.gr) <- group.name
 
     # create the item metadata for each group test form containing starting values
-    x.gr <-
+    x.gr <- warn_drm_once(
       purrr::pmap(
         .l = list(x = cats.gr, y = model.gr, z = item.id),
         ~ {
@@ -1057,6 +1057,7 @@ est_mg_em <- function(x = NULL,
           confirm_df(startval_df(cats = ..1, model = ..2, item.id = ..3))
         }
       )
+    )
     names(x.gr) <- group.name
   }
 
@@ -1105,8 +1106,8 @@ est_mg_em <- function(x = NULL,
     })
   }
 
-  # transform a data set to matrix
-  data <- data.matrix(data)
+  # transform a data set to matrix (character and factor columns are read by their values)
+  data <- resp_as_numeric(data)
 
   # check the total number of examinees for the combined data
   nstd <- nrow(data)
@@ -1712,9 +1713,9 @@ est_mg_fipc <- function(x = NULL,
   names(nstd.gr) <- group.name
 
   # confirm and correct all item metadata information
-  x.gr <- purrr::map(.x = x, ~ {
+  x.gr <- warn_drm_once(purrr::map(.x = x, ~ {
     confirm_df(.x)
-  })
+  }))
   names(x.gr) <- group.name
 
   # override the item IDs in x when item.id is supplied
@@ -1765,9 +1766,9 @@ est_mg_fipc <- function(x = NULL,
     })
     names(fix.loc.gr) <- group.name
   } else {
-    # stop when 'fix.loc' does not have one element (NULL or row positions) per group
-    fix.loc.chk <- if (is.list(fix.loc)) fix.loc else as.list(fix.loc)
-    if (length(fix.loc.chk) != ngroup) {
+    # stop when 'fix.loc' is not a list with one element (NULL or row positions) per group
+    fix.loc.chk <- fix.loc
+    if (!is.list(fix.loc.chk) || length(fix.loc.chk) != ngroup) {
       stop("'fix.loc' must be a list with one element for each of the ", ngroup, " groups.", call. = FALSE)
     }
     # groups whose positions are missing, outside the rows of the group's metadata, or repeated
@@ -1836,8 +1837,8 @@ est_mg_fipc <- function(x = NULL,
     })
   }
 
-  # transform a data set to matrix
-  data <- data.matrix(data)
+  # transform a data set to matrix (character and factor columns are read by their values)
+  data <- resp_as_numeric(data)
 
   # check the total number of examinees for the combined data
   nstd <- nrow(data)
@@ -2687,6 +2688,25 @@ set_mg_groups <- function(free.group, group.name, fipc) {
 }
 
 
+# This function evaluates an expression and gives the warning about 'DRM' items of
+# confirm_df() once, however many groups raise it (other warnings pass through)
+warn_drm_once <- function(expr) {
+  drm.memo <- NULL
+  out <- withCallingHandlers(expr, warning = function(w) {
+    # hold back the 'DRM' warning
+    if (grepl("'DRM' items are treated as '3PLM' items", conditionMessage(w), fixed = TRUE)) {
+      drm.memo <<- conditionMessage(w)
+      invokeRestart("muffleWarning")
+    }
+  })
+  # give the held warning once
+  if (!is.null(drm.memo)) {
+    warning(drm.memo, call. = FALSE)
+  }
+  out
+}
+
+
 # This function stops when an item ID is repeated within a group or has different numbers
 # of score categories or different models across groups, and warns when a fixed item of
 # FIPC has different parameter values across groups (those of the first group are used)
@@ -2714,12 +2734,23 @@ check_mg_items <- function(x.gr, fix.item = NULL) {
     x.fix <- x.all[x.all$id %in% fix.item, , drop = FALSE]
     # number of parameters of each item: a and b (and g for 3PLM), or a and cats - 1 thresholds
     npar <- ifelse(x.fix$cats == 2, ifelse(x.fix$model == "3PLM", 3, 2), x.fix$cats)
-    # one key per item row that holds its parameter values
-    par.key <- vapply(seq_len(nrow(x.fix)), function(i) {
-      paste(unlist(x.fix[i, 3 + seq_len(npar[i])]), collapse = " ")
-    }, character(1))
-    n.par <- tapply(par.key, x.fix$id, function(k) length(unique(k)))
-    diff.id <- names(n.par)[n.par > 1L]
+    # parameter values of each item row
+    par.val <- lapply(seq_len(nrow(x.fix)), function(i) {
+      as.numeric(unlist(x.fix[i, 3 + seq_len(npar[i])]))
+    })
+    # items whose values differ across groups by more than a numerical tolerance
+    id.all <- sort(unique(x.fix$id))
+    differ <- vapply(id.all, function(id) {
+      loc <- which(x.fix$id == id)
+      ref <- par.val[[loc[1]]]
+      any(vapply(par.val[loc[-1]], function(p) {
+        d <- abs(p - ref)
+        # two missing values are equal
+        d[is.na(p) & is.na(ref)] <- 0
+        anyNA(d) || max(d) > 1e-10
+      }, logical(1)))
+    }, logical(1))
+    diff.id <- id.all[differ]
     if (length(diff.id) > 0L) {
       warning("The fixed item(s) ", paste(diff.id, collapse = ", "), " have different parameter values ",
               "across groups; the values in the first group that includes each item were used.", call. = FALSE)

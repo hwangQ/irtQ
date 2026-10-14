@@ -23,6 +23,14 @@ test_that("responses must be scored 0, ..., cats - 1", {
   d2 <- di
   d2[1, 9] <- 3
   expect_error(est_item(x = xi, data = d2, score = th, verbose = FALSE), "scored as 0, 1")
+  # responses stored as character strings are checked by their values
+  dc <- as.data.frame(di)
+  dc[, 4] <- as.character(dc[, 4])
+  f0 <- est_item(x = xi, data = di, score = th, D = 1.702, verbose = FALSE)
+  fc <- est_item(x = xi, data = dc, score = th, D = 1.702, verbose = FALSE)
+  expect_equal(fc$par.est, f0$par.est)
+  dc[1, 4] <- "a"
+  expect_error(est_item(x = xi, data = dc, score = th, verbose = FALSE), "scored as 0, 1")
 })
 
 test_that("a single item left after removing the items with no responses is estimated", {

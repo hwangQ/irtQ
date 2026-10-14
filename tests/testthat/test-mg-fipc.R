@@ -59,6 +59,16 @@ test_that("a fixed item with different parameters across groups gives a warning"
   # no warning when the values agree
   r0 <- with_warnings(q(x = M$x, data = M$data, group.name = gn, free.group = 1:3, fipc = TRUE, fix.loc = list(1:4, 1:4, NULL)))
   expect_false(any(grepl("different parameter values", r0$warnings)))
+  # a difference at the level of floating point noise gives no warning
+  xn <- M$x
+  xn[[2]]$par.1[1] <- xn[[2]]$par.1[1] * (1 + 1e-12)
+  rn <- with_warnings(q(x = xn, data = M$data, group.name = gn, free.group = 1:3, fipc = TRUE, fix.loc = list(1:4, 1:4, NULL)))
+  expect_false(any(grepl("different parameter values", rn$warnings)))
+  # a difference of 1e-4 gives the warning
+  xm <- M$x
+  xm[[2]]$par.1[1] <- xm[[2]]$par.1[1] + 1e-4
+  rw <- with_warnings(q(x = xm, data = M$data, group.name = gn, free.group = 1:3, fipc = TRUE, fix.loc = list(1:4, 1:4, NULL)))
+  expect_true(any(grepl("fixed item\\(s\\) C1 have different parameter values", rw$warnings)))
 })
 
 test_that("MG-FIPC with all items fixed reports that the information matrix is not computed", {
@@ -90,4 +100,26 @@ test_that("an item keeps its previous values and is marked as not converged when
   expect_true(all(grepl("NA/NaN function evaluation", r1$warnings)))
   expect_equal(est1$pars, c(1, 0.1, -0.2))
   expect_equal(est1$convergence, 1L)
+})
+
+test_that("a failed search in the first EM cycles keeps the previous values", {
+  quadpt <- seq(-4, 4, length.out = 21)
+  f_i <- rep(20, 21)
+  r_i <- round(f_i * plogis(quadpt))
+  # a gradient that cannot be evaluated makes every gradient-based search fail
+  fns <- irtQ:::make_drm_optim_fns
+  local_mocked_bindings(make_drm_optim_fns = function(...) {
+    out <- fns(...)
+    out$gradient <- function(p) rep(NaN, length(p))
+    out
+  })
+  for (it in 1:2) {
+    est <- irtQ:::estimation2(
+      f_i = f_i, r_i = r_i, s_i = f_i - r_i, quadpt = quadpt, mod = "2PLM", D = 1, n.quad = 21,
+      control = list(eval.max = 50, iter.max = 20), startval = c(1.2, 0.3), lower = c(0.01, -6), upper = c(5, 6),
+      iter = it
+    )
+    expect_equal(est$pars, c(1.2, 0.3))
+    expect_equal(est$convergence, 1L)
+  }
 })

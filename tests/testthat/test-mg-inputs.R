@@ -54,6 +54,8 @@ test_that("fix.loc, fix.id and fipc.method are checked in MG-FIPC", {
   expect_error(qf(fix.loc = list(c(1:4, 20), 1:4, NULL)), "Check group\\(s\\) 1")
   expect_error(qf(fix.loc = list(c(1, 1, 2), 1:4, NULL)), "Check group\\(s\\) 1")
   expect_error(qf(fix.loc = list(1:4, 1:4)), "one element for each of the 3 groups")
+  # a vector with one value per group is not taken as one position per group
+  expect_error(qf(fix.loc = 1:3), "one element for each of the 3 groups")
   expect_error(qf(fix.loc = list(integer(0), NULL, NULL)), "at least one fixed item")
   expect_error(qf(fix.id = c("C1", "ZZ")), "not found in the item IDs: ZZ")
   expect_error(qf(fix.loc = list(1:4, 1:4, NULL), fipc.method = "oem"), "'fipc.method' must be")
@@ -80,6 +82,16 @@ test_that("DRM items are accepted when x = NULL", {
   id <- lapply(M$x, function(z) z$id)
   f <- suppressWarnings(q(data = M$data, group.name = gn, free.group = 2:3, model = md, cats = ct, item.id = id))
   expect_true(all(f$par.est$overall$model[f$par.est$overall$cats == 2] == "3PLM"))
+  # the warning about the DRM items is given once, not once per group
+  r <- with_warnings(q(data = M$data, group.name = gn, free.group = 2:3, model = md, cats = ct, item.id = id))
+  expect_equal(sum(grepl("All 'DRM' items are treated as '3PLM' items", r$warnings)), 1L)
+  # a single warning is also given when x holds the DRM items
+  xd <- lapply(M$x, function(z) {
+    z$model[z$cats == 2] <- "DRM"
+    z
+  })
+  r2 <- with_warnings(q(x = xd, data = M$data, group.name = gn, free.group = 2:3))
+  expect_equal(sum(grepl("All 'DRM' items are treated as '3PLM' items", r2$warnings)), 1L)
 })
 
 test_that("cats = NULL gives two categories when all models are dichotomous", {

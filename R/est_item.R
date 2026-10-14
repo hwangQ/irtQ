@@ -372,7 +372,8 @@ est_item <- function(x = NULL,
   }
 
   # stop when a response is not one of the score categories 0, ..., cats - 1
-  check_resp_range(data = data.matrix(data), cats = cats, id = x$id)
+  # (character and factor columns are checked by their values)
+  check_resp_range(data = resp_as_numeric(data), cats = cats, id = x$id)
 
   # transform scores to a vector if the score has other formats
   if (is.matrix(score) | is.data.frame(score)) {
@@ -410,7 +411,7 @@ est_item <- function(x = NULL,
   }
 
   # warn about the items whose maximum likelihood estimates do not exist
-  check_item_mle(data = data.matrix(data), cats = cats, id = x$id)
+  check_item_mle(data = resp_as_numeric(data), cats = cats, id = x$id)
 
   # compute the mean and standard deviation of the abilities
   group.par <- c(mu = mean(score), sigma = stats::sd(score))
