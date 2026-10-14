@@ -494,6 +494,28 @@ knitr::opts_chunk$set(
   about items that did not converge numbered the items after the items without
   responses had been removed; it now uses the positions in the supplied data.
 
+* `est_mg()` with `fipc = TRUE` always stopped with an error when `item.id` was
+  supplied: with "do not share common items" when the IDs were those of `x`,
+  and with "At least one model name is mis-specified" when they were different
+  (present in 1.3.1). A supplied `item.id` now replaces the IDs in `x`, as the
+  help page says, and `fix.id` refers to the new IDs.
+
+* FIPC with fixed items whose responses are all the same (for example, all
+  correct) produced an error ("NA/NaN gradient evaluation") with
+  `fipc.method = "MEM"`, degenerate estimates (a slope of 0.01 and a difficulty
+  above 10) with `"OEM"`, and `NaN` group parameters after 500 cycles when all
+  items were fixed. Such fixed items carry no information to place the ability
+  scale. `est_irt()` and `est_mg()` now stop with a message when the responses
+  to all fixed items show no variation (`est_mg()` uses the responses pooled
+  over the groups). When the last search of an item in an M-step fails, the
+  item now keeps its previous values and is reported as not converged, instead
+  of stopping the run.
+
+* For `est_mg()` with FIPC and all items fixed, `test.2` read "Solution is a
+  possible local maximum." although no information matrix is computed. It now
+  reads as in `est_irt()`: "No item parameters are estimated, so the
+  information matrix is not computed."
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the
@@ -572,6 +594,10 @@ knitr::opts_chunk$set(
   FIPC, when `fix.loc` has the wrong length or repeated positions, when an ID
   in `fix.id` is not found, and when `fipc.method` is not `"MEM"` or `"OEM"`
   (also in `est_irt()`).
+
+* `est_mg()` with FIPC warns when a fixed item has different parameter values
+  in different groups. The values of the first group that includes the item
+  are used, as before.
 
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.

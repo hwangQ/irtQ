@@ -1590,14 +1590,18 @@ est_mg_fipc <- function(x = NULL,
   })
   names(x.gr) <- group.name
 
-  # item, cats, model information for each group
-  if (is.null(item.id)) {
-    item.id <- purrr::map(.x = x.gr, ~ {
-      .x$id
+  # override the item IDs in x when item.id is supplied
+  if (!is.null(item.id)) {
+    x.gr <- purrr::map2(.x = x.gr, .y = item.id, ~ {
+      .x$id <- .y
+      .x
     })
-  } else {
-    item.id <- item.id
   }
+
+  # item, cats, model information for each group
+  item.id <- purrr::map(.x = x.gr, ~ {
+    .x$id
+  })
   cats.gr <- purrr::map(.x = x.gr, ~ {
     .x$cats
   })
@@ -1660,8 +1664,9 @@ est_mg_fipc <- function(x = NULL,
     names(fix.loc.gr) <- group.name
   }
 
-  # stop when an item ID is repeated within a group or is defined differently across groups
-  check_mg_items(x.gr)
+  # stop when an item ID is repeated within a group or is defined differently across groups,
+  # and warn when a fixed item has different parameter values across groups
+  check_mg_items(x.gr, fix.item = fix.item)
 
   # copy data to data.gr object
   data.gr <- data
@@ -1821,6 +1826,9 @@ est_mg_fipc <- function(x = NULL,
 
   # stop when a response is not one of the score categories 0, ..., cats - 1
   check_resp_range(data = data, cats = x$cats, id = x$id)
+
+  # stop when the responses to all fixed items show no variation (pooled over all groups)
+  check_fix_info(data = data[, fix.loc, drop = FALSE], id = x$id[fix.loc])
 
   # save the item response data into the different object
   data_all <- data
@@ -2305,12 +2313,8 @@ est_mg_fipc <- function(x = NULL,
     # extract the finalized posterior density
     post_dist <- estep$post_dist
 
-    # the second-order test
-    if (test_1st) {
-      memo4 <- "Solution is a possible local maximum."
-    } else {
-      memo4 <- "Solution is not a possible local maximum because convergence criteria are not satisfied."
-    }
+    # the second-order test is not available because the information matrix is not computed
+    memo4 <- "No item parameters are estimated, so the information matrix is not computed."
 
     # compute the standard errors of item parameter estimates
     cov_mat <- NULL
@@ -2551,8 +2555,9 @@ set_mg_groups <- function(free.group, group.name, fipc) {
 
 
 # This function stops when an item ID is repeated within a group or has different numbers
-# of score categories or different models across groups
-check_mg_items <- function(x.gr) {
+# of score categories or different models across groups, and warns when a fixed item of
+# FIPC has different parameter values across groups (those of the first group are used)
+check_mg_items <- function(x.gr, fix.item = NULL) {
   # item IDs repeated within a group
   dup.id <- unique(unlist(lapply(x.gr, function(z) z$id[duplicated(z$id)])))
   if (length(dup.id) > 0L) {
@@ -2569,6 +2574,23 @@ check_mg_items <- function(x.gr) {
   if (length(bad.id) > 0L) {
     stop("Items with the same ID must have the same number of score categories and the same model ",
          "in all groups. Check item(s) ", paste(bad.id, collapse = ", "), ".", call. = FALSE)
+  }
+
+  # fixed items whose parameter values differ across groups
+  if (length(fix.item) > 0L) {
+    x.fix <- x.all[x.all$id %in% fix.item, , drop = FALSE]
+    # number of parameters of each item: a and b (and g for 3PLM), or a and cats - 1 thresholds
+    npar <- ifelse(x.fix$cats == 2, ifelse(x.fix$model == "3PLM", 3, 2), x.fix$cats)
+    # one key per item row that holds its parameter values
+    par.key <- vapply(seq_len(nrow(x.fix)), function(i) {
+      paste(unlist(x.fix[i, 3 + seq_len(npar[i])]), collapse = " ")
+    }, character(1))
+    n.par <- tapply(par.key, x.fix$id, function(k) length(unique(k)))
+    diff.id <- names(n.par)[n.par > 1L]
+    if (length(diff.id) > 0L) {
+      warning("The fixed item(s) ", paste(diff.id, collapse = ", "), " have different parameter values ",
+              "across groups; the values in the first group that includes each item were used.", call. = FALSE)
+    }
   }
 
   invisible(NULL)

@@ -253,6 +253,9 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
                         gprior = list(dist = "beta", params = c(5, 16)),
                         use.aprior = FALSE, use.bprior = FALSE, use.gprior = TRUE,
                         control, startval = NULL, lower, upper, iter = NULL) {
+  # keep the values at the start of the cycle for the case in which the last search fails
+  startval.prev <- startval
+
   # build the cached (objective, gradient, hessian) trio once per call
   # for DRM models; see make_drm_optim_fns() for the cache mechanics.
   if (mod %in% c("1PLM", "2PLM", "3PLM")) {
@@ -288,11 +291,18 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
       )
     if (is.null(est) || est$convergence > 0L) {
       # if error or non-convergence, only use the gradient
-      est <- stats::nlminb(startval,
-        objective = drm_fns$objective,
-        gradient = drm_fns$gradient,
-        control = control, lower = lower, upper = upper
+      est <- tryCatch(
+        stats::nlminb(startval,
+          objective = drm_fns$objective,
+          gradient = drm_fns$gradient,
+          control = control, lower = lower, upper = upper
+        ),
+        error = function(e) {
+          NULL
+        }
       )
+      # keep the previous values and mark the item as not converged when the search fails
+      if (is.null(est)) est <- list(par = startval.prev, convergence = 1L, objective = NA_real_)
     }
   } else {
     # when the slope parameters are not constrained to be equal across items
@@ -338,11 +348,18 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
       )
       if (is.null(est) || est$convergence > 0L) {
         # if error or non-convergence, only use the gradient
-        est <- stats::nlminb(startval,
-          objective = drm_fns$objective,
-          gradient = drm_fns$gradient,
-          control = control, lower = lower, upper = upper
+        est <- tryCatch(
+          stats::nlminb(startval,
+            objective = drm_fns$objective,
+            gradient = drm_fns$gradient,
+            control = control, lower = lower, upper = upper
+          ),
+          error = function(e) {
+            NULL
+          }
         )
+        # keep the previous values and mark the item as not converged when the search fails
+        if (is.null(est)) est <- list(par = startval.prev, convergence = 1L, objective = NA_real_)
       }
     } else {
       # keep the starting values for a refit with ordered GRM thresholds
@@ -397,11 +414,18 @@ estimation2 <- function(f_i, r_i, s_i, quadpt, mod = c("1PLM", "2PLM", "3PLM", "
       )
       if (is.null(est) || est$convergence > 0L) {
         # if error or non-convergence, only use the gradient
-        est <- stats::nlminb(startval,
-          objective = prm_fns$objective,
-          gradient = prm_fns$gradient,
-          control = control, lower = lower, upper = upper
+        est <- tryCatch(
+          stats::nlminb(startval,
+            objective = prm_fns$objective,
+            gradient = prm_fns$gradient,
+            control = control, lower = lower, upper = upper
+          ),
+          error = function(e) {
+            NULL
+          }
         )
+        # keep the previous values and mark the item as not converged when the search fails
+        if (is.null(est)) est <- list(par = startval.prev, convergence = 1L, objective = NA_real_)
       }
 
       # refit with ordered thresholds when the GRM thresholds are not in increasing order

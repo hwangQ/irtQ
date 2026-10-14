@@ -1672,6 +1672,9 @@ est_irt_fipc <- function(x = NULL,
   # stop when a response is not one of the score categories 0, ..., cats - 1
   check_resp_range(data = data, cats = x$cats, id = x$id)
 
+  # stop when the responses to all fixed items show no variation
+  check_fix_info(data = data[, fix.loc, drop = FALSE], id = x$id[fix.loc])
+
   # warn about the items to be estimated whose maximum likelihood estimates do not exist
   if (!is.null(nofix.loc)) {
     check_item_mle(data = data[, nofix.loc, drop = FALSE], cats = x$cats[nofix.loc], id = x$id[nofix.loc])
@@ -2232,6 +2235,27 @@ check_resp_range <- function(data, cats, id) {
       "The responses must be scored as 0, 1, ..., (cats - 1). ",
       "Out-of-range or non-integer responses were found for item(s) ",
       paste0(id[loc_bad], " (allowed 0 to ", cats[loc_bad] - 1, ")", collapse = ", "), "."
+    ), call. = FALSE)
+  }
+  invisible(NULL)
+}
+
+
+# This function stops when the responses to every fixed item of FIPC show no variation
+# (one observed response value per item). Such fixed items carry no information about
+# differences in ability: the first E-step gives every examinee the same posterior, so the
+# new items have no interior maximum in the M-step, and the scale cannot be placed
+check_fix_info <- function(data, id) {
+  # number of distinct observed responses of each fixed item
+  n.value <- vapply(seq_len(ncol(data)), function(j) {
+    length(unique(data[!is.na(data[, j]), j]))
+  }, integer(1))
+
+  # stop when no fixed item has two or more observed response values
+  if (all(n.value <= 1L)) {
+    stop(paste0(
+      "The responses to all fixed items (", paste(id, collapse = ", "), ") show no variation, ",
+      "so the fixed items carry no information to place the ability scale and FIPC cannot be applied."
     ), call. = FALSE)
   }
   invisible(NULL)
