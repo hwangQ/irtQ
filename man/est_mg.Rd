@@ -120,8 +120,11 @@ contain five character vectors corresponding to the five groups. The elements
 in the list must be ordered consistently with the group names specified in
 the \code{group.name} argument.
 
-When \code{fipc = TRUE} and item IDs are provided via the \code{item.id} argument,
-the item IDs in the \code{x} argument will be overridden. Default is \code{NULL}.}
+Items with the same ID in different groups are treated as common items. A
+provided \code{item.id} replaces any IDs in \code{x}, with or without FIPC, and each
+element must have one value per item of its group. With \code{fipc = TRUE},
+\code{fix.id} then refers to the new IDs. It is required when \code{x = NULL}.
+Default is \code{NULL}.}
 
 \item{free.group}{A numeric or character vector indicating the groups for which
 the scales (i.e., mean and standard deviation) of the latent ability distributions

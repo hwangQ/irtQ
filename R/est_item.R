@@ -42,9 +42,10 @@
 #'   models specified in the `model` argument are dichotomous (`"1PLM"`,
 #'   `"2PLM"`, `"3PLM"`, or `"DRM"`), the function defaults to 2 categories per
 #'   item. This argument is used only when `x = NULL`. Default is `NULL`.
-#' @param item.id Character vector of item identifiers, used only when
-#'   `x = NULL`. If `NULL`, IDs are generated automatically. The IDs in `x` are
-#'   used when `x` is supplied. Default is `NULL`.
+#' @param item.id Character vector of item identifiers. If `NULL`, the IDs in
+#'   `x` are used, or IDs are generated automatically when `x = NULL`. A
+#'   provided `item.id` replaces any IDs in `x` and must have one value per
+#'   item. Default is `NULL`.
 #' @param control A named list of options passed directly to [stats::nlminb()]. 
 #'   These parameters define settings for the item parameter estimation process, 
 #'   such as the maximum number of iterations. By default:
@@ -274,6 +275,15 @@ est_item <- function(x = NULL,
   if (!is.null(x)) {
     # confirm and correct all item metadata information
     x <- confirm_df(x)
+
+    # override the item IDs in x when item.id is supplied
+    if (!is.null(item.id)) {
+      # stop when item.id does not have one value per item of x
+      if (length(item.id) != nrow(x)) {
+        stop("The length of 'item.id' must be equal to the number of items in 'x'.", call. = FALSE)
+      }
+      x$id <- item.id
+    }
 
     # extract score categories for all items
     cats <- x$cats

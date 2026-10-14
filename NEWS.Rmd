@@ -572,7 +572,8 @@ knitr::opts_chunk$set(
 
 * A supplied `item.id` replaces the IDs in `x` in `est_irt()` also when
   `fipc = FALSE`, as it already did with `fipc = TRUE`. Before, it was ignored
-  when `x` was supplied. It must have one value per item.
+  when `x` was supplied. It must have one value per item. The same holds for
+  `est_mg()` (one vector of IDs per group, also without FIPC) and `est_item()`.
 
 * For `est_irt()` with FIPC and all items fixed, `test.2` reads "No item
   parameters are estimated, so the information matrix is not computed.",

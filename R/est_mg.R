@@ -75,8 +75,11 @@
 #'   in the list must be ordered consistently with the group names specified in
 #'   the `group.name` argument.
 #'
-#'   When `fipc = TRUE` and item IDs are provided via the `item.id` argument,
-#'   the item IDs in the `x` argument will be overridden. Default is `NULL`.
+#'   Items with the same ID in different groups are treated as common items. A
+#'   provided `item.id` replaces any IDs in `x`, with or without FIPC, and each
+#'   element must have one value per item of its group. With `fipc = TRUE`,
+#'   `fix.id` then refers to the new IDs. It is required when `x = NULL`.
+#'   Default is `NULL`.
 #' @param free.group A numeric or character vector indicating the groups for which
 #'   the scales (i.e., mean and standard deviation) of the latent ability distributions
 #'   are freely estimated. The scales of the remaining groups (those not specified in this
@@ -840,6 +843,14 @@ est_mg_em <- function(x = NULL,
       confirm_df(.x)
     })
     names(x.gr) <- group.name
+
+    # override the item IDs in x when item.id is supplied
+    if (!is.null(item.id)) {
+      x.gr <- purrr::map2(.x = x.gr, .y = item.id, ~ {
+        .x$id <- .y
+        .x
+      })
+    }
 
     # item, cats, model information for each group
     item.id <- purrr::map(.x = x.gr, ~ {
