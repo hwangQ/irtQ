@@ -77,6 +77,10 @@
 #'   as the guessing parameter of a 3PLM item with `use.gprior = TRUE`, can
 #'   still be stable.
 #'
+#'   When prior distributions are used, the item parameters are Bayes modal
+#'   estimates, and `loglikelihood` is the log-likelihood at these estimates
+#'   without the log prior densities.
+#'
 #' @return This function returns an object of class `est_item`. The returned
 #'   object contains the following components:
 #'
@@ -100,8 +104,10 @@
 #'   \item{covariance}{A variance-covariance matrix of the item parameter
 #'   estimates.}
 #'
-#'   \item{loglikelihood}{The total log-likelihood value computed across all
-#'   estimated items based on the complete response data.}
+#'   \item{loglikelihood}{The log-likelihood of the observed responses given
+#'   the abilities in `score`, summed over the items, at the final estimates.
+#'   The log prior densities of the item parameters are not included. Printed
+#'   results report -2 times this value as "-2loglikelihood".}
 #'
 #'   \item{data}{A data frame of examinees' response data.}
 #'
@@ -527,8 +533,8 @@ est_item <- function(x = NULL,
     convergence <- c(convergence, est$convergence)
     if (est$convergence > 0L) noconv_items <- c(noconv_items, loc_1p_const)
 
-    # negative loglikelihood value
-    objective <- c(objective, est$objective)
+    # negative log-likelihood value without the log prior densities
+    objective <- c(objective, est$objective.data)
   }
 
   # all other items
@@ -606,8 +612,8 @@ est_item <- function(x = NULL,
         convergence <- c(convergence, est$convergence)
         if (est$convergence > 0L) noconv_items <- c(noconv_items, loc_else[i])
 
-        # negative loglikelihood value
-        objective <- c(objective, est$objective)
+        # negative log-likelihood value without the log prior densities
+        objective <- c(objective, est$objective.data)
       }
 
       # in case of a PRM item
@@ -683,8 +689,8 @@ est_item <- function(x = NULL,
         convergence <- c(convergence, est$convergence)
         if (est$convergence > 0L) noconv_items <- c(noconv_items, loc_else[i])
 
-        # negative loglikelihood value
-        objective <- c(objective, est$objective)
+        # negative log-likelihood value without the log prior densities
+        objective <- c(objective, est$objective.data)
       }
     }
   }
@@ -700,7 +706,7 @@ est_item <- function(x = NULL,
   }
 
   ## ---------------------------------------------------------------
-  # compute the sum of loglikelihood values
+  # compute the sum of the log-likelihood values without the log prior densities
   llike <- -sum(objective)
 
   ## ---------------------------------------------------------------

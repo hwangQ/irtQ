@@ -187,8 +187,10 @@ matrix.}
 \item{covariance}{A variance-covariance matrix of the item parameter
 estimates.}
 
-\item{loglikelihood}{The total log-likelihood value computed across all
-estimated items based on the complete response data.}
+\item{loglikelihood}{The log-likelihood of the observed responses given
+the abilities in \code{score}, summed over the items, at the final estimates.
+The log prior densities of the item parameters are not included. Printed
+results report -2 times this value as "-2loglikelihood".}
 
 \item{data}{A data frame of examinees' response data.}
 
@@ -247,6 +249,10 @@ without any response are excluded, one warning lists the IDs of the
 remaining items of this kind. A parameter with a prior distribution, such
 as the guessing parameter of a 3PLM item with \code{use.gprior = TRUE}, can
 still be stable.
+
+When prior distributions are used, the item parameters are Bayes modal
+estimates, and \code{loglikelihood} is the log-likelihood at these estimates
+without the log prior densities.
 }
 \examples{
 ## Import the "-prm.txt" output file from flexMIRT

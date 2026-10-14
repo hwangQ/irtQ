@@ -516,6 +516,14 @@ knitr::opts_chunk$set(
   reads as in `est_irt()`: "No item parameters are estimated, so the
   information matrix is not computed."
 
+* `est_item()` returned the log-likelihood plus the log prior densities as
+  `loglikelihood` when prior distributions were used, for example for 3PLM
+  items with the default `use.gprior = TRUE`, although the help page and the
+  printed "-2loglikelihood" call it the log-likelihood. It now returns the
+  log-likelihood at the final estimates without the log prior densities, as
+  `est_irt()` and `est_mg()` do. The estimates, standard errors, and
+  covariances are unchanged, and so is `loglikelihood` when no prior is used.
+
 ## Changes in Behavior
 * `catsib()` has a new argument `rho.screen`, `TRUE` by default. When the
   ability estimates of a few examinees have very large standard errors, the

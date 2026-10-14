@@ -181,8 +181,9 @@
 #'   \item{pos.par}{A data frame indicating the position index of each estimated
 #'   item parameter. This is useful when interpreting the variance-covariance matrix.}
 #'   \item{covariance}{A variance-covariance matrix of the item parameter estimates.}
-#'   \item{loglikelihood}{The sum of log-likelihood values across all items in
-#'   the complete data set.}
+#'   \item{loglikelihood}{The log-likelihood of the observed responses given
+#'   the abilities in `score`, summed over the items, at the final estimates,
+#'   without the log prior densities of the item parameters.}
 #'   \item{data}{A data frame of examinee response data.}
 #'   \item{score}{A numeric vector of examinees' ability values used as fixed
 #'   effects during estimation.}

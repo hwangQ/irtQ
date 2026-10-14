@@ -239,8 +239,25 @@ estimation1 <- function(f_i, r_i, s_i, theta, mod = c("1PLM", "2PLM", "3PLM", "G
   # set an upper bound of standard error
   se <- ifelse(se > 99999, 99999, se)
 
+  # negative log-likelihood at the estimates without the log prior densities
+  if (mod %in% c("1PLM", "2PLM", "3PLM")) {
+    objective.data <- loglike_drm(est$par,
+      r_i = r_i, s_i = s_i, theta = theta, mod = mod, D = D,
+      fix.a = fix.a.1pl, fix.g = fix.g, a.val = a.val.1pl, g.val = g.val, n.1PLM = n.1PLM,
+      use.aprior = FALSE, use.bprior = FALSE, use.gprior = FALSE
+    )
+  } else {
+    objective.data <- loglike_prm(est$par,
+      r_i = r_i, theta = theta, pr.mod = mod, D = D, fix.a = fix.a.gpcm, a.val = a.val.gpcm,
+      use.aprior = FALSE, use.bprior = FALSE
+    )
+  }
+
   # return results
-  rst <- list(pars = est$par, se = se, covariance = cov_mat, convergence = est$convergence, objective = est$objective)
+  rst <- list(
+    pars = est$par, se = se, covariance = cov_mat, convergence = est$convergence, objective = est$objective,
+    objective.data = objective.data
+  )
   rst
 }
 
