@@ -183,9 +183,10 @@ derivatives of the log prior densities when priors are used). The abilities
 in \code{score} are treated as known, so their estimation error is not reflected
 in the standard errors.}
 
-\item{pos.par}{A data frame indicating the position of each item parameter
-within the estimation vector. Useful for interpreting the variance-covariance
-matrix.}
+\item{pos.par}{A data frame of the positions of the estimated item
+parameters in \code{covariance}. The rows of the excluded items are \code{NA}, and a
+slope shared by 1PLM items appears only in the row of the first 1PLM
+item.}
 
 \item{covariance}{A variance-covariance matrix of the item parameter
 estimates. Items are estimated separately, so the covariances between the
@@ -237,11 +238,11 @@ called Stocking's (1988) Method A, which estimates item parameters by
 maximum likelihood given ability estimates (Baker & Kim, 2004; Ban et al.,
 2001; Stocking, 1988). When prior distributions are specified for item
 parameters (by default, for the guessing parameters of 3PLM items), the
-estimates are the modes of the posterior distribution. It can also be
-considered a special case of joint
-maximum likelihood estimation in which only one cycle of item parameter
-estimation is conducted, conditioned on the given ability estimates
-(Birnbaum, 1968). FAPC is a potentially useful method for calibrating pretest
+estimates are the modes of the posterior distribution (Bayes modal
+estimates). It can also be considered a special case of joint maximum
+likelihood estimation in which only one cycle of item parameter estimation
+is conducted, conditioned on the given ability estimates (Birnbaum, 1968).
+FAPC is a potentially useful method for calibrating pretest
 (or newly developed) items in computerized adaptive testing (CAT), as it
 enables placing their parameter estimates on the same scale as operational
 items. In addition, it can be used to recalibrate operational items in the

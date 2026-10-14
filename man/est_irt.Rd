@@ -216,12 +216,13 @@ be less converged than the item parameters; a smaller \code{Etol} gives more
 precise estimates of them. In particular, an estimated histogram can keep
 changing very slowly over many cycles (toward a spiky distribution) while
 the log-likelihood barely changes, so \code{group.par} and \code{weights} then
-depend on \code{Etol}. When all items are fixed, the criterion is applied to
-the largest absolute change in the mean and variance of the latent
-ability distribution. \code{Etol} is not used when \code{fipc.method = "OEM"} with
-items to calibrate. The printed output of the fitted object refers to
-this criterion as the convergence criterion of the E-step. Default is
-\code{1e-4}.}
+depend on \code{Etol}; with small samples, the item parameters can then also
+need many cycles, or more than \code{MaxE}, to meet \code{Etol}. When all items are
+fixed, the criterion is applied to the largest absolute change in the mean
+and variance of the latent ability distribution. \code{Etol} is not used when
+\code{fipc.method = "OEM"} with items to calibrate. The printed output of the
+fitted object refers to this criterion as the convergence criterion of the
+E-step. Default is \code{1e-4}.}
 
 \item{MaxE}{A positive integer specifying the maximum number of EM cycles. It
 is set to 1 when \code{fipc.method = "OEM"}. The printed output of the fitted
@@ -297,11 +298,14 @@ information matrix is the cross-product (empirical) information matrix of
 the marginal log-likelihood evaluated at the final estimates (Meilijson,
 1989), plus the prior information (the negative second derivatives of the
 log prior densities) for the parameters that have prior distributions.
-Standard errors are \code{NA} for parameters that are not estimated (for
-example, fixed slopes or guessing parameters, and the items fixed in FIPC)
-and for all parameters when \code{se = FALSE}. The standard error of a common
-slope of 1PLM items appears only in the row of the first 1PLM item. A
-value of 99999 indicates that the standard error could not be obtained.}
+With FIPC, the latent ability distribution is treated as known in this
+matrix, so the uncertainty of the estimated distribution is not reflected
+in these standard errors. Standard errors are \code{NA} for parameters that are
+not estimated (for example, fixed slopes or guessing parameters, and the
+items fixed in FIPC) and for all parameters when \code{se = FALSE}. The
+standard error of a common slope of 1PLM items appears only in the row of
+the first 1PLM item. A value of 99999 indicates that the standard error
+could not be obtained.}
 
 \item{pos.par}{A data frame indicating, for each estimated item parameter,
 its row (and column) position in \code{covariance}. Parameters that are not
@@ -622,6 +626,10 @@ error of 99999 means that it could not be obtained). Before the estimation,
 one warning lists the IDs of these items; the items fixed in FIPC are not
 checked. A parameter with a prior distribution, such as the guessing
 parameter of a 3PLM item with \code{use.gprior = TRUE}, can still be stable.
+
+When prior distributions are used, the item parameters are Bayes modal
+estimates, and \code{loglikelihood} is the log-likelihood at these estimates
+without the log prior densities.
 
 The information criteria are \code{aic = -2 * loglikelihood + 2 * npar.est} and
 \code{bic = -2 * loglikelihood + npar.est * log(ncase)}. Here \code{loglikelihood} is

@@ -142,8 +142,8 @@
 #'   \item{Etol}{The convergence criterion of the EM algorithm: the largest
 #'   absolute change in the estimated item parameters between consecutive
 #'   cycles. For FIPC with all items fixed, it applies to the change in the
-#'   means and variances of the latent ability distributions of the groups in
-#'   `free.group`; see [irtQ::est_mg()].}
+#'   means and variances of the latent ability distributions of all groups;
+#'   see [irtQ::est_mg()].}
 #'   \item{MaxE}{The maximum number of EM cycles allowed during estimation
 #'   (1 when `fipc.method = "OEM"`).}
 #'   \item{aprior}{A list describing the prior distribution for item slope parameters.}
@@ -155,8 +155,8 @@
 #'   \item{niter}{Number of EM cycles completed.}
 #'   \item{maxpar.diff}{The largest absolute change in the estimated item
 #'   parameters at the last EM cycle (for FIPC with all items fixed, in the
-#'   means and variances of the latent ability distributions of the groups in
-#'   `free.group`).}
+#'   means and variances of the latent ability distributions of all groups;
+#'   see `Etol` in [irtQ::est_mg()]).}
 #'   \item{EMtime}{Computation time (in seconds) for EM estimation.}
 #'   \item{SEtime}{Computation time (in seconds) for estimating standard errors.}
 #'   \item{TotalTime}{Total computation time (in seconds) for model estimation.}
