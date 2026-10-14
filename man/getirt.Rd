@@ -104,6 +104,7 @@ successfully derived from the information matrix.}
 during FIPC.}
 \item{npar.detail}{The numbers of free parameters by type; see
 \code{\link[=est_irt]{est_irt()}}.}
+\item{call}{The matched call.}
 }
 
 Components that can be extracted from an object of class \code{est_mg} created by
@@ -188,6 +189,7 @@ was successfully derived from the information matrix.}
 locations of fixed items when FIPC was applied.}
 \item{npar.detail}{The numbers of free parameters by type; see
 \code{\link[=est_mg]{est_mg()}}.}
+\item{call}{The matched call.}
 }
 
 Components that can be extracted from an object of class \code{est_item} created by
@@ -209,6 +211,8 @@ item parameter. This is useful when interpreting the variance-covariance matrix.
 \item{loglikelihood}{The log-likelihood of the observed responses given
 the abilities in \code{score}, summed over the items, at the final estimates,
 without the log prior densities of the item parameters.}
+\item{group.par}{A named numeric vector with the mean (\code{mu}) and the
+standard deviation (\code{sigma}) of the abilities in \code{score}.}
 \item{data}{A data frame of examinee response data.}
 \item{score}{A numeric vector of examinees' ability values used as fixed
 effects during estimation.}
@@ -222,6 +226,7 @@ from estimation.}
 \item{n.response}{An integer vector indicating the number of responses used
 to estimate parameters for each item.}
 \item{TotalTime}{Total computation time (in seconds) for the estimation process.}
+\item{call}{The matched call.}
 }
 
 See \code{\link[=est_irt]{est_irt()}}, \code{\link[=est_mg]{est_mg()}}, and \code{\link[=est_item]{est_item()}} for more details.

@@ -109,6 +109,9 @@
 #'   The log prior densities of the item parameters are not included. Printed
 #'   results report -2 times this value as "-2loglikelihood".}
 #'
+#'   \item{group.par}{A named numeric vector with the mean (`mu`) and the
+#'   standard deviation (`sigma`) of the abilities in `score`.}
+#'
 #'   \item{data}{A data frame of examinees' response data.}
 #'
 #'   \item{score}{A vector of examinees' ability estimates used as fixed values
@@ -130,6 +133,8 @@
 #'   for each item used in the item parameter estimation.}
 #'
 #'   \item{TotalTime}{Total computation time in seconds.}
+#'
+#'   \item{call}{The matched call.}
 #'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.

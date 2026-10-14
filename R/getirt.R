@@ -81,6 +81,7 @@
 #'   during FIPC.}
 #'   \item{npar.detail}{The numbers of free parameters by type; see
 #'   [irtQ::est_irt()].}
+#'   \item{call}{The matched call.}
 #' }
 #'
 #'
@@ -162,6 +163,7 @@
 #'   locations of fixed items when FIPC was applied.}
 #'   \item{npar.detail}{The numbers of free parameters by type; see
 #'   [irtQ::est_mg()].}
+#'   \item{call}{The matched call.}
 #' }
 #'
 #'
@@ -184,6 +186,8 @@
 #'   \item{loglikelihood}{The log-likelihood of the observed responses given
 #'   the abilities in `score`, summed over the items, at the final estimates,
 #'   without the log prior densities of the item parameters.}
+#'   \item{group.par}{A named numeric vector with the mean (`mu`) and the
+#'   standard deviation (`sigma`) of the abilities in `score`.}
 #'   \item{data}{A data frame of examinee response data.}
 #'   \item{score}{A numeric vector of examinees' ability values used as fixed
 #'   effects during estimation.}
@@ -197,6 +201,7 @@
 #'   \item{n.response}{An integer vector indicating the number of responses used
 #'   to estimate parameters for each item.}
 #'   \item{TotalTime}{Total computation time (in seconds) for the estimation process.}
+#'   \item{call}{The matched call.}
 #' }
 #'
 #' See [irtQ::est_irt()], [irtQ::est_mg()], and [irtQ::est_item()] for more details.
@@ -265,6 +270,8 @@ getirt.est_irt <- function(x, what, ...) {
     fix.loc = x$fix.loc,
     # extract the numbers of free parameters by type
     npar.detail = x$npar.detail,
+    # extract the matched call
+    call = x$call,
     stop(sprintf("Could not extract element \'%s\'", what), call. = FALSE)
   )
 
@@ -309,6 +316,8 @@ getirt.est_mg <- function(x, what, ...) {
     fix.loc = x$fix.loc,
     # extract the numbers of free parameters by type
     npar.detail = x$npar.detail,
+    # extract the matched call
+    call = x$call,
     stop(sprintf("Could not extract element \'%s\'", what), call. = FALSE)
   )
 
@@ -336,6 +345,8 @@ getirt.est_item <- function(x, what, ...) {
     npar.est = x$npar.est,
     n.response = x$n.response,
     TotalTime = x$TotalTime,
+    # extract the matched call
+    call = x$call,
     stop(sprintf("Could not extract element \'%s\'", what), call. = FALSE)
   )
 

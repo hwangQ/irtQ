@@ -610,6 +610,9 @@ knitr::opts_chunk$set(
   in different groups. The values of the first group that includes the item
   are used, as before.
 
+* `getirt()` can extract the matched `call` of `est_irt()`, `est_mg()`, and
+  `est_item()` objects with `what = "call"`.
+
 * `ctt()` records the `correct` setting in its `crit` element, and the
   `summary()` report names the item-total correlation used for flagging.
 

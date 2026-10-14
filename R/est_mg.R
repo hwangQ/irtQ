@@ -417,6 +417,8 @@
 #'   groups), whose sum is `npar.est`. It is the last element of the object;
 #'   when it is absent, `summary()` shows the total only.}
 #'
+#' \item{call}{The matched call.}
+#'
 #'   Note that you can easily extract components from the output using the
 #'   [irtQ::getirt()] function.
 #'

@@ -470,6 +470,8 @@ all groups), and \code{weight} (weights of the empirical histograms of all
 groups), whose sum is \code{npar.est}. It is the last element of the object;
 when it is absent, \code{summary()} shows the total only.}
 
+\item{call}{The matched call.}
+
 Note that you can easily extract components from the output using the
 \code{\link[=getirt]{getirt()}} function.
 }
