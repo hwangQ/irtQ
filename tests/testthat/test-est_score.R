@@ -471,10 +471,13 @@ test_that("est_score() for an est_irt object uses the stored data and D and reje
 test_that("parallel scoring gives the serial result for any number of examinees per core", {
   skip_on_cran()
   n_conn <- nrow(showConnections())
+  # use at most 2 cores when R CMD check --as-cran limits the cores of parallel
+  limit_cores <- tolower(Sys.getenv("_R_CHECK_LIMIT_CORES_", ""))
+  nc_set <- if (nzchar(limit_cores) && limit_cores != "false") 2 else c(2, 4)
   for (n in c(1, 2, 3, 5)) {
     r <- resp_drm[seq_len(n), , drop = FALSE]
     serial <- est_score(x_drm, r, D = 1, method = "ML")
-    for (nc in c(2, 4)) {
+    for (nc in nc_set) {
       expect_warning(par <- est_score(x_drm, r, D = 1, method = "ML", ncore = nc), "ncore > 1")
       expect_equal(par, serial)
     }
