@@ -107,6 +107,11 @@ write.flexmirt <- function(x,
     }
   }
 
+  # stop when the destination of the file is not given
+  if (is.null(file)) {
+    stop("You must specify the destination of the file.", call. = FALSE)
+  }
+
   # open a new file
   prm_file <- file(file, open = "w")
 
@@ -114,11 +119,6 @@ write.flexmirt <- function(x,
     # give column names
     x <- data.frame(x_gr[[g]])
     colnames(x) <- c("id", "cats", "model", paste0("par.", 1:(ncol(x) - 3)))
-
-    # warning message
-    if (is.null(file)) {
-      stop("You must specify the destination of the file.")
-    }
 
     # select parameter columns
     param <- dplyr::select(x, dplyr::starts_with("par."))

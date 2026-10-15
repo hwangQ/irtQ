@@ -163,9 +163,6 @@ bring.flexPrm <- function(file, rePar = TRUE, rePar.gpc = TRUE) {
   ncol <- max(utils::count.fields(file, sep = "\t"))
   prm <- utils::read.delim(file, header = FALSE, col.names = 1:ncol)
 
-  # find out how many rows
-  nlines <- nrow(prm)
-
   # determine the number of groups
   ng <- length(unique(prm[, 3]))
 
@@ -174,7 +171,6 @@ bring.flexPrm <- function(file, rePar = TRUE, rePar.gpc = TRUE) {
     index <- (prm[, 3] == g)
     thisGroup <- prm[index, ]
 
-    g.name <- "?"
     g.dist <- list()
     g.label <- list()
     g.category <- list()
@@ -238,8 +234,7 @@ bring.flexPrm <- function(file, rePar = TRUE, rePar.gpc = TRUE) {
           a <- thisGroup[i, offset:(offset + dims - 1)]
           offset <- offset + dims
 
-          # intercept
-          Lmat <- thisGroup[i, offset]
+          # intercept (skip the type of the intercept matrix)
           offset <- offset + 1
           gam <- rep(0, catg - 1)
           for (k in 1:(catg - 1)) {
@@ -368,7 +363,6 @@ bring.flexSco <- function(file, n.factor = 1) {
         ng <- length(unique(sco[, 2]))
         for (g in 1:ng) {
           index <- (sco[, 2] == g)
-          thisGroup <- sco[index, ]
 
           g.imputation <- sco[index, 1]
           g.ability <- sco[index, 4]
@@ -382,7 +376,6 @@ bring.flexSco <- function(file, n.factor = 1) {
         ng <- length(unique(sco[, 1]))
         for (g in 1:ng) {
           index <- (sco[, 1] == g)
-          thisGroup <- sco[index, ]
 
           g.ability <- sco[index, 3]
           g.se <- sco[index, 4]
@@ -398,7 +391,6 @@ bring.flexSco <- function(file, n.factor = 1) {
       ng <- length(unique(sco[, 1]))
       for (g in 1:ng) {
         index <- (sco[, 1] == g)
-        thisGroup <- sco[index, ]
 
         g.iter <- sco[index, 3]
         g.ability <- sco[index, 4]
@@ -417,7 +409,6 @@ bring.flexSco <- function(file, n.factor = 1) {
       ng <- length(unique(sco[, 2]))
       for (g in 1:ng) {
         index <- (sco[, 2] == g)
-        thisGroup <- sco[index, ]
 
         g.imputation <- sco[index, 1]
         g.ability <- sco[index, 4:(4 + (n.factor - 1))]
@@ -431,7 +422,6 @@ bring.flexSco <- function(file, n.factor = 1) {
       ng <- length(unique(sco[, 1]))
       for (g in 1:ng) {
         index <- (sco[, 1] == g)
-        thisGroup <- sco[index, ]
 
         g.ability <- sco[index, 3:(3 + (n.factor - 1))]
         g.se <- NULL # will be updated
@@ -461,7 +451,7 @@ bring.bilog <- function(file, type = c("par", "sco")) {
   # When "par" file is inserted
   if (type == "PAR") {
     df <- utils::read.fwf(file, widths = c(8, 8, rep(10, 10)), skip = 4)
-    df[, 1] <- trimws(as.character(df[, 1]), )
+    df[, 1] <- trimws(as.character(df[, 1]))
     prm <- df[c(1, 5, 7, 11)]
     prm.df <- data.frame(
       id = prm[, 1], cats = rep(2, nrow(prm)), model = "DRM",
@@ -708,44 +698,6 @@ bring.parscale <- function(file, type = c("par", "sco")) {
 
 
 ######################################################################################################################################
-# "bring.parscale.ph2" function
-# This function is to read the information of posterior distribution and the mean and sd of population dist'n.
-bring.parscale.ph2 <- function(file) {
-
-  phase2 <- readLines(file)
-
-  # find the lines containing posterior information
-  pts_nums <- grep("POINT", phase2, value = FALSE)
-  wts_nums <- pts_nums + 1
-
-  # select points of posterior distribution
-  pts_str <- do.call("c", strsplit(phase2[pts_nums], "\\s+"))
-  pts_str <- suppressWarnings(as.numeric(pts_str))
-
-  # select weights of posterior distribution
-  wts_str <- do.call("c", strsplit(phase2[wts_nums], "\\s+"))
-
-  # create a data frame for posterior information
-  posterior <- data.frame(POINT = pts_str, WEIGHT = wts_str, stringsAsFactors = FALSE)
-  posterior <- posterior[!is.na(posterior$POINT), ]
-  num.wts <- suppressWarnings(as.numeric(posterior$WEIGHT))
-  if (any(is.na(num.wts))) num.wts[is.na(num.wts)] <- 0
-  posterior$WEIGHT <- num.wts
-
-  # find a mean and a sd of population distribution
-  num <- grep("TOTAL WEIGHT", phase2, value = FALSE)
-  mu_str <- phase2[num + 1]
-  sigma_str <- phase2[num + 2]
-  mu <- as.numeric(gsub(" MEAN        :", "", mu_str))
-  sigma <- as.numeric(gsub(" S.D.        :", "", sigma_str))
-  stat.pop <- c(MEAN = mu, SD = sigma)
-
-  rr <- list(POSTERIOR = posterior, STAT.POPULATION = stat.pop)
-  rr
-}
-
-
-######################################################################################################################################
 # "bring.mirt" function
 # This function is to read parameter estimates of an object obtained from MIRT
 
@@ -758,7 +710,7 @@ bring.mirt <- function(x) {
     stop("Package 'mirt' is required for bring.mirt(). Please install it.", call. = FALSE)
   }
 
-  # read paramter estimates from an object of mirt
+  # read parameter estimates from an object of mirt
   prm_all <- mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
   cats <- x@Data$K
   any_py <- any(cats > 2)
@@ -774,7 +726,6 @@ bring.mirt <- function(x) {
   MODEL[MODEL == "graded"] <- "GRM"
   MODEL[MODEL == "2PL" | MODEL == "3PL"] <- "DRM"
   MODEL[MODEL == "Rasch" & cats == 2L] <- "DRM"
-  CATEGORY <- cats
   FACTOR <- mirt::extract.mirt(x, what = "nfact")
   ID <- mirt::extract.mirt(x, what = "itemnames")
   nitem <- mirt::extract.mirt(x, what = "nitems")

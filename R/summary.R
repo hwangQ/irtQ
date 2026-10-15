@@ -89,7 +89,7 @@ summary.est_mg <- function(object, ...) {
   group.name <- names(object$loglikelihood$group)
   ngroup <- length(group.name)
   fix.loc <- object$fix.loc
-  if (is.null(fix.loc$overal)) {
+  if (is.null(fix.loc$overall)) {
     fix.loc$group <- purrr::map(.x = 1:ngroup, ~ {
       NULL
     })

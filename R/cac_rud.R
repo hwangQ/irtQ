@@ -8,7 +8,6 @@
 #' distribution given by quadrature points and weights, or over individual
 #' ability estimates.
 #'
-#' @inheritParams cac_lee
 #' @param x A data frame containing item metadata (e.g., item parameters, number
 #'   of categories, IRT model types, etc.). See [irtQ::est_irt()] or
 #'   [irtQ::simdat()] for more details about the item metadata. This data frame
