@@ -1046,6 +1046,9 @@ est_irt_em <- function(x = NULL,
     ), call. = FALSE)
   }
   
+  # recode a non-numeric missing code before the responses are read as numbers
+  if (!is.na(missing)) data[data == missing] <- NA
+  
   # transform a data set to matrix (character and factor columns are read by their values)
   data <- resp_as_numeric(data)
   
@@ -1572,6 +1575,9 @@ est_irt_fipc <- function(x = NULL,
       "the item metadata must be specified in the argument 'x'."
     ), call. = FALSE)
   }
+  
+  # recode a non-numeric missing code before the responses are read as numbers
+  if (!is.na(missing)) data[data == missing] <- NA
   
   # transform a data set to matrix (character and factor columns are read by their values)
   data <- resp_as_numeric(data)

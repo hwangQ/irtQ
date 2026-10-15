@@ -83,6 +83,19 @@ test_that("bring.mirt() stops for dichotomous items fitted with an unsupported m
   skip_if_not_installed("mirt")
   resp <- mixed_resp()
   type <- c(rep("4PL", 4), rep("graded", 3))
-  fit <- suppressMessages(mirt::mirt(resp, 1, itemtype = type, verbose = FALSE, TOL = 1e-3))
+  # a loose tolerance may leave a convergence warning of mirt, which is not tested here
+  fit <- suppressWarnings(suppressMessages(
+    mirt::mirt(resp, 1, itemtype = type, verbose = FALSE, TOL = 1e-3)
+  ))
   expect_error(bring.mirt(fit), "only Rasch, 2PL, 3PL, graded, gpcm, gpcmIRT")
+})
+
+test_that("bring.mirt() stops for a model fitted to multiple groups", {
+  skip_if_not_installed("mirt")
+  resp <- mixed_resp()
+  group <- rep(c("A", "B"), length.out = nrow(resp))
+  fit <- suppressMessages(mirt::multipleGroup(resp, 1, group = group, verbose = FALSE))
+  expect_error(bring.mirt(fit), "does not support multiple-group mirt objects")
+  # a single group extracted from the fit is read
+  expect_s3_class(bring.mirt(mirt::extract.group(fit, "A"))$full_df, "data.frame")
 })

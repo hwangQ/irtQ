@@ -131,8 +131,9 @@ write.flexmirt <- function(x,
     stop("You must specify the destination of the file.", call. = FALSE)
   }
 
-  # open a new file
+  # open a new file and close it when the function exits, even after an error
   prm_file <- file(file, open = "w")
+  on.exit(close(prm_file), add = TRUE)
 
   for (g in 1:ngroup) {
     # give column names
@@ -210,19 +211,22 @@ write.flexmirt <- function(x,
 
           Tmat <- matrix(0, nrow = cats, ncol = (cats - 1))
           Tmat[, 1] <- 0:(cats - 1)
-          for (k in 2:(cats - 1)) {
-            for (j in 2:(cats - 1)) {
+          # sine terms of the categories 2 to cats - 1 (none for two categories)
+          for (k in seq_len(cats - 2) + 1) {
+            for (j in seq_len(cats - 2) + 1) {
               Tmat[k, j] <- sin(pi * (j - 1) * (k - 1) / (cats - 1))
             }
           }
 
           c.vec <- rep(0, cats)
           c.vec[cats] <- -a * (cats - 1) * b
-          for (k in length(ds):2) {
+          # intercepts of the categories cats - 1 down to 2 (none for two categories)
+          for (k in rev(seq_len(cats - 2) + 1)) {
             c.vec[k] <- c.vec[k + 1] - a * (as.numeric(ds[k]) - b)
           }
 
-          gam <- as.numeric(solve(Tmat[-1, ]) %*% c.vec[-1])
+          # keep the matrix form when there is a single step
+          gam <- as.numeric(solve(Tmat[-1, , drop = FALSE]) %*% c.vec[-1])
         } else {
           # all cats - 1 scoring function values
           alpha <- as.numeric(param[i, 2:cats])
@@ -245,6 +249,6 @@ write.flexmirt <- function(x,
     writeLines(paste(group_line, collapse = "\t"), con = prm_file)
   }
 
-  # close the file
-  close(prm_file)
+  # return nothing; the file is closed by the exit handler
+  invisible(NULL)
 }

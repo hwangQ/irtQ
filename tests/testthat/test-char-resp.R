@@ -35,3 +35,20 @@ test_that("est_mg() fits a character response column in only one group", {
   )
   expect_identical(drop_time(f_chr), drop_time(f_num))
 })
+
+test_that("est_irt() fits a character column with a non-numeric missing code as the numeric one", {
+  set.seed(9)
+  x <- shape_df(par.drm = list(a = c(1, 1.3, 0.8, 1.1), b = c(-1, 0, 0.5, 1), g = 0), cats = 2, model = "2PLM")
+  dat <- as.data.frame(simdat(x = x, theta = rnorm(400), D = 1))
+  dat[c(5, 20, 77), 1] <- NA
+  chr <- dat
+  chr[, 1] <- as.character(chr[, 1])
+  chr[is.na(dat[, 1]), 1] <- "."
+  f_num <- est_irt(data = dat, D = 1, model = "2PLM", cats = 2, verbose = FALSE)
+  f_chr <- est_irt(data = chr, D = 1, model = "2PLM", cats = 2, missing = ".", verbose = FALSE)
+  expect_identical(drop_time(f_chr), drop_time(f_num))
+  # the fixed item parameter calibration as well
+  g_num <- est_irt(x = x, data = dat, D = 1, fipc = TRUE, fix.loc = 1:2, verbose = FALSE)
+  g_chr <- est_irt(x = x, data = chr, D = 1, fipc = TRUE, fix.loc = 1:2, missing = ".", verbose = FALSE)
+  expect_identical(drop_time(g_chr), drop_time(g_num))
+})

@@ -96,6 +96,25 @@ test_that("write.flexmirt() writes the groups of a multiple-group data set", {
   expect_equal(unname(vapply(back, function(z) z$cov[1, 1], numeric(1))), c(1, 0.8, 1.3))
 })
 
+test_that("write.flexmirt() writes a two-category GPCM item as a 2PL item", {
+  gp <- data.frame(id = "G2", cats = 2, model = "GPCM", par.1 = 1.2, par.2 = 0.4)
+  prm_file <- tempfile(fileext = "-prm.txt")
+  write.flexmirt(gp, file = prm_file, rePar = FALSE)
+  row <- as.numeric(strsplit(readLines(prm_file)[1], "\t")[[1]][-2])
+  # one scoring value of 1, the slope, and the intercept -a * b
+  expect_equal(row[7:10], c(1, 1.2, 0, -1.2 * 0.4))
+  back <- bring.flexmirt(prm_file, "par")$Group1$full_df
+  expect_equal(unname(unlist(back[1, 4:5])), c(1.2, 0.4), tolerance = 1e-6)
+})
+
+test_that("write.flexmirt() closes the file when it stops with an error", {
+  gp <- data.frame(id = "G2", cats = 3, model = "GPCM", par.1 = 1.2, par.2 = 0.4)
+  prm_file <- tempfile(fileext = "-prm.txt")
+  n_open <- nrow(showConnections())
+  expect_error(write.flexmirt(gp, file = prm_file, rePar = FALSE))
+  expect_equal(nrow(showConnections()), n_open)
+})
+
 test_that("write.flexmirt() stops when the file is not given", {
   gp <- shape_df(par.drm = list(a = 1, b = 0, g = 0), cats = 2, model = "2PLM")
   expect_error(write.flexmirt(gp, file = NULL), "destination of the file")

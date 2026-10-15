@@ -502,7 +502,8 @@ bring.bilog <- function(file, type = c("par", "sco")) {
 
   # When "par" file is inserted
   if (type == "PAR") {
-    df <-utils::read.fwf(file, widths = c(8, 8, rep(10, 10)), skip = 4)
+    df <- utils::read.fwf(file, widths = c(8, 8, rep(10, 10)), skip = 4)
+    # item IDs without the padding spaces
     df[, 1] <- trimws(as.character(df[, 1]))
     prm <- df[c(1, 5, 7, 11)]
     prm.df <- data.frame(
@@ -762,8 +763,17 @@ bring.mirt <- function(x) {
     stop("Package 'mirt' is required for bring.mirt(). Please install it.", call. = FALSE)
   }
 
+  # stop when the object is a model of multiple groups
+  if (inherits(x, "MultipleGroupClass")) {
+    stop(
+      "bring.mirt() does not support multiple-group mirt objects; ",
+      "extract one group with mirt::extract.group() first.",
+      call. = FALSE
+    )
+  }
+
   # read parameter estimates from an object of mirt
-  prm_all <- mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
+  prm_all <-mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
   cats <- x@Data$K
   any_py <- any(cats > 2)
 
@@ -834,6 +844,7 @@ bring.mirt <- function(x) {
         # a two-category item fitted with a polytomous model is a dichotomous item without guessing
         prm_item[i, 1:3] <- c(slope, thr, 0)
       } else {
+        # slope and thresholds of a polytomous item
         prm_item[i, seq_len(cats[i])] <- c(slope, thr)
       }
     }
