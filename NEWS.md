@@ -532,11 +532,11 @@
   500 cycles when all items were fixed. Such fixed items carry no
   information to place the ability scale. `est_irt()` and `est_mg()` now
   stop with a message when the responses to all fixed items show no
-  variation (`est_mg()` uses the responses pooled over the groups). When
-  the last search of an item in an M-step fails, or all the short
-  searches for starting values in the first two EM cycles fail, the item
-  now keeps its previous values and is reported as not converged,
-  instead of stopping the run.
+  variation (`est_mg()` uses the responses pooled over the groups). A
+  failed short search for starting values in the first two EM cycles is
+  now skipped, and when the last search of an item in an M-step fails,
+  the item keeps its previous values and is reported as not converged;
+  both cases stopped the run before.
 
 - For `est_mg()` with FIPC and all items fixed, `test.2` read "Solution
   is a possible local maximum." although no information matrix is
@@ -551,6 +551,41 @@
   prior densities, as `est_irt()` and `est_mg()` do. The estimates,
   standard errors, and covariances are unchanged, and so is
   `loglikelihood` when no prior is used.
+
+- `bring.mirt()` returned `NA` parameters, or silently wrong ones, for
+  some mixed-format fits (present in 1.3.1). The columns of the
+  coefficient matrix of mirt follow the model of the first item, so a
+  fit that began with a polytomous item gave `NA` for its dichotomous
+  items, and a fit that used the graded or gpcm model for every item,
+  including two-category items, gave wrong values (the category
+  probabilities differed by up to 0.5). The parameters of each item are
+  now read by the column names. The intercept `c` of the gpcmIRT model,
+  which was dropped, is moved into the thresholds (`b - c / a`); it
+  changes the thresholds only when `c` is not 0. A dichotomous item of
+  an unsupported model in a mixed-format fit, such as a 4PL item, now
+  stops with an error instead of losing its upper asymptote.
+
+- `write.flexmirt()` wrapped the lines of the file at the width of the
+  console (80 characters in `Rscript`), which broke the file:
+  `bring.flexmirt()` could not read it, and flexMIRT would not either.
+  This happened for the lines of items with several categories (GRM and
+  GPCM), so the files written by the examples of the help page were
+  affected. Each item and each group is now written as one line, and the
+  file does not depend on the console width.
+
+- `write.flexmirt()` wrote a wrong first step parameter for GPCM items
+  with a number of categories other than five (the difference was up to
+  0.69 for the four-category items of `simCAT_MX`), because the mean of
+  the step parameters was computed with a constant 4 instead of the
+  number of steps. With `rePar = TRUE`, it also left out the last
+  scoring function value of GPCM items. Files written for GPCM items
+  with five categories are unchanged.
+
+- `est_irt()` stopped with an out-of-range error for response columns
+  stored as character, such as `"0"` and `"1"`, and `est_mg()` stopped
+  with an error when only some of its groups had character columns
+  (present in 1.3.1). Character and factor columns are now read by their
+  values in `est_irt()` and `est_mg()`, as in `est_item()`.
 
 ## Changes in Behavior
 
@@ -628,6 +663,21 @@
   its responses pooled over the groups, and `est_item()` judges the
   items that have responses.
 
+- `bring.mirt()` labels a two-category item fitted with the graded or
+  gpcm model as `"DRM"`, with a guessing parameter of 0, because a
+  two-category item is a dichotomous item in irtQ. Such an item was
+  labeled `"GRM"` or `"GPCM"`, with wrong parameters (see Bug Fixes).
+
+- The `type` argument of `bring.flexmirt()`, `bring.bilog()`, and
+  `bring.parscale()` is `"par"` when omitted, as the usage line
+  suggests, and its case is still ignored. Omitting it stopped with "the
+  condition has length \> 1" before. An unknown type stops with the
+  available choices.
+
+- `bring.parscale()` stops with an error for the model codes 2, 4, 6,
+  and 8 of PARSCALE when the file has polytomous items. The thresholds
+  of such items were all `NA`.
+
 ## Minor Improvements
 
 - `est_mg()` checks its inputs and stops with a clear message when
@@ -645,6 +695,11 @@
   values in different groups. The values of the first group that
   includes the item are used, as before. Differences of at most 1e-10
   are ignored.
+
+- `run_flexmirt()` stops with a clear message on systems other than
+  Windows, where flexMIRT does not run, and when "C:/Program Files"
+  holds more than one flexMIRT folder (give `dir.flex` then).
+  `write.flexmirt()` stops with a clear message when `file` is `NULL`.
 
 - `getirt()` can extract the matched `call` of `est_irt()`, `est_mg()`,
   and `est_item()` objects with `what = "call"`.
@@ -826,8 +881,9 @@
   information matrix of `est_irt()` and `est_mg()`, and `est_item()`
   uses the observed information with the abilities treated as known. The
   help pages of `est_irt()`, `est_mg()`, and `getirt()` also state that
-  `test.2` checks whether the information matrix is singular, and that
-  the slope prior `aprior` is placed on `D` times the slope.
+  `test.2` checks whether the information matrix is singular, and those
+  of `est_irt()`, `est_mg()`, and `est_item()` state that the slope
+  prior `aprior` is placed on `D` times the slope.
 
 - `est_irt()` and `est_mg()` return a new last element, `npar.detail`,
   an integer vector with the numbers of free item parameters (`item`),
@@ -882,6 +938,20 @@
   rescaled histogram, which can differ slightly from the mean and
   variance of the returned `weights`, and that the standard errors of
   the item parameters treat the latent distributions as known.
+
+- Corrected the help pages of `bring.flexmirt()` and the other import
+  functions (the returned elements, the arguments `type`, `rePar`, and
+  `rePar.gpc`, the model labels, and the item types of mirt that are
+  supported), `write.flexmirt()` (`norm.pop` holds the mean and the
+  variance, metadata from irtQ needs `rePar = FALSE`, and the scaling
+  constant), `run_flexmirt()` (Windows only), `summary()` (the returned
+  object), `sx2_fit()` (missing responses are replaced with 0), and the
+  data sets `LSAT6`, `simCAT_DC`, `simCAT_MX`, `simIPD`, `simMG`, and
+  `simMST`. The package overview gives `D = 1` as the default and lists
+  the functions for item parameter drift, MST panels, and the import and
+  export of files. The help pages of `rdif()`, `crdif()`, `grdif()`,
+  `catsib()`, `est_irt()`, `est_mg()`, and `est_item()` state that the
+  `digits` argument of their print methods is not used.
 
 # irtQ 1.3.1
 
