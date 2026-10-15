@@ -148,10 +148,8 @@ write.flexmirt <- function(x,
         a <- format(a, nsmall = 7)
         c <- format(c, nsmall = 7)
         logitg <- format(logitg, nsmall = 7)
-        cat(c(1, id, group, n.factor, 1, cats, logitg, c, a),
-          sep = "\t",
-          file = prm_file, fill = TRUE
-        )
+        # write the item as one tab-separated line that is never wrapped
+        writeLines(paste(c(1, id, group, n.factor, 1, cats, logitg, c, a), collapse = "\t"), con = prm_file)
       }
 
       if (model %in% c("1PLM", "2PLM")) {
@@ -163,10 +161,8 @@ write.flexmirt <- function(x,
         }
         a <- format(a, nsmall = 7)
         c <- format(c, nsmall = 7)
-        cat(c(1, id, group, n.factor, 2, cats, c, a),
-          sep = "\t",
-          file = prm_file, fill = TRUE
-        )
+        # write the item as one tab-separated line that is never wrapped
+        writeLines(paste(c(1, id, group, n.factor, 2, cats, c, a), collapse = "\t"), con = prm_file)
       }
 
       # (2) Polytomous item: GRM
@@ -179,10 +175,8 @@ write.flexmirt <- function(x,
         }
         a <- format(a, nsmall = 7)
         cs <- format(cs, nsmall = 7)
-        cat(c(1, id, group, n.factor, 2, cats, cs, a),
-          sep = "\t",
-          file = prm_file, fill = TRUE
-        )
+        # write the item as one tab-separated line that is never wrapped
+        writeLines(paste(c(1, id, group, n.factor, 2, cats, cs, a), collapse = "\t"), con = prm_file)
       }
 
       # (3) Polytomous item: PCM and GPCM
@@ -191,7 +185,8 @@ write.flexmirt <- function(x,
         if (!rePar) {
           alpha <- c(1, rep(0, cats - 2))
           ds.new <- param[i, 2:cats]
-          b <- sum(ds.new) / 4
+          # mean of the step parameters over the cats - 1 steps
+          b <- sum(ds.new) / (cats - 1)
           ds <- b - ds.new
 
           Tmat <- matrix(0, nrow = cats, ncol = (cats - 1))
@@ -210,23 +205,25 @@ write.flexmirt <- function(x,
 
           gam <- as.numeric(solve(Tmat[-1, ]) %*% c.vec[-1])
         } else {
-          alpha <- as.numeric(param[i, 2:(cats - 1)])
+          # all cats - 1 scoring function values
+          alpha <- as.numeric(param[i, 2:cats])
           gam <- as.numeric(param[i, (1 + cats - 2 + 1 + 1):(1 + cats - 2 + 1 + 1 + cats - 2)])
         }
         a <- format(a, nsmall = 7)
         alpha <- format(alpha, nsmall = 7)
         gam <- format(gam, nsmall = 7)
-        cat(c(1, id, group, n.factor, 3, cats, 0, alpha, a, 0, gam),
-          sep = "\t",
-          file = prm_file, fill = TRUE
-        )
+        # write the item as one tab-separated line that is never wrapped
+        writeLines(paste(c(1, id, group, n.factor, 3, cats, 0, alpha, a, 0, gam), collapse = "\t"), con = prm_file)
       }
     }
 
     # group information
-    cat(c(0, group.name[g], g, n.factor, 0, format(norm.pop[[g]][1], nsmall = 7), format(norm.pop[[g]][2], nsmall = 7)),
-      sep = "\t", file = prm_file, fill = TRUE
+    # write the group as one tab-separated line that is never wrapped
+    group_line <- c(
+      0, group.name[g], g, n.factor, 0,
+      format(norm.pop[[g]][1], nsmall = 7), format(norm.pop[[g]][2], nsmall = 7)
     )
+    writeLines(paste(group_line, collapse = "\t"), con = prm_file)
   }
 
   # close the file
