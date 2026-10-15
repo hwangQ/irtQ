@@ -15,8 +15,8 @@
 #'   of such vectors, one per group (e.g.,
 #'   `norm.pop = list(c(0, 1), c(0, 0.64), c(0.5, 1.44))` for three
 #'   groups). The second value is written to the variance field of the file.
-#'   If `mgroup = TRUE` and a
-#'   single vector is given, it is used for all groups. Default is `c(0, 1)`.
+#'   If `mgroup = TRUE` and a single vector is given, it is used for all
+#'   groups. Default is `c(0, 1)`.
 #' @param rePar Logical. Indicates how the parameters in `x` are given. If
 #'   `TRUE` (default), `x` is taken to hold flexMIRT slope-intercept values:
 #'   slopes, intercepts, and logits of the guessing parameters, and for GPCM

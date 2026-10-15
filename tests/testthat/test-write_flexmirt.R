@@ -110,9 +110,10 @@ test_that("write.flexmirt() writes a two-category GPCM item as a 2PL item", {
 test_that("write.flexmirt() closes the file when it stops with an error", {
   gp <- data.frame(id = "G2", cats = 3, model = "GPCM", par.1 = 1.2, par.2 = 0.4)
   prm_file <- tempfile(fileext = "-prm.txt")
-  n_open <- nrow(showConnections())
+  # getAllConnections() does not run gc(), which would close a left-open connection
+  n_open <- length(getAllConnections())
   expect_error(write.flexmirt(gp, file = prm_file, rePar = FALSE))
-  expect_equal(nrow(showConnections()), n_open)
+  expect_equal(length(getAllConnections()), n_open)
 })
 
 test_that("write.flexmirt() stops when the file is not given", {

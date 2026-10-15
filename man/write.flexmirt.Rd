@@ -27,8 +27,8 @@ variance of the normal ability distribution of a single group, or a list
 of such vectors, one per group (e.g.,
 \code{norm.pop = list(c(0, 1), c(0, 0.64), c(0.5, 1.44))} for three
 groups). The second value is written to the variance field of the file.
-If \code{mgroup = TRUE} and a
-single vector is given, it is used for all groups. Default is \code{c(0, 1)}.}
+If \code{mgroup = TRUE} and a single vector is given, it is used for all
+groups. Default is \code{c(0, 1)}.}
 
 \item{rePar}{Logical. Indicates how the parameters in \code{x} are given. If
 \code{TRUE} (default), \code{x} is taken to hold flexMIRT slope-intercept values:

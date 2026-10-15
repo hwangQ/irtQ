@@ -774,7 +774,7 @@ bring.mirt <- function(x) {
   }
 
   # read parameter estimates from an object of mirt
-  prm_all <-mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
+  prm_all <- mirt::coef(x, simplify = TRUE, IRTpars = TRUE)
   cats <- x@Data$K
   any_py <- any(cats > 2)
 
