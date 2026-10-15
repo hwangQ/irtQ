@@ -138,7 +138,8 @@ bring.flexmirt <- function(file,
                            n.factor = 1) {
 
 
-  if (length(type) == 0L) stop("Specify one of file types: 'par' or 'sco'", call. = FALSE)
+  # match the file type, which is "par" when omitted (the case is ignored)
+  type <- match.arg(tolower(type), c("par", "sco"))
 
   type <- toupper(type)
 
@@ -444,13 +445,14 @@ bring.flexSco <- function(file, n.factor = 1) {
 #' @export
 bring.bilog <- function(file, type = c("par", "sco")) {
 
-  if (length(type) == 0L) stop("Specify one of file types: 'par' or 'sco'.", call. = FALSE)
+  # match the file type, which is "par" when omitted (the case is ignored)
+  type <- match.arg(tolower(type), c("par", "sco"))
 
   type <- toupper(type)
 
   # When "par" file is inserted
   if (type == "PAR") {
-    df <- utils::read.fwf(file, widths = c(8, 8, rep(10, 10)), skip = 4)
+    df <-utils::read.fwf(file, widths = c(8, 8, rep(10, 10)), skip = 4)
     df[, 1] <- trimws(as.character(df[, 1]))
     prm <- df[c(1, 5, 7, 11)]
     prm.df <- data.frame(
@@ -509,7 +511,8 @@ bring.bilog <- function(file, type = c("par", "sco")) {
 #' @export
 bring.parscale <- function(file, type = c("par", "sco")) {
 
-  if (length(type) == 0L) stop("Specify one of file types: 'par' or 'sco.", call. = FALSE)
+  # match the file type, which is "par" when omitted (the case is ignored)
+  type <- match.arg(tolower(type), c("par", "sco"))
 
   type <- toupper(type)
 
@@ -632,10 +635,9 @@ bring.parscale <- function(file, type = c("par", "sco")) {
     ##   For polytomous items, reformulate the parameters to
     ##   exclude the location parameter (if applicable)
     if (max(cat) > 2) {
+      # stop for the model codes whose location parameter is not handled
       if (nums[3] %in% c(2, 4, 6, 8)) {
-        pars[cat > 2, 6] <- mean(pars[cat > 2, seq(10, ncol(pars), 2)], na.rm = TRUE)
-        pars[cat > 2, 7] <- NA
-        pars[cat > 2, seq(10, ncol(pars), 2)] <- pars[cat > 2, 6] - pars[cat > 2, seq(10, ncol(pars), 2)]
+        stop("Model codes 2, 4, 6, and 8 of PARSCALE are not supported for polytomous items.", call. = FALSE)
       }
       if (nums[3] %in% c(1, 3, 5, 7)) {
         pars[cat > 2, seq(10, ncol(pars), 2)] <- pars[cat > 2, 6] - pars[cat > 2, seq(10, ncol(pars), 2)]
@@ -738,8 +740,6 @@ bring.mirt <- function(x) {
   if (!any_py) {
     # check models for dichotomous data
     if (!all(mods %in% c("Rasch", "2PL", "3PL"))) stop("For dichotomous data, only Rasch, 2PL, 3PL models are available", call. = FALSE)
-    prm_item <- prm_all$items
-    prm_item <- prm_item[, which(colnames(prm_item) != "u")]
   }
 
   if (any_py) {
@@ -748,65 +748,49 @@ bring.mirt <- function(x) {
     # check models for polytomous data
     if (!all(mods_py %in% c("Rasch", "graded", "gpcm", "gpcmIRT"))) stop("For polytomous data, only Rasch, graded, gpcm, gpcmIRT models are available", call. = FALSE)
 
-    # when a single polytimous model is used
-    if (length(unique(mods_py)) == 1) {
-      prm_item <- prm_all$items
-
-      # when a graded or gpcm model is used
-      if (unique(mods_py) != "gpcmIRT") {
-        prm_item <- prm_item[, which(colnames(prm_item) != "u")]
-        if (any(cats == 2L)) {
-          prm_item[cats > 2, 2:(ncol(prm_item) - 2)] <- prm_item[cats > 2, 4:ncol(prm_item)]
-        }
-        prm_item <- prm_item[, 1:max(cats)]
-
-        # when a gpcmIRT model is used
-      } else {
-        prm_item <- prm_item[, which(!colnames(prm_item) %in% c("u", "c"))]
-        if (any(cats == 2L)) {
-          prm_item[cats > 2, 1:(ncol(prm_item) - 3)] <- prm_item[cats > 2, 4:ncol(prm_item)]
-        }
-        prm_item <- prm_item[, 1:max(cats)]
-      }
+    # check models for the two-category items of mixed-format data
+    if (!all(mods[cats == 2L] %in% c("Rasch", "2PL", "3PL", "graded", "gpcm", "gpcmIRT"))) {
+      stop("For dichotomous items, only Rasch, 2PL, 3PL, graded, gpcm, gpcmIRT models are available", call. = FALSE)
     }
+  }
 
-    # when two different polytimous models are used
-    if (length(unique(mods_py)) > 1) {
-      prm_item <- prm_all$items
+  # the coefficient matrix, whose columns follow the order of the first item of each model
+  prm_coef <- prm_all$items
 
-      # when one of the models is gpcmIRT model
-      if (any(mods_py %in% "gpcmIRT")) {
-        prm_item <- prm_item[, which(!colnames(prm_item) %in% c("u", "c"))]
+  # names of the threshold columns sorted by their numbers
+  b_cols <- grep("^b[0-9]+$", colnames(prm_coef), value = TRUE)
+  b_cols <- b_cols[order(as.numeric(sub("^b", "", b_cols)))]
 
-        # when there are dichotomous models
-        if (any(cats == 2L)) {
-          if (all(mods_py %in% "gpcmIRT")) {
-            # when all polytomous models are gpcmIRT models
-            prm_item[cats > 2 & mods == "gpcmIRT", 1:length(4:ncol(prm_item))] <- prm_item[cats > 2 & mods == "gpcmIRT", 4:ncol(prm_item)]
-          } else {
-            # when gpcmIRT models are used with other polytomous models
-            prm_item[cats > 2 & mods == "gpcmIRT", 1] <- prm_item[cats > 2 & mods == "gpcmIRT", ncol(prm_item)]
-            prm_item <- prm_item[, -ncol(prm_item)]
-            prm_item[cats > 2, 2:(ncol(prm_item) - 2)] <- prm_item[cats > 2, 4:ncol(prm_item)]
-          }
-        } else {
-          # when there is no dichotomous model
-          prm_item[cats > 2 & mods == "gpcmIRT", 1] <- prm_item[cats > 2 & mods == "gpcmIRT", ncol(prm_item)]
-        }
-
-        prm_item <- prm_item[, 1:max(cats)]
+  # a matrix of item parameters, filled item by item with the column names
+  prm_item <- matrix(NA_real_,
+    nrow = nitem, ncol = ifelse(any_py, max(cats), 3L),
+    dimnames = list(rownames(prm_coef), NULL)
+  )
+  for (i in seq_len(nitem)) {
+    if (mods[i] %in% c("Rasch", "2PL", "3PL") && cats[i] == 2L) {
+      # slope, difficulty, and guessing parameters of a dichotomous item
+      prm_item[i, 1:3] <- prm_coef[i, c("a", "b", "g")]
+    } else {
+      if (mods[i] == "gpcmIRT") {
+        # the intercept c of the gpcmIRT model is moved into the thresholds (b_v - c / a)
+        slope <- prm_coef[i, "a1"]
+        thr <- prm_coef[i, b_cols[seq_len(cats[i] - 1)]] - prm_coef[i, "c"] / slope
+      } else {
+        # slope and thresholds of a graded or partial credit item
+        slope <- prm_coef[i, "a"]
+        thr <- prm_coef[i, b_cols[seq_len(cats[i] - 1)]]
       }
-
-      # when there is no gpcmIRT model
-      if (all(mods_py %in% c("graded", "gpcm", "Rasch"))) {
-        prm_item <- prm_item[, which(colnames(prm_item) != "u")]
-        if (any(cats == 2L)) {
-          prm_item[cats > 2, 2:(ncol(prm_item) - 2)] <- prm_item[cats > 2, 4:ncol(prm_item)]
-        }
-        prm_item <- prm_item[, 1:max(cats)]
+      if (cats[i] == 2L) {
+        # a two-category item fitted with a polytomous model is a dichotomous item without guessing
+        prm_item[i, 1:3] <- c(slope, thr, 0)
+      } else {
+        prm_item[i, seq_len(cats[i])] <- c(slope, thr)
       }
     }
   }
+
+  # a two-category item is a dichotomous item in irtQ
+  MODEL[cats == 2L] <- "DRM"
 
   # give colnames for a prm matrix
   colnames(prm_item) <- paste0("par.", 1:ncol(prm_item))
