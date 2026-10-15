@@ -110,9 +110,11 @@ fit <- est_irt(
 fit
 ```
 
-Printing the fitted object reports the number of EM cycles, the number of
-quadrature points, the first- and second-order convergence checks, and the
-log-likelihood. A fuller estimation summary is available from `summary(fit)`.
+Printing the fitted object reports the number of EM cycles (printed as
+"E-step cycles"), the number of quadrature points, the two checks labeled
+"First-order test" and "Second-order test" (see `test.1` and `test.2` in
+`?est_irt`), and the log-likelihood. A fuller estimation summary is available
+from `summary(fit)`.
 
 `getirt()` extracts parts of the fitted object, such as the item parameter
 estimates.
