@@ -66,8 +66,8 @@ In addition, the package offers a variety of utilities for IRT analysis, includi
 - Computing the conditional distribution of observed scores using the Lord-Wingersky recursion
 - Calculating item and test information and characteristic functions
 - Visualizing item and test characteristic and information curves
-- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter requires the suggested **mirt** package)
-- Running flexMIRT (Cai, 2017) directly from R
+- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter requires the suggested **mirt** package), and writing flexMIRT parameter files
+- Running flexMIRT (Cai, 2017) from R on Windows
 - Supporting additional tools for flexible and practical IRT analyses
 
 Beyond these IRT-based analyses, the package also provides a small set of classical test theory (CTT) functions (`ctt()`, `freq_score()`, `ctt_distr()`, and `score_resp()`) for computing traditional item- and test-level statistics and for scoring selected-response item data.
@@ -203,7 +203,7 @@ In the `irtQ` package, FIPC is implemented through the following three steps:
 
 In computerized adaptive testing (CAT), the fixed ability parameter calibration (FAPC) method, also known as Stocking's Method A (Stocking, 1988), is one of the simplest and most straightforward approaches for calibrating pretest items. It involves estimating item parameters using maximum likelihood (or Bayes modal estimation when prior distributions are used), conditional on known or estimated proficiency values.
 
-FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is known to produce accurate and unbiased item parameter estimates when items are randomly administered to examinees, rather than adaptively, which is often the case for pretest items (Ban et al., 2001; Chen & Wang, 2016).
+FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is most suitable when the items are administered randomly rather than adaptively, which is often the case for pretest items (Ban et al., 2001; Chen & Wang, 2016).
 
 In the `irtQ` package, FAPC can be conducted in two main steps:
 
@@ -340,7 +340,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
 # Etol       = 1e-3                                  # EM convergence tolerance
-# MaxE       = 500                                   # Max EM iterations
+# MaxE       = 500                                   # Maximum number of EM cycles
 mod_ref <- irtQ::est_irt(
   data       = data_ref,                             
   D          = 1,                                     
@@ -403,7 +403,7 @@ data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
 # Quadrature  = c(49, 6)                      # 49 quadrature points from -6 to 6
 # EmpHist     = TRUE                          # Estimate empirical ability distribution
 # Etol        = 1e-3                          # EM convergence tolerance
-# MaxE        = 500                           # Max EM iterations
+# MaxE        = 500                           # Maximum number of EM cycles
 # fipc        = TRUE                          # Enable FIPC
 # fipc.method = "MEM"                         # MWU-MEM: multiple EM cycles, prior updating
 # fix.loc     = c(1:40)                       # Anchor item positions to fix

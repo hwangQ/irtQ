@@ -67,8 +67,9 @@ including:
 - Visualizing item and test characteristic and information curves
 - Importing item or ability parameters from popular IRT software (e.g.,
   BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter
-  requires the suggested **mirt** package)
-- Running flexMIRT (Cai, 2017) directly from R
+  requires the suggested **mirt** package), and writing flexMIRT
+  parameter files
+- Running flexMIRT (Cai, 2017) from R on Windows
 - Supporting additional tools for flexible and practical IRT analyses
 
 Beyond these IRT-based analyses, the package also provides a small set
@@ -256,11 +257,10 @@ are used), conditional on known or estimated proficiency values.
 FAPC is primarily used to place the parameter estimates of pretest items
 onto the same scale as the operational item parameters. It can also be
 used to recalibrate operational items when evaluating potential item
-parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is
-known to produce accurate and unbiased item parameter estimates when
-items are randomly administered to examinees, rather than adaptively,
-which is often the case for pretest items (Ban et al., 2001; Chen &
-Wang, 2016).
+parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is most
+suitable when the items are administered randomly rather than
+adaptively, which is often the case for pretest items (Ban et al., 2001;
+Chen & Wang, 2016).
 
 In the `irtQ` package, FAPC can be conducted in two main steps:
 
@@ -439,7 +439,7 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
 # Etol       = 1e-3                                  # EM convergence tolerance
-# MaxE       = 500                                   # Max EM iterations
+# MaxE       = 500                                   # Maximum number of EM cycles
 mod_ref <- irtQ::est_irt(
   data       = data_ref,                             
   D          = 1,                                     
@@ -488,8 +488,8 @@ irtQ::summary(mod_ref)
 #>  Maximum parameter change: 0.0009933655
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.16
-#>  Standard error computation: 0.05
+#>  EM algorithm: 1.17
+#>  Standard error computation: 0.04
 #>  Total computation: 1.27
 #> 
 #> Convergence and Stability of Solution 
@@ -675,7 +675,7 @@ data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
 # Quadrature  = c(49, 6)                      # 49 quadrature points from -6 to 6
 # EmpHist     = TRUE                          # Estimate empirical ability distribution
 # Etol        = 1e-3                          # EM convergence tolerance
-# MaxE        = 500                           # Max EM iterations
+# MaxE        = 500                           # Maximum number of EM cycles
 # fipc        = TRUE                          # Enable FIPC
 # fipc.method = "MEM"                         # MWU-MEM: multiple EM cycles, prior updating
 # fix.loc     = c(1:40)                       # Anchor item positions to fix
@@ -696,7 +696,7 @@ mod_fipc <- irtQ::est_irt(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -41799.5018, Max-Change: 2.177366 EM iteration: 2, Loglike: -60177.8990, Max-Change: 0.660102 EM iteration: 3, Loglike: -60143.0624, Max-Change: 0.22625 EM iteration: 4, Loglike: -60141.1866, Max-Change: 0.082367 EM iteration: 5, Loglike: -60140.7281, Max-Change: 0.031397 EM iteration: 6, Loglike: -60140.4860, Max-Change: 0.012555 EM iteration: 7, Loglike: -60140.3168, Max-Change: 0.005361 EM iteration: 8, Loglike: -60140.1888, Max-Change: 0.002513 EM iteration: 9, Loglike: -60140.0888, Max-Change: 0.001386 EM iteration: 10, Loglike: -60140.0086, Max-Change: 0.001119 EM iteration: 11, Loglike: -60139.9427, Max-Change: 0.000908 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.49 seconds.
+#> Estimation is finished in 0.5 seconds.
 
 # Summarize estimation results
 irtQ::summary(mod_fipc)
@@ -727,7 +727,7 @@ irtQ::summary(mod_fipc)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.32
 #>  Standard error computation: 0.02
-#>  Total computation: 0.49
+#>  Total computation: 0.5
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1011,7 +1011,7 @@ irtQ::summary(mod_fapc)
 #> 15  New_I15  2000
 #> 
 #> Processing time (in seconds) 
-#>  Total computation: 0.51
+#>  Total computation: 0.53
 #> 
 #> Convergence of Solution 
 #>  All item parameters were successfully converged.
