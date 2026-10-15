@@ -563,7 +563,9 @@
   which was dropped, is moved into the thresholds (`b - c / a`); it
   changes the thresholds only when `c` is not 0. A dichotomous item of
   an unsupported model in a mixed-format fit, such as a 4PL item, now
-  stops with an error instead of losing its upper asymptote.
+  stops with an error instead of losing its upper asymptote. A model
+  fitted to multiple groups, which is not supported, now stops with a
+  message that asks for one extracted group (`mirt::extract.group()`).
 
 - `write.flexmirt()` wrapped the lines of the file at the width of the
   console (80 characters in `Rscript`), which broke the file:
@@ -579,13 +581,18 @@
   the step parameters was computed with a constant 4 instead of the
   number of steps. With `rePar = TRUE`, it also left out the last
   scoring function value of GPCM items. Files written for GPCM items
-  with five categories are unchanged.
+  with five categories are unchanged. A GPCM item with two categories
+  and `rePar = FALSE` stopped with a subscript error; it is now written
+  as a two-parameter item. The file is also closed when the function
+  stops with an error.
 
 - `est_irt()` stopped with an out-of-range error for response columns
   stored as character, such as `"0"` and `"1"`, and `est_mg()` stopped
   with an error when only some of its groups had character columns
   (present in 1.3.1). Character and factor columns are now read by their
-  values in `est_irt()` and `est_mg()`, as in `est_item()`.
+  values in `est_irt()` and `est_mg()`, as in `est_item()`. A
+  non-numeric missing code, such as `missing = "."`, is recoded before
+  the columns are read in `est_irt()`, as in `est_mg()`.
 
 ## Changes in Behavior
 
@@ -663,10 +670,11 @@
   its responses pooled over the groups, and `est_item()` judges the
   items that have responses.
 
-- `bring.mirt()` labels a two-category item fitted with the graded or
-  gpcm model as `"DRM"`, with a guessing parameter of 0, because a
-  two-category item is a dichotomous item in irtQ. Such an item was
-  labeled `"GRM"` or `"GPCM"`, with wrong parameters (see Bug Fixes).
+- `bring.mirt()` labels a two-category item fitted with the graded,
+  gpcm, or gpcmIRT model as `"DRM"`, with a guessing parameter of 0,
+  because a two-category item is a dichotomous item in irtQ. Such an
+  item was labeled `"GRM"` or `"GPCM"`, with wrong or missing parameters
+  (see Bug Fixes).
 
 - The `type` argument of `bring.flexmirt()`, `bring.bilog()`, and
   `bring.parscale()` is `"par"` when omitted, as the usage line
