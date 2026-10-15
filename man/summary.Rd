@@ -80,11 +80,13 @@ group parameter estimates to the number of decimal places given in the
 \itemize{
 \item \code{print(est_irt)}: Print method for an object of class \code{est_irt} (given
 as \code{x}). It prints the number of EM cycles, the number of quadrature
-points, the two convergence checks, and the log-likelihood.
+points, the two convergence checks, a note on the computation of the
+variance-covariance matrix, and the log-likelihood.
 
 \item \code{print(est_mg)}: Print method for an object of class \code{est_mg} (given
 as \code{x}). It prints the number of EM cycles, the number of quadrature
-points, the two convergence checks, and the log-likelihood.
+points, the two convergence checks, a note on the computation of the
+variance-covariance matrix, and the log-likelihood.
 
 \item \code{print(est_item)}: Print method for an object of class \code{est_item} (given
 as \code{x}). It prints the convergence message of the fixed ability

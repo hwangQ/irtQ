@@ -408,7 +408,8 @@ print.summary.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), 
 
 #' @describeIn summary Print method for an object of class `est_mg` (given
 #'   as `x`). It prints the number of EM cycles, the number of quadrature
-#'   points, the two convergence checks, and the log-likelihood.
+#'   points, the two convergence checks, a note on the computation of the
+#'   variance-covariance matrix, and the log-likelihood.
 #' @order 6
 #' @export
 print.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -679,7 +680,8 @@ print.irtfit <- function(x, ...) {
 
 #' @describeIn summary Print method for an object of class `est_irt` (given
 #'   as `x`). It prints the number of EM cycles, the number of quadrature
-#'   points, the two convergence checks, and the log-likelihood.
+#'   points, the two convergence checks, a note on the computation of the
+#'   variance-covariance matrix, and the log-likelihood.
 #' @param x An object of class `est_irt`, `est_mg`, or `est_item`, or the
 #'   summary of one of them, to be printed.
 #' @param digits For a summary object, the number of decimal places used to

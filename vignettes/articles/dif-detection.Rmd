@@ -277,7 +277,8 @@ purification (`purify.by`, or the CATSIB statistic for `catsib()`) is removed,
 the abilities are re-estimated from the remaining items, and the DIF tests are
 repeated. The procedure stops when no further item is flagged or when `max.iter`
 is reached. It also stops early, with `complete = FALSE` and a warning, when
-every item is flagged or when a group has no ability estimate left
+every item is flagged or when a group has no ability estimate left (for
+`catsib()`, fewer than two, or no usable bin for any remaining item)
 [@lim_etal2022].
 
 ```{r rdif-purify}
@@ -649,8 +650,8 @@ a difficulty shift against the focal group (items 1, 2, 5, and 6), meaning that
 the items are easier for the reference group. The items with only a lower focal
 discrimination (items 3 and 4) are not flagged, which is consistent with the
 limited sensitivity of CATSIB to nonuniform DIF discussed below. CATSIB also
-flags several DIF-free items (for example, items 8, 9, 19, 26, and 32), all of
-them with small negative $\hat{\beta}$ values.
+flags `r length(setdiff(catsib_npur$no_purify$dif_item, 1:6))` DIF-free items
+(items `r paste(setdiff(catsib_npur$no_purify$dif_item, 1:6), collapse = ", ")`)`r if (all(catsib_npur$no_purify$dif_stat$beta[setdiff(catsib_npur$no_purify$dif_item, 1:6)] < 0)) ", all of them with small negative $\\hat{\\beta}$ values" else ""`.
 
 ### Example 2: CATSIB with purification
 
@@ -707,9 +708,9 @@ The number of flagged DIF-free items changes from `r length(fp_npur)` (items
 `r paste(fp_npur, collapse = ", ")`) to `r length(fp_pur)` (items
 `r paste(fp_pur, collapse = ", ")`)`r if (length(fp_new) > 0) paste0("; item", if (length(fp_new) > 1) "s " else " ", paste(fp_new, collapse = ", "), " ", if (length(fp_new) > 1) "are new false positives" else "is a new false positive", " that did not appear without purification")`.
 Purification therefore changes the CATSIB results`r if (length(fp_pur) > 0) " but does not remove all false positives, so they should be interpreted with caution" else ""`.
-If the estimated reliability of a group falls below 0.05 in an iteration,
-`catsib()` sets it to 0.05 and issues a warning (see the considerations below);
-the warning is displayed above when it occurs.
+If the estimated reliability of a group falls below 0.05 in any iteration,
+`catsib()` sets it to 0.05 and issues one warning for the call (see the
+considerations below); the warning is displayed above when it occurs.
 
 ### Important Considerations for CATSIB
 
@@ -735,10 +736,10 @@ rho_group <- function(theta, se, screen) {
   use <- theta > -5 & theta < 5
   n_use <- sum(use)
   if (screen) {
-    out <- which(use & se^2 >= var(theta[use]))
+    out <- which(use & se^2 >= var(theta[use], na.rm = TRUE))
     if (length(out) > 0 && n_use - length(out) >= 2) use[out] <- FALSE
   }
-  c(rho2 = 1 - mean(se[use]^2) / var(theta[use]), n_out = n_use - sum(use))
+  c(rho2 = 1 - mean(se[use]^2) / var(theta[use], na.rm = TRUE), n_out = n_use - sum(use))
 }
 
 # reliabilities and numbers of screened examinees of Example 1

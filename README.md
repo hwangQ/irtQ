@@ -257,10 +257,9 @@ are used), conditional on known or estimated proficiency values.
 FAPC is primarily used to place the parameter estimates of pretest items
 onto the same scale as the operational item parameters. It can also be
 used to recalibrate operational items when evaluating potential item
-parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is most
-suitable when the items are administered randomly rather than
-adaptively, which is often the case for pretest items (Ban et al., 2001;
-Chen & Wang, 2016).
+parameter drift (Chen & Wang, 2016; Stocking, 1988). It is typically
+applied to pretest items, which are often administered randomly rather
+than adaptively (Ban et al., 2001; Chen & Wang, 2016).
 
 In the `irtQ` package, FAPC can be conducted in two main steps:
 

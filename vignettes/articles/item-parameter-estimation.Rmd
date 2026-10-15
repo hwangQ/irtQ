@@ -1355,13 +1355,14 @@ marginal maximum likelihood (MML) estimation or FIPC, there is no EM cycle
 involved because the $\theta$ values are treated as fixed, observed data rather 
 than a latent distribution to be integrated out. When priors are used (for example, `use.gprior = TRUE` for 3PLM items, the default), the log prior densities are added to this function, so the estimates are Bayes modal; the `loglikelihood` element and the -2loglikelihood printed by `summary()` exclude the log prior densities.
 
-**Important Limitation:** FAPC inherently treats the estimated abilities 
-$\hat{\theta}_i$ as if they were the true, error-free parameters ($\theta_i$), 
-thereby ignoring ability estimation error (measurement error). This omission can 
-bias the item parameter estimates, especially when the operational test is 
-relatively short and the $\hat{\theta}$ estimates are less precise. Additionally, to prevent selection bias from 
-confounding the calibration, a random (non-adaptive) pretest administration 
-design is strongly preferred over an adaptive administration for pretest items.
+**Important Limitation:** FAPC inherently treats the estimated abilities
+$\hat{\theta}_i$ as if they were the true, error-free parameters ($\theta_i$),
+thereby ignoring ability estimation error (measurement error). This omission can
+bias the item parameter estimates, especially when the operational test is
+relatively short and the $\hat{\theta}$ estimates are less precise.
+Additionally, to prevent selection bias from confounding the calibration, a
+random (non-adaptive) pretest administration design is strongly preferred over
+an adaptive administration for pretest items.
 
 ### Illustrative Example: FAPC for Dichotomously Scored Items
 
@@ -1751,7 +1752,7 @@ print(group_par_fipc)
 | Aspect | Standard MG | MG-FIPC |
 |:---|:---|:---|
 | **Scale Reference** | Reference Group (typically Group 1 with $\mu=0, \sigma^2=1$) | Pre-calibrated anchor items |
-| `free.group` | `c(2, 3)` (Reference group is fixed) | `1:3` (groups not listed stay fixed) |
+| `free.group` | `c(2, 3)` (Reference group is fixed) | `1:3` (all groups are freely estimated; groups not listed would stay fixed) |
 | `fipc` | `FALSE` | `TRUE` |
 | **Anchor Treatment** | Estimated simultaneously (constrained equal across groups) | Fixed constants held at their known bank values |
 | **When to Use** | No prior scale or calibration exists for the anchor items | The parameters of the anchor items are pre-calibrated and known |
