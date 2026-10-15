@@ -459,7 +459,7 @@ sd_dich <- c(
 round(sd_dich, 4)
 ```
 
-### Providing an `est_irt` Object vs. Separate Metadata
+### Providing a Fitted Object vs. Separate Metadata
 
 `est_score()` accepts either an `est_irt` or `est_item` object (which embeds the
 response data and item parameters) or item metadata and response data provided
