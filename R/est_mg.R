@@ -1083,7 +1083,12 @@ est_mg_em <- function(x = NULL,
   # create combined response data sets across all groups
   # and assign item IDs
   data <-
-    purrr::map(.x = data.gr, data.frame) %>%
+    # read the responses of each group by their values before the binding
+    purrr::map(.x = data.gr, ~ {
+      # recode a non-numeric missing code before the responses are read as numbers
+      if (!is.na(missing)) .x[.x == missing] <- NA
+      data.frame(resp_as_numeric(.x))
+    }) %>%
     purrr::map2(
       .y = item.id,
       .f = function(x, y) {
@@ -1815,7 +1820,12 @@ est_mg_fipc <- function(x = NULL,
   # create combined response data sets across all groups
   # and assign item IDs
   data <-
-    purrr::map(.x = data.gr, data.frame) %>%
+    # read the responses of each group by their values before the binding
+    purrr::map(.x = data.gr, ~ {
+      # recode a non-numeric missing code before the responses are read as numbers
+      if (!is.na(missing)) .x[.x == missing] <- NA
+      data.frame(resp_as_numeric(.x))
+    }) %>%
     purrr::map2(
       .y = item.id,
       .f = function(x, y) {

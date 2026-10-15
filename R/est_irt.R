@@ -1043,8 +1043,8 @@ est_irt_em <- function(x = NULL,
     ), call. = FALSE)
   }
   
-  # transform a data set to matrix
-  data <- data.matrix(data)
+  # transform a data set to matrix (character and factor columns are read by their values)
+  data <- resp_as_numeric(data)
   
   # extract information about the number of score categories and models
   if (verbose) {
@@ -1570,8 +1570,8 @@ est_irt_fipc <- function(x = NULL,
     ), call. = FALSE)
   }
   
-  # transform a data set to matrix
-  data <- data.matrix(data)
+  # transform a data set to matrix (character and factor columns are read by their values)
+  data <- resp_as_numeric(data)
   
   # extract information about the number of score categories and models
   if (verbose) {
