@@ -82,6 +82,7 @@ test_that("bring.mirt() moves the intercept of the gpcmIRT model into the thresh
 test_that("bring.mirt() stops for dichotomous items fitted with an unsupported model", {
   skip_if_not_installed("mirt")
   resp <- mixed_resp()
-  fit <- suppressMessages(mirt::mirt(resp, 1, itemtype = c(rep("4PL", 4), rep("graded", 3)), verbose = FALSE, TOL = 1e-3))
+  type <- c(rep("4PL", 4), rep("graded", 3))
+  fit <- suppressMessages(mirt::mirt(resp, 1, itemtype = type, verbose = FALSE, TOL = 1e-3))
   expect_error(bring.mirt(fit), "only Rasch, 2PL, 3PL, graded, gpcm, gpcmIRT")
 })

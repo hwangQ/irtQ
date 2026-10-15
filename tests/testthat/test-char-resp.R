@@ -27,7 +27,11 @@ test_that("est_mg() fits a character response column in only one group", {
   d2 <- as.data.frame(simdat(x = x, theta = rnorm(300, 0.3), D = 1))
   d2c <- d2
   d2c[, 1] <- as.character(d2c[, 1])
-  f_num <- est_mg(x = list(x, x), data = list(d1, d2), group.name = c("A", "B"), D = 1, free.group = 2, verbose = FALSE)
-  f_chr <- est_mg(x = list(x, x), data = list(d1, d2c), group.name = c("A", "B"), D = 1, free.group = 2, verbose = FALSE)
+  f_num <- est_mg(
+    x = list(x, x), data = list(d1, d2), group.name = c("A", "B"), D = 1, free.group = 2, verbose = FALSE
+  )
+  f_chr <- est_mg(
+    x = list(x, x), data = list(d1, d2c), group.name = c("A", "B"), D = 1, free.group = 2, verbose = FALSE
+  )
   expect_identical(drop_time(f_chr), drop_time(f_num))
 })
