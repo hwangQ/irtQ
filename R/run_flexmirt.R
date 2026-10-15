@@ -93,14 +93,30 @@ run_flexmirt <- function(file.syntax,
                          show.output.on.console = FALSE,
                          ...) {
 
+  # stop unless R runs on Windows, where flexMIRT runs
+  if (.Platform$OS.type != "windows") {
+    stop("run_flexmirt() requires Windows, where flexMIRT runs.", call. = FALSE)
+  }
+
   if (is.null(dir.flex)) {
-    # find a default directory where flexMIRT is installed exists
+    # find the folders in the default directory whose names contain flexMIRT
     flex_exist <- dir(path = "C:/Program Files", pattern = "flexMIRT", full.names = TRUE)
 
-    # provide a warning message when a default directory where flexMIRT is installed does not exist
+    # stop when no folder of flexMIRT is found in the default directory
     if (length(flex_exist) == 0) {
-      stop("A default directory of flexMIRT in 'C:/Program Files/' does not exist.
-            Please provide a full path of directory where flexMIRT is installed.", call. = TRUE)
+      stop("No folder with 'flexMIRT' in its name was found in 'C:/Program Files'. ",
+        "Provide the folder where flexMIRT is installed in 'dir.flex'.",
+        call. = FALSE
+      )
+    }
+
+    # stop when several folders of flexMIRT are found in the default directory
+    if (length(flex_exist) > 1) {
+      stop("More than one folder with 'flexMIRT' in its name was found in 'C:/Program Files': ",
+        paste0("'", basename(flex_exist), "'", collapse = ", "), ". ",
+        "Provide the folder to use in 'dir.flex'.",
+        call. = FALSE
+      )
     }
 
     # a path of flexMIRT execution file
@@ -109,10 +125,12 @@ run_flexmirt <- function(file.syntax,
     # check if the provided directory where flexMIRT is installed exists
     flex_exist <- dir.exists(paths = dir.flex)
 
-    # provide a warning message when the provided directory where flexMIRT is installed does not exist
+    # stop when the provided directory where flexMIRT is installed does not exist
     if (!flex_exist) {
-      stop(paste0("The provided directory of '", dir.flex, "' does not exist.
-           Please provide a full path of directory where flexMIRT is installed."), call. = TRUE)
+      stop("The provided directory '", dir.flex, "' does not exist. ",
+        "Provide the full path of the folder where flexMIRT is installed.",
+        call. = FALSE
+      )
     }
 
     # a path of flexMIRT execution file
