@@ -448,6 +448,9 @@ its length must equal the number of rows in \code{data}. Examinees with \code{NA
 \code{group} are excluded from the analysis. The function stops when the
 reference group or the focal group has fewer than two ability estimates
 within \code{range}, because the regression correction cannot be computed.
+
+The print method of this class has an argument \code{digits} that is not used;
+the statistics are printed rounded to three decimal places.
 }
 \examples{
 \donttest{

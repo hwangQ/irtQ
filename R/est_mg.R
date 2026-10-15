@@ -351,6 +351,9 @@
 #' its weights have Q - 3 free values. The counts by type are returned in
 #' `npar.detail`.
 #'
+#'   The print method of this class has an argument `digits` that is not used.
+#'   It prints the log-likelihood without rounding it.
+#'
 #' @return This function returns an object of class `est_mg`. The returned
 #'   object contains the following components:
 #'

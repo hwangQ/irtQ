@@ -454,6 +454,9 @@ purification, with the ability estimates of that iteration; the items added
 to the flagged items when the purification ends before it is complete
 (\code{max.iter} reached or no ability estimate left in a group) are not
 analyzed.
+
+The print method of this class has an argument \code{digits} that is not used;
+the statistics are printed rounded to three decimal places.
 }
 \section{Methods (by class)}{
 \itemize{

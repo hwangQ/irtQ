@@ -115,6 +115,9 @@
 #' choose the item to remove because the degrees of freedom of the RDIF-CR
 #' statistics differ between items with different numbers of score categories.
 #'
+#'   The print method of this class has an argument `digits` that is not used;
+#'   the statistics are printed rounded to three decimal places.
+#'
 #' @return This function returns an object of class `"crdif"`, which is a list
 #' with the following five components:
 #'

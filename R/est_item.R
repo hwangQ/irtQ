@@ -93,6 +93,9 @@
 #'   estimates, and `loglikelihood` is the log-likelihood at these estimates
 #'   without the log prior densities.
 #'
+#'   The print method of this class has an argument `digits` that is not used.
+#'   It prints the log-likelihood without rounding it.
+#'
 #' @return This function returns an object of class `est_item`. The returned
 #'   object contains the following components:
 #'

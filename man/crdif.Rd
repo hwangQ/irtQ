@@ -372,6 +372,9 @@ results of an item to which no examinee of one group responded follow
 \code{\link[=rdif]{rdif()}} (see its Details). The p-value, not the statistic, is used to
 choose the item to remove because the degrees of freedom of the RDIF-CR
 statistics differ between items with different numbers of score categories.
+
+The print method of this class has an argument \code{digits} that is not used;
+the statistics are printed rounded to three decimal places.
 }
 \section{Methods (by class)}{
 \itemize{

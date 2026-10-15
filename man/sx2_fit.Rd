@@ -56,10 +56,10 @@ metadata. This data frame can be easily created using the
 \item{...}{Additional arguments passed to or from other methods.}
 
 \item{data}{A matrix of examinees' item responses, with rows for examinees
-and columns for items in the same order as the items in \code{x}. Responses
-to an item with K score categories must be integers from 0 to K - 1.
-Missing responses are coded as \code{NA} or, in functions that have a
-\code{missing} argument, as the value given in \code{missing}.}
+and columns for items in the same order as the items in \code{x}. Responses to
+an item with K score categories must be integers from 0 to K - 1. Missing
+responses must be coded as \code{NA}; they are replaced with 0 before the
+statistics are computed, with a warning.}
 
 \item{D}{A scaling constant used in IRT models to make the logistic function
 closely approximate the normal ogive function. A value of 1.702 is commonly

@@ -276,6 +276,9 @@
 #'   reference group or the focal group has fewer than two ability estimates
 #'   within `range`, because the regression correction cannot be computed.
 #'
+#'   The print method of this class has an argument `digits` that is not used;
+#'   the statistics are printed rounded to three decimal places.
+#'
 #' @return This function returns an object of class `"catsib"`, which is a list
 #' with the following five components:
 #'

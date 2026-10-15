@@ -278,6 +278,9 @@ still be stable.
 When prior distributions are used, the item parameters are Bayes modal
 estimates, and \code{loglikelihood} is the log-likelihood at these estimates
 without the log prior densities.
+
+The print method of this class has an argument \code{digits} that is not used.
+It prints the log-likelihood without rounding it.
 }
 \examples{
 ## Import the "-prm.txt" output file from flexMIRT

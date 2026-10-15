@@ -14,7 +14,8 @@
 #'   supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 #'   ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
 #'   also known as Stocking's Method A. In addition, the package offers
-#'   multiple-group item calibration via the MMLE-EM algorithm.
+#'   multiple-group item calibration via the MMLE-EM algorithm
+#'   ([irtQ::est_mg()]; Bock & Zimowski, 1997).
 #'
 #'   For ability estimation, several widely used scoring methods are available,
 #'   including:
@@ -30,17 +31,27 @@
 #'
 #'  In addition, the package offers a variety of utilities for IRT analysis,
 #'  including:
-#' - Evaluating model-data fit
-#' - Detecting DIF
+#' - Evaluating model-data fit with item fit statistics
+#'   ([irtQ::irtfit()], [irtQ::sx2_fit()])
+#' - Detecting DIF with RDIF, RDIF-CR, GRDIF (multiple groups), and CATSIB
+#'   ([irtQ::rdif()], [irtQ::crdif()], [irtQ::grdif()], [irtQ::catsib()])
+#' - Detecting item parameter drift (IPD) with the residual-based RIPD
+#'   framework and the pseudo-count D2 statistic ([irtQ::ripd()],
+#'   [irtQ::pcd2()])
 #' - Computing classification accuracy and consistency indices
-#' - Importing item or ability parameters from popular IRT software
-#' - Running flexMIRT (Cai, 2017) directly from R
+#'   ([irtQ::cac_lee()], [irtQ::cac_rud()])
+#' - Evaluating and simulating multistage-adaptive test (MST) panels
+#'   ([irtQ::panel_info()], [irtQ::reval_mst()], [irtQ::run_mst()],
+#'   [irtQ::find_cut()])
+#' - Importing item or ability parameters from BILOG-MG, PARSCALE, flexMIRT,
+#'   and the \pkg{mirt} package ([irtQ::bring.flexmirt()]), and writing
+#'   flexMIRT parameter files ([irtQ::write.flexmirt()])
+#' - Running flexMIRT (Cai, 2017) from R on Windows ([irtQ::run_flexmirt()])
 #' - Simulating response data
 #' - Computing the conditional distribution of observed scores using the
 #'   Lord-Wingersky recursion
 #' - Calculating item and test information and characteristic functions
 #' - Visualizing item and test characteristic and information curves
-#' - Supporting additional tools for flexible and practical IRT analyses
 #'
 #' Beyond these IRT-based analyses, the package also provides a small set of
 #' classical test theory (CTT) functions ([ctt()], [freq_score()],
@@ -86,8 +97,9 @@
 #'     \deqn{P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},}
 #'     where \eqn{a} is the item discrimination (slope) parameter, \eqn{b} is
 #'     the item difficulty parameter, and \eqn{g} is the guessing parameter.
-#'     The constant \eqn{D} is a scaling factor used to make the logistic
-#'     function approximate the normal ogive function, typically set to \eqn{D = 1.702}.
+#'     The constant \eqn{D} is a scaling factor. With \eqn{D = 1} (the default
+#'     in \pkg{irtQ}), the model is on the logistic metric; \eqn{D = 1.702}
+#'     makes the logistic function approximate the normal ogive function.
 #'     When the 1PLM is used, the discrimination parameter \eqn{a} is either
 #'     fixed to a constant value (e.g., \eqn{a = 1}) or constrained to be equal
 #'     across all items. For 1PLM and 2PLM models, the guessing parameter
@@ -105,7 +117,7 @@
 #'     (or category boundary function) for score category \eqn{k}, with a
 #'     functional form similar to the 2PL model.
 #'     The parameter \eqn{b_{k}} represents the difficulty (threshold) parameter
-#'     associated  with the boundary between categories \eqn{k - 1} and \eqn{k}.
+#'     associated with the boundary between categories \eqn{k - 1} and \eqn{k}.
 #'     Note that the probability of responding in the lowest or highest score
 #'     category can be written as:
 #'     \deqn{P(Y = 0 \mid \theta) = 1 - P^{*}(Y \ge 1 \mid \theta),}
@@ -178,8 +190,8 @@
 #'        (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
 #'     - `cats`: A numeric vector indicating the number of score categories for
 #'        each item. For dichotomous items, use 2.
-#'     - `D`: A scaling constant (typically 1.702) to align the logistic
-#'        function with the normal ogive model.
+#'     - `D`: A scaling constant. Use the default `D = 1` for the logistic
+#'        metric, or `D = 1.702` to approximate the normal ogive model.
 #'
 #'     Optionally, you may incorporate prior distributions for item parameters:
 #'     - `use.aprior`, `use.bprior`, `use.gprior`: Logical indicators specifying
@@ -189,15 +201,15 @@
 #'        and corresponding parameters for each prior. Supported distributions
 #'        include Beta, Log-normal, and Normal.
 #'
-#'     If the response data contain missing values, you must specify the missing
-#'     value code via the `missing` argument.
+#'     Missing responses coded as `NA` need no further setting; when another
+#'     code is used (e.g., -9), give it in the `missing` argument.
 #'
 #'     By default, the latent ability distribution is assumed to follow a standard
 #'     normal distribution (i.e., N(0, 1)). However, users can estimate the empirical
 #'     histogram of the latent distribution by setting `EmpHist = TRUE`, based on the
 #'     nonparametric method proposed by Woods (2007).
 #'
-#' @section Pretest Item Calibration with the Fixed Item Parameter Calibration (FIPC) Method (e.g., Kim, 2006):
+#' @section Pretest Item Calibration with FIPC:
 #'
 #' The fixed item parameter calibration (FIPC) method is a widely used approach
 #' for calibrating pretest items in computerized adaptive testing (CAT). It enables
@@ -264,7 +276,7 @@
 #'     For additional details on implementing FIPC, refer to the documentation
 #'     for [irtQ::est_irt()].
 #'
-#' @section Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988):
+#' @section Pretest Item Calibration with FAPC:
 #'
 #' In computerized adaptive testing (CAT), the fixed ability parameter calibration
 #' (FAPC) method (also known as Stocking's Method A; Stocking, 1988) is one of the
@@ -302,13 +314,13 @@
 #'        (e.g., `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"`).
 #'     - `cats`: A numeric vector indicating the number of score categories for
 #'        each item. For dichotomous items, use 2.
-#'     - `D`: A scaling constant (typically 1.702) to align the logistic
-#'        function with the normal ogive model.
+#'     - `D`: A scaling constant. Use the default `D = 1` for the logistic
+#'        metric, or `D = 1.702` to approximate the normal ogive model.
 #'
 #'     For additional details on implementing FAPC, refer to the documentation
 #'     for [irtQ::est_item()].
 #'
-#' @section Three examples of R scripts:
+#' @section Example R Scripts:
 #'
 #' The examples below demonstrate how to estimate item parameters for a linear test form,
 #' and how to calibrate pretest items using the FIPC and FAPC methods. All examples use
@@ -324,12 +336,14 @@
 #' - Items 41-52: 3PLM items
 #' - Items 53-55: GRM items (all with 5 score categories)
 #'
-#' **Example 1 - Estimating item parameters for a linear test form**
+#' **Example 1: Estimating item parameters for a linear test form**
+#'
 #' This example uses the first 40 items (38 3PLM and 2 GRM) to form a linear test.
 #' The test is assumed to be administered to a reference group of 2,000 examinees
 #' whose latent ability follows a standard normal distribution, N(0, 1).
 #'
-#' **Examples 2 and 3 - Calibrating pretest items using FIPC and FAPC**
+#' **Examples 2 and 3: Calibrating pretest items using FIPC and FAPC**
+#'
 #' These examples assume a new test form consisting of all 55 items described above.
 #' The first 40 items are treated as the fixed operational items (i.e., the same
 #' as in Example 1), while the remaining 15 items are newly developed pretest
@@ -490,7 +504,7 @@
 #'
 #' }
 #'
-#' @author Hwanggyu Lim \email{hglim83@gmail.com}
+#' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
 #' @references Ames, A. J., & Penfield, R. D. (2015). An NCME instructional
 #'   module on item-fit statistics for item response theory models. *Educational
@@ -534,7 +548,7 @@
 #'
 #'   Chalmers, R. P. (2012). mirt: A multidimensional item response theory
 #'   package for the R environment. *Journal of Statistical Software, 48*(6),
-#'   1-29.
+#'   1-29. \doi{10.18637/jss.v048.i06}
 #'
 #'   Chen, P., & Wang, C. (2016). A new online calibration method for
 #'   multidimensional computerized adaptive testing. *Psychometrika, 81*(3),

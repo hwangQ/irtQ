@@ -18,16 +18,29 @@ summary(object, ...)
 \arguments{
 \item{object}{An object of class \code{est_irt}, \code{est_mg}, or \code{est_item}.}
 
-\item{...}{Additional arguments passed to or from other methods (currently not used).}
+\item{...}{Additional arguments passed to or from other methods (currently
+not used).}
 }
 \value{
-A list of internal components extracted from the given object. In addition,
-the summary method prints an overview of the IRT calibration results to the console.
+An object of class \code{summary.est_irt}, \code{summary.est_mg}, or
+\code{summary.est_item}: a list of selected components of \code{object} (the call,
+the numbers of items and examinees, the estimation settings and
+convergence messages, the log-likelihood, AIC and BIC (not for
+\code{est_item}), and the item and group parameter estimates). Printing the
+object displays an overview of the calibration results.
 }
 \description{
-This S3 method summarizes the IRT calibration results from an object of class \code{est_irt},
-\code{est_mg}, or \code{est_item}, which are returned by the functions \code{\link[=est_irt]{est_irt()}},
-\code{\link[=est_mg]{est_mg()}}, and \code{\link[=est_item]{est_item()}}, respectively.
+Summarizes the item calibration results in an object of class \code{est_irt},
+\code{est_mg}, or \code{est_item}, returned by \code{\link[=est_irt]{est_irt()}}, \code{\link[=est_mg]{est_mg()}},
+and \code{\link[=est_item]{est_item()}}, respectively.
+}
+\details{
+\pkg{irtQ} exports its own generic \code{summary()}, which calls the
+method of the class of \code{object} and therefore works as \code{\link[base:summary]{base::summary()}}
+for other objects. Printing a summary object rounds the tables of item and
+group parameter estimates to the number of decimal places given in the
+\code{digits} argument of the print method (default
+\code{max(2L, getOption("digits") - 5L)}).
 }
 \section{Methods (by class)}{
 \itemize{
@@ -40,8 +53,9 @@ This S3 method summarizes the IRT calibration results from an object of class \c
 }}
 \examples{
 \donttest{
-# Fit the 1PL model to LSAT6 data and constrain the slope parameters to be equal
-fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE)
+# Fit the 1PL model to the LSAT6 data, constraining the slopes to be equal
+fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2,
+                   fix.a.1pl = FALSE, verbose = FALSE)
 
 # Display the calibration summary
 summary(fit.1pl)

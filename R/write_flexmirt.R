@@ -1,35 +1,50 @@
 #' Write a "-prm.txt" File for flexMIRT
 #'
 #' @description This function writes a flexMIRT-compatible "-prm.txt" file (Cai,
-#'   2017). It currently supports only unidimensional IRT models. This function
-#'   was developed by modifying `read.flexmirt()` from Pritikin & Falk (2020).
+#'   2017). It supports unidimensional IRT models only. This function was
+#'   developed by modifying `read.flexmirt()` from Pritikin & Falk (2020).
 #'
 #' @param x A data frame of item metadata (e.g., item parameters, number of
 #'   categories, model types) for a single group, or a list of such data frames
 #'   for multiple groups. See [irtQ::est_irt()] or [irtQ::simdat()] for item
 #'   metadata format. You can also create metadata using [irtQ::shape_df()].
-#' @param file A character string specifying the destination file path (with a
-#'   ".txt" extension).
-#' @param norm.pop A numeric vector of length two specifying the mean and
-#'   standard deviation of the normal population ability distribution for a
-#'   single group, or a list of such vectors for multiple groups. When a list is
-#'   provided, each internal vector must contain the mean and standard deviation
-#'   for a group's ability distribution (e.g., `norm.pop = list(c(0, 1), c(0,
-#'   0.8), c(0.5, 1.2))` for three groups). If `mgroup = TRUE` and a single
-#'   vector is provided (e.g., `norm.pop = c(0, 1)`), it will be recycled across
-#'   all groups. The default is `c(0, 1)`.
-#' @param rePar A logical value indicating whether the item parameters are
-#'   reparameterized. If `TRUE`, item intercepts and logits of guessing
-#'   parameters are assumed. If `FALSE`, item difficulty and guessing parameters
-#'   are assumed.
+#' @param file A character string giving the path of the file to be written.
+#'   It must be supplied. flexMIRT parameter files usually end in "-prm.txt".
+#' @param norm.pop A numeric vector of length two giving the mean and the
+#'   variance of the normal ability distribution of a single group, or a list
+#'   of such vectors, one per group (e.g., `norm.pop = list(c(0, 1),
+#'   c(0, 0.64), c(0.5, 1.44))` for three groups). The second value is
+#'   written to the variance field of the file. If `mgroup = TRUE` and a
+#'   single vector is given, it is used for all groups. Default is `c(0, 1)`.
+#' @param rePar Logical. Indicates how the parameters in `x` are given. If
+#'   `TRUE` (default), `x` is taken to hold flexMIRT slope-intercept values:
+#'   slopes, intercepts, and logits of the guessing parameters, and for GPCM
+#'   items the scoring function and intercept values of the nominal model;
+#'   they are written as they are. If `FALSE`, `x` is taken to hold
+#'   \pkg{irtQ} item metadata (slopes, difficulty or step parameters, and
+#'   guessing parameters), which is converted to the flexMIRT
+#'   parameterization. Item metadata from \pkg{irtQ} (for example, from
+#'   [irtQ::shape_df()] or [irtQ::est_irt()]) must be written with
+#'   `rePar = FALSE`. Note that the meaning is the reverse of the `rePar`
+#'   argument of [irtQ::bring.flexmirt()], where `TRUE` converts the values
+#'   of the file to \pkg{irtQ} metadata.
 #' @param mgroup A logical value indicating whether the file includes multiple
 #'   groups. Default is `FALSE`.
 #' @param group.name A character vector of group names. If `NULL`, group names
 #'   are automatically generated (e.g., "Group1", "Group2", ...).
 #'
-#' @return This function creates a flexMIRT-style "-prm.txt" file at the
-#'   specified path.
+#' @details The function writes items of the models `"1PLM"`, `"2PLM"`,
+#'   `"3PLM"`, `"DRM"`, `"GRM"`, and `"GPCM"`. Dichotomous items are written
+#'   as flexMIRT 3PL (`"3PLM"` and `"DRM"`) or graded (`"1PLM"` and `"2PLM"`)
+#'   items, so [irtQ::bring.flexmirt()] reads them back as `"3PLM"` or
+#'   `"2PLM"` items. Every item and every group is written as one line, whatever
+#'   the width of the console. The parameters are written without rescaling.
+#'   flexMIRT uses the logistic metric (D = 1); when `x` was calibrated with
+#'   another scaling constant, multiply the slopes by that constant before
+#'   writing.
 #'
+#' @return Called for its side effect of writing the file to `file`. The value
+#'   is returned invisibly and is not meant to be used.
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}
 #'
@@ -55,6 +70,10 @@
 #' # 1-(3) Write the "-prm.txt" file
 #' write.flexmirt(x, file = temp_prm, norm.pop = c(0, 1), rePar = FALSE)
 #'
+#' # 1-(4) Read the file back and compare the item parameters
+#' x_back <- bring.flexmirt(file = temp_prm, type = "par")$Group1$full_df
+#' head(x_back)
+#'
 #' ## 2. Create a "-prm.txt" file for multiple groups
 #' ##    using simulated multi-group data
 #' # 2-(1) Extract the item metadata
@@ -63,9 +82,9 @@
 #' # Set the name of the "-prm.txt" file
 #' temp_prm <- file.path(tempdir(), "mg_group_temp-prm1.txt")
 #'
-#' # Write the "-prm.txt" file
+#' # Write the "-prm.txt" file, giving the mean and variance of each group
 #' write.flexmirt(x,
-#'   file = temp_prm, norm.pop = list(c(0, 1), c(0.5, 0.8), c(-0.3, 1.3)),
+#'   file = temp_prm, norm.pop = list(c(0, 1), c(0.5, 0.64), c(-0.3, 1.69)),
 #'   rePar = FALSE, mgroup = TRUE, group.name = c("GR1", "GR2", "GR3")
 #' )
 #'

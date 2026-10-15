@@ -200,6 +200,9 @@
 #'   (`max.iter` reached or no ability estimate left in a group) are not
 #'   analyzed.
 #'
+#'   The print method of this class has an argument `digits` that is not used;
+#'   the statistics are printed rounded to three decimal places.
+#'
 #' @return This function returns an object of class `"grdif"`, which is a list
 #' with the following five components:
 #'

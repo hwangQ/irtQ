@@ -6,6 +6,11 @@
 #'   summed score groups.
 #'
 #' @inheritParams est_score
+#' @param data A matrix of examinees' item responses, with rows for examinees
+#'   and columns for items in the same order as the items in `x`. Responses to
+#'   an item with K score categories must be integers from 0 to K - 1. Missing
+#'   responses must be coded as `NA`; they are replaced with 0 before the
+#'   statistics are computed, with a warning.
 #' @param alpha A numeric value specifying the significance level (\eqn{\alpha})
 #'   for the hypothesis test associated with the \eqn{S\text{-}X^2} statistic.
 #'   Default is 0.05.

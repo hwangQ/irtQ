@@ -646,6 +646,9 @@ or by \code{weights}), so its Q weights, where Q is the number of quadrature
 points, have Q - 3 free values (the sum of the weights and the two moments
 are fixed). With FIPC, the histogram is not rescaled, so the weights have
 Q - 1 free values. The counts by type are returned in \code{npar.detail}.
+
+The print method of this class has an argument \code{digits} that is not used.
+It prints the log-likelihood without rounding it.
 }
 \examples{
 \donttest{

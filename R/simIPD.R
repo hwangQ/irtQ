@@ -22,7 +22,7 @@
 #'   \item{item_par}{A data frame with 360 rows and 6 columns containing the
 #'     \strong{original} (pre-drift) item metadata
 #'     (columns: \code{id}, \code{cats}, \code{model}, \code{par.1},
-#'     \code{par.2}, \code{par.3}).  All items follow the 3PLM.}
+#'     \code{par.2}, \code{par.3}). All items follow the 3PLM.}
 #'   \item{key_item}{A numeric vector of length 90 giving the row indices
 #'     (in \code{item_par}) of the \emph{key items}, that is, the items
 #'     identified by a preliminary CAT simulation as the most frequently
@@ -33,21 +33,21 @@
 #'     Pass this vector to the \code{item.skip} argument of \code{ripd()} or
 #'     \code{pcd2()}.}
 #'   \item{ipd_item}{A numeric vector of length 18 giving the row indices of
-#'     items that were subjected to IPD manipulation.  These 18 items (5% of
-#'     the 360-item pool) had both their discrimination (\emph{a}) and difficulty
-#'     (\emph{b}) parameters decreased by 0.5.  All 18 items are members of
-#'     \code{key_item}.}
+#'     items that were subjected to IPD manipulation. These 18 items (5% of
+#'     the 360-item pool) had both their discrimination (\emph{a}) and
+#'     difficulty (\emph{b}) parameters decreased by 0.5. All 18 items are
+#'     members of \code{key_item}.}
 #'   \item{foc_resp}{A numeric matrix of dimensions 3000 x 360 containing the
-#'     \strong{focal group} CAT response data.  Each row is one examinee; each
-#'     column corresponds to an item in \code{item_par} (the column names are the
-#'     item IDs).  Because CAT
+#'     \strong{focal group} CAT response data. Each row is one examinee; each
+#'     column corresponds to an item in \code{item_par} (the column names are
+#'     the item IDs). Because CAT
 #'     administers only 30 items per examinee, approximately 92% of entries
-#'     are \code{NA}.  Responses were generated using the \emph{drifted} item
+#'     are \code{NA}. Responses were generated using the \emph{drifted} item
 #'     parameters (the drifted parameters were used for every focal group
 #'     examinee who received an IPD item).}
 #'   \item{foc_score}{A numeric vector of length 3000 containing the
 #'     \strong{focal group} final maximum likelihood (ML) ability estimates
-#'     obtained from the CAT.}
+#'     obtained from the CAT, bounded to the range -5 to 5.}
 #'   \item{ref_resp}{A numeric matrix of dimensions 3000 x 360 containing the
 #'     \strong{synthetic reference group} CAT response data (each examinee also
 #'     has 30 observed responses and about 92% of the entries are \code{NA}).
@@ -59,7 +59,8 @@
 #'     This synthetic reference group mirrors the construction described in
 #'     Lim & Han (2026).}
 #'   \item{ref_score}{A numeric vector of length 3000 containing the
-#'     \strong{synthetic reference group} final ML ability estimates.}
+#'     \strong{synthetic reference group} final ML ability estimates, bounded
+#'     to the range -5 to 5.}
 #' }
 #'
 #' @details
@@ -83,9 +84,9 @@
 #'
 #' \strong{Note on reference group size:}
 #' A 1F reference group (same size as the focal group) is used here for
-#' compactness.  In practice, larger synthetic reference groups improve RIPD
+#' compactness. In practice, larger synthetic reference groups improve RIPD
 #' detection power; Lim and Han (2026) suggest a reference group at least 8 to
-#' 10 times the focal group size (8F to 10F).  A larger reference group can be
+#' 10 times the focal group size (8F to 10F). A larger reference group can be
 #' created by replicating the focal ability estimates, e.g.,
 #' \code{rep(foc_score, times = 8)} for an 8F group, and re-running the CAT
 #' simulation with the original item parameters using a CAT simulation program.

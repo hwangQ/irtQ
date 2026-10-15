@@ -419,6 +419,9 @@ items, a large \code{min.resp} can leave a group without any ability estimate in
 a later iteration, and the purification then stops with a warning. If
 \code{min.resp = NULL}, a score is computed for any examinee with at least one
 valid item response.
+
+The print method of this class has an argument \code{digits} that is not used;
+the statistics are printed rounded to three decimal places.
 }
 \section{Methods (by class)}{
 \itemize{
