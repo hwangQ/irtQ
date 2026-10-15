@@ -29,13 +29,12 @@ ensuring the fairness and validity of a test.
 | Function   | Method                              | Item Types         | Groups |
 |------------|-------------------------------------|--------------------|--------|
 | `rdif()`   | Residual-based DIF (RDIF)           | Dichotomous (+ polytomous$^*$) | 2      |
-| `grdif()`  | Generalized RDIF (GRDIF)            | Dichotomous (+ polytomous$^*$) | ≥ 2   |
+| `grdif()`  | Generalized RDIF (GRDIF)            | Dichotomous only   | 2 or more |
 | `catsib()` | CATSIB (modified SIBTEST for CAT)   | Dichotomous only   | 2      |
 
-$^*$ `rdif()` and `grdif()` can accept polytomous item response data, but their
-statistical performance for polytomous items has not yet been formally validated.
-Research extending and evaluating the RDIF and GRDIF frameworks to polytomous
-items is currently ongoing.
+$^*$ `rdif()` can accept polytomous item response data, but its statistical
+performance for polytomous items has not yet been formally validated. Research
+extending and evaluating the RDIF framework to polytomous items is ongoing.
 
 All three functions require pooled item response data and group membership
 labels. Pooled item parameter estimates and ability estimates are also typically
@@ -273,11 +272,13 @@ When DIF items are present in the test, they can contaminate the ability
 estimates used to compute the RDIF statistics, inflating Type I error rates
 for DIF-free items. Iterative purification addresses this by progressively
 removing flagged DIF items from ability re-estimation. At each iteration, the
-most significant flagged item (the item with the largest absolute standardized
-statistic for `"rdifr"` and `"rdifs"`, the largest statistic for `"rdifrs"` and
-for the GRDIF statistics, and the largest absolute `z.beta` for `catsib()`) is removed, the abilities are
-re-estimated from the remaining items, and the DIF tests are repeated. The procedure stops when no further item is flagged or when `max.iter`
-is reached [@lim_etal2022].
+flagged item with the smallest p-value of the statistic that drives the
+purification (`purify.by`, or the CATSIB statistic for `catsib()`) is removed,
+the abilities are re-estimated from the remaining items, and the DIF tests are
+repeated. The procedure stops when no further item is flagged or when `max.iter`
+is reached. It also stops early, with `complete = FALSE` and a warning, when
+every item is flagged or when a group has no ability estimate left
+[@lim_etal2022].
 
 ```{r rdif-purify}
 rdif_pur <- rdif(
@@ -304,8 +305,10 @@ rdif_pur$with_purify$dif_item
 ```
 
 The `with_purify` component contains the final results after purification. Its
-`n.iter` field reports the total number of iterations that were performed, and
-`complete` indicates whether purification finished before reaching `max.iter`.
+`n.iter` field reports the total number of iterations that were performed. The
+value of `complete` is `TRUE` when the procedure stopped because no remaining
+item was flagged, and `FALSE` when it stopped at `max.iter`, because every item
+was flagged, or because a group had no ability estimate left.
 Here the purification finishes after 6 iterations and flags exactly the six items
 with injected DIF (items 1-6); the false positives of the previous example are
 gone.
@@ -336,17 +339,25 @@ $$\text{GRDIF}_R \xrightarrow{d} \chi^2_{G-1}, \quad
   \text{GRDIF}_S \xrightarrow{d} \chi^2_{G-1}, \quad
   \text{GRDIF}_{RS} \xrightarrow{d} \chi^2_{2(G-1)}$$
 
-where $G$ is the total number of groups. For the two-group special case
-($G = 2$), the GRDIF statistics reduce exactly to the original RDIF statistics.
+where $G$ is the total number of groups. For two groups ($G = 2$), GRDIF$_R$ and
+GRDIF$_S$ equal the squares of the standardized RDIF$_R$ and RDIF$_S$ statistics,
+GRDIF$_{RS}$ equals RDIF$_{RS}$, and the p-values are the same.
 
 When a significant omnibus result is found, optional post-hoc pairwise RDIF
 analyses (controlled via `post.hoc = TRUE`) can identify which specific pairs
-of groups exhibit DIF.
+of groups exhibit DIF. In a pair labeled "a & b" in the column `group.pair`,
+a is the reference group and b is the focal group of the pair. The reference
+group of the GRDIF analysis is the reference group of every pair that includes
+it, and for a pair of focal groups, the group listed earlier in `focal.name` is
+the reference group. The p-values of the post-hoc tests are not adjusted for
+multiple comparisons; to control the familywise error rate, compare them with a
+corrected level, for example `alpha` divided by the number of pairs (a
+Bonferroni correction).
 
-> **Note on polytomous items:** Like `rdif()`, `grdif()` also accepts
-> polytomous item response data. However, formal validation of the GRDIF
-> framework for polytomous items has not yet been published; research on this
-> extension is currently ongoing.
+> **Note on item types:** Unlike `rdif()`, `grdif()` supports dichotomous items
+> only and stops with an error when `x` includes a polytomous item, because the
+> GRDIF framework was developed and evaluated for dichotomous items
+> [@lim_etal2024].
 
 ### Key arguments of `grdif()`
 
@@ -356,7 +367,9 @@ of groups exhibit DIF.
   flagged items (default `TRUE`). Useful for identifying which group pairs
   drive the omnibus DIF signal.
 - Other arguments (`x`, `data`, `score`, `group`, `D`, `alpha`, `purify`,
-  `purify.by`, `max.iter`, `method`) follow the same conventions as `rdif()`.
+  `purify.by`, `max.iter`, `method`) follow the same conventions as `rdif()`, except that `x` must contain
+  dichotomous items only and `grdif()` has no `item.skip` argument. All examinees
+  whose group is not in `focal.name` must belong to one reference group.
 
 ### Example 1: GRDIF without purification
 
@@ -460,7 +473,13 @@ or between focal groups only.
 In this simulation, all three GRDIF statistics flag items 1 and 2 and no other
 item. The post-hoc results show significant RDIF$_R$ for every pair of groups on
 both items, and the largest differences involve Focal Group 3, whose difficulty
-shift is the largest.
+shift is the largest. In each pair, the first group in `group.pair` is the
+reference group of the pair, so a negative RDIF$_R$ means that the item is
+harder for the second group of the pair. With three pairs, the
+Bonferroni-corrected level is 0.05/3 = `r sprintf("%.4f", 0.05 / 3)`, and the
+largest p-value of RDIF$_R$ among the pairs and items shown is
+`r sprintf("%.4f", max(grdif_npur$no_purify$post.hoc$by.grdifr$p.rdifr))`, so RDIF$_R$
+`r if (max(grdif_npur$no_purify$post.hoc$by.grdifr$p.rdifr) < 0.05 / 3) "remains significant for every pair on both items" else "is not significant for every pair on both items"`.
 
 ### Example 2: GRDIF with purification
 
@@ -523,7 +542,11 @@ is the estimated reliability in group $G$, with $\hat{\sigma}^2_{e,G}$ being
 the mean squared standard error (SE) of ability estimates and
 $\hat{\sigma}^2_{\hat{\theta},G}$ being the observed variance of $\hat{\theta}$
 in group $G$. Estimates at a limit of `range` are excluded when these three
-quantities are computed. Examinees are then matched on $\hat{\theta}^*$ rather
+quantities are computed. By default (`rho.screen = TRUE`), the examinees whose
+squared SE is at least $\hat{\sigma}^2_{\hat{\theta},G}$ are also left out of
+these three quantities (see Important Considerations for CATSIB). This also
+applies to supplied ability estimates, so `range` should match the bounds used
+to estimate them. Examinees are then matched on $\hat{\theta}^*$ rather
 than $\hat{\theta}$.
 
 The corrected scores $\hat{\theta}^*$ are divided into $K$ equal-width ability
@@ -535,7 +558,7 @@ $$\hat{\beta} = \sum_{k=1}^{K} \left[\hat{P}_{R,k} - \hat{P}_{F,k}\right] \hat{p
 
 where $\hat{p}_k$ is the weight for bin $k$. By default (`weight.group =
 "comb"`), $\hat{p}_k$ is the observed proportion of all examinees (both groups
-combined) classified into bin $k$, following the recommendation of
+combined) classified into bin $k$, as in
 @nandakumar_roussos2004. Alternatively, $\hat{p}_k$ can be defined using only
 the focal group distribution (`weight.group = "foc"`) or only the reference
 group distribution (`weight.group = "ref"`).
@@ -565,11 +588,16 @@ distribution.
 - `min.binsize`: Minimum number of examinees required in each bin for both
   groups; bins failing this criterion are excluded from the computation
   (default `3`).
-- `max.del`: Maximum allowable proportion of examinees excluded during the
-  binning process (default `0.075`).
+- `max.del`: Maximum proportion of the examinees of each group who responded
+  to the item that may be excluded because they fall in bins that are not used
+  (at least 0 and less than 1; default `0.075`).
 - `weight.group`: Target ability distribution used to compute $\hat{p}_k$:
   `"comb"` (combined reference + focal; default), `"foc"` (focal only), or
   `"ref"` (reference only).
+- `rho.screen`: Logical; whether to leave the examinees whose squared SE is at
+  least the variance of the ability estimates of their group out of the
+  reliability estimate of the regression correction (default `TRUE`; see
+  Important Considerations for CATSIB).
 
 ### Example 1: CATSIB without purification
 
@@ -613,8 +641,8 @@ catsib_npur$no_purify$dif_item
 
 The `dif_stat` data frame contains the estimated $\hat{\beta}$ statistic, its
 standard error (`se`), the standardized $\hat{\beta}$ (`z.beta`), and the
-corresponding p-value for each item. Items with $|\hat{\beta}|$ significantly
-different from zero (at the `alpha` level) are flagged as DIF.
+corresponding p-value for each item. Items whose two-sided p-value is less than
+or equal to `alpha` are flagged as DIF.
 
 In this simulation, $\hat{\beta}$ is positive and significant for the items with
 a difficulty shift against the focal group (items 1, 2, 5, and 6), meaning that
@@ -669,19 +697,19 @@ fp_new    <- setdiff(fp_pur, fp_npur)
 miss_pur  <- setdiff(dif_true, flag_pur)
 ```
 
-In this run, the purification finishes after `r catsib_pur$with_purify$n.iter`
-iterations. Of the six items with injected DIF, it flags items
+In this run, the purification
+`r if (catsib_pur$with_purify$complete) paste("finishes after", catsib_pur$with_purify$n.iter, "iterations") else paste("stops at the limit of", catsib_pur$with_purify$n.iter, "iterations without being completed (complete = FALSE)")`.
+Of the six items with injected DIF, it flags items
 `r paste(intersect(dif_true, flag_pur), collapse = ", ")` (without purification:
 items `r paste(intersect(dif_true, flag_npur), collapse = ", ")`) and misses
 `r if (length(miss_pur) > 0) paste("item", paste(miss_pur, collapse = ", ")) else "none"`.
 The number of flagged DIF-free items changes from `r length(fp_npur)` (items
 `r paste(fp_npur, collapse = ", ")`) to `r length(fp_pur)` (items
-`r paste(fp_pur, collapse = ", ")`)`r if (length(fp_new) > 0) paste0("; item", if (length(fp_new) > 1) "s " else " ", paste(fp_new, collapse = ", "), " ", if (length(fp_new) > 1) "are" else "is", " new false positive", if (length(fp_new) > 1) "s" else "", " that did not appear without purification")`.
-Purification therefore changes the CATSIB results but does not remove all false
-positives, so they should be interpreted with caution. Depending on the platform,
-`catsib()` may also warn during purification that the estimated reliability of
-a group fell below 0.05 and was floored (see the considerations below); the
-warning is displayed above when it occurs.
+`r paste(fp_pur, collapse = ", ")`)`r if (length(fp_new) > 0) paste0("; item", if (length(fp_new) > 1) "s " else " ", paste(fp_new, collapse = ", "), " ", if (length(fp_new) > 1) "are new false positives" else "is a new false positive", " that did not appear without purification")`.
+Purification therefore changes the CATSIB results`r if (length(fp_pur) > 0) " but does not remove all false positives, so they should be interpreted with caution" else ""`.
+If the estimated reliability of a group falls below 0.05 in an iteration,
+`catsib()` sets it to 0.05 and issues a warning (see the considerations below);
+the warning is displayed above when it occurs.
 
 ### Important Considerations for CATSIB
 
@@ -698,6 +726,64 @@ these cases the bin-level differences may partially cancel and yield
 $\hat{\beta} \approx 0$ even when DIF is present. If nonuniform or mixed DIF
 is suspected, `rdif()` with RDIF$_S$ or RDIF$_{RS}$ is recommended instead.
 
+```{r catsib-rho, include=FALSE}
+# format a number with three decimal places
+f3 <- function(x) sprintf("%.3f", x)
+
+# reliability of the ability estimates of a group, with or without the screening
+rho_group <- function(theta, se, screen) {
+  use <- theta > -5 & theta < 5
+  n_use <- sum(use)
+  if (screen) {
+    out <- which(use & se^2 >= var(theta[use]))
+    if (length(out) > 0 && n_use - length(out) >= 2) use[out] <- FALSE
+  }
+  c(rho2 = 1 - mean(se[use]^2) / var(theta[use]), n_out = n_use - sum(use))
+}
+
+# reliabilities and numbers of screened examinees of Example 1
+is_foc <- group_vec == 1
+foc_on  <- rho_group(score_se$est.theta[is_foc], score_se$se.theta[is_foc], TRUE)
+foc_off <- rho_group(score_se$est.theta[is_foc], score_se$se.theta[is_foc], FALSE)
+ref_on  <- rho_group(score_se$est.theta[!is_foc], score_se$se.theta[!is_foc], TRUE)
+ref_off <- rho_group(score_se$est.theta[!is_foc], score_se$se.theta[!is_foc], FALSE)
+
+# CATSIB with purification and without the screening, keeping the warnings
+rho_warn <- character(0)
+catsib_nos <- withCallingHandlers(
+  catsib(
+    x            = meta_pool,
+    data         = resp_pool,
+    score        = score_se$est.theta,
+    se           = score_se$se.theta,
+    group        = group_vec,
+    focal.name   = 1,
+    weight.group = "comb",
+    D            = 1.702,
+    alpha        = 0.05,
+    purify       = TRUE,
+    max.iter     = 20,
+    method       = "ML",
+    range        = c(-5, 5),
+    rho.screen   = FALSE,
+    verbose      = FALSE
+  ),
+  warning = function(w) {
+    rho_warn <<- c(rho_warn, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  }
+)
+
+# keep the reliability warning and extract the lowest reliabilities it reports
+rho_warn <- rho_warn[grepl("estimated reliability", rho_warn)]
+rho_ref_low <- sub(".*lowest rho\\^2_ref = (-?[0-9.]+),.*", "\\1", rho_warn[1])
+rho_foc_low <- sub(".*lowest rho\\^2_foc = (-?[0-9.]+)\\).*", "\\1", rho_warn[1])
+
+# flagged items and false positives without the screening (items 1-6 have DIF)
+nos_flag <- catsib_nos$with_purify$dif_item
+nos_fp   <- setdiff(nos_flag, 1:6)
+```
+
 **Numerical instability of the regression correction when the reliability is
 low.** The regression correction (Equation 7 of @nandakumar_roussos2004)
 computes, for each group $G$, the reliability estimate:
@@ -708,21 +794,47 @@ where $\hat{\sigma}^2_{e,G}$ is the mean squared SE of ability estimates and
 $\hat{\sigma}^2_{\hat{\theta},G}$ is the observed variance of $\hat{\theta}$ in
 group $G$. The reliability estimate falls toward or below zero when the mean
 squared SE approaches the observed variance of $\hat{\theta}$, for example when
-few items remain after purification. A negative $\hat{\rho}^2_G$ would reflect
-the scores around the group mean and reverse their order, which severely
-distorts the bin-level matching and leads to inflated Type I error rates.
+few items remain after purification. Because $\hat{\sigma}^2_{e,G}$ is a mean of
+squared SEs, a few examinees with very large SEs, typically examinees with very
+low or very high scores, can also pull $\hat{\rho}^2_G$ far below the
+reliability of the other ability estimates, even when many items are used. A
+negative $\hat{\rho}^2_G$ would reflect the scores around the group mean and
+reverse their order, which severely distorts the bin-level matching and leads
+to inflated Type I error rates.
 
-To prevent this, `catsib()` clamps $\hat{\rho}^2_G$ to the interval $[0.05,\,
+By default (`rho.screen = TRUE`), `catsib()` therefore leaves the examinees
+whose squared SE is at least $\hat{\sigma}^2_{\hat{\theta},G}$, that is,
+examinees whose individual reliability
+$1 - SE^2 / \hat{\sigma}^2_{\hat{\theta},G}$ is zero or negative, out of the
+computation of $\hat{\rho}^2_G$. These examinees are still matched on their
+corrected scores and used in $\hat{\beta}$. This screening is not part of the
+original procedure of @nandakumar_roussos2004 and is added in **irtQ**; set
+`rho.screen = FALSE` to use the original Equation 7. In Example 1, the
+screening leaves out `r foc_on[["n_out"]]` examinees of the focal group and
+`r ref_on[["n_out"]]` of the reference group, in addition to the examinees at a limit
+of `range`; the reliability is `r f3(foc_on[["rho2"]])` with the screening and
+`r f3(foc_off[["rho2"]])` without it in the focal group, and `r f3(ref_on[["rho2"]])` and
+`r f3(ref_off[["rho2"]])` in the reference group. With `rho.screen = FALSE`, the
+purification of Example 2
+`r if (catsib_nos$with_purify$complete) paste("finishes after", catsib_nos$with_purify$n.iter, "iterations") else paste("stops at the limit of", catsib_nos$with_purify$n.iter, "iterations without being completed")`,
+flags `r length(nos_flag)` items (`r length(nos_fp)` of them DIF-free), and
+`r if (length(rho_warn) > 0) paste0("warns that the reliability fell below 0.05 (to ", rho_ref_low, " in the reference group and ", rho_foc_low, " in the focal group)") else "issues no reliability warning"`.
+Even with the screening, the Type I error rate of CATSIB can exceed the
+nominal level, and in data without DIF the purification can increase the
+number of false positives.
+
+In addition, `catsib()` bounds $\hat{\rho}^2_G$ to the interval $[0.05,\,
 1]$:
 
 $$\hat{\rho}^2_G \leftarrow \max\!\left(0.05,\; \min\!\left(1,\; 1 -
 \frac{\hat{\sigma}^2_{e,G}}{\hat{\sigma}^2_{\hat{\theta},G}}\right)\right)$$
 
-When the unclamped value falls below 0.05, a warning is issued. This situation
-is most likely to occur during purification, when the removal of DIF-flagged
-items reduces the number of items used for ability re-estimation, causing
-standard errors to grow. If a warning is triggered, results should be
-interpreted with caution, or `purify = FALSE` should be considered.
+and issues one warning per call when the unbounded value falls below 0.05.
+This situation is most likely to occur during purification, when the removal
+of DIF-flagged items reduces the number of items used for ability
+re-estimation, causing standard errors to grow. If a warning is triggered,
+results should be interpreted with caution, or `purify = FALSE` should be
+considered.
 
 ---
 

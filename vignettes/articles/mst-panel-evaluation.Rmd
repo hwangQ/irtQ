@@ -611,7 +611,7 @@ with many replications at each grid point:
    maximum information)
 4. Estimate ability from each simulated response and compute the mean and
    variance of the estimates
-5. Bias = mean($\hat\theta$) − $\theta_k$, CSEM = $\sqrt{\text{Var}(\hat\theta)}$
+5. Bias = mean($\hat\theta$) $-$ $\theta_k$, CSEM = $\sqrt{\text{Var}(\hat\theta)}$
 
 `run_mst()` already automates Steps 2-4 for a single $\theta_k$ and a single
 batch of replications; a full evaluation just wraps it in a loop over the
@@ -995,7 +995,7 @@ items_m5 <- make_mod_items(
 
 # Combine into single item bank
 item_bank_122 <- dplyr::bind_rows(items_m1, items_m2, items_m3, items_m4, items_m5)
-cat("Item bank dimensions:", nrow(item_bank_122), "items ×", ncol(item_bank_122), "columns\n")
+cat("Item bank dimensions:", nrow(item_bank_122), "items x", ncol(item_bank_122), "columns\n")
 print(item_bank_122)
 ```
 
@@ -1152,7 +1152,7 @@ lines(tb_wide$theta, tb_wide$bias,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 abline(h = 0, col = "grey50", lty = 3)
 legend("topright",
-       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
@@ -1168,7 +1168,7 @@ plot(
 lines(tb_wide$theta, tb_wide$csem,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 legend("topright",
-       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
@@ -1336,7 +1336,7 @@ both `EAP` routing and `ML` final scoring depart from `reval_mst()`'s
 internal inverse-TCC logic, and that departure grows where the item pool
 carries little information and EAP/MLE estimates behave quite differently
 from the inverse-TCC-based recursion. This mirrors the pattern
-@lim_etal2021 reported for this identical EAP-routing/MLE-final condition.
+@lim_etal2021 reported for the same EAP-routing and MLE-final scoring combination.
 Matching the recursion's own scoring exactly
 (`route_score = list(method = "INV.TCC")` and
 `final_score = list(method = "INV.TCC")` instead of the EAP and ML methods)
@@ -1476,13 +1476,13 @@ across the *entire* ability range, including the extremes where the
 | `x` | data.frame | - | Item bank metadata (irtQ format) |
 | `route_map` | matrix | - | Binary square matrix of module transitions |
 | `module` | matrix | - | Binary matrix mapping items to modules |
-| `theta` | numeric | - | True ability for each simulated examinee (or supply `response` instead) |
+| `theta` | numeric | `NULL` | True ability for each simulated examinee (or supply `response` instead) |
 | `response` | matrix | `NULL` | Pre-generated response matrix, used instead of simulating from `theta` |
 | `D` | numeric | 1 | Scaling constant (use 1.702 for normal-ogive approximation) |
 | `ini_mod` | integer | `NULL` | Fixed Stage-1 module for all examinees; `NULL` assigns each independently at random |
 | `route_method` | character | `"bmat"` | `"bmat"`, `"mfi"`, or `NULL` for fixed cut-score routing |
 | `cut_score` | list | `NULL` | List of routing cut score vectors; used only when `route_method = NULL` |
-| `route_score` | list | ML (see `?run_mst`) | Scoring method used at intermediate stages (`ML`, `WL`, `MLF`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
+| `route_score` | list | ML (see `?run_mst`) | Scoring method used at intermediate stages (`ML`, `WL`, `MLF`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, ...) |
 | `final_score` | list | ML (see `?run_mst`) | Scoring method used for the final reported score |
 | `se` | logical | `TRUE` | Whether to compute standard errors of the final score |
 | `missing` | scalar | `NA` | Value marking a missing response in `response` |
