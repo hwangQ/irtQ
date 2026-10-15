@@ -440,11 +440,13 @@
 #'
 #' }
 #'
+#' @order 1
 #' @export
 rdif <- function(x, ...) UseMethod("rdif")
 
 #' @describeIn rdif Default method for a data frame `x` containing item metadata.
 #'
+#' @order 2
 #' @export
 rdif.default <- function(x,
                          data,
@@ -488,6 +490,7 @@ rdif.default <- function(x,
 #' [irtQ::est_irt()]. The response data and the scaling factor `D` are taken from
 #' the object.
 #'
+#' @order 3
 #' @export
 #'
 rdif.est_irt <- function(x,
@@ -534,6 +537,7 @@ rdif.est_irt <- function(x,
 #' [irtQ::est_item()]. The response data, ability estimates, and the scaling
 #' factor `D` are taken from the object.
 #'
+#' @order 4
 #' @export
 #'
 rdif.est_item <- function(x,

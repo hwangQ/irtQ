@@ -35,10 +35,12 @@
 #' summary(fit.1pl)
 #' }
 #'
+#' @order 1
 #' @export
 summary <- function(object, ...) UseMethod("summary")
 
 #' @describeIn summary An object created by the function [irtQ::est_irt()].
+#' @order 2
 #' @export
 summary.est_irt <- function(object, ...) {
   call.expr <- deparse(object$call)
@@ -76,6 +78,7 @@ summary.est_irt <- function(object, ...) {
 }
 
 #' @describeIn summary An object created by the function [irtQ::est_mg()].
+#' @order 3
 #' @export
 summary.est_mg <- function(object, ...) {
   call.expr <- deparse(object$call)
@@ -123,6 +126,7 @@ summary.est_mg <- function(object, ...) {
 
 
 #' @describeIn summary An object created by the function [irtQ::est_item()].
+#' @order 4
 #' @export
 summary.est_item <- function(object, ...) {
   call.expr <- deparse(object$call)

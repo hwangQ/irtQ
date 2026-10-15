@@ -961,6 +961,11 @@
   `catsib()`, `est_irt()`, `est_mg()`, and `est_item()` state that the
   `digits` argument of their print methods is not used.
 
+- The print methods are now documented on the help pages of the
+  functions that create the objects (`rdif()`, `crdif()`, `grdif()`,
+  `catsib()`, `irtfit()`, `run_mst()`, `find_cut()`, and `summary()`),
+  including the use of their `digits` argument.
+
 # irtQ 1.3.1
 
 ## Bug Fixes

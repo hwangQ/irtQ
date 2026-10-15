@@ -1,3 +1,7 @@
+#' @describeIn crdif Print method for an object of class `crdif` (given as
+#'   `x`). It prints the flagged items and the RDIF-CR statistics of the
+#'   analyses without and with purification, rounded to three decimal places.
+#' @param digits Not used; kept for consistency with the other print methods.
 #' @export
 #' @import dplyr
 print.crdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -133,6 +137,10 @@ print.crdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 }
 
 
+#' @describeIn grdif Print method for an object of class `grdif` (given as
+#'   `x`). It prints the flagged items and the GRDIF statistics of the
+#'   analyses without and with purification, rounded to three decimal places.
+#' @param digits Not used; kept for consistency with the other print methods.
 #' @export
 #' @import dplyr
 print.grdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -250,6 +258,10 @@ print.grdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 }
 
 
+#' @describeIn catsib Print method for an object of class `catsib` (given as
+#'   `x`). It prints the flagged items and the CATSIB statistics of the
+#'   analyses without and with purification, rounded to three decimal places.
+#' @param digits Not used; kept for consistency with the other print methods.
 #' @export
 #' @import dplyr
 print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -326,6 +338,10 @@ print.catsib <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   invisible(x)
 }
 
+#' @describeIn summary Print method for the summary of an `est_mg` object
+#'   (given as `x`). It prints the full calibration summary with the tables
+#'   rounded to `digits` decimal places.
+#' @order 9
 #' @export
 #' @import dplyr
 print.summary.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -390,6 +406,10 @@ print.summary.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), 
 }
 
 
+#' @describeIn summary Print method for an object of class `est_mg` (given
+#'   as `x`). It prints the number of EM cycles, the number of quadrature
+#'   points, the two convergence checks, and the log-likelihood.
+#' @order 6
 #' @export
 print.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   call.expr <- deparse(x$call)
@@ -409,6 +429,11 @@ print.est_mg <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   invisible(x)
 }
 
+#' @describeIn rdif Print method for an object of class `rdif` (given as
+#'   `x`). It prints the flagged items and the RDIF statistics of the
+#'   analyses without and with purification, rounded to three decimal places.
+#' @param digits Not used; kept for consistency with the other print methods.
+#' @order 5
 #' @export
 #' @import dplyr
 print.rdif <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
@@ -633,6 +658,9 @@ print_ripd_stat <- function(ipd_stat, iter = FALSE) {
 }
 
 
+#' @describeIn irtfit Print method for an object of class `irtfit` (given as
+#'   `x`). It prints the significance level and the table of item fit
+#'   statistics (`fit_stat`) as stored in the object.
 #' @export
 print.irtfit <- function(x, ...) {
   call.expr <- deparse(x$call)
@@ -649,6 +677,15 @@ print.irtfit <- function(x, ...) {
 }
 
 
+#' @describeIn summary Print method for an object of class `est_irt` (given
+#'   as `x`). It prints the number of EM cycles, the number of quadrature
+#'   points, the two convergence checks, and the log-likelihood.
+#' @param x An object of class `est_irt`, `est_mg`, or `est_item`, or the
+#'   summary of one of them, to be printed.
+#' @param digits For a summary object, the number of decimal places used to
+#'   round the tables of item and group parameter estimates. Not used when an
+#'   `est_irt`, `est_mg`, or `est_item` object itself is printed.
+#' @order 5
 #' @export
 print.est_irt <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   call.expr <- deparse(x$call)
@@ -669,6 +706,10 @@ print.est_irt <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 }
 
 
+#' @describeIn summary Print method for the summary of an `est_irt` object
+#'   (given as `x`). It prints the full calibration summary with the tables
+#'   rounded to `digits` decimal places.
+#' @order 8
 #' @export
 print.summary.est_irt <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   cat("\nCall:\n", paste(x$call.expr, sep = "\n", collapse = "\n"),
@@ -721,6 +762,10 @@ print.summary.est_irt <- function(x, digits = max(2L, getOption("digits") - 5L),
 }
 
 
+#' @describeIn summary Print method for an object of class `est_item` (given
+#'   as `x`). It prints the convergence message of the fixed ability
+#'   parameter calibration and the log-likelihood.
+#' @order 7
 #' @export
 print.est_item <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   call.expr <- deparse(x$call)
@@ -738,6 +783,10 @@ print.est_item <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
 }
 
 
+#' @describeIn summary Print method for the summary of an `est_item` object
+#'   (given as `x`). It prints the full calibration summary with the tables
+#'   rounded to `digits` decimal places.
+#' @order 10
 #' @export
 print.summary.est_item <- function(x, digits = max(2L, getOption("digits") - 5L), ...) {
   cat("\nCall:\n", paste(x$call.expr, sep = "\n", collapse = "\n"),
@@ -772,6 +821,13 @@ print.summary.est_item <- function(x, digits = max(2L, getOption("digits") - 5L)
 }
 
 
+#' @describeIn run_mst Print method for an object of class `run_mst` (given
+#'   as `x`). It prints the panel structure, the routing and scoring methods,
+#'   a summary of the final ability estimates, the bias and RMSE when the true
+#'   abilities are available, and the module frequencies by stage.
+#' @param digits The number of decimal places used for the summary of the
+#'   ability estimates and for the bias and RMSE. Default is 3.
+#' @param ... Additional arguments, currently not used.
 #' @export
 print.run_mst <- function(x, digits = 3L, ...) {
 
@@ -856,19 +912,15 @@ print.run_mst <- function(x, digits = 3L, ...) {
   invisible(x)   # return the object invisibly (standard S3 print convention)
 }
 
-# ---------------------------------------------------------------------------
-# print.find_cut(): print method for objects of class "find_cut"
-#
-# Displays a formatted summary of the TIF-crossing cut scores found by
-# find_cut(), including per-stage module information, proper and anomalous
-# crossing points, and the selected cut score for each adjacent module pair.
-#
-# @param x       An object of class "find_cut" returned by find_cut().
-# @param digits  Number of decimal places for rounding numeric output.
-#                Default is 4L.
-# @param ...     Additional arguments (currently unused; for S3 compatibility).
-# @return        x, invisibly.
-# ---------------------------------------------------------------------------
+#' @describeIn find_cut Print method for an object of class `find_cut`
+#'   (given as `x`). It prints, for each stage, the mean item locations of the
+#'   modules, the proper and anomalous crossing points, and the selected cut
+#'   score of each pair of adjacent modules.
+#' @param digits The number of decimal places used for the mean item
+#'   locations, the cut scores, and the crossing points. Default is 4. The
+#'   selected cut score of each module pair is always printed with four
+#'   decimal places.
+#' @param ... Additional arguments, currently not used.
 #' @export
 print.find_cut <- function(x, digits = 4L, ...) {
 

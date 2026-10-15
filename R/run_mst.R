@@ -508,6 +508,7 @@
 #' cat(sprintf("RMSE (ML    routing + scoring):   %.4f\n", rmse_ml))
 #' }
 #'
+#' @order 1
 #' @export
 run_mst <- function(x,
                     route_map,
