@@ -1,8 +1,8 @@
 Package: irtQ
 Type: Package
 Title: Unidimensional Item Response Theory Modeling
-Version: 1.3.1
-Date: 2026-10-08
+Version: 1.4.0
+Date: 2026-10-16
 Description: Fits unidimensional item response theory (IRT) models to test
     data that include dichotomous and polytomous items, calibrates pretest
     items with fixed item and fixed ability parameter calibration, performs
