@@ -19,7 +19,8 @@
 #'   `NA` marks an item that was not administered to the examinee. The columns
 #'   have no names; they follow the row order of `item.prm`, whose `id` values
 #'   are `V1` to `V100`.}
-#'   \item{score}{A numeric vector of ability estimates for the 10,000 examinees.}
+#'   \item{score}{A numeric vector of ability estimates for the 10,000
+#'   examinees.}
 #' }
 #'
 #' @author Hwanggyu Lim \email{hglim83@@gmail.com}

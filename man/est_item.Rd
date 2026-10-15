@@ -280,7 +280,8 @@ estimates, and \code{loglikelihood} is the log-likelihood at these estimates
 without the log prior densities.
 
 The print method of this class has an argument \code{digits} that is not used.
-It prints the log-likelihood without rounding it.
+It prints the log-likelihood with the number of significant digits given
+by \code{getOption("digits")} (7 by default).
 }
 \examples{
 ## Import the "-prm.txt" output file from flexMIRT

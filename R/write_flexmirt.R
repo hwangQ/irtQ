@@ -12,9 +12,10 @@
 #'   It must be supplied. flexMIRT parameter files usually end in "-prm.txt".
 #' @param norm.pop A numeric vector of length two giving the mean and the
 #'   variance of the normal ability distribution of a single group, or a list
-#'   of such vectors, one per group (e.g., `norm.pop = list(c(0, 1),
-#'   c(0, 0.64), c(0.5, 1.44))` for three groups). The second value is
-#'   written to the variance field of the file. If `mgroup = TRUE` and a
+#'   of such vectors, one per group (e.g.,
+#'   `norm.pop = list(c(0, 1), c(0, 0.64), c(0.5, 1.44))` for three
+#'   groups). The second value is written to the variance field of the file.
+#'   If `mgroup = TRUE` and a
 #'   single vector is given, it is used for all groups. Default is `c(0, 1)`.
 #' @param rePar Logical. Indicates how the parameters in `x` are given. If
 #'   `TRUE` (default), `x` is taken to hold flexMIRT slope-intercept values:
@@ -73,6 +74,7 @@
 #' # 1-(4) Read the file back and compare the item parameters
 #' x_back <- bring.flexmirt(file = temp_prm, type = "par")$Group1$full_df
 #' head(x_back)
+#' max(abs(as.matrix(x[, 4:7]) - as.matrix(x_back[, 4:7])), na.rm = TRUE)
 #'
 #' ## 2. Create a "-prm.txt" file for multiple groups
 #' ##    using simulated multi-group data

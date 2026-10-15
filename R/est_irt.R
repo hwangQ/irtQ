@@ -393,7 +393,8 @@
 #' Q - 1 free values. The counts by type are returned in `npar.detail`.
 #'
 #'   The print method of this class has an argument `digits` that is not used.
-#'   It prints the log-likelihood without rounding it.
+#'   It prints the log-likelihood with the number of significant digits given
+#'   by `getOption("digits")` (7 by default).
 #'
 #' @return This function returns an object of class `est_irt`. The returned
 #'   object contains the following components:

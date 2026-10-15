@@ -648,7 +648,8 @@ are fixed). With FIPC, the histogram is not rescaled, so the weights have
 Q - 1 free values. The counts by type are returned in \code{npar.detail}.
 
 The print method of this class has an argument \code{digits} that is not used.
-It prints the log-likelihood without rounding it.
+It prints the log-likelihood with the number of significant digits given
+by \code{getOption("digits")} (7 by default).
 }
 \examples{
 \donttest{

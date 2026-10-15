@@ -16,7 +16,7 @@
 #'   the logits of the guessing parameters to guessing parameters, so that
 #'   `full_df` follows the \pkg{irtQ} item metadata format. This requires a
 #'   unidimensional model. If `FALSE`, the slope-intercept values in the file
-#'   are kept, and `full_df` can then not be used directly by other
+#'   are kept, and `full_df` cannot then be used directly by other
 #'   \pkg{irtQ} functions.
 #' @param rePar.gpc Logical. Used only by `bring.flexmirt()` with
 #'   `type = "par"`. If `TRUE` (default), the nominal model parameters of
@@ -61,15 +61,16 @@
 #'   [irtQ::bring.mirt()] accepts the item types `"Rasch"`, `"2PL"`, and
 #'   `"3PL"` for dichotomous items and `"Rasch"`, `"graded"`, `"gpcm"`, and
 #'   `"gpcmIRT"` for polytomous items. A two-category item of a mixed-format
-#'   test may also be fitted with `"graded"`, `"gpcm"`, or `"gpcmIRT"`. Fitted
-#'   models of multiple groups are not supported.
+#'   test may also be fitted with `"graded"`, `"gpcm"`, or `"gpcmIRT"`. A
+#'   model fitted to multiple groups is not supported, and the function stops
+#'   with an error; extract one group first with `mirt::extract.group()`.
 #'
 #'   In `full_df`, [irtQ::bring.flexmirt()] labels dichotomous items `"3PLM"`
 #'   or `"2PLM"`, while [irtQ::bring.bilog()], [irtQ::bring.parscale()], and
-#'   [irtQ::bring.mirt()] label them `"DRM"` (with a guessing parameter of 0
-#'   for items without guessing). Dichotomous items, including two-category
-#'   items fitted with the graded or gpcm model in \pkg{mirt}, are labeled
-#'   `"DRM"`; change the model column if another model is wanted in
+#'   [irtQ::bring.mirt()] label them `"DRM"`, with a guessing parameter of 0
+#'   for items without guessing. For [irtQ::bring.mirt()], this includes
+#'   two-category items fitted with the `"graded"`, `"gpcm"`, or `"gpcmIRT"`
+#'   model. Change the model column if another model is wanted in
 #'   [irtQ::est_irt()], which fits `"DRM"` items as 3PLM items. The parameters
 #'   are kept on the scale of the program, and the files do not record the
 #'   scaling constant; pass the value of `D` used in the calibration (e.g., 1

@@ -26,7 +26,9 @@ package.}
 
 \item{cut_score}{A list of two numeric vectors, \code{stage.2} and \code{stage.3},
 giving the routing cut scores into stages 2 and 3. They are the
-TIF-crossing points returned by \code{find_cut(x = simMST$item_bank, module = simMST$module, route_map = simMST$route_map, D = 1.702)}.}
+TIF-crossing points in the \code{cut_score} element returned by
+\verb{find_cut(x = simMST$item_bank, module = simMST$module,}
+\verb{route_map = simMST$route_map, D = 1.702)}.}
 
 \item{theta}{A numeric vector of 81 ability values from -4 to 4 in steps
 of 0.1, used to evaluate the measurement precision of the panel across the

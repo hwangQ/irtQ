@@ -35,7 +35,7 @@ model (GRM) items are converted to difficulty (threshold) parameters and
 the logits of the guessing parameters to guessing parameters, so that
 \code{full_df} follows the \pkg{irtQ} item metadata format. This requires a
 unidimensional model. If \code{FALSE}, the slope-intercept values in the file
-are kept, and \code{full_df} can then not be used directly by other
+are kept, and \code{full_df} cannot then be used directly by other
 \pkg{irtQ} functions.}
 
 \item{rePar.gpc}{Logical. Used only by \code{bring.flexmirt()} with
@@ -117,15 +117,16 @@ with an error when the file has them.
 \code{\link[=bring.mirt]{bring.mirt()}} accepts the item types \code{"Rasch"}, \code{"2PL"}, and
 \code{"3PL"} for dichotomous items and \code{"Rasch"}, \code{"graded"}, \code{"gpcm"}, and
 \code{"gpcmIRT"} for polytomous items. A two-category item of a mixed-format
-test may also be fitted with \code{"graded"}, \code{"gpcm"}, or \code{"gpcmIRT"}. Fitted
-models of multiple groups are not supported.
+test may also be fitted with \code{"graded"}, \code{"gpcm"}, or \code{"gpcmIRT"}. A
+model fitted to multiple groups is not supported, and the function stops
+with an error; extract one group first with \code{mirt::extract.group()}.
 
 In \code{full_df}, \code{\link[=bring.flexmirt]{bring.flexmirt()}} labels dichotomous items \code{"3PLM"}
 or \code{"2PLM"}, while \code{\link[=bring.bilog]{bring.bilog()}}, \code{\link[=bring.parscale]{bring.parscale()}}, and
-\code{\link[=bring.mirt]{bring.mirt()}} label them \code{"DRM"} (with a guessing parameter of 0
-for items without guessing). Dichotomous items, including two-category
-items fitted with the graded or gpcm model in \pkg{mirt}, are labeled
-\code{"DRM"}; change the model column if another model is wanted in
+\code{\link[=bring.mirt]{bring.mirt()}} label them \code{"DRM"}, with a guessing parameter of 0
+for items without guessing. For \code{\link[=bring.mirt]{bring.mirt()}}, this includes
+two-category items fitted with the \code{"graded"}, \code{"gpcm"}, or \code{"gpcmIRT"}
+model. Change the model column if another model is wanted in
 \code{\link[=est_irt]{est_irt()}}, which fits \code{"DRM"} items as 3PLM items. The parameters
 are kept on the scale of the program, and the files do not record the
 scaling constant; pass the value of \code{D} used in the calibration (e.g., 1

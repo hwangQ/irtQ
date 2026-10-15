@@ -94,7 +94,8 @@
 #'   \item{IRT 1-3PL models}{
 #'     For the IRT 1PLM, 2PLM, and 3PLM models, the probability that an examinee
 #'     with ability \eqn{\theta} responds correctly to an item is given by:
-#'     \deqn{P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},}
+#'     \deqn{P(Y = 1 \mid \theta) =
+#'       g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},}
 #'     where \eqn{a} is the item discrimination (slope) parameter, \eqn{b} is
 #'     the item difficulty parameter, and \eqn{g} is the guessing parameter.
 #'     The constant \eqn{D} is a scaling factor. With \eqn{D = 1} (the default
@@ -322,15 +323,17 @@
 #'
 #' @section Example R Scripts:
 #'
-#' The examples below demonstrate how to estimate item parameters for a linear test form,
-#' and how to calibrate pretest items using the FIPC and FAPC methods. All examples use
-#' simulated data sets, where examinees' response data are generated based on
-#' true item parameters and true ability values using the [irtQ::simdat()] function.
+#' The examples below demonstrate how to estimate item parameters for a linear
+#' test form, and how to calibrate pretest items using the FIPC and FAPC
+#' methods. All examples use simulated data sets, where examinees' response data
+#' are generated based on true item parameters and true ability values using
+#' the [irtQ::simdat()] function.
 #'
-#' The examples utilize item parameter estimates imported from a flexMIRT output file sample,
-#' which includes a mixed-format test of 55 items: 50 dichotomous items modeled with the 3PLM
-#' and 5 polytomous items modeled with the GRM. These item parameters are treated as the
-#' "true" values for data generation. Specifically:
+#' The examples utilize item parameter estimates imported from a flexMIRT output
+#' file sample, which includes a mixed-format test of 55 items: 50 dichotomous
+#' items modeled with the 3PLM and 5 polytomous items modeled with the GRM.
+#' These item parameters are treated as the "true" values for data generation.
+#' Specifically:
 #' - Items 1-38: 3PLM items
 #' - Items 39-40: GRM items
 #' - Items 41-52: 3PLM items
