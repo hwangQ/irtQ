@@ -262,7 +262,7 @@ choices materially affect the statistics:
 |----------|-------------|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
 | `score` | Numeric vector of examinee ability estimates $\hat{\theta}$ |
-| `data` | Response matrix (examinees × items) |
+| `data` | Response matrix (examinees x items) |
 | `D` | Scaling constant; must match the value used in calibration |
 | `group.method` | `"equal.width"` (default) or `"equal.freq"` |
 | `n.width` | Number of ability bins (default `10`) |
@@ -305,7 +305,7 @@ fit_bin1 <- irtfit(
   D            = 1.702,
   group.method = "equal.freq",   # ~equal number of examinees per bin
   n.width      = 11,             # 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)
-  loc.theta    = "middle",       # bin midpoint as representative θ
+  loc.theta    = "middle",       # bin midpoint as representative theta
   range.score  = c(-4, 4),       # truncate ML estimates to [-4, 4]
   alpha        = 0.05,
   overSR       = 2
@@ -323,9 +323,9 @@ fit_bin2 <- irtfit(
   score        = score_bin$est.theta,
   data         = resp_bin,
   D            = 1.702,
-  group.method = "equal.width",  # equal-width θ intervals
+  group.method = "equal.width",  # equal-width theta intervals
   n.width      = 10,
-  loc.theta    = "average",      # within-bin mean θ
+  loc.theta    = "average",      # within-bin mean theta
   range.score  = c(-4, 4),
   alpha        = 0.05,
   overSR       = 2
@@ -550,14 +550,14 @@ the $\chi^2$ approximation deteriorates. To address this:
 | Argument | Description |
 |----------|-------------|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
-| `data` | Response matrix (examinees × items). Missing values are replaced with 0 (the lowest category), with a warning. |
+| `data` | Response matrix (examinees x items). Missing values are replaced with 0 (the lowest category), with a warning. |
 | `D` | Scaling constant; must match calibration |
 | `alpha` | Significance level for flagging items (default `0.05`) |
 | `min.collapse` | Minimum expected frequency per cell before collapsing (default `1`) |
 | `norm.prior` | `c(mean, sd)` of the normal latent distribution used in the Lord-Wingersky integration (default `c(0, 1)`); ignored when `weights` is given |
 | `nquad` | Number of Gaussian quadrature points for integration (default `30`) |
 | `weights` | Two-column quadrature points and weights of the latent distribution. For an `est_irt` object, when `weights`, `norm.prior`, and `nquad` are all omitted, the distribution stored in the object (`x$weights`) is used |
-| `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); used only to count the item parameters for the df; default `NULL` |
+| `pcm.loc` | Integer vector of the row indices of PCM items, whose slopes were fixed in the calibration; used only to count the item parameters for the df; default `NULL` |
 
 ### Return value of `sx2_fit()`
 

@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 The rest of **irtQ** centers on item response theory (IRT): item parameters
 are estimated on a common ability scale, and item/test statistics generally
 depend on those estimated parameters. Many testing programs, however, still
-report - or additionally report - classical test theory (CTT) statistics:
+report (or additionally report) classical test theory (CTT) statistics:
 simple, total-score-based indices of item difficulty, item discrimination,
 and test reliability that require no IRT model fitting at all. irtQ provides
 a small set of CTT functions for exactly this purpose, working directly from
@@ -47,9 +47,9 @@ dichotomous item, or 0, 1, 2, ... for a polytomous item), the same convention
 used throughout irtQ (e.g., by `est_irt()`), and `freq_score()` expects a
 vector of total scores, such as the `rowSums()` of a scored matrix. Raw testing data,
 however, usually records the option each examinee actually chose. The
-*Utility Functions* article covers `score_resp()` in full - including its
+*Utility Functions* article covers `score_resp()` in full, including its
 support for numeric, Latin-letter, and general-label (e.g., Korean-syllable)
-option-coding schemes - but a short example is worth repeating here, since it
+option-coding schemes, but a short example is worth repeating here, since it
 is the natural first step before calling `ctt()` on raw data (or computing
 the total scores that `freq_score()` tabulates):
 
@@ -64,7 +64,7 @@ raw3 <- data.frame(
 key3 <- c("A", "D", "C")
 
 scored3 <- score_resp(data = raw3, key = key3)
-scored3$scored          # 0/1 matrix - the input format ctt() expects
+scored3$scored          # 0/1 matrix, the input format ctt() expects
 scored3$resp_summary     # per-item blank/double-mark/invalid counts
 ```
 
@@ -77,7 +77,7 @@ The two example data sets used throughout the remainder of this article are
 defined once here and reused below:
 
 ```{r define-data}
-# Data set 1: a realistic, already-scored mixed-format response matrix -
+# Data set 1: a realistic, already-scored mixed-format response matrix:
 # 1,000 examinees on a 55-item test (50 dichotomous 3PLM items + 5 polytomous
 # GRM items), simulated from item parameters imported from a flexMIRT output
 # file bundled with irtQ. This mirrors the example used in `?ctt`
@@ -113,7 +113,7 @@ every integer score value spanning the observed minimum to maximum (including
 any value with zero observations in between, so gaps in the distribution are
 visible rather than silently skipped). This is the same table `ctt()` builds
 internally for its own `$freq` element, but it is also fully usable on its
-own for any vector of integer total scores - for instance, the row sums of
+own for any vector of integer total scores, for instance, the row sums of
 `dat_mixed` computed above:
 
 ```{r freq-score-example}
@@ -137,8 +137,8 @@ automatically by whether a `key` is supplied.
 
 ### Selected-response mode: raw option data plus an answer key
 
-When `key` is supplied, `data` is treated as raw, unscored option responses -
-exactly the format `score_resp()` expects - and `ctt_distr()` additionally
+When `key` is supplied, `data` is treated as raw, unscored option responses
+(exactly the format `score_resp()` expects), and `ctt_distr()` additionally
 reports the blank/double-marking rate for each item:
 
 ```{r ctt-distr-selected}
@@ -158,7 +158,7 @@ alone, so `pb_corrected` is unstable here; use a full-length test in practice.
 
 Each item's option-coding scheme (numeric, Latin-letter, or general label) is
 inferred independently from its own `key` value, using exactly the same rule
-as `score_resp()` - so a letter-coded or Korean-syllable-coded test form is
+as `score_resp()`, so a letter-coded or Korean-syllable-coded test form is
 analyzed identically to a numerically coded one, once options are mapped.
 
 **A scope note on mixed-format data:** selected-response mode is restricted
@@ -168,13 +168,13 @@ correct option and therefore cannot yield a partial-credit score by
 construction. A mixed dichotomous/polytomous test form cannot be analyzed in
 this mode. The scored-category mode described further below has no such
 restriction and fully supports a mixed-format test form scored in a single
-call - see the *Scored-category mode* section.
+call; see the *Scored-category mode* section.
 
 ### Flagging an attractive distractor
 
 A distractor (a non-key option) whose point-biserial correlation with the
-total score is positive - meaning it is chosen disproportionately by
-*higher*-scoring examinees rather than lower-scoring ones - is a common
+total score is positive (meaning it is chosen disproportionately by
+*higher*-scoring examinees rather than lower-scoring ones) is a common
 symptom of a miskeyed or ambiguously worded item. `ctt_distr()` flags any
 distractor exceeding `crit.distractor` (default `0`):
 
@@ -193,7 +193,7 @@ out_flag$distr
 ```
 
 Option `"2"`'s `pb_raw` is strongly positive, and it is flagged as
-"distractor more attractive to high scorers" - exactly the pattern to look
+"distractor more attractive to high scorers", exactly the pattern to look
 for when reviewing a flagged item for a possible keying error.
 
 ### Scored-category mode: already-scored item response data, mixed formats included
@@ -204,8 +204,8 @@ category's response proportion and category-total correlation, with no
 notion of a "correct" option to flag distractors against (`is_key` is `NA`
 and `omit` is `NULL` in this mode).
 
-`cats` is always a *per-item* vector in this mode - there is no assumption
-anywhere that every item shares the same number of score categories - so a
+`cats` is always a *per-item* vector in this mode (there is no assumption
+anywhere that every item shares the same number of score categories), so a
 single call can score a genuinely **mixed dichotomous/polytomous test form**
 together, exactly as `ctt()` does further below. The call below scores all
 55 items of `dat_mixed` (the 50 dichotomous items and the 5 polytomous GRM
@@ -222,12 +222,12 @@ out_cat$distr[out_cat$distr$item %in% c(dichot_id, poly_id), ]
 ```
 
 Each item's own `cats` value determines how many category rows it
-contributes to `out_cat$distr` - two rows for a dichotomous item, five for a
-5-category GRM item - regardless of what any other item in the same call
+contributes to `out_cat$distr` (two rows for a dichotomous item, five for a
+5-category GRM item), regardless of what any other item in the same call
 looks like.
 
 For `dichot_id` above, notice that `pb_raw` for category 0 and category 1
-are equal in magnitude but opposite in sign - this is expected, not a
+are equal in magnitude but opposite in sign; this is expected, not a
 computation error. With only two categories, choosing category 0 is the
 exact complement of choosing category 1 (every scored response is one or
 the other), so the "in category 0" indicator equals one minus the
@@ -261,7 +261,7 @@ out_bin$alpha   # test-level alpha, alpha_std, sem, mean difficulty/discriminati
 ```
 
 Difficulty for item $j$ is the mean item score divided by its maximum
-possible score, $p_j = \bar{X}_j / m_j$ - the familiar proportion-correct
+possible score, $p_j = \bar{X}_j / m_j$, the familiar proportion-correct
 index for a dichotomous item. Discrimination is the Pearson correlation
 between the item score and the total score; the **raw** (uncorrected) form
 correlates an item with the total score that includes its own contribution,
@@ -291,7 +291,7 @@ Two forms of Cronbach's alpha are always computed and returned in
 formula
 $$\alpha = \frac{k}{k - 1}\left(1 - \frac{\sum_{j} \sigma_j^2}{\sigma_X^2}\right),$$
 and reflects the reliability of the actual (unweighted) total score obtained
-by simply summing the item scores - the score most tests actually use for
+by simply summing the item scores, the score most tests actually use for
 reporting and decisions [@cronbach1951]. Standardized alpha instead first
 standardizes every item to unit variance before combining them,
 $$\alpha_{std} = \frac{k \bar{r}}{1 + (k - 1)\bar{r}},$$
@@ -314,7 +314,7 @@ measurement precision.
 `ctt()` returns an object of class `"ctt"`. `print.ctt()` displays a
 condensed report; `summary.ctt()` (paired with `print.summary.ctt()`) prints
 the full item-level table, the test-level reliability summary, and the
-total-score frequency distribution - analogous to how `est_irt()` pairs with
+total-score frequency distribution, analogous to how `est_irt()` pairs with
 `print.est_irt()`/`summary.est_irt()` elsewhere in irtQ:
 
 ```{r ctt-print-summary}

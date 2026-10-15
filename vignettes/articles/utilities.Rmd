@@ -182,8 +182,8 @@ resp_mix_raw <- simdat(
   g.drm    = rep(0.15, 3),
   a.prm    = c(1.4, 1.1),              # slopes for the 2 polytomous items
   d.prm    = list(
-    c(-1.2, -0.1, 1.0),                # 3 threshold params → 4 categories (GRM)
-    c(-0.8,  0.6)                      # 2 threshold params → 3 categories (GPCM)
+    c(-1.2, -0.1, 1.0),                # 3 threshold params -> 4 categories (GRM)
+    c(-0.8,  0.6)                      # 2 threshold params -> 3 categories (GPCM)
   ),
   cats     = c(2, 2, 4, 2, 3),        # item order: DRM, DRM, GRM, DRM, GPCM
   pr.model = c("GRM", "GPCM"),         # models for polytomous items only
@@ -237,7 +237,7 @@ The function returns a **matrix** with rows = theta values and columns = items.
 ```{r drm-basic}
 theta_pts <- c(-2, -1, 0, 1, 2)
 
-# 2PLM (g omitted → defaults to 0): two items
+# 2PLM (g omitted, so it defaults to 0): two items
 P_2pl <- drm(
   theta = theta_pts,
   a     = c(1.0, 1.5),
@@ -288,11 +288,11 @@ The `d` argument contains $K - 1$ threshold parameters for a $K$-category item:
 P_grm <- prm(
   theta    = theta_pts,
   a        = 1.5,
-  d        = c(-1.5, -0.2, 1.0),   # 3 thresholds → 4 categories
+  d        = c(-1.5, -0.2, 1.0),   # 3 thresholds -> 4 categories
   D        = 1.702,
   pr.model = "GRM"
 )
-round(P_grm, 4)          # 5 rows (theta) × 4 columns (score categories)
+round(P_grm, 4)          # 5 rows (theta) x 4 columns (score categories)
 rowSums(P_grm)           # should all equal 1
 ```
 
@@ -322,20 +322,20 @@ cat("GPCM category probs at theta=0:\n")
 round(prm(0, a=1.5, d=c(-1.5,-0.2,1.0), D=1.702, pr.model="GPCM"), 4)
 ```
 
-For the PCM (a special case of GPCM with equal discrimination across items),
-set `a = 1`.
+For the PCM (a special case of the GPCM with a slope of 1), set `a = 1` and
+`D = 1`.
 
 ### Key `drm()` and `prm()` arguments
 
 | Argument   | `drm()` | `prm()` | Description |
 |------------|:-------:|:-------:|-------------|
-| `theta`    | ✓ | ✓ | Numeric vector of ability values |
-| `a`        | ✓ | ✓ | Discrimination (slope) parameter(s) |
-| `b`        | ✓ |   | Difficulty parameter(s), dichotomous items only |
-| `g`        | ✓ |   | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
-| `d`        |   | ✓ | Vector of $K-1$ threshold parameters, polytomous items only |
-| `D`        | ✓ | ✓ | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
-| `pr.model` |   | ✓ | `"GRM"` or `"GPCM"` |
+| `theta`    | x | x | Numeric vector of ability values |
+| `a`        | x | x | Discrimination (slope) parameter(s) |
+| `b`        | x |   | Difficulty parameter(s), dichotomous items only |
+| `g`        | x |   | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
+| `d`        |   | x | Vector of $K-1$ threshold parameters, polytomous items only |
+| `D`        | x | x | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
+| `pr.model` |   | x | `"GRM"` or `"GPCM"` |
 
 ---
 
@@ -352,7 +352,7 @@ The function returns an object of class `"info"` with three components:
 - `$tif`: numeric vector of TIF values at each theta point,
 - `$theta`: the theta grid supplied by the user.
 
-The `plot()` method visualises IIFs, TIF, or the conditional standard error of
+The `plot()` method visualizes IIFs, TIF, or the conditional standard error of
 estimation (CSEE = $1/\sqrt{\text{TIF}}$).
 
 ```{r info-compute}
@@ -373,7 +373,7 @@ info_val$iif[1:5, 1:6]          # IIF: items 1-5, theta points 1-6
 ```{r plot-tif}
 plot(
   x         = info_val,
-  item.loc  = NULL,              # NULL → plot the TIF
+  item.loc  = NULL,              # NULL: plot the TIF
   main.text = "Test Information Function (15-item 3PLM)",
   xlab      = expression(theta),
   ylab      = "Information"
@@ -386,7 +386,7 @@ plot(
 plot(
   x         = info_val,
   item.loc  = NULL,
-  csee      = TRUE,              # plot SE(θ) = 1 / √TIF(θ)
+  csee      = TRUE,              # plot SE(theta) = 1 / sqrt(TIF(theta))
   main.text = "Conditional Standard Error of Estimation",
   xlab      = expression(theta),
   ylab      = expression(SE(theta))
@@ -505,7 +505,7 @@ For dichotomous items, the ICC equals $P(\theta)$, the probability of a correct
 response. For polytomous items, the ICC is the expected item score
 $\sum_k k \cdot P(U = k \mid \theta)$.
 
-The `plot()` method is used for visualisation. Two key arguments control what
+The `plot()` method is used for visualization. Two key arguments control what
 is drawn:
 
 - `item.loc`: which item(s) to plot; `NULL` plots the TCC for the whole test.
@@ -530,7 +530,7 @@ trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1-5
 ```{r plot-tcc}
 plot(
   x         = trace_bin,
-  item.loc  = NULL,              # NULL → plot TCC
+  item.loc  = NULL,              # NULL: plot the TCC
   main.text = "Test Characteristic Curve (15-item 3PLM)",
   xlab      = expression(theta),
   ylab      = "Expected Total Score"
@@ -665,7 +665,7 @@ plot(
 ### Plot: Category response curves for multiple polytomous items (overlaid per item)
 
 When `score.curve = FALSE` and `overlap = TRUE`, each item gets its own panel
-and the category curves within that item are overlaid using different colours.
+and the category curves within that item are overlaid using different colors.
 
 ```{r plot-poly-multi-cats, fig.width=10, fig.height=4}
 # One panel per GRM item (6, 7, 8), with all category curves overlaid within each panel
@@ -716,7 +716,7 @@ lwrc_val <- lwrc(
   D     = 1.702
 )
 
-dim(lwrc_val)           # (J+1) rows × length(theta) columns: 16 × 3
+dim(lwrc_val)           # (J+1) rows x length(theta) columns: 16 x 3
 round(head(lwrc_val), 4)
 
 # Verify: expected summed scores from lwrc() match the TCC from traceline()
@@ -776,7 +776,7 @@ sum(score_dist_mix)
 ## `gen.weight()`: Quadrature Weights
 
 `gen.weight()` generates a two-column data frame of quadrature nodes and
-normalised weights to be used in numerical integration over the ability scale.
+normalized weights to be used in numerical integration over the ability scale.
 It is used internally by `est_irt()`, `est_mg()`, `est_score()`, `sx2_fit()`,
 `covirt()`, `pcd2()`, and `run_mst()`, and its output can be passed as the
 `weights` argument of `cac_lee()` and `cac_rud()`.
@@ -835,15 +835,21 @@ sum(w_emp$weight)        # sums to 1
 ## `covirt()`: Asymptotic Variance-Covariance Matrices of Item Parameters
 
 `covirt()` computes the analytical asymptotic variance-covariance matrices of
-item parameter estimates using the formulas developed by @thissen_wainer1982
-and extended to polytomous IRT models by @li_lissitz2004. These matrices
-provide the asymptotic standard errors (ASEs) of maximum likelihood estimates
-**without requiring examinee response data**; only the item parameters and the
-sample size used for calibration are needed.
+item parameter estimates from the expected information of each item,
+integrated over an assumed ability distribution [@thissen_wainer1982;
+@li_lissitz2004]. These matrices provide the asymptotic standard errors
+(ASEs) of maximum likelihood estimates **without requiring examinee response
+data**; only the item parameters, the ability distribution, and the sample
+size used for calibration are needed. For polytomous items, the information
+of a multinomial response is used, which differs from Equation A8 of
+@li_lissitz2004; see `?covirt` for details.
 
-The ASEs obtained analytically represent **lower bounds** of the true standard
-errors [@thissen_wainer1982], so they are best used as approximations when
-empirical standard errors from calibration software are unavailable.
+Because the abilities are treated as known, the model is assumed to fit, and
+item parameter priors are ignored, the analytical ASEs are generally
+considered **lower bounds** of the standard errors of an actual calibration
+[@thissen_wainer1982; @li_lissitz2004], so they are best used as
+approximations when empirical standard errors from calibration software are
+unavailable.
 
 The function returns a named list with two components:
 
@@ -853,8 +859,9 @@ The function returns a named list with two components:
 
 **Notes on PCM items:** The item metadata uses `"GPCM"` to label both the
 Generalized Partial Credit Model (GPCM) and the Partial Credit Model (PCM).
-PCM items (where discrimination is fixed at 1) require special handling for
-variance computation and must be identified via the `pcm.loc` argument.
+PCM items, whose slope is not estimated, must be identified via the `pcm.loc`
+argument; their slope is held at the value in the item metadata, and only the
+thresholds enter the variance-covariance matrix.
 
 ### Binary test
 
@@ -871,7 +878,7 @@ cov_bin <- covirt(
 # Variance-covariance matrix for item 1
 cov_bin$cov[["I1"]]
 
-# ASEs for all items: each vector holds SE(a), SE(b), SE(c)
+# ASEs for all items: each vector holds SE(a), SE(b), SE(g)
 do.call(rbind, cov_bin$se)
 ```
 
@@ -997,12 +1004,12 @@ using Korean syllable labels.
 
 | Function       | Input             | Key output                           | Used by |
 |----------------|-------------------|--------------------------------------|---------|
-| `simdat()`     | Item metadata or raw params + θ | Response matrix       | Testing, demos |
-| `drm()`        | a, b, g, θ        | P(correct) matrix (θ × items)        | `traceline()`, internal likelihood and estimation routines |
-| `prm()`        | a, d, θ, model    | Category prob. matrix (θ × cats)     | `simdat()`, internal likelihood and estimation routines |
-| `info()`       | Item metadata + θ grid | IIF matrix, TIF vector; `plot()` | `cac_rud()`, `find_cut()`, `run_mst()` |
-| `traceline()`  | Item metadata + θ grid | ICC matrix, TCC vector, category probs; `plot()` | `cac_lee()`, `plot.irtfit()`; visualisation |
-| `lwrc()`       | Item metadata + θ, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `reval_mst()`, `est_score()` (`"EAP.SUM"`, `"INV.TCC"`) |
+| `simdat()`     | Item metadata or raw params + $\theta$ | Response matrix       | Testing, demos |
+| `drm()`        | a, b, g, $\theta$        | P(correct) matrix ($\theta$ x items)        | `traceline()`, internal likelihood and estimation routines |
+| `prm()`        | a, d, $\theta$, model    | Category prob. matrix ($\theta$ x cats)     | `simdat()`, internal likelihood and estimation routines |
+| `info()`       | Item metadata + $\theta$ grid | IIF matrix, TIF vector; `plot()` | `cac_rud()`, `find_cut()`, `run_mst()` |
+| `traceline()`  | Item metadata + $\theta$ grid | ICC matrix, TCC vector, category probs; `plot()` | `cac_lee()`, `plot.irtfit()`; visualization |
+| `lwrc()`       | Item metadata + $\theta$, or prob matrix | $\Pr(X = s \mid \theta)$ | `cac_lee()`, `reval_mst()`, `est_score()` (`"EAP.SUM"`, `"INV.TCC"`) |
 | `gen.weight()` | Distribution spec | Node-weight data frame               | `est_irt()`, `est_mg()`, `est_score()`, `sx2_fit()`, `covirt()`, `pcd2()`, `run_mst()`; input to `cac_lee()` and `cac_rud()` |
 | `covirt()`     | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
 | `score_resp()` | Raw option choices + answer key | 0/1 scored response matrix | Output feeds `ctt()`, `est_irt()`, `est_score()`; called by `ctt_distr()` (selected-response mode) |
