@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 The goal of `irtQ` is to fit unidimensional item response theory (IRT) models to data that may include both dichotomous and polytomous items. The package enables:
 
-- Typical item parameters estimation 
+- Typical item parameter estimation
 - Pretest item calibration
 - Multiple-group item calibration
 - Estimation of examinees' latent abilities
@@ -59,15 +59,15 @@ Also, model fit assessment includes item fit statistics such as:
 In addition, the package offers a variety of utilities for IRT analysis, including:
 
 - Detecting differential item functioning (DIF) using RDIF, RDIF-CR (categorical residuals), GRDIF (multiple groups), and CATSIB
-- Detecting item parameter drift (IPD) using the RIPD framework and the Pseudo-count D^2 statistic
+- Detecting item parameter drift (IPD) using the residual-based IPD (RIPD) framework and the pseudo-count D2 statistic
 - Computing classification accuracy and consistency indices
 - Designing, evaluating, and simulating multistage-adaptive test (MST) panels, including TIF-crossing cut-score selection, recursion-based analytical evaluation, and Monte Carlo simulation of full MST administrations
 - Simulating response data
 - Computing the conditional distribution of observed scores using the Lord-Wingersky recursion
 - Calculating item and test information and characteristic functions
 - Visualizing item and test characteristic and information curves
-- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter requires the suggested **mirt** package)
-- Running flexMIRT (Cai, 2017) directly from R
+- Importing item or ability parameters from popular IRT software (e.g., BILOG-MG, PARSCALE, flexMIRT, and the `mirt` R package; the latter requires the suggested **mirt** package), and writing flexMIRT parameter files
+- Running flexMIRT (Cai, 2017) from R on Windows
 - Supporting additional tools for flexible and practical IRT analyses
 
 Beyond these IRT-based analyses, the package also provides a small set of classical test theory (CTT) functions (`ctt()`, `freq_score()`, `ctt_distr()`, and `score_resp()`) for computing traditional item- and test-level statistics and for scoring selected-response item data.
@@ -93,7 +93,7 @@ devtools::install_github("hwangQ/irtQ")
 
 ## 1. Item Calibration for a Linear Test Form
 
-Item parameter estimation for a linear test form can be performed using the `irtQ::est_irt()` function, which implements marginal maximum likelihood estimation via the expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981). The function returns item parameter estimates along with their standard errors, computed using the cross-product approximation method (Meilijson, 1989).
+Item parameter estimation for a linear test form can be performed using the `irtQ::est_irt()` function, which implements marginal maximum likelihood estimation via the expectation-maximization (MMLE-EM) algorithm (Bock & Aitkin, 1981). The function returns item parameter estimates along with their standard errors, computed from the cross-product approximation of the information matrix (Meilijson, 1989), to which the information of any item parameter priors is added.
 
 The `irtQ` package supports calibration for mixed-format tests containing both dichotomous and polytomous items. It also provides a flexible set of options to address various practical calibration needs. For example, users can:
 
@@ -131,8 +131,8 @@ In the `irtQ` package, item calibration for a linear test form typically involve
         and corresponding parameters for each prior. Supported distributions
         include Beta, Log-normal, and Normal.
 
-     If the response data contain missing values, you must specify the missing
-     value code via the `missing` argument.
+     If missing responses are coded with a value other than `NA`, specify that
+     value via the `missing` argument.
 
      By default, the latent ability distribution is assumed to follow a standard
      normal distribution (i.e., N(0, 1)). However, users can estimate the empirical
@@ -201,9 +201,9 @@ In the `irtQ` package, FIPC is implemented through the following three steps:
 
 ## 3. Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)
 
-In computerized adaptive testing (CAT), the fixed ability parameter calibration (FAPC) method - also known as Stocking's Method A (Stocking, 1988) - is one of the simplest and most straightforward approaches for calibrating pretest items. It involves estimating item parameters using maximum likelihood estimation, conditional on known or estimated proficiency values.
+In computerized adaptive testing (CAT), the fixed ability parameter calibration (FAPC) method, also known as Stocking's Method A (Stocking, 1988), is one of the simplest and most straightforward approaches for calibrating pretest items. It involves estimating item parameters using maximum likelihood (or Bayes modal estimation when prior distributions are used), conditional on known or estimated proficiency values.
 
-FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). This method is known to produce accurate and unbiased item parameter estimates when items are randomly administered to examinees, rather than adaptively, which is often the case for pretest items (Ban et al., 2001; Chen & Wang, 2016).
+FAPC is primarily used to place the parameter estimates of pretest items onto the same scale as the operational item parameters. It can also be used to recalibrate operational items when evaluating potential item parameter drift (Chen & Wang, 2016; Stocking, 1988). It is typically applied to pretest items, which are often administered randomly rather than adaptively (Ban et al., 2001; Chen & Wang, 2016).
 
 In the `irtQ` package, FAPC can be conducted in two main steps:
 
@@ -221,7 +221,8 @@ In the `irtQ` package, FAPC can be conducted in two main steps:
 
      The `irtQ::est_item()` function estimates pretest item parameters based on
      provided ability estimates. To use this function, you must specify the
-     following arguments:
+     following arguments (or `x`, an item metadata data frame, in place of
+     `model` and `cats`):
      - `data`: A matrix or data frame containing examinees' item responses.
      - `score`: A numeric vector of examinees' ability (proficiency) estimates.
      - `model`: A character vector specifying the IRT model for each item
@@ -267,7 +268,7 @@ The `irtQ::irtfit()` function calculates widely used item fit statistics, includ
 To compute X^2 and G^2 statistics, the latent ability scale must be divided into several groups. Two grouping methods are available:
 
 - `"equal.width"`: Divides the scale into intervals of equal length
-- `"equal.freq"`: Divides the scale into groups with equal numbers of examinees
+- `"equal.freq"`: Divides the examinees into groups of approximately equal size
 
 You must also specify where the expected probabilities of item responses are calculated within each group. Two options are available:
 
@@ -288,7 +289,7 @@ To generate a plot, specify the item to be examined using the `item.loc` argumen
 
 The `ci.method` argument controls how confidence intervals are computed in the raw residual plots. Supported methods include:
 
-- `"wald"`: Wald interval based on the normal approximation (Laplace, 1812)
+- `"wald"`: Wald interval based on the normal approximation (Laplace, 1820), with the model-implied standard error
 - `"wilson"`: Wilson score interval (Wilson, 1927)
 - `"wilson.cr"`: Wilson score interval with continuity correction (Newcombe, 1998)
 
@@ -338,8 +339,8 @@ data_ref <- irtQ::simdat(x = x_ref, theta = theta_ref, D = 1)
 # group.mean = 0
 # group.var  = 1                                     # Fix the latent scale: N(0, 1)
 # EmpHist    = TRUE                                  # Estimate empirical ability distribution
-# Etol       = 1e-3                                  # E-step convergence tolerance
-# MaxE       = 500                                   # Max EM iterations
+# Etol       = 1e-3                                  # EM convergence tolerance
+# MaxE       = 500                                   # Maximum number of EM cycles
 mod_ref <- irtQ::est_irt(
   data       = data_ref,                             
   D          = 1,                                     
@@ -401,10 +402,10 @@ data_new <- irtQ::simdat(x = x_new, theta = theta_new, D = 1)
 # gprior      = list(dist = "beta", params = c(5, 16))  # Prior: Beta(5,16) for g
 # Quadrature  = c(49, 6)                      # 49 quadrature points from -6 to 6
 # EmpHist     = TRUE                          # Estimate empirical ability distribution
-# Etol        = 1e-3                          # E-step convergence tolerance
-# MaxE        = 500                           # Max EM iterations
+# Etol        = 1e-3                          # EM convergence tolerance
+# MaxE        = 500                           # Maximum number of EM cycles
 # fipc        = TRUE                          # Enable FIPC
-# fipc.method = "MEM"                         # Use Multiple EM cycles
+# fipc.method = "MEM"                         # MWU-MEM: multiple EM cycles, prior updating
 # fix.loc     = c(1:40)                       # Anchor item positions to fix
 mod_fipc <- irtQ::est_irt(
   x           = meta_fipc,                    

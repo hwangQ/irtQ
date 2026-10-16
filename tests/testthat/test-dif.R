@@ -1,6 +1,6 @@
-# ── Shared fixtures ───────────────────────────────────────────────────────────
+# ---- Shared fixtures -----------------------------------------------------------
 
-# Import 10 × 3PLM operational item parameters (flexMIRT sample)
+# Import 10 x 3PLM operational item parameters (flexMIRT sample)
 prm_file <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
 x_dif    <- bring.flexmirt(file = prm_file, "par")$Group1$full_df[1:10, ]
 
@@ -20,7 +20,7 @@ score_all <- est_score(
   method = "ML", range = c(-6, 6)
 )
 
-# ── rdif() ────────────────────────────────────────────────────────────────────
+# ---- rdif() --------------------------------------------------------------------
 
 test_that("rdif() returns a list with no_purify component", {
   res <- rdif(
@@ -108,7 +108,7 @@ test_that("rdif() p-values are in [0, 1]", {
 })
 
 
-# ── crdif() ───────────────────────────────────────────────────────────────────
+# ---- crdif() -------------------------------------------------------------------
 
 test_that("crdif() returns a list with no_purify component", {
   res <- crdif(
@@ -185,7 +185,7 @@ test_that("crdif() internal scoring (score=NULL) works without error", {
 })
 
 
-# ── catsib() ─────────────────────────────────────────────────────────────────
+# ---- catsib() -----------------------------------------------------------------
 
 test_that("catsib() returns a list with no_purify component", {
   res <- catsib(
@@ -230,6 +230,7 @@ test_that("catsib() dif_stat contains beta and p-value columns", {
 })
 
 test_that("catsib() runs with weight.group = 'foc' and 'ref' and gives finite beta", {
+  skip_on_cran()
   for (wg in c("foc", "ref")) {
     # the short fixture gives a low reliability of the corrected scores, which
     # raises an expected warning
@@ -294,6 +295,7 @@ test_that("catsib() internal scoring (score=NULL) works without error", {
 })
 
 test_that("catsib() retained bins satisfy min.binsize threshold for both groups", {
+  skip_on_cran()
   res3 <- suppressWarnings(catsib(
     x          = NULL,
     data       = resp_all,
@@ -352,6 +354,7 @@ test_that("catsib() min.binsize is enforced in the final bin filter, not just th
 })
 
 test_that("catsib() gives the same results for se given as a vector, a matrix, or a data frame", {
+  skip_on_cran()
   args <- list(
     x = x_dif, data = resp_all, score = score_all$est.theta,
     group = group_vec, focal.name = 1L, D = 1

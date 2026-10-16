@@ -65,7 +65,7 @@ attitude) and item parameters. Key advantages are:
   (FAPC) approaches, and multiple-group calibration
   (`est_irt()`, `est_mg()`, `est_item()`)
 - Estimating examinee abilities: maximum likelihood (ML), maximum likelihood with
-  fences (MLF), weighted likelihood (WLE), maximum a posteriori (MAP), expected a
+  fences (MLF), weighted likelihood (WL), maximum a posteriori (MAP), expected a
   posteriori (EAP), EAP summed scoring, and inverse test characteristic curve (TCC)
   scoring (`est_score()`)
 - Evaluating item-level model-data fit: $\chi^2$, $G^2$, infit/outfit, $S$-$X^2$
@@ -98,7 +98,8 @@ selected-response item data without fitting an IRT model
 | `lwrc()` | Lord-Wingersky recursion (summed-score distributions) |
 | `gen.weight()` | Generate quadrature weights from a distribution |
 | `covirt()` | Asymptotic variance-covariance matrices of item parameter estimates |
-| `run_flexmirt()` | Run flexMIRT directly from R |
+| `write.flexmirt()` | Write item metadata to a flexMIRT parameter file |
+| `run_flexmirt()` | Run flexMIRT from R (Windows only) |
 | `score_resp()` | Score raw selected-response data into a 0/1 matrix |
 
 This article introduces the **IRT models** supported by **irtQ** and the **item
@@ -290,6 +291,10 @@ handled internally; you do not supply $b_0$.
 > **Alias:** `"DRM"` is accepted as a model string for any dichotomous item
 > (1PLM, 2PLM, or 3PLM) in contexts where the model is already encoded in the
 > metadata.
+>
+> `est_irt()` fits items labeled `"DRM"` as 3PLM items (with a warning), so
+> change the label (e.g., to `"2PLM"`) before calibrating imported `"DRM"`
+> items if the guessing parameter should not be estimated.
 
 ---
 
@@ -393,9 +398,9 @@ meta_ex2 <- shape_df(
   par.prm = list(
     a = c(1.9, 1.3, 0.7),
     d = list(
-      c(-1.20, -0.52,  0.25),       # GRM  item: 4 categories → 3 thresholds
-      c(-2.20, -1.50, -0.55),       # GPCM item: 4 categories → 3 step params
-      c(-0.92, -0.43,  0.49, 1.11)  # GPCM item: 5 categories → 4 step params
+      c(-1.20, -0.52,  0.25),       # GRM  item: 4 categories -> 3 thresholds
+      c(-2.20, -1.50, -0.55),       # GPCM item: 4 categories -> 3 step params
+      c(-0.92, -0.43,  0.49, 1.11)  # GPCM item: 5 categories -> 4 step params
     )
   ),
   item.id = paste0("ITEM", 1:5),
@@ -421,7 +426,7 @@ meta_ex2
 ### Example 3: Uniform model, auto-assigned IDs
 
 When all items share the same model, a single model string is recycled.
-If `item.id` is omitted, IDs are auto-assigned as `V1`, `V2`, …
+If `item.id` is omitted, IDs are auto-assigned as `V1`, `V2`, ...
 
 ```{r shape-df-ex3}
 meta_ex3 <- shape_df(
@@ -459,7 +464,7 @@ meta_ex4
 |----------|-------------|
 | `par.drm` | Named list with `a`, `b`, `g` vectors for dichotomous items |
 | `par.prm` | Named list with `a` and `d` (list of threshold vectors) for polytomous items |
-| `item.id` | Character vector of item IDs; auto-assigned as `V1`, `V2`, … if omitted |
+| `item.id` | Character vector of item IDs; auto-assigned as `V1`, `V2`, ... if omitted |
 | `cats` | Integer vector of category counts per item (scalar if all equal) |
 | `model` | Character vector of model strings (scalar if all equal) |
 | `default.par` | If `TRUE`, fill parameters with built-in defaults (default `FALSE`) |
@@ -472,8 +477,13 @@ The `bring.*()` family of functions converts output files from external IRT prog
 into **irtQ**'s item metadata format. This makes it easy to use parameters calibrated
 in another program as the starting point for downstream **irtQ** analyses.
 
-Each function returns a list; the `$full_df` component contains the complete
-standardized metadata data frame.
+For an item parameter file (`type = "par"`) and for `bring.mirt()`, the
+`$full_df` component of the result is the item metadata data frame;
+`bring.flexmirt()` returns one such list per group. `bring.flexmirt()` labels
+dichotomous items `"3PLM"` or `"2PLM"`, while `bring.bilog()`,
+`bring.parscale()`, and `bring.mirt()` label them `"DRM"`. The output does not
+record the scaling constant, so pass the value of `D` used in the original
+calibration (e.g., 1 for flexMIRT and **mirt**) to the other irtQ functions.
 
 ### Importing from flexMIRT
 
@@ -509,7 +519,11 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 
 ### Importing from the mirt package
 
-`bring.mirt()` requires the suggested **mirt** package.
+`bring.mirt()` requires the suggested **mirt** package. Dichotomous items,
+including two-category items fitted with the `"graded"`, `"gpcm"`, or
+`"gpcmIRT"` model in a mixed-format fit, are imported as `"DRM"` items. A model
+fitted to multiple groups is not supported; extract one group first with
+`mirt::extract.group()`.
 
 ```r
 # Fit a model with mirt (not run)
@@ -526,7 +540,10 @@ All `bring.*()` functions except `bring.mirt()` share two main arguments:
 | Argument | Description |
 |----------|-------------|
 | `file` | Path to the external software output file |
-| `type` | `"par"` for item parameter estimates; `"sco"` for ability score estimates |
+| `type` | `"par"` (default) for item parameter estimates; `"sco"` for ability score estimates |
+
+`bring.flexmirt()` also has `rePar`, `rePar.gpc`, and `n.factor`; keep the
+defaults `rePar = TRUE` and `rePar.gpc = TRUE` to get irtQ metadata.
 
 In practice, replace `system.file(...)` with the actual path to your file:
 
@@ -553,10 +570,10 @@ head(meta_csv)
 
 Ensure that:
 
-- Column names are exactly `id`, `cats`, `model`, `par.1`, `par.2`, `par.3`, …
+- Column names are exactly `id`, `cats`, `model`, `par.1`, `par.2`, `par.3`, ...
 - `id` is character, `cats` is integer, `model` is character, `par.*` are numeric
 - Missing threshold or guessing parameters are coded as `NA`
-- GRM threshold columns (`par.2`, `par.3`, …) are in increasing order within each row
+- GRM threshold columns (`par.2`, `par.3`, ...) are in increasing order within each row
 
 ---
 
@@ -565,7 +582,7 @@ Ensure that:
 This article has focused on **item metadata**, the central data structure that
 connects all **irtQ** functions. To show how metadata fits into the broader analysis
 pipeline, the example below walks through a minimal end-to-end workflow: define item
-metadata → simulate responses → estimate item parameters → estimate abilities →
+metadata, simulate responses, estimate item parameters, estimate abilities, and
 check recovery. Each step beyond metadata creation is covered in depth in its own
 dedicated article (see **What's Next?** at the end of this page).
 
@@ -601,7 +618,7 @@ meta_wf <- shape_df(
 theta_true <- rnorm(500, mean = 0, sd = 1)
 resp <- simdat(x = meta_wf, theta = theta_true, D = 1.702)
 
-cat("Response matrix dimensions:", dim(resp), "\n")  # 500 examinees × 20 items
+cat("Response matrix dimensions:", dim(resp), "\n")  # 500 examinees x 20 items
 ```
 
 ```{r workflow-calibrate}
