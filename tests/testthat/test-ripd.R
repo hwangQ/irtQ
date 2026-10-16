@@ -130,6 +130,7 @@ test_that("ripd() applies min.resp to the focal group when score is provided", {
 })
 
 test_that("ripd() purification works when items are removed down to the last one", {
+  skip_on_cran()
   x1 <- shape_df(par.drm = list(a = c(1, 1.2, 0.9), b = c(0, 0.5, -0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1
   x2$par.2 <- x2$par.2 + c(1.5, 1.2, 0)
@@ -144,6 +145,7 @@ test_that("ripd() purification works when items are removed down to the last one
 })
 
 test_that("ripd() reads a logical item.skip as item positions during purification", {
+  skip_on_cran()
   sim <- ripd_sim()
   skip_num <- c(1, 11)
   skip_lgl <- seq_len(nrow(sim$par)) %in% skip_num
@@ -156,6 +158,7 @@ test_that("ripd() reads a logical item.skip as item positions during purificatio
 })
 
 test_that("ripd() returns all items as flagged with a warning when purification flags every item", {
+  skip_on_cran()
   # an alpha close to 1 flags every item at every iteration
   x1 <- shape_df(par.drm = list(a = c(1, 1.2), b = c(0, 0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1
@@ -176,6 +179,7 @@ test_that("ripd() returns all items as flagged with a warning when purification 
 })
 
 test_that("ripd() purification stops with a warning when a group has no ability estimate left", {
+  skip_on_cran()
   sim <- ripd_sim()
 
   # min.resp counts the remaining items, so the focal group examinees drop out as the items are removed
@@ -219,6 +223,7 @@ test_that("ripd() purification stops with a warning when a group has no ability 
 })
 
 test_that("ripd() keeps the examinees with a missing supplied score out of the purification", {
+  skip_on_cran()
   sim <- ripd_sim()
   score <- suppressWarnings(est_score(sim$par, sim$resp, D = 1)$est.theta)
   na_loc <- c(1:30, 701:720)
@@ -323,6 +328,7 @@ test_that("ripd() keeps two degrees of freedom when the covariance matrix is reg
 })
 
 test_that("ripd() purification removes only flagged items when an item has a singular covariance", {
+  skip_on_cran()
   sim <- ripd_sing_sim()
   st <- suppressWarnings(ripd(sim$x, sim$resp, score = sim$score, group = sim$group,
                               focal.name = 1))$no_purify$ipd_stat
@@ -344,6 +350,7 @@ test_that("ripd() purification removes only flagged items when an item has a sin
 })
 
 test_that("ripd() reports the examinees who lose their ability estimates in the purification once", {
+  skip_on_cran()
   sim <- ripd_sing_sim()
 
   # one more examinee responds only to item 1, which is flagged first and removed in the purification
@@ -395,6 +402,7 @@ test_that("ripd() warns once about the number of cores during the purification",
 })
 
 test_that("ripd() purified scores equal the scores from the remaining items", {
+  skip_on_cran()
   sim <- ripd_sing_sim()
   for (m in c("ML", "EAP")) {
     rst <- suppressWarnings(ripd(sim$x, sim$resp, group = sim$group, focal.name = 1, method = m,
@@ -427,6 +435,7 @@ test_that("ripd() and pcd2() check min.resp, score, and the scoring method", {
 })
 
 test_that("print.ripd() prints the results of each analysis and honors what", {
+  skip_on_cran()
   sim <- ripd_sim()
   rst <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", item.skip = 5,
                                purify = TRUE, verbose = FALSE))
@@ -493,6 +502,7 @@ test_that("ripd() estimates the scores with est_score() when score = NULL", {
 })
 
 test_that("ripd() methods for est_irt and est_item objects match the default method", {
+  skip_on_cran()
   sim <- ripd_sim()
   resp <- sim$resp
   resp[is.na(resp)] <- 0
@@ -528,6 +538,7 @@ test_that("ripd() leaves skipped items out of the tests but reports their sample
 })
 
 test_that("ripd() purification removes the most significant item first", {
+  skip_on_cran()
   sim <- ripd_sim()
   rst <- suppressWarnings(ripd(sim$par, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, verbose = FALSE))
   first <- which.max(rst$no_purify$ipd_stat$ripdrs)

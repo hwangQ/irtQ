@@ -82,6 +82,7 @@ test_that("simdat() repeats a single pr.model for every polytomous item", {
 })
 
 test_that("simdat() reproduces the category probabilities", {
+  skip_on_cran()
   meta <- data.frame(
     id = paste0("I", 1:4), cats = c(2, 4, 2, 5), model = c("3PLM", "GRM", "2PLM", "GPCM"),
     par.1 = c(1.2, 1.4, 0.8, 0.9), par.2 = c(0.3, -1, -0.5, -1), par.3 = c(0.2, 0, NA, 0),

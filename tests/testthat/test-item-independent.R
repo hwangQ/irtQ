@@ -28,6 +28,7 @@ test_that("the log-likelihood excludes the log prior densities", {
 })
 
 test_that("the standard errors match the inverse of an independent observed information with the g prior", {
+  skip_on_cran()
   f <- est_item(x = xi, data = di, score = th, D = 1.702, verbose = FALSE)
   pos <- as.matrix(f$pos.par[, -(1:3)])
   free <- which(!is.na(pos), arr.ind = TRUE)

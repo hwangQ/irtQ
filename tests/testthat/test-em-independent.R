@@ -11,6 +11,7 @@ dm[sample(length(dm), 0.1 * length(dm))] <- NA
 dm[1, ] <- NA
 
 test_that("est_irt() log-likelihood, posterior, expected counts, and AIC/BIC match independent values", {
+  skip_on_cran()
   fit <- suppressWarnings(est_irt(x = xm, data = dm, D = 1.702, se = FALSE, verbose = FALSE))
   ref <- indep_marg(fit$par.est, dm, fit$weights, D = 1.702)
   expect_equal(fit$loglikelihood, ref$loglik, tolerance = 1e-12)

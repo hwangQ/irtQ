@@ -5,6 +5,7 @@ gn <- c("G1", "G2", "G3")
 q <- function(...) est_mg(..., verbose = FALSE, MaxE = 2, se = FALSE)
 
 test_that("est_mg() flags items with an empty category in the pooled data", {
+  skip_on_cran()
   d7 <- M$data
   d7[[1]][, 5] <- 1
   w <- with_warnings(q(x = M$x, data = d7, group.name = gn, free.group = 2:3))$warnings

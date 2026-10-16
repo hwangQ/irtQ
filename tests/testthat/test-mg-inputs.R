@@ -5,6 +5,7 @@ gn <- c("G1", "G2", "G3")
 q <- function(...) est_mg(..., verbose = FALSE, MaxE = 2, se = FALSE)
 
 test_that("free.group must name existing groups and leave a reference group without FIPC", {
+  skip_on_cran()
   expect_error(q(x = M$x, data = M$data, group.name = gn, free.group = c(2, 5)), "group indices between 1 and 3")
   expect_error(q(x = M$x, data = M$data, group.name = gn, free.group = c("G2", "g3")), "g3 in 'free.group'")
   expect_error(q(x = M$x, data = M$data, group.name = gn, free.group = 1:3), "At least one group")

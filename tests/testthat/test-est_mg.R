@@ -269,6 +269,7 @@ test_that("est_mg() anchor items: group-specific par.est agree for common items"
 # ==============================================================================
 
 test_that("est_mg() EmpHist=TRUE produces non-uniform weights for G2", {
+  skip_on_cran()
   dat <- make_two_groups(x_drm10, seed = 70)
   fit <- do.call(est_mg, c(
     list(x          = list(x_drm10, x_drm10),

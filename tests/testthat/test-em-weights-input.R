@@ -8,6 +8,7 @@ d12 <- simdat(x = x12, theta = rnorm(500), D = 1)
 sum_msg <- "The weights do not sum to 1 and were rescaled to sum to 1."
 
 test_that("weights that do not sum to one are rescaled with a warning and give the normalized results", {
+  skip_on_cran()
   w1 <- gen.weight(dist = "norm", theta = seq(-6, 6, length.out = 49))
   w3 <- w1
   w3$weight <- 3 * w3$weight

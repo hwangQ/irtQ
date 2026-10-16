@@ -146,6 +146,7 @@ test_that("sx2_fit() for an est_irt object uses the latent distribution stored i
 })
 
 test_that("sx2_fit() follows the latent distribution estimated with EmpHist = TRUE", {
+  skip_on_cran()
   set.seed(22)
   th <- c(rnorm(600, -1, 0.6), rnorm(600, 1, 0.6))
   x_emp <- x_full[1:12, ]

@@ -6,6 +6,7 @@ drop_time <- function(fit) {
 }
 
 test_that("est_irt() fits character response columns as the numeric ones", {
+  skip_on_cran()
   set.seed(7)
   x <- shape_df(par.drm = list(a = c(1, 1.3, 0.8, 1.1), b = c(-1, 0, 0.5, 1), g = 0), cats = 2, model = "2PLM")
   dat <- as.data.frame(simdat(x = x, theta = rnorm(400), D = 1))
@@ -37,6 +38,7 @@ test_that("est_mg() fits a character response column in only one group", {
 })
 
 test_that("est_irt() fits a character column with a non-numeric missing code as the numeric one", {
+  skip_on_cran()
   set.seed(9)
   x <- shape_df(par.drm = list(a = c(1, 1.3, 0.8, 1.1), b = c(-1, 0, 0.5, 1), g = 0), cats = 2, model = "2PLM")
   dat <- as.data.frame(simdat(x = x, theta = rnorm(400), D = 1))
@@ -54,6 +56,7 @@ test_that("est_irt() fits a character column with a non-numeric missing code as 
 })
 
 test_that("est_irt() and est_mg() recode a missing code in a data frame that also has NA", {
+  skip_on_cran()
   set.seed(13)
   x <- shape_df(
     par.drm = list(a = c(1, 1.3, 0.8, 1.1), b = c(-1, 0, 0.5, 1), g = 0),

@@ -136,6 +136,7 @@ rdt_catch <- function(expr) {
 }
 
 test_that("rdif() methods for est_irt and est_item objects match the default method", {
+  skip_on_cran()
   sim <- rdt_sim(miss = 0)
   x2 <- sim$x[1:8, ]
   resp <- sim$resp[, 1:8]
@@ -160,6 +161,7 @@ test_that("rdif() methods for est_irt and est_item objects match the default met
 })
 
 test_that("rdif() warns once about min.resp when the scores are estimated", {
+  skip_on_cran()
   sim <- rdt_sim()
   out <- rdt_catch(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", min.resp = 8))
   expect_length(out$warnings, 1)
@@ -176,6 +178,7 @@ test_that("rdif() warns once about the number of cores during the purification",
 })
 
 test_that("rdif() leaves skipped items out of the tests and the purification", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   r0 <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f")
@@ -196,6 +199,7 @@ test_that("rdif() leaves skipped items out of the tests and the purification", {
 })
 
 test_that("rdif() excludes examinees with a missing ability estimate with a warning", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   score[c(1:30, 701:720)] <- NA
@@ -227,6 +231,7 @@ test_that("rdif() excludes examinees with a missing ability estimate with a warn
 })
 
 test_that("rdif() reports the examinees who lose their ability estimates in the purification once", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
 
@@ -269,6 +274,7 @@ test_that("rdif() statistics match an independent implementation", {
 })
 
 test_that("rdif() estimates the scores with est_score() when score = NULL", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1, method = "MAP")$est.theta)
   r1 <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f")
@@ -278,6 +284,7 @@ test_that("rdif() estimates the scores with est_score() when score = NULL", {
 })
 
 test_that("rdif() purification removes the item with the smallest p-value first", {
+  skip_on_cran()
   sim <- rdt_sim()
   rst <- suppressWarnings(rdif(sim$x, sim$resp, group = sim$group, focal.name = "f",
                                purify = TRUE, verbose = FALSE))
@@ -296,6 +303,7 @@ test_that("rdif() purification removes the item with the smallest p-value first"
 })
 
 test_that("rdif() reports an incomplete purification when max.iter is reached", {
+  skip_on_cran()
   sim <- rdt_sim()
   expect_warning(
     rst <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE,
@@ -309,6 +317,7 @@ test_that("rdif() reports an incomplete purification when max.iter is reached", 
 })
 
 test_that("rdif() applies min.resp when the scores are estimated", {
+  skip_on_cran()
   sim <- rdt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
   drop_row <- n_resp < 8
@@ -324,6 +333,7 @@ test_that("rdif() applies min.resp when the scores are estimated", {
 })
 
 test_that("rdif() applies min.resp also when the scores are supplied", {
+  skip_on_cran()
   sim <- rdt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
   drop_row <- n_resp < 8
@@ -348,6 +358,7 @@ test_that("rdif() applies min.resp also when the scores are supplied", {
 })
 
 test_that("rdif() purification works when items are removed down to the last one", {
+  skip_on_cran()
   x1 <- shape_df(par.drm = list(a = c(1, 1.2, 0.9), b = c(0, 0.5, -0.5), g = 0), cats = 2, model = "2PLM")
   x2 <- x1
   x2$par.2 <- x2$par.2 + c(1.5, 1.2, 0)
@@ -371,6 +382,7 @@ test_that("rdif() purification works when items are removed down to the last one
 })
 
 test_that("rdif() purification stops with a warning when a group has no ability estimate left", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
 
@@ -402,6 +414,7 @@ test_that("rdif() purification stops with a warning when a group has no ability 
 })
 
 test_that("rdif() stops for a scoring method without pattern scores when it estimates abilities", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   for (m in c("EAP.SUM", "INV.TCC")) {
@@ -418,6 +431,7 @@ test_that("rdif() stops for a scoring method without pattern scores when it esti
 })
 
 test_that("rdif() purification works when the item with the most categories is removed", {
+  skip_on_cran()
   sim <- rdt_sim_poly()
   rst <- rdif(sim$x, sim$resp, group = sim$group, focal.name = "f", purify = TRUE, verbose = FALSE)
   expect_true(6 %in% rst$with_purify$dif_item)
@@ -426,6 +440,7 @@ test_that("rdif() purification works when the item with the most categories is r
 })
 
 test_that("rdif() reads character responses as numbers", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   resp_chr <- sim$resp
@@ -438,6 +453,7 @@ test_that("rdif() reads character responses as numbers", {
 })
 
 test_that("rdif() flags items with the unrounded p-values", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   ref <- rdt_ref(sim$x, sim$resp, score, sim$group, "f", 1)
@@ -505,6 +521,7 @@ test_that("pick_flagged_item() chooses the flagged item with the smallest log p-
 })
 
 test_that("rdif() keeps the log p-values used to choose the item to be removed", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   out <- irtQ:::rdif_one(sim$x, sim$resp, score, sim$group, "f", D = 1)
@@ -534,6 +551,7 @@ test_that("quad_form() uses the inverse for a regular matrix and the rank for a 
 })
 
 test_that("print() of rdif results leaves the significance symbols of skipped items blank", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", item.skip = 2)
@@ -542,6 +560,7 @@ test_that("print() of rdif results leaves the significance symbols of skipped it
 })
 
 test_that("rdif() returns the flagged items and the number of iterations as integers", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- rdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = "f", purify = TRUE,
@@ -561,6 +580,7 @@ test_that("rdif() returns the flagged items and the number of iterations as inte
 })
 
 test_that("rdif() stops with clear errors for invalid inputs", {
+  skip_on_cran()
   sim <- rdt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   n <- nrow(sim$resp)

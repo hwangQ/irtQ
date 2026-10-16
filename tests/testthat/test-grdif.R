@@ -117,6 +117,7 @@ grt_catch <- function(expr) {
 }
 
 test_that("grdif() statistics match an independent implementation", {
+  skip_on_cran()
   sim <- grt_sim(miss = 0.25)
   for (D in c(1, 1.702)) {
     score <- suppressWarnings(est_score(sim$x, sim$resp, D = D)$est.theta)
@@ -162,6 +163,7 @@ test_that("grdif() methods for est_irt and est_item objects match the default me
 })
 
 test_that("grdif() excludes examinees with a missing ability estimate or group with a warning", {
+  skip_on_cran()
   sim <- grt_sim(seed = 2)
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   r0 <- grdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = sim$focal, post.hoc = FALSE)
@@ -218,6 +220,7 @@ test_that("grdif() gives missing statistics for an item that a group did not ans
 })
 
 test_that("grdif() stops for a scoring method without pattern scores when it estimates abilities", {
+  skip_on_cran()
   sim <- grt_sim3()
   score <- est_score(sim$x, sim$resp, D = 1)$est.theta
   for (m in c("EAP.SUM", "INV.TCC")) {
@@ -272,6 +275,7 @@ test_that("grdif() stops with clear errors for invalid inputs", {
 })
 
 test_that("grdif() stops when an item is polytomous", {
+  skip_on_cran()
   sim <- grt_sim(seed = 9)
   x <- sim$x
   x$cats[10] <- 3L
@@ -350,6 +354,7 @@ test_that("grdif() uses a generalized inverse when a covariance matrix is singul
 })
 
 test_that("grdif() purification removes the flagged item with the smallest p-value first", {
+  skip_on_cran()
   sim <- grt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- grdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = sim$focal,
@@ -367,6 +372,7 @@ test_that("grdif() purification removes the flagged item with the smallest p-val
 })
 
 test_that("grdif() purification stops with a warning when all items are flagged", {
+  skip_on_cran()
   sim <- grt_sim3()
   out <- grt_catch(grdif(sim$x[1:2, ], sim$resp[, 1:2], group = sim$group, focal.name = c(1, 2),
                          purify = TRUE, alpha = 0.999, verbose = FALSE))
@@ -381,6 +387,7 @@ test_that("grdif() purification stops with a warning when all items are flagged"
 })
 
 test_that("grdif() purification stops with a warning when a group has no ability estimate left", {
+  skip_on_cran()
   sim <- grt_sim(seed = 3, miss = 0.3)
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   args <- list(x = sim$x, data = sim$resp, score = score, group = sim$group, focal.name = sim$focal,

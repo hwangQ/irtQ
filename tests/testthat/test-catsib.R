@@ -118,6 +118,7 @@ test_that("catsib() excludes examinees with a missing ability estimate with a wa
 })
 
 test_that("catsib() applies min.resp also when the scores are supplied", {
+  skip_on_cran()
   sim <- cst_sim(6, miss = 0.6)
   few <- rowSums(!is.na(sim$resp)) < 6 & rowSums(!is.na(sim$resp)) > 0
   out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
@@ -134,6 +135,7 @@ test_that("catsib() applies min.resp also when the scores are supplied", {
 })
 
 test_that("catsib() purification works down to the last item", {
+  skip_on_cran()
   sim <- cst_sim(9)
   # the abilities are estimated from all items, and two items are analyzed; after the first item is
   # removed, the abilities are estimated from the last item
@@ -175,6 +177,7 @@ test_that("catsib() reads character responses as numbers", {
 })
 
 test_that("catsib() ends the purification normally when only skipped items remain", {
+  skip_on_cran()
   sim <- cst_sim(3, J = 8, n = c(800, 800))
   out <- cst_catch(catsib(sim$x, sim$resp, group = sim$group, focal.name = 1, item.skip = 2:8,
                           purify = TRUE, verbose = FALSE))
@@ -254,6 +257,7 @@ test_that("catsib() warns once about the number of cores during the purification
 })
 
 test_that("catsib() flags items with the unrounded p-values", {
+  skip_on_cran()
   sim <- cst_sim(7)
   ref <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, screen = TRUE)
   j <- which(abs(ref$p - round(ref$p, 4)) > 1e-5 & ref$p > 0.01)[1]
@@ -289,6 +293,7 @@ test_that("catsib() purification removes the flagged item with the smallest p-va
 })
 
 test_that("catsib() reports an incomplete purification when max.iter is reached", {
+  skip_on_cran()
   sim <- cst_sim(10)
   out <- cst_catch(catsib(sim$x, sim$resp, score = sim$score, se = sim$se, group = sim$group,
                           focal.name = 1, purify = TRUE, max.iter = 1, alpha = 0.3, verbose = FALSE))
@@ -298,6 +303,7 @@ test_that("catsib() reports an incomplete purification when max.iter is reached"
 })
 
 test_that("catsib() leaves the estimates with large standard errors out of rho^2 only when rho.screen = TRUE", {
+  skip_on_cran()
   sim <- cst_sim(4)
   ref0 <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1)
   ref1 <- cst_ref(sim$resp, sim$score, sim$se, sim$group, 1, screen = TRUE)

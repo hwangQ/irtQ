@@ -34,6 +34,7 @@ test_that("reval_mst() stops when modules in a stage differ in maximum sum score
 pnl <- ref_panel()
 
 test_that("reval_mst() equals an exact enumeration on a mixed-format 1-2-3 panel", {
+  skip_on_cran()
   th <- c(-2, 0, 1.5)
   for (D in c(1, 1.702)) {
     rv <- reval_mst(x = pnl$x, D = D, route_map = pnl$route_map, module = pnl$module,

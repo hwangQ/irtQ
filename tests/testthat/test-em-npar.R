@@ -24,6 +24,7 @@ check_npar <- function(fit, item, dist, weight, nobs) {
 }
 
 test_that("est_irt() counts the free parameters of the normal and empirical histogram priors", {
+  skip_on_cran()
   check_npar(fit_irt(), n.item, 0, 0, nrow(d12))
   check_npar(fit_irt(EmpHist = TRUE), n.item, 0, 49 - 3, nrow(d12))
   w41 <- gen.weight(dist = "norm", theta = seq(-6, 6, length.out = 41))
@@ -43,6 +44,7 @@ test_that("est_irt() counts the free parameters of FIPC without rescaling", {
 })
 
 test_that("est_mg() counts the free parameters of each group", {
+  skip_on_cran()
   set.seed(2)
   dat <- list(g1 = simdat(x = x12, theta = rnorm(300), D = 1), g2 = simdat(x = x12, theta = rnorm(300, 0.5), D = 1),
               g3 = simdat(x = x12, theta = rnorm(300, 0.2), D = 1))

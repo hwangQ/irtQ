@@ -177,6 +177,7 @@ test_that("final estimates use the parameters of the observed items when some re
 })
 
 test_that("final sum-score estimates count missing responses as zero, as est_score() does", {
+  skip_on_cran()
   resp_na <- resp_mst
   set.seed(2034)
   resp_na[sample(length(resp_na), size = round(0.10 * length(resp_na)))] <- NA
@@ -244,6 +245,7 @@ test_that("cut-score routing assigns the module from the cumulative estimate", {
 })
 
 test_that("an examinee in module 4 with a middle estimate is routed to module 6", {
+  skip_on_cran()
   # inverse TCC routing keeps the simulation fast for many examinees
   set.seed(2032)
   fit <- run_mst(

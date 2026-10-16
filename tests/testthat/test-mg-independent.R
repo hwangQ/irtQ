@@ -21,6 +21,7 @@ test_that("the group and overall log-likelihoods match an independent multiple-g
 })
 
 test_that("the standard errors match an independent cross-product information with the g prior", {
+  skip_on_cran()
   fit <- suppressWarnings(est_mg(x = M$x[1:2], data = M$data[1:2], group.name = gn[1:2], free.group = 2, verbose = FALSE))
   xo <- fit$par.est$overall
   pos <- as.matrix(fit$pos.par[, -(1:3)])
@@ -68,6 +69,7 @@ test_that("two reference groups give the est_irt() results of the pooled data", 
 })
 
 test_that("MG-FIPC keeps the fixed items and reports the independent log-likelihood", {
+  skip_on_cran()
   fit <- suppressWarnings(est_mg(x = M$x, data = M$data, group.name = gn, free.group = 1:3, fipc = TRUE,
                                  fix.id = c("C1", "C2", "C3", "C5"), verbose = FALSE))
   xo <- fit$par.est$overall
@@ -79,6 +81,7 @@ test_that("MG-FIPC keeps the fixed items and reports the independent log-likelih
 })
 
 test_that("MG-FIPC standard errors of the new items match an independent cross-product information", {
+  skip_on_cran()
   fix <- c("C1", "C2", "C3", "C5")
   fit <- suppressWarnings(est_mg(x = M$x[1:2], data = M$data[1:2], group.name = gn[1:2], free.group = 1:2, fipc = TRUE,
                                  fix.id = fix, verbose = FALSE))

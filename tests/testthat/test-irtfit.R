@@ -7,6 +7,7 @@ theta_fit <- rnorm(1000)
 resp_fit <- simdat(x = x_mix, theta = theta_fit, D = 1)
 
 test_that("irtfit() observed proportions are the category frequencies divided by the group size", {
+  skip_on_cran()
   for (gm in c("equal.width", "equal.freq")) {
     fit <- irtfit(
       x = x_mix, score = theta_fit, data = resp_fit, group.method = gm,
@@ -267,6 +268,7 @@ test_that("irtfit() for est_item objects uses the scores, data, and scaling cons
 })
 
 test_that("irtfit() for est_irt objects uses the data and scaling constant of the object", {
+  skip_on_cran()
   mod <- est_irt(x = x_chk, data = resp_chk, D = 1.702, use.gprior = TRUE, verbose = FALSE)
   f1 <- irtfit(mod, score = theta_chk)
   f2 <- irtfit(mod$par.est, score = theta_chk, data = resp_chk, D = 1.702)

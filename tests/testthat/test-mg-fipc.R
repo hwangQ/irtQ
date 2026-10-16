@@ -6,6 +6,7 @@ gn <- c("G1", "G2", "G3")
 q <- function(...) est_mg(..., verbose = FALSE, MaxE = 2, se = FALSE)
 
 test_that("item.id replaces the IDs in x in MG-FIPC", {
+  skip_on_cran()
   ids2 <- lapply(M$x, function(z) paste0(z$id, "_n"))
   ff <- suppressWarnings(q(x = M$x, data = M$data, group.name = gn, free.group = 1:3, item.id = ids2,
                            fipc = TRUE, fix.loc = list(1:4, 1:4, NULL)))
@@ -23,6 +24,7 @@ test_that("item.id replaces the IDs in x in MG-FIPC", {
 })
 
 test_that("FIPC stops when the responses to all fixed items show no variation", {
+  skip_on_cran()
   set.seed(1)
   x <- shape_df(par.drm = list(a = rlnorm(6, 0, .3), b = rnorm(6), g = NA), cats = 2, model = "2PLM")
   d <- simdat(x = x, theta = rnorm(400), D = 1)
@@ -51,6 +53,7 @@ test_that("FIPC stops when the responses to all fixed items show no variation", 
 })
 
 test_that("a fixed item with different parameters across groups gives a warning", {
+  skip_on_cran()
   xf <- M$x
   xf[[2]]$par.1[1] <- xf[[2]]$par.1[1] + 0.5
   r <- with_warnings(q(x = xf, data = M$data, group.name = gn, free.group = 1:3, fipc = TRUE, fix.loc = list(1:4, 1:4, NULL)))

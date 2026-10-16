@@ -5,6 +5,7 @@ gn <- c("G1", "G2", "G3")
 q <- function(...) est_mg(..., verbose = FALSE, MaxE = 3, se = FALSE)
 
 test_that("est_mg() replaces the IDs in x with item.id", {
+  skip_on_cran()
   ids2 <- lapply(M$x, function(z) paste0(z$id, "_n"))
   f <- suppressWarnings(q(x = M$x, data = M$data, group.name = gn, free.group = 2:3, item.id = ids2))
   expect_identical(f$par.est$group$G2$id, ids2[[2]])

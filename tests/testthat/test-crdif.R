@@ -178,6 +178,7 @@ test_that("crdif() statistics match a first-principles implementation", {
 })
 
 test_that("crdif() covariance of the raw categorical residuals has rank K - 1", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1)
@@ -195,6 +196,7 @@ test_that("crdif() covariance of the raw categorical residuals has rank K - 1", 
 })
 
 test_that("crdif() and rdif() agree on all three statistics for binary items", {
+  skip_on_cran()
   sim <- crt_sim()
   b <- sim$x$cats == 2
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
@@ -291,6 +293,7 @@ test_that("crdif() purification removes the item with the largest statistic when
 })
 
 test_that("crdif() methods for est_irt and est_item objects match the default method", {
+  skip_on_cran()
   sim <- crt_sim(miss = 0)
   fit <- est_irt(data = sim$resp, D = 1, model = c("2PLM", "3PLM", "2PLM", "GRM", "GPCM", "GRM", "GPCM"),
                  cats = sim$x$cats, verbose = FALSE)
@@ -313,6 +316,7 @@ test_that("crdif() methods for est_irt and est_item objects match the default me
 })
 
 test_that("crdif() warns once about min.resp when the scores are estimated", {
+  skip_on_cran()
   sim <- crt_sim()
   out <- crt_catch(crdif(sim$x, sim$resp, group = sim$group, focal.name = 1, min.resp = 5))
   expect_length(out$warnings, 1)
@@ -320,6 +324,7 @@ test_that("crdif() warns once about min.resp when the scores are estimated", {
 })
 
 test_that("crdif() leaves skipped items out of the tests and the purification", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   r0 <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1)
@@ -338,6 +343,7 @@ test_that("crdif() leaves skipped items out of the tests and the purification", 
 })
 
 test_that("crdif() excludes examinees with a missing ability estimate with a warning", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   score[c(1:20, 801:810)] <- NA
@@ -362,6 +368,7 @@ test_that("crdif() excludes examinees with a missing ability estimate with a war
 })
 
 test_that("crdif() reports the examinees who lose their ability estimates in the purification once", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
 
@@ -379,6 +386,7 @@ test_that("crdif() reports the examinees who lose their ability estimates in the
 })
 
 test_that("crdif() purification removes the item with the smallest p-value first", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- suppressWarnings(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
@@ -396,6 +404,7 @@ test_that("crdif() purification removes the item with the smallest p-value first
 })
 
 test_that("crdif() reports an incomplete purification when max.iter is reached", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   out <- crt_catch(crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1,
@@ -407,6 +416,7 @@ test_that("crdif() reports an incomplete purification when max.iter is reached",
 })
 
 test_that("crdif() applies min.resp when the scores are estimated", {
+  skip_on_cran()
   sim <- crt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
   drop_row <- n_resp < 4
@@ -420,6 +430,7 @@ test_that("crdif() applies min.resp when the scores are estimated", {
 })
 
 test_that("crdif() applies min.resp also when the scores are supplied", {
+  skip_on_cran()
   sim <- crt_sim()
   n_resp <- rowSums(!is.na(sim$resp))
   drop_row <- n_resp < 4
@@ -435,6 +446,7 @@ test_that("crdif() applies min.resp also when the scores are supplied", {
 })
 
 test_that("crdif() purification stops with a warning when every item is flagged", {
+  skip_on_cran()
   sim <- crt_sim()
   out <- crt_catch(crdif(sim$x[4:5, ], sim$resp[, 4:5], group = sim$group, focal.name = 1,
                          purify = TRUE, alpha = 0.999, verbose = FALSE))
@@ -454,6 +466,7 @@ test_that("crdif() purification stops with a warning when every item is flagged"
 })
 
 test_that("crdif() purification stops with a warning when a group has no ability estimate left", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
 
@@ -485,6 +498,7 @@ test_that("crdif() purification stops with a warning when a group has no ability
 })
 
 test_that("crdif() stops for a scoring method without pattern scores when it estimates abilities", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   for (m in c("EAP.SUM", "INV.TCC")) {
@@ -501,6 +515,7 @@ test_that("crdif() stops for a scoring method without pattern scores when it est
 })
 
 test_that("print() of crdif results leaves the significance symbols of skipped items blank", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   rst <- crdif(sim$x, sim$resp, score = score, group = sim$group, focal.name = 1, item.skip = 2)
@@ -509,6 +524,7 @@ test_that("print() of crdif results leaves the significance symbols of skipped i
 })
 
 test_that("crdif() returns the number of iterations as an integer when no item is flagged", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   none <- crdif(sim$x[1:3, ], sim$resp[, 1:3], score = score, group = sim$group, focal.name = 1,
@@ -518,6 +534,7 @@ test_that("crdif() returns the number of iterations as an integer when no item i
 })
 
 test_that("crdif() stops with clear errors for invalid inputs", {
+  skip_on_cran()
   sim <- crt_sim()
   score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1)$est.theta)
   run <- function(...) {

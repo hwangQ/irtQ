@@ -81,6 +81,7 @@ se_check <- function(D, fix.g, g.val) {
 }
 
 test_that("est_irt() cross-product SEs match marginal scores with D = 1.702", {
+  skip_on_cran()
   rst <- se_check(1.702, FALSE, 0.2)
   expect_equal(unname(rst$pkg), unname(rst$ref), tolerance = 1e-4)
 })

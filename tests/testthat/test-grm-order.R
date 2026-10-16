@@ -24,6 +24,7 @@ grm_ordered <- function(pe) {
 }
 
 test_that("est_irt() returns ordered GRM thresholds when a category is rare", {
+  skip_on_cran()
   # seed 5: item 14 has category counts 128/3/36/116/17
   md <- make_mixed(5)
   expect_equal(tabulate(md$data[, 14] + 1, 5), c(128, 3, 36, 116, 17))
@@ -41,6 +42,7 @@ test_that("est_irt() returns ordered GRM thresholds when a category is rare", {
 })
 
 test_that("est_irt() returns ordered GRM thresholds when a category is never observed", {
+  skip_on_cran()
   # seed 3: item 15 has no response in category 1
   md <- make_mixed(3)
   expect_equal(tabulate(md$data[, 15] + 1, 5)[2], 0)
@@ -59,6 +61,7 @@ test_that("est_item() returns ordered GRM thresholds when a category is never ob
 })
 
 test_that("est_mg() returns ordered GRM thresholds when a category is rare", {
+  skip_on_cran()
   # 8 3PLM and 4 five-category GRM items in two groups of 200 examinees
   set.seed(2001)
   x <- shape_df(

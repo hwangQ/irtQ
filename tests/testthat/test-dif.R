@@ -352,6 +352,7 @@ test_that("catsib() min.binsize is enforced in the final bin filter, not just th
 })
 
 test_that("catsib() gives the same results for se given as a vector, a matrix, or a data frame", {
+  skip_on_cran()
   args <- list(
     x = x_dif, data = resp_all, score = score_all$est.theta,
     group = group_vec, focal.name = 1L, D = 1

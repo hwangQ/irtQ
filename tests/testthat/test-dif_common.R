@@ -15,6 +15,7 @@ dc_sim <- function(seed = 8) {
 }
 
 test_that("dif_rescore() rescoring only the examinees who responded to the removed item matches a full rescoring", {
+  skip_on_cran()
   sim <- dc_sim()
   for (m in c("ML", "MLF", "WL", "MAP", "EAP")) {
     score <- suppressWarnings(est_score(sim$x, sim$resp, D = 1, method = m)$est.theta)
