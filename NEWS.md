@@ -202,7 +202,7 @@
 
 - `ripd()` and `pcd2()` silently accepted responses outside the score
   categories (for example, an unrecorded missing code such as -9, which
-  gave chi-square values in the hundred thousands), a `group` of the
+  gave chi-square values in the hundreds of thousands), a `group` of the
   wrong length (`ripd()`), and an `item.skip` that was not a set of item
   positions (an ID given to `pcd2()` added a spurious row and skipped
   nothing). They now stop with a clear message, a logical `item.skip` is
@@ -875,7 +875,9 @@
 - The `dif_item` elements `rdifr` and `rdifs` of the `no_purify` results
   of `rdif()` are integer vectors like `rdifrs`, and `n.iter` of the
   `with_purify` results of `rdif()` and `crdif()` is the integer 0 when
-  no item is flagged in the initial analysis. The values are unchanged.
+  no item is flagged in the initial analysis. `npar.est` of `est_mg()`
+  and `n.iter` of the `with_purify` results of `catsib()` are integers
+  as well. The values are unchanged.
 
 - When the Hessian of an item is singular during the estimation of
   `est_irt()`, `est_mg()`, and `est_item()`, it is now repaired by
