@@ -19,7 +19,7 @@ bind.fill(List, type = c("rbind", "cbind"), fill = NA)
 - type:
 
   A character string indicating the type of binding to perform. Options
-  are `"rbind"` or `"cbind"`.
+  are `"rbind"` or `"cbind"`. Default is `"rbind"`.
 
 - fill:
 
@@ -32,6 +32,7 @@ bind.fill(List, type = c("rbind", "cbind"), fill = NA)
 
 A matrix formed by binding the elements of the list either row-wise or
 column-wise, with shorter vectors padded by the specified `fill` value.
+The matrix has no row or column names.
 
 ## Author
 

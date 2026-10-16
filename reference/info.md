@@ -1,4 +1,4 @@
-# Item and Test Information Function
+# Item and Test Information Functions
 
 This function computes item and test information functions (Hambleton et
 al., 1991) for a given set of theta values.
@@ -34,7 +34,9 @@ info(x, theta, tif = TRUE, ...)
   more details about the item metadata. This data frame can be easily
   created using the
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
-  function.
+  function. An item with `cats = 2` under the `"GRM"` or `"GPCM"` model
+  has one threshold in `par.2`, must have `NA` in `par.3`, and is
+  computed as a 2PLM item.
 
 - ...:
 
@@ -48,7 +50,7 @@ info(x, theta, tif = TRUE, ...)
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - tif:
@@ -72,7 +74,7 @@ containing the following components:
 
   A numeric vector containing the test information values at each theta
   value, computed as the sum of item information values across all
-  items. This component is included only when `tif = TRUE`.
+  items. This component is `NULL` when `tif = FALSE`.
 
 - theta:
 
@@ -80,12 +82,8 @@ containing the following components:
   information functions are evaluated. This matches the user-supplied
   `theta` argument.
 
-The returned object is of class `info` and can be visualized using the
-function
-[`plot.info()`](https://hwangQ.github.io/irtQ/reference/plot.info.md).
-This output structure is consistent across input types (`data.frame`,
-`est_item`, `est_irt`), and facilitates downstream plotting, comparison,
-or export of information function values.
+The structure is the same for all input types (`data.frame`, `est_item`,
+and `est_irt`).
 
 ## Details
 
@@ -101,11 +99,13 @@ explained in the documentation of
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) and
 [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md). Items
 of different models (e.g., 3PLM, GPCM) can be combined in a single test.
+For an `est_irt` or `est_item` object, the item parameter estimates and
+the scaling constant `D` are taken from the object, and a `D` supplied
+through `...` is ignored.
 
-The information is computed for each item appropriately and aggregated
-for the TIF if `tif = TRUE`. The TIF is often used to assess where the
-test provides the most precision, and is critical when designing
-adaptive tests or evaluating test coverage across the ability continuum.
+Item information is computed under each item's IRT model and summed over
+items to give the TIF when `tif = TRUE`. The TIF shows where on the
+theta scale the test measures most precisely.
 
 The returned object is a list of class `"info"`, which contains the item
 information matrix and the test information vector. The
@@ -179,7 +179,7 @@ theta <- seq(-2, 2, 0.1)
 
 # Compute item and test information values based on theta
 info(x = test, theta = theta, D = 1, tif = TRUE)
-#> Warning: All 'DRM' items are considered as '3PLM' items during the item parameter estimation. 
+#> Warning: All 'DRM' items are treated as '3PLM' items.
 #> $iif
 #>         theta.1      theta.2     theta.3      theta.4     theta.5     theta.6
 #> V1 0.0263743961 0.0309898876 0.036233323 0.0421430717 0.048747726 0.056062827

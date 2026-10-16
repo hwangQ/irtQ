@@ -38,13 +38,13 @@ plot(
 
 - x:
 
-  x An object of class `irtfit` obtained from
+  An object of class `irtfit` obtained from
   [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md).
 
 - item.loc:
 
-  An integer specifying the position of the item to be plotted (i.e.,
-  the *n*th item in the item set). See **Details** below.
+  An integer giving the position of the item to plot in the `item_df`
+  element of `x`. See **Details** below.
 
 - type:
 
@@ -75,14 +75,14 @@ plot(
 - show.table:
 
   A logical value indicating whether to return the contingency table
-  used for drawing the residual plots of the specified item. If `TRUE`,
-  the function returns the same contingency table stored in the internal
-  `contingency.plot` object of the `irtfit` object. Default is `TRUE`.
+  used to draw the residual plots of the item, taken from the
+  `contingency.plot` element of `x`. Default is `TRUE`.
 
 - layout.col:
 
-  An integer specifying the number of columns in the panel layout when
-  plotting residuals for a polytomous item. Default is 2.
+  An integer specifying the number of columns in the panel layout for a
+  polytomous item when `type` is `"icc"` or `"sr"`. With
+  `type = "both"`, each plot uses one column. Default is 2.
 
 - xlab.text:
 
@@ -134,19 +134,19 @@ plot(
 - ylim.icc:
 
   A numeric vector of length two specifying the y-axis limits for the
-  raw residual plot. Default is c(0, 1).
+  raw residual plot. Default is `c(0, 1)`.
 
 - ylim.sr.adjust:
 
-  Logical. If `TRUE`, the y-axis range for the standardized residual
-  plot is automatically adjusted based on the maximum residual value for
-  each item. If `FALSE`, the range is fixed according to the values
-  specified in the `ylim.sr` argument. Default is `FALSE`.
+  Logical. If `TRUE`, the y-axis limits of the standardized residual
+  plot are set to \\\pm\\ the largest absolute standardized residual of
+  the item plus 1, rounded to an integer. If `FALSE`, `ylim.sr` is used.
+  Default is `FALSE`.
 
 - ylim.sr:
 
   A numeric vector of length two specifying the y-axis limits for the
-  standardized residual plot. Default is c(-4, 4).
+  standardized residual plot. Default is `c(-4, 4)`.
 
 - ...:
 
@@ -166,23 +166,26 @@ more details about the contingency table.
 
 All plots are generated using the ggplot2 package.
 
-Once the IRT model fit analysis is completed using
-[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md), the
-resulting object of class `irtfit` can be used to draw raw and
-standardized residual plots.These plots are primarily based on the
-information stored in the internal object `contingency.plot`.
+The object of class `irtfit` returned by
+[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) is used
+to draw raw and standardized residual plots. The plots are based mainly
+on the `contingency.plot` element of the object.
 
-Because residual plots are generated for one item at a time, you must
-specify which item to evaluate by providing an integer value for the
-`item.loc` argument, indicating the item's position in the test form.
-For example, to draw residual plots for the third item, set
-`item.loc = 3`.
+Residual plots are drawn for one item at a time. Set `item.loc` to the
+position of the item in the `item_df` element of the `irtfit` object;
+for example, `item.loc = 3` selects the third item. Items with fewer
+than two responses are removed by
+[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md), so
+positions can differ from those in the original item metadata.
 
-For the raw residual plot, the `ci.method` argument determines the
-method used to estimate confidence intervals. The available methods are:
+For the raw residual plot, the `ci.method` argument sets the method used
+to compute the confidence intervals of the observed proportions:
 
-- `"wald"`: Wald interval based on the normal approximation (Laplace,
-  1812)
+- `"wald"`: Wald-type interval based on the normal approximation
+  (Laplace, 1820), \\\hat{p} \pm z\_{1 - \alpha/2} \sqrt{P(1 - P)/N}\\,
+  where \\\hat{p}\\ is the observed proportion, \\P\\ is the
+  model-expected probability, and \\N\\ is the group size. The limits
+  are truncated to the interval from 0 to 1.
 
 - `"wilson"`: Wilson score interval (Wilson, 1927)
 
@@ -191,24 +194,23 @@ method used to estimate confidence intervals. The available methods are:
 
 For more information, see
 <https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval>.
-Note that the width of the confidence interval is governed by the
-\\\alpha\\-level specified in the `alpha` argument of the
-[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md)
-function.
+The confidence level is \\1 - \alpha\\, where \\\alpha\\ is the `alpha`
+argument of
+[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md).
 
-For the standardized residual plot, residuals exceeding the threshold
-specified in the `overSR` argument of the
-[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) function
-are displayed as circles. Residuals that do not exceed the threshold are
-displayed as crosses.
+In the standardized residual plot, residuals whose absolute values
+exceed the `overSR` argument of
+[`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) are
+drawn as red circles, and the others as blue crosses. Dashed lines mark
+\\\pm\\ `overSR`.
 
 ## References
 
 Hambleton, R. K., Swaminathan, H., & Rogers, H. J. (1991). *Fundamentals
 of item response theory*. Newbury Park, CA: Sage.
 
-Laplace, P. S. (1820). *Theorie analytique des probabilites* (in
-French). Courcier.
+Laplace, P. S. (1820). *Theorie analytique des probabilites* (3rd ed.,
+in French). Paris: Courcier.
 
 Newcombe, R. G. (1998). Two-sided confidence intervals for the single
 proportion: comparison of seven methods. *Statistics in Medicine,

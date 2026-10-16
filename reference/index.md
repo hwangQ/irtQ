@@ -10,8 +10,8 @@ New to irtQ? Start here with core data structures.
 - [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md) :
   Create a Data Frame of Item Metadata
 - [`shape_df_fipc()`](https://hwangQ.github.io/irtQ/reference/shape_df_fipc.md)
-  : Combine fixed and new item metadata for fixed-item parameter
-  calibration (FIPC)
+  : Combine Fixed and New Item Metadata for Fixed Item Parameter
+  Calibration (FIPC)
 
 ## Item Parameter Estimation
 
@@ -26,6 +26,14 @@ and fixed ability methods.
   Fixed ability parameter calibration
 - [`getirt()`](https://hwangQ.github.io/irtQ/reference/getirt.md) :
   Extract Components from 'est_irt', 'est_mg', or 'est_item' Objects
+- [`summary()`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<est_irt>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<est_mg>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<est_item>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<summary.est_irt>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<summary.est_mg>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  [`print(`*`<summary.est_item>`*`)`](https://hwangQ.github.io/irtQ/reference/summary.md)
+  : Summary of Item Calibration Results
 
 ## Ability Estimation & Scoring
 
@@ -40,8 +48,9 @@ Estimate examinee ability scores from item response data.
 
 Assess how well the fitted IRT model describes the observed data.
 
-- [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) :
-  Traditional IRT Item Fit Statistics
+- [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md)
+  [`print(`*`<irtfit>`*`)`](https://hwangQ.github.io/irtQ/reference/irtfit.md)
+  : Traditional IRT Item Fit Statistics
 - [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) :
   S-X2 Fit Statistic
 - [`plot(`*`<irtfit>`*`)`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md)
@@ -52,26 +61,31 @@ Assess how well the fitted IRT model describes the observed data.
 Detect item bias across examinee groups using residual-based and CATSIB
 methods.
 
-- [`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md) : IRT
-  Residual-Based Differential Item Functioning (RDIF) Detection
+- [`rdif()`](https://hwangQ.github.io/irtQ/reference/rdif.md)
+  [`print(`*`<rdif>`*`)`](https://hwangQ.github.io/irtQ/reference/rdif.md)
+  : IRT Residual-Based Differential Item Functioning (RDIF) Detection
   Framework
-- [`crdif()`](https://hwangQ.github.io/irtQ/reference/crdif.md) :
-  Residual-Based DIF Detection Framework Using Categorical Residuals
+- [`crdif()`](https://hwangQ.github.io/irtQ/reference/crdif.md)
+  [`print(`*`<crdif>`*`)`](https://hwangQ.github.io/irtQ/reference/crdif.md)
+  : Residual-Based DIF Detection Framework Using Categorical Residuals
   (RDIF-CR)
-- [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md) :
-  Generalized IRT residual-based DIF detection framework for multiple
+- [`grdif()`](https://hwangQ.github.io/irtQ/reference/grdif.md)
+  [`print(`*`<grdif>`*`)`](https://hwangQ.github.io/irtQ/reference/grdif.md)
+  : Generalized IRT residual-based DIF detection framework for multiple
   groups (GRDIF)
-- [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md) :
-  CATSIB DIF Detection Procedure
+- [`catsib()`](https://hwangQ.github.io/irtQ/reference/catsib.md)
+  [`print(`*`<catsib>`*`)`](https://hwangQ.github.io/irtQ/reference/catsib.md)
+  : CATSIB DIF Detection Procedure
 
 ## Item Parameter Drift (IPD)
 
 Detect and evaluate item parameter drift across test administrations.
 
-- [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) :
-  Residual-based Item Parameter Drift (RIPD) Detection Framework
+- [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md)
+  [`print(`*`<ripd>`*`)`](https://hwangQ.github.io/irtQ/reference/ripd.md)
+  : Residual-based Item Parameter Drift (RIPD) Detection Framework
 - [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md) :
-  Pseudo-count D2 method
+  Pseudo-Count D2 Method for Item Parameter Drift Detection
 
 ## Classical Test Theory (CTT) Analysis
 
@@ -110,7 +124,7 @@ Compute and visualize item/test information functions and characteristic
 curves.
 
 - [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) : Item and
-  Test Information Function
+  Test Information Functions
 - [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md)
   : Compute Item/Test Characteristic Functions
 - [`plot(`*`<info>`*`)`](https://hwangQ.github.io/irtQ/reference/plot.info.md)
@@ -124,28 +138,30 @@ Simulate MST administrations, evaluate panel performance, and compute
 TIF-based routing cut scores.
 
 - [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-  : Recursion-based MST evaluation method
+  : Recursion-Based Analytical Evaluation of an MST Panel
 
 - [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)
   : Extract Panel Structure from an MST Route Map
 
-- [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md) :
-  Find TIF-Crossing Cut Scores for MST Routing
+- [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md)
+  [`print(`*`<find_cut>`*`)`](https://hwangQ.github.io/irtQ/reference/find_cut.md)
+  : Find TIF-Crossing Cut Scores for MST Routing
 
 - [`plot(`*`<find_cut>`*`)`](https://hwangQ.github.io/irtQ/reference/plot.find_cut.md)
   :
 
   Plot TIF Curves and Cut Scores from a `find_cut` Result
 
-- [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) :
-  Multistage-Adaptive Test (MST) Simulation
+- [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+  [`print(`*`<run_mst>`*`)`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
+  : Multistage-Adaptive Test (MST) Simulation
 
 ## Data Simulation & Utilities
 
 Simulate item response data and compute supporting quantities.
 
 - [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) :
-  Simulated Response Data
+  Simulate Response Data
 - [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) :
   Lord-Wingersky Recursion Formula
 - [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)
@@ -156,13 +172,11 @@ Simulate item response data and compute supporting quantities.
   : Bind Fill
 - [`bisection()`](https://hwangQ.github.io/irtQ/reference/bisection.md)
   : The Bisection Method to Find a Root
-- [`summary()`](https://hwangQ.github.io/irtQ/reference/summary.md) :
-  Summary of Item Calibration Results
 
 ## Importing External Software Output
 
-Import item parameter estimates from IRT software output, write input
-files, and execute external programs from R.
+Import item or ability parameter estimates from IRT software, write
+flexMIRT parameter files, and run flexMIRT from R (Windows only).
 
 - [`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
   [`bring.bilog()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
@@ -196,6 +210,6 @@ Example datasets bundled with the package.
 - [`simIPD`](https://hwangQ.github.io/irtQ/reference/simIPD.md) :
   Simulated CAT Data for Item Parameter Drift (IPD) Detection
 - [`simMG`](https://hwangQ.github.io/irtQ/reference/simMG.md) :
-  Simulated multiple-group data
+  Simulated Multiple-Group Data
 - [`simMST`](https://hwangQ.github.io/irtQ/reference/simMST.md) :
   Simulated 1-3-3 MST Panel Data

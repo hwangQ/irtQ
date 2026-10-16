@@ -13,7 +13,7 @@ using plot.traceline()."><meta property="og:image" content="https://hwangQ.githu
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,9 @@ number of categories, IRT model types, etc.); or an object of class
 <code><a href="est_item.html">est_item()</a></code>.</p>
 <p>See <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="simdat.html">simdat()</a></code> for more details about the item
 metadata. This data frame can be easily created using the
-<code><a href="shape_df.html">shape_df()</a></code> function.</p></dd>
+<code><a href="shape_df.html">shape_df()</a></code> function. An item with <code>cats = 2</code> under the <code>"GRM"</code> or
+<code>"GPCM"</code> model has one threshold in <code>par.2</code>, must have <code>NA</code> in <code>par.3</code>,
+and is computed as a 2PLM item.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -100,7 +102,7 @@ characteristic curves are computed.</p></dd>
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 </dl></div>
@@ -109,10 +111,10 @@ used for this purpose. Default is 1.</p></dd>
     <p>This function returns an object of class <code>traceline</code>, which is a list
 containing the following components:</p>
 <dl><dt>prob.cats</dt>
-<dd><p>A list of matrices containing the category response
-probabilities for each item across the specified theta values. Each
-matrix corresponds to an item, with rows representing theta values and
-columns representing response categories (e.g., <code>"resp.0"</code>, <code>"resp.1"</code>, ...).</p></dd>
+<dd><p>A list of matrices of category response probabilities,
+one per item and named by item ID. Each matrix has one row per theta
+value and one column per score category of the item (<code>"resp.0"</code>,
+<code>"resp.1"</code>, ...).</p></dd>
 
 
 <dt>icc</dt>
@@ -128,7 +130,7 @@ expected item scores across all items at each theta value.</p></dd>
 
 <dt>theta</dt>
 <dd><p>A numeric vector of theta values at which the item and test
-information functions are evaluated. This matches the user-supplied
+characteristic functions are evaluated. This matches the user-supplied
 <code>theta</code> argument.</p></dd>
 
 </dl></div>
@@ -141,13 +143,13 @@ used to derive:</p><ul><li><p>The item characteristic curve (ICC), which represe
 of each item as a function of theta.</p></li>
 <li><p>The test characteristic curve (TCC), which is the sum of expected item
 scores at each theta value.</p></li>
-</ul><p>The output object can be visualized using the <a href="plot.traceline.html">plot.traceline</a> to
+</ul><p>The output object can be visualized using <code><a href="plot.traceline.html">plot.traceline()</a></code> to
 inspect the relationship between ability levels (theta) and expected
 item/test scores.</p>
 <p>If the input <code>x</code> is an object of class <code>est_item</code> or <code>est_irt</code>, the function
 automatically extracts item parameter estimates and the scaling constant
-<code>D</code> from the object. Otherwise, a properly formatted item metadata data frame
-must be provided.</p>
+<code>D</code> from the object, and a <code>D</code> supplied through <code>...</code> is ignored. Otherwise,
+a properly formatted item metadata data frame must be provided.</p>
     </div>
     <div class="section level2">
     <h2 id="methods-by-class-">Methods (by class)<a class="anchor" aria-label="anchor" href="#methods-by-class-"></a></h2>
@@ -202,7 +204,7 @@ item characteristic function, and test characteristic function for a data frame
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prob.cats$CMC2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             resp.0    resp.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8056920416 0.1943080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8056920417 0.1943080</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.7767979880 0.2232020</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.7102335670 0.2897664</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.5802836604 0.4197163</span>
@@ -330,7 +332,7 @@ item characteristic function, and test characteristic function for a data frame
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $prob.cats$CMC10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            resp.0    resp.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.857083405 0.1429166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.857083406 0.1429166</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.848574681 0.1514253</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.830831671 0.1691683</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.795070184 0.2049298</span>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,7 +114,7 @@ estimation, each suited to different testing scenarios:</p>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/est_item.html">est_item()</a></code></td>
-<td>MLE</td>
+<td>MLE (Bayes modal with priors)</td>
 <td>Pretest calibration (Fixed ability parameter calibration, FAPC)</td>
 <td>Calibrate items using known examinee abilities</td>
 </tr>
@@ -283,7 +283,9 @@ for the 2PL model) and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_j(\theta_k)</annotation></semantics></math>
 is the item response function. <code><a href="../reference/est_irt.html">est_irt()</a></code> maximizes this
 function for each item with <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code> using analytic
-gradients and Hessians.</p>
+gradients and Hessians. When priors are specified for item parameters,
+the log prior densities are added to this function, so the estimates are
+Bayes modal estimates.</p>
 <blockquote>
 <p>Extension to Polytomous Items: While the formulation above uses
 dichotomous items for ease of illustration, the same underlying MMLE-EM
@@ -301,14 +303,18 @@ maintaining the identical decoupling optimization structure.</p>
 <p><strong>Convergence</strong></p>
 <p>This two-step cycle (E and M) repeats. The algorithm terminates when
 the maximum absolute change in item parameter estimates between
-consecutive iterations is less than or equal to the convergence
-threshold specified by the <code>Etol</code> argument.</p>
+consecutive EM cycles is less than or equal to the convergence threshold
+specified by the <code>Etol</code> argument. The mean and variance of a
+latent distribution estimated with FIPC and the weights of an empirical
+histogram are not part of this criterion; a smaller <code>Etol</code>
+gives more precise values of them.</p>
 <p><strong>Key advantages of MMLE-EM:</strong></p>
 <ul>
 <li>Does not require individual ability estimates
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is “integrated out”)</li>
-<li>Handles missing data naturally</li>
+<li>Handles missing responses by omitting them from the likelihood
+(assuming they are missing at random)</li>
 <li>Allows prior distributions on item parameters for numerical
 stability</li>
 </ul>
@@ -330,7 +336,7 @@ stability</li>
 <tbody>
 <tr class="odd">
 <td><code>data</code></td>
-<td>Response matrix (examinees × items); rows = examinees, columns =
+<td>Response matrix (examinees x items); rows = examinees, columns =
 items</td>
 </tr>
 <tr class="even">
@@ -367,11 +373,15 @@ items</td>
 <tbody>
 <tr class="odd">
 <td><code>group.mean</code></td>
-<td>Mean of the prior distribution (default = <code>0</code>)</td>
+<td>Mean of the normal latent distribution (default = <code>0</code>);
+fixed to identify the scale without FIPC, and the starting value of the
+estimated mean with FIPC</td>
 </tr>
 <tr class="even">
 <td><code>group.var</code></td>
-<td>Variance of the prior distribution (default = <code>1</code>)</td>
+<td>Variance of the normal latent distribution (default =
+<code>1</code>); fixed to identify the scale without FIPC, and the
+starting value of the estimated variance with FIPC</td>
 </tr>
 <tr class="odd">
 <td><code>EmpHist</code></td>
@@ -381,7 +391,7 @@ items</td>
 <tr class="even">
 <td><code>Quadrature</code></td>
 <td>Number and range of quadrature points: e.g., <code>c(49, 6)</code> =
-49 points from −6 to 6</td>
+49 points from -6 to 6</td>
 </tr>
 </tbody>
 </table>
@@ -439,11 +449,13 @@ for all 3PLM items</td>
 <tbody>
 <tr class="odd">
 <td><code>use.aprior</code></td>
-<td>Apply log-normal prior to discrimination parameters</td>
+<td>Apply the prior in <code>aprior</code> (log-normal by default) to
+the slope parameters</td>
 </tr>
 <tr class="even">
 <td><code>use.bprior</code></td>
-<td>Apply normal prior to difficulty parameters</td>
+<td>Apply the prior in <code>bprior</code> (normal by default) to the
+difficulty (threshold) parameters</td>
 </tr>
 <tr class="odd">
 <td><code>use.gprior</code></td>
@@ -480,12 +492,15 @@ mean = 5/(5+16) = 0.24</td>
 <tbody>
 <tr class="odd">
 <td><code>Etol</code></td>
-<td>Convergence threshold (default = <code>1e-4</code>). Use
-<code>0.001</code> for faster, slightly looser convergence</td>
+<td>Convergence threshold for the largest absolute change in the
+estimated item parameters (default = <code>1e-4</code>). A larger value
+such as <code>0.001</code> gives faster but looser convergence; the
+latent distribution parameters and the weights of an empirical histogram
+are not part of this criterion (see <code><a href="../reference/est_irt.html">?est_irt</a></code>)</td>
 </tr>
 <tr class="even">
 <td><code>MaxE</code></td>
-<td>Maximum number of EM iterations (default = <code>500</code>)</td>
+<td>Maximum number of EM cycles (default = <code>500</code>)</td>
 </tr>
 <tr class="odd">
 <td><code>se</code></td>
@@ -536,11 +551,11 @@ on the logit scale is
 <p>We demonstrate both approaches:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 1: Define item metadata for 20-item 1PLM test ----</span></span>
-<span><span class="co"># Difficulty parameters range from easy (−2) to hard (2)</span></span>
+<span><span class="co"># Difficulty parameters range from easy (-2) to hard (2)</span></span>
 <span><span class="va">meta_1pl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/shape_df.html">shape_df</a></span><span class="op">(</span></span>
 <span>  par.drm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">20</span><span class="op">)</span>,               <span class="co"># Discriminations set to 1 (for simulation)</span></span>
-<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,  <span class="co"># Difficulty from −2 to 2</span></span>
+<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,  <span class="co"># Difficulty from -2 to 2</span></span>
 <span>    g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">20</span><span class="op">)</span>               <span class="co"># No guessing (1PLM / 2PLM)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  item.id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
@@ -553,7 +568,7 @@ on the logit scale is
 <span><span class="va">resp_1pl</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_1pl</span>, theta <span class="op">=</span> <span class="va">theta_1pl</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ---- Step 3a: Estimate with FIXED discrimination (a = 1) ----</span></span>
-<span><span class="co"># Fixed slope: D×a×(θ−b) = 1.702×1×(θ−b)</span></span>
+<span><span class="co"># Fixed slope: D x a x (theta - b) = 1.702 x 1 x (theta - b)</span></span>
 <span><span class="va">mod_1pl_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">resp_1pl</span>,</span>
 <span>  D          <span class="op">=</span> <span class="fl">1.702</span>,</span>
@@ -586,14 +601,17 @@ on the logit scale is
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 20</span></span>
+<span><span class="co">#&gt;    - Item parameters: 20</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 10</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.000937656</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.4</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.27</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.52</span></span>
+<span><span class="co">#&gt;  Total computation: 0.32</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -676,14 +694,17 @@ on the logit scale is
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 21</span></span>
+<span><span class="co">#&gt;    - Item parameters: 21</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 23</span></span>
-<span><span class="co">#&gt;  Maximum parameter change: 0.0009438272</span></span>
+<span><span class="co">#&gt;  Maximum parameter change: 0.0008924854</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.16</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.14</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.18</span></span>
+<span><span class="co">#&gt;  Total computation: 0.17</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -692,14 +713,14 @@ on the logit scale is
 <span><span class="co">#&gt;   Variance-covariance matrix of item parameter estimates is obtainable.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary of Estimation Results </span></span>
-<span><span class="co">#&gt;  -2loglikelihood: 8479.072</span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8521.072</span></span>
+<span><span class="co">#&gt;  -2loglikelihood: 8479.071</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 8521.071</span></span>
 <span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 8609.578</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3</span></span>
 <span><span class="co">#&gt; 1    I1     2   1PLM   1.02  0.05  -2.10  0.15     NA    NA</span></span>
 <span><span class="co">#&gt; 2    I2     2   1PLM   1.02    NA  -1.78  0.13     NA    NA</span></span>
-<span><span class="co">#&gt; 3    I3     2   1PLM   1.02    NA  -1.56  0.12     NA    NA</span></span>
+<span><span class="co">#&gt; 3    I3     2   1PLM   1.02    NA  -1.57  0.12     NA    NA</span></span>
 <span><span class="co">#&gt; 4    I4     2   1PLM   1.02    NA  -1.41  0.11     NA    NA</span></span>
 <span><span class="co">#&gt; 5    I5     2   1PLM   1.02    NA  -1.11  0.10     NA    NA</span></span>
 <span><span class="co">#&gt; 6    I6     2   1PLM   1.02    NA  -1.08  0.10     NA    NA</span></span>
@@ -715,7 +736,7 @@ on the logit scale is
 <span><span class="co">#&gt; 16  I16     2   1PLM   1.02    NA   1.10  0.10     NA    NA</span></span>
 <span><span class="co">#&gt; 17  I17     2   1PLM   1.02    NA   1.40  0.11     NA    NA</span></span>
 <span><span class="co">#&gt; 18  I18     2   1PLM   1.02    NA   1.42  0.11     NA    NA</span></span>
-<span><span class="co">#&gt; 19  I19     2   1PLM   1.02    NA   1.64  0.12     NA    NA</span></span>
+<span><span class="co">#&gt; 19  I19     2   1PLM   1.02    NA   1.65  0.12     NA    NA</span></span>
 <span><span class="co">#&gt; 20  I20     2   1PLM   1.02    NA   1.88  0.13     NA    NA</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
 <span><span class="co">#&gt;            mu  sigma2  sigma</span></span>
@@ -725,17 +746,17 @@ on the logit scale is
 <span><span class="va">par_constrained</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_1pl_constrained</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">par_constrained</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   id cats model    par.1     par.2 par.3</span></span>
-<span><span class="co">#&gt; 1 I1    2  1PLM 1.018825 -2.095437    NA</span></span>
-<span><span class="co">#&gt; 2 I2    2  1PLM 1.018825 -1.782512    NA</span></span>
-<span><span class="co">#&gt; 3 I3    2  1PLM 1.018825 -1.564798    NA</span></span>
-<span><span class="co">#&gt; 4 I4    2  1PLM 1.018825 -1.414263    NA</span></span>
-<span><span class="co">#&gt; 5 I5    2  1PLM 1.018825 -1.113839    NA</span></span>
-<span><span class="co">#&gt; 6 I6    2  1PLM 1.018825 -1.084686    NA</span></span>
+<span><span class="co">#&gt; 1 I1    2  1PLM 1.018538 -2.096006    NA</span></span>
+<span><span class="co">#&gt; 2 I2    2  1PLM 1.018538 -1.782996    NA</span></span>
+<span><span class="co">#&gt; 3 I3    2  1PLM 1.018538 -1.565223    NA</span></span>
+<span><span class="co">#&gt; 4 I4    2  1PLM 1.018538 -1.414648    NA</span></span>
+<span><span class="co">#&gt; 5 I5    2  1PLM 1.018538 -1.114144    NA</span></span>
+<span><span class="co">#&gt; 6 I6    2  1PLM 1.018538 -1.084983    NA</span></span>
 <span></span>
 <span><span class="co"># Note: par.1 (discrimination) is the same for all items, but its value</span></span>
 <span><span class="co"># is estimated from the data and may differ from 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Common discrimination estimate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">par_constrained</span><span class="op">$</span><span class="va">par.1</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Common discrimination estimate: 1.018825</span></span>
+<span><span class="co">#&gt; Common discrimination estimate: 1.018538</span></span>
 <span></span>
 <span><span class="co"># ---- Compare difficulty recovery ----</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -811,14 +832,17 @@ on the logit scale is
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 50</span></span>
+<span><span class="co">#&gt;    - Item parameters: 50</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 29</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009961947</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.84</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.8</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.87</span></span>
+<span><span class="co">#&gt;  Total computation: 0.83</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1088,6 +1112,8 @@ parameters)</li>
 </tr>
 </tbody>
 </table>
+<p>With <code>D</code> different from 1, the slope prior is placed on
+<code>D * a</code>; see <code><a href="../reference/est_irt.html">?est_irt</a></code>.</p>
 <p>We demonstrate three estimation strategies using the same simulated
 dataset:</p>
 <ul>
@@ -1187,14 +1213,17 @@ estimates back toward plausible values.</p>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 90</span></span>
+<span><span class="co">#&gt;    - Item parameters: 90</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 30</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009130637</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.66</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.67</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.03</span></span>
-<span><span class="co">#&gt;  Total computation: 1.72</span></span>
+<span><span class="co">#&gt;  Total computation: 1.71</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1318,14 +1347,17 @@ at 0.20 is a deliberate misspecification.</p>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 60</span></span>
+<span><span class="co">#&gt;    - Item parameters: 60</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 32</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009903456</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 1.1</span></span>
+<span><span class="co">#&gt;  EM algorithm: 1.14</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 1.15</span></span>
+<span><span class="co">#&gt;  Total computation: 1.19</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1391,8 +1423,9 @@ simultaneously can improve estimation stability.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3PLM with priors on all three parameters</span></span>
 <span><span class="co"># Priors used:</span></span>
-<span><span class="co">#   a ~ LogNormal(0, 0.5): median = exp(0) = 1, ~95% of mass in [0.37, 2.72]</span></span>
-<span><span class="co">#   b ~ Normal(0, 1): centers difficulties near 0 ± 2</span></span>
+<span><span class="co">#   D * a ~ LogNormal(0, 0.5): with D = 1.702, the prior median of a is</span></span>
+<span><span class="co">#   1 / 1.702 = 0.59, and about 95% of the prior mass is in [0.22, 1.60]</span></span>
+<span><span class="co">#   b ~ Normal(0, 1): centers difficulties near 0 (about 95% in [-2, 2])</span></span>
 <span><span class="co">#   g ~ Beta(4, 16): mean = 0.20, for 5-option MC items</span></span>
 <span><span class="va">mod_3pl_allprior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
 <span>  data        <span class="op">=</span> <span class="va">resp_3pl</span>,</span>
@@ -1436,14 +1469,17 @@ simultaneously can improve estimation stability.</p>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 90</span></span>
+<span><span class="co">#&gt;    - Item parameters: 90</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 26</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008924307</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 2.17</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.21</span></span>
-<span><span class="co">#&gt;  Total computation: 2.41</span></span>
+<span><span class="co">#&gt;  EM algorithm: 2.31</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.03</span></span>
+<span><span class="co">#&gt;  Total computation: 2.37</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1747,14 +1783,17 @@ This parameterization differs from the GRM.</p>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 65</span></span>
+<span><span class="co">#&gt;    - Item parameters: 65</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 18</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009697275</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.79</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.81</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.83</span></span>
+<span><span class="co">#&gt;  Total computation: 0.85</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1771,23 +1810,23 @@ This parameterization differs from the GRM.</p>
 <span><span class="co">#&gt; 1    DRM1     2   3PLM   0.89  0.10  -1.72  0.19   0.16  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 2    DRM2     2   3PLM   1.26  0.17  -0.94  0.15   0.22  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 3    DRM3     2   3PLM   0.80  0.12  -0.42  0.20   0.21  0.08     NA    NA</span></span>
-<span><span class="co">#&gt; 4    DRM4     2   3PLM   1.31  0.14  -0.38  0.08   0.10  0.04     NA    NA</span></span>
+<span><span class="co">#&gt; 4    DRM4     2   3PLM   1.31  0.14  -0.38  0.09   0.10  0.04     NA    NA</span></span>
 <span><span class="co">#&gt; 5    DRM5     2   3PLM   1.14  0.14  -0.09  0.10   0.13  0.05     NA    NA</span></span>
 <span><span class="co">#&gt; 6    DRM6     2   3PLM   0.90  0.12   0.09  0.13   0.14  0.05     NA    NA</span></span>
-<span><span class="co">#&gt; 7    DRM7     2   3PLM   1.15  0.16   0.53  0.08   0.14  0.03     NA    NA</span></span>
-<span><span class="co">#&gt; 8    DRM8     2   3PLM   1.31  0.21   0.84  0.07   0.14  0.03     NA    NA</span></span>
-<span><span class="co">#&gt; 9    DRM9     2   3PLM   0.61  0.11   1.00  0.15   0.11  0.05     NA    NA</span></span>
-<span><span class="co">#&gt; 10  DRM10     2   3PLM   1.25  0.25   1.28  0.09   0.14  0.02     NA    NA</span></span>
-<span><span class="co">#&gt; 11  DRM11     2   3PLM   0.98  0.13  -0.70  0.17   0.21  0.08     NA    NA</span></span>
+<span><span class="co">#&gt; 7    DRM7     2   3PLM   1.15  0.16   0.53  0.09   0.14  0.03     NA    NA</span></span>
+<span><span class="co">#&gt; 8    DRM8     2   3PLM   1.31  0.21   0.84  0.08   0.14  0.03     NA    NA</span></span>
+<span><span class="co">#&gt; 9    DRM9     2   3PLM   0.61  0.11   1.00  0.16   0.11  0.05     NA    NA</span></span>
+<span><span class="co">#&gt; 10  DRM10     2   3PLM   1.25  0.25   1.28  0.10   0.14  0.02     NA    NA</span></span>
+<span><span class="co">#&gt; 11  DRM11     2   3PLM   0.98  0.14  -0.70  0.17   0.21  0.08     NA    NA</span></span>
 <span><span class="co">#&gt; 12  DRM12     2   3PLM   1.08  0.13  -0.03  0.10   0.14  0.05     NA    NA</span></span>
 <span><span class="co">#&gt; 13  DRM13     2   3PLM   1.34  0.20   0.51  0.08   0.17  0.03     NA    NA</span></span>
-<span><span class="co">#&gt; 14  DRM14     2   3PLM   0.81  0.16   1.12  0.12   0.14  0.04     NA    NA</span></span>
-<span><span class="co">#&gt; 15  DRM15     2   3PLM   1.16  0.13  -1.24  0.14   0.16  0.08     NA    NA</span></span>
-<span><span class="co">#&gt; 16   GRM1     4    GRM   1.50  0.15  -1.60  0.13  -0.38  0.07   0.74  0.08</span></span>
-<span><span class="co">#&gt; 17   GRM2     4    GRM   1.20  0.12  -1.22  0.12  -0.06  0.08   0.98  0.11</span></span>
-<span><span class="co">#&gt; 18   GRM3     4    GRM   0.86  0.10  -0.99  0.13   0.32  0.10   1.32  0.16</span></span>
-<span><span class="co">#&gt; 19   GRM4     4    GRM   1.35  0.14  -1.05  0.10  -0.29  0.07   0.78  0.09</span></span>
-<span><span class="co">#&gt; 20   GRM5     4    GRM   0.97  0.11  -1.44  0.16   0.21  0.09   1.19  0.14</span></span>
+<span><span class="co">#&gt; 14  DRM14     2   3PLM   0.81  0.16   1.12  0.13   0.14  0.04     NA    NA</span></span>
+<span><span class="co">#&gt; 15  DRM15     2   3PLM   1.16  0.14  -1.24  0.15   0.16  0.08     NA    NA</span></span>
+<span><span class="co">#&gt; 16   GRM1     4    GRM   1.50  0.09  -1.60  0.08  -0.38  0.05   0.74  0.06</span></span>
+<span><span class="co">#&gt; 17   GRM2     4    GRM   1.20  0.07  -1.22  0.07  -0.06  0.05   0.98  0.07</span></span>
+<span><span class="co">#&gt; 18   GRM3     4    GRM   0.86  0.05  -0.99  0.08   0.32  0.06   1.32  0.09</span></span>
+<span><span class="co">#&gt; 19   GRM4     4    GRM   1.35  0.08  -1.05  0.07  -0.29  0.05   0.78  0.06</span></span>
+<span><span class="co">#&gt; 20   GRM5     4    GRM   0.97  0.06  -1.44  0.09   0.21  0.06   1.19  0.08</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
 <span><span class="co">#&gt;            mu  sigma2  sigma</span></span>
 <span><span class="co">#&gt; estimates   0       1      1</span></span>
@@ -1865,8 +1904,8 @@ do?</strong></p>
 </li>
 <li>
 <strong>Relax <code>Etol</code></strong>: Try
-<code>Etol = 0.005</code>
-</li>
+<code>Etol = 0.005</code>, keeping in mind that the estimates are then
+less converged</li>
 <li>
 <strong>Check your data</strong>: Are there items with extreme
 proportions
@@ -1906,7 +1945,8 @@ is already on by default (<code>use.gprior = TRUE</code>)</li>
 <td><code>EmpHist = TRUE</code></td>
 <td>Large samples, non-normal population</td>
 <td>Flexible, data-driven</td>
-<td>Slower, unstable with small N</td>
+<td>Slower; unstable with small N; the histogram can keep changing
+slowly over many cycles</td>
 </tr>
 </tbody>
 </table>
@@ -2050,14 +2090,15 @@ methods are implemented in <code><a href="../reference/est_irt.html">est_irt()</
 <tbody>
 <tr class="odd">
 <td><strong>OEM</strong></td>
-<td>One EM cycle: one E-step using anchor items only, then one M-step
-for pretest items</td>
+<td>One EM cycle: one E-step using the anchor items only and the initial
+latent distribution, then one M-step for the pretest items</td>
 <td>Fast; one-pass approach</td>
 </tr>
 <tr class="even">
 <td><strong>MEM</strong></td>
-<td>Multiple EM cycles: iterate between E-step and M-step until
-convergence</td>
+<td>Multiple EM cycles: the latent distribution is updated in every
+cycle, and from the second cycle the posterior distribution uses both
+anchor and pretest items</td>
 <td>More stable; <strong>recommended</strong>
 </td>
 </tr>
@@ -2065,9 +2106,9 @@ convergence</td>
 </table>
 <p><strong>Recommendation:</strong> Use <code>fipc.method = "MEM"</code>
 unless there is any specific reason to prefer the one-pass OEM method.
-<span class="citation">Ban et al. (2001)</span> showed that MEM tends to
-produce the smallest item-parameter estimation errors across all
-sample-size conditions.</p>
+MEM updates the latent distribution in every cycle, whereas OEM uses a
+single E-step and a single M-step; see <span class="citation">Kim
+(2006)</span> for a comparison of FIPC procedures.</p>
 </div>
 <div class="section level3">
 <h3 id="fipc-workflow-in-irtq">FIPC Workflow in irtQ<a class="anchor" aria-label="anchor" href="#fipc-workflow-in-irtq"></a>
@@ -2113,7 +2154,9 @@ FIPC</strong></p>
 <p><strong>Result:</strong></p>
 <ul>
 <li>Pretest items are calibrated on Group X’s scale</li>
-<li>Group Y’s ability distribution is estimated: e.g., N(0.3, 1.1)</li>
+<li>Group Y’s ability distribution is estimated (here as an empirical
+histogram, with its mean and variance reported in
+<code>group.par</code>)</li>
 <li>No post-hoc linking needed</li>
 </ul>
 <hr>
@@ -2239,7 +2282,7 @@ examinees</li>
 <span><span class="co"># Columns 16-20: pretest item responses</span></span>
 <span><span class="va">resp_anch</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_anchor</span>, theta <span class="op">=</span> <span class="va">theta_new</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span><span class="va">resp_pre</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_new_true</span>, theta <span class="op">=</span> <span class="va">theta_new</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
-<span><span class="va">resp_new</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">resp_anch</span>, <span class="va">resp_pre</span><span class="op">)</span>   <span class="co"># 500 × 20 matrix</span></span>
+<span><span class="va">resp_new</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">resp_anch</span>, <span class="va">resp_pre</span><span class="op">)</span>   <span class="co"># 500 x 20 matrix</span></span>
 <span></span>
 <span><span class="co"># Calibrate pretest items via FIPC</span></span>
 <span><span class="va">mod_fipc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est_irt.html">est_irt</a></span><span class="op">(</span></span>
@@ -2271,13 +2314,16 @@ examinees</li>
 <span><span class="co">#&gt;  Convergence criterion of E-step: 0.001</span></span>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
-<span><span class="co">#&gt;  Number of free parameters: 12</span></span>
+<span><span class="co">#&gt;  Number of free parameters: 58</span></span>
+<span><span class="co">#&gt;    - Item parameters: 10</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 48</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 15</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 13</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008186949</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.12</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.11</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0</span></span>
 <span><span class="co">#&gt;  Total computation: 0.14</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -2289,8 +2335,8 @@ examinees</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary of Estimation Results </span></span>
 <span><span class="co">#&gt;  -2loglikelihood: 9205.698</span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 9229.698</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 9280.274</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 9321.698</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 9566.146</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;       id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3</span></span>
 <span><span class="co">#&gt; 1    OI1     2   2PLM   1.04    NA  -1.75    NA     NA    NA</span></span>
@@ -2360,8 +2406,8 @@ examinees</li>
 <li>Pretest items are successfully calibrated on the <strong>old form
 scale</strong> (Group X) because the anchor items constrain the
 θ-metric.</li>
-<li>Group Y’s ability distribution is accurately recovered (mean ≈ 0.3,
-SD ≈ 1.0).</li>
+<li>Group Y’s ability distribution is accurately recovered (mean about
+0.3, SD about 1.0).</li>
 <li>Anchor items (positions 1-15) retain their fixed values from
 <code>meta_anchor</code>.</li>
 <li>Pretest items can now be added to the operational item bank.</li>
@@ -2527,7 +2573,10 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt;  Convergence criterion of E-step: 0.001</span></span>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
-<span><span class="co">#&gt;  Number of free parameters: 22</span></span>
+<span><span class="co">#&gt;  Number of free parameters: 68</span></span>
+<span><span class="co">#&gt;    - Item parameters: 20</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 48</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 22</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 7</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0008719196</span></span>
@@ -2535,7 +2584,7 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
 <span><span class="co">#&gt;  EM algorithm: 0.19</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.01</span></span>
-<span><span class="co">#&gt;  Total computation: 0.23</span></span>
+<span><span class="co">#&gt;  Total computation: 0.22</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -2545,8 +2594,8 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary of Estimation Results </span></span>
 <span><span class="co">#&gt;  -2loglikelihood: 30837.22</span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 30881.22</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 30989.19</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 30973.22</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 31306.95</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;       id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4</span></span>
 <span><span class="co">#&gt; 1     D1     2   3PLM   0.90    NA  -2.06    NA   0.17    NA     NA    NA</span></span>
@@ -2576,7 +2625,7 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt; 25  NEW5     2   3PLM   0.86  0.13   0.86  0.11   0.14  0.04     NA    NA</span></span>
 <span><span class="co">#&gt; 26    P1     5    GRM   1.37    NA  -1.41    NA  -0.47    NA   0.31    NA</span></span>
 <span><span class="co">#&gt; 27    P2     5    GRM   1.14    NA  -1.16    NA  -0.32    NA   0.47    NA</span></span>
-<span><span class="co">#&gt; 28  NEW6     5    GRM   1.10  0.09  -1.27  0.12  -0.37  0.08   0.39  0.08</span></span>
+<span><span class="co">#&gt; 28  NEW6     5    GRM   1.10  0.05  -1.27  0.07  -0.37  0.05   0.39  0.05</span></span>
 <span><span class="co">#&gt;     par.5  se.5</span></span>
 <span><span class="co">#&gt; 1      NA    NA</span></span>
 <span><span class="co">#&gt; 2      NA    NA</span></span>
@@ -2605,7 +2654,7 @@ simultaneously field-tested.</p>
 <span><span class="co">#&gt; 25     NA    NA</span></span>
 <span><span class="co">#&gt; 26   1.14    NA</span></span>
 <span><span class="co">#&gt; 27   1.40    NA</span></span>
-<span><span class="co">#&gt; 28   1.19  0.11</span></span>
+<span><span class="co">#&gt; 28   1.19  0.06</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
 <span><span class="co">#&gt;              mu  sigma2  sigma</span></span>
 <span><span class="co">#&gt; estimates  0.17    1.24   1.11</span></span>
@@ -2700,7 +2749,7 @@ distribution with estimated mean and variance is used</td>
 <p><strong>Note:</strong> Use either <code>fix.loc</code> (positions) or
 <code>fix.id</code> (item IDs) to specify anchor items, but not both
 simultaneously. If <code>fix.id</code> is non-<code>NULL</code>,
-<code>fix.loc</code> is ignored.</p>
+<code>fix.loc</code> is ignored with a warning.</p>
 </blockquote>
 <hr>
 </div>
@@ -2762,17 +2811,19 @@ log-likelihood expression via numerical optimization (e.g., using
 (MML) estimation or FIPC, there is no EM cycle involved because the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 values are treated as fixed, observed data rather than a latent
-distribution to be integrated out.</p>
+distribution to be integrated out. When priors are used (for example,
+<code>use.gprior = TRUE</code> for 3PLM items, the default), the log
+prior densities are added to this function, so the estimates are Bayes
+modal; the <code>loglikelihood</code> element and the -2loglikelihood
+printed by <code><a href="../reference/summary.html">summary()</a></code> exclude the log prior densities.</p>
 <p><strong>Important Limitation:</strong> FAPC inherently treats the
 estimated abilities
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\hat{\theta}_i</annotation></semantics></math>
 as if they were the true, error-free parameters
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>),
 thereby ignoring ability estimation error (measurement error). This
-omission can lead to a slight downward bias in item discrimination
-estimates
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>-parameters),
-especially when the operational test is relatively short and the
+omission can bias the item parameter estimates, especially when the
+operational test is relatively short and the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
 estimates are less precise. Additionally, to prevent selection bias from
 confounding the calibration, a random (non-adaptive) pretest
@@ -2956,9 +3007,8 @@ test.</p></li>
 is known without error</strong>: Treating
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
 as a fixed constant ignores measurement error. This measurement error
-propagates into calibration, causing a slight downward bias
-(attenuation) in item discrimination estimates, especially if the
-operational form is short.</p></li>
+propagates into calibration and can bias the item parameter estimates,
+especially if the operational form is short.</p></li>
 <li><p>⚠️ <strong>No population distribution estimation</strong>: Unlike
 FIPC, FAPC cannot estimate or recover the group-level latent trait
 distribution
@@ -3025,9 +3075,11 @@ the same items overall.</li>
 <li>Common item parameters are <strong>automatically
 constrained</strong> to be equal across the groups where they appear,
 mapped accurately by matching item IDs.</li>
-<li>Group ability distributions are <strong>freely estimated</strong> to
-account for population heterogeneity, unless one group is fixed as a
-reference.</li>
+<li>Group ability distributions are <strong>freely estimated</strong>
+for the groups in <code>free.group</code>. Without FIPC, at least one
+group must be left out of <code>free.group</code> as a reference group
+whose distribution fixes the scale; otherwise <code><a href="../reference/est_mg.html">est_mg()</a></code>
+stops with an error.</li>
 </ul>
 <p>For example, consider three groups sharing items as follows:</p>
 <pre><code>Group 1:  [Item A1 ... Common items (C1) ... Item A2 ...]
@@ -3093,8 +3145,12 @@ estimated simultaneously:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Resulting Scale Properties:</strong> All group distributions
 are estimated dynamically; the parameters of the fixed anchor items
-(held at known values) tie the groups directly to the established
-scale.</p>
+(held at known values) tie the groups directly to the established scale.
+With <code>fipc.method = "MEM"</code>, the first EM cycle uses only the
+fixed items to compute the posterior distributions, and later cycles use
+all items <span class="citation">(Kim &amp; Kolen, 2016)</span>. Groups
+that are not in <code>free.group</code> keep their distributions fixed
+also with FIPC.</p>
 <hr>
 </div>
 </div>
@@ -3232,7 +3288,10 @@ scale.</p>
 <span><span class="co">#&gt;  Convergence criterion of E-step: 0.001</span></span>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
-<span><span class="co">#&gt;  Number of free parameters: 362</span></span>
+<span><span class="co">#&gt;  Number of free parameters: 500</span></span>
+<span><span class="co">#&gt;    - Item parameters: 358</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 142</span></span>
 <span><span class="co">#&gt;  Number of fixed items: </span></span>
 <span><span class="co">#&gt;   Overall: 0</span></span>
 <span><span class="co">#&gt;   By group: 0(Group1), 0(Group2), 0(Group3)</span></span>
@@ -3240,9 +3299,9 @@ scale.</p>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009935414</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 15.3</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.2</span></span>
-<span><span class="co">#&gt;  Total computation: 15.94</span></span>
+<span><span class="co">#&gt;  EM algorithm: 14.94</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.38</span></span>
+<span><span class="co">#&gt;  Total computation: 15.79</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -3255,8 +3314,8 @@ scale.</p>
 <span><span class="co">#&gt;   Overall: 319161.5</span></span>
 <span><span class="co">#&gt;   By group: 120346.201(Group1), 113943.649(Group2), 84871.67(Group3)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 319885.5</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 322310.7</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 320161.5</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 323511.3</span></span>
 <span><span class="co">#&gt;  Item Parameters (Overall): </span></span>
 <span><span class="co">#&gt;         id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4</span></span>
 <span><span class="co">#&gt; 1     C1I1     2   3PLM   0.82  0.17   1.32  0.19   0.26  0.06     NA    NA</span></span>
@@ -3523,18 +3582,18 @@ scale.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"\n=== Comparison to True Values ===\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; === Comparison to True Values ===</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 1: True μ=0.0, σ=1.00  | Est. μ="</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group1</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", σ="</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 1: true mean = 0.0, SD = 1.00 | estimated mean ="</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group1</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", SD ="</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group1</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"sigma"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Group 1: True μ=0.0, σ=1.00  | Est. μ= 0 , σ= 1</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 2: True μ=0.5, σ=0.8  | Est. μ="</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group2</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", σ="</span>,</span>
+<span><span class="co">#&gt; Group 1: true mean = 0.0, SD = 1.00 | estimated mean = 0 , SD = 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 2: true mean = 0.5, SD = 0.8 | estimated mean ="</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group2</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", SD ="</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group2</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"sigma"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Group 2: True μ=0.5, σ=0.8  | Est. μ= 0.484 , σ= 0.759</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 3: True μ=-0.3, σ=1.3 | Est. μ="</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group3</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", σ="</span>,</span>
+<span><span class="co">#&gt; Group 2: true mean = 0.5, SD = 0.8 | estimated mean = 0.484 , SD = 0.759</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Group 3: true mean = -0.3, SD = 1.3 | estimated mean ="</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group3</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"mu"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">", SD ="</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_par_mg</span><span class="op">$</span><span class="va">Group3</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"sigma"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Group 3: True μ=-0.3, σ=1.3 | Est. μ= -0.349 , σ= 1.364</span></span>
+<span><span class="co">#&gt; Group 3: true mean = -0.3, SD = 1.3 | estimated mean = -0.349 , SD = 1.364</span></span>
 <span></span>
 <span><span class="co"># Item parameter estimates for all items across groups (first 6 items of the overall table)</span></span>
 <span><span class="va">par_mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getirt.html">getirt</a></span><span class="op">(</span><span class="va">mod_mg</span>, what <span class="op">=</span> <span class="st">"par.est"</span><span class="op">)</span></span>
@@ -3690,7 +3749,10 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="co">#&gt;  Convergence criterion of E-step: 0.001</span></span>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
-<span><span class="co">#&gt;  Number of free parameters: 294</span></span>
+<span><span class="co">#&gt;  Number of free parameters: 432</span></span>
+<span><span class="co">#&gt;    - Item parameters: 288</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 144</span></span>
 <span><span class="co">#&gt;  Number of fixed items: </span></span>
 <span><span class="co">#&gt;   Overall: 22</span></span>
 <span><span class="co">#&gt;   By group: 12(Group1), 22(Group2), 10(Group3)</span></span>
@@ -3698,9 +3760,9 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009769281</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 8.02</span></span>
-<span><span class="co">#&gt;  Standard error computation: 0.17</span></span>
-<span><span class="co">#&gt;  Total computation: 8.67</span></span>
+<span><span class="co">#&gt;  EM algorithm: 8.43</span></span>
+<span><span class="co">#&gt;  Standard error computation: 0.15</span></span>
+<span><span class="co">#&gt;  Total computation: 9.13</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -3713,8 +3775,8 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="co">#&gt;   Overall: 319220.8</span></span>
 <span><span class="co">#&gt;   By group: 120352.776(Group1), 113982.319(Group2), 84885.716(Group3)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 319808.8</span></span>
-<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 321778.5</span></span>
+<span><span class="co">#&gt;  Akaike Information Criterion (AIC): 320084.8</span></span>
+<span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 322979</span></span>
 <span><span class="co">#&gt;  Item Parameters (Overall): </span></span>
 <span><span class="co">#&gt;         id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4</span></span>
 <span><span class="co">#&gt; 1     C1I1     2   3PLM   0.76    NA   1.46    NA   0.26    NA     NA    NA</span></span>
@@ -3965,7 +4027,7 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">group_par_fipc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $Group1</span></span>
 <span><span class="co">#&gt;                    mu     sigma2      sigma</span></span>
-<span><span class="co">#&gt; estimates -0.01161244 1.00951987 1.00474866</span></span>
+<span><span class="co">#&gt; estimates -0.01161244 1.00951986 1.00474866</span></span>
 <span><span class="co">#&gt; se         0.02246686 0.03193181 0.01589044</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Group2</span></span>
@@ -4001,7 +4063,8 @@ anchor items (at positions <strong>41-50</strong>).</li>
 <td align="left">
 <code>c(2, 3)</code> (Reference group is fixed)</td>
 <td align="left">
-<code>1:3</code> (All groups are freely estimated)</td>
+<code>1:3</code> (all groups are freely estimated;
+groups not listed would stay fixed)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>fipc</code></td>
@@ -4067,10 +4130,12 @@ category counts, and unique item IDs for each group.</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>free.group</code></td>
-<td align="left">Integer vector indicating which groups have freely
-estimated latent trait
+<td align="left">Positions or names of the groups whose latent trait
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>)
-distributions.</td>
+distributions are freely estimated; the other groups are reference
+groups fixed at <code>group.mean</code> and <code>group.var</code>.
+Required with FIPC; without FIPC, at least one group must be left
+out.</td>
 </tr>
 <tr class="even">
 <td align="left"><code>fipc</code></td>
@@ -4152,8 +4217,10 @@ model specifications</strong></p>
 string-identical item IDs. For the baseline measurement invariance
 constraint to hold, a common item must share the <strong>exact same
 model type</strong> (e.g., <code>3PLM</code>) and the <strong>same
-number of score categories</strong> across all groups where it
-appears.</p>
+number of score categories</strong> across all groups where it appears.
+<code><a href="../reference/est_mg.html">est_mg()</a></code> checks this and stops with an error that lists the
+inconsistent items. An item ID repeated within a group is also an
+error.</p>
 <hr>
 </div>
 <div class="section level3">
@@ -4186,12 +4253,6 @@ for multiple-group IRT was established by <span class="citation">Bock
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0" line-spacing="2">
-<div id="ref-ban_etal2001" class="csl-entry">
-Ban, J.-C., Hanson, B. A., Wang, T., Yi, Q., &amp; Harris, D. J. (2001).
-A comparative study of on-line pretest item-calibration/scaling methods
-in computerized adaptive testing. <em>Journal of Educational
-Measurement</em>, <em>38</em>(3), 191–212. <a href="https://doi.org/10.1111/j.1745-3984.2001.tb01123.x" class="external-link">https://doi.org/10.1111/j.1745-3984.2001.tb01123.x</a>
-</div>
 <div id="ref-bock_aitkin1981" class="csl-entry">
 Bock, R. D., &amp; Aitkin, M. (1981). Marginal maximum likelihood
 estimation of item parameters: Application of an <span>EM</span>

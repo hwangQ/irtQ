@@ -48,17 +48,18 @@ A list with the following components:
 
 - `iter`: The number of iterations performed.
 
-- `accuracy`: The final absolute difference between the last two
-  interval points with opposite signs.
+- `delta`: The width of the final search interval.
 
 ## Details
 
-The bisection method is a well-known root-finding numerical algorithm
-that applies to any continuous function, provided that the function
-values at the lower (`lb`) and upper (`ub`) bounds have opposite signs.
-The method repeatedly bisects the interval until the absolute difference
-between successive estimates is smaller than the error tolerance (`tol`)
-or the maximum number of iterations (`max.it`) is reached.
+The bisection method is a root-finding algorithm for a continuous
+function whose values at the lower (`lb`) and upper (`ub`) bounds have
+opposite signs. The method repeatedly halves the interval until its
+width is no greater than `tol` or the maximum number of iterations
+(`max.it`) is reached, and returns the midpoint of the final interval. A
+warning is issued when the function values at the bounds do not have
+opposite signs or when `max.it` is reached before the interval is no
+wider than `tol`.
 
 ## References
 

@@ -1,8 +1,7 @@
 # Summary of Item Calibration Results
 
-This S3 method summarizes the IRT calibration results from an object of
-class `est_irt`, `est_mg`, or `est_item`, which are returned by the
-functions
+Summarizes the item calibration results in an object of class `est_irt`,
+`est_mg`, or `est_item`, returned by
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
 [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), and
 [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md),
@@ -21,6 +20,24 @@ summary(object, ...)
 
 # S3 method for class 'est_item'
 summary(object, ...)
+
+# S3 method for class 'est_irt'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
+
+# S3 method for class 'est_mg'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
+
+# S3 method for class 'est_item'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
+
+# S3 method for class 'summary.est_irt'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
+
+# S3 method for class 'summary.est_mg'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
+
+# S3 method for class 'summary.est_item'
+print(x, digits = max(2L, getOption("digits") - 5L), ...)
 ```
 
 ## Arguments
@@ -34,11 +51,35 @@ summary(object, ...)
   Additional arguments passed to or from other methods (currently not
   used).
 
+- x:
+
+  An object of class `est_irt`, `est_mg`, or `est_item`, or the summary
+  of one of them, to be printed.
+
+- digits:
+
+  For a summary object, the number of decimal places used to round the
+  tables of item and group parameter estimates. Not used when an
+  `est_irt`, `est_mg`, or `est_item` object itself is printed.
+
 ## Value
 
-A list of internal components extracted from the given object. In
-addition, the summary method prints an overview of the IRT calibration
-results to the console.
+An object of class `summary.est_irt`, `summary.est_mg`, or
+`summary.est_item`: a list of selected components of `object` (the call,
+the numbers of items and examinees, the estimation settings and
+convergence messages, the log-likelihood, AIC and BIC (not for
+`est_item`), and the item and group parameter estimates). Printing the
+object displays an overview of the calibration results.
+
+## Details
+
+irtQ exports its own generic `summary()`, which calls the method of the
+class of `object` and therefore works as
+[`base::summary()`](https://rdrr.io/r/base/summary.html) for other
+objects. Printing a summary object rounds the tables of item and group
+parameter estimates to the number of decimal places given in the
+`digits` argument of the print method (default
+`max(2L, getOption("digits") - 5L)`).
 
 ## Methods (by class)
 
@@ -50,6 +91,34 @@ results to the console.
 
 - `summary(est_item)`: An object created by the function
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
+
+## Functions
+
+- `print(est_irt)`: Print method for an object of class `est_irt` (given
+  as `x`). It prints the number of EM cycles, the number of quadrature
+  points, the two convergence checks, a note on the computation of the
+  variance-covariance matrix, and the log-likelihood.
+
+- `print(est_mg)`: Print method for an object of class `est_mg` (given
+  as `x`). It prints the number of EM cycles, the number of quadrature
+  points, the two convergence checks, a note on the computation of the
+  variance-covariance matrix, and the log-likelihood.
+
+- `print(est_item)`: Print method for an object of class `est_item`
+  (given as `x`). It prints the convergence message of the fixed ability
+  parameter calibration and the log-likelihood.
+
+- `print(summary.est_irt)`: Print method for the summary of an `est_irt`
+  object (given as `x`). It prints the full calibration summary with the
+  tables rounded to `digits` decimal places.
+
+- `print(summary.est_mg)`: Print method for the summary of an `est_mg`
+  object (given as `x`). It prints the full calibration summary with the
+  tables rounded to `digits` decimal places.
+
+- `print(summary.est_item)`: Print method for the summary of an
+  `est_item` object (given as `x`). It prints the full calibration
+  summary with the tables rounded to `digits` decimal places.
 
 ## See also
 
@@ -65,19 +134,16 @@ Hwanggyu Lim <hglim83@gmail.com>
 
 ``` r
 # \donttest{
-# Fit the 1PL model to LSAT6 data and constrain the slope parameters to be equal
-fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE)
-#> Parsing input... 
-#> Estimating item parameters... 
-#>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.293929 EM iteration: 2, Loglike: -2561.3380, Max-Change: 0.58111 EM iteration: 3, Loglike: -2483.1811, Max-Change: 0.31473 EM iteration: 4, Loglike: -2469.6884, Max-Change: 0.171175 EM iteration: 5, Loglike: -2467.5148, Max-Change: 0.096225 EM iteration: 6, Loglike: -2467.1096, Max-Change: 0.056965 EM iteration: 7, Loglike: -2467.0029, Max-Change: 0.035311 EM iteration: 8, Loglike: -2466.9648, Max-Change: 0.022579 EM iteration: 9, Loglike: -2466.9493, Max-Change: 0.014699 EM iteration: 10, Loglike: -2466.9427, Max-Change: 0.009659 EM iteration: 11, Loglike: -2466.9398, Max-Change: 0.006377 EM iteration: 12, Loglike: -2466.9386, Max-Change: 0.004219 EM iteration: 13, Loglike: -2466.9380, Max-Change: 0.002795 EM iteration: 14, Loglike: -2466.9378, Max-Change: 0.001852 EM iteration: 15, Loglike: -2466.9377, Max-Change: 0.001228 EM iteration: 16, Loglike: -2466.9376, Max-Change: 0.000814 EM iteration: 17, Loglike: -2466.9376, Max-Change: 0.000539 EM iteration: 18, Loglike: -2466.9376, Max-Change: 0.000358 EM iteration: 19, Loglike: -2466.9376, Max-Change: 0.000237 EM iteration: 20, Loglike: -2466.9376, Max-Change: 0.000157 EM iteration: 21, Loglike: -2466.9376, Max-Change: 0.000104 EM iteration: 22, Loglike: -2466.9376, Max-Change: 6.9e-05 
-#> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.1 seconds. 
+# Fit the 1PL model to the LSAT6 data, constraining the slopes to be equal
+fit.1pl <- est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2,
+                   fix.a.1pl = FALSE, verbose = FALSE)
 
 # Display the calibration summary
 summary(fit.1pl)
 #> 
 #> Call:
-#> est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE)
+#> est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE, 
+#>     verbose = FALSE)
 #> 
 #> Summary of the Data 
 #>  Number of Items: 5
@@ -89,12 +155,15 @@ summary(fit.1pl)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 6
+#>    - Item parameters: 6
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 22
 #>  Maximum parameter change: 6.905886e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.08
+#>  EM algorithm: 0.09
 #>  Standard error computation: 0
 #>  Total computation: 0.1
 #> 

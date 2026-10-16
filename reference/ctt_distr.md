@@ -1,20 +1,20 @@
 # Option/Category Response Distribution and Distractor Analysis
 
-Computes, for each item, the percentage of examinees choosing each
-response option (or, for already-scored polytomous data, each score
-category), together with each option's/category's point-biserial
-correlation with the total score. When an answer key is supplied, the
-function operates in "selected-response" mode - treating `data` as raw,
-unscored option responses (as consumed by
-[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)) -
-and additionally reports omission/double-marking rates and flags
-distractors (incorrect options) whose correlation with the total score
-is positive, a common indicator of a miskeyed or poorly written item.
-When no key is supplied, the function operates in "scored-category"
-mode - treating `data` as an already-scored response matrix (0, 1, 2,
-..., cats - 1) - and simply reports each score category's response
-proportion and category-total correlation, with no notion of a "correct"
-option to flag distractors against.
+Computes, for each item, the number and percentage of examinees choosing
+each response option (or, for already-scored data, each score category),
+together with each option's or category's point-biserial correlation
+with the total score. When an answer key is supplied, the function
+operates in "selected-response" mode: it treats `data` as raw, unscored
+option responses (as used by
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)),
+also reports omission and double-marking rates, and flags distractors
+(incorrect options) whose correlation with the total score exceeds
+`crit.distractor` (0 by default), a common sign of a miskeyed or poorly
+written item. When no key is supplied, the function operates in
+"scored-category" mode: it treats `data` as an already-scored response
+matrix (0, 1, 2, ..., cats - 1) and reports each score category's
+response proportion and category-total correlation, with no correct
+option and therefore no flagging.
 
 ## Usage
 
@@ -39,13 +39,14 @@ ctt_distr(
   In selected-response mode (`key` supplied), a data frame or matrix of
   raw item responses in the same format as the `data` argument of
   [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
-  (a selected option number, a missing-response indicator, or a
-  comma-separated string such as `"1,5"` for a double-marked response).
-  In scored-category mode (`key = NULL`), a data frame or matrix of
+  (a selected option, a missing-response indicator, or a comma-separated
+  string such as `"1,5"` for a double-marked response). In
+  scored-category mode (`key = NULL`), a data frame or matrix of
   already-scored item responses with scores 0 to `cats[j] - 1` for each
   item j; an error is raised when a score is not a whole number between
-  0 and `cats[j] - 1`. Either way, examinees are rows and items are
-  columns.
+  0 and `cats[j] - 1`, and a score within 1e-8 of a whole number is
+  treated as that whole number. Either way, examinees are rows and items
+  are columns.
 
 - item.id:
 
@@ -61,10 +62,9 @@ ctt_distr(
 
 - key:
 
-  `NULL` (default) for scored-category mode, or - to use
-  selected-response mode - either a vector of correct options in item
-  order, or a data frame with columns `item` and `key`, exactly as
-  accepted by
+  `NULL` (default) for scored-category mode. For selected-response mode,
+  either a vector of correct options in item order or a data frame with
+  columns `item` and `key`, as accepted by
   [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md).
   As in
   [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md),
@@ -106,23 +106,22 @@ ctt_distr(
   [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
   in selected-response mode, or as `rowSums(data)` in scored-category
   mode (see **Details** for how `total` interacts with
-  `missing`/listwise deletion in scored-category mode).
+  `missing`/listwise deletion in scored-category mode). A supplied
+  `total` must be numeric with no missing values for the examinees
+  analyzed, and it should include the item scores, since `pb_corrected`
+  subtracts each item's score from it.
 
 - correct:
 
-  Logical. Both the raw (uncorrected) item-total correlation - where an
-  item (or, in `ctt_distr()`, a response option/category) is correlated
-  with the total score that includes its own contribution - and the
-  corrected item-total correlation - excluding its own contribution -
-  are always computed and reported as separate columns (see
-  **Details**/**Value**). This argument only controls which of the two
-  is used for flagging: if `TRUE`, flagging (in
-  [`ctt_item()`](https://hwangQ.github.io/irtQ/reference/ctt_item.md)'s
-  `flag` column,
-  [`ctt_alpha()`](https://hwangQ.github.io/irtQ/reference/ctt_alpha.md)'s
-  summary discrimination figure, and, in `ctt_distr()`, the
-  `crit.distractor` check) is based on the corrected value; if `FALSE`
-  (default), on the raw value.
+  Logical. Both the raw item-total correlation (the item score, or in
+  `ctt_distr()` an option or category indicator, correlated with a total
+  score that includes the item) and the corrected item-total correlation
+  (correlated with a total score that excludes the item) are always
+  computed and reported as separate columns. This argument only selects
+  which of the two is used for flagging: the corrected value if `TRUE`,
+  the raw value if `FALSE` (default). It drives the `flag` column of
+  [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) and the
+  `crit.distractor` check of `ctt_distr()`.
 
 - missing:
 
@@ -131,11 +130,12 @@ ctt_distr(
   [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) and
   [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md).
   Its effect differs by mode (see **Details**): in selected-response
-  mode, a cell equal to `missing` is recoded to `NA` and then treated as
-  a blank (omitted) response, contributing to that item's omission rate,
-  without removing the examinee from the analysis. In scored-category
-  mode, a cell equal to `missing` is recoded to `NA` and the examinee's
-  row is then excluded listwise, as in
+  mode, a cell equal to `missing` after trimming surrounding spaces is
+  recoded to `NA` and then treated as a blank (omitted) response,
+  contributing to that item's omission rate, without removing the
+  examinee from the analysis. In scored-category mode, a cell equal to
+  `missing` is recoded to `NA` and the examinee's row is then excluded
+  listwise, as in
   [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md). Default is
   `NA`.
 
@@ -155,46 +155,48 @@ A list with these elements:
   (selected-response mode) or item x category (scored-category mode),
   containing `item`, `option` (the option number, option label, or score
   category; numeric for a numeric-coded or scored-category test form,
-  character for a letter- or general-label-coded test form), `is_key`
-  (logical; whether this option is the item's correct answer, or `NA` in
-  scored-category mode), `freq` (the raw number of examinees choosing
-  this option/category), `pct` (the same count expressed as a percentage
-  of examinees), `pb_raw` (raw, uncorrected point-biserial correlation
-  with the total score), `pb_corrected` (corrected, item-excluded
-  point-biserial correlation with the total score), and `flag` (a
-  description of `crit.distractor` violations, based on whichever of
-  `pb_raw`/`pb_corrected` is selected by `correct`, in selected-response
-  mode, or `""` otherwise).
+  character and upper-cased for a letter- or general-label-coded test
+  form), `is_key` (logical; whether this option is the item's correct
+  answer, or `NA` in scored-category mode), `freq` (the number of
+  examinees choosing this option or category), `pct` (`freq` as a
+  percentage of all examinees analyzed, rounded to two decimal places),
+  `pb_raw` and `pb_corrected` (raw and corrected point-biserial
+  correlations, rounded to three decimal places), and `flag` (in
+  selected-response mode, "distractor more attractive to high scorers"
+  for a distractor whose point-biserial correlation, chosen by
+  `correct`, exceeds `crit.distractor`; `""` otherwise).
 
 - omit:
 
-  In selected-response mode, a data frame with one row per item giving
-  the blank/omission and double-marked response percentages
-  (`pct_blank`, `pct_double`). `NULL` in scored-category mode.
+  In selected-response mode, a data frame with one row per item and the
+  columns `item`, `pct_blank`, and `pct_double` (the percentages of
+  blank and double-marked responses). `NULL` in scored-category mode.
 
 ## Details
 
 In selected-response mode, each item's option-coding scheme is inferred
 from its own `key` value, using exactly the same three-way rule as
 [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md):
-a key value that parses as a number is compared numerically; a key value
-consisting of one or more Latin letters is compared as letters,
-case-insensitively, and a response must itself consist only of Latin
-letters to count as a single valid option; any other key value (e.g., a
-Korean syllable label, a Roman numeral written in a non-Latin numeral
-script, or a circled-number symbol) is treated as a general option
-label, under which any non-blank, non-double-marked response is accepted
-as a single valid option and compared to the key (and to `opt`) with a
-case-insensitive exact string match. This ensures `ctt_distr()`
-interprets a given `data`/`key` pair identically to
+a key value written with digits only (e.g., `4`, optionally with a
+decimal part) is compared numerically; a key value consisting of one or
+more Latin letters is compared as letters, case-insensitively, and a
+response must itself consist only of Latin letters to count as a single
+valid option; any other key value (e.g., a Korean syllable label, a
+Roman numeral written with non-Latin numeral characters, or a
+circled-number symbol) is treated as a general option label, under which
+any non-blank, non-double-marked response is accepted as a single valid
+option and compared to the key (and to `opt`) with a case-insensitive
+exact string match. This ensures `ctt_distr()` interprets a given
+`data`/`key` pair identically to
 [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md).
 Because `opt` (the option universe used for every item's frequency
 table) is a single vector shared across all items, `ctt_distr()` is
 intended for a test form that uses one consistent option-coding scheme
-throughout (e.g., every item numbered 1-5, or every item lettered A-E);
-mixing schemes across items within a single call is not well-supported,
-since the shared `opt` cannot represent two different option universes
-at once.
+throughout (e.g., every item numbered 1-5, or every item lettered A-E).
+Mixing schemes across items in a single call is not supported, since the
+shared `opt` cannot represent two different option sets at once; for
+example, mixing numeric-coded items with letter- or label-coded items
+stops with an error. Analyze such items in separate calls.
 
 The two modes handle missing responses differently because they
 represent different kinds of data. In selected-response mode, an omitted
@@ -208,24 +210,23 @@ response matrix (as used by
 [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md)), where a
 missing cell instead means the item was not administered to, or not
 observed for, that examinee, so the examinee's row is excluded listwise
-for that analysis. When `total` is supplied together with
-scored-category mode's listwise deletion, `total` is assumed to align
-with the *original* rows of `data`; it is subset using the same
-completeness mask before use, so its length need only match the original
-`nrow(data)`.
+for that analysis. When `total` is supplied in scored-category mode, it
+must align with the *original* rows of `data` (its length must equal the
+original `nrow(data)`); it is subset with the same completeness mask
+before use.
 
 Point-biserial correlations are computed as the Pearson correlation
 between a 0/1 indicator (whether the examinee chose that particular
-option, or scored in that particular category) and the total score. As
+option, or scored in that particular category) and a total score. As
 with the item-level discrimination statistics computed by
-[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), both the raw
-(uncorrected, item/option-included) and corrected (item-excluded)
-versions are always computed and returned as separate columns
-(`pb_raw`/`pb_corrected`); `correct` only selects which of the two feeds
-the `crit.distractor` flagging criterion in selected-response mode. A
+[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), two versions
+are always computed and returned as separate columns: `pb_raw` uses the
+total score, and `pb_corrected` uses the total score minus the item's
+own score. `correct` only selects which of the two feeds the
+`crit.distractor` flagging criterion in selected-response mode. A
 point-biserial correlation is undefined, and reported as `NA`, whenever
-an option/category was chosen by zero or all examinees (a constant
-indicator).
+an option or category was chosen by zero or all examinees (a constant
+indicator) or the total score is constant.
 
 ## Note
 

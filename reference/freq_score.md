@@ -1,13 +1,13 @@
 # Frequency Distribution Table for Total Scores
 
 Computes a frequency distribution table for a vector of total (raw)
-scores - frequency, percentage, and cumulative percentage for each score
-value - commonly reported alongside classical test theory (CTT) item
-analysis results. This is the same function
-[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) calls
-internally to build the total-score frequency distribution included in
-its output, but it is also exported and fully usable on its own for any
-vector of integer total scores.
+scores: the frequency, percentage, and cumulative percentage of each
+score value, as commonly reported with classical test theory (CTT) item
+analysis results.
+[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) calls this
+function to build the total-score frequency distribution in its output,
+and it can also be used on its own for any vector of integer total
+scores.
 
 ## Usage
 
@@ -19,7 +19,9 @@ freq_score(score, missing = NA)
 
 - score:
 
-  A numeric vector of total (raw) scores, one value per examinee.
+  A numeric vector of integer total (raw) scores, one value per
+  examinee. A factor is converted through its labels (for example, the
+  level `"12"` becomes the score 12), not through its level codes.
 
 - missing:
 
@@ -62,14 +64,14 @@ table with a frequency of 0, matching how a raw-score frequency table is
 conventionally reported. Percentages are computed relative to the number
 of non-missing scores and rounded to two decimal places; cumulative
 percentages are the running sum of the unrounded percentages, rounded to
-two decimal places only in the final output, so that rounding error does
-not accumulate across rows and the final cumulative percentage totals
-almost exactly 100 (subject only to ordinary rounding).
+two decimal places only in the final output, so rounding error does not
+accumulate and the last cumulative percentage is 100.
 
-This function assumes scores already lie on an integer (or otherwise
-evenly spaced discrete) scale, as is standard for a raw total score; it
-does not bin or group continuous values, and raises an error if any
-non-integer score is supplied rather than silently dropping it.
+This function requires integer scores, as is standard for a raw total
+score. It does not bin or group values, and it stops with an error when
+a score is not a whole number. A score within 1e-8 of a whole number,
+such as the result of a floating-point sum, is counted as that whole
+number.
 
 The output table always spans `min(score)` to `max(score)`, so its size
 scales with the observed score *range*, not the sample size; a single

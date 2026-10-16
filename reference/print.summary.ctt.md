@@ -6,7 +6,9 @@ of class `"summary.ctt"` produced by
 the function call, the full item-level statistics table (including
 flags, if present), the test-level reliability summary, and the
 total-score frequency distribution, following the sectioned reporting
-style used by `print.summary.est_irt()` in irtQ.
+style used by
+[`print.summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)
+in irtQ.
 
 ## Usage
 
@@ -24,12 +26,11 @@ print(x, digits = 3, ...)
 
 - digits:
 
-  Number of decimal places used when rounding numeric values for
-  display. Default is `3`. Note that the statistics bundled into `x` are
-  already rounded to 3 decimal places upstream, so a `digits` value
-  greater than 3 here cannot recover precision that was already
-  discarded; `digits` is only useful for displaying the report at 3 or
-  fewer decimal places.
+  Number of decimal places used for display. Default is `3`. The values
+  in `x` are already rounded by
+  [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) (item and
+  test statistics to three decimal places, percentages to two), so a
+  larger value adds no precision.
 
 - ...:
 
@@ -104,7 +105,7 @@ print(summary(out), digits = 2)
 #>            0.66      
 #>            0.67      
 #> 
-#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
+#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2 (raw item-total correlation)
 #> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary

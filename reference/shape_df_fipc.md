@@ -1,4 +1,4 @@
-# Combine fixed and new item metadata for fixed-item parameter calibration (FIPC)
+# Combine Fixed and New Item Metadata for Fixed Item Parameter Calibration (FIPC)
 
 This function merges existing fixed-item metadata with automatically
 generated metadata for new items, producing a single data frame ordered
@@ -23,49 +23,52 @@ shape_df_fipc(x, fix.loc = NULL, item.id = NULL, cats, model)
 - fix.loc:
 
   An integer vector specifying the row positions in the final output
-  where fixed items should be placed.
+  where the fixed items are placed, in the row order of `x`. This
+  argument must be specified.
 
 - item.id:
 
-  A character vector of IDs for new items whose parameters will be
-  estimated.If `NULL`, default IDs (e.g., "V1", "V2", ...) are assigned
-  automatically.
+  A character vector of IDs for the new items whose parameters are
+  estimated. If `NULL`, default IDs (`"V1"`, `"V2"`, ...) are assigned.
 
 - cats:
 
-  An integer vector indicating the number of response categories for
-  each new item; order must match `item.id`.
+  An integer vector giving the number of score categories of each new
+  item, in the order of `item.id`. A single value is recycled across all
+  new items.
 
 - model:
 
-  A character vector of IRT model names for each new item. Valid options
-  for dichotomous items: "1PLM", "2PLM", "3PLM", "DRM"; for polytomous
-  items: "GRM", "GPCM".
+  A character vector of IRT model names for the new items: `"1PLM"`,
+  `"2PLM"`, `"3PLM"`, or `"DRM"` for dichotomous items, and `"GRM"` or
+  `"GPCM"` for polytomous items. A single value is recycled across all
+  new items.
 
 ## Value
 
-A data.frame containing combined metadata for all items (fixed and new),
-ordered by test position.
+A data frame of item metadata for all items (fixed and new), ordered by
+test position, with columns `id`, `cats`, `model`, and `par.1`, `par.2`,
+.... New items receive default parameters as in
+[`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md) with
+`default.par = TRUE`. Fixed `"DRM"` items are relabeled `"3PLM"`.
 
 ## Details
 
-To use this function, first prepare a metadata frame `x` containing only
-fixed items - either created by
+First, prepare a metadata frame `x` that contains only the fixed items,
+created by
 [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md) or
-imported from external software (e.g., via
-[`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)),
-which must include columns `id`, `cats`, `model`, and all relevant
-parameter columns (`par.1`, `par.2`, etc.). The `fix.loc` argument
-should then specify the exact row positions in the final test form where
-these fixed items should remain. The length of `fix.loc` must match the
-number of rows in `x`, and the order of positions in `fix.loc`
-determines where each fixed-item row is placed.
+imported from external software (e.g., with
+[`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)).
+It must include the columns `id`, `cats`, `model`, and the parameter
+columns (`par.1`, `par.2`, ...). Then use `fix.loc` to give the row
+positions of these items in the final test form. The length of `fix.loc`
+must equal the number of rows in `x`, and the i-th element of `fix.loc`
+is the position of the i-th row of `x`.
 
-Next, provide information for the new items whose parameters will be
-estimated. Supply vectors for `item.id`, `cats`, and `model` matching
-the number of new items (equal to total form length minus length of
-`fix.loc`). If `item.id` is `NULL`, unique IDs are generated
-automatically.
+Next, provide `item.id`, `cats`, and `model` for the new items, whose
+number equals the total form length minus the length of `fix.loc`. A
+single value of `cats` or `model` is used for all new items. If
+`item.id` is `NULL`, default IDs (`"V1"`, `"V2"`, ...) are assigned.
 
 ## See also
 

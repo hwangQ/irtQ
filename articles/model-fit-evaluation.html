@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,8 +118,9 @@ infit, outfit</td>
 </tr>
 </tbody>
 </table>
-<p>Both functions accept either an <code>est_irt</code> object (produced
-by <code><a href="../reference/est_irt.html">est_irt()</a></code>) or a plain item metadata data frame as their
+<p>Both functions accept an <code>est_irt</code> object (produced by
+<code><a href="../reference/est_irt.html">est_irt()</a></code>), an <code>est_item</code> object (produced by
+<code><a href="../reference/est_item.html">est_item()</a></code>), or a plain item metadata data frame as their
 first argument <code>x</code>, and both support mixed-format tests
 containing dichotomous and polytomous items.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -324,8 +325,9 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>G</mi><mn>2</mn></msup><annotation encoding="application/x-tex">G^2</annotation></semantics></math>
 df:</strong> For the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
-statistic, the number of estimated item parameters is subtracted from
-the df (e.g., for a 3PLM item with
+statistic, the number of item parameters of the item’s model (including
+parameters fixed in the calibration) is subtracted from the df (e.g.,
+for a 3PLM item with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mn>11</mn></mrow><annotation encoding="application/x-tex">H = 11</annotation></semantics></math>
 bins left after any cell collapsing,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>=</mo><mn>11</mn><mo>−</mo><mn>3</mn><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">df = 11 - 3 = 8</annotation></semantics></math>).
@@ -406,14 +408,15 @@ affect the statistics:</p>
 <td><code>"equal.width"</code></td>
 <td>Bins span equal-length <em>intervals</em> on the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-scale. Easier to interpret geometrically; used by <span class="citation">Yen (1981)</span>.</td>
+scale. Easier to interpret geometrically.</td>
 </tr>
 <tr class="even">
 <td><code>group.method</code></td>
 <td><code>"equal.freq"</code></td>
 <td>Each bin contains approximately the same <em>number of
 examinees</em> (quantile-based). Preferred when the ability distribution
-is skewed.</td>
+is skewed. <span class="citation">Yen (1981)</span> used 10 groups of
+approximately equal size.</td>
 </tr>
 <tr class="odd">
 <td><code>n.width</code></td>
@@ -485,7 +488,7 @@ analysis.</li>
 </tr>
 <tr class="odd">
 <td><code>data</code></td>
-<td>Response matrix (examinees × items)</td>
+<td>Response matrix (examinees x items)</td>
 </tr>
 <tr class="even">
 <td><code>D</code></td>
@@ -573,8 +576,8 @@ computation (one per item)</td>
 </tr>
 <tr class="odd">
 <td><code>item_df</code></td>
-<td>Copy of the item metadata provided in <code>x</code>
-</td>
+<td>The item metadata used in the analysis (items with fewer than two
+responses are removed by <code><a href="../reference/irtfit.html">irtfit()</a></code>)</td>
 </tr>
 <tr class="even">
 <td><code>ancillary</code></td>
@@ -605,7 +608,8 @@ statistic, degrees of freedom, critical value, and p-value</li>
 <code>outfit</code> / <code>infit</code>: mean-square outfit and
 infit statistics</li>
 <li>
-<code>N</code>: number of non-missing responses to the item</li>
+<code>N</code>: number of examinees with a response to the item and
+an ability estimate</li>
 <li>
 <code>overSR.prop</code>: proportion of (ability bin x response
 category) cells, prior to cell collapsing, whose absolute standardized
@@ -625,7 +629,7 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
 <span>  group.method <span class="op">=</span> <span class="st">"equal.freq"</span>,   <span class="co"># ~equal number of examinees per bin</span></span>
 <span>  n.width      <span class="op">=</span> <span class="fl">11</span>,             <span class="co"># 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)</span></span>
-<span>  loc.theta    <span class="op">=</span> <span class="st">"middle"</span>,       <span class="co"># bin midpoint as representative θ</span></span>
+<span>  loc.theta    <span class="op">=</span> <span class="st">"middle"</span>,       <span class="co"># bin midpoint as representative theta</span></span>
 <span>  range.score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,       <span class="co"># truncate ML estimates to [-4, 4]</span></span>
 <span>  alpha        <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  overSR       <span class="op">=</span> <span class="fl">2</span></span>
@@ -655,7 +659,7 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span><span class="co">#&gt; 19 ITEM19 10.314 10.664     6     9       12.59       16.92 0.112 0.299  0.899</span></span>
 <span><span class="co">#&gt; 20 ITEM20 35.592 31.090     8    11       15.51       19.68 0.000 0.001  0.968</span></span>
 <span><span class="co">#&gt;    infit    N overSR.prop</span></span>
-<span><span class="co">#&gt; 1  0.780 1000       0.091</span></span>
+<span><span class="co">#&gt; 1  0.779 1000       0.091</span></span>
 <span><span class="co">#&gt; 2  0.872 1000       0.091</span></span>
 <span><span class="co">#&gt; 3  0.989 1000       0.273</span></span>
 <span><span class="co">#&gt; 4  0.925 1000       0.000</span></span>
@@ -665,7 +669,7 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span><span class="co">#&gt; 8  0.992 1000       0.091</span></span>
 <span><span class="co">#&gt; 9  0.982 1000       0.182</span></span>
 <span><span class="co">#&gt; 10 0.941 1000       0.273</span></span>
-<span><span class="co">#&gt; 11 0.966 1000       0.091</span></span>
+<span><span class="co">#&gt; 11 0.967 1000       0.091</span></span>
 <span><span class="co">#&gt; 12 0.969 1000       0.000</span></span>
 <span><span class="co">#&gt; 13 0.924 1000       0.182</span></span>
 <span><span class="co">#&gt; 14 0.981 1000       0.091</span></span>
@@ -685,9 +689,9 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span>  score        <span class="op">=</span> <span class="va">score_bin</span><span class="op">$</span><span class="va">est.theta</span>,</span>
 <span>  data         <span class="op">=</span> <span class="va">resp_bin</span>,</span>
 <span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span>
-<span>  group.method <span class="op">=</span> <span class="st">"equal.width"</span>,  <span class="co"># equal-width θ intervals (Yen, 1981 approach)</span></span>
+<span>  group.method <span class="op">=</span> <span class="st">"equal.width"</span>,  <span class="co"># equal-width theta intervals</span></span>
 <span>  n.width      <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  loc.theta    <span class="op">=</span> <span class="st">"average"</span>,      <span class="co"># within-bin mean θ</span></span>
+<span>  loc.theta    <span class="op">=</span> <span class="st">"average"</span>,      <span class="co"># within-bin mean theta</span></span>
 <span>  range.score  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>,</span>
 <span>  alpha        <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  overSR       <span class="op">=</span> <span class="fl">2</span></span>
@@ -695,28 +699,28 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span></span>
 <span><span class="va">fit_bin2</span><span class="op">$</span><span class="va">fit_stat</span></span>
 <span><span class="co">#&gt;        id     X2     G2 df.X2 df.G2 crit.val.X2 crit.val.G2  p.X2  p.G2 outfit</span></span>
-<span><span class="co">#&gt; 1   ITEM1 10.267 13.945     3     6        7.81       12.59 0.016 0.030  0.746</span></span>
-<span><span class="co">#&gt; 2   ITEM2 10.092 10.076     3     6        7.81       12.59 0.018 0.121  0.516</span></span>
-<span><span class="co">#&gt; 3   ITEM3 22.693 21.331     5     8       11.07       15.51 0.000 0.006  1.057</span></span>
-<span><span class="co">#&gt; 4   ITEM4  3.604  3.841     4     7        9.49       14.07 0.462 0.798  0.796</span></span>
-<span><span class="co">#&gt; 5   ITEM5  5.367  5.610     5     8       11.07       15.51 0.373 0.691  0.971</span></span>
-<span><span class="co">#&gt; 6   ITEM6  3.403  4.518     5     8       11.07       15.51 0.638 0.808  0.958</span></span>
+<span><span class="co">#&gt; 1   ITEM1 10.270 13.942     3     6        7.81       12.59 0.016 0.030  0.746</span></span>
+<span><span class="co">#&gt; 2   ITEM2 10.107 10.094     3     6        7.81       12.59 0.018 0.121  0.516</span></span>
+<span><span class="co">#&gt; 3   ITEM3 22.631 21.281     5     8       11.07       15.51 0.000 0.006  1.057</span></span>
+<span><span class="co">#&gt; 4   ITEM4  3.601  3.839     4     7        9.49       14.07 0.463 0.798  0.796</span></span>
+<span><span class="co">#&gt; 5   ITEM5  5.371  5.615     5     8       11.07       15.51 0.372 0.690  0.971</span></span>
+<span><span class="co">#&gt; 6   ITEM6  3.406  4.524     5     8       11.07       15.51 0.638 0.807  0.958</span></span>
 <span><span class="co">#&gt; 7   ITEM7  8.268  7.418     5     8       11.07       15.51 0.142 0.492  0.896</span></span>
-<span><span class="co">#&gt; 8   ITEM8  6.102  5.702     5     8       11.07       15.51 0.296 0.681  0.991</span></span>
-<span><span class="co">#&gt; 9   ITEM9  5.181  4.852     5     8       11.07       15.51 0.394 0.773  0.979</span></span>
+<span><span class="co">#&gt; 8   ITEM8  6.104  5.704     5     8       11.07       15.51 0.296 0.680  0.991</span></span>
+<span><span class="co">#&gt; 9   ITEM9  5.181  4.853     5     8       11.07       15.51 0.394 0.773  0.979</span></span>
 <span><span class="co">#&gt; 10 ITEM10 12.492 11.813     5     8       11.07       15.51 0.029 0.160  0.910</span></span>
-<span><span class="co">#&gt; 11 ITEM11  2.633  2.459     4     7        9.49       14.07 0.621 0.930  0.829</span></span>
-<span><span class="co">#&gt; 12 ITEM12  4.645  4.757     4     7        9.49       14.07 0.326 0.690  0.929</span></span>
+<span><span class="co">#&gt; 11 ITEM11  2.606  2.437     4     7        9.49       14.07 0.626 0.932  0.829</span></span>
+<span><span class="co">#&gt; 12 ITEM12  4.648  4.760     4     7        9.49       14.07 0.325 0.689  0.929</span></span>
 <span><span class="co">#&gt; 13 ITEM13 10.566 10.841     5     8       11.07       15.51 0.061 0.211  0.867</span></span>
-<span><span class="co">#&gt; 14 ITEM14  3.842  3.842     5     8       11.07       15.51 0.572 0.871  0.966</span></span>
-<span><span class="co">#&gt; 15 ITEM15  2.971  4.275     5     8       11.07       15.51 0.705 0.832  0.961</span></span>
-<span><span class="co">#&gt; 16 ITEM16  4.247  4.429     4     7        9.49       14.07 0.374 0.729  0.844</span></span>
-<span><span class="co">#&gt; 17 ITEM17  4.462  4.443     5     8       11.07       15.51 0.485 0.815  0.986</span></span>
-<span><span class="co">#&gt; 18 ITEM18  4.976  6.277     5     8       11.07       15.51 0.419 0.616  0.962</span></span>
-<span><span class="co">#&gt; 19 ITEM19  4.384  4.183     4     7        9.49       14.07 0.356 0.758  0.899</span></span>
+<span><span class="co">#&gt; 14 ITEM14  3.843  3.842     5     8       11.07       15.51 0.572 0.871  0.966</span></span>
+<span><span class="co">#&gt; 15 ITEM15  2.971  4.275     5     8       11.07       15.51 0.704 0.832  0.961</span></span>
+<span><span class="co">#&gt; 16 ITEM16  4.249  4.432     4     7        9.49       14.07 0.373 0.729  0.844</span></span>
+<span><span class="co">#&gt; 17 ITEM17  4.465  4.446     5     8       11.07       15.51 0.485 0.815  0.986</span></span>
+<span><span class="co">#&gt; 18 ITEM18  4.978  6.280     5     8       11.07       15.51 0.419 0.616  0.962</span></span>
+<span><span class="co">#&gt; 19 ITEM19  4.385  4.183     4     7        9.49       14.07 0.356 0.758  0.899</span></span>
 <span><span class="co">#&gt; 20 ITEM20  9.089  9.029     5     8       11.07       15.51 0.106 0.340  0.968</span></span>
 <span><span class="co">#&gt;    infit    N overSR.prop</span></span>
-<span><span class="co">#&gt; 1  0.780 1000         0.2</span></span>
+<span><span class="co">#&gt; 1  0.779 1000         0.2</span></span>
 <span><span class="co">#&gt; 2  0.872 1000         0.1</span></span>
 <span><span class="co">#&gt; 3  0.989 1000         0.3</span></span>
 <span><span class="co">#&gt; 4  0.925 1000         0.0</span></span>
@@ -726,7 +730,7 @@ categories mirror each other, so this equals the proportion of bins</li>
 <span><span class="co">#&gt; 8  0.992 1000         0.0</span></span>
 <span><span class="co">#&gt; 9  0.982 1000         0.0</span></span>
 <span><span class="co">#&gt; 10 0.941 1000         0.1</span></span>
-<span><span class="co">#&gt; 11 0.966 1000         0.0</span></span>
+<span><span class="co">#&gt; 11 0.967 1000         0.0</span></span>
 <span><span class="co">#&gt; 12 0.969 1000         0.0</span></span>
 <span><span class="co">#&gt; 13 0.924 1000         0.0</span></span>
 <span><span class="co">#&gt; 14 0.981 1000         0.0</span></span>
@@ -821,7 +825,7 @@ after collapsing bins with sparse expected frequencies.</p>
 <span><span class="co">#&gt; 7    91          1         90   1.296210   89.70379 0.010989011  0.9890110</span></span>
 <span><span class="co">#&gt; 8   364          2        362   1.760155  362.23985 0.005494505  0.9945055</span></span>
 <span><span class="co">#&gt;   exp.prob.0 exp.prob.1     raw.rsd.0     raw.rsd.1</span></span>
-<span><span class="co">#&gt; 1 0.61660489  0.3833951 -0.2429785120  0.2429785120</span></span>
+<span><span class="co">#&gt; 1 0.61660489  0.3833951 -0.2429785121  0.2429785121</span></span>
 <span><span class="co">#&gt; 2 0.15865049  0.8413495 -0.0267823573  0.0267823573</span></span>
 <span><span class="co">#&gt; 3 0.08593021  0.9140698 -0.0309851511  0.0309851511</span></span>
 <span><span class="co">#&gt; 4 0.05221392  0.9477861 -0.0192468848  0.0192468848</span></span>
@@ -872,7 +876,7 @@ if adjacent cells were merged during the statistical computation.</p>
 <code class="sourceCode R"><span><span class="co"># Side-by-side: ICC overlay (raw residuals) + standardized residual plot</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">fit_bin1</span>,</span>
-<span>  item.loc   <span class="op">=</span> <span class="fl">1</span>,          <span class="co"># item index (row number in the metadata)</span></span>
+<span>  item.loc   <span class="op">=</span> <span class="fl">1</span>,          <span class="co"># row number in fit_bin1$item_df</span></span>
 <span>  type       <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  ci.method  <span class="op">=</span> <span class="st">"wald"</span>,     <span class="co"># confidence interval method for proportion-correct CI</span></span>
 <span>  show.table <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -912,8 +916,8 @@ if adjacent cells were merged during the statistical computation.</p>
 <tbody>
 <tr class="odd">
 <td><code>"wald"</code></td>
-<td>Normal-approximation (Wald) interval, simplest but can be unreliable
-for small
+<td>Normal-approximation (Wald) interval with the model-implied standard
+error, simplest but can be unreliable for small
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>h</mi></msub><annotation encoding="application/x-tex">N_h</annotation></semantics></math>
 </td>
 </tr>
@@ -1069,10 +1073,10 @@ among those examinees, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>P</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><annotation encoding="application/x-tex">\hat{P}_s</annotation></semantics></math>
 is the model-based expected proportion.</p>
 <p>Degrees of freedom equal the number of summed-score groups that
-remain after cell collapsing minus the number of estimated item
-parameters. Before any collapsing, the feasible summed-score values
-exclude 0 and the maximum, where responses to the item are
-deterministic, so
+remain after cell collapsing minus the number of item parameters of the
+item’s model (parameters fixed in the calibration are also counted).
+Before any collapsing, the feasible summed-score values exclude 0 and
+the maximum, where responses to the item are deterministic, so
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>f</mi><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mi>I</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">df \le (I - 1) - p</annotation></semantics></math><span class="citation">(Ames &amp; Penfield, 2015)</span>.</p>
 <p><strong>Extension to polytomous items.</strong> <span class="citation">Kang &amp; Chen (2008)</span> generalized
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mn>2</mn></msup><annotation encoding="application/x-tex">X^2</annotation></semantics></math>
@@ -1114,8 +1118,8 @@ excessive score-group loss <span class="citation">(Kang &amp; Chen,
 </tr>
 <tr class="even">
 <td><code>data</code></td>
-<td>Response matrix (examinees × items). Missing values are replaced
-with 0 (incorrect).</td>
+<td>Response matrix (examinees x items). Missing values are replaced
+with 0 (the lowest category), with a warning.</td>
 </tr>
 <tr class="odd">
 <td><code>D</code></td>
@@ -1134,8 +1138,9 @@ with 0 (incorrect).</td>
 <tr class="even">
 <td><code>norm.prior</code></td>
 <td>
-<code>c(mean, sd)</code> of the normal prior used in the
-Lord-Wingersky integration (default <code>c(0, 1)</code>)</td>
+<code>c(mean, sd)</code> of the normal latent distribution used in
+the Lord-Wingersky integration (default <code>c(0, 1)</code>); ignored
+when <code>weights</code> is given</td>
 </tr>
 <tr class="odd">
 <td><code>nquad</code></td>
@@ -1143,9 +1148,17 @@ Lord-Wingersky integration (default <code>c(0, 1)</code>)</td>
 <code>30</code>)</td>
 </tr>
 <tr class="even">
+<td><code>weights</code></td>
+<td>Two-column quadrature points and weights of the latent distribution.
+For an <code>est_irt</code> object, when <code>weights</code>,
+<code>norm.prior</code>, and <code>nquad</code> are all omitted, the
+distribution stored in the object (<code>x$weights</code>) is used</td>
+</tr>
+<tr class="odd">
 <td><code>pcm.loc</code></td>
-<td>Integer vector of item indices fitted as PCM (discrimination fixed
-to 1); default <code>NULL</code>
+<td>Integer vector of the row indices of PCM items, whose slopes were
+fixed in the calibration; used only to count the item parameters for the
+df; default <code>NULL</code>
 </td>
 </tr>
 </tbody>
@@ -1176,8 +1189,7 @@ per item</td>
 </tr>
 <tr class="even">
 <td><code>item_df</code></td>
-<td>Copy of the item metadata provided in <code>x</code>
-</td>
+<td>The item metadata used in the analysis</td>
 </tr>
 <tr class="odd">
 <td><code>exp_freq</code></td>

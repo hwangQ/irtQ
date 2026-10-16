@@ -199,8 +199,8 @@ resp_mix_raw <- simdat(
   g.drm    = rep(0.15, 3),
   a.prm    = c(1.4, 1.1),              # slopes for the 2 polytomous items
   d.prm    = list(
-    c(-1.2, -0.1, 1.0),                # 3 threshold params → 4 categories (GRM)
-    c(-0.8,  0.6)                      # 2 threshold params → 3 categories (GPCM)
+    c(-1.2, -0.1, 1.0),                # 3 threshold params -> 4 categories (GRM)
+    c(-0.8,  0.6)                      # 2 threshold params -> 3 categories (GPCM)
   ),
   cats     = c(2, 2, 4, 2, 3),        # item order: DRM, DRM, GRM, DRM, GPCM
   pr.model = c("GRM", "GPCM"),         # models for polytomous items only
@@ -275,7 +275,7 @@ items.
 
 theta_pts <- c(-2, -1, 0, 1, 2)
 
-# 2PLM (g omitted → defaults to 0): two items
+# 2PLM (g omitted, so it defaults to 0): two items
 P_2pl <- drm(
   theta = theta_pts,
   a     = c(1.0, 1.5),
@@ -344,11 +344,11 @@ $`K`$-category item:
 P_grm <- prm(
   theta    = theta_pts,
   a        = 1.5,
-  d        = c(-1.5, -0.2, 1.0),   # 3 thresholds → 4 categories
+  d        = c(-1.5, -0.2, 1.0),   # 3 thresholds -> 4 categories
   D        = 1.702,
   pr.model = "GRM"
 )
-round(P_grm, 4)          # 5 rows (theta) × 4 columns (score categories)
+round(P_grm, 4)          # 5 rows (theta) x 4 columns (score categories)
 #>        [,1]   [,2]   [,3]   [,4]
 #> [1,] 0.7819 0.2081 0.0095 0.0005
 #> [2,] 0.2181 0.6670 0.1088 0.0060
@@ -401,20 +401,20 @@ round(prm(0, a=1.5, d=c(-1.5,-0.2,1.0), D=1.702, pr.model="GPCM"), 4)
 #> [1,] 0.0077 0.3549 0.5914 0.046
 ```
 
-For the PCM (a special case of GPCM with equal discrimination across
-items), set `a = 1`.
+For the PCM (a special case of the GPCM with a slope of 1), set `a = 1`
+and `D = 1`.
 
 ### Key `drm()` and `prm()` arguments
 
 | Argument | [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) | [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | Description |
 |----|:--:|:--:|----|
-| `theta` | ✓ | ✓ | Numeric vector of ability values |
-| `a` | ✓ | ✓ | Discrimination (slope) parameter(s) |
-| `b` | ✓ |  | Difficulty parameter(s), dichotomous items only |
-| `g` | ✓ |  | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
-| `d` |  | ✓ | Vector of $`K-1`$ threshold parameters, polytomous items only |
-| `D` | ✓ | ✓ | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
-| `pr.model` |  | ✓ | `"GRM"` or `"GPCM"` |
+| `theta` | x | x | Numeric vector of ability values |
+| `a` | x | x | Discrimination (slope) parameter(s) |
+| `b` | x |  | Difficulty parameter(s), dichotomous items only |
+| `g` | x |  | Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0) |
+| `d` |  | x | Vector of $`K-1`$ threshold parameters, polytomous items only |
+| `D` | x | x | Scaling constant (default `1`; use `1.702` to approximate the normal ogive) |
+| `pr.model` |  | x | `"GRM"` or `"GPCM"` |
 
 ------------------------------------------------------------------------
 
@@ -434,7 +434,7 @@ The function returns an object of class `"info"` with three components:
 - `$theta`: the theta grid supplied by the user.
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
-visualises IIFs, TIF, or the conditional standard error of estimation
+visualizes IIFs, TIF, or the conditional standard error of estimation
 (CSEE = $`1/\sqrt{\text{TIF}}`$).
 
 ``` r
@@ -471,7 +471,7 @@ info_val$iif[1:5, 1:6]          # IIF: items 1-5, theta points 1-6
 
 plot(
   x         = info_val,
-  item.loc  = NULL,              # NULL → plot the TIF
+  item.loc  = NULL,              # NULL: plot the TIF
   main.text = "Test Information Function (15-item 3PLM)",
   xlab      = expression(theta),
   ylab      = "Information"
@@ -487,7 +487,7 @@ plot(
 plot(
   x         = info_val,
   item.loc  = NULL,
-  csee      = TRUE,              # plot SE(θ) = 1 / √TIF(θ)
+  csee      = TRUE,              # plot SE(theta) = 1 / sqrt(TIF(theta))
   main.text = "Conditional Standard Error of Estimation",
   xlab      = expression(theta),
   ylab      = expression(SE(theta))
@@ -636,7 +636,7 @@ a correct response. For polytomous items, the ICC is the expected item
 score $`\sum_k k \cdot P(U = k \mid \theta)`$.
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method is
-used for visualisation. Two key arguments control what is drawn:
+used for visualization. Two key arguments control what is drawn:
 
 - `item.loc`: which item(s) to plot; `NULL` plots the TCC for the whole
   test.
@@ -674,7 +674,7 @@ trace_bin$icc[1:6, 1:5]          # ICC: expected item scores, items 1-5
 
 plot(
   x         = trace_bin,
-  item.loc  = NULL,              # NULL → plot TCC
+  item.loc  = NULL,              # NULL: plot the TCC
   main.text = "Test Characteristic Curve (15-item 3PLM)",
   xlab      = expression(theta),
   ylab      = "Expected Total Score"
@@ -841,7 +841,7 @@ plot(
 
 When `score.curve = FALSE` and `overlap = TRUE`, each item gets its own
 panel and the category curves within that item are overlaid using
-different colours.
+different colors.
 
 ``` r
 
@@ -904,7 +904,7 @@ lwrc_val <- lwrc(
   D     = 1.702
 )
 
-dim(lwrc_val)           # (J+1) rows × length(theta) columns: 16 × 3
+dim(lwrc_val)           # (J+1) rows x length(theta) columns: 16 x 3
 #> [1] 16  3
 round(head(lwrc_val), 4)
 #>         theta.1 theta.2 theta.3
@@ -989,7 +989,7 @@ sum(score_dist_mix)
 ## `gen.weight()`: Quadrature Weights
 
 [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)
-generates a two-column data frame of quadrature nodes and normalised
+generates a two-column data frame of quadrature nodes and normalized
 weights to be used in numerical integration over the ability scale. It
 is used internally by
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
@@ -1084,16 +1084,23 @@ sum(w_emp$weight)        # sums to 1
 
 [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) computes
 the analytical asymptotic variance-covariance matrices of item parameter
-estimates using the formulas developed by Thissen & Wainer (1982) and
-extended to polytomous IRT models by Li & Lissitz (2004). These matrices
-provide the asymptotic standard errors (ASEs) of maximum likelihood
-estimates **without requiring examinee response data**; only the item
-parameters and the sample size used for calibration are needed.
+estimates from the expected information of each item, integrated over an
+assumed ability distribution (Li & Lissitz, 2004; Thissen & Wainer,
+1982). These matrices provide the asymptotic standard errors (ASEs) of
+maximum likelihood estimates **without requiring examinee response
+data**; only the item parameters, the ability distribution, and the
+sample size used for calibration are needed. For polytomous items, the
+information of a multinomial response is used, which differs from
+Equation A8 of Li & Lissitz (2004); see
+[`?covirt`](https://hwangQ.github.io/irtQ/reference/covirt.md) for
+details.
 
-The ASEs obtained analytically represent **lower bounds** of the true
-standard errors (Thissen & Wainer, 1982), so they are best used as
-approximations when empirical standard errors from calibration software
-are unavailable.
+Because the abilities are treated as known, the model is assumed to fit,
+and item parameter priors are ignored, the analytical ASEs are generally
+considered **lower bounds** of the standard errors of an actual
+calibration (Li & Lissitz, 2004; Thissen & Wainer, 1982), so they are
+best used as approximations when empirical standard errors from
+calibration software are unavailable.
 
 The function returns a named list with two components:
 
@@ -1103,9 +1110,9 @@ The function returns a named list with two components:
 
 **Notes on PCM items:** The item metadata uses `"GPCM"` to label both
 the Generalized Partial Credit Model (GPCM) and the Partial Credit Model
-(PCM). PCM items (where discrimination is fixed at 1) require special
-handling for variance computation and must be identified via the
-`pcm.loc` argument.
+(PCM). PCM items, whose slope is not estimated, must be identified via
+the `pcm.loc` argument; their slope is held at the value in the item
+metadata, and only the thresholds enter the variance-covariance matrix.
 
 ### Binary test
 
@@ -1127,7 +1134,7 @@ cov_bin$cov[["I1"]]
 #> par.2 0.05851498 0.18920950 0.12973035
 #> par.3 0.03474867 0.12973035 0.10032713
 
-# ASEs for all items: each vector holds SE(a), SE(b), SE(c)
+# ASEs for all items: each vector holds SE(a), SE(b), SE(g)
 do.call(rbind, cov_bin$se)
 #>         par.1      par.2      par.3
 #> I1  0.1579210 0.43498218 0.31674458
@@ -1182,7 +1189,7 @@ cov_mix <- covirt(
 # ASEs for a GRM item: SE(a), SE(d1), SE(d2), SE(d3)
 cov_mix$se[["GRM1"]]
 #>      par.1      par.2      par.3      par.4 
-#> 0.04307804 0.03560601 0.02206548 0.02737165
+#> 0.05324241 0.04567817 0.02793062 0.03580208
 ```
 
 ------------------------------------------------------------------------
@@ -1314,12 +1321,12 @@ for a worked example using Korean syllable labels.
 
 | Function | Input | Key output | Used by |
 |----|----|----|----|
-| [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) | Item metadata or raw params + θ | Response matrix | Testing, demos |
-| [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) | a, b, g, θ | P(correct) matrix (θ × items) | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), internal likelihood and estimation routines |
-| [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | a, d, θ, model | Category prob. matrix (θ × cats) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), internal likelihood and estimation routines |
-| [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item metadata + θ grid | IIF matrix, TIF vector; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) |
-| [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item metadata + θ grid | ICC matrix, TCC vector, category probs; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md); visualisation |
-| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + θ, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) (`"EAP.SUM"`, `"INV.TCC"`) |
+| [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) | Item metadata or raw params + $`\theta`$ | Response matrix | Testing, demos |
+| [`drm()`](https://hwangQ.github.io/irtQ/reference/drm.md) | a, b, g, $`\theta`$ | P(correct) matrix ($`\theta`$ x items) | [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md), internal likelihood and estimation routines |
+| [`prm()`](https://hwangQ.github.io/irtQ/reference/prm.md) | a, d, $`\theta`$, model | Category prob. matrix ($`\theta`$ x cats) | [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md), internal likelihood and estimation routines |
+| [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) | Item metadata + $`\theta`$ grid | IIF matrix, TIF vector; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md), [`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) |
+| [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md) | Item metadata + $`\theta`$ grid | ICC matrix, TCC vector, category probs; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md); visualization |
+| [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Item metadata + $`\theta`$, or prob matrix | $`\Pr(X = s \mid \theta)`$ | [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md), [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md) (`"EAP.SUM"`, `"INV.TCC"`) |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Distribution spec | Node-weight data frame | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md), [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md), [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md), [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md), [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md); input to [`cac_lee()`](https://hwangQ.github.io/irtQ/reference/cac_lee.md) and [`cac_rud()`](https://hwangQ.github.io/irtQ/reference/cac_rud.md) |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Item metadata + sample size | Cov matrices, ASE vectors | SE approximation |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Raw option choices + answer key | 0/1 scored response matrix | Output feeds [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md); called by [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md) (selected-response mode) |

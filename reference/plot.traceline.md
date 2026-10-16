@@ -32,7 +32,7 @@ plot(
 
 - x:
 
-  x An object of class `traceline` obtained from
+  An object of class `traceline` obtained from
   [`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md).
 
 - item.loc:
@@ -43,42 +43,39 @@ plot(
 
 - score.curve:
 
-  Logical. If `TRUE`, plots the item score curve, defined as the
-  weighted sum of category probabilities across score categories, in a
-  panel.
-
-  If `FALSE`, plots item characteristic curves (ICCs) for all score
-  categories, either in separate panels or in a single panel depending
-  on the `overlap` setting.
-
-  For dichotomous items, the item score curve is equivalent to the ICC
-  for score category 1. Ignored when `item.loc = NULL`. Default is
-  `FALSE`.
+  Logical. If `TRUE`, plots the item score curve, which is the expected
+  item score (the sum of category scores weighted by their
+  probabilities) as a function of theta. If `FALSE`, plots the item
+  characteristic curves (ICCs) of all score categories. For dichotomous
+  items, the item score curve equals the ICC for score category 1.
+  Ignored when `item.loc = NULL`. Default is `FALSE`.
 
 - overlap:
 
   Logical. Determines how multiple curves are displayed when plotting
-  ICCs or item score curves.
-
-  If `TRUE`, curves are overlaid in a single panel using different
-  colors. If `FALSE`, each curve is drawn in a separate panel - either
-  one panel per item or per score category, depending on the setting of
-  `score.curve`.
+  ICCs or item score curves. If `TRUE`, curves are overlaid in different
+  colors: the category ICCs of each item share one panel per item when
+  `score.curve = FALSE`, and the score curves of all items share a
+  single panel when `score.curve = TRUE`. If `FALSE`, each curve is
+  drawn in its own panel: one panel per score category of a single item
+  when `score.curve = FALSE`, or one panel per item when
+  `score.curve = TRUE`. Default is `FALSE`.
 
 - layout.col:
 
-  An integer value indicating the number of columns in the plot when
-  displaying multiple panels. Used only when `overlap = FALSE`. Default
-  is 2.
+  An integer value indicating the number of panel columns when multiple
+  panels are drawn. Not used when `overlap = TRUE` and
+  `score.curve = TRUE`. Default is 2.
 
 - xlab.text, ylab.text:
 
   Character strings specifying the labels for the x and y axes,
-  respectively.
+  respectively. If missing, default labels are used.
 
 - main.text:
 
-  Character string specifying the overall title of the plot.
+  Character string specifying the overall title of the plot. If missing,
+  a default title is used.
 
 - lab.size:
 
@@ -96,7 +93,9 @@ plot(
 
 - line.color:
 
-  A character string specifying the color of the plot lines. See
+  A character string specifying the color of the plot lines. Default is
+  `"#F8766D"`. Not used when curves are overlaid (`overlap = TRUE` with
+  `item.loc` specified), where colors are assigned automatically. See
   <http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/> for available
   color names.
 
@@ -106,7 +105,7 @@ plot(
 
 - strip.size:
 
-  Numeric. Font size of facet labels when ICCs are plotted.
+  Numeric. Font size of the panel (facet) labels. Default is 12.
 
 - ...:
 
@@ -116,18 +115,16 @@ plot(
 
 ## Value
 
-This method displays item characteristic curves (ICCs), item score
-curves, or the test characteristic curve (TCC), depending on the
-specified arguments.
+This method prints the plot of item characteristic curves (ICCs), item
+score curves, or the test characteristic curve (TCC), and invisibly
+returns the ggplot2 object.
 
 ## Details
 
-All plots are generated using the ggplot2 package. If `item.loc = NULL`,
-the test characteristic curve (TCC) for the entire test form is plotted.
-If `item.loc` is specified, it should be a vector of positive integers
-indicating the position(s) of the items to be plotted. For example, if
-the test form includes ten items and you wish to plot the score curves
-of the 1st, 2nd, and 3rd items, set `item.loc = 1:3`.
+All plots are drawn with the ggplot2 package. If `item.loc = NULL`, the
+test characteristic curve (TCC) of the entire test form is plotted.
+Otherwise, `item.loc` gives the positions of the items to plot; for
+example, `item.loc = 1:3` plots the first three items.
 
 ## See also
 

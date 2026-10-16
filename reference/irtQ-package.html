@@ -12,7 +12,8 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
 also known as Stocking's Method A. In addition, the package offers
-multiple-group item calibration via the MMLE-EM algorithm.
+multiple-group item calibration via the MMLE-EM algorithm
+(est_mg(); Bock &amp;amp; Zimowski, 1997).
 For ability estimation, several widely used scoring methods are available,
 including:
 Maximum likelihood estimation (ML)
@@ -27,17 +28,27 @@ Kolen &amp;amp; Tong, 2010; Stocking, 1996)
 
 In addition, the package offers a variety of utilities for IRT analysis,
 including:
-Evaluating model-data fit
-Detecting DIF
+Evaluating model-data fit with item fit statistics
+(irtfit(), sx2_fit())
+Detecting DIF with RDIF, RDIF-CR, GRDIF (multiple groups), and CATSIB
+(rdif(), crdif(), grdif(), catsib())
+Detecting item parameter drift (IPD) with the residual-based RIPD
+framework and the pseudo-count D2 statistic (ripd(),
+pcd2())
 Computing classification accuracy and consistency indices
-Importing item or ability parameters from popular IRT software
-Running flexMIRT (Cai, 2017) directly from R
+(cac_lee(), cac_rud())
+Evaluating and simulating multistage-adaptive test (MST) panels
+(panel_info(), reval_mst(), run_mst(),
+find_cut())
+Importing item or ability parameters from BILOG-MG, PARSCALE, flexMIRT,
+and the mirt package (bring.flexmirt()), and writing
+flexMIRT parameter files (write.flexmirt())
+Running flexMIRT (Cai, 2017) from R on Windows (run_flexmirt())
 Simulating response data
 Computing the conditional distribution of observed scores using the
 Lord-Wingersky recursion
 Calculating item and test information and characteristic functions
 Visualizing item and test characteristic and information curves
-Supporting additional tools for flexible and practical IRT analyses
 
 
 Beyond these IRT-based analyses, the package also provides a small set of
@@ -46,8 +57,8 @@ ctt_distr(), and score_resp()) for computing traditional item- and
 test-level statistics and for scoring selected-response item data.
 
 Package:irtQ
-Version:1.3.1
-Date:2026-10-08
+Version:1.4.0
+Date:2026-10-16
 Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
@@ -65,7 +76,8 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
 also known as Stocking's Method A. In addition, the package offers
-multiple-group item calibration via the MMLE-EM algorithm.
+multiple-group item calibration via the MMLE-EM algorithm
+(est_mg(); Bock &amp;amp; Zimowski, 1997).
 For ability estimation, several widely used scoring methods are available,
 including:
 Maximum likelihood estimation (ML)
@@ -80,17 +92,27 @@ Kolen &amp;amp; Tong, 2010; Stocking, 1996)
 
 In addition, the package offers a variety of utilities for IRT analysis,
 including:
-Evaluating model-data fit
-Detecting DIF
+Evaluating model-data fit with item fit statistics
+(irtfit(), sx2_fit())
+Detecting DIF with RDIF, RDIF-CR, GRDIF (multiple groups), and CATSIB
+(rdif(), crdif(), grdif(), catsib())
+Detecting item parameter drift (IPD) with the residual-based RIPD
+framework and the pseudo-count D2 statistic (ripd(),
+pcd2())
 Computing classification accuracy and consistency indices
-Importing item or ability parameters from popular IRT software
-Running flexMIRT (Cai, 2017) directly from R
+(cac_lee(), cac_rud())
+Evaluating and simulating multistage-adaptive test (MST) panels
+(panel_info(), reval_mst(), run_mst(),
+find_cut())
+Importing item or ability parameters from BILOG-MG, PARSCALE, flexMIRT,
+and the mirt package (bring.flexmirt()), and writing
+flexMIRT parameter files (write.flexmirt())
+Running flexMIRT (Cai, 2017) from R on Windows (run_flexmirt())
 Simulating response data
 Computing the conditional distribution of observed scores using the
 Lord-Wingersky recursion
 Calculating item and test information and characteristic functions
 Visualizing item and test characteristic and information curves
-Supporting additional tools for flexible and practical IRT analyses
 
 
 Beyond these IRT-based analyses, the package also provides a small set of
@@ -99,8 +121,8 @@ ctt_distr(), and score_resp()) for computing traditional item- and
 test-level statistics and for scoring selected-response item data.
 
 Package:irtQ
-Version:1.3.1
-Date:2026-10-08
+Version:1.4.0
+Date:2026-10-16
 Depends:R (&amp;gt;= 4.5)
 License:GPL (&amp;gt;= 2)
 
@@ -113,7 +135,7 @@ License:GPL (&amp;gt;= 2)
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -168,7 +190,8 @@ likelihood estimation via the expectation-maximization (MMLE-EM) algorithm
 supports both fixed item parameter calibration (FIPC; Kim, 2006) and fixed
 ability parameter calibration (FAPC; Ban et al., 2001; Stocking, 1988),
 also known as Stocking's Method A. In addition, the package offers
-multiple-group item calibration via the MMLE-EM algorithm.</p>
+multiple-group item calibration via the MMLE-EM algorithm
+(<code><a href="est_mg.html">est_mg()</a></code>; Bock &amp; Zimowski, 1997).</p>
 <p>For ability estimation, several widely used scoring methods are available,
 including:</p><ul><li><p>Maximum likelihood estimation (ML)</p></li>
 <li><p>Maximum likelihood estimation with fences (MLF; Han, 2016)</p></li>
@@ -179,22 +202,32 @@ including:</p><ul><li><p>Maximum likelihood estimation (ML)</p></li>
 <li><p>Inverse test characteristic curve (TCC) scoring (e.g., Kolen &amp; Brennan, 2004;
 Kolen &amp; Tong, 2010; Stocking, 1996)</p></li>
 </ul><p>In addition, the package offers a variety of utilities for IRT analysis,
-including:</p><ul><li><p>Evaluating model-data fit</p></li>
-<li><p>Detecting DIF</p></li>
-<li><p>Computing classification accuracy and consistency indices</p></li>
-<li><p>Importing item or ability parameters from popular IRT software</p></li>
-<li><p>Running flexMIRT (Cai, 2017) directly from R</p></li>
+including:</p><ul><li><p>Evaluating model-data fit with item fit statistics
+(<code><a href="irtfit.html">irtfit()</a></code>, <code><a href="sx2_fit.html">sx2_fit()</a></code>)</p></li>
+<li><p>Detecting DIF with RDIF, RDIF-CR, GRDIF (multiple groups), and CATSIB
+(<code><a href="rdif.html">rdif()</a></code>, <code><a href="crdif.html">crdif()</a></code>, <code><a href="grdif.html">grdif()</a></code>, <code><a href="catsib.html">catsib()</a></code>)</p></li>
+<li><p>Detecting item parameter drift (IPD) with the residual-based RIPD
+framework and the pseudo-count D2 statistic (<code><a href="ripd.html">ripd()</a></code>,
+<code><a href="pcd2.html">pcd2()</a></code>)</p></li>
+<li><p>Computing classification accuracy and consistency indices
+(<code><a href="cac_lee.html">cac_lee()</a></code>, <code><a href="cac_rud.html">cac_rud()</a></code>)</p></li>
+<li><p>Evaluating and simulating multistage-adaptive test (MST) panels
+(<code><a href="panel_info.html">panel_info()</a></code>, <code><a href="reval_mst.html">reval_mst()</a></code>, <code><a href="run_mst.html">run_mst()</a></code>,
+<code><a href="find_cut.html">find_cut()</a></code>)</p></li>
+<li><p>Importing item or ability parameters from BILOG-MG, PARSCALE, flexMIRT,
+and the <span class="pkg">mirt</span> package (<code><a href="bring.flexmirt.html">bring.flexmirt()</a></code>), and writing
+flexMIRT parameter files (<code><a href="write.flexmirt.html">write.flexmirt()</a></code>)</p></li>
+<li><p>Running flexMIRT (Cai, 2017) from R on Windows (<code><a href="run_flexmirt.html">run_flexmirt()</a></code>)</p></li>
 <li><p>Simulating response data</p></li>
 <li><p>Computing the conditional distribution of observed scores using the
 Lord-Wingersky recursion</p></li>
 <li><p>Calculating item and test information and characteristic functions</p></li>
 <li><p>Visualizing item and test characteristic and information curves</p></li>
-<li><p>Supporting additional tools for flexible and practical IRT analyses</p></li>
 </ul><p>Beyond these IRT-based analyses, the package also provides a small set of
 classical test theory (CTT) functions (<code><a href="ctt.html">ctt()</a></code>, <code><a href="freq_score.html">freq_score()</a></code>,
 <code><a href="ctt_distr.html">ctt_distr()</a></code>, and <code><a href="score_resp.html">score_resp()</a></code>) for computing traditional item- and
 test-level statistics and for scoring selected-response item data.</p>
-<table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.3.1</td></tr><tr><td>Date:</td><td>2026-10-08</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.5)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
+<table class="table table"><tr><td>Package:</td><td>irtQ</td></tr><tr><td>Version:</td><td>1.4.0</td></tr><tr><td>Date:</td><td>2026-10-16</td></tr><tr><td>Depends:</td><td>R (&gt;= 4.5)</td></tr><tr><td>License:</td><td>GPL (&gt;= 2)</td></tr></table></div>
 
 
     <div class="section level2">
@@ -226,11 +259,13 @@ ability \(\theta\) on an item, and suppose that each polytomous item has
 <dl><dt>IRT 1-3PL models</dt>
 <dd><p>For the IRT 1PLM, 2PLM, and 3PLM models, the probability that an examinee
 with ability \(\theta\) responds correctly to an item is given by:
-$$P(Y = 1 \mid \theta) = g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},$$
+$$P(Y = 1 \mid \theta) =
+      g + \frac{(1 - g)}{1 + \exp(-Da(\theta - b))},$$
 where \(a\) is the item discrimination (slope) parameter, \(b\) is
 the item difficulty parameter, and \(g\) is the guessing parameter.
-The constant \(D\) is a scaling factor used to make the logistic
-function approximate the normal ogive function, typically set to \(D = 1.702\).
+The constant \(D\) is a scaling factor. With \(D = 1\) (the default
+in <span class="pkg">irtQ</span>), the model is on the logistic metric; \(D = 1.702\)
+makes the logistic function approximate the normal ogive function.
 When the 1PLM is used, the discrimination parameter \(a\) is either
 fixed to a constant value (e.g., \(a = 1\)) or constrained to be equal
 across all items. For 1PLM and 2PLM models, the guessing parameter
@@ -248,7 +283,7 @@ where \(P^{*}(Y \ge k \mid \theta)\) is the cumulative probability
 (or category boundary function) for score category \(k\), with a
 functional form similar to the 2PL model.
 The parameter \(b_{k}\) represents the difficulty (threshold) parameter
-associated  with the boundary between categories \(k - 1\) and \(k\).
+associated with the boundary between categories \(k - 1\) and \(k\).
 Note that the probability of responding in the lowest or highest score
 category can be written as:
 $$P(Y = 0 \mid \theta) = 1 - P^{*}(Y \ge 1 \mid \theta),$$
@@ -278,7 +313,11 @@ When fitting the partial credit model, the item discrimination parameter
 
 
 
-</dl></div>
+</dl><p>A GRM or GPCM item with \(K = 2\) score categories is equivalent to a
+2PLM item. In the item metadata it has one threshold in <code>par.2</code> and <code>NA</code> in
+<code>par.3</code>, and <code><a href="info.html">info()</a></code> and <code><a href="traceline.html">traceline()</a></code> compute it with the
+same values as the 2PLM.</p>
+    </div>
     <div class="section level2">
     <h2 id="item-calibration-for-a-linear-test-form">Item Calibration for a Linear Test Form<a class="anchor" aria-label="anchor" href="#item-calibration-for-a-linear-test-form"></a></h2>
 
@@ -288,8 +327,9 @@ When fitting the partial credit model, the item discrimination parameter
 the <code><a href="est_irt.html">est_irt()</a></code> function, which implements marginal maximum likelihood
 estimation via the expectation-maximization (MMLE-EM) algorithm
 (Bock &amp; Aitkin, 1981). The function returns item parameter estimates
-along with their standard errors, computed using the cross-product
-approximation method (Meilijson, 1989).</p>
+along with their standard errors, computed from the cross-product
+approximation of the information matrix (Meilijson, 1989), to which the
+information of any item parameter priors is added.</p>
 <p>The <span class="pkg">irtQ</span> package supports calibration for mixed-format tests containing
 both dichotomous and polytomous items. It also provides a flexible set of
 options to address various practical calibration needs. For example, users can:</p><ul><li><p>Specify prior distributions for item parameters</p></li>
@@ -310,23 +350,23 @@ specified in the <code><a href="est_irt.html">est_irt()</a></code> function:</p>
 (e.g., <code>"1PLM"</code>, <code>"2PLM"</code>, <code>"3PLM"</code>, <code>"GRM"</code>, <code>"GPCM"</code>).</p></li>
 <li><p><code>cats</code>: A numeric vector indicating the number of score categories for
 each item. For dichotomous items, use 2.</p></li>
-<li><p><code>D</code>: A scaling constant (typically 1.702) to align the logistic
-function with the normal ogive model.</p></li>
+<li><p><code>D</code>: A scaling constant. Use the default <code>D = 1</code> for the logistic
+metric, or <code>D = 1.702</code> to approximate the normal ogive model.</p></li>
 </ul><p>Optionally, you may incorporate prior distributions for item parameters:</p><ul><li><p><code>use.aprior</code>, <code>use.bprior</code>, <code>use.gprior</code>: Logical indicators specifying
 whether to apply prior distributions to the discrimination (<code>a</code>),
 difficulty (<code>b</code>), and guessing (<code>g</code>) parameters, respectively.</p></li>
 <li><p><code>aprior</code>, <code>bprior</code>, <code>gprior</code>: Lists specifying the distributional form
 and corresponding parameters for each prior. Supported distributions
 include Beta, Log-normal, and Normal.</p></li>
-</ul><p>If the response data contain missing values, you must specify the missing
-value code via the <code>missing</code> argument.</p>
+</ul><p>Missing responses coded as <code>NA</code> need no further setting; when another
+code is used (e.g., -9), give it in the <code>missing</code> argument.</p>
 <p>By default, the latent ability distribution is assumed to follow a standard
 normal distribution (i.e., N(0, 1)). However, users can estimate the empirical
 histogram of the latent distribution by setting <code>EmpHist = TRUE</code>, based on the
 nonparametric method proposed by Woods (2007).</p></li>
 </ol></div>
     <div class="section level2">
-    <h2 id="pretest-item-calibration-with-the-fixed-item-parameter-calibration-fipc-method-e-g-kim-">Pretest Item Calibration with the Fixed Item Parameter Calibration (FIPC) Method (e.g., Kim, 2006)<a class="anchor" aria-label="anchor" href="#pretest-item-calibration-with-the-fixed-item-parameter-calibration-fipc-method-e-g-kim-"></a></h2>
+    <h2 id="pretest-item-calibration-with-fipc">Pretest Item Calibration with FIPC<a class="anchor" aria-label="anchor" href="#pretest-item-calibration-with-fipc"></a></h2>
 
 
 
@@ -380,7 +420,7 @@ a normal prior is assumed and its scale is updated iteratively during the EM alg
 for <code><a href="est_irt.html">est_irt()</a></code>.</p></li>
 </ol></div>
     <div class="section level2">
-    <h2 id="pretest-item-calibration-with-the-fixed-ability-parameter-calibration-fapc-method-e-g-stocking-">Pretest Item Calibration with the Fixed Ability Parameter Calibration (FAPC) Method (e.g., Stocking, 1988)<a class="anchor" aria-label="anchor" href="#pretest-item-calibration-with-the-fixed-ability-parameter-calibration-fapc-method-e-g-stocking-"></a></h2>
+    <h2 id="pretest-item-calibration-with-fapc">Pretest Item Calibration with FAPC<a class="anchor" aria-label="anchor" href="#pretest-item-calibration-with-fapc"></a></h2>
 
 
 
@@ -413,33 +453,35 @@ following arguments:</p><ul><li><p><code>data</code>: A matrix or data frame con
 (e.g., <code>"1PLM"</code>, <code>"2PLM"</code>, <code>"3PLM"</code>, <code>"GRM"</code>, <code>"GPCM"</code>).</p></li>
 <li><p><code>cats</code>: A numeric vector indicating the number of score categories for
 each item. For dichotomous items, use 2.</p></li>
-<li><p><code>D</code>: A scaling constant (typically 1.702) to align the logistic
-function with the normal ogive model.</p></li>
+<li><p><code>D</code>: A scaling constant. Use the default <code>D = 1</code> for the logistic
+metric, or <code>D = 1.702</code> to approximate the normal ogive model.</p></li>
 </ul><p>For additional details on implementing FAPC, refer to the documentation
 for <code><a href="est_item.html">est_item()</a></code>.</p></li>
 </ol></div>
     <div class="section level2">
-    <h2 id="three-examples-of-r-scripts">Three examples of R scripts<a class="anchor" aria-label="anchor" href="#three-examples-of-r-scripts"></a></h2>
+    <h2 id="example-r-scripts">Example R Scripts<a class="anchor" aria-label="anchor" href="#example-r-scripts"></a></h2>
 
 
 
-<p>The examples below demonstrate how to estimate item parameters for a linear test form,
-and how to calibrate pretest items using the FIPC and FAPC methods. All examples use
-simulated data sets, where examinees' response data are generated based on
-true item parameters and true ability values using the <code><a href="simdat.html">simdat()</a></code> function.</p>
-<p>The examples utilize item parameter estimates imported from a flexMIRT output file sample,
-which includes a mixed-format test of 55 items: 50 dichotomous items modeled with the 3PLM
-and 5 polytomous items modeled with the GRM. These item parameters are treated as the
-"true" values for data generation. Specifically:</p><ul><li><p>Items 1-38: 3PLM items</p></li>
+<p>The examples below demonstrate how to estimate item parameters for a linear
+test form, and how to calibrate pretest items using the FIPC and FAPC
+methods. All examples use simulated data sets, where examinees' response data
+are generated based on true item parameters and true ability values using
+the <code><a href="simdat.html">simdat()</a></code> function.</p>
+<p>The examples utilize item parameter estimates imported from a flexMIRT output
+file sample, which includes a mixed-format test of 55 items: 50 dichotomous
+items modeled with the 3PLM and 5 polytomous items modeled with the GRM.
+These item parameters are treated as the "true" values for data generation.
+Specifically:</p><ul><li><p>Items 1-38: 3PLM items</p></li>
 <li><p>Items 39-40: GRM items</p></li>
 <li><p>Items 41-52: 3PLM items</p></li>
 <li><p>Items 53-55: GRM items (all with 5 score categories)</p></li>
-</ul><p><strong>Example 1 - Estimating item parameters for a linear test form</strong>
-This example uses the first 40 items (38 3PLM and 2 GRM) to form a linear test.
+</ul><p><strong>Example 1: Estimating item parameters for a linear test form</strong></p>
+<p>This example uses the first 40 items (38 3PLM and 2 GRM) to form a linear test.
 The test is assumed to be administered to a reference group of 2,000 examinees
 whose latent ability follows a standard normal distribution, N(0, 1).</p>
-<p><strong>Examples 2 and 3 - Calibrating pretest items using FIPC and FAPC</strong>
-These examples assume a new test form consisting of all 55 items described above.
+<p><strong>Examples 2 and 3: Calibrating pretest items using FIPC and FAPC</strong></p>
+<p>These examples assume a new test form consisting of all 55 items described above.
 The first 40 items are treated as the fixed operational items (i.e., the same
 as in Example 1), while the remaining 15 items are newly developed pretest
 items to be calibrated.</p>
@@ -630,10 +672,12 @@ analysis and test scoring (Computer software). Chapel Hill, NC: Vector
 Psychometric Group.</p>
 <p>Cappaert, K. J., Wen, Y., &amp; Chang, Y. F. (2018). Evaluating CAT-adjusted
 approaches for suspected item parameter drift detection. <em>Measurement:
-Interdisciplinary Research and Perspectives, 16</em>(4), 226-238.</p>
+Interdisciplinary Research and Perspectives, 16</em>(4), 226-238.
+<a href="https://doi.org/10.1080/15366367.2018.1511199" class="external-link">doi:10.1080/15366367.2018.1511199</a>
+.</p>
 <p>Chalmers, R. P. (2012). mirt: A multidimensional item response theory
 package for the R environment. <em>Journal of Statistical Software, 48</em>(6),
-1-29.</p>
+1-29. <a href="https://doi.org/10.18637/jss.v048.i06" class="external-link">doi:10.18637/jss.v048.i06</a></p>
 <p>Chen, P., &amp; Wang, C. (2016). A new online calibration method for
 multidimensional computerized adaptive testing. <em>Psychometrika, 81</em>(3),
 674-701.</p>
@@ -644,7 +688,8 @@ tests. <em>Psychometrika, 16</em>(3), 297-334. <a href="https://doi.org/10.1007/
 .</p>
 <p>Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating. <em>Journal of Statistical Software, 59</em>(7),
-1-30.</p>
+1-30. <a href="https://doi.org/10.18637/jss.v059.i07" class="external-link">doi:10.18637/jss.v059.i07</a>
+.</p>
 <p>Hambleton, R. K., &amp; Swaminathan, H. (1985). <em>Item response theory:
 Principles and applications</em>. Boston, MA: Kluwer.</p>
 <p>Hambleton, R. K., Swaminathan, H., &amp; Rogers, H. J. (1991). <em>Fundamentals of
@@ -663,15 +708,18 @@ fit index for polytomous IRT models. <em>Journal of Educational Measurement,
 45</em>(4), 391-406.</p>
 <p>Kim, S. (2006). A comparative study of IRT fixed parameter calibration
 methods. <em>Journal of Educational Measurement, 43</em>(4), 355-381.</p>
-<p>Kim, S., &amp; Kolen, M. J. (2016). Multiple group IRT fixed-parameter
-estimation for maintaining an established ability scale. <em>Center for
-Advanced Studies in Measurement and Assessment Report, 49.</em></p>
+<p>Kim, S., &amp; Kolen, M. J. (2016). <em>Multiple group IRT fixed-parameter
+estimation for maintaining an established ability scale</em> (CASMA Research
+Report No. 49). Center for Advanced Studies in Measurement and Assessment,
+University of Iowa.</p>
 <p>Kolen, M. J., &amp; Brennan, R. L. (2004). <em>Test equating, scaling, and
 linking</em> (2nd ed.). Springer.</p>
 <p>Kolen, M. J., &amp; Tong, Y. (2010). Psychometric properties of IRT proficiency
-estimates. <em>Educational Measurement: Issues and Practice, 29</em>(3), 8-14.</p>
-<p>Laplace, P. S. (1820). <em>Theorie analytique des probabilites</em> (in French).
-Courcier.</p>
+estimates. <em>Educational Measurement: Issues and Practice, 29</em>(3), 8-14.
+<a href="https://doi.org/10.1111/j.1745-3992.2010.00179.x" class="external-link">doi:10.1111/j.1745-3992.2010.00179.x</a>
+.</p>
+<p>Laplace, P. S. (1820). <em>Theorie analytique des probabilites</em> (3rd ed., in
+French). Paris: Courcier.</p>
 <p>Lee, W.-C. (2010). Classification consistency and accuracy for complex
 assessments using item response theory. <em>Journal of Educational
 Measurement, 47</em>(1), 1-17. <a href="https://doi.org/10.1111/j.1745-3984.2009.00096.x" class="external-link">doi:10.1111/j.1745-3984.2009.00096.x</a>
@@ -679,9 +727,11 @@ Measurement, 47</em>(1), 1-17. <a href="https://doi.org/10.1111/j.1745-3984.2009
 <p>Li, H.-H., &amp; Stout, W. (1996). A new procedure for detection of crossing
 DIF. <em>Psychometrika, 61</em>(4), 647-677. <a href="https://doi.org/10.1007/BF02294041" class="external-link">doi:10.1007/BF02294041</a>
 .</p>
-<p>Li, Y., &amp; Lissitz, R. (2004). Applications of the analytically derived
-asymptotic standard errors of item response theory item parameter
-estimates. <em>Journal of Educational Measurement, 41</em>(2), 85-117.</p>
+<p>Li, Y. H., &amp; Lissitz, R. W. (2004). Applications of the analytically
+derived asymptotic standard errors of item response theory item parameter
+estimates. <em>Journal of Educational Measurement, 41</em>(2), 85-117.
+<a href="https://doi.org/10.1111/j.1745-3984.2004.tb01109.x" class="external-link">doi:10.1111/j.1745-3984.2004.tb01109.x</a>
+.</p>
 <p>Lim, H., &amp; Choe, E. M. (2023). Detecting differential item functioning in
 CAT using IRT residual DIF approach. <em>Journal of Educational Measurement,
 60</em>(4), 626-650. <a href="https://doi.org/10.1111/jedm.12366" class="external-link">doi:10.1111/jedm.12366</a>
@@ -703,13 +753,19 @@ detection with the residual DIF framework. Paper presented at the annual
 International Meeting of the Psychometric Society, Prague, Czech Republic.</p>
 <p>Lim, H., Zhu, D., Choe, E. M., &amp; Han, K. T. (2024). Detecting differential
 item functioning among multiple groups using IRT residual DIF framework.
-<em>Journal of Educational Measurement, 61</em>(4), 656-681.</p>
-<p>Lord, F., &amp; Wingersky, M. (1984). Comparison of IRT true score and
-equipercentile observed score equatings. <em>Applied Psychological
-Measurement, 8</em>(4), 453-461.</p>
+<em>Journal of Educational Measurement, 61</em>(4), 656-681.
+<a href="https://doi.org/10.1111/jedm.12415" class="external-link">doi:10.1111/jedm.12415</a>
+.</p>
+<p>Lord, F. M. (1980). Applications of item response theory to practical
+testing problems. Lawrence Erlbaum Associates.</p>
+<p>Lord, F. M., &amp; Wingersky, M. S. (1984). Comparison of IRT true-score and
+equipercentile observed-score "equatings." <em>Applied Psychological
+Measurement, 8</em>(4), 453-461. <a href="https://doi.org/10.1177/014662168400800409" class="external-link">doi:10.1177/014662168400800409</a>
+.</p>
 <p>Magis, D., &amp; Barrada, J. R. (2017). Computerized adaptive testing with R:
-Recent updates of the package catR. <em>Journal of Statistical Software, 76</em>,
-1-19.</p>
+Recent updates of the package catR. <em>Journal of Statistical Software,
+76</em>(Code Snippet 1), 1-19. <a href="https://doi.org/10.18637/jss.v076.c01" class="external-link">doi:10.18637/jss.v076.c01</a>
+.</p>
 <p>Magis, D., Yan, D., &amp; von Davier, A. A. (2017). <em>Computerized adaptive and
 multistage testing with R: Using packages catR and mstR</em>. Springer.
 <a href="https://doi.org/10.1007/978-3-319-69218-0" class="external-link">doi:10.1007/978-3-319-69218-0</a>
@@ -719,6 +775,11 @@ statistics. <em>Applied Psychological Measurement, 9</em>, 49-57.</p>
 <p>Meilijson, I. (1989). A fast improvement to the EM algorithm on its own
 terms. <em>Journal of the Royal Statistical Society: Series B
 (Methodological), 51</em>, 127-138.</p>
+<p>Moore, D. S. (1977). Generalized inverses, Wald's method, and the
+construction of chi-squared tests of fit. <em>Journal of the American
+Statistical Association, 72</em>(357), 131-137.
+<a href="https://doi.org/10.1080/01621459.1977.10479921" class="external-link">doi:10.1080/01621459.1977.10479921</a>
+.</p>
 <p>Muraki, E., &amp; Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
 scoring for rating scale data (Computer software). Chicago, IL: Scientific
 Software International. URL http://www.ssicentral.com</p>
@@ -765,10 +826,13 @@ bias/DTF as well as item bias/DIF. <em>Psychometrika, 58</em>(2), 159-194.
 <p>Stocking, M. L. (1988). <em>Scale drift in on-line calibration</em> (Research Rep.
 88-28). Princeton, NJ: ETS.</p>
 <p>Stocking, M. L. (1996). An alternative method for scoring adaptive tests.
-<em>Journal of Educational and Behavioral Statistics, 21</em>(4), 365-389.</p>
+<em>Journal of Educational and Behavioral Statistics, 21</em>(4), 365-389.
+<a href="https://doi.org/10.3102/10769986021004365" class="external-link">doi:10.3102/10769986021004365</a>
+.</p>
 <p>Stone, C. A. (2000). Monte Carlo based null distribution for an alternative
 goodness-of-fit test statistic in IRT models. <em>Journal of Educational
-Measurement, 37</em>(1), 58-75.</p>
+Measurement, 37</em>(1), 58-75. <a href="https://doi.org/10.1111/j.1745-3984.2000.tb01076.x" class="external-link">doi:10.1111/j.1745-3984.2000.tb01076.x</a>
+.</p>
 <p>Thissen, D. (1982). Marginal maximum likelihood estimation for the
 one-parameter logistic model. <em>Psychometrika, 47</em>, 175-186.</p>
 <p>Thissen, D., &amp; Orlando, M. (2001). Item response theory for items scored in
@@ -780,7 +844,13 @@ responses. <em>Applied Psychological Measurement, 19</em>(1), 39-49.
 <a href="https://doi.org/10.1177/014662169501900105" class="external-link">doi:10.1177/014662169501900105</a>
 .</p>
 <p>Thissen, D., &amp; Wainer, H. (1982). Some standard errors in item response
-theory. <em>Psychometrika, 47</em>, 397-412.</p>
+theory. <em>Psychometrika, 47</em>(4), 397-412. <a href="https://doi.org/10.1007/BF02293705" class="external-link">doi:10.1007/BF02293705</a>
+.</p>
+<p>Veerkamp, W. J. J., &amp; Glas, C. A. W. (2000). Detection of known items in
+adaptive testing with a statistical quality control method. <em>Journal of
+Educational and Behavioral Statistics, 25</em>(4), 373-389.
+<a href="https://doi.org/10.3102/10769986025004373" class="external-link">doi:10.3102/10769986025004373</a>
+.</p>
 <p>Wainer, H., &amp; Mislevy, R. J. (1990). Item response theory, item
 calibration, and proficiency estimation. In H. Wainer (Ed.), <em>Computer
 adaptive testing: A primer</em> (Chap. 4, pp. 65-102). Hillsdale, NJ: Lawrence

@@ -19,7 +19,7 @@ methods that display a condensed and a full report, respectively,
 analogous to how
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) pairs
 with
-`print.est_irt()`/[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md).
+[`print.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)/[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md).
 
 ## Usage
 
@@ -44,7 +44,8 @@ ctt(
   examinees in rows and items in columns. Item scores must range from 0
   to `cats[j] - 1` for each item j (0/1 for a dichotomous item; 0, 1, 2,
   ... for a polytomous/partial-credit item). An error is raised when a
-  score is not a whole number between 0 and `cats[j] - 1`.
+  score is not a whole number between 0 and `cats[j] - 1`; a score
+  within 1e-8 of a whole number is treated as that whole number.
 
 - item.id:
 
@@ -73,13 +74,13 @@ ctt(
 
 - correct:
 
-  Logical. Both the raw (uncorrected) item-total correlation - where an
-  item is correlated with the total score that includes its own
-  contribution - and the corrected item-total correlation - excluding
-  its own contribution - are always computed and reported as separate
-  columns. This argument only controls which of the two is used for
-  flagging: if `TRUE`, flagging is based on the corrected value; if
-  `FALSE` (default), on the raw value.
+  Logical. Both the raw item-total correlation (the item score
+  correlated with a total score that includes the item) and the
+  corrected item-total correlation (correlated with a total score that
+  excludes the item) are always computed and reported as separate
+  columns. This argument only selects which of the two is used for
+  flagging: the corrected value if `TRUE`, the raw value if `FALSE`
+  (default).
 
 - missing:
 
@@ -95,20 +96,24 @@ ctt(
 
   Logical. If `TRUE` (default), items are flagged when their difficulty
   or discrimination falls outside the thresholds given in `crit.p` and
-  `crit.dis`.
+  `crit.dis`, or when their discrimination is undefined.
 
 - crit.p:
 
   A numeric vector of length two giving the lower and upper difficulty
-  bounds used for flagging: difficulty below the first value is flagged
-  as too difficult, and difficulty above the second value is flagged as
-  too easy. Default is `c(0.10, 0.95)`.
+  bounds used for flagging: an item with difficulty below the first
+  value is flagged as too difficult ("difficulty too low"), and an item
+  with difficulty above the second value is flagged as too easy
+  ("difficulty too high"). Default is `c(0.10, 0.95)`.
 
 - crit.dis:
 
   A single numeric value giving the minimum acceptable discrimination
-  (item-total correlation); items strictly below this value are flagged
-  as poorly discriminating. Default is `0.20`.
+  (item-total correlation); an item whose discrimination is strictly
+  below this value is flagged as poorly discriminating ("discrimination
+  too low"). An item whose discrimination is undefined (a constant item,
+  or a constant reference total score) is flagged "discrimination
+  undefined". Default is `0.20`.
 
 ## Value
 
@@ -116,16 +121,21 @@ An object of class `"ctt"`, a list with elements:
 
 - item:
 
-  A data frame with one row per item, containing the item label, number
-  of score categories, difficulty, the raw (uncorrected) item-total
-  correlation (`discrimination_raw`), the corrected (item-excluded)
-  item-total correlation (`discrimination_corrected`),
-  alpha-with-item-removed, and, if `flag = TRUE`, a `flag` column.
+  A data frame with one row per item and the columns `item` (item ID),
+  `cats` (number of score categories), `difficulty`,
+  `discrimination_raw` (raw item-total correlation),
+  `discrimination_corrected` (corrected item-total correlation),
+  `alpha_removed` (alpha with the item removed), and, if `flag = TRUE`,
+  `flag` (the criteria the item meets, among "difficulty too low",
+  "difficulty too high", "discrimination too low", and "discrimination
+  undefined", separated by "; ", or `""` when none). Statistics are
+  rounded to three decimal places.
 
 - crit:
 
-  A list echoing the `crit.p` and `crit.dis` thresholds used for
-  flagging.
+  A list with elements `crit.p`, `crit.dis`, and `correct`, the
+  thresholds and the correlation used for flagging (`correct = TRUE` for
+  the corrected item-total correlation, `FALSE` for the raw one).
 
 - alpha:
 
@@ -134,8 +144,9 @@ An object of class `"ctt"`, a list with elements:
   `mean_discrimination_raw`, and `mean_discrimination_corrected`. Both
   the raw (`alpha`) and standardized (`alpha_std`) forms of Cronbach's
   alpha are always included; standardized alpha standardizes every item
-  to unit variance before combining them, which differs meaningfully
-  from raw alpha mainly when items vary widely in scale or format.
+  with nonzero variance to unit variance before combining them, which
+  differs meaningfully from raw alpha mainly when items vary widely in
+  scale or format.
 
 - freq:
 
@@ -165,11 +176,13 @@ the raw (uncorrected) item-total correlation, which correlates the item
 with the total score that includes the item's own contribution, and the
 corrected (item-excluded) item-total correlation, which excludes it. For
 a dichotomous item, the raw item-total correlation is mathematically
-equivalent to the point-biserial correlation. `correct` selects which of
-the two feeds the discrimination flagging criterion (`crit.dis`); both
-are always reported as separate columns regardless of `correct` (this
-mirrors how, e.g., `psych::alpha()` reports the raw item-total
-correlation as `raw.r` and the corrected version as `r.drop`).
+equivalent to the point-biserial correlation. A correlation is `NA` when
+the item score or the reference total score is constant. `correct`
+selects which of the two feeds the discrimination flagging criterion
+(`crit.dis`); both are always reported as separate columns regardless of
+`correct` (this mirrors how, e.g., `psych::alpha()` reports the raw
+item-total correlation as `raw.r` and the corrected version as
+`r.drop`).
 
 Alpha-with-item-removed for item j is Cronbach's alpha (see below)
 recomputed using only the remaining items, so that a value above the
@@ -182,36 +195,37 @@ reported. Raw alpha uses the standard variance-based formula \$\$\alpha
 \sigma_j^2}{\sigma_X^2}\right),\$\$ where \\k\\ is the number of items,
 \\\sigma_j^2\\ is the variance of item j, and \\\sigma_X^2\\ is the
 variance of the total score X. Raw alpha reflects the reliability of the
-actual (unweighted) total score obtained by simply summing the item
-scores - the score most tests actually use for reporting and decisions.
-Standardized alpha instead first standardizes every item to unit
-variance before combining them, \$\$\alpha\_{std} = \frac{k \bar{r}}{1 +
-(k - 1)\bar{r}},\$\$ where \\\bar{r}\\ is the average pairwise
-correlation among all items. Standardized alpha differs meaningfully
-from raw alpha mainly when items vary substantially in scale or format
-(e.g., a mix of dichotomous and polytomous items with very different
-score ranges); when all items share the same scale and format, the two
-are typically close, and raw alpha remains the more directly
-interpretable of the two since it matches the reliability of the score
-actually used in practice. See Cronbach (1951) for the original
-derivation of coefficient alpha, and Osburn (2000) for a discussion
-contrasting the raw (covariance-based) and standardized
-(correlation-based) forms.
+unweighted total score obtained by summing the item scores, which is the
+score most tests use for reporting and decisions. Standardized alpha is
+raw alpha computed after standardizing every item with nonzero variance
+to unit variance. When no item is constant, it equals \$\$\alpha\_{std}
+= \frac{k \bar{r}}{1 + (k - 1)\bar{r}},\$\$ where \\\bar{r}\\ is the
+average pairwise correlation among the items. A constant item cannot be
+standardized, so it stays in the item count \\k\\ with zero variance, as
+in raw alpha, and \\\bar{r}\\ is the average correlation among the items
+that vary. When only one item varies, standardized alpha is 0, as is raw
+alpha; it is `NA` when no item varies or the standardized total score is
+constant. Standardized alpha differs meaningfully from raw alpha mainly
+when items vary substantially in scale or format (e.g., a mix of
+dichotomous and polytomous items with very different score ranges); when
+all items share the same scale and format, the two are typically close,
+and raw alpha remains the more directly interpretable of the two since
+it matches the reliability of the score actually used in practice. See
+Cronbach (1951) for the original derivation of coefficient alpha, and
+Osburn (2000) for a discussion contrasting the raw (covariance-based)
+and standardized (correlation-based) forms.
 
 The standard error of measurement (SEM) is \\SEM = SD(X)\sqrt{1 -
 \alpha}\\ (using raw alpha), the standard CTT relationship between test
 reliability and measurement precision.
 
-The total-score frequency distribution is computed internally by
-[`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md),
-using the row sums of `data` after applying the same `missing` recoding
-and listwise deletion of incomplete rows used throughout the rest of
-this function, so that the frequency distribution reflects exactly the
-same set of examinees and the same total-score definition used elsewhere
-in the analysis.
+The total-score frequency distribution is computed by
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
-is also exported separately, for callers who only need a frequency
-distribution for an arbitrary vector of integer total scores.
+from the row sums of `data` after the same `missing` recoding and
+listwise deletion, so it covers the same examinees as the other
+statistics.
+[`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
+can also be called directly on any vector of integer total scores.
 
 ## References
 
@@ -301,7 +315,7 @@ summary(out)
 #>           0.664      
 #>           0.666      
 #> 
-#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
+#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2 (raw item-total correlation)
 #> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary
@@ -456,7 +470,7 @@ summary(out_mixed)
 #>           0.882      
 #>           0.888      
 #> 
-#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
+#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2 (raw item-total correlation)
 #> 0 of 55 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary

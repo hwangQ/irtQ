@@ -1,6 +1,6 @@
 # Plot TIF Curves and Cut Scores from a `find_cut` Result
 
-Produces a ggplot2 visualisation of the Test Information Function (TIF)
+Produces a ggplot2 visualization of the Test Information Function (TIF)
 curves for each module, faceted by stage, with vertical lines marking
 the selected cut scores (proper TIF crossings) and, optionally, any
 anomalous crossings detected by
@@ -35,7 +35,8 @@ plot(
 - theta_range:
 
   A numeric vector of length 2 specifying the theta range shown on the
-  x-axis. Defaults to the full range stored in `x$tif_data`.
+  x-axis. The TIF curves, the vertical lines, and the dots outside this
+  range are cut off. Defaults to the full range stored in `x$tif_data`.
 
 - show_anomalous:
 
@@ -62,7 +63,7 @@ plot(
 ## Value
 
 A `ggplot` object. The object is printed automatically when called
-interactively. It can be further customised with standard ggplot2
+interactively. It can be further customized with standard ggplot2
 functions such as
 [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
 [`ggplot2::scale_color_manual()`](https://ggplot2.tidyverse.org/reference/scale_manual.html),

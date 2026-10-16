@@ -1,7 +1,7 @@
 # Log-Likelihood of Ability Parameters
 
 This function computes the log-likelihood values for a set of ability
-parameters, given item parameters and response data
+values, given item parameters and response data.
 
 ## Usage
 
@@ -34,9 +34,11 @@ llike_score(
 
 - data:
 
-  A matrix of examinees' item responses corresponding to the items
-  specified in the `x` argument. Rows represent examinees and columns
-  represent items.
+  A matrix of examinees' item responses, with rows for examinees and
+  columns for items in the same order as the items in `x`. Responses to
+  an item with K score categories must be integers from 0 to K - 1.
+  Missing responses are coded as `NA` or, in functions that have a
+  `missing` argument, as the value given in `missing`.
 
 - theta:
 
@@ -46,39 +48,38 @@ llike_score(
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - method:
 
   A character string specifying the estimation method. Available options
-  include:
+  are:
 
-  - `"ML"`: Maximum Likelihood Estimation
+  - `"ML"`: Maximum likelihood estimation
 
-  - `"MLF"`: Maximum Likelihood Estimation with Fences
+  - `"MLF"`: Maximum likelihood estimation with fences
 
-  - `"MAP"`: Maximum A Posteriori Estimation Default is `"ML"`.
+  - `"MAP"`: Maximum a posteriori estimation
+
+  Default is `"ML"`.
 
 - norm.prior:
 
   A numeric vector of length two specifying the mean and standard
-  deviation of the normal prior distribution (used only when
-  `method = "MAP"`). Default is `c(0, 1)`. Ignored for `"ML"` and
-  `"MLF"`.
+  deviation of the normal prior distribution. Used only when
+  `method = "MAP"`. Default is `c(0, 1)`.
 
 - fence.a:
 
-  A numeric value specifying the item slope parameter (i.e.,
-  *a*-parameter) for the two imaginary items used in MLF. See
-  **Details** below. Default is 3.0.
+  A numeric value specifying the slope (*a*) parameter of the two fence
+  items used in MLF. See **Details** below. Default is 3.0.
 
 - fence.b:
 
-  A numeric vector of length two specifying the lower and upper bounds
-  of the item difficulty parameters (i.e., *b*-parameters) for the two
-  imaginary items in MLF. If `fence.b = NULL`, the values specified in
-  the `range` argument are used instead. Default is NULL.
+  A numeric vector of length two specifying the difficulty (*b*)
+  parameters of the lower and upper fence items. If `NULL`, `c(-5, 5)`
+  is used. Used only when `method = "MLF"`. Default is `NULL`.
 
 - missing:
 
@@ -86,22 +87,29 @@ llike_score(
 
 ## Value
 
-A data frame of log-likelihood values.
+A data frame of log-likelihood values (log-posterior values for
+`method = "MAP"`).
 
-- Each **row** corresponds to an ability value (`theta`).
+- Each **row** corresponds to a value of `theta`.
 
-- Each **column** corresponds to an examinee's response pattern.
+- Each **column** corresponds to an examinee and is named `Resp.1`,
+  `Resp.2`, and so on. Examinees without any observed response have `NA`
+  in their column.
 
 ## Details
 
-This function evaluates the log-likelihood of a given ability (`theta`)
-for one or more examinees, based on item parameters (`x`) and item
-response data (`data`).
+This function evaluates the log-likelihood at each value of `theta` for
+one or more examinees, based on item parameters (`x`) and item response
+data (`data`). For `method = "MAP"`, the log density of the normal prior
+is added, so the values are log-posterior values.
 
-If `method = "MLF"` is selected, the function appends two virtual
-"fence" items to the item pool with fixed parameters. These artificial
-items help avoid unstable likelihood functions near the boundaries of
-the ability scale.
+If `method = "MLF"`, two fence items with slope `fence.a` and
+difficulties `fence.b` are appended, with the lower fence answered
+correctly and the upper fence answered incorrectly. The fences give the
+likelihood a finite maximum for all-correct and all-incorrect patterns.
+See
+[`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
+for details.
 
 For example, to compute the log-likelihood curves of two examinees'
 responses to the same test items, supply a 2-row matrix to `data` and a
@@ -126,7 +134,7 @@ data <- simdat(x = x, theta = score, D = 1)
 # Specify ability values for log-likelihood evaluation
 theta <- seq(-3, 3, 0.5)
 
-# Compute log-likelihood values (using MLE)
+# Compute log-likelihood values (ML)
 llike_score(x = x, data = data, theta = theta, D = 1, method = "ML")
 #>       Resp.1    Resp.2     Resp.3     Resp.4    Resp.5
 #> 1  -66.50068 -67.04230  -42.73512  -52.76904 -72.98057

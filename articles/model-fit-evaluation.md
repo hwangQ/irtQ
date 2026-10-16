@@ -16,9 +16,11 @@ downstream applications such as equating and CAT (Ames & Penfield,
 | [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) | $`\chi^2`$, $`G^2`$, infit, outfit | Estimated $`\hat{\theta}`$ (ability bins) |
 | [`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) | $`S`$-$`X^2`$(Kang & Chen, 2008; Orlando & Thissen, 2000, 2003) | Observed summed score |
 
-Both functions accept either an `est_irt` object (produced by
-[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)) or a
-plain item metadata data frame as their first argument `x`, and both
+Both functions accept an `est_irt` object (produced by
+[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)), an
+`est_item` object (produced by
+[`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)), or
+a plain item metadata data frame as their first argument `x`, and both
 support mixed-format tests containing dichotomous and polytomous items.
 
 ``` r
@@ -202,11 +204,12 @@ proportion correct in that bin.
 > bins after any necessary cell collapsing.
 
 > **Key difference between $`\chi^2`$ and $`G^2`$ df:** For the
-> $`\chi^2`$ statistic, the number of estimated item parameters is
-> subtracted from the df (e.g., for a 3PLM item with $`H = 11`$ bins
-> left after any cell collapsing, $`df = 11 - 3 = 8`$). For $`G^2`$, no
-> such subtraction is made ($`df = H = 11`$). Here $`H`$ is the number
-> of groups that remain after cell collapsing, so it can be smaller than
+> $`\chi^2`$ statistic, the number of item parameters of the item’s
+> model (including parameters fixed in the calibration) is subtracted
+> from the df (e.g., for a 3PLM item with $`H = 11`$ bins left after any
+> cell collapsing, $`df = 11 - 3 = 8`$). For $`G^2`$, no such
+> subtraction is made ($`df = H = 11`$). Here $`H`$ is the number of
+> groups that remain after cell collapsing, so it can be smaller than
 > `n.width` and differs across items. $`G^2`$ uses more degrees of
 > freedom and tends to be more conservative.
 
@@ -247,8 +250,8 @@ grouping choices materially affect the statistics:
 
 | Argument | Option | Description |
 |----|----|----|
-| `group.method` | `"equal.width"` | Bins span equal-length *intervals* on the $`\theta`$ scale. Easier to interpret geometrically; used by Yen (1981). |
-| `group.method` | `"equal.freq"` | Each bin contains approximately the same *number of examinees* (quantile-based). Preferred when the ability distribution is skewed. |
+| `group.method` | `"equal.width"` | Bins span equal-length *intervals* on the $`\theta`$ scale. Easier to interpret geometrically. |
+| `group.method` | `"equal.freq"` | Each bin contains approximately the same *number of examinees* (quantile-based). Preferred when the ability distribution is skewed. Yen (1981) used 10 groups of approximately equal size. |
 | `n.width` | integer | Number of bins $`H`$. Yen (1981) used $`H = 10`$; Bock (1960) allowed flexibility. Fewer bins = more examinees per bin but coarser resolution. |
 | `loc.theta` | `"average"` | The within-bin *mean* $`\hat{\theta}`$ is used to compute expected probabilities $`\bar{P}_h`$. |
 | `loc.theta` | `"middle"` | The *midpoint* of the bin’s $`\theta`$ interval is used. |
@@ -272,7 +275,7 @@ grouping choices materially affect the statistics:
 |----|----|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
 | `score` | Numeric vector of examinee ability estimates $`\hat{\theta}`$ |
-| `data` | Response matrix (examinees × items) |
+| `data` | Response matrix (examinees x items) |
 | `D` | Scaling constant; must match the value used in calibration |
 | `group.method` | `"equal.width"` (default) or `"equal.freq"` |
 | `n.width` | Number of ability bins (default `10`) |
@@ -292,7 +295,7 @@ an object of class `irtfit` with the following components:
 | `contingency.fitstat` | Collapsed contingency tables used for $`\chi^2`$ and $`G^2`$ computation (one per item) |
 | `contingency.plot` | Uncollapsed contingency tables used for residual plots |
 | `individual.info` | Individual residuals and variances used for infit/outfit |
-| `item_df` | Copy of the item metadata provided in `x` |
+| `item_df` | The item metadata used in the analysis (items with fewer than two responses are removed by [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md)) |
 | `ancillary` | List with `range.score`, `alpha`, `overSR`, and `scale.D` |
 | `call` | The matched function call |
 
@@ -303,7 +306,8 @@ The `fit_stat` columns include (one row per item, plus an `id` column):
 - `G2` / `df.G2` / `crit.val.G2` / `p.G2`: $`G^2`$ statistic, degrees of
   freedom, critical value, and p-value
 - `outfit` / `infit`: mean-square outfit and infit statistics
-- `N`: number of non-missing responses to the item
+- `N`: number of examinees with a response to the item and an ability
+  estimate
 - `overSR.prop`: proportion of (ability bin x response category) cells,
   prior to cell collapsing, whose absolute standardized residuals exceed
   `overSR`; for a dichotomous item the two categories mirror each other,
@@ -322,7 +326,7 @@ fit_bin1 <- irtfit(
   D            = 1.702,
   group.method = "equal.freq",   # ~equal number of examinees per bin
   n.width      = 11,             # 11 bins; df = (bins left after collapsing) - 3 for 3PLM (chi-square)
-  loc.theta    = "middle",       # bin midpoint as representative θ
+  loc.theta    = "middle",       # bin midpoint as representative theta
   range.score  = c(-4, 4),       # truncate ML estimates to [-4, 4]
   alpha        = 0.05,
   overSR       = 2
@@ -352,7 +356,7 @@ fit_bin1$fit_stat
 #> 19 ITEM19 10.314 10.664     6     9       12.59       16.92 0.112 0.299  0.899
 #> 20 ITEM20 35.592 31.090     8    11       15.51       19.68 0.000 0.001  0.968
 #>    infit    N overSR.prop
-#> 1  0.780 1000       0.091
+#> 1  0.779 1000       0.091
 #> 2  0.872 1000       0.091
 #> 3  0.989 1000       0.273
 #> 4  0.925 1000       0.000
@@ -362,7 +366,7 @@ fit_bin1$fit_stat
 #> 8  0.992 1000       0.091
 #> 9  0.982 1000       0.182
 #> 10 0.941 1000       0.273
-#> 11 0.966 1000       0.091
+#> 11 0.967 1000       0.091
 #> 12 0.969 1000       0.000
 #> 13 0.924 1000       0.182
 #> 14 0.981 1000       0.091
@@ -383,9 +387,9 @@ fit_bin2 <- irtfit(
   score        = score_bin$est.theta,
   data         = resp_bin,
   D            = 1.702,
-  group.method = "equal.width",  # equal-width θ intervals (Yen, 1981 approach)
+  group.method = "equal.width",  # equal-width theta intervals
   n.width      = 10,
-  loc.theta    = "average",      # within-bin mean θ
+  loc.theta    = "average",      # within-bin mean theta
   range.score  = c(-4, 4),
   alpha        = 0.05,
   overSR       = 2
@@ -393,28 +397,28 @@ fit_bin2 <- irtfit(
 
 fit_bin2$fit_stat
 #>        id     X2     G2 df.X2 df.G2 crit.val.X2 crit.val.G2  p.X2  p.G2 outfit
-#> 1   ITEM1 10.267 13.945     3     6        7.81       12.59 0.016 0.030  0.746
-#> 2   ITEM2 10.092 10.076     3     6        7.81       12.59 0.018 0.121  0.516
-#> 3   ITEM3 22.693 21.331     5     8       11.07       15.51 0.000 0.006  1.057
-#> 4   ITEM4  3.604  3.841     4     7        9.49       14.07 0.462 0.798  0.796
-#> 5   ITEM5  5.367  5.610     5     8       11.07       15.51 0.373 0.691  0.971
-#> 6   ITEM6  3.403  4.518     5     8       11.07       15.51 0.638 0.808  0.958
+#> 1   ITEM1 10.270 13.942     3     6        7.81       12.59 0.016 0.030  0.746
+#> 2   ITEM2 10.107 10.094     3     6        7.81       12.59 0.018 0.121  0.516
+#> 3   ITEM3 22.631 21.281     5     8       11.07       15.51 0.000 0.006  1.057
+#> 4   ITEM4  3.601  3.839     4     7        9.49       14.07 0.463 0.798  0.796
+#> 5   ITEM5  5.371  5.615     5     8       11.07       15.51 0.372 0.690  0.971
+#> 6   ITEM6  3.406  4.524     5     8       11.07       15.51 0.638 0.807  0.958
 #> 7   ITEM7  8.268  7.418     5     8       11.07       15.51 0.142 0.492  0.896
-#> 8   ITEM8  6.102  5.702     5     8       11.07       15.51 0.296 0.681  0.991
-#> 9   ITEM9  5.181  4.852     5     8       11.07       15.51 0.394 0.773  0.979
+#> 8   ITEM8  6.104  5.704     5     8       11.07       15.51 0.296 0.680  0.991
+#> 9   ITEM9  5.181  4.853     5     8       11.07       15.51 0.394 0.773  0.979
 #> 10 ITEM10 12.492 11.813     5     8       11.07       15.51 0.029 0.160  0.910
-#> 11 ITEM11  2.633  2.459     4     7        9.49       14.07 0.621 0.930  0.829
-#> 12 ITEM12  4.645  4.757     4     7        9.49       14.07 0.326 0.690  0.929
+#> 11 ITEM11  2.606  2.437     4     7        9.49       14.07 0.626 0.932  0.829
+#> 12 ITEM12  4.648  4.760     4     7        9.49       14.07 0.325 0.689  0.929
 #> 13 ITEM13 10.566 10.841     5     8       11.07       15.51 0.061 0.211  0.867
-#> 14 ITEM14  3.842  3.842     5     8       11.07       15.51 0.572 0.871  0.966
-#> 15 ITEM15  2.971  4.275     5     8       11.07       15.51 0.705 0.832  0.961
-#> 16 ITEM16  4.247  4.429     4     7        9.49       14.07 0.374 0.729  0.844
-#> 17 ITEM17  4.462  4.443     5     8       11.07       15.51 0.485 0.815  0.986
-#> 18 ITEM18  4.976  6.277     5     8       11.07       15.51 0.419 0.616  0.962
-#> 19 ITEM19  4.384  4.183     4     7        9.49       14.07 0.356 0.758  0.899
+#> 14 ITEM14  3.843  3.842     5     8       11.07       15.51 0.572 0.871  0.966
+#> 15 ITEM15  2.971  4.275     5     8       11.07       15.51 0.704 0.832  0.961
+#> 16 ITEM16  4.249  4.432     4     7        9.49       14.07 0.373 0.729  0.844
+#> 17 ITEM17  4.465  4.446     5     8       11.07       15.51 0.485 0.815  0.986
+#> 18 ITEM18  4.978  6.280     5     8       11.07       15.51 0.419 0.616  0.962
+#> 19 ITEM19  4.385  4.183     4     7        9.49       14.07 0.356 0.758  0.899
 #> 20 ITEM20  9.089  9.029     5     8       11.07       15.51 0.106 0.340  0.968
 #>    infit    N overSR.prop
-#> 1  0.780 1000         0.2
+#> 1  0.779 1000         0.2
 #> 2  0.872 1000         0.1
 #> 3  0.989 1000         0.3
 #> 4  0.925 1000         0.0
@@ -424,7 +428,7 @@ fit_bin2$fit_stat
 #> 8  0.992 1000         0.0
 #> 9  0.982 1000         0.0
 #> 10 0.941 1000         0.1
-#> 11 0.966 1000         0.0
+#> 11 0.967 1000         0.0
 #> 12 0.969 1000         0.0
 #> 13 0.924 1000         0.0
 #> 14 0.981 1000         0.0
@@ -511,7 +515,7 @@ fit_bin1$contingency.fitstat[[1]]
 #> 7    91          1         90   1.296210   89.70379 0.010989011  0.9890110
 #> 8   364          2        362   1.760155  362.23985 0.005494505  0.9945055
 #>   exp.prob.0 exp.prob.1     raw.rsd.0     raw.rsd.1
-#> 1 0.61660489  0.3833951 -0.2429785120  0.2429785120
+#> 1 0.61660489  0.3833951 -0.2429785121  0.2429785121
 #> 2 0.15865049  0.8413495 -0.0267823573  0.0267823573
 #> 3 0.08593021  0.9140698 -0.0309851511  0.0309851511
 #> 4 0.05221392  0.9477861 -0.0192468848  0.0192468848
@@ -554,7 +558,7 @@ adjacent cells were merged during the statistical computation.
 # Side-by-side: ICC overlay (raw residuals) + standardized residual plot
 plot(
   x          = fit_bin1,
-  item.loc   = 1,          # item index (row number in the metadata)
+  item.loc   = 1,          # row number in fit_bin1$item_df
   type       = "both",
   ci.method  = "wald",     # confidence interval method for proportion-correct CI
   show.table = FALSE,
@@ -595,7 +599,7 @@ plot(
 
 | Method | Description |
 |----|----|
-| `"wald"` | Normal-approximation (Wald) interval, simplest but can be unreliable for small $`N_h`$ |
+| `"wald"` | Normal-approximation (Wald) interval with the model-implied standard error, simplest but can be unreliable for small $`N_h`$ |
 | `"wilson"` | Wilson score interval, good coverage even for small $`N_h`$ |
 | `"wilson.cr"` | Wilson interval with continuity correction |
 
@@ -723,9 +727,10 @@ those examinees, and $`\hat{P}_s`$ is the model-based expected
 proportion.
 
 Degrees of freedom equal the number of summed-score groups that remain
-after cell collapsing minus the number of estimated item parameters.
-Before any collapsing, the feasible summed-score values exclude 0 and
-the maximum, where responses to the item are deterministic, so
+after cell collapsing minus the number of item parameters of the item’s
+model (parameters fixed in the calibration are also counted). Before any
+collapsing, the feasible summed-score values exclude 0 and the maximum,
+where responses to the item are deterministic, so
 $`df \le (I - 1) - p`$(Ames & Penfield, 2015).
 
 **Extension to polytomous items.** Kang & Chen (2008) generalized
@@ -748,13 +753,14 @@ small, the $`\chi^2`$ approximation deteriorates. To address this:
 | Argument | Description |
 |----|----|
 | `x` | Item metadata data frame, or an `est_irt` / `est_item` object |
-| `data` | Response matrix (examinees × items). Missing values are replaced with 0 (incorrect). |
+| `data` | Response matrix (examinees x items). Missing values are replaced with 0 (the lowest category), with a warning. |
 | `D` | Scaling constant; must match calibration |
 | `alpha` | Significance level for flagging items (default `0.05`) |
 | `min.collapse` | Minimum expected frequency per cell before collapsing (default `1`) |
-| `norm.prior` | `c(mean, sd)` of the normal prior used in the Lord-Wingersky integration (default `c(0, 1)`) |
+| `norm.prior` | `c(mean, sd)` of the normal latent distribution used in the Lord-Wingersky integration (default `c(0, 1)`); ignored when `weights` is given |
 | `nquad` | Number of Gaussian quadrature points for integration (default `30`) |
-| `pcm.loc` | Integer vector of item indices fitted as PCM (discrimination fixed to 1); default `NULL` |
+| `weights` | Two-column quadrature points and weights of the latent distribution. For an `est_irt` object, when `weights`, `norm.prior`, and `nquad` are all omitted, the distribution stored in the object (`x$weights`) is used |
+| `pcm.loc` | Integer vector of the row indices of PCM items, whose slopes were fixed in the calibration; used only to count the item parameters for the df; default `NULL` |
 
 ### Return value of `sx2_fit()`
 
@@ -764,7 +770,7 @@ returns a list with the following components:
 | Component | Description |
 |----|----|
 | `fit_stat` | Data frame with columns `id`, `chisq` ($`S`$-$`X^2`$ statistic), `df`, `crit.val` (critical value at the specified `alpha`), and `p` (p-value); one row per item |
-| `item_df` | Copy of the item metadata provided in `x` |
+| `item_df` | The item metadata used in the analysis |
 | `exp_freq` | List of collapsed expected frequency tables (one per item) |
 | `obs_freq` | List of collapsed observed frequency tables |
 | `exp_prob` | List of collapsed expected probability tables |

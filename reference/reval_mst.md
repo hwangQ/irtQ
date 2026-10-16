@@ -1,4 +1,4 @@
-# Recursion-based MST evaluation method
+# Recursion-Based Analytical Evaluation of an MST Panel
 
 This function evaluates the measurement precision and bias in
 Multistage-Adaptive Test (MST) panels using a recursion-based evaluation
@@ -27,54 +27,47 @@ reval_mst(
 
 - x:
 
-  A data frame containing the metadata for the item bank, which includes
-  important information for each item such as the number of score
-  categories and the IRT model applied. This metadata is essential for
-  evaluating the MST panel, with items selected based on the
-  specifications in the `module` argument. To construct this item
-  metadata efficiently, the
+  A data frame containing the item metadata of the item bank (e.g., item
+  parameters, number of categories, and IRT models). Each row is one
+  item, and the rows correspond to the rows of `module`. See
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
-  function is recommended. Further details on utilizing item bank
-  metadata along with `module` for MST panel evaluation are provided
-  below.
+  for creating item metadata.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - route_map:
 
-  A binary square matrix that defines the MST structure, illustrating
-  transitions between modules and stages. This concept and structure are
-  inspired by the `transMatrix` argument in the `randomMST()` function
-  from the mstR package (Magis et al., 2017), which provides a framework
-  for representing MST pathways. For comprehensive understanding and
-  examples of constructing `route_map`, refer to the mstR package (Magis
-  et al., 2017) documentation. Also see below for details.
+  A binary square matrix defining the MST structure. A value of 1 at row
+  *i* and column *j* means that test takers can be routed from module
+  *i* to module *j*. This is the same convention as the `transMatrix`
+  argument of `randomMST()` in the mstR package (Magis et al., 2017).
+  The stages are found from the transitions (see
+  [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)),
+  and the first stage must contain a single routing module.
 
 - module:
 
-  A binary matrix that maps items from the item bank specified in `x` to
-  modules within the MST framework. This parameter's structure is
-  analogous to the `modules` argument in the `randomMST()` function of
-  the mstR package, enabling precise item-to-module assignments for MST
-  configurations. For detailed instructions on creating and utilizing
-  the `module` matrix effectively, consult the documentation of the mstR
-  package (Magis et al., 2017). Also see below for details.
+  A binary matrix that assigns the items in `x` to modules. It has one
+  row per item (in the order of `x`) and one column per module, and a
+  value of 1 at row *j* and column *m* means that item *j* belongs to
+  module *m*. This is the same convention as the `modules` argument of
+  `randomMST()` in the mstR package (Magis et al., 2017).
 
 - cut_score:
 
-  A list defining cut scores for routing test takers through MST stages.
-  Each list element is a vector of cut scores for advancing participants
-  to subsequent stage modules. In a 1-3-3 MST configuration, for
-  example, `cut_score` might be defined as
-  `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))`, where `c(-0.5, 0.5)`
-  are thresholds for routing from the first to the second stage, and
-  `c(-0.6, 0.6)` for routing from the second to the third stage. This
-  setup facilitates tailored test progression based on performance.
-  Further examples and explanations are available below.
+  A list with one numeric vector per stage transition (the number of
+  stages minus one). Element *s* holds the cut scores on the ability
+  (theta) metric for routing from stage *s* to stage *s* + 1, finite and
+  in strictly ascending order, with one fewer value than the number of
+  modules in stage *s* + 1; cut score *k* separates the *k*-th and the
+  (*k* + 1)-th module of that stage in the order of the module indices.
+  A `NULL` element is read as an empty vector for a stage with a single
+  module. For example, in a 1-3-3 panel,
+  `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))`. See **Details**.
 
 - theta:
 
@@ -85,142 +78,87 @@ reval_mst(
 
 - intpol:
 
-  A logical value to enable linear interpolation in the inverse test
-  characteristic curve (TCC) scoring, facilitating ability estimate
-  approximation for observed sum scores not directly obtainable from the
-  TCC, such as those below the sum of item guessing parameters. Default
-  is TRUE, applying interpolation to bridge gaps in the TCC. Refer to
-  [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
-  for more details and consult Lim et al. (2021) for insights into the
-  interpolation technique within inverse TCC scoring.
+  Logical. If `TRUE`, inverse TCC scoring assigns ability estimates to
+  the sum scores that cannot be mapped through the TCC (sum scores less
+  than or equal to the sum of the guessing parameters, and the maximum
+  possible sum score), as in
+  [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md).
+  The low scores are mapped by linear interpolation (Lim et al., 2021),
+  and the maximum sum score receives the second value of `range.tcc`.
+  With `intpol = FALSE`, some sum scores have no ability estimate, and
+  the function stops with an error. Default is `TRUE`.
 
 - range.tcc:
 
-  A vector to define the range of ability estimates for inverse TCC
-  scoring, expressed as the two numeric values for lower and upper
-  bounds. Default is to c(-7, 7).
+  A numeric vector of length two giving the ability estimates assigned
+  to the lowest and the maximum possible sum scores when `intpol = TRUE`
+  (see
+  [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)).
+  The range must be wide enough to cover the ability estimates of the
+  sum scores, or the function stops with an error. Default is
+  `c(-7, 7)`.
 
 - tol:
 
-  A numeric value of the convergent tolerance for the inverse TCC
-  scoring. For the inverse TCC scoring, the bisection method is used for
-  optimization. Default is 1e-4.
+  A positive number giving the tolerance of the bisection search used by
+  inverse TCC scoring; the search stops when the search interval is no
+  wider than `tol`. Default is 1e-4.
 
 ## Value
 
-This function returns a list of seven internal objects. These are:
+A list with the following seven elements:
 
 - panel.info:
 
-  A list of several sub-objects containing detailed information about
-  the MST panel configuration, including:
-
-  config
-
-  :   A nested list indicating the arrangement of modules across stages,
-      showing which modules are included in each stage. For example, the
-      first stage includes module 1, the second stage includes modules 2
-      to 4, and so forth.
-
-  pathway
-
-  :   A matrix detailing all possible pathways through the MST panel.
-      Each row represents a unique path a test taker might take, based
-      on their performance and the cut scores defined.
-
-  n.module
-
-  :   A named vector indicating the number of modules available at each
-      stage.
-
-  n.stage
-
-  :   A single numeric value representing the total number of stages in
-      the MST panel.
+  The output of
+  [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md):
+  `config`, `pathway`, `n.module`, and `n.stage`.
 
 - item.by.mod:
 
-  A list where each entry represents a module in the MST panel,
-  detailing the item metadata within that module. Each module's metadata
-  includes item IDs, the number of categories, the IRT model used
-  (model), and the item parameters (e.g., par.1, par.2, par.3).
+  A list of item metadata data frames, one per module, named `m.1`,
+  `m.2`, etc. The item metadata are checked and completed as in
+  [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md), so
+  these are plain data frames with upper-case model names and without
+  parameter columns that are all `NA`, whatever the class of `x`. The
+  same holds for `item.by.path`.
 
 - item.by.path:
 
-  A list containing item metadata arranged according to the paths
-  through the MST structure. This detailed breakdown allows for an
-  analysis of item characteristics along specific MST paths. Each list
-  entry corresponds to a testing stage and path, providing item
-  metadata. This structure facilitates the examination of how items
-  function within the context of each unique path through the MST.
+  A list with one element per stage (`stage.1`, `stage.2`, ...). Each
+  element is a list of item metadata data frames, one per distinct
+  partial pathway up to that stage (`path.1`, `path.2`, ...), holding
+  the items of all modules on the partial pathway.
 
 - eq.theta:
 
-  Estimated ability levels (\\\theta\\) corresponding to the observed
-  scores, derived from the inverse TCC scoring method. This provides the
-  estimated \\\theta\\ values for each potential pathway through the MST
-  stages. For each stage, \\\theta\\ values are calculated for each
-  path, indicating the range of ability levels across the test takers.
-  For instance, in a three-stage MST, the `eq.theta` list may contain
-  \\\theta\\ estimates for multiple paths within each stage, reflecting
-  the progression of ability estimates as participants move through the
-  test. The example below illustrates the structure of `eq.theta` output
-  for a 1-3-3 MST panel with varying paths:
-
-  stage.1
-
-  :   `path.1` shows \\\theta\\ estimates ranging from -7 to +7,
-      demonstrating the initial spread of abilities.
-
-  stage.2
-
-  :   Multiple paths (`path.1`, `path.2`, ...) each with their own
-      \\\theta\\ estimates, indicating divergence in ability levels
-      based on test performance.
-
-  stage.3
-
-  :   Further refinement of \\\theta\\ estimates across paths,
-      illustrating the final estimation of abilities after the last
-      stage.
+  A list with one element per stage. Each element is a matrix with one
+  row per possible cumulative sum score (0 to the maximum) and one
+  column per partial pathway up to that stage (`path.1`, `path.2`, ...),
+  holding the inverse TCC ability estimates. The columns of the last
+  stage correspond to the complete pathways.
 
 - cdist.by.mod:
 
-  A list where each entry contains the conditional distributions of the
-  observed scores for each module given the ability levels.
+  A list with one element per value of `theta` (named by the values).
+  Each element is a matrix with one row per sum score and one column per
+  module (`m.1`, `m.2`, ...), holding the conditional sum score
+  distribution of each module; rows beyond a module's maximum score are
+  0.
 
 - jdist.by.path:
 
-  Joint distributions of observed scores for different paths at each
-  stage in a MST panel. The example below outlines the organization of
-  `jdist.by.path` data in a hypothetical 1-3-3 MST panel:
-
-  stage.1
-
-  :   Represents the distribution at the initial stage, indicating the
-      broad spread of test-taker abilities at the outset.
-
-  stage.2
-
-  :   Represents the conditional joint distributions of the observed
-      scores as test-takers move through different paths at the stage 2,
-      based on their performance in earlier stages.
-
-  stage.3
-
-  :   Represents a further refinement of joint distribution of observed
-      scores as test-takers move through different paths at the final
-      stage 3, based on their performance in earlier stages.
+  A list with one element per stage. Each element is a list with one
+  element per value of `theta`, holding a matrix with one row per
+  cumulative sum score and one column per partial pathway, which gives
+  the joint probability of the sum score and the pathway.
 
 - eval.tb:
 
-  A table summarizing the measurement precision of the MST panel. It
-  contains the true ability levels (`theta`) with the mean ability
-  estimates (`mu`), variance (`sigma2`), bias, and conditional standard
-  error of measurement (CSEM) given the true ability levels. This table
-  highlights the MST panel's accuracy and precision across different
-  ability levels, providing insights into its effectiveness in
-  estimating test-taker abilities.
+  A data frame with the columns `theta` (true ability), `mu` and
+  `sigma2` (conditional mean and variance of the final ability
+  estimate), `bias` (`mu - theta`), and `csem` (square root of
+  `sigma2`).
 
 ## Details
 
@@ -245,6 +183,13 @@ list, and `route_score = list(method = "INV.TCC")`,
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
 follows the same design that this function evaluates analytically.
 
+The first stage must have a single routing module, whatever its module
+index, and the function stops with an error when stage 1 has more than
+one module.
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md) also
+runs panels with several stage-1 modules, so the two functions differ in
+the panels they support.
+
 All modules in the same stage must have the same maximum sum score (the
 sum of the maximum item scores), for example the same number of items
 when all items are dichotomous. The function stops with an error when
@@ -261,29 +206,28 @@ performance by analyzing how items within each module contribute to
 measurement precision and bias, reflecting the tailored progression
 logic inherent in MST designs.
 
-The `route_map` argument is essential for defining the MST's structure
-by indicating possible transitions between modules. Similar to the
-`transMatrix()` in the mstR package (Magis et al., 2017), `route_map` is
-a binary matrix that outlines which module transitions are possible
-within an MST design. Each "1" in the matrix represents a feasible
-transition from one module (row) to another (column), effectively
-mapping the flow of test takers through the MST based on their
-performance. For instance, a "1" at the intersection of row *i* and
-column *j* indicates the possibility for test takers to progress from
-the module corresponding to row *i* directly to the module denoted by
-column *j*. This structure allows `reval_mst()` to simulate and evaluate
-the dynamic routing of test takers through various stages and modules of
-the MST panel.
+The `route_map` argument defines the possible transitions between
+modules, following the `transMatrix` argument of `randomMST()` in the
+mstR package (Magis et al., 2017). A value of 1 at row *i* and column
+*j* means that test takers can move from module *i* directly to module
+*j*.
+[`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)
+uses this matrix to enumerate all pathways, and `reval_mst()` evaluates
+the routing along these pathways analytically, without simulation.
 
 To further detail the `cut_score` argument with an illustration: In a
 1-3-3 MST configuration, the list
 `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))` operates as a decision
-guide at each stage. Initially, all test takers start in the first
-module. Upon completion, their scores determine their next stage module:
-scores below -0.5 route to the first module of the next stage, scores
-from -0.5 up to but not including 0.5 to the second, and scores of 0.5
-or above to the third. This pattern allows for dynamic adaptation,
-tailoring the test path to individual performance levels.
+guide at each stage. Initially, all test takers start in the routing
+module. Upon completion, the inverse TCC ability estimate of the sum
+score over all modules taken so far determines the next module:
+estimates below -0.5 route to the first module of the next stage,
+estimates from -0.5 up to but not including 0.5 to the second, and
+estimates of 0.5 or above to the third. When a module can reach only
+some modules of the next stage, only the cut scores that separate the
+reachable modules are used. For example, a test taker in a stage-2
+module that can reach only the second and third stage-3 modules is
+routed by the second cut score alone.
 
 ## References
 
@@ -299,6 +243,9 @@ and multistage testing with R: Using packages catR and mstR*. Springer.
 
 ## See also
 
+[`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md),
+[`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md),
+[`find_cut()`](https://hwangQ.github.io/irtQ/reference/find_cut.md),
 [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md),
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
 
@@ -311,14 +258,14 @@ Hwanggyu Lim <hglim83@gmail.com>
 ``` r
 # \donttest{
 ## ------------------------------------------------------------------------------
-# Evaluation of a 1-3-3 MST panel using simMST data.
-# This panel was assembled using module-level target TIFs and design
-# constraints similar to those used in Lim et al.'s (2021) simulation study
-# (it is not the identical dataset from that study).
-# Details:
-#    (a) Panel configuration: 1-3-3 MST panel
-#    (b) Test length: 24 items (each module contains 8 items across all stages)
-#    (c) IRT model: 3-parameter logistic model (3PLM)
+## Evaluation of a 1-3-3 MST panel using simMST data.
+## This panel was assembled using module-level target TIFs and design
+## constraints similar to those used in Lim et al.'s (2021) simulation study
+## (it is not the identical dataset from that study).
+## Details:
+##    (a) Panel configuration: 1-3-3 MST panel
+##    (b) Test length: 24 items (each module contains 8 items across all stages)
+##    (c) IRT model: 3-parameter logistic model (3PLM)
 ## ------------------------------------------------------------------------------
 # Load the necessary library
 library(dplyr)
@@ -353,24 +300,24 @@ eval <-
 print(eval$eval.tb)
 #>    theta           mu     sigma2         bias      csem
 #> 1   -4.0 -4.808121816 3.42224454 -0.808121816 1.8499310
-#> 2   -3.9 -4.789018117 3.43809047 -0.889018117 1.8542089
-#> 3   -3.8 -4.766227061 3.45633941 -0.966227061 1.8591233
-#> 4   -3.7 -4.739003828 3.47720522 -1.039003828 1.8647266
-#> 5   -3.6 -4.706457625 3.50082146 -1.106457625 1.8710482
-#> 6   -3.5 -4.667529927 3.52716739 -1.167529927 1.8780754
-#> 7   -3.4 -4.620974273 3.55595499 -1.220974273 1.8857240
-#> 8   -3.3 -4.565341408 3.58646261 -1.265341408 1.8937958
+#> 2   -3.9 -4.789018118 3.43809047 -0.889018118 1.8542089
+#> 3   -3.8 -4.766227063 3.45633941 -0.966227063 1.8591233
+#> 4   -3.7 -4.739003829 3.47720522 -1.039003829 1.8647266
+#> 5   -3.6 -4.706457627 3.50082146 -1.106457627 1.8710482
+#> 6   -3.5 -4.667529929 3.52716739 -1.167529929 1.8780754
+#> 7   -3.4 -4.620974274 3.55595499 -1.220974274 1.8857240
+#> 8   -3.3 -4.565341410 3.58646261 -1.265341410 1.8937958
 #> 9   -3.2 -4.498975738 3.61729989 -1.298975738 1.9019201
-#> 10  -3.1 -4.420032009 3.64609197 -1.320032009 1.9094743
-#> 11  -3.0 -4.326524655 3.66908363 -1.326524655 1.9154852
-#> 12  -2.9 -4.216425518 3.68069437 -1.316425518 1.9185136
-#> 13  -2.8 -4.087827617 3.67311048 -1.287827617 1.9165361
-#> 14  -2.7 -3.939190341 3.63608699 -1.239190341 1.9068526
-#> 15  -2.6 -3.769671645 3.55723963 -1.169671645 1.8860646
-#> 16  -2.5 -3.579531039 3.42319361 -1.079531039 1.8501875
+#> 10  -3.1 -4.420032010 3.64609197 -1.320032010 1.9094743
+#> 11  -3.0 -4.326524656 3.66908363 -1.326524656 1.9154852
+#> 12  -2.9 -4.216425519 3.68069437 -1.316425519 1.9185136
+#> 13  -2.8 -4.087827618 3.67311048 -1.287827618 1.9165361
+#> 14  -2.7 -3.939190342 3.63608699 -1.239190342 1.9068526
+#> 15  -2.6 -3.769671646 3.55723963 -1.169671646 1.8860646
+#> 16  -2.5 -3.579531040 3.42319361 -1.079531040 1.8501875
 #> 17  -2.4 -3.370550870 3.22192852 -0.970550870 1.7949731
 #> 18  -2.3 -3.146374631 2.94638073 -0.846374631 1.7165025
-#> 19  -2.2 -2.912612919 2.59873030 -0.712612919 1.6120578
+#> 19  -2.2 -2.912612920 2.59873030 -0.712612920 1.6120578
 #> 20  -2.1 -2.676548271 2.19389663 -0.576548271 1.4811808
 #> 21  -2.0 -2.446322106 1.76007533 -0.446322106 1.3266783
 #> 22  -1.9 -2.229645390 1.33450055 -0.329645390 1.1552058
@@ -382,8 +329,8 @@ print(eval$eval.tb)
 #> 28  -1.3 -1.331207524 0.14154025 -0.031207524 0.3762184
 #> 29  -1.2 -1.222225352 0.11571234 -0.022225352 0.3401652
 #> 30  -1.1 -1.115711117 0.10132976 -0.015711117 0.3183234
-#> 31  -1.0 -1.010467372 0.09223884 -0.010467372 0.3037085
-#> 32  -0.9 -0.906250276 0.08548769 -0.006250276 0.2923828
+#> 31  -1.0 -1.010467373 0.09223884 -0.010467373 0.3037085
+#> 32  -0.9 -0.906250277 0.08548769 -0.006250277 0.2923828
 #> 33  -0.8 -0.803427274 0.07989210 -0.003427274 0.2826519
 #> 34  -0.7 -0.702526078 0.07520746 -0.002526078 0.2742398
 #> 35  -0.6 -0.603713902 0.07166265 -0.003713902 0.2676988
@@ -452,7 +399,6 @@ p_eval <-
     linewidth = 1.5
   ) +
   ggplot2::labs(x = expression(theta), y = NULL) +
-  ggplot2::theme_classic() +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.key.width = unit(1.5, "cm"))
 print(p_eval)

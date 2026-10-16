@@ -1,6 +1,6 @@
 # Multistage-Adaptive Test (MST) Simulation
 
-Simulates an MST administration for a panel of examinees. At each stage,
+Simulates an MST administration for a set of examinees. At each stage,
 examinees are routed to a module based on their current ability estimate
 (or a set of cut scores), and a final ability estimate is computed from
 the accumulated responses across all administered stages. The function
@@ -8,8 +8,8 @@ supports all IRT models available in irtQ (1PLM, 2PLM, 3PLM, GRM, GPCM)
 and all scoring methods available in
 [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md).
 
-The overall structure - separate `route_score` and `final_score` list
-arguments, and the `route_map`/`module` matrix conventions - was
+The overall structure, with separate `route_score` and `final_score`
+list arguments and the `route_map` and `module` matrix conventions, was
 inspired by the `randomMST()` function in the mstR package (Magis et
 al., 2017).
 
@@ -37,6 +37,9 @@ run_mst(
   verbose = TRUE,
   return_full_resp = FALSE
 )
+
+# S3 method for class 'run_mst'
+print(x, digits = 3L, ...)
 ```
 
 ## Arguments
@@ -54,8 +57,8 @@ run_mst(
   [`bring.parscale`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
   /
   [`bring.mirt`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
-  to import from IRT software output. The function calls `confirm_df(x)`
-  internally to validate and normalise the metadata.
+  to import from IRT software output. The item metadata are checked and
+  completed internally before the simulation.
 
 - route_map:
 
@@ -87,9 +90,13 @@ run_mst(
 
   An optional *N* x *J* matrix of observed item responses, where *N* is
   the number of examinees and *J* is the total number of items in the
-  item bank (`nrow(x)`). Responses for items not administered at a given
-  stage may be `NA`. If `NULL` and `theta` is provided, responses are
-  simulated internally via
+  item bank (`nrow(x)`). Only the responses to the items of the
+  administered modules are used, so the entries for the other items are
+  ignored and may be `NA`. A missing response to an administered item
+  (`NA` or the value given in `missing`) is excluded from the likelihood
+  for `"ML"`, `"WL"`, `"MLF"`, `"MAP"`, and `"EAP"`, and counted as 0 in
+  the sum score for `"EAP.SUM"` and `"INV.TCC"`. If `NULL` and `theta`
+  is provided, responses are simulated internally via
   [`simdat`](https://hwangQ.github.io/irtQ/reference/simdat.md). If both
   `theta` and `response` are provided, `response` is used as-is and
   `theta` is retained for evaluation (bias/RMSE computation) only.
@@ -100,21 +107,21 @@ run_mst(
 
 - D:
 
-  A numeric scaling constant for the IRT model. Use `D = 1` (default)
-  for the logistic metric or `D = 1.702` to approximate the normal
-  ogive.
+  A scaling constant used in IRT models to make the logistic function
+  closely approximate the normal ogive function. A value of 1.702 is
+  commonly used for this purpose. Default is 1.
 
 - ini_mod:
 
   Either `NULL` (default) or a single positive integer index into the
   stage-1 module list (`panel_info(route_map)$config[[1]]`). When
   `NULL`, each examinee is independently and randomly assigned to one of
-  the stage-1 modules with equal probability - appropriate for MST
-  panels that use spiralling or booklet-based stage-1 assignment, or for
-  panels with only a single stage-1 module (where random assignment is
-  equivalent to a fixed assignment). When an integer is supplied, all
-  examinees begin with that stage-1 module; use `ini_mod = 1` to force
-  all examinees to the first (and typically only) stage-1 module.
+  the stage-1 modules with equal probability. This is appropriate for
+  panels that use spiraling or booklet-based stage-1 assignment, and it
+  is equivalent to a fixed assignment for panels with a single stage-1
+  module. When an integer is supplied, all examinees begin with that
+  stage-1 module; use `ini_mod = 1` to force all examinees to the first
+  (and typically only) stage-1 module.
 
 - route_method:
 
@@ -152,8 +159,16 @@ run_mst(
   `cut_score = list(c(-0.5, 0.5), c(-0.6, 0.6))` routes examinees whose
   stage-1 score is below \\-0.5\\ to the easiest stage-2 module, from
   \\-0.5\\ up to but not including \\0.5\\ to the medium module, and
-  \\0.5\\ or above to the hardest module. Ignored when `route_method` is
-  `"bmat"` or `"mfi"`. Default is `NULL`.
+  \\0.5\\ or above to the hardest module (the modules numbered from
+  easiest to hardest). Each element must contain finite values in
+  strictly ascending order and have one fewer value than the number of
+  modules in stage *s*+1; cut score *k* separates the *k*-th and the
+  (*k*+1)-th module of that stage in the order of the module indices. A
+  `NULL` element is read as an empty vector for a stage with a single
+  module. The output element `cut_score` of
+  [`find_cut`](https://hwangQ.github.io/irtQ/reference/find_cut.md) can
+  be passed directly. Ignored when `route_method` is `"bmat"` or
+  `"mfi"`. Default is `NULL`.
 
 - route_score:
 
@@ -168,35 +183,41 @@ run_mst(
       Han, 2016), `"MAP"` (maximum a posteriori), `"EAP"` (expected a
       posteriori; Bock & Mislevy, 1982), `"EAP.SUM"` (EAP summed
       scoring; Thissen et al., 1995), or `"INV.TCC"` (inverse test
-      characteristic curve scoring; Lim et al., 2021). For `"EAP.SUM"`
-      and `"INV.TCC"`, a sum-score-to-theta lookup table is pre-computed
-      once per partial pathway (the modules of stages 1 to *s*) before
-      the simulation loop; routing theta is then obtained by a single
-      named-vector lookup, making the approach efficient for large
-      \\N\\. Default: `"ML"`.
+      characteristic curve scoring; see
+      [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md)).
+      For `"EAP.SUM"` and `"INV.TCC"`, a sum-score-to-theta lookup table
+      is pre-computed once per partial pathway (the modules of stages 1
+      to *s*) before the simulation loop; routing theta is then obtained
+      by a single named-vector lookup, making the approach efficient for
+      large \\N\\. Default: `"ML"`.
 
   `range`
 
-  :   Numeric vector of length 2: lower and upper bounds for the ability
-      scale. Default: `c(-5, 5)`.
+  :   Numeric vector of length 2: lower and upper bounds of the ability
+      estimates for `"ML"`, `"WL"`, `"MLF"`, and `"MAP"`; also the
+      default fence locations for `"MLF"`. Default: `c(-5, 5)`.
 
   `norm.prior`
 
   :   Numeric vector of length 2: mean and SD of the normal prior for
-      MAP/EAP. Default: `c(0, 1)`.
+      `"MAP"`, `"EAP"`, and `"EAP.SUM"`. Default: `c(0, 1)`.
 
   `nquad`
 
-  :   Integer: number of quadrature points for EAP. Default: `41`.
+  :   Integer: number of quadrature points for `"EAP"` and `"EAP.SUM"`.
+      Default: `41`.
 
   `tol`
 
-  :   Numeric: convergence tolerance for iterative methods. Default:
-      `1e-4`.
+  :   A single positive number: convergence tolerance of the Fisher
+      scoring iterations for `"ML"`, `"WL"`, `"MLF"`, and `"MAP"`, and
+      of the bisection search for `"INV.TCC"`. Default: `1e-4`.
 
   `max.iter`
 
-  :   Integer: maximum iterations. Default: `100`.
+  :   A single positive whole number: maximum number of Fisher scoring
+      iterations for `"ML"`, `"WL"`, `"MLF"`, and `"MAP"`. Default:
+      `100`.
 
   `fence.a`
 
@@ -216,7 +237,10 @@ run_mst(
 
   `range.tcc`
 
-  :   Numeric vector of length 2: theta search range for `"INV.TCC"`.
+  :   Numeric vector of length 2: ability estimates assigned to the
+      lowest and the maximum possible sum scores for `"INV.TCC"` when
+      `intpol = TRUE` (see
+      [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md)).
       Default: `c(-7, 7)`.
 
   `max.it`
@@ -224,7 +248,11 @@ run_mst(
   :   Integer: maximum bisection iterations for `"INV.TCC"`. Default:
       `500L`.
 
-  Unspecified fields take their defaults; the full default is
+  As in
+  [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md),
+  the function stops with an error when `tol` or `max.iter` is not valid
+  for the chosen method. Unspecified fields take their defaults; the
+  full default is
   `list(method = "ML", range = c(-5, 5), norm.prior = c(0, 1),`
   `nquad = 41L, tol = 1e-4, max.iter = 100L, fence.a = 3.0,`
   `fence.b = NULL, intpol = TRUE, range.tcc = c(-7, 7), max.it = 500L)`.
@@ -243,19 +271,24 @@ run_mst(
 
 - se:
 
-  Logical. Whether to compute and return the standard error of the final
-  ability estimate. SE is computed for all `final_score` methods: for
-  `"ML"`, `"WL"`, `"MLF"`, `"MAP"`, and `"EAP"` via the Fisher
-  information / posterior variance; for `"EAP.SUM"` and `"INV.TCC"` via
-  the posterior standard deviation stored in the pre-computed lookup
-  table. Returns `NA` when `se = FALSE`, when all responses are missing,
-  or when the sum score falls outside the estimable range (e.g. a
-  perfect or zero score beyond `range.tcc`). Default is `TRUE`.
+  Logical. Whether to return the standard error of the final ability
+  estimate. The standard errors are computed as in
+  [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md):
+  from the test information for `"ML"`, `"WL"`, `"MLF"`, and `"MAP"`, as
+  the posterior standard deviation for `"EAP"` and `"EAP.SUM"`, and, for
+  `"INV.TCC"`, as the standard deviation of the inverse TCC estimates
+  over the conditional sum score distribution at the estimate. For
+  `"ML"`, `"WL"`, `"MLF"`, and `"MAP"`, the standard error is set to
+  99.9999 when the estimate equals a bound of `range`. The standard
+  error is `NA` when `se = FALSE`, when all responses are missing, or,
+  for `"INV.TCC"`, when the sum score has no ability estimate (for
+  example, with `intpol = FALSE`). Default is `TRUE`.
 
 - missing:
 
-  A scalar specifying how missing (not-administered) responses are
-  represented in `response`. Default is `NA`.
+  A scalar specifying the value that marks a missing response in
+  `response`. It is used only when `response` is supplied. Default is
+  `NA`.
 
 - verbose:
 
@@ -273,6 +306,15 @@ run_mst(
   `full.resp` is `NULL`. Because this matrix can be large for large
   panels and many examinees, it is not populated by default.
 
+- digits:
+
+  The number of decimal places used for the summary of the ability
+  estimates and for the bias and RMSE. Default is 3.
+
+- ...:
+
+  Additional arguments, currently not used.
+
 ## Value
 
 An object of class `"run_mst"`, which is a named list containing:
@@ -288,12 +330,8 @@ An object of class `"run_mst"`, which is a named list containing:
 
 - `se.theta`:
 
-  A numeric vector of length *N* containing the standard error of the
-  final ability estimate. All seven `final_score` methods return SE; for
-  `"EAP.SUM"` and `"INV.TCC"`, SE is the posterior standard deviation
-  from the pre-computed lookup table. `NA` when `se = FALSE`, when all
-  responses are missing, or when the sum score falls outside the
-  estimable range.
+  A numeric vector of length *N* containing the standard errors of the
+  final ability estimates (see the `se` argument).
 
 - `theta.route`:
 
@@ -301,10 +339,12 @@ An object of class `"run_mst"`, which is a named list containing:
   (*s* \< `n.stage`) is the cumulative routing estimate after stage *s*,
   computed from the responses to all modules administered in stages 1 to
   *s*; column `n.stage` is the final estimate (equal to `est.theta`).
+  Column names are `"stage.1"`, `"stage.2"`, etc.
 
 - `path`:
 
   An *N* x `n.stage` integer matrix of administered module indices.
+  Column names are `"stage.1"`, `"stage.2"`, etc.
 
 - `true.theta`:
 
@@ -361,7 +401,7 @@ examinee is independently assigned to a stage-1 module by uniform random
 sampling from `panel_info(route_map)$config[[1]]`. For panels with a
 single stage-1 module (the most common design), this is equivalent to a
 fixed assignment. For panels with multiple stage-1 modules (e.g., a
-2-3-3 or 3-2-3 design), random assignment approximates the spiralling or
+2-3-3 or 3-2-3 design), random assignment approximates the spiraling or
 booklet-based allocation used in operational testing. When `ini_mod` is
 an integer, all examinees start at the specified stage-1 module.
 
@@ -396,7 +436,12 @@ concatenated, and the final ability estimate is computed using the
 `final_score` method. With `"EAP.SUM"` or `"INV.TCC"`, a missing
 response is counted as 0 in the sum score, as in
 [`est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md), but
-no warning is issued.
+no warning is issued. The same rule applies to the routing estimates.
+When all responses up to a non-final stage are missing, the routing
+estimate is 0 after stage 1 and the previous routing estimate after a
+later stage. An examinee with no observed response to the administered
+items receives `NA` as the final estimate, and one warning reports the
+number of such examinees.
 
 **Relation to
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)**:
@@ -409,6 +454,14 @@ estimate of the cumulative sum score. With
 conditional standard error of measurement approach the
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
 values as the number of simulated examinees grows.
+
+## Methods (by generic)
+
+- `print(run_mst)`: Print method for an object of class `run_mst` (given
+  as `x`). It prints the panel structure, the routing and scoring
+  methods, a summary of the final ability estimates, the bias and RMSE
+  when the true abilities are available, and the module frequencies by
+  stage.
 
 ## References
 
@@ -698,14 +751,15 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat): %.4f\n", rmse_A))
-#> RMSE (bmat): 0.3082
+#> RMSE (bmat): 0.3068
 cat(sprintf("RMSE (cut-score): %.4f\n", rmse_B))
-#> RMSE (cut-score): 0.3065
+#> RMSE (cut-score): 0.3050
 
 ## ---------------------------------------------------------
 ## Example 4: TIF-based cut scores via find_cut()
-## find_cut() computes principled cut scores from TIF crossings.
-## This prevents anomalous routing under MFI-like heuristics.
+## find_cut() derives the cut scores from the TIF crossings of adjacent
+## modules; cut-score routing with these values avoids the path
+## reversals that MFI routing can produce.
 ## ---------------------------------------------------------
 # Derive cut scores from TIF crossings between adjacent modules
 cut_result <- find_cut(
@@ -821,7 +875,7 @@ print(result_findcut)
 #>   Stage 3: Module 5: 170 (34.0%),  Module 6: 169 (33.8%),  Module 7: 161 (32.2%)
 #> 
 
-## Visualise the TIF-based cut scores used for routing
+## Visualize the TIF-based cut scores used for routing
 plot(cut_result)
 
 
@@ -830,10 +884,11 @@ plot(cut_result)
 ## (pre-computed lookup tables; efficient for large N)
 ## ---------------------------------------------------------
 # INV.TCC can be used as both the routing and final scoring method.
-# Before the examinee loop, run_mst() pre-computes a sum_score -> theta
-# lookup table for every unique partial pathway (routing) and for every
-# unique complete pathway (final scoring), consistent with the reval_mst()
-# approach.
+# Before the examinee loop, run_mst() pre-computes a sum score to theta
+# lookup table for every partial pathway (routing) and every complete
+# pathway (final scoring). This example uses bmat routing; the design
+# that reval_mst() evaluates analytically uses cut-score routing
+# (route_method = NULL) with INV.TCC routing and final scores.
 # SE is taken from the pre-computed lookup table.
 
 result_inv <- run_mst(
@@ -905,7 +960,8 @@ print(result_inv)
 head(result_inv$se.theta)
 #> [1] 0.5213622 0.2798838 0.2850462 0.2797603 0.2756490 0.2739662
 
-# Compare RMSE: INV.TCC routing vs. ML routing (result_bmat from Example 1)
+# Compare RMSE: INV.TCC routing and scoring vs. ML routing and scoring
+# (result_bmat from Example 1)
 rmse_inv <- sqrt(mean((result_inv$est.theta  - theta_true)^2, na.rm = TRUE))
 rmse_ml  <- sqrt(mean((result_bmat$est.theta - theta_true)^2, na.rm = TRUE))
 cat(sprintf("RMSE (INV.TCC routing + scoring): %.4f\n", rmse_inv))

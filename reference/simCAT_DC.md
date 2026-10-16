@@ -16,7 +16,8 @@ A list of length three:
 
 - item.prm:
 
-  A data frame in item metadata format containing 100 dichotomous items.
+  A data frame of item metadata for 100 dichotomous items (2PLM; `par.3`
+  is `NA`). The `id` column is a factor (`V1` to `V100`).
 
   - Items 1-90: Generated and calibrated under the IRT 2PL model.
 
@@ -25,10 +26,11 @@ A list of length three:
 
 - res.dat:
 
-  A matrix of item responses from 10,000 examinees (rows) to 100 items
-  (columns). `NA` marks an item that was not administered to the
-  examinee. The columns have no names; they follow the row order of
-  `item.prm`, whose `id` values are `V1` to `V100`.
+  A numeric matrix of item responses (0 or 1) from 10,000 examinees
+  (rows) to 100 items (columns). Each examinee answered 40 items; `NA`
+  marks an item that was not administered to the examinee. The columns
+  have no names; they follow the row order of `item.prm`, whose `id`
+  values are `V1` to `V100`.
 
 - score:
 

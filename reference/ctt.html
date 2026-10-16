@@ -33,7 +33,7 @@ est_irt() pairs with print.est_irt()/summary.est_irt()."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ discrimination across the test. The distribution of total (raw) scores
 across examinees is also tabulated. The result is returned as an object of
 class <code>"ctt"</code>, with <code><a href="print.ctt.html">print.ctt()</a></code> and <code><a href="summary.ctt.html">summary.ctt()</a></code> methods that display
 a condensed and a full report, respectively, analogous to how
-<code><a href="est_irt.html">est_irt()</a></code> pairs with <code>print.est_irt()</code>/<code><a href="summary.html">summary.est_irt()</a></code>.</p>
+<code><a href="est_irt.html">est_irt()</a></code> pairs with <code><a href="summary.html">print.est_irt()</a></code>/<code><a href="summary.html">summary.est_irt()</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -114,7 +114,8 @@ a condensed and a full report, respectively, analogous to how
 examinees in rows and items in columns. Item scores must range from 0 to
 <code>cats[j] - 1</code> for each item j (0/1 for a dichotomous item; 0, 1, 2, ...
 for a polytomous/partial-credit item). An error is raised when a score
-is not a whole number between 0 and <code>cats[j] - 1</code>.</p></dd>
+is not a whole number between 0 and <code>cats[j] - 1</code>; a score within 1e-8
+of a whole number is treated as that whole number.</p></dd>
 
 
 <dt id="arg-item-id">item.id<a class="anchor" aria-label="anchor" href="#arg-item-id"></a></dt>
@@ -139,13 +140,12 @@ sample. Each value must be a whole number of at least 2.</p></dd>
 
 
 <dt id="arg-correct">correct<a class="anchor" aria-label="anchor" href="#arg-correct"></a></dt>
-<dd><p>Logical. Both the raw (uncorrected) item-total correlation -
-where an item is correlated with the total score that includes its own
-contribution - and the corrected item-total correlation - excluding its
-own contribution - are always computed and reported as separate columns.
-This argument only controls which of the two is used for flagging: if
-<code>TRUE</code>, flagging is based on the corrected value; if <code>FALSE</code> (default),
-on the raw value.</p></dd>
+<dd><p>Logical. Both the raw item-total correlation (the item
+score correlated with a total score that includes the item) and the
+corrected item-total correlation (correlated with a total score that
+excludes the item) are always computed and reported as separate columns.
+This argument only selects which of the two is used for flagging: the
+corrected value if <code>TRUE</code>, the raw value if <code>FALSE</code> (default).</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
@@ -159,44 +159,54 @@ listwise from all statistics computed by this function.</p></dd>
 <dt id="arg-flag">flag<a class="anchor" aria-label="anchor" href="#arg-flag"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default), items are flagged when their
 difficulty or discrimination falls outside the thresholds given in
-<code>crit.p</code> and <code>crit.dis</code>.</p></dd>
+<code>crit.p</code> and <code>crit.dis</code>, or when their discrimination is undefined.</p></dd>
 
 
 <dt id="arg-crit-p">crit.p<a class="anchor" aria-label="anchor" href="#arg-crit-p"></a></dt>
 <dd><p>A numeric vector of length two giving the lower and upper
-difficulty bounds used for flagging: difficulty below the first value is
-flagged as too difficult, and difficulty above the second value is
-flagged as too easy. Default is <code>c(0.10, 0.95)</code>.</p></dd>
+difficulty bounds used for flagging: an item with difficulty below the
+first value is flagged as too difficult ("difficulty too low"), and an
+item with difficulty above the second value is flagged as too easy
+("difficulty too high"). Default is <code>c(0.10, 0.95)</code>.</p></dd>
 
 
 <dt id="arg-crit-dis">crit.dis<a class="anchor" aria-label="anchor" href="#arg-crit-dis"></a></dt>
 <dd><p>A single numeric value giving the minimum acceptable
-discrimination (item-total correlation); items strictly below this value
-are flagged as poorly discriminating. Default is <code>0.20</code>.</p></dd>
+discrimination (item-total correlation); an item whose discrimination is
+strictly below this value is flagged as poorly discriminating
+("discrimination too low"). An item whose discrimination is undefined
+(a constant item, or a constant reference total score) is flagged
+"discrimination undefined". Default is <code>0.20</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"ctt"</code>, a list with elements:</p>
 <dl><dt>item</dt>
-<dd><p>A data frame with one row per item, containing the item
-label, number of score categories, difficulty, the raw (uncorrected)
-item-total correlation (<code>discrimination_raw</code>), the corrected
-(item-excluded) item-total correlation (<code>discrimination_corrected</code>),
-alpha-with-item-removed, and, if <code>flag = TRUE</code>, a <code>flag</code> column.</p></dd>
+<dd><p>A data frame with one row per item and the columns <code>item</code>
+(item ID), <code>cats</code> (number of score categories), <code>difficulty</code>,
+<code>discrimination_raw</code> (raw item-total correlation),
+<code>discrimination_corrected</code> (corrected item-total correlation),
+<code>alpha_removed</code> (alpha with the item removed), and, if <code>flag = TRUE</code>,
+<code>flag</code> (the criteria the item meets, among "difficulty too low",
+"difficulty too high", "discrimination too low", and "discrimination
+undefined", separated by "; ", or <code>""</code> when none). Statistics are
+rounded to three decimal places.</p></dd>
 
 <dt>crit</dt>
-<dd><p>A list echoing the <code>crit.p</code> and <code>crit.dis</code> thresholds used for
-flagging.</p></dd>
+<dd><p>A list with elements <code>crit.p</code>, <code>crit.dis</code>, and <code>correct</code>, the
+thresholds and the correlation used for flagging (<code>correct = TRUE</code> for
+the corrected item-total correlation, <code>FALSE</code> for the raw one).</p></dd>
 
 <dt>alpha</dt>
 <dd><p>A one-row test-level summary data frame containing
 <code>n_examinee</code>, <code>n_item</code>, <code>alpha</code>, <code>alpha_std</code>, <code>sem</code>, <code>mean_difficulty</code>,
 <code>mean_discrimination_raw</code>, and <code>mean_discrimination_corrected</code>. Both the
 raw (<code>alpha</code>) and standardized (<code>alpha_std</code>) forms of Cronbach's alpha
-are always included; standardized alpha standardizes every item to unit
-variance before combining them, which differs meaningfully from raw
-alpha mainly when items vary widely in scale or format.</p></dd>
+are always included; standardized alpha standardizes every item with
+nonzero variance to unit variance before combining them, which differs
+meaningfully from raw alpha mainly when items vary widely in scale or
+format.</p></dd>
 
 <dt>freq</dt>
 <dd><p>The total-score frequency distribution table returned by
@@ -223,11 +233,12 @@ raw (uncorrected) item-total correlation, which correlates the item with
 the total score that includes the item's own contribution, and the
 corrected (item-excluded) item-total correlation, which excludes it. For a
 dichotomous item, the raw item-total correlation is mathematically
-equivalent to the point-biserial correlation. <code>correct</code> selects which of
-the two feeds the discrimination flagging criterion (<code>crit.dis</code>); both are
-always reported as separate columns regardless of <code>correct</code> (this mirrors
-how, e.g., <code>psych::alpha()</code> reports the raw item-total correlation as
-<code>raw.r</code> and the corrected version as <code>r.drop</code>).</p>
+equivalent to the point-biserial correlation. A correlation is <code>NA</code> when
+the item score or the reference total score is constant. <code>correct</code> selects
+which of the two feeds the discrimination flagging criterion (<code>crit.dis</code>);
+both are always reported as separate columns regardless of <code>correct</code> (this
+mirrors how, e.g., <code>psych::alpha()</code> reports the raw item-total correlation
+as <code>raw.r</code> and the corrected version as <code>r.drop</code>).</p>
 <p>Alpha-with-item-removed for item j is Cronbach's alpha (see below)
 recomputed using only the remaining items, so that a value above the
 overall alpha identifies an item whose removal would increase the
@@ -237,32 +248,34 @@ reported. Raw alpha uses the standard variance-based formula
 $$\alpha = \frac{k}{k - 1}\left(1 - \frac{\sum_{j} \sigma_j^2}{\sigma_X^2}\right),$$
 where \(k\) is the number of items, \(\sigma_j^2\) is the variance of
 item j, and \(\sigma_X^2\) is the variance of the total score X. Raw
-alpha reflects the reliability of the actual (unweighted) total score
-obtained by simply summing the item scores - the score most tests
-actually use for reporting and decisions. Standardized alpha instead first
-standardizes every item to unit variance before combining them,
+alpha reflects the reliability of the unweighted total score obtained by
+summing the item scores, which is the score most tests use for reporting
+and decisions. Standardized alpha is raw alpha computed after
+standardizing every item with nonzero variance to unit variance. When no
+item is constant, it equals
 $$\alpha_{std} = \frac{k \bar{r}}{1 + (k - 1)\bar{r}},$$
-where \(\bar{r}\) is the average pairwise correlation among all items.
-Standardized alpha differs meaningfully from raw alpha mainly when items
-vary substantially in scale or format (e.g., a mix of dichotomous and
-polytomous items with very different score ranges); when all items share
-the same scale and format, the two are typically close, and raw alpha
-remains the more directly interpretable of the two since it matches the
-reliability of the score actually used in practice. See Cronbach (1951)
-for the original derivation of coefficient alpha, and Osburn (2000) for a
-discussion contrasting the raw (covariance-based) and standardized
-(correlation-based) forms.</p>
+where \(\bar{r}\) is the average pairwise correlation among the items. A
+constant item cannot be standardized, so it stays in the item count
+\(k\) with zero variance, as in raw alpha, and \(\bar{r}\) is the
+average correlation among the items that vary. When only one item varies,
+standardized alpha is 0, as is raw alpha; it is <code>NA</code> when no item varies or
+the standardized total score is constant. Standardized alpha differs
+meaningfully from raw alpha mainly when items vary substantially in scale or
+format (e.g., a mix of dichotomous and polytomous items with very different
+score ranges); when all items share the same scale and format, the two are
+typically close, and raw alpha remains the more directly interpretable of
+the two since it matches the reliability of the score actually used in
+practice. See Cronbach (1951) for the original derivation of coefficient
+alpha, and Osburn (2000) for a discussion contrasting the raw
+(covariance-based) and standardized (correlation-based) forms.</p>
 <p>The standard error of measurement (SEM) is
 \(SEM = SD(X)\sqrt{1 - \alpha}\) (using raw alpha), the standard CTT
 relationship between test reliability and measurement precision.</p>
-<p>The total-score frequency distribution is computed internally by
-<code><a href="freq_score.html">freq_score()</a></code>, using the row sums of <code>data</code> after applying the same
-<code>missing</code> recoding and listwise deletion of incomplete rows used
-throughout the rest of this function, so that the frequency distribution
-reflects exactly the same set of examinees and the same total-score
-definition used elsewhere in the analysis. <code><a href="freq_score.html">freq_score()</a></code> is also
-exported separately, for callers who only need a frequency distribution
-for an arbitrary vector of integer total scores.</p>
+<p>The total-score frequency distribution is computed by <code><a href="freq_score.html">freq_score()</a></code> from
+the row sums of <code>data</code> after the same <code>missing</code> recoding and listwise
+deletion, so it covers the same examinees as the other statistics.
+<code><a href="freq_score.html">freq_score()</a></code> can also be called directly on any vector of integer total
+scores.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -349,7 +362,7 @@ reliability coefficients. <em>Psychological Methods, 5</em>(3), 343-355.
 <span class="r-out co"><span class="r-pr">#&gt;</span>           0.664      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           0.666      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2 (raw item-total correlation)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0 of 15 item(s) flagged.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Test-Level Reliability Summary</span>
@@ -504,7 +517,7 @@ reliability coefficients. <em>Psychological Methods, 5</em>(3), 343-355.
 <span class="r-out co"><span class="r-pr">#&gt;</span>           0.882      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           0.888      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Flagging thresholds: difficulty in [0.1, 0.95], discrimination &gt;= 0.2 (raw item-total correlation)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0 of 55 item(s) flagged.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Test-Level Reliability Summary</span>

@@ -64,8 +64,11 @@ The following components can be extracted from an object of class
 - se.est:
 
   A data frame containing the standard errors of the item parameter
-  estimates, calculated using the cross-product approximation method
-  (Meilijson, 1989).
+  estimates, computed from the inverse of the information matrix: the
+  cross-product (empirical) information matrix of the marginal
+  log-likelihood evaluated at the final estimates (Meilijson, 1989),
+  plus the prior information (the negative second derivatives of the log
+  prior densities) for the parameters that have prior distributions.
 
 - pos.par:
 
@@ -79,7 +82,11 @@ The following components can be extracted from an object of class
 
 - loglikelihood:
 
-  The total marginal log-likelihood value summed across all items.
+  The marginal log-likelihood of the response data at the final
+  estimates: the sum over examinees of the logarithm of the probability
+  of each examinee's response pattern, integrated over the latent
+  ability distribution. The log prior densities of the item parameters
+  are not included.
 
 - aic:
 
@@ -104,21 +111,21 @@ The following components can be extracted from an object of class
 
 - posterior.dist:
 
-  A matrix of normalized posterior densities for all response patterns
-  at each quadrature point. Rows represent examinees, and columns
-  represent quadrature points.
+  A matrix of the posterior probabilities of the quadrature points for
+  each examinee. Rows represent examinees, and columns represent
+  quadrature points; each row sums to 1.
 
 - data:
 
-  A data frame of the examinee response dataset used in estimation.
+  A matrix of the examinee response dataset used in estimation.
 
 - scale.D:
 
-  The scaling constant (usually 1 or 1.7) used in the IRT model.
+  The scaling constant (usually 1 or 1.702) used in the IRT model.
 
 - ncase:
 
-  The number of unique response patterns.
+  The number of examinees.
 
 - nitem:
 
@@ -126,14 +133,16 @@ The following components can be extracted from an object of class
 
 - Etol:
 
-  The convergence criterion for the E-step of the EM algorithm: the
-  largest absolute change in the item parameter estimates between
-  consecutive cycles. For FIPC with all items fixed, it applies to the
-  change in the mean and variance of the prior distribution.
+  The convergence criterion of the EM algorithm: the largest absolute
+  change in the estimated item parameters between consecutive cycles.
+  For FIPC with all items fixed, it applies to the change in the mean
+  and variance of the latent ability distribution; see
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
 
 - MaxE:
 
-  The maximum number of E-steps allowed during EM estimation.
+  The maximum number of EM cycles allowed during estimation (1 when
+  `fipc.method = "OEM"`).
 
 - aprior:
 
@@ -150,7 +159,8 @@ The following components can be extracted from an object of class
 
 - npar.est:
 
-  The total number of parameters estimated.
+  The number of freely estimated parameters used for `aic` and `bic`;
+  see [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
 
 - niter:
 
@@ -158,7 +168,9 @@ The following components can be extracted from an object of class
 
 - maxpar.diff:
 
-  The largest absolute change in the estimates in the last EM cycle.
+  The largest absolute change in the estimated item parameters at the
+  last EM cycle (for FIPC with all items fixed, in the mean and variance
+  of the latent ability distribution).
 
 - EMtime:
 
@@ -179,8 +191,13 @@ The following components can be extracted from an object of class
 
 - test.2:
 
-  Result of the second-order test indicating whether the information
-  matrix was positive definite (a condition for maximum likelihood).
+  A message indicating whether the information matrix used for the
+  standard errors was positive definite. Printed results label it
+  "Second-order test", but because the cross-product information matrix
+  is positive semidefinite by construction, this check mainly detects a
+  singular (rank-deficient) information matrix; it is not a second-order
+  test of the log-likelihood surface. When FIPC is used with all items
+  fixed, no information matrix is computed, and the message says so.
 
 - var.note:
 
@@ -198,8 +215,17 @@ The following components can be extracted from an object of class
 
 - fix.loc:
 
-  An integer vector indicating the positions of fixed items used during
-  FIPC.
+  An integer vector of the positions of the fixed items in FIPC, or
+  `NULL` without FIPC.
+
+- npar.detail:
+
+  The numbers of free parameters by type; see
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
+
+- call:
+
+  The matched call.
 
 Components that can be extracted from an object of class `est_mg`
 created by
@@ -224,28 +250,35 @@ created by
 - se.est:
 
   Same structure as `estimates`, but containing only the standard errors
-  of the item parameter estimates. The standard errors are computed
-  using the cross-product approximation method (Meilijson, 1989).
+  of the item parameter estimates. The standard errors are computed from
+  the inverse of the information matrix: the cross-product (empirical)
+  information matrix of the marginal log-likelihood evaluated at the
+  final estimates (Meilijson, 1989), plus the prior information (the
+  negative second derivatives of the log prior densities) for the
+  parameters that have prior distributions.
 
 - pos.par:
 
   A data frame indicating the position index of each estimated
   parameter. This index is based on the combined item set across all
   groups and is useful when interpreting the variance-covariance matrix.
+  It is `NULL` when all items are fixed in FIPC.
 
 - covariance:
 
   A variance-covariance matrix for the item parameter estimates based on
-  the combined data from all groups.
+  the combined data from all groups. It is `NULL` when `se = FALSE` or
+  when all items are fixed in FIPC.
 
 - loglikelihood:
 
   A list with `overall` and `group` components:
 
-  - `overall`: The marginal log-likelihood summed over all unique items
-    across all groups.
+  - `overall`: The marginal log-likelihood of the response data of all
+    groups at the final estimates (summed over examinees, without the
+    log prior densities).
 
-  - `group`: Group-specific marginal log-likelihood values.
+  - `group`: The same sums within the groups.
 
 - aic:
 
@@ -259,8 +292,10 @@ created by
 
 - group.par:
 
-  A list of group-specific summary statistics (mean, variance, and
-  standard deviation) of the latent trait prior distribution.
+  A list of group-specific data frames with the mean, variance, and
+  standard deviation of the latent ability distribution and their
+  standard errors; see
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md).
 
 - weights:
 
@@ -270,9 +305,10 @@ created by
 
 - posterior.dist:
 
-  A matrix of normalized posterior densities for all response patterns
-  at each quadrature point. Rows correspond to individuals, and columns
-  to quadrature points.
+  A matrix of the posterior probabilities of the quadrature points for
+  each examinee. Rows represent the examinees of all groups in the order
+  of `group.name`, and columns represent quadrature points; each row
+  sums to 1.
 
 - data:
 
@@ -281,12 +317,12 @@ created by
 
 - scale.D:
 
-  The scaling constant used in the IRT model (typically 1 or 1.7).
+  The scaling constant used in the IRT model (typically 1 or 1.702).
 
 - ncase:
 
-  A list with `overall` and `group` components indicating the number of
-  response patterns in each.
+  A list with `overall` and `group` components indicating the numbers of
+  examinees.
 
 - nitem:
 
@@ -295,14 +331,16 @@ created by
 
 - Etol:
 
-  The convergence criterion for the E-step of the EM algorithm: the
-  largest absolute change in the item parameter estimates between
-  consecutive cycles. For FIPC with all items fixed, it applies to the
-  change in the mean and variance of the prior distribution.
+  The convergence criterion of the EM algorithm: the largest absolute
+  change in the estimated item parameters between consecutive cycles.
+  For FIPC with all items fixed, it applies to the change in the means
+  and variances of the latent ability distributions of all groups; see
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md).
 
 - MaxE:
 
-  Maximum number of E-steps allowed in the EM algorithm.
+  The maximum number of EM cycles allowed during estimation (1 when
+  `fipc.method = "OEM"`).
 
 - aprior:
 
@@ -319,7 +357,8 @@ created by
 
 - npar.est:
 
-  Total number of parameters estimated across all unique items.
+  The number of freely estimated parameters used for `aic` and `bic`;
+  see [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md).
 
 - niter:
 
@@ -327,7 +366,11 @@ created by
 
 - maxpar.diff:
 
-  The largest absolute change in the estimates in the last EM cycle.
+  The largest absolute change in the estimated item parameters at the
+  last EM cycle (for FIPC with all items fixed, in the means and
+  variances of the latent ability distributions of all groups; see
+  `Etol` in
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md)).
 
 - EMtime:
 
@@ -348,8 +391,13 @@ created by
 
 - test.2:
 
-  Second-order condition test result indicating whether the information
-  matrix is positive definite.
+  A message indicating whether the information matrix used for the
+  standard errors was positive definite. Printed results label it
+  "Second-order test", but because the cross-product information matrix
+  is positive semidefinite by construction, this check mainly detects a
+  singular (rank-deficient) information matrix; it is not a second-order
+  test of the log-likelihood surface. When FIPC is used with all items
+  fixed, no information matrix is computed, and the message says so.
 
 - var.note:
 
@@ -370,6 +418,15 @@ created by
   A list with `overall` and `group` components specifying the locations
   of fixed items when FIPC was applied.
 
+- npar.detail:
+
+  The numbers of free parameters by type; see
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md).
+
+- call:
+
+  The matched call.
+
 Components that can be extracted from an object of class `est_item`
 created by
 [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)
@@ -387,7 +444,11 @@ include:
 - se.est:
 
   A data frame containing the standard errors of the item parameter
-  estimates, computed using observed information functions.
+  estimates, computed from the inverse of the observed information
+  matrix (the Hessian of the negative log-likelihood, plus the negative
+  second derivatives of the log prior densities when priors are used).
+  The abilities in `score` are treated as known, so their estimation
+  error is not reflected in the standard errors.
 
 - pos.par:
 
@@ -401,8 +462,14 @@ include:
 
 - loglikelihood:
 
-  The sum of log-likelihood values across all items in the complete data
-  set.
+  The log-likelihood of the observed responses given the abilities in
+  `score`, summed over the items, at the final estimates, without the
+  log prior densities of the item parameters.
+
+- group.par:
+
+  A named numeric vector with the mean (`mu`) and the standard deviation
+  (`sigma`) of the abilities in `score`.
 
 - data:
 
@@ -415,7 +482,7 @@ include:
 
 - scale.D:
 
-  The scaling constant (typically 1 or 1.7) used in the IRT model.
+  The scaling constant (typically 1 or 1.702) used in the IRT model.
 
 - convergence:
 
@@ -424,12 +491,13 @@ include:
 
 - nitem:
 
-  The total number of items included in the response data.
+  The number of items in the response data as supplied, including the
+  excluded items.
 
 - deleted.item:
 
-  Items that contained no response data and were excluded from
-  estimation.
+  The positions of the items that contained no response data and were
+  excluded from estimation.
 
 - npar.est:
 
@@ -437,12 +505,16 @@ include:
 
 - n.response:
 
-  An integer vector indicating the number of responses used to estimate
-  parameters for each item.
+  A numeric vector of the numbers of responses to the items (0 for the
+  excluded items).
 
 - TotalTime:
 
   Total computation time (in seconds) for the estimation process.
+
+- call:
+
+  The matched call.
 
 See [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md),
 [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md), and

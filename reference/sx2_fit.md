@@ -54,10 +54,9 @@ sx2_fit(
 - x:
 
   A data frame containing item metadata (e.g., item parameters, number
-  of categories, IRT model types, etc.); or an object of class `est_irt`
-  obtained from
-  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), or
-  `est_item` from
+  of categories, IRT model types, etc.), or an object of class `est_irt`
+  or `est_item` obtained from
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) or
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
 
   See [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
@@ -73,14 +72,16 @@ sx2_fit(
 
 - data:
 
-  A matrix of examinees' item responses corresponding to the items
-  specified in the `x` argument. Rows represent examinees and columns
-  represent items.
+  A matrix of examinees' item responses, with rows for examinees and
+  columns for items in the same order as the items in `x`. Responses to
+  an item with K score categories must be integers from 0 to K - 1.
+  Missing responses must be coded as `NA`; they are replaced with 0
+  before the statistics are computed, with a warning.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - alpha:
@@ -91,21 +92,23 @@ sx2_fit(
 
 - min.collapse:
 
-  An integer specifying the minimum expected frequency required per cell
-  before adjacent cells are collapsed. Default is 1. See **Details**.
+  A numeric value giving the minimum expected frequency per cell. Cells
+  with smaller expected frequencies are merged with adjacent cells.
+  Default is 1. See **Details**.
 
 - norm.prior:
 
-  A numeric vector of length two specifying the mean and standard
-  deviation of the normal prior distribution. These values are used to
-  generate the Gaussian quadrature points and weights. Ignored if
-  `method` is `"ML"`, `"MLF"`, `"WL"`, or `"INV.TCC"`. Default is
-  `c(0, 1)`.
+  A numeric vector of length two giving the mean and standard deviation
+  of the normal latent ability distribution used to generate the
+  quadrature points and weights. Ignored when `weights` is supplied. For
+  an `est_irt` object, see `weights`. Default is `c(0, 1)`.
 
 - nquad:
 
   An integer specifying the number of Gaussian quadrature points used to
-  approximate the normal prior distribution. Default is 30.
+  approximate the normal latent ability distribution. Ignored when
+  `weights` is supplied. For an `est_irt` object, see `weights`. Default
+  is 30.
 
 - weights:
 
@@ -116,76 +119,132 @@ sx2_fit(
   [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)
   according to the `norm.prior` and `nquad` arguments.
 
+  For an `est_irt` object, when `weights`, `norm.prior`, and `nquad` are
+  all omitted, the latent distribution stored in the object
+  (`x$weights`), which was used or estimated in the calibration, is
+  used. Otherwise, `weights` is used if given, and a normal distribution
+  given by `norm.prior` and `nquad` is used if not. For an `est_item`
+  object, which stores no latent distribution, the normal distribution
+  is used when `weights` is omitted.
+
 - pcm.loc:
 
-  An optional integer vector indicating the row indices of items that
-  follow the partial credit model (PCM), where slope parameters are
-  fixed. Default is `NULL`.
+  An optional integer vector giving the row indices of partial credit
+  model (PCM) items whose slope parameters are fixed. It is used only to
+  count the item parameters for the degrees of freedom. Default is
+  `NULL`.
 
 ## Value
 
-A list containing the following components:
+A list with the following components:
 
 - fit_stat:
 
-  A data frame summarizing the \\S\text{-}X^2\\ fit statistics for all
-  items, including the chi-square value, degrees of freedom, critical
-  value, and p-value.
+  A data frame with one row per item and the columns `id`, `chisq` (the
+  \\S\text{-}X^2\\ statistic), `df`, `crit.val` (the critical value at
+  `alpha`), and `p` (the p-value).
 
 - item_df:
 
-  A data frame containing the item metadata as specified in the input
-  argument `x`.
+  The item metadata used in the analysis.
 
 - exp_freq:
 
-  A list of collapsed expected frequency tables for all items.
+  A list of collapsed expected frequency tables, one per item, with
+  summed score groups in rows and score categories in columns.
 
 - obs_freq:
 
-  A list of collapsed observed frequency tables for all items.
+  A list of collapsed observed frequency tables in the same layout as
+  `exp_freq`.
 
 - exp_prob:
 
-  A list of collapsed expected probability tables for all items.
+  A list of matrices of expected proportions within each summed score
+  group.
 
 - obs_prop:
 
-  A list of collapsed observed proportion tables for all items.
+  A list of matrices of observed proportions within each summed score
+  group.
+
+For a polytomous item, categories merged within a summed score group are
+stored in the leftmost columns of that row, and the remaining cells are
+`NA`.
 
 ## Details
 
-The accuracy of the \\\chi^{2}\\ approximation in item fit statistics
-can be compromised when expected cell frequencies in contingency tables
-are too small (Orlando & Thissen, 2000). To address this issue, Orlando
-and Thissen (2000) proposed collapsing adjacent summed score groups to
-ensure a minimum expected frequency of at least 1.
+For item \\i\\ and summed score group \\s\\ with \\N_s\\ examinees, let
+\\O\_{isk}\\ and \\E\_{isk}\\ be the observed and expected proportions
+of score category \\k\\. The statistic is \\S\text{-}X^2_i = \sum_s
+\sum_k N_s (O\_{isk} - E\_{isk})^2 / E\_{isk}\\, which has the form of
+Orlando and Thissen (2000) for a dichotomous item. The expected
+proportions are \\E\_{isk} = \sum_q P\_{ik}(\theta_q) f^{\*i}(s - k \mid
+\theta_q) A(\theta_q) / \sum_q f(s \mid \theta_q) A(\theta_q)\\, where
+\\f\\ and \\f^{\*i}\\ are the summed score likelihoods with and without
+item \\i\\, computed by the Lord-Wingersky recursion, and \\\theta_q\\
+and \\A(\theta_q)\\ are the quadrature points and weights.
 
-However, applying this collapsing approach directly to polytomous item
-data can result in excessive information loss (Kang & Chen, 2008). To
-mitigate this, Kang and Chen (2008) instead collapsed adjacent response
-categories *within* each summed score group, maintaining a minimum
-expected frequency of 1 per category. The same collapsing strategies are
-implemented in `sx2_fit()`. If a different minimum expected frequency is
-desired, it can be specified via the `min.collapse` argument.
+The latent ability distribution used to compute the expected proportions
+is given by `weights`, or by a normal distribution generated from
+`norm.prior` and `nquad` when `weights` is omitted. For an `est_irt`
+object, the latent distribution stored in the object is used when
+`weights`, `norm.prior`, and `nquad` are all omitted.
 
-When an item is labeled as "DRM" in the item metadata, it is treated as
-a 3PLM item when computing the degrees of freedom for the
-\\S\text{-}X^2\\ statistic.
+The lowest and highest possible summed scores are excluded. For an item
+with \\K\\ score categories, the \\K - 1\\ lowest remaining summed
+scores are pooled into one group, and so are the \\K - 1\\ highest. When
+the test is so short that the two pooled ranges overlap, each summed
+score is counted once, in the lower group.
 
-Additionally, any missing responses in the `data` are automatically
-replaced with incorrect responses (i.e., 0s).
+The accuracy of the \\\chi^{2}\\ approximation can be compromised when
+expected cell frequencies are too small (Orlando & Thissen, 2000). For
+dichotomous items, Orlando and Thissen (2000) merged adjacent summed
+score groups so that every expected frequency is at least 1. For
+polytomous items, this approach can discard too much information, so
+Kang and Chen (2008) instead merged adjacent score categories *within*
+each summed score group. `sx2_fit()` follows both strategies, working
+from the ends of the table toward the middle, and `min.collapse` sets
+the minimum expected frequency.
+
+The degrees of freedom are \\G(K - 1) - m - C\\, where \\G\\ is the
+number of summed score groups after collapsing, \\m\\ is the number of
+item parameters, and \\C\\ is the number of category cells removed by
+merging. The number of item parameters \\m\\ is determined by the IRT
+model of each item: 1 for the 1PLM, 2 for the 2PLM, 3 for the 3PLM, and
+the number of score categories \\K\\ for the GRM and GPCM; an item
+listed in `pcm.loc` has \\m = K - 1\\, and an item labeled `"DRM"` is
+counted as a 3PLM item. This also applies to `est_irt` and `est_item`
+objects: parameters fixed during estimation (for example, with
+`fix.g = TRUE`, or the items fixed in FIPC) are still counted, and GPCM
+items estimated with `fix.a.gpcm = TRUE` are counted as PCM items only
+when they are given in `pcm.loc`. When no degrees of freedom remain
+after collapsing (`df` of 0 or less), `crit.val` and `p` are `NA`, and a
+warning names the item.
+
+The test must contain at least two items. Responses in `data` must be
+integer scores from 0 to the number of score categories minus 1, with
+one column per item. Character and factor responses are read as numbers,
+logical responses as 0 and 1, and other responses stop the function with
+an error. Missing responses in `data` are replaced with 0 (the lowest
+score category), and a warning is issued.
 
 ## Methods (by class)
 
 - `sx2_fit(default)`: Default method for computing \\S\text{-}X^{2}\\
   fit statistics from a data frame `x` containing item metadata.
 
-- `sx2_fit(est_item)`: An object created by the function
+- `sx2_fit(est_item)`: Method for an object of class `est_item` created
+  by
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
+  The item parameter estimates, response data, and `D` are taken from
+  the object.
 
-- `sx2_fit(est_irt)`: An object created by the function
-  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
+- `sx2_fit(est_irt)`: Method for an object of class `est_irt` created by
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md). The
+  item parameter estimates, response data, and `D` are taken from the
+  object. When `weights`, `norm.prior`, and `nquad` are all omitted, the
+  latent distribution stored in the object (`x$weights`) is used.
 
 ## References
 

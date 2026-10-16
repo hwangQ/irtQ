@@ -21,7 +21,7 @@ Kolen &amp;amp; Tong, 2010; Stocking, 1996)."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,6 +119,27 @@ Kolen &amp; Tong, 2010; Stocking, 1996).</p>
 <span>  missing <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  ncore <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'est_item'</span></span>
+<span><span class="fu">est_score</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"ML"</span>,</span>
+<span>  range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span>
+<span>  norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  nquad <span class="op">=</span> <span class="fl">41</span>,</span>
+<span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fence.a <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  fence.b <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tol <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  max.iter <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  se <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  stval.opt <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  intpol <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7</span>, <span class="fl">7</span><span class="op">)</span>,</span>
+<span>  missing <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  ncore <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -128,26 +149,29 @@ Kolen &amp; Tong, 2010; Stocking, 1996).</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data frame containing item metadata (e.g., item parameters, number
-of categories, IRT model types, etc.); or an object of class <code>est_irt</code>
-obtained from <code><a href="est_irt.html">est_irt()</a></code>, or <code>est_item</code> from <code><a href="est_item.html">est_item()</a></code>.</p>
+of categories, IRT model types, etc.), or an object of class <code>est_irt</code> or
+<code>est_item</code> obtained from <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="est_item.html">est_item()</a></code>.</p>
 <p>See <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="simdat.html">simdat()</a></code> for more details about the item
 metadata. This data frame can be easily created using the
 <code><a href="shape_df.html">shape_df()</a></code> function.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>.</p></dd>
+<dd><p>Additional arguments passed to <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code> when
+<code>ncore &gt; 1</code>.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A matrix of examinees' item responses corresponding to the items
-specified in the <code>x</code> argument. Rows represent examinees and columns
-represent items.</p></dd>
+<dd><p>A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in <code>x</code>. Responses
+to an item with K score categories must be integers from 0 to K - 1.
+Missing responses are coded as <code>NA</code> or, in functions that have a
+<code>missing</code> argument, as the value given in <code>missing</code>.</p></dd>
 
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 
@@ -167,22 +191,24 @@ Thissen &amp; Orlando, 2001)</p></li>
 
 <dt id="arg-range">range<a class="anchor" aria-label="anchor" href="#arg-range"></a></dt>
 <dd><p>A numeric vector of length two specifying the lower and upper
-bounds of the ability scale. This is used for the following scoring
-methods: <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>. Default is <code>c(-5, 5)</code>.</p></dd>
+bounds of the ability scale for the <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>
+methods. Estimates outside these bounds are set to the nearest bound. The
+bounds also define the search grid for <code>stval.opt = 1</code> and the default
+fence locations for <code>"MLF"</code>. Default is <code>c(-5, 5)</code>.</p></dd>
 
 
 <dt id="arg-norm-prior">norm.prior<a class="anchor" aria-label="anchor" href="#arg-norm-prior"></a></dt>
 <dd><p>A numeric vector of length two specifying the mean and
-standard deviation of the normal prior distribution. These values are used
-to generate the Gaussian quadrature points and weights. Ignored if <code>method</code>
-is <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, or <code>"INV.TCC"</code>. Default is <code>c(0, 1)</code>.</p></dd>
+standard deviation of the normal prior distribution. For <code>"MAP"</code>, it
+defines the prior. For <code>"EAP"</code> and <code>"EAP.SUM"</code>, it is used to generate the
+Gaussian quadrature points and weights when <code>weights = NULL</code>. Ignored for
+<code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"INV.TCC"</code>. Default is <code>c(0, 1)</code>.</p></dd>
 
 
 <dt id="arg-nquad">nquad<a class="anchor" aria-label="anchor" href="#arg-nquad"></a></dt>
 <dd><p>An integer indicating the number of Gaussian quadrature points
 to be generated from the normal prior distribution. Used only when <code>method</code>
-is <code>"EAP"</code> or <code>"EAP.SUM"</code>. Ignored for <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>,
-and <code>"INV.TCC"</code>. Default is <code>41</code>.</p></dd>
+is <code>"EAP"</code> or <code>"EAP.SUM"</code> and <code>weights = NULL</code>. Default is <code>41</code>.</p></dd>
 
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
@@ -196,56 +222,57 @@ Ignored if <code>method</code> is <code>"ML"</code>, <code>"MLF"</code>, <code>"
 
 
 <dt id="arg-fence-a">fence.a<a class="anchor" aria-label="anchor" href="#arg-fence-a"></a></dt>
-<dd><p>A numeric value specifying the item slope parameter (i.e.,
-<em>a</em>-parameter) for the two imaginary items used in MLF. See <strong>Details</strong> below.
-Default is 3.0.</p></dd>
+<dd><p>A numeric value specifying the slope (<em>a</em>) parameter of the
+two fence items used in MLF. See <strong>Details</strong> below. Default is 3.0.</p></dd>
 
 
 <dt id="arg-fence-b">fence.b<a class="anchor" aria-label="anchor" href="#arg-fence-b"></a></dt>
-<dd><p>A numeric vector of length two specifying the lower and upper
-bounds of the item difficulty parameters (i.e., <em>b</em>-parameters) for the two
-imaginary items in MLF. If <code>fence.b = NULL</code>, the values specified in the
-<code>range</code> argument are used instead. Default is NULL.</p></dd>
+<dd><p>A numeric vector of length two specifying the difficulty (<em>b</em>)
+parameters of the lower and upper fence items used in MLF. If <code>NULL</code>, the
+values in <code>range</code> are used. Default is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
-<dd><p>A numeric value specifying the convergence tolerance for the ML,
-MLF, WL, MAP, and inverse TCC scoring methods. Newton-Raphson optimization
-is used for ML, MLF, WL, and MAP, while the bisection method is used for
-inverse TCC. Default is 1e-4.</p></dd>
+<dd><p>A positive numeric value specifying the convergence tolerance. For
+<code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>, the Fisher scoring iterations stop
+when the absolute update is less than <code>tol</code>, and <code>tol</code> is also the
+tolerance of the root search used when the iterations do not converge. For
+<code>"INV.TCC"</code>, the bisection search stops when the search interval is no
+wider than <code>tol</code>. Default is 1e-4.</p></dd>
 
 
 <dt id="arg-max-iter">max.iter<a class="anchor" aria-label="anchor" href="#arg-max-iter"></a></dt>
-<dd><p>A positive integer specifying the maximum number of
-iterations allowed for the Newton-Raphson optimization. Default is 100.</p></dd>
+<dd><p>A positive integer specifying the maximum number of Fisher
+scoring iterations for <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>. Default is
+100. See <strong>Details</strong> for the case where the iterations do not converge.</p></dd>
 
 
 <dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, standard errors of ability estimates are
-computed. If <code>method</code> is "EAP.SUM" or "INV.TCC", standard errors are always
-returned regardless of this setting. Default is <code>TRUE</code>.</p></dd>
+computed. If <code>FALSE</code>, the standard errors are returned as <code>NA</code>. For
+<code>"EAP.SUM"</code> and <code>"INV.TCC"</code>, standard errors are always computed. Default
+is <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-stval-opt">stval.opt<a class="anchor" aria-label="anchor" href="#arg-stval-opt"></a></dt>
 <dd><p>A positive integer specifying the starting value option for
-the ML, MLF, WL, and MAP scoring methods. Available options are:</p><ul><li><p>1: Brute-force search (default)</p></li>
+the ML, MLF, WL, and MAP scoring methods. Available options are:</p><ul><li><p>1: Grid search (default)</p></li>
 <li><p>2: Based on observed sum scores</p></li>
 <li><p>3: Fixed at 0</p></li>
 </ul><p>See <strong>Details</strong> below for more information.</p></dd>
 
 
 <dt id="arg-intpol">intpol<a class="anchor" aria-label="anchor" href="#arg-intpol"></a></dt>
-<dd><p>Logical. If <code>TRUE</code> and <code>method = "INV.TCC"</code>, linear
-interpolation is applied to approximate ability estimates for sum scores
-that cannot be directly mapped using the TCC (e.g., when the observed sum
-score is less than the total of item guessing parameters). Default is
-<code>TRUE</code>. See <strong>Details</strong> below.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> and <code>method = "INV.TCC"</code>, ability estimates
+are assigned to sum scores that cannot be mapped through the TCC (sum
+scores less than or equal to the sum of the guessing parameters, and the
+maximum possible sum score). Default is <code>TRUE</code>. See <strong>Details</strong> below.</p></dd>
 
 
 <dt id="arg-range-tcc">range.tcc<a class="anchor" aria-label="anchor" href="#arg-range-tcc"></a></dt>
-<dd><p>A numeric vector of length two specifying the lower and
-upper bounds of ability estimates when <code>method = "INV.TCC"</code>. Default is
-<code>c(-7, 7)</code>.</p></dd>
+<dd><p>A numeric vector of length two giving the ability estimates
+assigned to the lowest and the maximum possible sum scores when
+<code>method = "INV.TCC"</code> and <code>intpol = TRUE</code>. Default is <code>c(-7, 7)</code>.</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
@@ -254,82 +281,111 @@ is <code>NA</code>. See <strong>Details</strong> below.</p></dd>
 
 
 <dt id="arg-ncore">ncore<a class="anchor" aria-label="anchor" href="#arg-ncore"></a></dt>
-<dd><p>An integer specifying the number of logical CPU cores to use for
-parallel processing. Default is 1. See <strong>Details</strong> below.</p></dd>
+<dd><p>An integer specifying the number of logical CPU cores used for
+parallel scoring with <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>, and <code>"EAP"</code>.
+Default is 1. See <strong>Details</strong> below.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>When <code>method</code> is one of <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>, or <code>"EAP"</code>,
-a two-column data frame is returned:</p><ul><li><p>Column 1: Ability estimates</p></li>
-<li><p>Column 2: Standard errors of the ability estimates</p></li>
-</ul><p>When <code>method</code> is one of <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, or <code>"MAP"</code>, the standard
-error is set to 99.9999 when the ability estimate equals a limit of <code>range</code>.</p>
-<p>When <code>method</code> is either <code>"EAP.SUM"</code> or <code>"INV.TCC"</code>, a list with two
-components is returned:</p><ul><li><p>Object 1: A three-column data frame including:</p><ul><li><p>Column 1: Observed sum scores</p></li>
-<li><p>Column 2: Ability estimates</p></li>
-<li><p>Column 3: Standard errors of the ability estimates</p></li>
-</ul></li>
-<li><p>Object 2: A score table showing possible raw sum scores and the corresponding
-ability and standard error estimates</p></li>
-</ul></div>
+    <p>For <code>method = "ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>, or <code>"EAP"</code>, a data
+frame with one row per examinee and two columns:</p><ul><li><p><code>est.theta</code>: Ability estimates.</p></li>
+<li><p><code>se.theta</code>: Standard errors of the ability estimates (<code>NA</code> when
+<code>se = FALSE</code>).</p></li>
+</ul><p>For <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>, the standard error is set to
+99.9999 when the estimate equals a bound of <code>range</code>. Examinees with all
+responses missing receive <code>NA</code> in both columns.</p>
+<p>For <code>method = "EAP.SUM"</code> or <code>"INV.TCC"</code>, a list with two data frames:</p><ul><li><p><code>est.par</code>: One row per examinee with the columns <code>sum.score</code>,
+<code>est.theta</code>, and <code>se.theta</code>.</p></li>
+<li><p><code>score.table</code>: One row per possible sum score, from 0 to the maximum
+possible score, with the same three columns.</p></li>
+</ul><p>For <code>"INV.TCC"</code>, sum scores without an estimate (see <strong>Details</strong>) have
+<code>NA</code> in <code>est.theta</code> and <code>se.theta</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For the MAP scoring method, only a normal prior distribution is
-supported for the population distribution.</p>
-<p>When there are missing responses in the data set, the missing value must be
-explicitly specified using the <code>missing</code> argument. Missing data are
-properly handled when using the ML, MLF, WL, MAP, or EAP methods. However,
-when using the "EAP.SUM" or "INV.TCC" methods, any missing responses are
-automatically treated as incorrect (i.e., recoded as 0s).</p>
-<p>In the maximum likelihood estimation with fences (MLF; Han, 2016), two
-imaginary items based on the 2PL model are introduced. The first imaginary
-item functions as the lower fence, and its difficulty parameter (<em>b</em>)
-should be smaller than any of the difficulty parameters in the test form.
-Similarly, the second imaginary item serves as the upper fence, and its <em>b</em>
-parameter should be greater than any difficulty value in the test form.
-Both imaginary items should also have very steep slopes (i.e., high
-<em>a</em>-parameter values). See Han (2016) for more details. If <code>fence.b = NULL</code>, the function will automatically assign the lower and upper fences
-based on the values provided in the <code>range</code> argument.</p>
-<p>When the "INV.TCC" method is used with the 3PL model, ability estimates
-cannot be obtained for observed sum scores that are less than the sum of
-the items' guessing parameters. In such cases, linear interpolation can be
-applied by setting <code>intpol = TRUE</code>.</p>
-<p>Let \(\theta_{min}\) and \(\theta_{max}\) denote the minimum and
-maximum ability estimates, respectively, and let \(\theta_{X}\) be the
-ability estimate corresponding to the smallest observed sum score, X, that
-is greater than or equal to the sum of the guessing parameters.When linear
-interpolation is applied, the first value in the <code>range.tcc</code> argument is
-treated as \(\theta_{min}\). A line is then constructed between the
-points \((x = \theta_{min}, y = 0)\) and \((x = \theta_{X}, y = X)\).
-The second value in <code>range.tcc</code> is interpreted as \(\theta_{max}\), which
-corresponds to the ability estimate for the maximum observed sum score.</p>
-<p>For the "INV.TCC" method, standard errors of ability estimates are computed
-using the approach proposed by Lim et al. (2021). The implementation of
-inverse TCC scoring in this function is based on a modified version of the
-<code>SNSequate::irt.eq.tse()</code> function from the <span class="pkg">SNSequate</span> package
+    <p>For <code>"MAP"</code>, the prior is the normal distribution given by
+<code>norm.prior</code>.</p>
+<p>Each response must be an integer from 0 to the number of categories of the
+item minus 1, and <code>data</code> must have one column per item in <code>x</code>. Missing
+responses must be coded as <code>NA</code> or declared with the <code>missing</code>
+argument. For <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>, and <code>"EAP"</code>, missing
+responses are excluded from the likelihood, and examinees with all
+responses missing receive <code>NA</code> with a warning. For <code>"EAP.SUM"</code> and
+<code>"INV.TCC"</code>, missing responses are recoded as 0 with a warning.</p>
+<p>In maximum likelihood estimation with fences (MLF; Han, 2016), two
+imaginary 2PL items are added to every response pattern: a lower fence
+item answered correctly and an upper fence item answered incorrectly. The
+lower fence should have a <em>b</em>-parameter below, and the upper fence a
+<em>b</em>-parameter above, all item difficulties in the test. Both should have
+steep slopes (large <em>a</em>-parameters). If <code>fence.b = NULL</code>, the fences are
+placed at the bounds given in <code>range</code>. See Han (2016) for details.</p>
+<p>For <code>"INV.TCC"</code>, the ability estimate for a sum score X is the root of
+TCC(theta) = X, found by the bisection method (Howard, 2017). No root
+exists for the maximum possible sum score or for sum scores less than or
+equal to the sum of the guessing parameters, which is only the score 0 when
+there are no guessing parameters. With
+<code>intpol = TRUE</code>, these scores receive estimates as follows. Let
+\(\theta_{min}\) and \(\theta_{max}\) be the first and second values
+of <code>range.tcc</code>, and let \(\theta_{X}\) be the estimate for the smallest
+sum score X that is greater than the sum of the guessing parameters.
+Scores below X are mapped onto the line through
+\((x = \theta_{min}, y = 0)\) and \((x = \theta_{X}, y = X)\), and the
+maximum possible sum score receives \(\theta_{max}\). If
+\(\theta_{min}\) is above \(\theta_{X}\) or \(\theta_{max}\) is
+below the largest root, a warning is issued and no values are
+assigned. With <code>intpol = FALSE</code>, these scores receive <code>NA</code>.</p>
+<p>For <code>"INV.TCC"</code>, the standard error for a sum score is the standard
+deviation of the inverse TCC estimates over the conditional sum score
+distribution at the estimate for that score, computed with the
+Lord-Wingersky recursion (Lim et al., 2021; see <code><a href="lwrc.html">lwrc()</a></code>). When some
+sum scores have no estimate (<code>intpol = FALSE</code>, or the warning described
+above), the distribution is restricted to the sum scores with an estimate
+and rescaled to sum to one. The implementation is based on a modified
+version of <code>SNSequate::irt.eq.tse()</code> from the <span class="pkg">SNSequate</span> package
 (Gonzalez, 2014).</p>
 <p>For the ML, MLF, WL, and MAP scoring methods, different strategies can be
 used to determine the starting value for ability estimation based on the
-<code>stval.opt</code> argument:</p><ul><li><p>When <code>stval.opt = 1</code> (default), a brute-force search is performed by
-evaluating the log-likelihood at discrete theta values within the range
-specified by <code>range</code>, using 0.1 increments. The theta value yielding the
-highest log-likelihood is chosen as the starting value.</p></li>
-<li><p>When <code>stval.opt = 2</code>, the starting value is derived from the observed
-sum score using a logistic transformation. For example, if the maximum
-possible score (<code>max.score</code>) is 30 and the examinee's observed sum score
-(<code>obs.score</code>) is 20, the starting value is <code>log(obs.score / (max.score -   obs.score))</code>.</p><ul><li><p>If all responses are incorrect (i.e., <code>obs.score = 0</code>), the starting
-value is <code>log(1 / max.score)</code>.</p></li>
-<li><p>If all responses are correct (<code>obs.score = max.score</code>), the starting
-value is <code>log(max.score / 1)</code>.</p></li>
+<code>stval.opt</code> argument:</p><ul><li><p>When <code>stval.opt = 1</code> (default), the log-likelihood (log-posterior for
+<code>"MAP"</code>) is evaluated on a grid from <code>range[1]</code> to <code>range[2]</code> in steps of
+0.1. The grid point at the highest local maximum is the starting value. If
+there is no local maximum on the grid, the starting value is 0.</p></li>
+<li><p>When <code>stval.opt = 2</code>, the starting value is the log-odds of the
+observed sum score <code>obs.score</code> relative to the maximum possible score
+<code>max.score</code>, both computed over the non-missing items:
+<code>log(obs.score / (max.score - obs.score))</code>.</p><ul><li><p>If <code>obs.score = 0</code>, the starting value is <code>log(1 / max.score)</code>.</p></li>
+<li><p>If <code>obs.score = max.score</code>, the starting value is <code>log(max.score)</code>.</p></li>
 </ul></li>
 <li><p>When <code>stval.opt = 3</code>, the starting value is fixed at 0.</p></li>
-</ul><p>To accelerate ability estimation using the ML, MLF, WL, MAP, and EAP
-methods, this function supports parallel processing across multiple logical
-CPU cores. The number of cores can be specified via the <code>ncore</code> argument
-(default is 1).</p>
-<p>Note that the standard errors of ability estimates are computed based on
-the Fisher expected information for the ML, MLF, WL, and MAP methods.</p>
+</ul><p>For the ML, MLF, WL, and MAP scoring methods, the estimate is found by
+Fisher scoring. This is a Newton-type iteration that divides the first
+derivative of the log-likelihood (of the log-posterior for <code>"MAP"</code>, or
+Warm's weighted score function for <code>"WL"</code>) by the expected Fisher
+information instead of the observed second derivative, and a single update
+is capped at 1 in absolute value. The iterations stop when the absolute
+update is less than <code>tol</code>. If they have not converged after <code>max.iter</code>
+iterations (for example, when the iterations alternate between two values
+for a low-scoring examinee on a test with 3PLM items), the estimate is
+found as follows. Among the values visited during the iterations, the
+function takes the closest pair in which the score function (the
+derivative above) is positive at the lower value and negative at the
+upper value, so that the pair encloses a local maximum, and finds the root
+of the score function between them with <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">stats::uniroot()</a></code> using the
+tolerance <code>tol</code>. If there is no such pair, the last value of the
+iterations is used. This search is not carried out when the iterations
+converge. In all cases, the estimate is truncated to <code>range</code>, and the
+standard error is computed at the final estimate.</p>
+<p>For <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, <code>"MAP"</code>, and <code>"EAP"</code>, examinees can be scored
+in parallel by setting <code>ncore</code> greater than 1. A warning is issued when
+<code>ncore &gt; 1</code> and there are fewer than 5,000 examinees, because the parallel
+overhead then exceeds the computation time.</p>
+<p>For <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, and <code>"MAP"</code>, the standard error is the
+inverse square root of the expected Fisher information at the estimate.
+The information includes the two fence items for <code>"MLF"</code> and the prior
+information \(1/\sigma^2\) for <code>"MAP"</code>. For <code>"EAP"</code> and <code>"EAP.SUM"</code>,
+the standard error is the posterior standard deviation. For <code>"EAP.SUM"</code>,
+the posterior for each sum score is computed with the Lord-Wingersky
+recursion (see <code><a href="lwrc.html">lwrc()</a></code>).</p>
 <p>For the implementation of the WL method, the function references the
 <code>catR::Pi()</code>, <code>catR::Ji()</code>, and <code>catR::Ii()</code> functions from the <span class="pkg">catR</span>
 package (Magis &amp; Barrada, 2017).</p>
@@ -339,7 +395,12 @@ package (Magis &amp; Barrada, 2017).</p>
 
 <ul><li><p><code>est_score(default)</code>: Default method to estimate examinees' latent ability
 parameters using a data frame <code>x</code> containing the item metadata.</p></li>
-<li><p><code>est_score(est_irt)</code>: An object created by the function <code><a href="est_irt.html">est_irt()</a></code>.</p></li>
+<li><p><code>est_score(est_irt)</code>: Method for an object of class <code>est_irt</code>. The item
+parameter estimates, response data, and scaling constant <code>D</code> are taken from
+<code>x</code>, so supplying <code>data</code> or <code>D</code> stops with an error.</p></li>
+<li><p><code>est_score(est_item)</code>: Method for an object of class <code>est_item</code>. The item
+parameter estimates, response data, and scaling constant <code>D</code> are taken from
+<code>x</code>, so supplying <code>data</code> or <code>D</code> stops with an error.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -349,7 +410,8 @@ ability in a microcomputer environment. <em>Applied Psychological Measurement,
 .</p>
 <p>Gonzalez, J. (2014). SNSequate: Standard and nonstandard statistical models
 and methods for test equating. <em>Journal of Statistical Software, 59</em>(7),
-1-30.</p>
+1-30. <a href="https://doi.org/10.18637/jss.v059.i07" class="external-link">doi:10.18637/jss.v059.i07</a>
+.</p>
 <p>Hambleton, R. K., Swaminathan, H., &amp; Rogers, H. J. (1991). <em>Fundamentals of
 item response theory</em>. Newbury Park, CA: Sage.</p>
 <p>Han, K. T. (2016). Maximum likelihood score estimation method with fences
@@ -361,16 +423,21 @@ R</em>. New York: Chapman and Hall/CRC.</p>
 <p>Kolen, M. J., &amp; Brennan, R. L. (2004). <em>Test equating, scaling, and
 linking</em> (2nd ed.). Springer.</p>
 <p>Kolen, M. J., &amp; Tong, Y. (2010). Psychometric properties of IRT proficiency
-estimates. <em>Educational Measurement: Issues and Practice, 29</em>(3), 8-14.</p>
+estimates. <em>Educational Measurement: Issues and Practice, 29</em>(3), 8-14.
+<a href="https://doi.org/10.1111/j.1745-3992.2010.00179.x" class="external-link">doi:10.1111/j.1745-3992.2010.00179.x</a>
+.</p>
 <p>Lim, H., Davey, T., &amp; Wells, C. S. (2021). A recursion-based analytical
 approach to evaluate the performance of MST. <em>Journal of Educational
 Measurement, 58</em>(2), 154-178. <a href="https://doi.org/10.1111/jedm.12276" class="external-link">doi:10.1111/jedm.12276</a>
 .</p>
 <p>Magis, D., &amp; Barrada, J. R. (2017). Computerized adaptive testing with R:
-Recent updates of the package catR.
-<em>Journal of Statistical Software, 76</em>, 1-19.</p>
+Recent updates of the package catR. <em>Journal of Statistical Software,
+76</em>(Code Snippet 1), 1-19. <a href="https://doi.org/10.18637/jss.v076.c01" class="external-link">doi:10.18637/jss.v076.c01</a>
+.</p>
 <p>Stocking, M. L. (1996). An alternative method for scoring adaptive tests.
-<em>Journal of Educational and Behavioral Statistics, 21</em>(4), 365-389.</p>
+<em>Journal of Educational and Behavioral Statistics, 21</em>(4), 365-389.
+<a href="https://doi.org/10.3102/10769986021004365" class="external-link">doi:10.3102/10769986021004365</a>
+.</p>
 <p>Thissen, D., &amp; Orlando, M. (2001). Item response theory for items scored in
 two categories. In D. Thissen &amp; H. Wainer (Eds.), <em>Test scoring</em> (pp.
 73-140). Mahwah, NJ: Lawrence Erlbaum.</p>
@@ -475,7 +542,7 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-in"><span><span class="co"># Estimate abilities using maximum a posteriori (MAP)</span></span></span>
 <span class="r-in"><span><span class="fu">est_score</span><span class="op">(</span><span class="va">x</span>, <span class="va">data</span>,</span></span>
 <span class="r-in"><span>  D <span class="op">=</span> <span class="fl">1</span>, method <span class="op">=</span> <span class="st">"MAP"</span>, norm.prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  nquad <span class="op">=</span> <span class="fl">30</span>, se <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  se <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      est.theta  se.theta</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  -1.90935697 0.3880537</span>
@@ -515,7 +582,7 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span>    sum.score   est.theta  se.theta</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         15 -1.84945881 0.4193692</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2         55  1.01201284 0.3327285</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         34 -0.41587865 0.2986419</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         34 -0.41587865 0.2986418</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4         31 -0.62087399 0.3218871</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5         13 -2.04576501 0.4430296</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6         40 -0.04315730 0.3144901</span>
@@ -560,7 +627,7 @@ response theory. <em>Psychometrika, 54</em>(3), 427-450. <a href="https://doi.or
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32        31 -0.62087399 0.3218871</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33        32 -0.54922749 0.3187256</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34        33 -0.48033020 0.3099879</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35        34 -0.41587865 0.2986419</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35        34 -0.41587865 0.2986418</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 36        35 -0.35572290 0.2891027</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 37        36 -0.29796720 0.2852870</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 38        37 -0.23977641 0.2887030</span>

@@ -37,7 +37,9 @@ traceline(x, theta, ...)
   more details about the item metadata. This data frame can be easily
   created using the
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
-  function.
+  function. An item with `cats = 2` under the `"GRM"` or `"GPCM"` model
+  has one threshold in `par.2`, must have `NA` in `par.3`, and is
+  computed as a 2PLM item.
 
 - ...:
 
@@ -51,7 +53,7 @@ traceline(x, theta, ...)
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 ## Value
@@ -61,10 +63,9 @@ containing the following components:
 
 - prob.cats:
 
-  A list of matrices containing the category response probabilities for
-  each item across the specified theta values. Each matrix corresponds
-  to an item, with rows representing theta values and columns
-  representing response categories (e.g., `"resp.0"`, `"resp.1"`, ...).
+  A list of matrices of category response probabilities, one per item
+  and named by item ID. Each matrix has one row per theta value and one
+  column per score category of the item (`"resp.0"`, `"resp.1"`, ...).
 
 - icc:
 
@@ -80,7 +81,7 @@ containing the following components:
 - theta:
 
   A numeric vector of theta values at which the item and test
-  information functions are evaluated. This matches the user-supplied
+  characteristic functions are evaluated. This matches the user-supplied
   `theta` argument.
 
 ## Details
@@ -96,15 +97,16 @@ probabilities are used to derive:
 - The test characteristic curve (TCC), which is the sum of expected item
   scores at each theta value.
 
-The output object can be visualized using the
-[plot.traceline](https://hwangQ.github.io/irtQ/reference/plot.traceline.md)
+The output object can be visualized using
+[`plot.traceline()`](https://hwangQ.github.io/irtQ/reference/plot.traceline.md)
 to inspect the relationship between ability levels (theta) and expected
 item/test scores.
 
 If the input `x` is an object of class `est_item` or `est_irt`, the
 function automatically extracts item parameter estimates and the scaling
-constant `D` from the object. Otherwise, a properly formatted item
-metadata data frame must be provided.
+constant `D` from the object, and a `D` supplied through `...` is
+ignored. Otherwise, a properly formatted item metadata data frame must
+be provided.
 
 ## Methods (by class)
 
@@ -164,7 +166,7 @@ traceline(x = test_flex, theta, D = 1)
 #> 
 #> $prob.cats$CMC2
 #>             resp.0    resp.1
-#>  [1,] 0.8056920416 0.1943080
+#>  [1,] 0.8056920417 0.1943080
 #>  [2,] 0.7767979880 0.2232020
 #>  [3,] 0.7102335670 0.2897664
 #>  [4,] 0.5802836604 0.4197163
@@ -292,7 +294,7 @@ traceline(x = test_flex, theta, D = 1)
 #> 
 #> $prob.cats$CMC10
 #>            resp.0    resp.1
-#>  [1,] 0.857083405 0.1429166
+#>  [1,] 0.857083406 0.1429166
 #>  [2,] 0.848574681 0.1514253
 #>  [3,] 0.830831671 0.1691683
 #>  [4,] 0.795070184 0.2049298

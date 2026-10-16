@@ -27,12 +27,12 @@ drm(theta, a, b, g = NULL, D = 1)
 - g:
 
   A numeric vector of item guessing parameters. Not required for 1PL or
-  2PL models.
+  2PL models. `NA` values are treated as 0.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 ## Value

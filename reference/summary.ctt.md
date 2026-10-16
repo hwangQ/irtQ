@@ -100,7 +100,7 @@ summary(out)
 #>           0.664      
 #>           0.666      
 #> 
-#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
+#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2 (raw item-total correlation)
 #> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary

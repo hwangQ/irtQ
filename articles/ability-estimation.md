@@ -62,8 +62,8 @@ An important practical consideration when using these methods is the
 treatment of missing data. While pattern-based scoring methods handle
 missing responses (`NA`) flexibly by conditioning only on the observed
 items, summed-score methods (`"EAP.SUM"` and `"INV.TCC"`) automatically
-treat any missing responses as incorrect (recoded as 0s) to calculate
-the total raw score.
+treat any missing responses as incorrect (recoded as 0s, with a warning)
+to calculate the total raw score.
 
 | Method | Key | Description |
 |----|----|----|
@@ -86,8 +86,8 @@ most important arguments of
 
 | Argument | Description |
 |----|----|
-| `x` | An `est_irt` object (from [`irtQ::est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)), or a data frame of item metadata. When an `est_irt` object is provided, the response data embedded in it are used automatically. |
-| `data` | Response matrix (rows = examinees, columns = items). **Required** when `x` is a metadata data frame rather than an `est_irt` object. |
+| `x` | An `est_irt` object (from [`irtQ::est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)), an `est_item` object (from [`irtQ::est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md)), or a data frame of item metadata. When an `est_irt` or `est_item` object is provided, the response data embedded in it are used automatically. |
+| `data` | Response matrix (rows = examinees, columns = items). **Required** when `x` is a metadata data frame rather than an `est_irt` or `est_item` object. |
 | `D` | IRT scaling constant. Use `1` for the logistic metric or `1.702` to approximate the normal-ogive metric. |
 | `method` | Scoring method: `"ML"`, `"MLF"`, `"WL"`, `"MAP"`, `"EAP"`, `"EAP.SUM"`, or `"INV.TCC"`. |
 | `range` | `c(lower, upper)` bounding the ability scale for iterative methods (`"ML"`, `"MLF"`, `"WL"`, `"MAP"`). Default `c(-5, 5)`. |
@@ -96,10 +96,10 @@ most important arguments of
 | `fence.a` | Discrimination parameter of the virtual fence items added in `"MLF"`. Default `3`. |
 | `fence.b` | Location of the fence items on the $`\theta`$ scale in `"MLF"`. Defaults to the `range` bounds when `NULL`. |
 | `tol` | Convergence tolerance for iterative methods. Default `1e-4`. |
-| `max.iter` | Maximum Newton-Raphson iterations. Default `100`. |
+| `max.iter` | Maximum number of Fisher scoring iterations. If the iterations do not converge, the root of the score function is found with [`uniroot()`](https://rdrr.io/r/stats/uniroot.html) between the values visited during the iterations; see the Details of [`?est_score`](https://hwangQ.github.io/irtQ/reference/est_score.md). Default `100`. |
 | `se` | Logical; compute standard errors? Always returned for `"EAP.SUM"` and `"INV.TCC"`. Default `TRUE`. |
 | `intpol` | Logical; apply linear interpolation in `"INV.TCC"` for extreme scores? Default `TRUE`. |
-| `range.tcc` | Lower and upper bounds of the `"INV.TCC"` estimates; the upper bound is assigned to the maximum raw score. Default `c(-7, 7)`. |
+| `range.tcc` | The estimates that `"INV.TCC"` assigns to the lowest sum score (first value) and to the maximum possible sum score (second value) when `intpol = TRUE`. Default `c(-7, 7)`. |
 
 **Return values** differ by method:
 
@@ -547,7 +547,7 @@ cors_dich <- c(
 )
 round(cors_dich, 4)
 #>     ML     WL    MAP    EAP 
-#> 0.9108 0.9475 0.9503 0.9501
+#> 0.9105 0.9484 0.9503 0.9501
 
 mae_dich <- c(
   ML  = mean(abs(score_ml_dich$est.theta  - theta_dich)),
@@ -557,7 +557,7 @@ mae_dich <- c(
 )
 round(mae_dich, 4)
 #>     ML     WL    MAP    EAP 
-#> 0.3346 0.2703 0.2463 0.2478
+#> 0.3363 0.2699 0.2463 0.2478
 
 sd_dich <- c(
   ML   = sd(score_ml_dich$est.theta),
@@ -568,15 +568,16 @@ sd_dich <- c(
 )
 round(sd_dich, 4)
 #>     ML     WL    MAP    EAP   True 
-#> 1.2944 1.0726 0.9328 0.9664 1.0165
+#> 1.2999 1.0789 0.9328 0.9664 1.0165
 ```
 
-### Providing an `est_irt` Object vs. Separate Metadata
+### Providing a Fitted Object vs. Separate Metadata
 
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
-accepts either an `est_irt` object (which embeds the response data and
-item parameters) or item metadata and response data provided separately.
-When an `est_irt` object is passed to the `x` argument,
+accepts either an `est_irt` or `est_item` object (which embeds the
+response data and item parameters) or item metadata and response data
+provided separately. When an `est_irt` or `est_item` object is passed to
+the `x` argument,
 [`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md)
 automatically extracts both the item parameters and the embedded
 response data. This simplifies the post-calibration scoring workflow by

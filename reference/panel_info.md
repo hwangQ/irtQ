@@ -36,8 +36,9 @@ A named list with four elements:
 - `pathway`:
 
   An integer matrix of all valid test pathways, with one row per pathway
-  and one column per stage. Row names are `"path.1"`, `"path.2"`, etc.
-  Columns correspond to the module index administered at each stage.
+  and one column per stage. Row names are `"path.1"`, `"path.2"`, etc.,
+  and column names are `"stage.1"`, `"stage.2"`, etc. Each entry is the
+  index of the module administered at that stage.
 
 - `n.module`:
 
@@ -56,6 +57,15 @@ previous stage. All logically possible pathways are enumerated via
 [`expand.grid()`](https://rdrr.io/r/base/expand.grid.html), and pathways
 that violate the transition constraints in `route_map` are removed. The
 remaining pathways are sorted and returned as a matrix.
+
+The route map must be a square matrix of 0s and 1s, and the modules do
+not need to be numbered in the order of the stages. The function stops
+with an error when the route map defines a single stage, contains a
+cycle, has a module with no transition to or from another module, has a
+module that cannot be reached from a stage-1 module or that belongs to
+more than one stage, or has a module before the last stage without a
+transition to a module of the next stage. A logical route map is read as
+a 0/1 matrix.
 
 ## References
 

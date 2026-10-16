@@ -39,8 +39,10 @@ Both functions return a list with five elements:
 
 - `$confusion`: a confusion matrix (rows = true level, columns =
   expected level),
-- `$marginal`: a data frame of marginal CA and CC indices per
-  performance level plus an overall marginal row,
+- `$marginal`: a data frame with one row per true performance level and
+  an overall `marginal` row. Each level row is the contribution of
+  examinees in that true level, and the level rows add up to the overall
+  marginal CA and CC,
 - `$conditional`: a data frame of conditional CA and CC for each theta
   (or node),
 - `$prob.level`: a data frame of the probability of being assigned to
@@ -258,13 +260,14 @@ where:
 |----|----|
 | `x` | Item metadata data frame |
 | `cutscore` | Numeric vector of $`K - 1`$ cut scores defining $`K`$ performance levels |
-| `weights` | Two-column matrix of quadrature nodes and weights for D-method (use [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)) |
-| `theta` | Numeric vector of individual ability estimates for P-method |
+| `weights` | Two-column matrix of quadrature nodes and weights for D-method (use [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md)); weights that do not sum to 1 are rescaled with a warning |
+| `theta` | Numeric vector of individual ability estimates for P-method; missing values are excluded with a warning |
 | `D` | Scaling constant; must match the value used during calibration |
 | `cut.obs` | `TRUE` (default): cut scores on the observed summed-score scale; `FALSE`: on the theta scale (converted internally via TCC) |
 
-Either `theta` or `weights` must be provided (but not both. If both are
-supplied, `weights` takes priority and the D-method is applied).
+Either `theta` or `weights` must be provided. If both are supplied,
+`weights` takes priority, the D-method is applied, and `theta` is
+ignored.
 
 ------------------------------------------------------------------------
 
@@ -366,7 +369,7 @@ cac_l_d
 #> 20  0.75 7.528702e-02  14.546417     3 1.896328e-05 2.620147e-01 7.379663e-01
 #> 21  1.00 6.049482e-02  15.555088     3 7.663720e-07 1.002162e-01 8.997831e-01
 #> 22  1.25 4.566389e-02  16.505175     3 1.876512e-08 2.651963e-02 9.734804e-01
-#> 23  1.50 3.238054e-02  17.356735     3 2.855208e-10 4.814701e-03 9.951853e-01
+#> 23  1.50 3.238054e-02  17.356735     3 2.855207e-10 4.814701e-03 9.951853e-01
 #> 24  1.75 2.157009e-02  18.065625     3 2.879399e-12 6.245660e-04 9.993754e-01
 #> 25  2.00 1.349822e-02  18.616683     3 2.112469e-14 6.251190e-05 9.999375e-01
 #> 26  2.25 7.935194e-03  19.026191     3 1.237687e-16 5.238462e-06 9.999948e-01
@@ -375,7 +378,7 @@ cac_l_d
 #> 29  3.00 1.108001e-03  19.679548     3 1.254862e-23 1.882065e-09 1.000000e+00
 #> 30  3.25 5.072800e-04  19.781228     3 5.349517e-26 1.265012e-10 1.000000e+00
 #> 31  3.50 2.181784e-04  19.850993     3 2.271798e-28 8.486486e-12 1.000000e+00
-#> 32  3.75 8.815204e-05  19.898610     3 9.743935e-31 5.717070e-13 1.000000e+00
+#> 32  3.75 8.815204e-05  19.898610     3 9.743934e-31 5.717070e-13 1.000000e+00
 #> 33  4.00 3.345874e-05  19.931010     3 4.259757e-33 3.879142e-14 1.000000e+00
 #> 
 #> $cutscore
@@ -384,11 +387,12 @@ cac_l_d
 
 The output contains:
 
-- `$confusion`: confusion matrix (rows = true performance level, columns
-  = expected level under CA). The diagonal entries correspond to correct
-  classifications.
-- `$marginal`: marginal CA and CC per level, plus an overall row
-  labelled `"marginal"`.
+- `$confusion`: a matrix of expected proportions (rows = true
+  performance level, columns = expected observed level); the entries sum
+  to 1. The diagonal entries correspond to correct classifications.
+- `$marginal`: CA and CC contributed by each true performance level,
+  plus an overall row labelled `"marginal"` that is the sum of the level
+  rows.
 - `$cutscore`: the cut scores used (always on the observed summed-score
   scale).
 
@@ -411,17 +415,17 @@ cac_l_p <- cac_lee(
 cac_l_p$confusion
 #>     Expected
 #> True         1         2         3
-#>    1 0.1639447 0.0579551 0.0001002
+#>    1 0.1639404 0.0579594 0.0001002
 #>    2 0.0368065 0.3680726 0.0951209
 #>    3 0.0000019 0.0257336 0.2522645
 
 # Marginal CA and CC indices
 cac_l_p$marginal
 #>     level  accuracy consistency
-#>         1 0.1639447   0.1507562
+#>         1 0.1639404   0.1507479
 #>         2 0.3680726   0.3237276
 #>         3 0.2522645   0.2380921
-#>  marginal 0.7842818   0.7125758
+#>  marginal 0.7842775   0.7125676
 ```
 
 #### (3) Theta-scale cut scores
@@ -451,10 +455,10 @@ cac_l_theta$cutscore
 # Marginal CA and CC indices
 cac_l_theta$marginal
 #>     level  accuracy consistency
-#>         1 0.2709956   0.2504939
+#>         1 0.2709952   0.2504931
 #>         2 0.3194857   0.2738093
 #>         3 0.2021494   0.1889719
-#>  marginal 0.7926307   0.7132751
+#>  marginal 0.7926303   0.7132743
 ```
 
 ------------------------------------------------------------------------
@@ -536,7 +540,7 @@ cac_l_mix_d
 #> 1  -4.00 3.345874e-05   2.253728     1 9.999875e-01 1.246405e-05 6.654498e-21
 #> 2  -3.75 8.815204e-05   2.283350     1 9.999837e-01 1.626801e-05 3.455029e-20
 #> 3  -3.50 2.181784e-04   2.329305     1 9.999768e-01 2.317736e-05 2.029941e-19
-#> 4  -3.25 5.072800e-04   2.400715     1 9.999632e-01 3.679529e-05 1.387226e-18
+#> 4  -3.25 5.072800e-04   2.400715     1 9.999632e-01 3.679528e-05 1.387226e-18
 #> 5  -3.00 1.108001e-03   2.511670     1 9.999334e-01 6.660666e-05 1.130533e-17
 #> 6  -2.75 2.273471e-03   2.683558     1 9.998593e-01 1.406955e-04 1.123964e-16
 #> 7  -2.50 4.382230e-03   2.947785     1 9.996472e-01 3.528008e-04 1.389746e-15
@@ -644,9 +648,9 @@ Either `x` or `se` must be provided.
 |----|----|
 | `x` | Item metadata data frame (optional if `se` is provided; used to compute SE from TIF) |
 | `cutscore` | Numeric vector of $`K - 1`$ cut scores on the **theta scale**, defining $`K`$ performance levels |
-| `theta` | Numeric vector of individual ability estimates (P-method) |
-| `se` | Numeric vector of standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
-| `weights` | Two-column matrix of quadrature nodes and weights (D-method) |
+| `theta` | Numeric vector of individual ability estimates (P-method); an examinee with a missing `theta` or `se` is excluded with a warning |
+| `se` | Numeric vector of positive standard errors. If `NULL` and `x` is provided, SE is computed from the TIF |
+| `weights` | Two-column matrix of quadrature nodes and weights (D-method); weights that do not sum to 1 are rescaled with a warning |
 | `D` | Scaling constant |
 
 ------------------------------------------------------------------------
@@ -752,8 +756,8 @@ cac_r_d
 #> 29  3.00 1.108001e-03     3 8.953873e-04 0.02392962 9.751750e-01
 #> 30  3.25 5.072800e-04     3 2.878648e-03 0.03273349 9.643879e-01
 #> 31  3.50 2.181784e-04     3 7.651606e-03 0.04316803 9.491804e-01
-#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364463 9.292921e-01
-#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233079 9.050123e-01
+#> 32  3.75 8.815204e-05     3 1.706328e-02 0.05364464 9.292921e-01
+#> 33  4.00 3.345874e-05     3 3.265689e-02 0.06233080 9.050123e-01
 #> 
 #> $cutscore
 #> [1] -0.5  0.8
@@ -785,29 +789,29 @@ cac_r_p2 <- cac_rud(
 cac_r_p$confusion
 #>     Expected
 #> True         1         2         3
-#>    1 0.2617201 0.0518740 0.0054059
+#>    1 0.2617181 0.0518608 0.0054211
 #>    2 0.0504975 0.3460603 0.0534422
 #>    3 0.0016839 0.0376158 0.1917003
 cac_r_p2$confusion
 #>     Expected
 #> True         1         2         3
-#>    1 0.2611347 0.0517079 0.0061574
+#>    1 0.2611327 0.0516948 0.0061725
 #>    2 0.0504975 0.3460603 0.0534422
 #>    3 0.0052723 0.0369660 0.1887617
 
 # Marginal CA and CC indices
 cac_r_p$marginal
 #>     level  accuracy consistency
-#>         1 0.2617201   0.2395853
+#>         1 0.2617181   0.2395908
 #>         2 0.3460603   0.3015966
 #>         3 0.1917003   0.1761846
-#>  marginal 0.7994807   0.7173665
+#>  marginal 0.7994787   0.7173720
 cac_r_p2$marginal
 #>     level  accuracy consistency
-#>         1 0.2611347   0.2396159
+#>         1 0.2611327   0.2396215
 #>         2 0.3460603   0.3015966
 #>         3 0.1887617   0.1745779
-#>  marginal 0.7959568   0.7157905
+#>  marginal 0.7959548   0.7157960
 ```
 
 Note that `cac_r_p` and `cac_r_p2` yield similar but not identical
@@ -960,20 +964,20 @@ cat("=== Lee's method (P-method, theta-scale cut scores) ===\n")
 #> === Lee's method (P-method, theta-scale cut scores) ===
 print(cac_l_theta$marginal)
 #>     level  accuracy consistency
-#>         1 0.2709956   0.2504939
+#>         1 0.2709952   0.2504931
 #>         2 0.3194857   0.2738093
 #>         3 0.2021494   0.1889719
-#>  marginal 0.7926307   0.7132751
+#>  marginal 0.7926303   0.7132743
 
 cat("\n=== Rudner's method (P-method, SE from TIF) ===\n")
 #> 
 #> === Rudner's method (P-method, SE from TIF) ===
 print(cac_r_p$marginal)
 #>     level  accuracy consistency
-#>         1 0.2617201   0.2395853
+#>         1 0.2617181   0.2395908
 #>         2 0.3460603   0.3015966
 #>         3 0.1917003   0.1761846
-#>  marginal 0.7994807   0.7173665
+#>  marginal 0.7994787   0.7173720
 ```
 
 Both calls use the same cut scores on the theta scale ($`-0.5`$ and

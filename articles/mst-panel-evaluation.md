@@ -114,12 +114,14 @@ belongs to module $`m`$.
     item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
     ...
 
-Each item belongs to exactly one module, so each row has exactly one 1
-and all other entries are 0.
+In `simMST`, each item belongs to exactly one module, so each row has
+exactly one 1. In general, an item should belong to at most one module;
+items of the bank that are not used in the panel have rows of 0.
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-additionally requires that all modules in the same stage have the same
-maximum sum score (for dichotomous items, the same number of items); it
-stops with an error otherwise.
+additionally requires a single routing module in the first stage and
+that all modules in the same stage have the same maximum sum score (for
+dichotomous items, the same number of items); it stops with an error
+otherwise.
 
 #### 3. Route Map (`route_map`)
 
@@ -163,12 +165,13 @@ cut_score = list(
 ```
 
 The cut scores of a transition are tied to the modules of the next stage
-in order: the first cut score separates the first and second modules,
-the second separates the second and third. When a module can reach only
-some of the next-stage modules, only the cut scores that separate those
-modules apply. In the route map above, a test taker in M4 can reach only
-M6 or M7, so the second Stage 3 cut score alone decides between them (θ̂
-below it goes to M6, θ̂ at or above it to M7).
+in the order of the module indices: the first cut score separates the
+first and second modules, the second separates the second and third.
+When a module can reach only some of the next-stage modules, only the
+cut scores that separate those modules apply. In the route map above, a
+test taker in M4 can reach only M6 or M7, so the second Stage 3 cut
+score alone decides between them (θ̂ below it goes to M6, θ̂ at or above
+it to M7).
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
 and [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
 use the same rule.
@@ -453,7 +456,7 @@ print(sim_bmat)
 #> 
 #> Estimation accuracy (est.theta - true.theta):
 #>   Bias : 0.014
-#>   RMSE : 0.328
+#>   RMSE : 0.327
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
@@ -573,14 +576,14 @@ print(sim_cut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.014
-#>   SD   : 1.102
+#>   Mean : -0.016
+#>   SD   : 1.107
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.012
-#>   RMSE : 0.328
+#>   Bias : 0.010
+#>   RMSE : 0.331
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
@@ -734,14 +737,14 @@ print(sim_findcut)
 #>   Final method        : ML
 #> 
 #> Final ability estimates (est.theta):
-#>   Mean : -0.012
-#>   SD   : 1.079
+#>   Mean : -0.013
+#>   SD   : 1.081
 #>   Min  : -4.000
 #>   Max  : 4.000
 #> 
 #> Estimation accuracy (est.theta - true.theta):
-#>   Bias : 0.014
-#>   RMSE : 0.323
+#>   Bias : 0.013
+#>   RMSE : 0.324
 #> 
 #> Module frequency by stage:
 #>   Stage 1: Module 1: 1000 (100.0%)
@@ -808,9 +811,9 @@ result_B <- run_mst(
 rmse_A <- sqrt(mean((result_A$est.theta - theta_true2)^2))
 rmse_B <- sqrt(mean((result_B$est.theta - theta_true2)^2))
 cat(sprintf("RMSE (bmat):                 %.4f\n", rmse_A))
-#> RMSE (bmat):                 0.3082
+#> RMSE (bmat):                 0.3068
 cat(sprintf("RMSE (find_cut cut scores):  %.4f\n", rmse_B))
-#> RMSE (find_cut cut scores):  0.3065
+#> RMSE (find_cut cut scores):  0.3050
 ```
 
 All five calls above return the same kind of result regardless of the
@@ -880,7 +883,7 @@ data.frame(
                               final_mod[!at_limit], mean))
 )
 #>   module   n n_limit   mean_se
-#> 1      5 389       7 0.3014238
+#> 1      5 389       7 0.3004882
 #> 2      6 214       0 0.2415196
 #> 3      7 397      10 0.2799251
 ```
@@ -948,7 +951,7 @@ levels, with many replications at each grid point:
     or maximum information)
 4.  Estimate ability from each simulated response and compute the mean
     and variance of the estimates
-5.  Bias = mean($`\hat\theta`$) − $`\theta_k`$, CSEM =
+5.  Bias = mean($`\hat\theta`$) $`-`$$`\theta_k`$, CSEM =
     $`\sqrt{\text{Var}(\hat\theta)}`$
 
 [`run_mst()`](https://hwangQ.github.io/irtQ/reference/run_mst.md)
@@ -1004,14 +1007,16 @@ Here is the core logic of the recursion:
     scoring.
 
     > **Note on linear interpolation (`intpol`)**: When items have
-    > non-zero guessing parameters (e.g., 3PLM), the minimum
-    > *achievable* expected sum score exceeds zero, meaning no valid
-    > $`\hat\theta`$ exists for very low observed scores (those below
-    > the sum of guessing parameters). With `intpol = TRUE` (the
-    > default), the inverse TCC method applies **linear interpolation**
-    > between the point $`(\theta_{\min},\, 0)`$ and the lowest
-    > TCC-reachable score point, so that every possible sum score
-    > receives a valid ability estimate rather than `NA`.
+    > non-zero guessing parameters (e.g., 3PLM), the expected sum score
+    > never falls to or below the sum of the guessing parameters, so no
+    > $`\hat\theta`$ exists for observed scores less than or equal to
+    > that sum; no $`\hat\theta`$ exists for the maximum possible score
+    > either. With `intpol = TRUE` (the default), the low scores are
+    > mapped by **linear interpolation** between the point
+    > $`(\theta_{\min},\, 0)`$ and the lowest TCC-reachable score point,
+    > and the maximum score receives $`\theta_{\max}`$ (the two values
+    > of `range.tcc`), so that every possible sum score receives an
+    > ability estimate rather than `NA`.
 
 6.  **Evaluate**: Compute the conditional mean and variance of
     $`\hat\theta`$ given the true $`\theta`$, and derive conditional
@@ -1072,24 +1077,24 @@ is `eval.tb`, the evaluation summary table:
 print(eval_result$eval.tb)
 #>    theta           mu     sigma2         bias      csem
 #> 1   -4.0 -4.808121816 3.42224454 -0.808121816 1.8499310
-#> 2   -3.9 -4.789018117 3.43809047 -0.889018117 1.8542089
-#> 3   -3.8 -4.766227061 3.45633941 -0.966227061 1.8591233
-#> 4   -3.7 -4.739003828 3.47720522 -1.039003828 1.8647266
-#> 5   -3.6 -4.706457625 3.50082146 -1.106457625 1.8710482
-#> 6   -3.5 -4.667529927 3.52716739 -1.167529927 1.8780754
-#> 7   -3.4 -4.620974273 3.55595499 -1.220974273 1.8857240
-#> 8   -3.3 -4.565341408 3.58646261 -1.265341408 1.8937958
+#> 2   -3.9 -4.789018118 3.43809047 -0.889018118 1.8542089
+#> 3   -3.8 -4.766227063 3.45633941 -0.966227063 1.8591233
+#> 4   -3.7 -4.739003829 3.47720522 -1.039003829 1.8647266
+#> 5   -3.6 -4.706457627 3.50082146 -1.106457627 1.8710482
+#> 6   -3.5 -4.667529929 3.52716739 -1.167529929 1.8780754
+#> 7   -3.4 -4.620974274 3.55595499 -1.220974274 1.8857240
+#> 8   -3.3 -4.565341410 3.58646261 -1.265341410 1.8937958
 #> 9   -3.2 -4.498975738 3.61729989 -1.298975738 1.9019201
-#> 10  -3.1 -4.420032009 3.64609197 -1.320032009 1.9094743
-#> 11  -3.0 -4.326524655 3.66908363 -1.326524655 1.9154852
-#> 12  -2.9 -4.216425518 3.68069437 -1.316425518 1.9185136
-#> 13  -2.8 -4.087827617 3.67311048 -1.287827617 1.9165361
-#> 14  -2.7 -3.939190341 3.63608699 -1.239190341 1.9068526
-#> 15  -2.6 -3.769671645 3.55723963 -1.169671645 1.8860646
-#> 16  -2.5 -3.579531039 3.42319361 -1.079531039 1.8501875
+#> 10  -3.1 -4.420032010 3.64609197 -1.320032010 1.9094743
+#> 11  -3.0 -4.326524656 3.66908363 -1.326524656 1.9154852
+#> 12  -2.9 -4.216425519 3.68069437 -1.316425519 1.9185136
+#> 13  -2.8 -4.087827618 3.67311048 -1.287827618 1.9165361
+#> 14  -2.7 -3.939190342 3.63608699 -1.239190342 1.9068526
+#> 15  -2.6 -3.769671646 3.55723963 -1.169671646 1.8860646
+#> 16  -2.5 -3.579531040 3.42319361 -1.079531040 1.8501875
 #> 17  -2.4 -3.370550870 3.22192852 -0.970550870 1.7949731
 #> 18  -2.3 -3.146374631 2.94638073 -0.846374631 1.7165025
-#> 19  -2.2 -2.912612919 2.59873030 -0.712612919 1.6120578
+#> 19  -2.2 -2.912612920 2.59873030 -0.712612920 1.6120578
 #> 20  -2.1 -2.676548271 2.19389663 -0.576548271 1.4811808
 #> 21  -2.0 -2.446322106 1.76007533 -0.446322106 1.3266783
 #> 22  -1.9 -2.229645390 1.33450055 -0.329645390 1.1552058
@@ -1101,8 +1106,8 @@ print(eval_result$eval.tb)
 #> 28  -1.3 -1.331207524 0.14154025 -0.031207524 0.3762184
 #> 29  -1.2 -1.222225352 0.11571234 -0.022225352 0.3401652
 #> 30  -1.1 -1.115711117 0.10132976 -0.015711117 0.3183234
-#> 31  -1.0 -1.010467372 0.09223884 -0.010467372 0.3037085
-#> 32  -0.9 -0.906250276 0.08548769 -0.006250276 0.2923828
+#> 31  -1.0 -1.010467373 0.09223884 -0.010467373 0.3037085
+#> 32  -0.9 -0.906250277 0.08548769 -0.006250277 0.2923828
 #> 33  -0.8 -0.803427274 0.07989210 -0.003427274 0.2826519
 #> 34  -0.7 -0.702526078 0.07520746 -0.002526078 0.2742398
 #> 35  -0.6 -0.603713902 0.07166265 -0.003713902 0.2676988
@@ -1350,8 +1355,8 @@ routing and final ability reporting.
 
 ``` r
 
-# eq.theta[[stage]][[path]] gives a vector of theta estimates,
-# one per possible observed sum score on that partial path
+# eq.theta[[stage]][, path] gives a vector of theta estimates,
+# one per possible sum score on that partial pathway
 
 # Stage 1, Path 1 (routing module only, 8 items, scores 0-8)
 cat("Theta estimates for Stage 1 (8 items, scores 0-8):\n")
@@ -1369,9 +1374,11 @@ dim(eval_result$eq.theta$stage.3)
 #> [1] 25  7
 ```
 
-The number of rows equals the number of possible sum scores (0 through
-maximum score) for items along that pathway. Each column corresponds to
-one complete pathway through the MST.
+Each element of `eq.theta` is a matrix for one stage. The number of rows
+equals the number of possible cumulative sum scores (0 through maximum
+score) up to that stage, and each column corresponds to one partial
+pathway up to that stage; at the last stage, the columns are the
+complete pathways.
 
 ### Inspecting Test Information by Pathway
 
@@ -1516,8 +1523,8 @@ items_m5 <- make_mod_items(
 
 # Combine into single item bank
 item_bank_122 <- dplyr::bind_rows(items_m1, items_m2, items_m3, items_m4, items_m5)
-cat("Item bank dimensions:", nrow(item_bank_122), "items ×", ncol(item_bank_122), "columns\n")
-#> Item bank dimensions: 30 items × 6 columns
+cat("Item bank dimensions:", nrow(item_bank_122), "items x", ncol(item_bank_122), "columns\n")
+#> Item bank dimensions: 30 items x 6 columns
 print(item_bank_122)
 #>       id cats model par.1 par.2 par.3
 #> 1  M1_I1    2  3PLM   1.2  -0.5  0.15
@@ -1754,7 +1761,7 @@ lines(tb_wide$theta, tb_wide$bias,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 abline(h = 0, col = "grey50", lty = 3)
 legend("topright",
-       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
@@ -1770,7 +1777,7 @@ plot(
 lines(tb_wide$theta, tb_wide$csem,
       type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
 legend("topright",
-       legend = c("simMST cuts (about ±0.45)", "Wider cuts (±1.0)"),
+       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
        col    = c("steelblue", "darkorange"),
        pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
 grid()
@@ -1827,14 +1834,18 @@ extremes, where the item pool carries little information and MLE behaves
 quite differently from the inverse-TCC-based recursion. That region of
 close central agreement widens as test length increases.
 
-We reproduce that second condition directly here for the `simMST` panel,
-using the same scoring combination Lim et al. (2021) used in their own
-validation: `route_score = list(method = "EAP")` for routing at each
-interim stage, and `final_score = list(method = "ML")` for the reported
-final score. Neither method matches
+We reproduce the scoring combination of that second condition here for
+the `simMST` panel (EAP for routing and ML for the final score):
+`route_score = list(method = "EAP")` for routing at each interim stage,
+and `final_score = list(method = "ML")` for the reported final score.
+Unlike Lim et al. (2021), whose simulations routed examinees with the
+maximum information rule, the simulation below routes with the panel’s
+fixed cut scores, the routing rule that
+[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
+assumes. Neither scoring method matches
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)’s
 internal inverse-TCC logic, so the two results are not expected to
-coincide everywhere; the comparison below should reproduce the same
+coincide everywhere; the comparison below should show the same
 central-agreement-with-tail-divergence pattern Lim et al. (2021)
 reported.
 
@@ -1861,7 +1872,7 @@ by passing the full `true_theta` vector. Routing uses the panel’s fixed
 cut scores (matching the routing rule
 [`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
 assumes), with `EAP` routing scores and `ML` final scores, the scoring
-combination Lim et al. (2021) used in their own Monte Carlo validation:
+combination of Lim et al. (2021):
 
 ``` r
 
@@ -1974,8 +1985,8 @@ scoring depart from
 internal inverse-TCC logic, and that departure grows where the item pool
 carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
-pattern Lim et al. (2021) reported for this identical
-EAP-routing/MLE-final condition. Matching the recursion’s own scoring
+pattern Lim et al. (2021) reported for the same EAP-routing and
+MLE-final scoring combination. Matching the recursion’s own scoring
 exactly (`route_score = list(method = "INV.TCC")` and
 `final_score = list(method = "INV.TCC")` instead of the EAP and ML
 methods) would close most of this gap.
@@ -2039,22 +2050,22 @@ compare_tb <- data.frame(
 )
 compare_tb[compare_tb$theta <= -3 | compare_tb$theta >= 3, ]
 #>    theta analytical_bias EAP_ML_bias INVTCC_INVTCC_bias analytical_rmse
-#> 1   -5.0           0.108       1.488             -0.017           1.833
-#> 2   -4.5          -0.367       1.100             -0.472           1.872
-#> 3   -4.0          -0.808       0.509             -0.783           2.019
-#> 4   -3.5          -1.168       0.136             -1.160           2.211
-#> 5   -3.0          -1.327      -0.134             -1.254           2.330
+#> 1   -5.0           0.108       1.483             -0.017           1.833
+#> 2   -4.5          -0.367       1.090             -0.472           1.872
+#> 3   -4.0          -0.808       0.503             -0.783           2.019
+#> 4   -3.5          -1.168       0.130             -1.160           2.211
+#> 5   -3.0          -1.327      -0.138             -1.254           2.330
 #> 17   3.0           2.452       0.481              2.494           3.277
 #> 18   3.5           2.824       0.252              2.819           3.254
 #> 19   4.0           2.713      -0.088              2.741           2.929
 #> 20   4.5           2.375      -0.521              2.410           2.488
 #> 21   5.0           1.942      -1.023              1.955           2.007
 #>    EAP_ML_rmse INVTCC_INVTCC_rmse
-#> 1        1.637              1.785
-#> 2        1.300              1.868
-#> 3        0.836              2.022
-#> 4        0.738              2.181
-#> 5        0.779              2.262
+#> 1        1.632              1.785
+#> 2        1.291              1.868
+#> 3        0.833              2.022
+#> 4        0.740              2.181
+#> 5        0.782              2.262
 #> 17       0.883              3.302
 #> 18       0.608              3.252
 #> 19       0.359              2.938
@@ -2133,7 +2144,7 @@ the `EAP`/`ML` condition diverged.
 | `cut_score` | list | \- | List of routing cut score vectors (one per stage transition) |
 | `theta` | numeric | `seq(-5, 5, 1)` | Ability grid for evaluation |
 | `intpol` | logical | TRUE | Linear interpolation for out-of-range TCC scores |
-| `range.tcc` | numeric(2) | `c(-7, 7)` | Ability range for inverse TCC scoring |
+| `range.tcc` | numeric(2) | `c(-7, 7)` | Ability estimates assigned to the lowest and the maximum sum scores when `intpol = TRUE` |
 | `tol` | numeric | 1e-4 | Convergence tolerance for bisection in inverse TCC |
 
 ### `reval_mst()` Return Value
@@ -2155,7 +2166,7 @@ the `EAP`/`ML` condition diverged.
 | `x` | data.frame | \- | Item bank metadata (irtQ format) |
 | `route_map` | matrix | \- | Binary square matrix of module transitions |
 | `module` | matrix | \- | Binary matrix mapping items to modules |
-| `theta` | numeric | \- | True ability for each simulated examinee (or supply `response` instead) |
+| `theta` | numeric | `NULL` | True ability for each simulated examinee (or supply `response` instead) |
 | `response` | matrix | `NULL` | Pre-generated response matrix, used instead of simulating from `theta` |
 | `D` | numeric | 1 | Scaling constant (use 1.702 for normal-ogive approximation) |
 | `ini_mod` | integer | `NULL` | Fixed Stage-1 module for all examinees; `NULL` assigns each independently at random |
@@ -2164,7 +2175,7 @@ the `EAP`/`ML` condition diverged.
 | `route_score` | list | ML (see [`?run_mst`](https://hwangQ.github.io/irtQ/reference/run_mst.md)) | Scoring method used at intermediate stages (`ML`, `WL`, `MLF`, `MAP`, `EAP`, `EAP.SUM`, `INV.TCC`, …) |
 | `final_score` | list | ML (see [`?run_mst`](https://hwangQ.github.io/irtQ/reference/run_mst.md)) | Scoring method used for the final reported score |
 | `se` | logical | `TRUE` | Whether to compute standard errors of the final score |
-| `missing` | scalar | `NA` | Value representing a not-administered response in `response` |
+| `missing` | scalar | `NA` | Value marking a missing response in `response` |
 | `verbose` | logical | `TRUE` | Whether to print simulation progress messages to the console |
 | `return_full_resp` | logical | `FALSE` | If `TRUE`, also returns the full *N* x *J* item-level response matrix as `full.resp` |
 
@@ -2172,13 +2183,19 @@ the `EAP`/`ML` condition diverged.
 
 | Component | Description |
 |----|----|
+| `call` | The matched function call |
 | `est.theta` | Final ability estimate for each simulated examinee |
 | `se.theta` | Standard error of the final ability estimate |
 | `theta.route` | Cumulative ability estimate used for routing after each stage (from all modules taken so far); the last column is the final estimate |
 | `path` | Module pathway taken by each examinee |
 | `true.theta` | The `theta` argument (true abilities), or `NULL` if `theta` was not supplied |
 | `panel` | Panel structure information (from [`panel_info()`](https://hwangQ.github.io/irtQ/reference/panel_info.md)) |
-| `full.resp` | Full item-level response matrix, if `return_full_resp = TRUE` |
+| `D` | The scaling constant used |
+| `route.method` | The `route_method` argument |
+| `route.score` | The `route_score` list with all defaults filled in |
+| `final.score` | The `final_score` list with all defaults filled in |
+| `N` | Number of examinees |
+| `full.resp` | Full item-level response matrix if `return_full_resp = TRUE`, otherwise `NULL` |
 
 ------------------------------------------------------------------------
 

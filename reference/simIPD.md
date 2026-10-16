@@ -1,13 +1,15 @@
 # Simulated CAT Data for Item Parameter Drift (IPD) Detection
 
 A simulated dataset designed to illustrate the use of the
-[`ripd`](https://hwangQ.github.io/irtQ/reference/ripd.md) function for
+[`ripd`](https://hwangQ.github.io/irtQ/reference/ripd.md) and
+[`pcd2`](https://hwangQ.github.io/irtQ/reference/pcd2.md) functions for
 detecting item parameter drift (IPD) in computerized adaptive testing
 (CAT). The dataset represents one replication of a CAT-based IPD
 simulation study in which 5% of a 360-item pool (18 items) had both
 their discrimination (*a*) and difficulty (*b*) parameters drift
-downward by 0.5, under a 30-item adaptive test where all focal group
-examinees were exposed to the drifted items (100% exposure rate).
+downward by 0.5, under a 30-item adaptive test in which the drift
+affected all focal group examinees (the 100% drift exposure condition of
+Lim & Han, 2026).
 
 The data reflect a workflow of IPD detection using the residual-based
 IPD (RIPD) framework (Lim & Han, 2026): a focal group of examinees takes
@@ -30,59 +32,64 @@ A named list with eight elements:
 - item_par:
 
   A data frame with 360 rows and 6 columns containing the **original**
-  (pre-drift) item parameters in `irtQ` format (columns: `id`, `cats`,
-  `model`, `par.1`, `par.2`, `par.3`). All items follow the 3PLM.
+  (pre-drift) item metadata (columns: `id`, `cats`, `model`, `par.1`,
+  `par.2`, `par.3`). All items follow the 3PLM.
 
 - key_item:
 
-  An integer vector of length 90 giving the row indices (in `item_par`)
-  of the *key items* - items selected by a preliminary CAT simulation as
-  highly exposed and therefore most relevant for IPD analysis.
+  A numeric vector of length 90 giving the row indices (in `item_par`)
+  of the *key items*, that is, the items identified by a preliminary CAT
+  simulation as the most frequently administered and therefore most
+  relevant for IPD analysis.
 
 - item.skip:
 
   An integer vector of length 270 giving the row indices of non-key
-  items that should be excluded from RIPD analysis (i.e., the complement
-  of `key_item` in `1:360`). Pass this vector to the `item.skip`
-  argument of
-  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md).
+  items that should be excluded from the IPD analysis (i.e., the
+  complement of `key_item` in `1:360`). Pass this vector to the
+  `item.skip` argument of
+  [`ripd()`](https://hwangQ.github.io/irtQ/reference/ripd.md) or
+  [`pcd2()`](https://hwangQ.github.io/irtQ/reference/pcd2.md).
 
 - ipd_item:
 
-  An integer vector of length 18 giving the row indices of items that
+  A numeric vector of length 18 giving the row indices of items that
   were subjected to IPD manipulation. These 18 items (5% of the 360-item
   pool) had both their discrimination (*a*) and difficulty (*b*)
   parameters decreased by 0.5. All 18 items are members of `key_item`.
 
 - foc_resp:
 
-  An integer matrix of dimensions 3000 x 360 containing the **focal
+  A numeric matrix of dimensions 3000 x 360 containing the **focal
   group** CAT response data. Each row is one examinee; each column
-  corresponds to an item in `item_par`. Because CAT administers only 30
-  items per examinee, approximately 92% of entries are `NA`. Responses
-  were generated using the *drifted* item parameters (all focal
-  examinees were exposed to IPD items; exposure rate = 100%).
+  corresponds to an item in `item_par` (the column names are the item
+  IDs). Because CAT administers only 30 items per examinee,
+  approximately 92% of entries are `NA`. Responses were generated using
+  the *drifted* item parameters (the drifted parameters were used for
+  every focal group examinee who received an IPD item).
 
 - foc_score:
 
   A numeric vector of length 3000 containing the **focal group** final
-  maximum likelihood (ML) theta estimates obtained from the CAT.
+  maximum likelihood (ML) ability estimates obtained from the CAT,
+  bounded to the range -5 to 5.
 
 - ref_resp:
 
-  An integer matrix of dimensions 3000 x 360 containing the **synthetic
-  reference group** CAT response data (same sparsity structure as
-  `foc_resp`). The reference group was constructed by: (1) using
-  `foc_score` as true ability values (1F scaling, i.e., the reference
-  group has the same size as the focal group); (2) generating item
-  responses from the *original* (non-drifted) item parameters; and (3)
-  running an independent CAT simulation. This synthetic reference group
-  mirrors the construction described in Lim & Han (2026).
+  A numeric matrix of dimensions 3000 x 360 containing the **synthetic
+  reference group** CAT response data (each examinee also has 30
+  observed responses and about 92% of the entries are `NA`). The
+  reference group was constructed by: (1) using `foc_score` as true
+  ability values (1F condition, i.e., the reference group has the same
+  size as the focal group); (2) generating item responses from the
+  *original* (non-drifted) item parameters; and (3) running an
+  independent CAT simulation. This synthetic reference group mirrors the
+  construction described in Lim & Han (2026).
 
 - ref_score:
 
   A numeric vector of length 3000 containing the **synthetic reference
-  group** final ML theta estimates.
+  group** final ML ability estimates, bounded to the range -5 to 5.
 
 ## Details
 
@@ -92,8 +99,9 @@ A named list with eight elements:
 
 - Test length: 30 items per examinee
 
-- Item selection: Maximum Fisher Information (MFI) with target exposure
-  rate 0.30
+- Item selection: maximum Fisher information (MFI), with the fade-away
+  exposure control method (maximum exposure rate 0.30) and initial
+  abilities drawn from \\U(-1, 1)\\
 
 - Focal group: \\n = 3{,}000\\; true abilities drawn from \\N(0, 1)\\
 
@@ -105,17 +113,18 @@ A named list with eight elements:
 
 - Interim scoring: EAP; final scoring: ML
 
-- Scaling constant: \\D = 1.7\\
+- Scaling factor: \\D = 1.7\\
 
 - Random seed: 2024
 
 **Note on reference group size:** A 1F reference group (same size as the
 focal group) is used here for compactness. In practice, larger synthetic
-reference groups (e.g., 3F - 8F) are recommended to improve RIPD
-detection power (Lim & Han, 2026). A larger reference group can be
-created by replicating the focal theta estimates: e.g.,
-`rep(foc_score, times = 3)` for a 3F group, then re-running the CAT
-simulation with the original item parameters.
+reference groups improve RIPD detection power; Lim and Han (2026)
+suggest a reference group at least 8 to 10 times the focal group size
+(8F to 10F). A larger reference group can be created by replicating the
+focal ability estimates, e.g., `rep(foc_score, times = 8)` for an 8F
+group, and re-running the CAT simulation with the original item
+parameters using a CAT simulation program.
 
 ## References
 

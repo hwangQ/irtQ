@@ -13,7 +13,7 @@ summed score groups."><meta property="og:image" content="https://hwangQ.github.i
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,8 +110,8 @@ summed score groups.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data frame containing item metadata (e.g., item parameters, number
-of categories, IRT model types, etc.); or an object of class <code>est_irt</code>
-obtained from <code><a href="est_irt.html">est_irt()</a></code>, or <code>est_item</code> from <code><a href="est_item.html">est_item()</a></code>.</p>
+of categories, IRT model types, etc.), or an object of class <code>est_irt</code> or
+<code>est_item</code> obtained from <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="est_item.html">est_item()</a></code>.</p>
 <p>See <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="simdat.html">simdat()</a></code> for more details about the item
 metadata. This data frame can be easily created using the
 <code><a href="shape_df.html">shape_df()</a></code> function.</p></dd>
@@ -122,14 +122,16 @@ metadata. This data frame can be easily created using the
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A matrix of examinees' item responses corresponding to the items
-specified in the <code>x</code> argument. Rows represent examinees and columns
-represent items.</p></dd>
+<dd><p>A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in <code>x</code>. Responses to
+an item with K score categories must be integers from 0 to K - 1. Missing
+responses must be coded as <code>NA</code>; they are replaced with 0 before the
+statistics are computed, with a warning.</p></dd>
 
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 
@@ -140,87 +142,141 @@ Default is 0.05.</p></dd>
 
 
 <dt id="arg-min-collapse">min.collapse<a class="anchor" aria-label="anchor" href="#arg-min-collapse"></a></dt>
-<dd><p>An integer specifying the minimum expected frequency
-required per cell before adjacent cells are collapsed. Default is 1. See
-<strong>Details</strong>.</p></dd>
+<dd><p>A numeric value giving the minimum expected frequency
+per cell. Cells with smaller expected frequencies are merged with adjacent
+cells. Default is 1. See <strong>Details</strong>.</p></dd>
 
 
 <dt id="arg-norm-prior">norm.prior<a class="anchor" aria-label="anchor" href="#arg-norm-prior"></a></dt>
-<dd><p>A numeric vector of length two specifying the mean and
-standard deviation of the normal prior distribution. These values are used
-to generate the Gaussian quadrature points and weights. Ignored if <code>method</code>
-is <code>"ML"</code>, <code>"MLF"</code>, <code>"WL"</code>, or <code>"INV.TCC"</code>. Default is <code>c(0, 1)</code>.</p></dd>
+<dd><p>A numeric vector of length two giving the mean and standard
+deviation of the normal latent ability distribution used to generate the
+quadrature points and weights. Ignored when <code>weights</code> is supplied. For an
+<code>est_irt</code> object, see <code>weights</code>. Default is <code>c(0, 1)</code>.</p></dd>
 
 
 <dt id="arg-nquad">nquad<a class="anchor" aria-label="anchor" href="#arg-nquad"></a></dt>
 <dd><p>An integer specifying the number of Gaussian quadrature points
-used to approximate the normal prior distribution. Default is 30.</p></dd>
+used to approximate the normal latent ability distribution. Ignored when
+<code>weights</code> is supplied. For an <code>est_irt</code> object, see <code>weights</code>. Default is
+30.</p></dd>
 
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
 <dd><p>A two-column matrix or data frame containing the quadrature
 points (first column) and their corresponding weights (second column) for
 the latent ability distribution. If omitted, default values are generated
-using <code><a href="gen.weight.html">gen.weight()</a></code> according to the <code>norm.prior</code> and <code>nquad</code> arguments.</p></dd>
+using <code><a href="gen.weight.html">gen.weight()</a></code> according to the <code>norm.prior</code> and <code>nquad</code>
+arguments.</p>
+<p>For an <code>est_irt</code> object, when <code>weights</code>, <code>norm.prior</code>, and <code>nquad</code> are all
+omitted, the latent distribution stored in the object (<code>x$weights</code>), which
+was used or estimated in the calibration, is used. Otherwise, <code>weights</code> is
+used if given, and a normal distribution given by <code>norm.prior</code> and <code>nquad</code>
+is used if not. For an <code>est_item</code> object, which stores no latent
+distribution, the normal distribution is used when <code>weights</code> is omitted.</p></dd>
 
 
 <dt id="arg-pcm-loc">pcm.loc<a class="anchor" aria-label="anchor" href="#arg-pcm-loc"></a></dt>
-<dd><p>An optional integer vector indicating the row indices of items
-that follow the partial credit model (PCM), where slope parameters are
-fixed. Default is <code>NULL</code>.</p></dd>
+<dd><p>An optional integer vector giving the row indices of partial
+credit model (PCM) items whose slope parameters are fixed. It is used only
+to count the item parameters for the degrees of freedom. Default is <code>NULL</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list containing the following components:</p>
+    <p>A list with the following components:</p>
 <dl><dt>fit_stat</dt>
-<dd><p>A data frame summarizing the \(S\text{-}X^2\) fit statistics
-for all items, including the chi-square value, degrees of freedom, critical
-value, and p-value.</p></dd>
+<dd><p>A data frame with one row per item and the columns <code>id</code>,
+<code>chisq</code> (the \(S\text{-}X^2\) statistic), <code>df</code>, <code>crit.val</code> (the critical
+value at <code>alpha</code>), and <code>p</code> (the p-value).</p></dd>
 
 <dt>item_df</dt>
-<dd><p>A data frame containing the item metadata as specified in the
-input argument <code>x</code>.</p></dd>
+<dd><p>The item metadata used in the analysis.</p></dd>
 
 <dt>exp_freq</dt>
-<dd><p>A list of collapsed expected frequency tables for all items.</p></dd>
+<dd><p>A list of collapsed expected frequency tables, one per item,
+with summed score groups in rows and score categories in columns.</p></dd>
 
 <dt>obs_freq</dt>
-<dd><p>A list of collapsed observed frequency tables for all items.</p></dd>
+<dd><p>A list of collapsed observed frequency tables in the same
+layout as <code>exp_freq</code>.</p></dd>
 
 <dt>exp_prob</dt>
-<dd><p>A list of collapsed expected probability tables for all items.</p></dd>
+<dd><p>A list of matrices of expected proportions within each
+summed score group.</p></dd>
 
 <dt>obs_prop</dt>
-<dd><p>A list of collapsed observed proportion tables for all items.</p></dd>
+<dd><p>A list of matrices of observed proportions within each
+summed score group.</p></dd>
 
-</dl></div>
+
+</dl><p>For a polytomous item, categories merged within a summed score group are
+stored in the leftmost columns of that row, and the remaining cells are
+<code>NA</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The accuracy of the \(\chi^{2}\) approximation in item fit statistics can be
-compromised when expected cell frequencies in contingency tables are too small
-(Orlando &amp; Thissen, 2000). To address this issue, Orlando and Thissen (2000)
-proposed collapsing adjacent summed score groups to ensure a minimum expected
-frequency of at least 1.</p>
-<p>However, applying this collapsing approach directly to polytomous item data
-can result in excessive information loss (Kang &amp; Chen, 2008). To mitigate this,
-Kang and Chen (2008) instead collapsed adjacent response categories <em>within</em>
-each summed score group, maintaining a minimum expected frequency of 1 per
-category. The same collapsing strategies are implemented in <code>sx2_fit()</code>.
-If a different minimum expected frequency is desired, it can be specified via
-the <code>min.collapse</code> argument.</p>
-<p>When an item is labeled as "DRM" in the item metadata, it is treated as a 3PLM
-item when computing the degrees of freedom for the \(S\text{-}X^2\) statistic.</p>
-<p>Additionally, any missing responses in the <code>data</code> are automatically replaced
-with incorrect responses (i.e., 0s).</p>
+    <p>For item \(i\) and summed score group \(s\) with \(N_s\) examinees,
+let \(O_{isk}\) and \(E_{isk}\) be the observed and expected proportions
+of score category \(k\). The statistic is
+\(S\text{-}X^2_i = \sum_s \sum_k N_s (O_{isk} - E_{isk})^2 / E_{isk}\),
+which has the form of Orlando and Thissen (2000) for a dichotomous item.
+The expected proportions are
+\(E_{isk} = \sum_q P_{ik}(\theta_q) f^{*i}(s - k \mid \theta_q) A(\theta_q)
+/ \sum_q f(s \mid \theta_q) A(\theta_q)\),
+where \(f\) and \(f^{*i}\) are the summed score likelihoods with and
+without item \(i\), computed by the Lord-Wingersky recursion, and
+\(\theta_q\) and \(A(\theta_q)\) are the quadrature points and weights.</p>
+<p>The latent ability distribution used to compute the expected proportions is
+given by <code>weights</code>, or by a normal distribution generated from <code>norm.prior</code>
+and <code>nquad</code> when <code>weights</code> is omitted. For an <code>est_irt</code> object, the latent
+distribution stored in the object is used when <code>weights</code>, <code>norm.prior</code>, and
+<code>nquad</code> are all omitted.</p>
+<p>The lowest and highest possible summed scores are excluded. For an item with
+\(K\) score categories, the \(K - 1\) lowest remaining summed scores are
+pooled into one group, and so are the \(K - 1\) highest. When the test is
+so short that the two pooled ranges overlap, each summed score is counted
+once, in the lower group.</p>
+<p>The accuracy of the \(\chi^{2}\) approximation can be compromised when
+expected cell frequencies are too small (Orlando &amp; Thissen, 2000). For
+dichotomous items, Orlando and Thissen (2000) merged adjacent summed score
+groups so that every expected frequency is at least 1. For polytomous items,
+this approach can discard too much information, so Kang and Chen (2008)
+instead merged adjacent score categories <em>within</em> each summed
+score group. <code>sx2_fit()</code> follows both strategies, working from the ends
+of the table toward the middle, and <code>min.collapse</code> sets the minimum expected
+frequency.</p>
+<p>The degrees of freedom are \(G(K - 1) - m - C\), where \(G\) is the
+number of summed score groups after collapsing, \(m\) is the number of
+item parameters, and \(C\) is the number of category cells removed by
+merging. The number of item parameters \(m\) is determined by the IRT model
+of each item: 1 for the 1PLM, 2 for the 2PLM, 3 for the 3PLM, and the number
+of score categories \(K\) for the GRM and GPCM; an item listed in
+<code>pcm.loc</code> has \(m = K - 1\), and an item labeled <code>"DRM"</code> is counted as a
+3PLM item. This also applies to <code>est_irt</code> and <code>est_item</code> objects: parameters
+fixed during estimation (for example, with <code>fix.g = TRUE</code>, or the items fixed
+in FIPC) are still counted, and GPCM items estimated with
+<code>fix.a.gpcm = TRUE</code> are counted as PCM items only when they are given in
+<code>pcm.loc</code>. When no degrees of freedom remain after collapsing (<code>df</code> of 0 or
+less), <code>crit.val</code> and <code>p</code> are <code>NA</code>, and a warning names the item.</p>
+<p>The test must contain at least two items. Responses in <code>data</code> must be
+integer scores from 0 to the number of score categories minus 1, with one
+column per item. Character and factor responses are read as numbers, logical
+responses as 0 and 1, and other responses stop the function with an error.
+Missing responses in <code>data</code> are replaced with 0 (the lowest score category),
+and a warning is issued.</p>
     </div>
     <div class="section level2">
     <h2 id="methods-by-class-">Methods (by class)<a class="anchor" aria-label="anchor" href="#methods-by-class-"></a></h2>
 
 <ul><li><p><code>sx2_fit(default)</code>: Default method for computing \(S\text{-}X^{2}\) fit
 statistics from a data frame <code>x</code> containing item metadata.</p></li>
-<li><p><code>sx2_fit(est_item)</code>: An object created by the function <code><a href="est_item.html">est_item()</a></code>.</p></li>
-<li><p><code>sx2_fit(est_irt)</code>: An object created by the function <code><a href="est_irt.html">est_irt()</a></code>.</p></li>
+<li><p><code>sx2_fit(est_item)</code>: Method for an object of class <code>est_item</code> created by
+<code><a href="est_item.html">est_item()</a></code>. The item parameter estimates, response data, and <code>D</code>
+are taken from the object.</p></li>
+<li><p><code>sx2_fit(est_irt)</code>: Method for an object of class <code>est_irt</code> created by
+<code><a href="est_irt.html">est_irt()</a></code>. The item parameter estimates, response data, and <code>D</code>
+are taken from the object. When <code>weights</code>, <code>norm.prior</code>, and <code>nquad</code> are all
+omitted, the latent distribution stored in the object (<code>x$weights</code>) is used.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

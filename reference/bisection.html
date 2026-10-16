@@ -13,7 +13,7 @@ cmna, this version allows additional arguments to be passed to .fun."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,16 +98,17 @@ in the <span class="pkg">cmna</span> R package (Howard, 2017), designed to find 
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with the following components:</p><ul><li><p><code>root</code>: The estimated root of the function.</p></li>
 <li><p><code>iter</code>: The number of iterations performed.</p></li>
-<li><p><code>accuracy</code>: The final absolute difference between the last two interval
-points with opposite signs.</p></li>
+<li><p><code>delta</code>: The width of the final search interval.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The bisection method is a well-known root-finding numerical algorithm
-that applies to any continuous function, provided that the function values at the lower (<code>lb</code>)
-and upper (<code>ub</code>) bounds have opposite signs. The method repeatedly bisects the interval until
-the absolute difference between successive estimates is smaller than the error tolerance
-(<code>tol</code>) or the maximum number of iterations (<code>max.it</code>) is reached.</p>
+    <p>The bisection method is a root-finding algorithm for a continuous
+function whose values at the lower (<code>lb</code>) and upper (<code>ub</code>) bounds have
+opposite signs. The method repeatedly halves the interval until its width
+is no greater than <code>tol</code> or the maximum number of iterations (<code>max.it</code>) is
+reached, and returns the midpoint of the final interval. A warning is issued
+when the function values at the bounds do not have opposite signs or when
+<code>max.it</code> is reached before the interval is no wider than <code>tol</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

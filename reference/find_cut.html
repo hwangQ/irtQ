@@ -3,13 +3,13 @@
 theta values at which adjacent modules' Test Information Functions (TIFs)
 cross in the correct direction. The resulting cut scores can be passed
 directly to run_mst as its cut_score argument
-(with route_method = NULL), providing a principled and psychometrically
-grounded alternative to heuristic cut-score selection."><meta property="og:description" content="Computes routing cut scores for a multistage test (MST) by identifying the
+(with route_method = NULL), which avoids the path reversals that
+maximum Fisher information (MFI) routing can produce (see Details)."><meta property="og:description" content="Computes routing cut scores for a multistage test (MST) by identifying the
 theta values at which adjacent modules' Test Information Functions (TIFs)
 cross in the correct direction. The resulting cut scores can be passed
 directly to run_mst as its cut_score argument
-(with route_method = NULL), providing a principled and psychometrically
-grounded alternative to heuristic cut-score selection."><meta property="og:image" content="https://hwangQ.github.io/irtQ/logo.png"></head><body>
+(with route_method = NULL), which avoids the path reversals that
+maximum Fisher information (MFI) routing can produce (see Details)."><meta property="og:image" content="https://hwangQ.github.io/irtQ/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ grounded alternative to heuristic cut-score selection."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ grounded alternative to heuristic cut-score selection."><meta property="og:image
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Find TIF-Crossing Cut Scores for MST Routing</h1>
-      <small class="dont-index">Source: <a href="https://github.com/hwangQ/irtQ/blob/main/R/find_cut.R" class="external-link"><code>R/find_cut.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/hwangQ/irtQ/blob/main/R/find_cut.R" class="external-link"><code>R/find_cut.R</code></a>, <a href="https://github.com/hwangQ/irtQ/blob/main/R/print.R" class="external-link"><code>R/print.R</code></a></small>
       <div class="d-none name"><code>find_cut.Rd</code></div>
     </div>
 
@@ -63,8 +63,8 @@ grounded alternative to heuristic cut-score selection."><meta property="og:image
 theta values at which adjacent modules' Test Information Functions (TIFs)
 cross in the correct direction. The resulting cut scores can be passed
 directly to <code><a href="run_mst.html">run_mst</a></code> as its <code>cut_score</code> argument
-(with <code>route_method = NULL</code>), providing a principled and psychometrically
-grounded alternative to heuristic cut-score selection.</p>
+(with <code>route_method = NULL</code>), which avoids the path reversals that
+maximum Fisher information (MFI) routing can produce (see <strong>Details</strong>).</p>
     </div>
 
     <div class="section level2">
@@ -77,7 +77,10 @@ grounded alternative to heuristic cut-score selection.</p>
 <span>  theta_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span>,</span>
 <span>  n_grid <span class="op">=</span> <span class="fl">2001L</span>,</span>
 <span>  ref_theta <span class="op">=</span> <span class="fl">0</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'find_cut'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="fl">4L</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -108,7 +111,7 @@ argument used in <code><a href="run_mst.html">run_mst</a></code>.</p></dd>
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 
@@ -120,14 +123,25 @@ over which to search for TIF crossings. Default is <code>c(-6, 6)</code>.</p></d
 <dt id="arg-n-grid">n_grid<a class="anchor" aria-label="anchor" href="#arg-n-grid"></a></dt>
 <dd><p>An integer specifying the number of equally spaced theta
 points used for the initial sign-change scan. A finer grid reduces the
-chance of missing a crossing but increases computation time. Default is
-<code>2001</code>.</p></dd>
+chance of missing a crossing but increases computation time. It must be at
+least 100. Default is <code>2001</code>.</p></dd>
 
 
 <dt id="arg-ref-theta">ref_theta<a class="anchor" aria-label="anchor" href="#arg-ref-theta"></a></dt>
 <dd><p>A single numeric value used to break ties when multiple
 proper crossings are found for an adjacent module pair. The crossing
 closest to <code>ref_theta</code> is selected. Default is <code>0</code>.</p></dd>
+
+
+<dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
+<dd><p>The number of decimal places used for the mean item
+locations, the cut scores, and the crossing points. Default is 4. The
+selected cut score of each module pair is always printed with four
+decimal places.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments, currently not used.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -138,20 +152,28 @@ three elements:</p><dl><dt><code>cut_score</code></dt>
 is the number of stages), compatible with the <code>cut_score</code> argument
 of <code><a href="run_mst.html">run_mst</a></code>. Each element is a numeric vector of cut
 scores for the transition into that stage, sorted in ascending order.
-Stages with only one module have an empty numeric vector
-(<code>numeric(0)</code>).</p></dd>
+The elements are named <code>"stage.2"</code>, <code>"stage.3"</code>, etc., after
+the stage being entered. Stages with only one module have an empty
+numeric vector (<code>numeric(0)</code>).</p></dd>
 
 <dt><code>details</code></dt>
-<dd><p>A named list of per-stage diagnostic information,
-including module indices, mean item locations, difficulty-sorted module
-order, and per-pair crossing details (proper crossings, anomalous
-crossings, and the selected cut score).</p></dd>
+<dd><p>A list with one element per stage from stage 2
+(named <code>"stage.2"</code>, <code>"stage.3"</code>, etc.). Each element contains
+<code>modules</code> (module indices), <code>mean_locs</code> (mean item locations,
+named <code>"mod2"</code>, ...), <code>sorted_order</code> (modules in ascending
+order of mean location), and <code>pairs</code>, a list with one element per
+adjacent pair (named, e.g., <code>"mod2_vs_mod3"</code>) holding
+<code>left_module</code>, <code>right_module</code>, <code>proper_crossings</code>,
+<code>anomalous_crossings</code>, and <code>selected_cut</code>. For a stage with a
+single module, <code>modules</code> holds that module, <code>mean_locs</code>,
+<code>sorted_order</code>, and <code>pairs</code> are <code>NULL</code>, and a
+<code>message</code> is added.</p></dd>
 
 <dt><code>tif_data</code></dt>
 <dd><p>A <code>tibble</code> with columns <code>theta</code>,
 <code>module</code>, <code>stage</code>, and <code>tif</code>, providing TIF curves for
 all modules at all stages (including stage 1). Used by
-<code><a href="plot.find_cut.html">plot.find_cut</a></code> to visualise TIF curves and crossing points.</p></dd>
+<code><a href="plot.find_cut.html">plot.find_cut</a></code> to visualize TIF curves and crossing points.</p></dd>
 
 
 </dl></div>
@@ -169,35 +191,38 @@ intended. However, in practice, a harder module's TIF curve can peak at
 a theta value that is unexpectedly low, so that the harder module
 <em>also</em> has the highest TIF near the low end of the ability scale.
 In this case, a low-ability examinee is incorrectly routed into the harder
-module – the opposite of what the MST is designed to do, which is called an
-<em>anomalous routing</em> or <em>path reversal</em>.</p>
+module, which is the opposite of what the MST is designed to do. This is
+called an <em>anomalous routing</em> or <em>path reversal</em>.</p>
 </div>
 
 <div class="section">
 <h3 id="solution-tif-crossing-cut-scores">Solution: TIF-crossing cut scores<a class="anchor" aria-label="anchor" href="#solution-tif-crossing-cut-scores"></a></h3>
 <p><code>find_cut()</code> resolves this problem by computing cut scores from the
 TIF curves themselves, rather than relying on pure MFI at the time of
-routing. Specifically, for each pair of adjacent modules (ordered by mean
-item difficulty), the function finds the theta value at which the harder
-module's TIF first overtakes the easier module's TIF <em>from below</em>
-as theta increases. This crossing point is the natural boundary between
-the two modules: below it, the easier module is more informative; above it,
-the harder module is more informative. Using this point as a fixed cut
-score pre-empts the path reversals that MFI routing produces at the extremes
-of the scale.</p>
+routing. Specifically, for each pair of modules that are adjacent in module
+index (which should follow the order of difficulty; see <em>Module index
+vs. difficulty order</em>), the function finds the theta value at which the
+higher-index module's TIF first overtakes the lower-index module's TIF
+<em>from below</em> as theta increases. This crossing point is the natural
+boundary between the two modules: below it, the lower-index (easier) module
+is more informative; above it, the higher-index (harder) module is more
+informative. Using this point as a fixed cut score pre-empts the path
+reversals that MFI routing produces at the extremes of the scale.</p>
 </div>
 
 <div class="section">
 <h3 id="proper-vs-anomalous-crossings">Proper vs. anomalous crossings<a class="anchor" aria-label="anchor" href="#proper-vs-anomalous-crossings"></a></h3>
 <p>Two TIF curves may cross more than once. <code>find_cut()</code> distinguishes
 two types of crossing:</p><ul><li><p><strong>Proper crossing</strong>: the difference
-\(\text{TIF}_{\text{harder}}(\theta) - \text{TIF}_{\text{easier}}(\theta)\)
-changes sign from negative to positive (positive slope at the crossing).
-This is the correct, expected crossing in the middle of the theta scale.</p></li>
+\(\text{TIF}_{\text{right}}(\theta) - \text{TIF}_{\text{left}}(\theta)\),
+where the right module is the higher-index (intended harder) module of
+the pair, changes sign from negative to positive (positive slope at the
+crossing). This is the correct, expected crossing in the middle of the
+theta scale.</p></li>
 <li><p><strong>Anomalous crossing</strong>: the difference changes sign from
 positive to negative (negative slope at the crossing). This corresponds
 to the pathological situation in which the harder module temporarily
-dominates at the low end of the theta scale – exactly the pattern that
+dominates at the low end of the theta scale, which is the pattern that
 causes path reversals under MFI routing.</p></li>
 </ul><p>Only proper crossings are used as cut scores. Anomalous crossings are
 reported in <code>$details</code> for diagnostic purposes but excluded from the
@@ -227,15 +252,26 @@ detected and then refined with <code><a href="https://rdrr.io/r/stats/uniroot.ht
 module index and maps routing rank 1 to the lowest-index module. For
 cut-score routing to assign low-theta examinees to the easiest module, the
 modules at each stage must be numbered in ascending difficulty order
-(easiest module = lowest index). <code>find_cut()</code> checks this assumption and issues a warning if the
-difficulty order does not match the index order. Regardless of this warning,
-cut scores are always computed between consecutive module pairs in the
-supplied index order (e.g., modules 2 &amp; 3 and 3 &amp; 4, not 2 &amp; 4 and 4 &amp; 3).
-The returned cut scores within each stage are sorted in ascending order,
-as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></code>.</p>
+(easiest module = lowest index). <code>find_cut()</code> checks this assumption
+and issues a warning if the difficulty order does not match the index order.
+Regardless of this warning, cut scores are always computed between
+consecutive module pairs in the supplied index order (e.g., modules 2 &amp; 3
+and 3 &amp; 4, not 2 &amp; 4 and 4 &amp; 3). The cut scores of each stage are returned
+in ascending order. When the index order and the difficulty order agree, the
+<em>k</em>-th cut score is the crossing between the <em>k</em>-th and the
+(<em>k</em>+1)-th module of the stage, which is how <code><a href="run_mst.html">run_mst</a></code> and
+<code><a href="reval_mst.html">reval_mst</a></code> use it.</p>
 </div>
 
     </div>
+    <div class="section level2">
+    <h2 id="methods-by-generic-">Methods (by generic)<a class="anchor" aria-label="anchor" href="#methods-by-generic-"></a></h2>
+
+<ul><li><p><code>print(find_cut)</code>: Print method for an object of class <code>find_cut</code>
+(given as <code>x</code>). It prints, for each stage, the mean item locations of the
+modules, the proper and anomalous crossing points, and the selected cut
+score of each pair of adjacent modules.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="run_mst.html">run_mst</a></code>, <code><a href="panel_info.html">panel_info</a></code>,
@@ -244,7 +280,7 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## -- Setup: use the built-in simMST 1-3-3 panel --------------------------</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Setup: use the built-in simMST 1-3-3 panel</span></span></span>
 <span class="r-in"><span><span class="co">## simMST is a 7-module, 3-stage MST panel (8 dichotomous 3PLM items each).</span></span></span>
 <span class="r-in"><span><span class="co">## Modules 1 (routing), 2-4 (stage 2: easy/medium/hard),</span></span></span>
 <span class="r-in"><span><span class="co">##         5-7 (stage 3: easy/medium/hard).</span></span></span>
@@ -252,7 +288,7 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-in"><span><span class="va">module</span>    <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">module</span></span></span>
 <span class="r-in"><span><span class="va">route_map</span> <span class="op">&lt;-</span> <span class="va">simMST</span><span class="op">$</span><span class="va">route_map</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## -- Find TIF-crossing cut scores -----------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co">## Find TIF-crossing cut scores</span></span></span>
 <span class="r-in"><span><span class="co">## For each adjacent module pair at stages 2 and 3, find_cut() identifies</span></span></span>
 <span class="r-in"><span><span class="co">## the theta at which the harder module's TIF first exceeds the easier</span></span></span>
 <span class="r-in"><span><span class="co">## module's TIF (proper crossing), and returns it as a cut score.</span></span></span>
@@ -297,7 +333,7 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-out co"><span class="r-pr">#&gt;</span> ==================================================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Usage: run_mst(..., route_method = NULL, cut_score = &lt;result&gt;$cut_score)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## -- Visualise TIF curves and cut scores ---------------------------------</span></span></span>
+<span class="r-in"><span><span class="co">## Visualize TIF curves and cut scores</span></span></span>
 <span class="r-in"><span><span class="co">## plot() shows TIF curves for every module faceted by stage.</span></span></span>
 <span class="r-in"><span><span class="co">## Selected cut scores appear as solid black vertical lines with theta</span></span></span>
 <span class="r-in"><span><span class="co">## labels at the crossing point. Anomalous crossings (if any) appear</span></span></span>
@@ -309,7 +345,7 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cut_result</span>, show_anomalous <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># hide anomalous crossing markers</span></span></span>
 <span class="r-plt img"><img src="find_cut-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Inspect the cut_score element -- a list directly compatible with run_mst()</span></span></span>
+<span class="r-in"><span><span class="co">## Inspect the cut_score element, a list that can be passed to run_mst()</span></span></span>
 <span class="r-in"><span><span class="co">## cut_score[[1]]: two cut scores for the stage-1 -&gt; stage-2 transition</span></span></span>
 <span class="r-in"><span><span class="co">## cut_score[[2]]: cut scores for the stage-2 -&gt; stage-3 transition</span></span></span>
 <span class="r-in"><span><span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span></span></span>
@@ -321,7 +357,7 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Compare with the cut scores stored in simMST, which were obtained the</span></span></span>
-<span class="r-in"><span><span class="co">## same way; the two sets of values are identical</span></span></span>
+<span class="r-in"><span><span class="co">## same way; the two sets agree up to numerical precision</span></span></span>
 <span class="r-in"><span><span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stage.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4450901  0.4588774</span>
@@ -329,12 +365,14 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stage.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.4170988  0.4531584</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span>, <span class="va">simMST</span><span class="op">$</span><span class="va">cut_score</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## -- Use the cut scores in run_mst() --------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co">## Use the cut scores in run_mst()</span></span></span>
 <span class="r-in"><span><span class="co">## Pass cut_result$cut_score directly to run_mst() with route_method = NULL.</span></span></span>
 <span class="r-in"><span><span class="co">## This replaces pure MFI routing with TIF-crossing-based fixed cut scores,</span></span></span>
 <span class="r-in"><span><span class="co">## preventing anomalous path reversals at the extremes of the theta scale.</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">theta_true</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mst.html">run_mst</a></span><span class="op">(</span></span></span>
@@ -342,10 +380,12 @@ as required by <code><a href="https://rdrr.io/r/base/cut.html" class="external-l
 <span class="r-in"><span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span></span>
 <span class="r-in"><span>  module       <span class="op">=</span> <span class="va">module</span>,</span></span>
 <span class="r-in"><span>  theta        <span class="op">=</span> <span class="va">theta_true</span>,</span></span>
+<span class="r-in"><span>  D            <span class="op">=</span> <span class="fl">1.702</span>,</span></span>
 <span class="r-in"><span>  route_method <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
-<span class="r-in"><span>  cut_score    <span class="op">=</span> <span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span></span></span>
+<span class="r-in"><span>  cut_score    <span class="op">=</span> <span class="va">cut_result</span><span class="op">$</span><span class="va">cut_score</span>,</span></span>
+<span class="r-in"><span>  verbose      <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

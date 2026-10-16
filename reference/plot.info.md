@@ -31,7 +31,7 @@ plot(
 
 - x:
 
-  x An object of class `info` obtained from
+  An object of class `info` obtained from
   [`info()`](https://hwangQ.github.io/irtQ/reference/info.md).
 
 - item.loc:
@@ -57,11 +57,12 @@ plot(
 - xlab.text, ylab.text:
 
   Character strings specifying the labels for the x and y axes,
-  respectively.
+  respectively. If missing, default labels are used.
 
 - main.text:
 
-  Character string specifying the overall title of the plot.
+  Character string specifying the overall title of the plot. If missing,
+  a default title is used.
 
 - lab.size:
 
@@ -79,7 +80,9 @@ plot(
 
 - line.color:
 
-  A character string specifying the color of the plot lines. See
+  A character string specifying the color of the plot lines. Default is
+  `"#F8766D"`. Not used when curves are overlaid (`overlap = TRUE` with
+  `item.loc` specified), where colors are assigned automatically. See
   <http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/> for available
   color names.
 
@@ -94,8 +97,8 @@ plot(
 
 - strip.size:
 
-  Numeric value specifying the font size of facet labels when multiple
-  items are displayed.
+  Numeric value specifying the font size of the panel (facet) labels.
+  Used only when `overlap = FALSE`. Default is 12.
 
 - ...:
 
@@ -105,8 +108,8 @@ plot(
 
 ## Value
 
-This method function displays the item or test information function
-plot. When `csee = TRUE`, the CSEE is returned at the test level.
+A ggplot2 object of the item or test information functions, or of the
+test-level CSEE when `csee = TRUE`.
 
 ## Details
 
@@ -126,7 +129,7 @@ Hwanggyu Lim <hglim83@gmail.com>
 
 ``` r
 
-if (FALSE) { # \dontrun{
+# \donttest{
 ## Example using a "-prm.txt" file exported from flexMIRT
 
 # Import the "-prm.txt" output file from flexMIRT
@@ -144,17 +147,22 @@ x <- info(x = test_flex, theta = theta, D = 1, tif = TRUE)
 # Plot the test information function
 plot(x)
 
+
 # Plot the item information function for the second item
 plot(x, item.loc = 2)
+
 
 # Plot multiple item information functions, each in a separate panel
 plot(x, item.loc = 1:8, overlap = FALSE)
 
+
 # Plot multiple item information functions in a single panel
 plot(x, item.loc = 1:8, overlap = TRUE)
+
 
 # Plot the conditional standard error of estimation (CSEE) at the test level
 plot(x, csee = TRUE)
 
-} # }
+
+# }
 ```

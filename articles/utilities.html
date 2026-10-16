@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -317,8 +317,8 @@ polytomous items in the same order.</p>
 <span>  g.drm    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  a.prm    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.4</span>, <span class="fl">1.1</span><span class="op">)</span>,              <span class="co"># slopes for the 2 polytomous items</span></span>
 <span>  d.prm    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">1.0</span><span class="op">)</span>,                <span class="co"># 3 threshold params → 4 categories (GRM)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.8</span>,  <span class="fl">0.6</span><span class="op">)</span>                      <span class="co"># 2 threshold params → 3 categories (GPCM)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">1.0</span><span class="op">)</span>,                <span class="co"># 3 threshold params -&gt; 4 categories (GRM)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.8</span>,  <span class="fl">0.6</span><span class="op">)</span>                      <span class="co"># 2 threshold params -&gt; 3 categories (GPCM)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  cats     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,        <span class="co"># item order: DRM, DRM, GRM, DRM, GPCM</span></span>
 <span>  pr.model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GRM"</span>, <span class="st">"GPCM"</span><span class="op">)</span>,         <span class="co"># models for polytomous items only</span></span>
@@ -449,7 +449,7 @@ values and columns = items.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theta_pts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 2PLM (g omitted → defaults to 0): two items</span></span>
+<span><span class="co"># 2PLM (g omitted, so it defaults to 0): two items</span></span>
 <span><span class="va">P_2pl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/drm.html">drm</a></span><span class="op">(</span></span>
 <span>  theta <span class="op">=</span> <span class="va">theta_pts</span>,</span>
 <span>  a     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">1.5</span><span class="op">)</span>,</span>
@@ -532,11 +532,11 @@ values.</li>
 <span><span class="va">P_grm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prm.html">prm</a></span><span class="op">(</span></span>
 <span>  theta    <span class="op">=</span> <span class="va">theta_pts</span>,</span>
 <span>  a        <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  d        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.0</span><span class="op">)</span>,   <span class="co"># 3 thresholds → 4 categories</span></span>
+<span>  d        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.0</span><span class="op">)</span>,   <span class="co"># 3 thresholds -&gt; 4 categories</span></span>
 <span>  D        <span class="op">=</span> <span class="fl">1.702</span>,</span>
 <span>  pr.model <span class="op">=</span> <span class="st">"GRM"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">P_grm</span>, <span class="fl">4</span><span class="op">)</span>          <span class="co"># 5 rows (theta) × 4 columns (score categories)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">P_grm</span>, <span class="fl">4</span><span class="op">)</span>          <span class="co"># 5 rows (theta) x 4 columns (score categories)</span></span>
 <span><span class="co">#&gt;        [,1]   [,2]   [,3]   [,4]</span></span>
 <span><span class="co">#&gt; [1,] 0.7819 0.2081 0.0095 0.0005</span></span>
 <span><span class="co">#&gt; [2,] 0.2181 0.6670 0.1088 0.0060</span></span>
@@ -580,8 +580,8 @@ allows more flexible step structures.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/prm.html">prm</a></span><span class="op">(</span><span class="fl">0</span>, a<span class="op">=</span><span class="fl">1.5</span>, d<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>,<span class="op">-</span><span class="fl">0.2</span>,<span class="fl">1.0</span><span class="op">)</span>, D<span class="op">=</span><span class="fl">1.702</span>, pr.model<span class="op">=</span><span class="st">"GPCM"</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        [,1]   [,2]   [,3]  [,4]</span></span>
 <span><span class="co">#&gt; [1,] 0.0077 0.3549 0.5914 0.046</span></span></code></pre></div>
-<p>For the PCM (a special case of GPCM with equal discrimination across
-items), set <code>a = 1</code>.</p>
+<p>For the PCM (a special case of the GPCM with a slope of 1), set
+<code>a = 1</code> and <code>D = 1</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="key-drm-and-prm-arguments">Key <code>drm()</code> and <code>prm()</code> arguments<a class="anchor" aria-label="anchor" href="#key-drm-and-prm-arguments"></a>
@@ -602,47 +602,47 @@ items), set <code>a = 1</code>.</p>
 <tbody>
 <tr class="odd">
 <td><code>theta</code></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td align="center">x</td>
+<td align="center">x</td>
 <td>Numeric vector of ability values</td>
 </tr>
 <tr class="even">
 <td><code>a</code></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td align="center">x</td>
+<td align="center">x</td>
 <td>Discrimination (slope) parameter(s)</td>
 </tr>
 <tr class="odd">
 <td><code>b</code></td>
-<td align="center">✓</td>
+<td align="center">x</td>
 <td align="center"></td>
 <td>Difficulty parameter(s), dichotomous items only</td>
 </tr>
 <tr class="even">
 <td><code>g</code></td>
-<td align="center">✓</td>
+<td align="center">x</td>
 <td align="center"></td>
 <td>Guessing parameter(s); omit for 1PLM/2PLM (defaults to 0)</td>
 </tr>
 <tr class="odd">
 <td><code>d</code></td>
 <td align="center"></td>
-<td align="center">✓</td>
+<td align="center">x</td>
 <td>Vector of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K-1</annotation></semantics></math>
 threshold parameters, polytomous items only</td>
 </tr>
 <tr class="even">
 <td><code>D</code></td>
-<td align="center">✓</td>
-<td align="center">✓</td>
+<td align="center">x</td>
+<td align="center">x</td>
 <td>Scaling constant (default <code>1</code>; use <code>1.702</code> to
 approximate the normal ogive)</td>
 </tr>
 <tr class="odd">
 <td><code>pr.model</code></td>
 <td align="center"></td>
-<td align="center">✓</td>
+<td align="center">x</td>
 <td>
 <code>"GRM"</code> or <code>"GPCM"</code>
 </td>
@@ -673,7 +673,7 @@ point,</li>
 <li>
 <code>$theta</code>: the theta grid supplied by the user.</li>
 </ul>
-<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method visualises IIFs, TIF, or the
+<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method visualizes IIFs, TIF, or the
 conditional standard error of estimation (CSEE =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msqrt><mtext mathvariant="normal">TIF</mtext></msqrt></mrow><annotation encoding="application/x-tex">1/\sqrt{\text{TIF}}</annotation></semantics></math>).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -707,7 +707,7 @@ conditional standard error of estimation (CSEE =
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">info_val</span>,</span>
-<span>  item.loc  <span class="op">=</span> <span class="cn">NULL</span>,              <span class="co"># NULL → plot the TIF</span></span>
+<span>  item.loc  <span class="op">=</span> <span class="cn">NULL</span>,              <span class="co"># NULL: plot the TIF</span></span>
 <span>  main.text <span class="op">=</span> <span class="st">"Test Information Function (15-item 3PLM)"</span>,</span>
 <span>  xlab      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>  ylab      <span class="op">=</span> <span class="st">"Information"</span></span>
@@ -721,7 +721,7 @@ conditional standard error of estimation (CSEE =
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">info_val</span>,</span>
 <span>  item.loc  <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  csee      <span class="op">=</span> <span class="cn">TRUE</span>,              <span class="co"># plot SE(θ) = 1 / √TIF(θ)</span></span>
+<span>  csee      <span class="op">=</span> <span class="cn">TRUE</span>,              <span class="co"># plot SE(theta) = 1 / sqrt(TIF(theta))</span></span>
 <span>  main.text <span class="op">=</span> <span class="st">"Conditional Standard Error of Estimation"</span>,</span>
 <span>  xlab      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>  ylab      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">SE</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span><span class="op">)</span></span>
@@ -852,7 +852,7 @@ at each theta,</li>
 the probability of a correct response. For polytomous items, the ICC is
 the expected item score
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>k</mi></msub><mi>k</mi><mo>⋅</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>U</mi><mo>=</mo><mi>k</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_k k \cdot P(U = k \mid \theta)</annotation></semantics></math>.</p>
-<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method is used for visualisation. Two key
+<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method is used for visualization. Two key
 arguments control what is drawn:</p>
 <ul>
 <li>
@@ -890,7 +890,7 @@ panel per item, categories overlaid within each panel).</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">trace_bin</span>,</span>
-<span>  item.loc  <span class="op">=</span> <span class="cn">NULL</span>,              <span class="co"># NULL → plot TCC</span></span>
+<span>  item.loc  <span class="op">=</span> <span class="cn">NULL</span>,              <span class="co"># NULL: plot the TCC</span></span>
 <span>  main.text <span class="op">=</span> <span class="st">"Test Characteristic Curve (15-item 3PLM)"</span>,</span>
 <span>  xlab      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>  ylab      <span class="op">=</span> <span class="st">"Expected Total Score"</span></span>
@@ -1029,7 +1029,7 @@ expected-score metric.</p>
 <p>When <code>score.curve = FALSE</code> and
 <code>overlap = TRUE</code>, each item gets its own panel and the
 category curves within that item are overlaid using different
-colours.</p>
+colors.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># One panel per GRM item (6, 7, 8), with all category curves overlaid within each panel</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
@@ -1090,7 +1090,7 @@ level.</li>
 <span>  D     <span class="op">=</span> <span class="fl">1.702</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">lwrc_val</span><span class="op">)</span>           <span class="co"># (J+1) rows × length(theta) columns: 16 × 3</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">lwrc_val</span><span class="op">)</span>           <span class="co"># (J+1) rows x length(theta) columns: 16 x 3</span></span>
 <span><span class="co">#&gt; [1] 16  3</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lwrc_val</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         theta.1 theta.2 theta.3</span></span>
@@ -1169,7 +1169,7 @@ level at which the probabilities were computed.</p>
 <code>gen.weight()</code>: Quadrature Weights<a class="anchor" aria-label="anchor" href="#gen-weight-quadrature-weights"></a>
 </h2>
 <p><code><a href="../reference/gen.weight.html">gen.weight()</a></code> generates a two-column data frame of
-quadrature nodes and normalised weights to be used in numerical
+quadrature nodes and normalized weights to be used in numerical
 integration over the ability scale. It is used internally by
 <code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_mg.html">est_mg()</a></code>, <code><a href="../reference/est_score.html">est_score()</a></code>,
 <code><a href="../reference/sx2_fit.html">sx2_fit()</a></code>, <code><a href="../reference/covirt.html">covirt()</a></code>, <code><a href="../reference/pcd2.html">pcd2()</a></code>, and
@@ -1250,15 +1250,22 @@ and <code>weight</code>, and the weights always sum to 1.</p>
 Item Parameters<a class="anchor" aria-label="anchor" href="#covirt-asymptotic-variance-covariance-matrices-of-item-parameters"></a>
 </h2>
 <p><code><a href="../reference/covirt.html">covirt()</a></code> computes the analytical asymptotic
-variance-covariance matrices of item parameter estimates using the
-formulas developed by <span class="citation">Thissen &amp; Wainer
-(1982)</span> and extended to polytomous IRT models by <span class="citation">Li &amp; Lissitz (2004)</span>. These matrices provide
-the asymptotic standard errors (ASEs) of maximum likelihood estimates
-<strong>without requiring examinee response data</strong>; only the item
-parameters and the sample size used for calibration are needed.</p>
-<p>The ASEs obtained analytically represent <strong>lower
-bounds</strong> of the true standard errors <span class="citation">(Thissen &amp; Wainer, 1982)</span>, so they are best
-used as approximations when empirical standard errors from calibration
+variance-covariance matrices of item parameter estimates from the
+expected information of each item, integrated over an assumed ability
+distribution <span class="citation">(Li &amp; Lissitz, 2004; Thissen
+&amp; Wainer, 1982)</span>. These matrices provide the asymptotic
+standard errors (ASEs) of maximum likelihood estimates <strong>without
+requiring examinee response data</strong>; only the item parameters, the
+ability distribution, and the sample size used for calibration are
+needed. For polytomous items, the information of a multinomial response
+is used, which differs from Equation A8 of <span class="citation">Li
+&amp; Lissitz (2004)</span>; see <code><a href="../reference/covirt.html">?covirt</a></code> for details.</p>
+<p>Because the abilities are treated as known, the model is assumed to
+fit, and item parameter priors are ignored, the analytical ASEs are
+generally considered <strong>lower bounds</strong> of the standard
+errors of an actual calibration <span class="citation">(Li &amp;
+Lissitz, 2004; Thissen &amp; Wainer, 1982)</span>, so they are best used
+as approximations when empirical standard errors from calibration
 software are unavailable.</p>
 <p>The function returns a named list with two components:</p>
 <ul>
@@ -1271,10 +1278,10 @@ diagonal elements of each covariance matrix).</li>
 </ul>
 <p><strong>Notes on PCM items:</strong> The item metadata uses
 <code>"GPCM"</code> to label both the Generalized Partial Credit Model
-(GPCM) and the Partial Credit Model (PCM). PCM items (where
-discrimination is fixed at 1) require special handling for variance
-computation and must be identified via the <code>pcm.loc</code>
-argument.</p>
+(GPCM) and the Partial Credit Model (PCM). PCM items, whose slope is not
+estimated, must be identified via the <code>pcm.loc</code> argument;
+their slope is held at the value in the item metadata, and only the
+thresholds enter the variance-covariance matrix.</p>
 <div class="section level3">
 <h3 id="binary-test-1">Binary test<a class="anchor" aria-label="anchor" href="#binary-test-1"></a>
 </h3>
@@ -1295,7 +1302,7 @@ argument.</p>
 <span><span class="co">#&gt; par.2 0.05851498 0.18920950 0.12973035</span></span>
 <span><span class="co">#&gt; par.3 0.03474867 0.12973035 0.10032713</span></span>
 <span></span>
-<span><span class="co"># ASEs for all items: each vector holds SE(a), SE(b), SE(c)</span></span>
+<span><span class="co"># ASEs for all items: each vector holds SE(a), SE(b), SE(g)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">cov_bin</span><span class="op">$</span><span class="va">se</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         par.1      par.2      par.3</span></span>
 <span><span class="co">#&gt; I1  0.1579210 0.43498218 0.31674458</span></span>
@@ -1347,7 +1354,7 @@ sample sizes:</p>
 <span><span class="co"># ASEs for a GRM item: SE(a), SE(d1), SE(d2), SE(d3)</span></span>
 <span><span class="va">cov_mix</span><span class="op">$</span><span class="va">se</span><span class="op">[[</span><span class="st">"GRM1"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      par.1      par.2      par.3      par.4 </span></span>
-<span><span class="co">#&gt; 0.04307804 0.03560601 0.02206548 0.02737165</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.05324241 0.04567817 0.02793062 0.03580208</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -1475,29 +1482,41 @@ syllable labels.</p>
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/simdat.html">simdat()</a></code></td>
-<td>Item metadata or raw params + θ</td>
+<td>Item metadata or raw params +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+</td>
 <td>Response matrix</td>
 <td>Testing, demos</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/drm.html">drm()</a></code></td>
-<td>a, b, g, θ</td>
-<td>P(correct) matrix (θ × items)</td>
+<td>a, b, g,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+</td>
+<td>P(correct) matrix
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+x items)</td>
 <td>
 <code><a href="../reference/traceline.html">traceline()</a></code>, internal likelihood and estimation
 routines</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/prm.html">prm()</a></code></td>
-<td>a, d, θ, model</td>
-<td>Category prob. matrix (θ × cats)</td>
+<td>a, d,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
+model</td>
+<td>Category prob. matrix
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+x cats)</td>
 <td>
 <code><a href="../reference/simdat.html">simdat()</a></code>, internal likelihood and estimation
 routines</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/info.html">info()</a></code></td>
-<td>Item metadata + θ grid</td>
+<td>Item metadata +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+grid</td>
 <td>IIF matrix, TIF vector; <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 </td>
 <td>
@@ -1507,16 +1526,20 @@ routines</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/traceline.html">traceline()</a></code></td>
-<td>Item metadata + θ grid</td>
+<td>Item metadata +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
+grid</td>
 <td>ICC matrix, TCC vector, category probs; <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 </td>
 <td>
 <code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/plot.irtfit.html">plot.irtfit()</a></code>;
-visualisation</td>
+visualization</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/lwrc.html">lwrc()</a></code></td>
-<td>Item metadata + θ, or prob matrix</td>
+<td>Item metadata +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
+or prob matrix</td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">Pr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>=</mo><mi>s</mi><mo>∣</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Pr(X = s \mid \theta)</annotation></semantics></math></td>
 <td>
 <code><a href="../reference/cac_lee.html">cac_lee()</a></code>, <code><a href="../reference/reval_mst.html">reval_mst()</a></code>,

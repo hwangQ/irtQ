@@ -9,7 +9,7 @@ given a set of theta values using the 1PL, 2PL, or 3PL item response models."><m
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,12 +77,13 @@ given a set of theta values using the 1PL, 2PL, or 3PL item response models.</p>
 
 
 <dt id="arg-g">g<a class="anchor" aria-label="anchor" href="#arg-g"></a></dt>
-<dd><p>A numeric vector of item guessing parameters. Not required for 1PL or 2PL models.</p></dd>
+<dd><p>A numeric vector of item guessing parameters. Not required for 1PL
+or 2PL models. <code>NA</code> values are treated as 0.</p></dd>
 
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 </dl></div>

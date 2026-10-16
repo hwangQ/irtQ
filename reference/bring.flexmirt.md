@@ -1,7 +1,9 @@
 # Import Item and Ability Parameters from IRT Software
 
-These functions import item and/or ability parameters from BILOG-MG 3,
-PARSCALE 4, flexMIRT, and the mirt R package.
+These functions import item and/or ability parameter estimates from the
+output files of BILOG-MG 3, PARSCALE 4, and flexMIRT. `bring.mirt()`
+imports the item parameters, together with the latent mean and variance,
+of a model fitted with the mirt R package.
 
 ## Usage
 
@@ -25,48 +27,76 @@ bring.mirt(x)
 
 - file:
 
-  A file name (including the full path) containing the item or ability
+  The path to the output file that contains the item or ability
   parameter estimates.
 
 - type:
 
-  A character string indicating the type of output file. Available
-  options are `"par"` for item parameter files and `"sco"` for ability
-  parameter files.
+  A character string giving the type of output file: `"par"` for an item
+  parameter file or `"sco"` for an ability (score) file. The case is
+  ignored. Default is `"par"`. Not used by `bring.mirt()`.
 
 - rePar:
 
-  Logical. If `TRUE`, and when a dichotomous IRT model (e.g., 3PLM) or
-  the graded response model (GRM) is fit, the item intercept and the
-  logit of the guessing parameter are reparameterized into the item
-  difficulty and guessing parameters, respectively. Default is `TRUE`.
+  Logical. Used only by `bring.flexmirt()` with `type = "par"`. If
+  `TRUE` (default), the intercepts of dichotomous and graded response
+  model (GRM) items are converted to difficulty (threshold) parameters
+  and the logits of the guessing parameters to guessing parameters, so
+  that `full_df` follows the irtQ item metadata format. This requires a
+  unidimensional model. If `FALSE`, the slope-intercept values in the
+  file are kept, and `full_df` cannot then be used directly by other
+  irtQ functions.
 
 - rePar.gpc:
 
-  Logical. If `TRUE`, and when the generalized partial credit model
-  (GPCM) is fit, the nominal model parameters in the flexMIRT output are
-  reparameterized into GPCM slope and difficulty parameters. Default is
-  `TRUE`.
+  Logical. Used only by `bring.flexmirt()` with `type = "par"`. If
+  `TRUE` (default), the nominal model parameters of generalized partial
+  credit model (GPCM) items are converted to a slope and step
+  parameters. The function stops when the file contains a nominal model
+  item or a multidimensional GPCM item; use `rePar.gpc = FALSE` to read
+  such a file, in which case the scoring function and intercept values
+  are kept and nominal items get the model name `"NOMM"`.
 
 - n.factor:
 
-  A numeric value indicating the number of latent traits (factors)
-  estimated. This argument must be specified when `type = "sco"`.
-  Default is 1.
+  An integer giving the number of latent traits (factors). Used only by
+  `bring.flexmirt()` with `type = "sco"`. Default is 1.
 
 - x:
 
-  An object returned by
-  [`mirt::mirt()`](https://philchalmers.github.io/mirt/reference/mirt.html).
-  The mirt package, listed in Suggests, must be installed to use
-  bring.mirt().
+  A fitted model object returned by
+  [`mirt::mirt()`](https://philchalmers.github.io/mirt/reference/mirt.html)
+  for a single group and a unidimensional model. The mirt package,
+  listed in Suggests, must be installed to use `bring.mirt()`.
 
 ## Value
 
-These functions return a list containing several components. For
-flexMIRT output files, results from multiple-group analyses can be
-handled; in such cases, each list element corresponds to the estimation
-results for a separate group.
+- `bring.flexmirt()`: a named list with one element per group (`Group1`,
+  `Group2`, ...). With `type = "par"`, each element is a list with `id`,
+  `factor` (number of dimensions), `cats`, `model`, `par` (a matrix of
+  item parameters), `full_df` (the item metadata), `mean` and `cov` (the
+  latent mean vector and covariance matrix), and `emphist` (a data frame
+  with `theta` and `weight`, or `NULL` when no empirical histogram was
+  estimated). With `type = "sco"`, each element is a list with `theta`
+  and `se`, plus `iter` (the number of iterations) or `imputation` (the
+  imputation number) when the file contains that column. `se` is `NULL`
+  for multidimensional models and for imputed values.
+
+- `bring.bilog()`: with `type = "par"`, a list with `par` and `full_df`;
+  with `type = "sco"`, a list with one element per group code in the
+  file, each a list with `theta`, `se`, and `full_df` (a data frame with
+  `group`, `id`, `nitem`, `ncorrect`, `p`, `theta`, and `se`).
+
+- `bring.parscale()`: with `type = "par"`, a list with `id`, `factor`,
+  `cats`, `model`, `par_parscale` (the parameters and standard errors as
+  reported by PARSCALE), `par`, and `full_df`; with `type = "sco"`, a
+  data frame with `id`, `theta`, and `se` (a value of 999 becomes `NA`).
+
+- `bring.mirt()`: a list with `id`, `factor`, `cats`, `model` (a list
+  with the mirt item types, `old`, and the irtQ model names, `new`),
+  `emphist` (a matrix of quadrature points and weights), `par_mirt` (the
+  mirt parameters), `par`, `full_df`, and `ability` (the latent mean and
+  variance).
 
 ## Details
 
@@ -76,53 +106,70 @@ The `bring.flexmirt()` function was developed by modifying the
 of the `read.bilog()` and `read.parscale()` functions (Weeks, 2010),
 respectively.
 
-The supported file extensions for item and ability parameter files are:
-".par" and ".sco" for BILOG-MG and PARSCALE, and "-prm.txt" and
-"-sco.txt" for flexMIRT. For mirt, the user provides the object name
-directly.
+The functions read the layout of the file, not its name. The usual files
+are the ".PAR" and ".SCO" files of BILOG-MG and PARSCALE and the
+"-prm.txt" and "-sco.txt" files of flexMIRT; other flexMIRT output files
+(e.g., "-irt.txt") cannot be read. For mirt, the fitted model object is
+passed directly.
 
-Although `bring.flexmirt()` can extract multidimensional item and
-ability parameter estimates, the irtQ package is designed exclusively
-for unidimensional IRT applications.
+`bring.flexmirt()` can also read the files of a multidimensional model:
+item parameter files with `rePar = FALSE` (and `rePar.gpc = FALSE` when
+GPCM items are present), and ability files with `n.factor` set to the
+number of factors. The other functions of irtQ work only with
+unidimensional models.
 
-For polytomous items, both `bring.flexmirt()` and `bring.mirt()` can
-import item parameters for the graded response model (GRM) and the
-generalized partial credit model (GPCM).
+For polytomous items, `bring.flexmirt()`, `bring.parscale()`, and
+`bring.mirt()` import the parameters of the graded response model (GRM)
+and the generalized partial credit model (GPCM); a polytomous mirt item
+of type `"Rasch"` is imported as a GPCM item with a slope of 1.
+`bring.bilog()` reads dichotomous items only. `bring.parscale()` does
+not support the model codes 2, 4, 6, and 8 of PARSCALE for polytomous
+items and stops with an error when the file has them.
+
+`bring.mirt()` accepts the item types `"Rasch"`, `"2PL"`, and `"3PL"`
+for dichotomous items and `"Rasch"`, `"graded"`, `"gpcm"`, and
+`"gpcmIRT"` for polytomous items. A two-category item of a mixed-format
+test may also be fitted with `"graded"`, `"gpcm"`, or `"gpcmIRT"`. A
+model fitted to multiple groups is not supported, and the function stops
+with an error; extract one group first with
+[`mirt::extract.group()`](https://philchalmers.github.io/mirt/reference/extract.group.html).
+
+In `full_df`, `bring.flexmirt()` labels dichotomous items `"3PLM"` or
+`"2PLM"`, while `bring.bilog()`, `bring.parscale()`, and `bring.mirt()`
+label them `"DRM"`, with a guessing parameter of 0 for items without
+guessing. For `bring.mirt()`, this includes two-category items fitted
+with the `"graded"`, `"gpcm"`, or `"gpcmIRT"` model. Change the model
+column if another model is wanted in
+[`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), which
+fits `"DRM"` items as 3PLM items. The parameters are kept on the scale
+of the program, and the files do not record the scaling constant; pass
+the value of `D` used in the calibration (e.g., 1 for flexMIRT and mirt)
+to the other irtQ functions.
 
 ## Note
 
-For item parameter files from any IRT software, only the internal object
-`"full_df"` in the returned list is required for various functions in
-the irtQ package. This object is a data frame containing item metadata
-(e.g., item parameters, number of categories, IRT model types). See
+For an item parameter file, the element `full_df` of the result is the
+item metadata (item IDs, numbers of score categories, model names, and
+item parameters) used by the other functions of irtQ. See
 [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) or
-[`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) for more
-details on item metadata.
+[`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md) for the
+metadata format.
 
-In addition, when item parameters are estimated using the partial credit
-model (PCM) or the generalized partial credit model (GPCM), item step
-parameters are included in the `"full_df"` object. These step parameters
-are calculated by subtracting the category threshold parameters from the
-overall item difficulty (or location) parameter. See the **IRT Models**
-section in
+For GPCM items, `full_df` contains the step parameters \\b_v = \beta -
+\tau_v\\, computed from the overall location \\\beta\\ and the category
+parameters \\\tau_v\\ reported by the program (PARSCALE) or from the
+nominal model intercepts (flexMIRT). See the **IRT Models** section in
 [irtQ-package](https://hwangQ.github.io/irtQ/reference/irtQ-package.md)
-for further details on the parameterization of the GPCM.
+for the parameterization of the GPCM.
 
-## Sample Output Files of IRT software
+## Sample Output Files
 
-To illustrate how to import item parameter estimate files from PARSCALE
-4 and flexMIRT using `bring.parscale()` and `bring.flexmirt()`, two
-example output files are included in this package.
-
-One file is from PARSCALE 4 with a ".PAR" extension (i.e.,
-"parscale_sample.PAR"), and the other is from flexMIRT with a "-prm.txt"
-extension (i.e., "flexmirt_sample-prm.txt").
-
-Both files contain item parameter estimates from a mixed-format test
-with 55 items: fifty dichotomous items following the 3PL model and five
-polytomous items with five response categories modeled using the graded
-response model (GRM). The examples below demonstrate how to import these
-output files.
+Two sample item parameter files are included in the package: the
+PARSCALE 4 file "parscale_sample.PAR" and the flexMIRT file
+"flexmirt_sample-prm.txt". Both contain the estimates for the same
+mixed-format test of 55 items: 50 dichotomous items fit with the 3PL
+model and five items with five score categories fit with the GRM (items
+39, 40, and 53 to 55). The examples below import these files.
 
 ## References
 
@@ -132,7 +179,7 @@ Psychometric Group.
 
 Chalmers, R. P. (2012). mirt: A multidimensional item response theory
 package for the R environment. *Journal of Statistical Software, 48*(6),
-1-29.
+1-29. [doi:10.18637/jss.v048.i06](https://doi.org/10.18637/jss.v048.i06)
 
 Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
 scoring for rating scale data (Computer software). Chicago, IL:
@@ -170,7 +217,8 @@ Hwanggyu Lim <hglim83@gmail.com>
 ``` r
 ## Example 1
 # Import the "-prm.txt" output file from flexMIRT
-flex_sam <- system.file("extdata", "flexmirt_sample-prm.txt", package = "irtQ")
+flex_sam <- system.file("extdata", "flexmirt_sample-prm.txt",
+                        package = "irtQ")
 
 # Read item parameters and convert them to item metadata
 bring.flexmirt(file = flex_sam, "par")$Group1$full_df
@@ -298,7 +346,8 @@ bring.parscale(file = pscale_sam, "par")$full_df
 # Import the item parameters of a model fitted with the mirt package
 # \donttest{
 if (requireNamespace("mirt", quietly = TRUE)) {
-  fit <- mirt::mirt(as.data.frame(LSAT6), 1, itemtype = "2PL", verbose = FALSE)
+  fit <- mirt::mirt(as.data.frame(LSAT6), 1, itemtype = "2PL",
+                    verbose = FALSE)
   bring.mirt(fit)$full_df
 }
 #>            id cats model     par.1      par.2 par.3

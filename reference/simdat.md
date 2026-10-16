@@ -1,4 +1,4 @@
-# Simulated Response Data
+# Simulate Response Data
 
 This function generates simulated response data for single-format or
 mixed-format test forms. For dichotomous item response data, the IRT
@@ -27,12 +27,10 @@ simdat(
 
 - x:
 
-  A data frame containing item metadata. This metadata is required to
-  retrieve essential information for each item (e.g., number of score
-  categories, IRT model type, etc.) necessary for calibration. You can
-  create an empty item metadata frame using the function
+  A data frame containing item metadata (e.g., number of score
+  categories, IRT model, and item parameters). It can be created with
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md).
-  See **below** for more details. Default is `NULL`.
+  See **Details**. Default is `NULL`.
 
 - theta:
 
@@ -50,7 +48,8 @@ simdat(
 
 - g.drm:
 
-  A numeric vector of guessing parameters for dichotomous IRT models.
+  A numeric vector of guessing parameters for dichotomous IRT models. A
+  single value is used for all dichotomous items.
 
 - a.prm:
 
@@ -69,21 +68,24 @@ simdat(
 
 - pr.model:
 
-  A character vector specifying the polytomous IRT model used to
-  simulate responses for each polytomous item. Each element should be
-  either "GRM" (graded response model) or "GPCM" (generalized partial
-  credit model).
+  A character vector specifying the IRT model of each polytomous item,
+  in the order the polytomous items appear in `cats`. Each element is
+  either `"GRM"` (graded response model) or `"GPCM"` (generalized
+  partial credit model). A single value is used for all polytomous
+  items.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 ## Value
 
-A matrix or vector of simulated item responses. If a matrix is returned,
-rows correspond to examinees (theta values) and columns to items.
+A numeric matrix of simulated item responses with one row per examinee
+(theta value) and one column per item, in the item order of `x` or
+`cats`. Responses range from 0 to K - 1 for an item with K score
+categories. The matrix has no row or column names.
 
 ## Details
 
@@ -107,8 +109,8 @@ The subsequent columns should contain the item parameters for the
 specified models. For dichotomous items, the fourth, fifth, and sixth
 columns represent item discrimination (slope), item difficulty, and item
 guessing parameters, respectively. When `"1PLM"` or `"2PLM"` is
-specified in the third column, `NA`s must be entered in the sixth column
-for the guessing parameters.
+specified in the third column, the sixth column is ignored and can be
+`NA`.
 
 For polytomous items, the item discrimination (slope) parameter should
 appear in the fourth column, and the item difficulty (or threshold)
@@ -116,21 +118,22 @@ parameters for category boundaries should occupy the fifth through the
 last columns. When the number of unique score categories differs across
 items, unused parameter cells should be filled with `NA`s.
 
-In the irtQ package, the threshold parameters for GPCM items are
-expressed as the item location (or overall difficulty) minus the
-threshold values for each score category. Note that when a GPCM item has
-*K* unique score categories, *K - 1* threshold parameters are required,
-since the threshold for the first category boundary is always fixed at
-0. For example, if a GPCM item has five score categories, four threshold
-parameters must be provided.
+In the irtQ package, the threshold parameters of a GPCM item are \\b_v =
+\beta - \tau_v\\, the overall item location minus the threshold of each
+score category. A GPCM item with *K* unique score categories requires
+*K - 1* threshold parameters, because the term for the lowest score
+category is fixed at 0 and is not supplied. For example, a GPCM item
+with five score categories requires four threshold parameters.
 
 An example of a data frame for a single-format test is shown below:
 
-|       |       |        |       |       |       |        |       |
-|-------|-------|--------|-------|-------|-------|--------|-------|
-| ITEM1 | 2     | 1PLM   | 1.000 | 1.461 | NA    | ITEM2  | 2     |
-| 2PLM  | 1.921 | -1.049 | NA    | ITEM3 | 2     | 3PLM   | 1.736 |
-| 1.501 | 0.203 | ITEM4  | 2     | 3PLM  | 0.835 | -1.049 | 0.182 |
+|       |     |      |       |        |       |
+|-------|-----|------|-------|--------|-------|
+| ITEM1 | 2   | 1PLM | 1.000 | 1.461  | NA    |
+| ITEM2 | 2   | 2PLM | 1.921 | -1.049 | NA    |
+| ITEM3 | 2   | 3PLM | 1.736 | 1.501  | 0.203 |
+| ITEM4 | 2   | 3PLM | 0.835 | -1.049 | 0.182 |
+| ITEM5 | 2   | DRM  | 0.926 | 0.394  | 0.099 |
 
 An example of a data frame for a mixed-format test is shown below:
 
@@ -152,19 +155,20 @@ package. A convenient way to create a data frame for the argument `x` is
 by using the function
 [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md).
 
-The second approach is to simulate response data by directly specifying
-item parameters, instead of providing a metadata data frame via the `x`
-argument (see examples below). In this case, the following arguments
-must also be specified: `theta`, `cats`, `pr.model`, and `D`.
+The second approach is to specify the item parameters directly instead
+of `x` (see Examples). In this case, `theta` and `cats` are required,
+along with `a.drm` and `b.drm` for dichotomous items and `a.prm`,
+`d.prm`, and `pr.model` for polytomous items.
 
 The `g.drm` argument is only required when simulating dichotomous item
 responses under the 3PL model. It can be omitted entirely if all
 dichotomous items follow the 1PL or 2PL model. However, if the test
 includes a mixture of 1PL, 2PL, and 3PL items, the `g.drm` vector must
-be specified for all items, using `NA` for non-3PL items. For example,
-if a test consists of four dichotomous items where the first two follow
-the 3PL model and the third and fourth follow the 1PL and 2PL models
-respectively, then `g.drm = c(0.2, 0.1, NA, NA)` should be used.
+be specified for all dichotomous items, using `NA` for non-3PL items.
+For example, if a test consists of four dichotomous items where the
+first two follow the 3PL model and the third and fourth follow the 1PL
+and 2PL models respectively, then `g.drm = c(0.2, 0.1, NA, NA)` should
+be used.
 
 For dichotomous items, each element in `cats` should be set to 2. For
 polytomous items, the number of unique score categories should be
@@ -217,36 +221,36 @@ pr.model <- c("GPCM", "GPCM", "GRM")
 
 # Simulate the response data
 simdat(
-  theta = theta, a.drm = a.drm, b.drm = b.drm, g.drm = NULL,
+  theta = theta, a.drm = a.drm, b.drm = b.drm, g.drm = g.drm,
   a.prm = a.prm, d.prm = d.prm, cats = cats, pr.model = pr.model, D = 1
 )
 #>        [,1] [,2] [,3] [,4] [,5] [,6]
-#>   [1,]    1    0    2    1    1    0
+#>   [1,]    1    0    2    1    1    1
 #>   [2,]    1    0    2    2    4    0
 #>   [3,]    1    0    1    0    1    0
 #>   [4,]    0    1    2    1    1    0
 #>   [5,]    1    1    3    2    1    0
 #>   [6,]    1    1    3    1    2    0
-#>   [7,]    0    0    1    0    1    0
+#>   [7,]    0    0    1    0    1    1
 #>   [8,]    0    1    2    1    2    1
 #>   [9,]    1    1    3    2    4    1
-#>  [10,]    0    0    1    0    1    0
+#>  [10,]    1    0    1    0    1    0
 #>  [11,]    0    0    1    2    3    0
 #>  [12,]    0    0    1    0    1    1
 #>  [13,]    1    1    2    2    2    0
-#>  [14,]    0    0    0    0    0    0
-#>  [15,]    0    0    2    0    1    0
+#>  [14,]    0    1    0    0    0    1
+#>  [15,]    0    1    2    0    1    0
 #>  [16,]    1    1    3    1    3    0
-#>  [17,]    1    0    1    2    1    1
+#>  [17,]    1    1    1    2    1    1
 #>  [18,]    1    0    2    0    0    0
 #>  [19,]    0    0    2    0    0    0
 #>  [20,]    1    1    1    2    1    0
-#>  [21,]    1    0    3    0    1    0
-#>  [22,]    1    1    3    2    3    0
+#>  [21,]    1    0    3    0    1    1
+#>  [22,]    1    1    3    2    3    1
 #>  [23,]    1    1    1    2    2    0
 #>  [24,]    0    0    0    0    0    0
 #>  [25,]    1    1    0    1    1    1
-#>  [26,]    0    0    3    1    2    0
+#>  [26,]    0    0    3    1    2    1
 #>  [27,]    1    1    3    0    4    0
 #>  [28,]    0    1    1    1    1    0
 #>  [29,]    1    0    2    0    1    0
@@ -254,59 +258,59 @@ simdat(
 #>  [31,]    0    1    2    1    2    0
 #>  [32,]    1    1    1    0    1    0
 #>  [33,]    1    0    3    1    2    0
-#>  [34,]    1    0    3    1    1    0
+#>  [34,]    1    1    3    1    1    0
 #>  [35,]    0    1    2    1    1    0
 #>  [36,]    1    1    1    0    2    0
 #>  [37,]    1    1    3    2    3    1
 #>  [38,]    1    0    1    1    1    0
-#>  [39,]    0    0    1    1    0    0
+#>  [39,]    1    0    1    1    0    0
 #>  [40,]    0    1    2    3    2    1
 #>  [41,]    1    1    3    0    2    1
-#>  [42,]    0    0    1    0    1    0
+#>  [42,]    0    1    1    0    1    0
 #>  [43,]    1    1    1    1    2    1
 #>  [44,]    1    1    3    2    2    0
-#>  [45,]    1    1    3    3    2    0
+#>  [45,]    1    1    3    3    2    1
 #>  [46,]    1    1    1    1    0    0
 #>  [47,]    1    0    1    1    1    0
-#>  [48,]    1    1    3    3    4    0
-#>  [49,]    1    0    0    0    1    0
+#>  [48,]    1    1    3    3    4    1
+#>  [49,]    1    0    0    0    1    1
 #>  [50,]    1    0    3    1    2    0
 #>  [51,]    1    1    1    1    2    1
 #>  [52,]    1    1    1    0    0    1
-#>  [53,]    1    0    3    2    3    1
-#>  [54,]    1    1    3    1    1    0
+#>  [53,]    1    1    3    2    3    1
+#>  [54,]    1    1    3    1    1    1
 #>  [55,]    1    0    1    1    2    0
 #>  [56,]    1    0    0    1    1    0
-#>  [57,]    1    1    3    1    1    0
+#>  [57,]    1    1    3    1    1    1
 #>  [58,]    0    1    1    1    1    0
 #>  [59,]    0    1    0    0    1    0
 #>  [60,]    1    1    1    2    1    0
-#>  [61,]    1    1    2    1    1    0
+#>  [61,]    1    1    2    1    1    1
 #>  [62,]    1    0    3    1    3    1
 #>  [63,]    1    1    1    2    3    1
 #>  [64,]    0    0    2    0    1    0
 #>  [65,]    1    1    1    2    2    1
-#>  [66,]    1    1    3    2    3    0
-#>  [67,]    0    0    0    0    1    0
+#>  [66,]    1    1    3    2    3    1
+#>  [67,]    1    0    0    0    1    0
 #>  [68,]    1    1    1    1    1    1
-#>  [69,]    1    1    2    1    1    0
+#>  [69,]    1    1    2    1    1    1
 #>  [70,]    1    0    2    1    2    0
 #>  [71,]    0    0    0    0    1    0
 #>  [72,]    1    0    1    1    1    1
-#>  [73,]    0    1    1    1    1    0
-#>  [74,]    1    1    3    2    4    0
-#>  [75,]    1    1    3    1    1    0
-#>  [76,]    1    1    3    1    2    0
+#>  [73,]    1    1    1    1    1    1
+#>  [74,]    1    1    3    2    4    1
+#>  [75,]    1    1    3    1    1    1
+#>  [76,]    1    1    3    1    2    1
 #>  [77,]    1    1    3    2    3    1
 #>  [78,]    1    1    3    1    3    0
 #>  [79,]    0    0    3    2    1    0
-#>  [80,]    0    1    1    2    0    0
+#>  [80,]    1    1    1    2    0    0
 #>  [81,]    1    1    3    1    2    1
 #>  [82,]    0    0    3    0    3    0
 #>  [83,]    1    1    3    1    1    0
 #>  [84,]    1    0    1    1    1    0
 #>  [85,]    1    1    2    0    1    0
-#>  [86,]    0    0    0    0    1    0
+#>  [86,]    0    0    0    0    1    1
 #>  [87,]    0    0    2    0    1    0
 #>  [88,]    1    0    0    1    1    0
 #>  [89,]    1    1    3    3    4    1

@@ -1,9 +1,9 @@
 # Lord-Wingersky Recursion Formula
 
-This function computes the conditional distributions of number-correct
-(or observed) scores given either the probabilities of category
-responses for each item or a set of theta values, using the Lord and
-Wingersky recursion formula (1984).
+This function computes the conditional distributions of summed
+(observed) scores with the Lord and Wingersky (1984) recursion formula,
+given either the category response probabilities of each item or item
+metadata and a set of theta values.
 
 ## Usage
 
@@ -22,8 +22,8 @@ lwrc(x = NULL, theta, prob = NULL, cats, D = 1)
   more details about the item metadata. This data frame can be easily
   created using the
   [`shape_df()`](https://hwangQ.github.io/irtQ/reference/shape_df.md)
-  function. If `prob` is `NULL`, the item metadata in `x` is used in the
-  recursion formula. See **Details** below.
+  function. If `x` is supplied, `prob` and `cats` are ignored. Default
+  is `NULL`.
 
 - theta:
 
@@ -36,8 +36,8 @@ lwrc(x = NULL, theta, prob = NULL, cats, D = 1)
   A matrix containing the category response probabilities for each item.
   Each row corresponds to an item, and each column represents a score
   category. If items have different numbers of categories, empty cells
-  should be filled with zeros or `NA` values. If `x` is `NULL`, this
-  matrix is used in the recursion formula.
+  should be filled with zeros or `NA` values. Used only when `x` is
+  `NULL`. Default is `NULL`.
 
 - cats:
 
@@ -49,24 +49,24 @@ lwrc(x = NULL, theta, prob = NULL, cats, D = 1)
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 ## Value
 
-When the `prob` argument is provided, the function returns a vector of
-probabilities for all possible observed scores on a test.
+When `prob` is used, a named numeric vector (`score.0`, `score.1`, ...)
+of the probabilities of all possible summed scores.
 
-When the `x` argument is specified, it returns a matrix of conditional
-probabilities for each observed score across all specified theta values.
+When `x` is used, a matrix of conditional probabilities with one row per
+summed score (`score.0`, `score.1`, ...) and one column per theta value
+(`theta.1`, `theta.2`, ...).
 
 ## Details
 
-The Lord and Wingersky recursive algorithm provides an efficient method
-for calculating the compound probabilities of all possible
-number-correct (i.e., observed) scores on a test, based on IRT models.
-This algorithm is particularly useful for obtaining the IRT model-based
-distribution of observed scores.
+The Lord and Wingersky recursion efficiently computes the probabilities
+of all possible summed scores on a test under IRT models, which gives
+the model-based distribution of observed scores. It applies to both
+dichotomous and polytomous items.
 
 The conditional distributions of observed scores can be computed using
 either the item metadata specified in `x` or the category probability
@@ -77,9 +77,11 @@ matrix specified in `prob`.
 Kolen, M. J., & Brennan, R. L. (2004). *Test equating, scaling, and
 linking* (2nd ed.). Springer.
 
-Lord, F., & Wingersky, M. (1984). Comparison of IRT true score and
-equipercentile observed score equatings. *Applied Psychological
+Lord, F. M., & Wingersky, M. S. (1984). Comparison of IRT true-score and
+equipercentile observed-score "equatings." *Applied Psychological
 Measurement, 8*(4), 453-461.
+[doi:10.1177/014662168400800409](https://doi.org/10.1177/014662168400800409)
+.
 
 ## Author
 
@@ -136,7 +138,7 @@ x <- bring.flexmirt(file = flex_prm, "par")$Group1$full_df
 # Compute the conditional distribution of observed scores for a range of theta values
 lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #>               theta.1      theta.2      theta.3      theta.4      theta.5
-#> score.0  2.704369e-05 2.137940e-05 1.596819e-05 1.110776e-05 7.068521e-06
+#> score.0  2.704370e-05 2.137940e-05 1.596819e-05 1.110776e-05 7.068521e-06
 #> score.1  3.188232e-04 2.577769e-04 1.978774e-04 1.423061e-04 9.428617e-05
 #> score.2  1.836349e-03 1.518756e-03 1.198429e-03 8.912054e-04 6.148972e-04
 #> score.3  6.888491e-03 5.828909e-03 4.729158e-03 3.637403e-03 2.614076e-03
@@ -164,7 +166,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.25 3.823835e-06 6.682363e-06 1.233127e-05 2.408426e-05 4.982906e-05
 #> score.26 1.233801e-06 2.250965e-06 4.348914e-06 8.921486e-06 1.945724e-05
 #> score.27 3.821849e-07 7.281625e-07 1.473283e-06 3.175049e-06 7.299971e-06
-#> score.28 1.137478e-07 2.263924e-07 4.798176e-07 1.086493e-06 2.633641e-06
+#> score.28 1.137477e-07 2.263924e-07 4.798176e-07 1.086493e-06 2.633641e-06
 #> score.29 3.254982e-08 6.769680e-08 1.503330e-07 3.577430e-07 9.143016e-07
 #> score.30 8.960809e-09 1.948104e-08 4.534069e-08 1.134089e-07 3.056148e-07
 #> score.31 2.374509e-09 5.398000e-09 1.317080e-08 3.463195e-08 9.840504e-08
@@ -183,7 +185,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.44 2.525221e-18 1.032615e-17 4.630404e-17 2.291038e-16 1.258807e-15
 #> score.45 3.915940e-19 1.670605e-18 7.818985e-18 4.041169e-17 2.322680e-16
 #> score.46 5.807630e-20 2.581732e-19 1.259394e-18 6.788809e-18 4.075440e-17
-#> score.47 8.220369e-21 3.801990e-20 1.929690e-19 1.083017e-18 6.779571e-18
+#> score.47 8.220368e-21 3.801990e-20 1.929690e-19 1.083017e-18 6.779571e-18
 #> score.48 1.107675e-21 5.320069e-21 2.803872e-20 1.635283e-19 1.065629e-18
 #> score.49 1.416497e-22 7.049259e-22 3.849506e-21 2.328456e-20 1.576857e-19
 #> score.50 1.712745e-23 8.810176e-23 4.973822e-22 3.114117e-21 2.188132e-20
@@ -191,13 +193,13 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.52 2.079982e-25 1.134569e-24 6.801821e-24 4.538692e-23 3.418858e-22
 #> score.53 2.068725e-26 1.157991e-25 7.133670e-25 4.903179e-24 3.817612e-23
 #> score.54 1.908220e-27 1.093973e-26 6.914459e-26 4.889566e-25 3.931574e-24
-#> score.55 1.623583e-28 9.517234e-28 6.163910e-27 4.480247e-26 3.717704e-25
-#> score.56 1.267094e-29 7.584417e-29 5.028328e-28 3.753846e-27 3.212817e-26
+#> score.55 1.623583e-28 9.517233e-28 6.163910e-27 4.480247e-26 3.717704e-25
+#> score.56 1.267094e-29 7.584416e-29 5.028328e-28 3.753846e-27 3.212817e-26
 #> score.57 9.017778e-31 5.505983e-30 3.733806e-29 2.861271e-28 2.524754e-27
 #> score.58 5.816496e-32 3.619685e-31 2.509248e-30 1.972931e-29 1.794231e-28
 #> score.59 3.377327e-33 2.140899e-32 1.516458e-31 1.222960e-30 1.145968e-29
 #> score.60 1.752135e-34 1.130870e-33 8.182064e-33 6.766220e-32 6.531458e-31
-#> score.61 8.051648e-36 5.289479e-35 3.908138e-34 3.313341e-33 3.294274e-32
+#> score.61 8.051648e-36 5.289479e-35 3.908137e-34 3.313341e-33 3.294274e-32
 #> score.62 3.243933e-37 2.168607e-36 1.635918e-35 1.421672e-34 1.455652e-33
 #> score.63 1.131611e-38 7.696815e-38 5.927198e-37 5.279196e-36 5.565839e-35
 #> score.64 3.364515e-40 2.327999e-39 1.829883e-38 1.670191e-37 1.812904e-36
@@ -227,11 +229,11 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.16 4.015657e-02 5.272204e-02 6.828757e-02 8.533521e-02 9.982843e-02
 #> score.17 2.566613e-02 3.590587e-02 4.991554e-02 6.749248e-02 8.619809e-02
 #> score.18 1.545647e-02 2.303570e-02 3.435297e-02 5.021550e-02 6.993027e-02
-#> score.19 8.804914e-03 1.397627e-02 2.234624e-02 3.528172e-02 5.351008e-02
+#> score.19 8.804913e-03 1.397627e-02 2.234624e-02 3.528172e-02 5.351008e-02
 #> score.20 4.760329e-03 8.045549e-03 1.378404e-02 2.348657e-02 3.874824e-02
 #> score.21 2.449311e-03 4.406478e-03 8.085088e-03 1.485480e-02 2.662902e-02
 #> score.22 1.202142e-03 2.301512e-03 4.520171e-03 8.948182e-03 1.741056e-02
-#> score.23 5.639334e-04 1.148634e-03 2.413569e-03 5.144170e-03 1.085281e-02
+#> score.23 5.639334e-04 1.148634e-03 2.413569e-03 5.144169e-03 1.085281e-02
 #> score.24 2.532695e-04 5.486875e-04 1.232931e-03 2.827266e-03 6.461421e-03
 #> score.25 1.090503e-04 2.512202e-04 6.034131e-04 1.487749e-03 3.679911e-03
 #> score.26 4.506770e-05 1.103773e-04 2.832740e-04 7.504810e-04 2.007384e-03
@@ -242,7 +244,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.31 3.023572e-07 1.002218e-06 3.560607e-06 1.339804e-05 5.241178e-05
 #> score.32 9.922991e-08 3.491430e-07 1.322087e-06 5.327578e-06 2.244157e-05
 #> score.33 3.138083e-08 1.171621e-07 4.726431e-07 2.038503e-06 9.240458e-06
-#> score.34 9.563066e-09 3.787102e-08 1.626773e-07 7.505263e-07 3.658772e-06
+#> score.34 9.563065e-09 3.787102e-08 1.626773e-07 7.505263e-07 3.658772e-06
 #> score.35 2.807967e-09 1.178950e-08 5.389649e-08 2.658326e-07 1.392833e-06
 #> score.36 7.942143e-10 3.533613e-09 1.718248e-08 9.054938e-08 5.096076e-07
 #> score.37 2.162992e-10 1.019233e-09 5.268457e-09 2.964638e-08 1.791121e-07
@@ -259,17 +261,17 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.48 7.838549e-18 6.571960e-17 6.328102e-16 7.021671e-15 8.949474e-14
 #> score.49 1.209267e-18 1.061656e-17 1.076380e-16 1.265916e-15 1.723145e-14
 #> score.50 1.747266e-19 1.604799e-18 1.712113e-17 2.133474e-16 3.101085e-15
-#> score.51 2.355372e-20 2.261382e-19 2.537387e-18 3.349130e-17 5.198000e-16
+#> score.51 2.355372e-20 2.261381e-19 2.537387e-18 3.349130e-17 5.198000e-16
 #> score.52 2.950550e-21 2.959236e-20 3.490649e-19 4.879145e-18 8.085528e-17
 #> score.53 3.420860e-22 3.582094e-21 4.440447e-20 6.571741e-19 1.162778e-17
-#> score.54 3.655572e-23 3.994771e-22 5.202656e-21 8.151467e-20 1.539925e-18
+#> score.54 3.655572e-23 3.994771e-22 5.202656e-21 8.151466e-20 1.539925e-18
 #> score.55 3.585004e-24 4.087050e-23 5.591022e-22 9.272797e-21 1.870325e-19
-#> score.56 3.211842e-25 3.818899e-24 5.486433e-23 9.631127e-22 2.074047e-20
+#> score.56 3.211842e-25 3.818899e-24 5.486432e-23 9.631127e-22 2.074047e-20
 #> score.57 2.615801e-26 3.243068e-25 4.892300e-24 9.089270e-23 2.089743e-21
 #> score.58 1.926079e-27 2.489503e-26 3.942908e-25 7.752155e-24 1.902780e-22
 #> score.59 1.274356e-28 1.716910e-27 2.854591e-26 5.938786e-25 1.556103e-23
-#> score.60 7.522757e-30 1.056304e-28 1.843415e-27 4.057684e-26 1.134899e-24
-#> score.61 3.929247e-31 5.749313e-30 1.053005e-28 2.452081e-27 7.319928e-26
+#> score.60 7.522757e-30 1.056304e-28 1.843414e-27 4.057684e-26 1.134899e-24
+#> score.61 3.929247e-31 5.749313e-30 1.053005e-28 2.452081e-27 7.319927e-26
 #> score.62 1.797745e-32 2.740740e-31 5.267470e-30 1.297466e-28 4.133398e-27
 #> score.63 7.116398e-34 1.130235e-32 2.279059e-31 5.937071e-30 2.018185e-28
 #> score.64 2.399383e-35 3.969242e-34 8.396017e-33 2.312800e-31 8.387527e-30
@@ -277,7 +279,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.66 1.540848e-38 2.763960e-37 6.429874e-36 1.979277e-34 8.165387e-33
 #> score.67 2.739663e-40 5.115845e-39 1.247661e-37 4.058593e-36 1.785251e-34
 #> score.68 3.557522e-42 6.913762e-41 1.767233e-39 6.073502e-38 2.847868e-36
-#> score.69 2.999051e-44 6.064363e-43 1.624224e-41 5.895782e-40 2.946302e-38
+#> score.69 2.999051e-44 6.064362e-43 1.624224e-41 5.895782e-40 2.946302e-38
 #> score.70 1.231066e-46 2.589365e-45 7.264500e-44 2.784371e-42 1.482561e-40
 #>              theta.11     theta.12     theta.13     theta.14     theta.15
 #> score.0  1.402403e-08 1.860825e-09 1.613483e-10 8.613263e-12 2.673977e-13
@@ -330,7 +332,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.47 5.853977e-12 8.632944e-11 1.347056e-09 2.115361e-08 3.146553e-07
 #> score.48 1.294117e-12 2.073009e-11 3.544940e-10 6.154473e-09 1.020536e-07
 #> score.49 2.683422e-13 4.670624e-12 8.757939e-11 1.682289e-09 3.112748e-08
-#> score.50 5.201413e-14 9.840382e-13 2.024429e-11 4.305859e-10 8.899097e-09
+#> score.50 5.201413e-14 9.840381e-13 2.024429e-11 4.305859e-10 8.899097e-09
 #> score.51 9.391648e-15 1.931894e-13 4.362902e-12 1.028315e-10 2.376241e-09
 #> score.52 1.573880e-15 3.521293e-14 8.734093e-13 2.282843e-11 5.903848e-10
 #> score.53 2.438789e-16 5.936334e-15 1.617918e-13 4.692528e-12 1.359389e-10
@@ -340,7 +342,7 @@ lwrc(x = x, theta = seq(-4, 4, 0.2), D = 1)
 #> score.57 5.913048e-20 2.020583e-18 8.054303e-17 3.559065e-15 1.634151e-13
 #> score.58 5.803017e-21 2.159072e-19 9.469152e-18 4.652293e-16 2.399452e-14
 #> score.59 5.114929e-22 2.072104e-20 9.999644e-19 5.463314e-17 3.165893e-15
-#> score.60 4.020424e-23 1.773363e-21 9.417098e-20 5.721981e-18 3.726080e-16
+#> score.60 4.020424e-23 1.773363e-21 9.417098e-20 5.721980e-18 3.726080e-16
 #> score.61 2.794484e-24 1.342036e-22 7.842073e-21 5.299547e-19 3.878390e-17
 #> score.62 1.700353e-25 8.890167e-24 5.716267e-22 4.296385e-20 3.533782e-18
 #> score.63 8.944953e-27 5.091200e-25 3.601949e-23 3.010944e-21 2.783305e-19

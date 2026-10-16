@@ -17,7 +17,7 @@ category 1."><meta property="og:image" content="https://hwangQ.github.io/irtQ/lo
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,12 +98,12 @@ category 1.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>x An object of class <code>irtfit</code> obtained from <code><a href="irtfit.html">irtfit()</a></code>.</p></dd>
+<dd><p>An object of class <code>irtfit</code> obtained from <code><a href="irtfit.html">irtfit()</a></code>.</p></dd>
 
 
 <dt id="arg-item-loc">item.loc<a class="anchor" aria-label="anchor" href="#arg-item-loc"></a></dt>
-<dd><p>An integer specifying the position of the item to be plotted
-(i.e., the <em>n</em>th item in the item set). See <strong>Details</strong> below.</p></dd>
+<dd><p>An integer giving the position of the item to plot in the
+<code>item_df</code> element of <code>x</code>. See <strong>Details</strong> below.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -124,14 +124,14 @@ confidence intervals for the raw residual plot. Available options are:</p><ul><l
 
 <dt id="arg-show-table">show.table<a class="anchor" aria-label="anchor" href="#arg-show-table"></a></dt>
 <dd><p>A logical value indicating whether to return the
-contingency table used for drawing the residual plots of the specified
-item. If <code>TRUE</code>, the function returns the same contingency table stored in the
-internal <code>contingency.plot</code> object of the <code>irtfit</code> object. Default is <code>TRUE</code>.</p></dd>
+contingency table used to draw the residual plots of the item, taken from
+the <code>contingency.plot</code> element of <code>x</code>. Default is <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-layout-col">layout.col<a class="anchor" aria-label="anchor" href="#arg-layout-col"></a></dt>
-<dd><p>An integer specifying the number of columns in the panel layout
-when plotting residuals for a polytomous item. Default is 2.</p></dd>
+<dd><p>An integer specifying the number of columns in the panel
+layout for a polytomous item when <code>type</code> is <code>"icc"</code> or <code>"sr"</code>. With
+<code>type = "both"</code>, each plot uses one column. Default is 2.</p></dd>
 
 
 <dt id="arg-xlab-text">xlab.text<a class="anchor" aria-label="anchor" href="#arg-xlab-text"></a></dt>
@@ -183,19 +183,19 @@ Default is 1.</p></dd>
 
 <dt id="arg-ylim-icc">ylim.icc<a class="anchor" aria-label="anchor" href="#arg-ylim-icc"></a></dt>
 <dd><p>A numeric vector of length two specifying the y-axis limits
-for the raw residual plot. Default is c(0, 1).</p></dd>
+for the raw residual plot. Default is <code>c(0, 1)</code>.</p></dd>
 
 
 <dt id="arg-ylim-sr-adjust">ylim.sr.adjust<a class="anchor" aria-label="anchor" href="#arg-ylim-sr-adjust"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, the y-axis range for the
-standardized residual plot is automatically adjusted based on the maximum
-residual value for each item. If <code>FALSE</code>, the range is fixed according to
-the values specified in the <code>ylim.sr</code> argument. Default is <code>FALSE</code>.</p></dd>
+<dd><p>Logical. If <code>TRUE</code>, the y-axis limits of the
+standardized residual plot are set to \(\pm\) the largest absolute
+standardized residual of the item plus 1, rounded to an integer. If
+<code>FALSE</code>, <code>ylim.sr</code> is used. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-ylim-sr">ylim.sr<a class="anchor" aria-label="anchor" href="#arg-ylim-sr"></a></dt>
 <dd><p>A numeric vector of length two specifying the y-axis limits
-for the standardized residual plot. Default is c(-4, 4).</p></dd>
+for the standardized residual plot. Default is <code>c(-4, 4)</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -213,34 +213,37 @@ See <code><a href="irtfit.html">irtfit()</a></code> for more details about the c
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>All plots are generated using the <span class="pkg">ggplot2</span> package.</p>
-<p>Once the IRT model fit analysis is completed using <code><a href="irtfit.html">irtfit()</a></code>, the
-resulting object of class <code>irtfit</code> can be used to draw raw and standardized
-residual plots.These plots are primarily based on the information stored in
-the internal object <code>contingency.plot</code>.</p>
-<p>Because residual plots are generated for one item at a time, you must
-specify which item to evaluate by providing an integer value for the
-<code>item.loc</code> argument, indicating the item's position in the test form.
-For example, to draw residual plots for the third item, set <code>item.loc = 3</code>.</p>
-<p>For the raw residual plot, the <code>ci.method</code> argument determines the method
-used to estimate confidence intervals. The available methods are:</p><ul><li><p><code>"wald"</code>: Wald interval based on the normal approximation (Laplace, 1812)</p></li>
+<p>The object of class <code>irtfit</code> returned by <code><a href="irtfit.html">irtfit()</a></code> is used to draw
+raw and standardized residual plots. The plots are based mainly on the
+<code>contingency.plot</code> element of the object.</p>
+<p>Residual plots are drawn for one item at a time. Set <code>item.loc</code> to the
+position of the item in the <code>item_df</code> element of the <code>irtfit</code> object; for
+example, <code>item.loc = 3</code> selects the third item. Items with fewer than two
+responses are removed by <code><a href="irtfit.html">irtfit()</a></code>, so positions can differ from
+those in the original item metadata.</p>
+<p>For the raw residual plot, the <code>ci.method</code> argument sets the method used
+to compute the confidence intervals of the observed proportions:</p><ul><li><p><code>"wald"</code>: Wald-type interval based on the normal approximation
+(Laplace, 1820), \(\hat{p} \pm z_{1 - \alpha/2} \sqrt{P(1 - P)/N}\),
+where \(\hat{p}\) is the observed proportion, \(P\) is the
+model-expected probability, and \(N\) is the group size. The limits are
+truncated to the interval from 0 to 1.</p></li>
 <li><p><code>"wilson"</code>: Wilson score interval (Wilson, 1927)</p></li>
-<li><p><code>"wilson.cr"</code>: Wilson score interval with continuity correction (Newcombe, 1998)</p></li>
+<li><p><code>"wilson.cr"</code>: Wilson score interval with continuity correction
+(Newcombe, 1998)</p></li>
 </ul><p>For more information, see
 <a href="https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval" class="external-link">https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval</a>.
-Note that the width of the confidence interval is governed by the
-\(\alpha\)-level specified in the <code>alpha</code> argument of the
-<code><a href="irtfit.html">irtfit()</a></code> function.</p>
-<p>For the standardized residual plot, residuals exceeding the threshold
-specified in the <code>overSR</code> argument of the <code><a href="irtfit.html">irtfit()</a></code> function
-are displayed as circles. Residuals that do not exceed the threshold
-are displayed as crosses.</p>
+The confidence level is \(1 - \alpha\), where \(\alpha\) is the
+<code>alpha</code> argument of <code><a href="irtfit.html">irtfit()</a></code>.</p>
+<p>In the standardized residual plot, residuals whose absolute values exceed
+the <code>overSR</code> argument of <code><a href="irtfit.html">irtfit()</a></code> are drawn as red circles, and
+the others as blue crosses. Dashed lines mark \(\pm\) <code>overSR</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Hambleton, R. K., Swaminathan, H., &amp; Rogers, H. J. (1991).
 <em>Fundamentals of item response theory</em>. Newbury Park, CA: Sage.</p>
-<p>Laplace, P. S. (1820). <em>Theorie analytique des probabilites</em> (in French).
-Courcier.</p>
+<p>Laplace, P. S. (1820). <em>Theorie analytique des probabilites</em> (3rd ed., in
+French). Paris: Courcier.</p>
 <p>Newcombe, R. G. (1998). Two-sided confidence intervals for the single
 proportion: comparison of seven methods. <em>Statistics in Medicine, 17</em>(8),
 857-872.</p>

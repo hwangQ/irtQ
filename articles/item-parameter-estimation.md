@@ -11,7 +11,7 @@ suited to different testing scenarios:
 |----|----|----|----|
 | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) | MMLE-EM | Fixed-form (i.e., linear test form) calibration | Calibrate a linear test form from scratch |
 | [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) + `fipc=TRUE` | MMLE-EM | Pretest calibration (Fixed item parameter calibration, FIPC) | Pre-equate new items using anchor items |
-| [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md) | MLE | Pretest calibration (Fixed ability parameter calibration, FAPC) | Calibrate items using known examinee abilities |
+| [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md) | MLE (Bayes modal with priors) | Pretest calibration (Fixed ability parameter calibration, FAPC) | Calibrate items using known examinee abilities |
 | [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md) | MMLE-EM | Multiple-group calibration | Link different forms across groups/grades |
 
 All functions support **mixed-format tests** with dichotomous and
@@ -143,7 +143,9 @@ $`P_j(\theta_k)`$ is the item response function.
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
 maximizes this function for each item with
 [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) using analytic
-gradients and Hessians.
+gradients and Hessians. When priors are specified for item parameters,
+the log prior densities are added to this function, so the estimates are
+Bayes modal estimates.
 
 > Extension to Polytomous Items: While the formulation above uses
 > dichotomous items for ease of illustration, the same underlying
@@ -159,14 +161,18 @@ gradients and Hessians.
 
 This two-step cycle (E and M) repeats. The algorithm terminates when the
 maximum absolute change in item parameter estimates between consecutive
-iterations is less than or equal to the convergence threshold specified
-by the `Etol` argument.
+EM cycles is less than or equal to the convergence threshold specified
+by the `Etol` argument. The mean and variance of a latent distribution
+estimated with FIPC and the weights of an empirical histogram are not
+part of this criterion; a smaller `Etol` gives more precise values of
+them.
 
 **Key advantages of MMLE-EM:**
 
 - Does not require individual ability estimates ($`\theta`$ is
   “integrated out”)
-- Handles missing data naturally
+- Handles missing responses by omitting them from the likelihood
+  (assuming they are missing at random)
 - Allows prior distributions on item parameters for numerical stability
 
 ------------------------------------------------------------------------
@@ -177,7 +183,7 @@ by the `Etol` argument.
 
 | Argument | Description |
 |----|----|
-| `data` | Response matrix (examinees × items); rows = examinees, columns = items |
+| `data` | Response matrix (examinees x items); rows = examinees, columns = items |
 | `model` | IRT model per item: `"1PLM"`, `"2PLM"`, `"3PLM"`, `"GRM"`, `"GPCM"` |
 | `cats` | Number of response categories per item (2 for dichotomous) |
 | `D` | Scaling constant (`1` for logistic metric; `1.702` to approximate normal-ogive) |
@@ -187,10 +193,10 @@ by the `Etol` argument.
 
 | Argument | Description |
 |----|----|
-| `group.mean` | Mean of the prior distribution (default = `0`) |
-| `group.var` | Variance of the prior distribution (default = `1`) |
+| `group.mean` | Mean of the normal latent distribution (default = `0`); fixed to identify the scale without FIPC, and the starting value of the estimated mean with FIPC |
+| `group.var` | Variance of the normal latent distribution (default = `1`); fixed to identify the scale without FIPC, and the starting value of the estimated variance with FIPC |
 | `EmpHist` | If `TRUE`, estimate the empirical histogram of θ (non-parametric prior) |
-| `Quadrature` | Number and range of quadrature points: e.g., `c(49, 6)` = 49 points from −6 to 6 |
+| `Quadrature` | Number and range of quadrature points: e.g., `c(49, 6)` = 49 points from -6 to 6 |
 
 **Model Constraints:**
 
@@ -207,8 +213,8 @@ by the `Etol` argument.
 
 | Argument | Description |
 |----|----|
-| `use.aprior` | Apply log-normal prior to discrimination parameters |
-| `use.bprior` | Apply normal prior to difficulty parameters |
+| `use.aprior` | Apply the prior in `aprior` (log-normal by default) to the slope parameters |
+| `use.bprior` | Apply the prior in `bprior` (normal by default) to the difficulty (threshold) parameters |
 | `use.gprior` | Apply beta prior to guessing parameters (default `TRUE`; recommended for 3PLM) |
 | `aprior` | e.g., `list(dist = "lnorm", params = c(0, 0.5))` |
 | `bprior` | e.g., `list(dist = "norm", params = c(0, 1))` |
@@ -218,8 +224,8 @@ by the `Etol` argument.
 
 | Argument | Description |
 |----|----|
-| `Etol` | Convergence threshold (default = `1e-4`). Use `0.001` for faster, slightly looser convergence |
-| `MaxE` | Maximum number of EM iterations (default = `500`) |
+| `Etol` | Convergence threshold for the largest absolute change in the estimated item parameters (default = `1e-4`). A larger value such as `0.001` gives faster but looser convergence; the latent distribution parameters and the weights of an empirical histogram are not part of this criterion (see [`?est_irt`](https://hwangQ.github.io/irtQ/reference/est_irt.md)) |
+| `MaxE` | Maximum number of EM cycles (default = `500`) |
 | `se` | If `TRUE`, compute item parameter standard errors |
 
 ------------------------------------------------------------------------
@@ -260,11 +266,11 @@ We demonstrate both approaches:
 ``` r
 
 # ---- Step 1: Define item metadata for 20-item 1PLM test ----
-# Difficulty parameters range from easy (−2) to hard (2)
+# Difficulty parameters range from easy (-2) to hard (2)
 meta_1pl <- shape_df(
   par.drm = list(
     a = rep(1, 20),               # Discriminations set to 1 (for simulation)
-    b = seq(-2, 2, length.out = 20),  # Difficulty from −2 to 2
+    b = seq(-2, 2, length.out = 20),  # Difficulty from -2 to 2
     g = rep(NA, 20)               # No guessing (1PLM / 2PLM)
   ),
   item.id = paste0("I", 1:20),
@@ -277,7 +283,7 @@ theta_1pl <- rnorm(500, mean = 0, sd = 1)
 resp_1pl  <- simdat(x = meta_1pl, theta = theta_1pl, D = 1.702)
 
 # ---- Step 3a: Estimate with FIXED discrimination (a = 1) ----
-# Fixed slope: D×a×(θ−b) = 1.702×1×(θ−b)
+# Fixed slope: D x a x (theta - b) = 1.702 x 1 x (theta - b)
 mod_1pl_fixed <- est_irt(
   data       = resp_1pl,
   D          = 1.702,
@@ -310,14 +316,17 @@ summary(mod_1pl_fixed)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 20
+#>    - Item parameters: 20
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 10
 #>  Maximum parameter change: 0.000937656
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.4
+#>  EM algorithm: 0.27
 #>  Standard error computation: 0.02
-#>  Total computation: 0.52
+#>  Total computation: 0.32
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -400,14 +409,17 @@ summary(mod_1pl_constrained)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 21
+#>    - Item parameters: 21
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 23
-#>  Maximum parameter change: 0.0009438272
+#>  Maximum parameter change: 0.0008924854
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.16
+#>  EM algorithm: 0.14
 #>  Standard error computation: 0.01
-#>  Total computation: 0.18
+#>  Total computation: 0.17
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -416,14 +428,14 @@ summary(mod_1pl_constrained)
 #>   Variance-covariance matrix of item parameter estimates is obtainable.
 #> 
 #> Summary of Estimation Results 
-#>  -2loglikelihood: 8479.072
-#>  Akaike Information Criterion (AIC): 8521.072
+#>  -2loglikelihood: 8479.071
+#>  Akaike Information Criterion (AIC): 8521.071
 #>  Bayesian Information Criterion (BIC): 8609.578
 #>  Item Parameters: 
 #>      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3
 #> 1    I1     2   1PLM   1.02  0.05  -2.10  0.15     NA    NA
 #> 2    I2     2   1PLM   1.02    NA  -1.78  0.13     NA    NA
-#> 3    I3     2   1PLM   1.02    NA  -1.56  0.12     NA    NA
+#> 3    I3     2   1PLM   1.02    NA  -1.57  0.12     NA    NA
 #> 4    I4     2   1PLM   1.02    NA  -1.41  0.11     NA    NA
 #> 5    I5     2   1PLM   1.02    NA  -1.11  0.10     NA    NA
 #> 6    I6     2   1PLM   1.02    NA  -1.08  0.10     NA    NA
@@ -439,7 +451,7 @@ summary(mod_1pl_constrained)
 #> 16  I16     2   1PLM   1.02    NA   1.10  0.10     NA    NA
 #> 17  I17     2   1PLM   1.02    NA   1.40  0.11     NA    NA
 #> 18  I18     2   1PLM   1.02    NA   1.42  0.11     NA    NA
-#> 19  I19     2   1PLM   1.02    NA   1.64  0.12     NA    NA
+#> 19  I19     2   1PLM   1.02    NA   1.65  0.12     NA    NA
 #> 20  I20     2   1PLM   1.02    NA   1.88  0.13     NA    NA
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
@@ -449,17 +461,17 @@ summary(mod_1pl_constrained)
 par_constrained <- getirt(mod_1pl_constrained, what = "par.est")
 head(par_constrained)
 #>   id cats model    par.1     par.2 par.3
-#> 1 I1    2  1PLM 1.018825 -2.095437    NA
-#> 2 I2    2  1PLM 1.018825 -1.782512    NA
-#> 3 I3    2  1PLM 1.018825 -1.564798    NA
-#> 4 I4    2  1PLM 1.018825 -1.414263    NA
-#> 5 I5    2  1PLM 1.018825 -1.113839    NA
-#> 6 I6    2  1PLM 1.018825 -1.084686    NA
+#> 1 I1    2  1PLM 1.018538 -2.096006    NA
+#> 2 I2    2  1PLM 1.018538 -1.782996    NA
+#> 3 I3    2  1PLM 1.018538 -1.565223    NA
+#> 4 I4    2  1PLM 1.018538 -1.414648    NA
+#> 5 I5    2  1PLM 1.018538 -1.114144    NA
+#> 6 I6    2  1PLM 1.018538 -1.084983    NA
 
 # Note: par.1 (discrimination) is the same for all items, but its value
 # is estimated from the data and may differ from 1
 cat("Common discrimination estimate:", unique(par_constrained$par.1), "\n")
-#> Common discrimination estimate: 1.018825
+#> Common discrimination estimate: 1.018538
 
 # ---- Compare difficulty recovery ----
 par(mfrow = c(1, 2))
@@ -540,14 +552,17 @@ summary(mod_bin)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 50
+#>    - Item parameters: 50
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 29
 #>  Maximum parameter change: 0.0009961947
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.84
+#>  EM algorithm: 0.8
 #>  Standard error computation: 0.02
-#>  Total computation: 0.87
+#>  Total computation: 0.83
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -783,6 +798,9 @@ useful when:
 | Difficulty $`b`$     | `bprior` | `norm(0, 1)`    |
 | Guessing $`g`$       | `gprior` | `beta(5, 16)`   |
 
+With `D` different from 1, the slope prior is placed on `D * a`; see
+[`?est_irt`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
+
 We demonstrate three estimation strategies using the same simulated
 dataset:
 
@@ -867,14 +885,17 @@ summary(mod_3pl_gprior)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 90
+#>    - Item parameters: 90
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 30
 #>  Maximum parameter change: 0.0009130637
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.66
+#>  EM algorithm: 1.67
 #>  Standard error computation: 0.03
-#>  Total computation: 1.72
+#>  Total computation: 1.71
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -990,14 +1011,17 @@ summary(mod_3pl_fixg)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 60
+#>    - Item parameters: 60
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 32
 #>  Maximum parameter change: 0.0009903456
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 1.1
+#>  EM algorithm: 1.14
 #>  Standard error computation: 0.02
-#>  Total computation: 1.15
+#>  Total computation: 1.19
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1064,8 +1088,9 @@ improve estimation stability.
 
 # 3PLM with priors on all three parameters
 # Priors used:
-#   a ~ LogNormal(0, 0.5): median = exp(0) = 1, ~95% of mass in [0.37, 2.72]
-#   b ~ Normal(0, 1): centers difficulties near 0 ± 2
+#   D * a ~ LogNormal(0, 0.5): with D = 1.702, the prior median of a is
+#   1 / 1.702 = 0.59, and about 95% of the prior mass is in [0.22, 1.60]
+#   b ~ Normal(0, 1): centers difficulties near 0 (about 95% in [-2, 2])
 #   g ~ Beta(4, 16): mean = 0.20, for 5-option MC items
 mod_3pl_allprior <- est_irt(
   data        = resp_3pl,
@@ -1109,14 +1134,17 @@ summary(mod_3pl_allprior)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 90
+#>    - Item parameters: 90
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 26
 #>  Maximum parameter change: 0.0008924307
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.17
-#>  Standard error computation: 0.21
-#>  Total computation: 2.41
+#>  EM algorithm: 2.31
+#>  Standard error computation: 0.03
+#>  Total computation: 2.37
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1395,14 +1423,17 @@ summary(mod_mix)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 65
+#>    - Item parameters: 65
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 18
 #>  Maximum parameter change: 0.0009697275
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.79
+#>  EM algorithm: 0.81
 #>  Standard error computation: 0.02
-#>  Total computation: 0.83
+#>  Total computation: 0.85
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1419,23 +1450,23 @@ summary(mod_mix)
 #> 1    DRM1     2   3PLM   0.89  0.10  -1.72  0.19   0.16  0.08     NA    NA
 #> 2    DRM2     2   3PLM   1.26  0.17  -0.94  0.15   0.22  0.08     NA    NA
 #> 3    DRM3     2   3PLM   0.80  0.12  -0.42  0.20   0.21  0.08     NA    NA
-#> 4    DRM4     2   3PLM   1.31  0.14  -0.38  0.08   0.10  0.04     NA    NA
+#> 4    DRM4     2   3PLM   1.31  0.14  -0.38  0.09   0.10  0.04     NA    NA
 #> 5    DRM5     2   3PLM   1.14  0.14  -0.09  0.10   0.13  0.05     NA    NA
 #> 6    DRM6     2   3PLM   0.90  0.12   0.09  0.13   0.14  0.05     NA    NA
-#> 7    DRM7     2   3PLM   1.15  0.16   0.53  0.08   0.14  0.03     NA    NA
-#> 8    DRM8     2   3PLM   1.31  0.21   0.84  0.07   0.14  0.03     NA    NA
-#> 9    DRM9     2   3PLM   0.61  0.11   1.00  0.15   0.11  0.05     NA    NA
-#> 10  DRM10     2   3PLM   1.25  0.25   1.28  0.09   0.14  0.02     NA    NA
-#> 11  DRM11     2   3PLM   0.98  0.13  -0.70  0.17   0.21  0.08     NA    NA
+#> 7    DRM7     2   3PLM   1.15  0.16   0.53  0.09   0.14  0.03     NA    NA
+#> 8    DRM8     2   3PLM   1.31  0.21   0.84  0.08   0.14  0.03     NA    NA
+#> 9    DRM9     2   3PLM   0.61  0.11   1.00  0.16   0.11  0.05     NA    NA
+#> 10  DRM10     2   3PLM   1.25  0.25   1.28  0.10   0.14  0.02     NA    NA
+#> 11  DRM11     2   3PLM   0.98  0.14  -0.70  0.17   0.21  0.08     NA    NA
 #> 12  DRM12     2   3PLM   1.08  0.13  -0.03  0.10   0.14  0.05     NA    NA
 #> 13  DRM13     2   3PLM   1.34  0.20   0.51  0.08   0.17  0.03     NA    NA
-#> 14  DRM14     2   3PLM   0.81  0.16   1.12  0.12   0.14  0.04     NA    NA
-#> 15  DRM15     2   3PLM   1.16  0.13  -1.24  0.14   0.16  0.08     NA    NA
-#> 16   GRM1     4    GRM   1.50  0.15  -1.60  0.13  -0.38  0.07   0.74  0.08
-#> 17   GRM2     4    GRM   1.20  0.12  -1.22  0.12  -0.06  0.08   0.98  0.11
-#> 18   GRM3     4    GRM   0.86  0.10  -0.99  0.13   0.32  0.10   1.32  0.16
-#> 19   GRM4     4    GRM   1.35  0.14  -1.05  0.10  -0.29  0.07   0.78  0.09
-#> 20   GRM5     4    GRM   0.97  0.11  -1.44  0.16   0.21  0.09   1.19  0.14
+#> 14  DRM14     2   3PLM   0.81  0.16   1.12  0.13   0.14  0.04     NA    NA
+#> 15  DRM15     2   3PLM   1.16  0.14  -1.24  0.15   0.16  0.08     NA    NA
+#> 16   GRM1     4    GRM   1.50  0.09  -1.60  0.08  -0.38  0.05   0.74  0.06
+#> 17   GRM2     4    GRM   1.20  0.07  -1.22  0.07  -0.06  0.05   0.98  0.07
+#> 18   GRM3     4    GRM   0.86  0.05  -0.99  0.08   0.32  0.06   1.32  0.09
+#> 19   GRM4     4    GRM   1.35  0.08  -1.05  0.07  -0.29  0.05   0.78  0.06
+#> 20   GRM5     4    GRM   0.97  0.06  -1.44  0.09   0.21  0.06   1.19  0.08
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
 #> estimates   0       1      1
@@ -1479,7 +1510,8 @@ print(grm_items)
 **Q: My EM algorithm isn’t converging. What should I do?**
 
 1.  **Increase `MaxE`**: Try `MaxE = 1000`
-2.  **Relax `Etol`**: Try `Etol = 0.005`
+2.  **Relax `Etol`**: Try `Etol = 0.005`, keeping in mind that the
+    estimates are then less converged
 3.  **Check your data**: Are there items with extreme proportions
     ($`p < 0.05`$ or $`p > 0.95`$)? Very easy or very hard items may
     cause instability.
@@ -1492,7 +1524,7 @@ print(grm_items)
 | Option | Typical Use | Pros | Cons |
 |----|----|----|----|
 | `EmpHist = FALSE` | Small samples, normal population | Faster, stable | Assumes normality of θ |
-| `EmpHist = TRUE` | Large samples, non-normal population | Flexible, data-driven | Slower, unstable with small N |
+| `EmpHist = TRUE` | Large samples, non-normal population | Flexible, data-driven | Slower; unstable with small N; the histogram can keep changing slowly over many cycles |
 
 ------------------------------------------------------------------------
 
@@ -1587,13 +1619,13 @@ MMLE-EM framework. Among these, two methods are implemented in
 
 | Method | Description | Notes |
 |----|----|----|
-| **OEM** | One EM cycle: one E-step using anchor items only, then one M-step for pretest items | Fast; one-pass approach |
-| **MEM** | Multiple EM cycles: iterate between E-step and M-step until convergence | More stable; **recommended** |
+| **OEM** | One EM cycle: one E-step using the anchor items only and the initial latent distribution, then one M-step for the pretest items | Fast; one-pass approach |
+| **MEM** | Multiple EM cycles: the latent distribution is updated in every cycle, and from the second cycle the posterior distribution uses both anchor and pretest items | More stable; **recommended** |
 
 **Recommendation:** Use `fipc.method = "MEM"` unless there is any
-specific reason to prefer the one-pass OEM method. Ban et al. (2001)
-showed that MEM tends to produce the smallest item-parameter estimation
-errors across all sample-size conditions.
+specific reason to prefer the one-pass OEM method. MEM updates the
+latent distribution in every cycle, whereas OEM uses a single E-step and
+a single M-step; see Kim (2006) for a comparison of FIPC procedures.
 
 ### FIPC Workflow in irtQ
 
@@ -1651,7 +1683,8 @@ mod_fipc <- est_irt(
 **Result:**
 
 - Pretest items are calibrated on Group X’s scale
-- Group Y’s ability distribution is estimated: e.g., N(0.3, 1.1)
+- Group Y’s ability distribution is estimated (here as an empirical
+  histogram, with its mean and variance reported in `group.par`)
 - No post-hoc linking needed
 
 ------------------------------------------------------------------------
@@ -1777,7 +1810,7 @@ meta_new_true <- shape_df(
 # Columns 16-20: pretest item responses
 resp_anch <- simdat(x = meta_anchor, theta = theta_new, D = 1.702)
 resp_pre  <- simdat(x = meta_new_true, theta = theta_new, D = 1.702)
-resp_new  <- cbind(resp_anch, resp_pre)   # 500 × 20 matrix
+resp_new  <- cbind(resp_anch, resp_pre)   # 500 x 20 matrix
 
 # Calibrate pretest items via FIPC
 mod_fipc <- est_irt(
@@ -1809,13 +1842,16 @@ summary(mod_fipc)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 12
+#>  Number of free parameters: 58
+#>    - Item parameters: 10
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 48
 #>  Number of fixed items: 15
 #>  Number of E-step cycles completed: 13
 #>  Maximum parameter change: 0.0008186949
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.12
+#>  EM algorithm: 0.11
 #>  Standard error computation: 0
 #>  Total computation: 0.14
 #> 
@@ -1827,8 +1863,8 @@ summary(mod_fipc)
 #> 
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 9205.698
-#>  Akaike Information Criterion (AIC): 9229.698
-#>  Bayesian Information Criterion (BIC): 9280.274
+#>  Akaike Information Criterion (AIC): 9321.698
+#>  Bayesian Information Criterion (BIC): 9566.146
 #>  Item Parameters: 
 #>       id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3
 #> 1    OI1     2   2PLM   1.04    NA  -1.75    NA     NA    NA
@@ -1903,8 +1939,8 @@ cat("Difficulty RMSE:",
 
 - Pretest items are successfully calibrated on the **old form scale**
   (Group X) because the anchor items constrain the θ-metric.
-- Group Y’s ability distribution is accurately recovered (mean ≈ 0.3, SD
-  ≈ 1.0).
+- Group Y’s ability distribution is accurately recovered (mean about
+  0.3, SD about 1.0).
 - Anchor items (positions 1-15) retain their fixed values from
   `meta_anchor`.
 - Pretest items can now be added to the operational item bank.
@@ -2075,7 +2111,10 @@ summary(mod_fipc_mix)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 22
+#>  Number of free parameters: 68
+#>    - Item parameters: 20
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 48
 #>  Number of fixed items: 22
 #>  Number of E-step cycles completed: 7
 #>  Maximum parameter change: 0.0008719196
@@ -2083,7 +2122,7 @@ summary(mod_fipc_mix)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.19
 #>  Standard error computation: 0.01
-#>  Total computation: 0.23
+#>  Total computation: 0.22
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2093,8 +2132,8 @@ summary(mod_fipc_mix)
 #> 
 #> Summary of Estimation Results 
 #>  -2loglikelihood: 30837.22
-#>  Akaike Information Criterion (AIC): 30881.22
-#>  Bayesian Information Criterion (BIC): 30989.19
+#>  Akaike Information Criterion (AIC): 30973.22
+#>  Bayesian Information Criterion (BIC): 31306.95
 #>  Item Parameters: 
 #>       id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1     D1     2   3PLM   0.90    NA  -2.06    NA   0.17    NA     NA    NA
@@ -2124,7 +2163,7 @@ summary(mod_fipc_mix)
 #> 25  NEW5     2   3PLM   0.86  0.13   0.86  0.11   0.14  0.04     NA    NA
 #> 26    P1     5    GRM   1.37    NA  -1.41    NA  -0.47    NA   0.31    NA
 #> 27    P2     5    GRM   1.14    NA  -1.16    NA  -0.32    NA   0.47    NA
-#> 28  NEW6     5    GRM   1.10  0.09  -1.27  0.12  -0.37  0.08   0.39  0.08
+#> 28  NEW6     5    GRM   1.10  0.05  -1.27  0.07  -0.37  0.05   0.39  0.05
 #>     par.5  se.5
 #> 1      NA    NA
 #> 2      NA    NA
@@ -2153,7 +2192,7 @@ summary(mod_fipc_mix)
 #> 25     NA    NA
 #> 26   1.14    NA
 #> 27   1.40    NA
-#> 28   1.19  0.11
+#> 28   1.19  0.06
 #>  Group Parameters: 
 #>              mu  sigma2  sigma
 #> estimates  0.17    1.24   1.11
@@ -2217,7 +2256,7 @@ cat("Estimated:    mean=", round(group_par_mix[1, "mu"], 3),
 
 > **Note:** Use either `fix.loc` (positions) or `fix.id` (item IDs) to
 > specify anchor items, but not both simultaneously. If `fix.id` is
-> non-`NULL`, `fix.loc` is ignored.
+> non-`NULL`, `fix.loc` is ignored with a warning.
 
 ------------------------------------------------------------------------
 
@@ -2269,14 +2308,19 @@ log-likelihood expression via numerical optimization (e.g., using
 marginal maximum likelihood (MML) estimation or FIPC, there is no EM
 cycle involved because the $`\theta`$ values are treated as fixed,
 observed data rather than a latent distribution to be integrated out.
+When priors are used (for example, `use.gprior = TRUE` for 3PLM items,
+the default), the log prior densities are added to this function, so the
+estimates are Bayes modal; the `loglikelihood` element and the
+-2loglikelihood printed by
+[`summary()`](https://hwangQ.github.io/irtQ/reference/summary.md)
+exclude the log prior densities.
 
 **Important Limitation:** FAPC inherently treats the estimated abilities
 $`\hat{\theta}_i`$ as if they were the true, error-free parameters
 ($`\theta_i`$), thereby ignoring ability estimation error (measurement
-error). This omission can lead to a slight downward bias in item
-discrimination estimates ($`a`$-parameters), especially when the
-operational test is relatively short and the $`\hat{\theta}`$ estimates
-are less precise. Additionally, to prevent selection bias from
+error). This omission can bias the item parameter estimates, especially
+when the operational test is relatively short and the $`\hat{\theta}`$
+estimates are less precise. Additionally, to prevent selection bias from
 confounding the calibration, a random (non-adaptive) pretest
 administration design is strongly preferred over an adaptive
 administration for pretest items.
@@ -2453,9 +2497,8 @@ cat("Difficulty r:",     round(cor(meta_pre$par.2, est_fapc$par.2), 4), "\n")
 
 - ⚠️ **Assumes $`\theta`$ is known without error**: Treating
   $`\hat{\theta}`$ as a fixed constant ignores measurement error. This
-  measurement error propagates into calibration, causing a slight
-  downward bias (attenuation) in item discrimination estimates,
-  especially if the operational form is short.
+  measurement error propagates into calibration and can bias the item
+  parameter estimates, especially if the operational form is short.
 
 - ⚠️ **No population distribution estimation**: Unlike FIPC, FAPC cannot
   estimate or recover the group-level latent trait distribution
@@ -2512,8 +2555,12 @@ key features are:
 - Common item parameters are **automatically constrained** to be equal
   across the groups where they appear, mapped accurately by matching
   item IDs.
-- Group ability distributions are **freely estimated** to account for
-  population heterogeneity, unless one group is fixed as a reference.
+- Group ability distributions are **freely estimated** for the groups in
+  `free.group`. Without FIPC, at least one group must be left out of
+  `free.group` as a reference group whose distribution fixes the scale;
+  otherwise
+  [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md) stops
+  with an error.
 
 For example, consider three groups sharing items as follows:
 
@@ -2576,7 +2623,11 @@ est_mg(
 
 **Resulting Scale Properties:** All group distributions are estimated
 dynamically; the parameters of the fixed anchor items (held at known
-values) tie the groups directly to the established scale.
+values) tie the groups directly to the established scale. With
+`fipc.method = "MEM"`, the first EM cycle uses only the fixed items to
+compute the posterior distributions, and later cycles use all items (Kim
+& Kolen, 2016). Groups that are not in `free.group` keep their
+distributions fixed also with FIPC.
 
 ------------------------------------------------------------------------
 
@@ -2689,7 +2740,10 @@ summary(mod_mg)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 362
+#>  Number of free parameters: 500
+#>    - Item parameters: 358
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 142
 #>  Number of fixed items: 
 #>   Overall: 0
 #>   By group: 0(Group1), 0(Group2), 0(Group3)
@@ -2697,9 +2751,9 @@ summary(mod_mg)
 #>  Maximum parameter change: 0.0009935414
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 15.3
-#>  Standard error computation: 0.2
-#>  Total computation: 15.94
+#>  EM algorithm: 14.94
+#>  Standard error computation: 0.38
+#>  Total computation: 15.79
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2712,8 +2766,8 @@ summary(mod_mg)
 #>   Overall: 319161.5
 #>   By group: 120346.201(Group1), 113943.649(Group2), 84871.67(Group3)
 #> 
-#>  Akaike Information Criterion (AIC): 319885.5
-#>  Bayesian Information Criterion (BIC): 322310.7
+#>  Akaike Information Criterion (AIC): 320161.5
+#>  Bayesian Information Criterion (BIC): 323511.3
 #>  Item Parameters (Overall): 
 #>         id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1     C1I1     2   3PLM   0.82  0.17   1.32  0.19   0.26  0.06     NA    NA
@@ -2984,18 +3038,18 @@ print(group_par_mg)
 cat("\n=== Comparison to True Values ===\n")
 #> 
 #> === Comparison to True Values ===
-cat("Group 1: True μ=0.0, σ=1.00  | Est. μ=",
-    round(group_par_mg$Group1[1, "mu"], 3), ", σ=",
+cat("Group 1: true mean = 0.0, SD = 1.00 | estimated mean =",
+    round(group_par_mg$Group1[1, "mu"], 3), ", SD =",
     round(group_par_mg$Group1[1, "sigma"], 3), "\n")
-#> Group 1: True μ=0.0, σ=1.00  | Est. μ= 0 , σ= 1
-cat("Group 2: True μ=0.5, σ=0.8  | Est. μ=",
-    round(group_par_mg$Group2[1, "mu"], 3), ", σ=",
+#> Group 1: true mean = 0.0, SD = 1.00 | estimated mean = 0 , SD = 1
+cat("Group 2: true mean = 0.5, SD = 0.8 | estimated mean =",
+    round(group_par_mg$Group2[1, "mu"], 3), ", SD =",
     round(group_par_mg$Group2[1, "sigma"], 3), "\n")
-#> Group 2: True μ=0.5, σ=0.8  | Est. μ= 0.484 , σ= 0.759
-cat("Group 3: True μ=-0.3, σ=1.3 | Est. μ=",
-    round(group_par_mg$Group3[1, "mu"], 3), ", σ=",
+#> Group 2: true mean = 0.5, SD = 0.8 | estimated mean = 0.484 , SD = 0.759
+cat("Group 3: true mean = -0.3, SD = 1.3 | estimated mean =",
+    round(group_par_mg$Group3[1, "mu"], 3), ", SD =",
     round(group_par_mg$Group3[1, "sigma"], 3), "\n")
-#> Group 3: True μ=-0.3, σ=1.3 | Est. μ= -0.349 , σ= 1.364
+#> Group 3: true mean = -0.3, SD = 1.3 | estimated mean = -0.349 , SD = 1.364
 
 # Item parameter estimates for all items across groups (first 6 items of the overall table)
 par_mg <- getirt(mod_mg, what = "par.est")
@@ -3142,7 +3196,10 @@ summary(mod_mg_fipc)
 #>  Convergence criterion of E-step: 0.001
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
-#>  Number of free parameters: 294
+#>  Number of free parameters: 432
+#>    - Item parameters: 288
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 144
 #>  Number of fixed items: 
 #>   Overall: 22
 #>   By group: 12(Group1), 22(Group2), 10(Group3)
@@ -3150,9 +3207,9 @@ summary(mod_mg_fipc)
 #>  Maximum parameter change: 0.0009769281
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 8.02
-#>  Standard error computation: 0.17
-#>  Total computation: 8.67
+#>  EM algorithm: 8.43
+#>  Standard error computation: 0.15
+#>  Total computation: 9.13
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3165,8 +3222,8 @@ summary(mod_mg_fipc)
 #>   Overall: 319220.8
 #>   By group: 120352.776(Group1), 113982.319(Group2), 84885.716(Group3)
 #> 
-#>  Akaike Information Criterion (AIC): 319808.8
-#>  Bayesian Information Criterion (BIC): 321778.5
+#>  Akaike Information Criterion (AIC): 320084.8
+#>  Bayesian Information Criterion (BIC): 322979
 #>  Item Parameters (Overall): 
 #>         id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
 #> 1     C1I1     2   3PLM   0.76    NA   1.46    NA   0.26    NA     NA    NA
@@ -3421,7 +3478,7 @@ group_par_fipc <- getirt(mod_mg_fipc, what = "group.par")
 print(group_par_fipc)
 #> $Group1
 #>                    mu     sigma2      sigma
-#> estimates -0.01161244 1.00951987 1.00474866
+#> estimates -0.01161244 1.00951986 1.00474866
 #> se         0.02246686 0.03193181 0.01589044
 #> 
 #> $Group2
@@ -3440,7 +3497,7 @@ print(group_par_fipc)
 | Aspect | Standard MG | MG-FIPC |
 |:---|:---|:---|
 | **Scale Reference** | Reference Group (typically Group 1 with $`\mu=0, \sigma^2=1`$) | Pre-calibrated anchor items |
-| `free.group` | `c(2, 3)` (Reference group is fixed) | `1:3` (All groups are freely estimated) |
+| `free.group` | `c(2, 3)` (Reference group is fixed) | `1:3` (all groups are freely estimated; groups not listed would stay fixed) |
 | `fipc` | `FALSE` | `TRUE` |
 | **Anchor Treatment** | Estimated simultaneously (constrained equal across groups) | Fixed constants held at their known bank values |
 | **When to Use** | No prior scale or calibration exists for the anchor items | The parameters of the anchor items are pre-calibrated and known |
@@ -3455,7 +3512,7 @@ print(group_par_fipc)
 | `data` | **List** of response matrices or data frames (one per group). |
 | `group.name` | Character vector of unique group names (defines the longitudinal or cross-sectional list order). |
 | `model` / `cats` / `item.id` | **Lists** specifying the IRT models, category counts, and unique item IDs for each group. |
-| `free.group` | Integer vector indicating which groups have freely estimated latent trait ($`\theta`$) distributions. |
+| `free.group` | Positions or names of the groups whose latent trait ($`\theta`$) distributions are freely estimated; the other groups are reference groups fixed at `group.mean` and `group.var`. Required with FIPC; without FIPC, at least one group must be left out. |
 | `fipc` | Logical indicator to enable Multiple-Group Fixed Item Parameter Calibration (`TRUE` or `FALSE`). |
 | `fix.loc` | **List** with one integer vector per group giving the row positions of the anchor items to be fixed. |
 | `fix.id` | A **single character vector** of the IDs of all fixed items across groups (not a list). |
@@ -3523,6 +3580,9 @@ automatically links groups by matching string-identical item IDs. For
 the baseline measurement invariance constraint to hold, a common item
 must share the **exact same model type** (e.g., `3PLM`) and the **same
 number of score categories** across all groups where it appears.
+[`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md) checks
+this and stops with an error that lists the inconsistent items. An item
+ID repeated within a group is also an error.
 
 ------------------------------------------------------------------------
 
@@ -3551,11 +3611,6 @@ for multiple-group IRT was established by Bock & Zimowski (1997).
 ------------------------------------------------------------------------
 
 ## References
-
-Ban, J.-C., Hanson, B. A., Wang, T., Yi, Q., & Harris, D. J. (2001). A
-comparative study of on-line pretest item-calibration/scaling methods in
-computerized adaptive testing. *Journal of Educational Measurement*,
-*38*(3), 191–212. <https://doi.org/10.1111/j.1745-3984.2001.tb01123.x>
 
 Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation
 of item parameters: Application of an EM algorithm. *Psychometrika*,

@@ -1,9 +1,8 @@
 # Create a Data Frame of Item Metadata
 
-This function creates a data frame of item metadata - including item
-parameters, the number of score categories, and IRT model
-specifications - to be used in various IRT-related analyses within the
-irtQ package.
+This function creates a data frame of item metadata (item parameters,
+numbers of score categories, and IRT models) for use in IRT analyses
+with the irtQ package.
 
 ## Usage
 
@@ -24,15 +23,17 @@ shape_df(
 
   A list containing three numeric vectors for dichotomous item
   parameters: item discrimination (`a`), item difficulty (`b`), and
-  guessing parameters (`g`).
+  guessing parameters (`g`), each with one value per item with
+  `cats = 2`. A single value of `g` is used for every dichotomous item.
+  If `g` is omitted or `NULL`, the guessing parameters are set to 0.
 
 - par.prm:
 
   A list containing polytomous item parameters. The list must include a
-  numeric vector `a` for item discrimination (slope) parameters, and a
-  list `d` of numeric vectors specifying difficulty (or threshold)
-  parameters for each item. See the **Details** section for more
-  information.
+  numeric vector `a` of slope parameters and a list `d` of numeric
+  vectors of threshold parameters, with one slope and one vector of
+  `cats - 1` thresholds per item with `cats > 2`. See the **Details**
+  section for more information.
 
 - item.id:
 
@@ -64,18 +65,19 @@ shape_df(
 
 ## Value
 
-A data frame containing item metadata, including item IDs, number of
-score categories, IRT model types, and associated item parameters. This
-data frame can be used as input for other functions in the irtQ package,
-such as
+A data frame of item metadata with columns `id`, `cats`, `model`, and
+`par.1`, `par.2`, ..., one row per item. The number of parameter columns
+is the larger of 3 and the maximum of `cats`; unused cells are `NA`.
+This data frame can be used as input for other functions in the irtQ
+package, such as
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) or
 [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md).
 
 ## Details
 
 For any item where `"1PLM"` or `"2PLM"` is specified in `model`, the
-guessing parameter will be set to `NA`. If `model` is a vector of length
-1, the specified model will be replicated across all items.
+guessing parameter is set to `NA`. If `cats` or `model` has length 1, it
+is recycled across all items.
 
 As in the
 [`simdat()`](https://hwangQ.github.io/irtQ/reference/simdat.md)
@@ -100,15 +102,14 @@ internal structure and ordering of elements must be followed.
 
   - `a`: a numeric vector of slope parameters for polytomous items
 
-  - `d`: a list of numeric vectors specifying threshold (or step)
-    parameters for each polytomous item
+  - `d`: a list of numeric vectors specifying the threshold parameters
+    for each polytomous item
 
-For items following the (generalized) partial credit model (`"GPCM"`),
-the threshold (or step) parameters are computed as the overall item
-difficulty (location) minus the category-specific thresholds. Therefore,
-for an item with `m` score categories, `m - 1` step parameters must be
-provided, since the first category threshold is fixed and does not
-contribute to category probabilities.
+For GPCM items, the threshold parameters are \\b_v = \beta - \tau_v\\,
+the overall item location minus the threshold of each score category. An
+item with *K* score categories requires *K - 1* threshold parameters,
+because the term for the lowest score category is fixed at 0 and is not
+supplied. For GRM items, the thresholds must be in increasing order.
 
 ## See also
 
@@ -136,7 +137,7 @@ par.drm <- list(
 par.prm <- list(
   a = c(1.4, 0.6),
   d = list(
-    c(0.0, -1.9, 1.2),
+    c(-1.9, 0.0, 1.2),
     c(0.4, -1.1, 1.5, 0.2)
   )
 )
@@ -151,14 +152,14 @@ model <- c("DRM", "GRM", "DRM", "DRM", "GPCM", "DRM", "DRM")
 shape_df(par.drm = par.drm, par.prm = par.prm, cats = cats, model = model)
 #>   id cats model par.1 par.2 par.3 par.4 par.5
 #> 1 V1    2   DRM   1.1   0.1   0.2    NA    NA
-#> 2 V2    4   GRM   1.4   0.0  -1.9   1.2    NA
+#> 2 V2    4   GRM   1.4  -1.9   0.0   1.2    NA
 #> 3 V3    2   DRM   1.2  -1.6   0.2    NA    NA
 #> 4 V4    2   DRM   0.9  -0.2   0.2    NA    NA
 #> 5 V5    5  GPCM   0.6   0.4  -1.1   1.5   0.2
 #> 6 V6    2   DRM   1.8   1.0   0.2    NA    NA
 #> 7 V7    2   DRM   1.4   1.2   0.2    NA    NA
 
-## An empty item metadata frame with five dichotomous items and two polytomous items
+## An item metadata frame with default parameters for five dichotomous and two polytomous items
 # Create a numeric vector indicating the number of score categories for each item
 cats <- c(2, 4, 3, 2, 5, 2, 2)
 

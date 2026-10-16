@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,9 +109,8 @@ polytomous<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><sem
 <tr class="even">
 <td><code><a href="../reference/grdif.html">grdif()</a></code></td>
 <td>Generalized RDIF (GRDIF)</td>
-<td>Dichotomous (+
-polytomous<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mo>*</mo></msup><annotation encoding="application/x-tex">^*</annotation></semantics></math>)</td>
-<td>≥ 2</td>
+<td>Dichotomous only</td>
+<td>2 or more</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/catsib.html">catsib()</a></code></td>
@@ -121,11 +120,10 @@ polytomous<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><sem
 </tr>
 </tbody>
 </table>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mo>*</mo></msup><annotation encoding="application/x-tex">^*</annotation></semantics></math><code><a href="../reference/rdif.html">rdif()</a></code> and <code><a href="../reference/grdif.html">grdif()</a></code> can accept polytomous item
-response data, but their statistical performance for polytomous items
-has not yet been formally validated. Research extending and evaluating
-the RDIF and GRDIF frameworks to polytomous items is currently
-ongoing.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi></mi><mo>*</mo></msup><annotation encoding="application/x-tex">^*</annotation></semantics></math><code><a href="../reference/rdif.html">rdif()</a></code> can accept polytomous item response data, but its
+statistical performance for polytomous items has not yet been formally
+validated. Research extending and evaluating the RDIF framework to
+polytomous items is ongoing.</p>
 <p>All three functions require pooled item response data and group
 membership labels. Pooled item parameter estimates and ability estimates
 are also typically needed; however, for <code><a href="../reference/catsib.html">catsib()</a></code>, item
@@ -366,8 +364,10 @@ purification (default <code>FALSE</code>).</li>
 <code>max.iter</code>: Maximum number of purification iterations
 (default <code>10</code>).</li>
 <li>
-<code>method</code>: Scoring method for ability re-estimation during
-purification. <code>"ML"</code> is recommended (default).</li>
+<code>method</code>: Scoring method used when abilities are
+estimated internally, that is, when <code>score = NULL</code> and at
+every purification iteration. <code>"ML"</code> is recommended
+(default).</li>
 </ul>
 </div>
 <div class="section level3">
@@ -407,29 +407,29 @@ purification. <code>"ML"</code> is recommended (default).</li>
 <span><span class="co">#&gt;   - RDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.ref n.foc  rdifr p.rdifr      rdifs p.rdifs      rdifrs p.rdifrs    </span></span>
-<span><span class="co">#&gt; 1   V1  1000  1000 -0.072   0.000 ***  0.054   0.001 ***  29.038    0.000 ***</span></span>
+<span><span class="co">#&gt; 1   V1  1000  1000 -0.072   0.000 ***  0.054   0.001 ***  29.032    0.000 ***</span></span>
 <span><span class="co">#&gt; 2   V2  1000  1000 -0.121   0.000 ***  0.026   0.428      47.073    0.000 ***</span></span>
-<span><span class="co">#&gt; 3   V3  1000  1000  0.024   0.191      0.054   0.000 ***  28.057    0.000 ***</span></span>
-<span><span class="co">#&gt; 4   V4  1000  1000 -0.033   0.054   .  0.073   0.000 ***  35.487    0.000 ***</span></span>
-<span><span class="co">#&gt; 5   V5  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.017    0.000 ***</span></span>
-<span><span class="co">#&gt; 6   V6  1000  1000 -0.121   0.000 ***  0.106   0.000 ***  79.526    0.000 ***</span></span>
-<span><span class="co">#&gt; 7   V7  1000  1000  0.012   0.382      0.026   0.914       1.065    0.587    </span></span>
+<span><span class="co">#&gt; 3   V3  1000  1000  0.024   0.191      0.054   0.000 ***  28.056    0.000 ***</span></span>
+<span><span class="co">#&gt; 4   V4  1000  1000 -0.033   0.054   .  0.073   0.000 ***  35.493    0.000 ***</span></span>
+<span><span class="co">#&gt; 5   V5  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.044    0.000 ***</span></span>
+<span><span class="co">#&gt; 6   V6  1000  1000 -0.121   0.000 ***  0.106   0.000 ***  79.565    0.000 ***</span></span>
+<span><span class="co">#&gt; 7   V7  1000  1000  0.012   0.382      0.026   0.914       1.066    0.587    </span></span>
 <span><span class="co">#&gt; 8   V8  1000  1000  0.050   0.004  **  0.006   0.113      10.803    0.004  **</span></span>
 <span><span class="co">#&gt; 9   V9  1000  1000  0.034   0.018   *  0.010   0.032   *   6.455    0.040   *</span></span>
 <span><span class="co">#&gt; 10 V10  1000  1000 -0.002   0.925     -0.016   0.469       1.910    0.385    </span></span>
-<span><span class="co">#&gt; 11 V11  1000  1000 -0.002   0.707      0.009   0.750       0.963    0.618    </span></span>
+<span><span class="co">#&gt; 11 V11  1000  1000 -0.002   0.710      0.009   0.750       0.950    0.622    </span></span>
 <span><span class="co">#&gt; 12 V12  1000  1000 -0.019   0.290      0.018   0.912       1.120    0.571    </span></span>
 <span><span class="co">#&gt; 13 V13  1000  1000  0.010   0.567     -0.009   0.785       0.448    0.799    </span></span>
-<span><span class="co">#&gt; 14 V14  1000  1000  0.015   0.161      0.016   0.544       2.560    0.278    </span></span>
+<span><span class="co">#&gt; 14 V14  1000  1000  0.015   0.161      0.016   0.544       2.565    0.277    </span></span>
 <span><span class="co">#&gt; 15 V15  1000  1000  0.017   0.396      0.000   0.309       1.890    0.389    </span></span>
 <span><span class="co">#&gt; 16 V16  1000  1000 -0.013   0.253      0.032   0.176       2.027    0.363    </span></span>
-<span><span class="co">#&gt; 17 V17  1000  1000  0.005   0.664      0.025   0.647       2.338    0.311    </span></span>
+<span><span class="co">#&gt; 17 V17  1000  1000  0.005   0.663      0.025   0.647       2.346    0.310    </span></span>
 <span><span class="co">#&gt; 18 V18  1000  1000  0.023   0.237     -0.003   0.384       1.401    0.496    </span></span>
 <span><span class="co">#&gt; 19 V19  1000  1000  0.034   0.051   .  0.014   0.048   *   4.038    0.133    </span></span>
 <span><span class="co">#&gt; 20 V20  1000  1000  0.013   0.398      0.025   0.907       0.714    0.700    </span></span>
 <span><span class="co">#&gt; 21 V21  1000  1000 -0.007   0.695     -0.018   0.250       1.403    0.496    </span></span>
-<span><span class="co">#&gt; 22 V22  1000  1000  0.002   0.834      0.010   0.253       2.647    0.266    </span></span>
-<span><span class="co">#&gt; 23 V23  1000  1000  0.021   0.194     -0.004   0.002  **  10.236    0.006  **</span></span>
+<span><span class="co">#&gt; 22 V22  1000  1000  0.002   0.833      0.010   0.253       2.638    0.267    </span></span>
+<span><span class="co">#&gt; 23 V23  1000  1000  0.021   0.194     -0.004   0.002  **  10.235    0.006  **</span></span>
 <span><span class="co">#&gt; 24 V24  1000  1000  0.016   0.203      0.025   0.981       2.020    0.364    </span></span>
 <span><span class="co">#&gt; 25 V25  1000  1000  0.001   0.965     -0.008   0.917       0.085    0.958    </span></span>
 <span><span class="co">#&gt; 26 V26  1000  1000  0.026   0.132      0.010   0.375       2.774    0.250    </span></span>
@@ -440,13 +440,13 @@ purification. <code>"ML"</code> is recommended (default).</li>
 <span><span class="co">#&gt; 31 V31  1000  1000 -0.003   0.866      0.001   0.576       1.354    0.508    </span></span>
 <span><span class="co">#&gt; 32 V32  1000  1000  0.040   0.025   *  0.022   0.033   *   6.345    0.042   *</span></span>
 <span><span class="co">#&gt; 33 V33  1000  1000  0.016   0.366      0.007   0.201       1.644    0.440    </span></span>
-<span><span class="co">#&gt; 34 V34  1000  1000 -0.003   0.591      0.016   0.206       2.287    0.319    </span></span>
-<span><span class="co">#&gt; 35 V35  1000  1000  0.027   0.182      0.012   0.758       1.780    0.411    </span></span>
-<span><span class="co">#&gt; 36 V36  1000  1000  0.008   0.551      0.017   0.191       1.802    0.406    </span></span>
-<span><span class="co">#&gt; 37 V37  1000  1000  0.024   0.127      0.018   0.509       2.425    0.298    </span></span>
+<span><span class="co">#&gt; 34 V34  1000  1000 -0.003   0.596      0.016   0.207       2.299    0.317    </span></span>
+<span><span class="co">#&gt; 35 V35  1000  1000  0.027   0.182      0.012   0.757       1.780    0.411    </span></span>
+<span><span class="co">#&gt; 36 V36  1000  1000  0.008   0.551      0.017   0.191       1.801    0.406    </span></span>
+<span><span class="co">#&gt; 37 V37  1000  1000  0.024   0.126      0.018   0.509       2.425    0.298    </span></span>
 <span><span class="co">#&gt; 38 V38  1000  1000  0.014   0.486     -0.005   0.471       1.479    0.477    </span></span>
 <span><span class="co">#&gt; 39 V39  1000  1000  0.029   0.091   .  0.012   0.150       3.374    0.185    </span></span>
-<span><span class="co">#&gt; 40 V40  1000  1000  0.010   0.403      0.019   0.627       0.768    0.681    </span></span>
+<span><span class="co">#&gt; 40 V40  1000  1000  0.010   0.403      0.019   0.628       0.771    0.680    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -459,46 +459,46 @@ purification. <code>"ML"</code> is recommended (default).</li>
 <code class="sourceCode R"><span><span class="co"># Full table of RDIF statistics for all items</span></span>
 <span><span class="va">rdif_npur</span><span class="op">$</span><span class="va">no_purify</span><span class="op">$</span><span class="va">dif_stat</span></span>
 <span><span class="co">#&gt;     id   rdifr z.rdifr   rdifs z.rdifs   rdifrs p.rdifr p.rdifs p.rdifrs n.ref</span></span>
-<span><span class="co">#&gt; 1   V1 -0.0715 -5.2903  0.0536  3.4352  29.0376  0.0000  0.0006   0.0000  1000</span></span>
-<span><span class="co">#&gt; 2   V2 -0.1207 -6.8244  0.0264  0.7925  47.0729  0.0000  0.4281   0.0000  1000</span></span>
-<span><span class="co">#&gt; 3   V3  0.0245  1.3072  0.0537  4.1500  28.0571  0.1911  0.0000   0.0000  1000</span></span>
-<span><span class="co">#&gt; 4   V4 -0.0333 -1.9292  0.0730  5.9229  35.4870  0.0537  0.0000   0.0000  1000</span></span>
-<span><span class="co">#&gt; 5   V5 -0.1358 -9.8322  0.1027  9.3258 104.0171  0.0000  0.0000   0.0000  1000</span></span>
-<span><span class="co">#&gt; 6   V6 -0.1208 -7.3043  0.1063  8.8836  79.5258  0.0000  0.0000   0.0000  1000</span></span>
-<span><span class="co">#&gt; 7   V7  0.0120  0.8744  0.0263 -0.1077   1.0652  0.3819  0.9142   0.5871  1000</span></span>
-<span><span class="co">#&gt; 8   V8  0.0495  2.8712  0.0056 -1.5867  10.8034  0.0041  0.1126   0.0045  1000</span></span>
-<span><span class="co">#&gt; 9   V9  0.0338  2.3768  0.0095 -2.1403   6.4545  0.0175  0.0323   0.0397  1000</span></span>
+<span><span class="co">#&gt; 1   V1 -0.0715 -5.2899  0.0536  3.4351  29.0324  0.0000  0.0006   0.0000  1000</span></span>
+<span><span class="co">#&gt; 2   V2 -0.1207 -6.8244  0.0264  0.7925  47.0728  0.0000  0.4281   0.0000  1000</span></span>
+<span><span class="co">#&gt; 3   V3  0.0245  1.3074  0.0537  4.1498  28.0562  0.1911  0.0000   0.0000  1000</span></span>
+<span><span class="co">#&gt; 4   V4 -0.0333 -1.9291  0.0730  5.9234  35.4935  0.0537  0.0000   0.0000  1000</span></span>
+<span><span class="co">#&gt; 5   V5 -0.1358 -9.8316  0.1027  9.3300 104.0439  0.0000  0.0000   0.0000  1000</span></span>
+<span><span class="co">#&gt; 6   V6 -0.1208 -7.3037  0.1063  8.8854  79.5649  0.0000  0.0000   0.0000  1000</span></span>
+<span><span class="co">#&gt; 7   V7  0.0120  0.8746  0.0263 -0.1077   1.0657  0.3818  0.9143   0.5869  1000</span></span>
+<span><span class="co">#&gt; 8   V8  0.0495  2.8712  0.0056 -1.5867  10.8035  0.0041  0.1126   0.0045  1000</span></span>
+<span><span class="co">#&gt; 9   V9  0.0338  2.3770  0.0095 -2.1401   6.4548  0.0175  0.0323   0.0397  1000</span></span>
 <span><span class="co">#&gt; 10 V10 -0.0017 -0.0947 -0.0155 -0.7249   1.9099  0.9246  0.4685   0.3848  1000</span></span>
-<span><span class="co">#&gt; 11 V11 -0.0024 -0.3760  0.0089 -0.3192   0.9626  0.7069  0.7495   0.6180  1000</span></span>
+<span><span class="co">#&gt; 11 V11 -0.0024 -0.3722  0.0089 -0.3183   0.9498  0.7097  0.7502   0.6219  1000</span></span>
 <span><span class="co">#&gt; 12 V12 -0.0187 -1.0585  0.0180  0.1104   1.1205  0.2898  0.9121   0.5711  1000</span></span>
 <span><span class="co">#&gt; 13 V13  0.0102  0.5732 -0.0094  0.2733   0.4481  0.5665  0.7846   0.7993  1000</span></span>
-<span><span class="co">#&gt; 14 V14  0.0146  1.4017  0.0163 -0.6066   2.5600  0.1610  0.5441   0.2780  1000</span></span>
+<span><span class="co">#&gt; 14 V14  0.0146  1.4027  0.0162 -0.6064   2.5650  0.1607  0.5442   0.2773  1000</span></span>
 <span><span class="co">#&gt; 15 V15  0.0171  0.8480 -0.0003 -1.0172   1.8900  0.3964  0.3091   0.3887  1000</span></span>
-<span><span class="co">#&gt; 16 V16 -0.0129 -1.1431  0.0325  1.3539   2.0269  0.2530  0.1758   0.3630  1000</span></span>
-<span><span class="co">#&gt; 17 V17  0.0050  0.4344  0.0251  0.4579   2.3383  0.6640  0.6470   0.3106  1000</span></span>
+<span><span class="co">#&gt; 16 V16 -0.0129 -1.1430  0.0325  1.3539   2.0268  0.2531  0.1758   0.3630  1000</span></span>
+<span><span class="co">#&gt; 17 V17  0.0050  0.4358  0.0250  0.4580   2.3459  0.6630  0.6469   0.3095  1000</span></span>
 <span><span class="co">#&gt; 18 V18  0.0233  1.1834 -0.0031  0.8707   1.4005  0.2366  0.3839   0.4965  1000</span></span>
 <span><span class="co">#&gt; 19 V19  0.0340  1.9515  0.0140  1.9766   4.0379  0.0510  0.0481   0.1328  1000</span></span>
 <span><span class="co">#&gt; 20 V20  0.0130  0.8443  0.0255 -0.1163   0.7139  0.3985  0.9074   0.6998  1000</span></span>
 <span><span class="co">#&gt; 21 V21 -0.0070 -0.3923 -0.0176 -1.1504   1.4031  0.6949  0.2500   0.4958  1000</span></span>
-<span><span class="co">#&gt; 22 V22  0.0020  0.2095  0.0100 -1.1436   2.6468  0.8341  0.2528   0.2662  1000</span></span>
-<span><span class="co">#&gt; 23 V23  0.0213  1.2999 -0.0037 -3.1603  10.2360  0.1936  0.0016   0.0060  1000</span></span>
-<span><span class="co">#&gt; 24 V24  0.0159  1.2729  0.0255  0.0238   2.0200  0.2030  0.9810   0.3642  1000</span></span>
+<span><span class="co">#&gt; 22 V22  0.0020  0.2112  0.0100 -1.1431   2.6376  0.8327  0.2530   0.2674  1000</span></span>
+<span><span class="co">#&gt; 23 V23  0.0213  1.2999 -0.0037 -3.1601  10.2351  0.1936  0.0016   0.0060  1000</span></span>
+<span><span class="co">#&gt; 24 V24  0.0159  1.2730  0.0255  0.0239   2.0202  0.2030  0.9810   0.3642  1000</span></span>
 <span><span class="co">#&gt; 25 V25  0.0008  0.0433 -0.0078 -0.1043   0.0849  0.9654  0.9169   0.9584  1000</span></span>
 <span><span class="co">#&gt; 26 V26  0.0262  1.5075  0.0096 -0.8870   2.7742  0.1317  0.3751   0.2498  1000</span></span>
 <span><span class="co">#&gt; 27 V27  0.0185  1.0317 -0.0027  0.6964   1.1893  0.3022  0.4862   0.5517  1000</span></span>
 <span><span class="co">#&gt; 28 V28  0.0032  0.1844 -0.0089 -0.3929   1.1197  0.8537  0.6944   0.5713  1000</span></span>
 <span><span class="co">#&gt; 29 V29 -0.0072 -0.3879 -0.0105  0.0331   0.4404  0.6981  0.9736   0.8023  1000</span></span>
-<span><span class="co">#&gt; 30 V30  0.0006  0.0342  0.0053 -1.4989   2.4034  0.9727  0.1339   0.3007  1000</span></span>
+<span><span class="co">#&gt; 30 V30  0.0006  0.0343  0.0053 -1.4988   2.4030  0.9726  0.1339   0.3007  1000</span></span>
 <span><span class="co">#&gt; 31 V31 -0.0029 -0.1688  0.0011  0.5587   1.3541  0.8660  0.5764   0.5081  1000</span></span>
 <span><span class="co">#&gt; 32 V32  0.0405  2.2397  0.0216  2.1288   6.3449  0.0251  0.0333   0.0419  1000</span></span>
 <span><span class="co">#&gt; 33 V33  0.0163  0.9035  0.0067  1.2791   1.6438  0.3663  0.2008   0.4396  1000</span></span>
-<span><span class="co">#&gt; 34 V34 -0.0034 -0.5368  0.0157  1.2634   2.2870  0.5914  0.2064   0.3187  1000</span></span>
-<span><span class="co">#&gt; 35 V35  0.0266  1.3341  0.0117 -0.3086   1.7799  0.1822  0.7576   0.4107  1000</span></span>
-<span><span class="co">#&gt; 36 V36  0.0080  0.5959  0.0168 -1.3079   1.8019  0.5512  0.1909   0.4062  1000</span></span>
-<span><span class="co">#&gt; 37 V37  0.0241  1.5278  0.0183 -0.6608   2.4248  0.1266  0.5087   0.2975  1000</span></span>
-<span><span class="co">#&gt; 38 V38  0.0138  0.6966 -0.0055 -0.7209   1.4787  0.4860  0.4710   0.4774  1000</span></span>
-<span><span class="co">#&gt; 39 V39  0.0289  1.6905  0.0123 -1.4386   3.3742  0.0909  0.1503   0.1851  1000</span></span>
-<span><span class="co">#&gt; 40 V40  0.0099  0.8360  0.0188 -0.4853   0.7679  0.4032  0.6275   0.6812  1000</span></span>
+<span><span class="co">#&gt; 34 V34 -0.0034 -0.5309  0.0156  1.2627   2.2989  0.5955  0.2067   0.3168  1000</span></span>
+<span><span class="co">#&gt; 35 V35  0.0266  1.3342  0.0117 -0.3088   1.7802  0.1821  0.7575   0.4106  1000</span></span>
+<span><span class="co">#&gt; 36 V36  0.0080  0.5961  0.0168 -1.3078   1.8014  0.5511  0.1909   0.4063  1000</span></span>
+<span><span class="co">#&gt; 37 V37  0.0241  1.5279  0.0183 -0.6608   2.4249  0.1265  0.5087   0.2975  1000</span></span>
+<span><span class="co">#&gt; 38 V38  0.0138  0.6967 -0.0055 -0.7209   1.4787  0.4860  0.4710   0.4774  1000</span></span>
+<span><span class="co">#&gt; 39 V39  0.0289  1.6907  0.0123 -1.4384   3.3744  0.0909  0.1503   0.1850  1000</span></span>
+<span><span class="co">#&gt; 40 V40  0.0099  0.8371  0.0188 -0.4847   0.7710  0.4026  0.6279   0.6801  1000</span></span>
 <span><span class="co">#&gt;    n.foc n.total</span></span>
 <span><span class="co">#&gt; 1   1000    2000</span></span>
 <span><span class="co">#&gt; 2   1000    2000</span></span>
@@ -563,8 +563,11 @@ RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics
 <code>rdifrs</code>
 (RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mrow><mi>R</mi><mi>S</mi></mrow></msub><annotation encoding="application/x-tex">_{RS}</annotation></semantics></math>
 statistic), <code>p.rdifr</code>, <code>p.rdifs</code>,
-<code>p.rdifrs</code> (corresponding p-values), and group sample sizes.
-Items with p-values below <code>alpha</code> are flagged as DIF.</p>
+<code>p.rdifrs</code> (corresponding p-values), and <code>n.ref</code>,
+<code>n.foc</code>, and <code>n.total</code> (the numbers of examinees
+in the reference and focal groups who responded to the item, and their
+sum). Items with p-values less than or equal to <code>alpha</code> are
+flagged as DIF.</p>
 <p>In this simulation,
 RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mrow><mi>R</mi><mi>S</mi></mrow></msub><annotation encoding="application/x-tex">_{RS}</annotation></semantics></math>
 flags all six items with injected DIF (items 1-6) and four DIF-free
@@ -589,15 +592,15 @@ remove.</p>
 ability estimates used to compute the RDIF statistics, inflating Type I
 error rates for DIF-free items. Iterative purification addresses this by
 progressively removing flagged DIF items from ability re-estimation. At
-each iteration, the most significant flagged item (the item with the
-largest absolute standardized statistic for <code>"rdifr"</code> and
-<code>"rdifs"</code>, the largest statistic for <code>"rdifrs"</code>
-and for the GRDIF statistics, and the largest absolute
-<code>z.beta</code> for <code><a href="../reference/catsib.html">catsib()</a></code>) is removed, the abilities
+each iteration, the flagged item with the smallest p-value of the
+statistic that drives the purification (<code>purify.by</code>, or the
+CATSIB statistic for <code><a href="../reference/catsib.html">catsib()</a></code>) is removed, the abilities
 are re-estimated from the remaining items, and the DIF tests are
 repeated. The procedure stops when no further item is flagged or when
-<code>max.iter</code> is reached <span class="citation">(Lim et al.,
-2022)</span>.</p>
+<code>max.iter</code> is reached. It also stops early, with
+<code>complete = FALSE</code> and a warning, when every item is flagged
+or when a group has no ability estimate left (for <code><a href="../reference/catsib.html">catsib()</a></code>,
+fewer than two, or no usable bin for any remaining item) <span class="citation">(Lim et al., 2022)</span>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rdif_pur</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rdif.html">rdif</a></span><span class="op">(</span></span>
 <span>  x          <span class="op">=</span> <span class="va">meta_pool</span>,</span>
@@ -637,29 +640,29 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt;   - RDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.ref n.foc  rdifr p.rdifr      rdifs p.rdifs      rdifrs p.rdifrs    </span></span>
-<span><span class="co">#&gt; 1   V1  1000  1000 -0.072   0.000 ***  0.054   0.001 ***  29.038    0.000 ***</span></span>
+<span><span class="co">#&gt; 1   V1  1000  1000 -0.072   0.000 ***  0.054   0.001 ***  29.032    0.000 ***</span></span>
 <span><span class="co">#&gt; 2   V2  1000  1000 -0.121   0.000 ***  0.026   0.428      47.073    0.000 ***</span></span>
-<span><span class="co">#&gt; 3   V3  1000  1000  0.024   0.191      0.054   0.000 ***  28.057    0.000 ***</span></span>
-<span><span class="co">#&gt; 4   V4  1000  1000 -0.033   0.054   .  0.073   0.000 ***  35.487    0.000 ***</span></span>
-<span><span class="co">#&gt; 5   V5  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.017    0.000 ***</span></span>
-<span><span class="co">#&gt; 6   V6  1000  1000 -0.121   0.000 ***  0.106   0.000 ***  79.526    0.000 ***</span></span>
-<span><span class="co">#&gt; 7   V7  1000  1000  0.012   0.382      0.026   0.914       1.065    0.587    </span></span>
+<span><span class="co">#&gt; 3   V3  1000  1000  0.024   0.191      0.054   0.000 ***  28.056    0.000 ***</span></span>
+<span><span class="co">#&gt; 4   V4  1000  1000 -0.033   0.054   .  0.073   0.000 ***  35.493    0.000 ***</span></span>
+<span><span class="co">#&gt; 5   V5  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.044    0.000 ***</span></span>
+<span><span class="co">#&gt; 6   V6  1000  1000 -0.121   0.000 ***  0.106   0.000 ***  79.565    0.000 ***</span></span>
+<span><span class="co">#&gt; 7   V7  1000  1000  0.012   0.382      0.026   0.914       1.066    0.587    </span></span>
 <span><span class="co">#&gt; 8   V8  1000  1000  0.050   0.004  **  0.006   0.113      10.803    0.004  **</span></span>
 <span><span class="co">#&gt; 9   V9  1000  1000  0.034   0.018   *  0.010   0.032   *   6.455    0.040   *</span></span>
 <span><span class="co">#&gt; 10 V10  1000  1000 -0.002   0.925     -0.016   0.469       1.910    0.385    </span></span>
-<span><span class="co">#&gt; 11 V11  1000  1000 -0.002   0.707      0.009   0.750       0.963    0.618    </span></span>
+<span><span class="co">#&gt; 11 V11  1000  1000 -0.002   0.710      0.009   0.750       0.950    0.622    </span></span>
 <span><span class="co">#&gt; 12 V12  1000  1000 -0.019   0.290      0.018   0.912       1.120    0.571    </span></span>
 <span><span class="co">#&gt; 13 V13  1000  1000  0.010   0.567     -0.009   0.785       0.448    0.799    </span></span>
-<span><span class="co">#&gt; 14 V14  1000  1000  0.015   0.161      0.016   0.544       2.560    0.278    </span></span>
+<span><span class="co">#&gt; 14 V14  1000  1000  0.015   0.161      0.016   0.544       2.565    0.277    </span></span>
 <span><span class="co">#&gt; 15 V15  1000  1000  0.017   0.396      0.000   0.309       1.890    0.389    </span></span>
 <span><span class="co">#&gt; 16 V16  1000  1000 -0.013   0.253      0.032   0.176       2.027    0.363    </span></span>
-<span><span class="co">#&gt; 17 V17  1000  1000  0.005   0.664      0.025   0.647       2.338    0.311    </span></span>
+<span><span class="co">#&gt; 17 V17  1000  1000  0.005   0.663      0.025   0.647       2.346    0.310    </span></span>
 <span><span class="co">#&gt; 18 V18  1000  1000  0.023   0.237     -0.003   0.384       1.401    0.496    </span></span>
 <span><span class="co">#&gt; 19 V19  1000  1000  0.034   0.051   .  0.014   0.048   *   4.038    0.133    </span></span>
 <span><span class="co">#&gt; 20 V20  1000  1000  0.013   0.398      0.025   0.907       0.714    0.700    </span></span>
 <span><span class="co">#&gt; 21 V21  1000  1000 -0.007   0.695     -0.018   0.250       1.403    0.496    </span></span>
-<span><span class="co">#&gt; 22 V22  1000  1000  0.002   0.834      0.010   0.253       2.647    0.266    </span></span>
-<span><span class="co">#&gt; 23 V23  1000  1000  0.021   0.194     -0.004   0.002  **  10.236    0.006  **</span></span>
+<span><span class="co">#&gt; 22 V22  1000  1000  0.002   0.833      0.010   0.253       2.638    0.267    </span></span>
+<span><span class="co">#&gt; 23 V23  1000  1000  0.021   0.194     -0.004   0.002  **  10.235    0.006  **</span></span>
 <span><span class="co">#&gt; 24 V24  1000  1000  0.016   0.203      0.025   0.981       2.020    0.364    </span></span>
 <span><span class="co">#&gt; 25 V25  1000  1000  0.001   0.965     -0.008   0.917       0.085    0.958    </span></span>
 <span><span class="co">#&gt; 26 V26  1000  1000  0.026   0.132      0.010   0.375       2.774    0.250    </span></span>
@@ -670,13 +673,13 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt; 31 V31  1000  1000 -0.003   0.866      0.001   0.576       1.354    0.508    </span></span>
 <span><span class="co">#&gt; 32 V32  1000  1000  0.040   0.025   *  0.022   0.033   *   6.345    0.042   *</span></span>
 <span><span class="co">#&gt; 33 V33  1000  1000  0.016   0.366      0.007   0.201       1.644    0.440    </span></span>
-<span><span class="co">#&gt; 34 V34  1000  1000 -0.003   0.591      0.016   0.206       2.287    0.319    </span></span>
-<span><span class="co">#&gt; 35 V35  1000  1000  0.027   0.182      0.012   0.758       1.780    0.411    </span></span>
-<span><span class="co">#&gt; 36 V36  1000  1000  0.008   0.551      0.017   0.191       1.802    0.406    </span></span>
-<span><span class="co">#&gt; 37 V37  1000  1000  0.024   0.127      0.018   0.509       2.425    0.298    </span></span>
+<span><span class="co">#&gt; 34 V34  1000  1000 -0.003   0.596      0.016   0.207       2.299    0.317    </span></span>
+<span><span class="co">#&gt; 35 V35  1000  1000  0.027   0.182      0.012   0.757       1.780    0.411    </span></span>
+<span><span class="co">#&gt; 36 V36  1000  1000  0.008   0.551      0.017   0.191       1.801    0.406    </span></span>
+<span><span class="co">#&gt; 37 V37  1000  1000  0.024   0.126      0.018   0.509       2.425    0.298    </span></span>
 <span><span class="co">#&gt; 38 V38  1000  1000  0.014   0.486     -0.005   0.471       1.479    0.477    </span></span>
 <span><span class="co">#&gt; 39 V39  1000  1000  0.029   0.091   .  0.012   0.150       3.374    0.185    </span></span>
-<span><span class="co">#&gt; 40 V40  1000  1000  0.010   0.403      0.019   0.627       0.768    0.681    </span></span>
+<span><span class="co">#&gt; 40 V40  1000  1000  0.010   0.403      0.019   0.628       0.771    0.680    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -692,28 +695,28 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt;   - RDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.iter n.ref n.foc  rdifr p.rdifr      rdifs p.rdifs      rdifrs</span></span>
-<span><span class="co">#&gt; 1   V1      4  1000  1000 -0.079   0.000 ***  0.053   0.000 ***  34.429</span></span>
+<span><span class="co">#&gt; 1   V1      4  1000  1000 -0.079   0.000 ***  0.053   0.000 ***  34.424</span></span>
 <span><span class="co">#&gt; 2   V2      2  1000  1000 -0.128   0.000 ***  0.027   0.325      53.515</span></span>
-<span><span class="co">#&gt; 3   V3      5  1000  1000  0.009   0.651      0.052   0.000 ***  26.278</span></span>
+<span><span class="co">#&gt; 3   V3      5  1000  1000  0.009   0.651      0.052   0.000 ***  26.280</span></span>
 <span><span class="co">#&gt; 4   V4      3  1000  1000 -0.046   0.008  **  0.071   0.000 ***  38.174</span></span>
-<span><span class="co">#&gt; 5   V5      0  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.017</span></span>
-<span><span class="co">#&gt; 6   V6      1  1000  1000 -0.123   0.000 ***  0.107   0.000 ***  82.411</span></span>
+<span><span class="co">#&gt; 5   V5      0  1000  1000 -0.136   0.000 ***  0.103   0.000 *** 104.044</span></span>
+<span><span class="co">#&gt; 6   V6      1  1000  1000 -0.123   0.000 ***  0.107   0.000 ***  82.295</span></span>
 <span><span class="co">#&gt; 7   V7      6  1000  1000  0.001   0.964      0.026   0.510       0.759</span></span>
 <span><span class="co">#&gt; 8   V8      6  1000  1000  0.026   0.132      0.003   0.224       3.772</span></span>
 <span><span class="co">#&gt; 9   V9      6  1000  1000  0.021   0.132      0.008   0.135       2.829</span></span>
 <span><span class="co">#&gt; 10 V10      6  1000  1000 -0.006   0.736     -0.015   0.393       1.527</span></span>
-<span><span class="co">#&gt; 11 V11      6  1000  1000 -0.004   0.493      0.009   0.973       0.985</span></span>
+<span><span class="co">#&gt; 11 V11      6  1000  1000 -0.004   0.492      0.009   0.973       0.987</span></span>
 <span><span class="co">#&gt; 12 V12      6  1000  1000 -0.040   0.022   *  0.018   0.492       5.466</span></span>
 <span><span class="co">#&gt; 13 V13      6  1000  1000  0.003   0.886     -0.009   0.990       0.054</span></span>
-<span><span class="co">#&gt; 14 V14      6  1000  1000  0.009   0.388      0.017   0.944       2.074</span></span>
+<span><span class="co">#&gt; 14 V14      6  1000  1000  0.009   0.388      0.017   0.944       2.073</span></span>
 <span><span class="co">#&gt; 15 V15      6  1000  1000  0.001   0.945      0.000   0.356       0.869</span></span>
 <span><span class="co">#&gt; 16 V16      6  1000  1000 -0.021   0.057   .  0.033   0.033   *   5.221</span></span>
-<span><span class="co">#&gt; 17 V17      6  1000  1000 -0.001   0.923      0.023   0.424       1.619</span></span>
+<span><span class="co">#&gt; 17 V17      6  1000  1000 -0.001   0.922      0.023   0.425       1.614</span></span>
 <span><span class="co">#&gt; 18 V18      6  1000  1000  0.014   0.484     -0.003   0.598       0.490</span></span>
 <span><span class="co">#&gt; 19 V19      6  1000  1000  0.031   0.075   .  0.014   0.065   .   3.458</span></span>
 <span><span class="co">#&gt; 20 V20      6  1000  1000 -0.007   0.649      0.027   0.260       1.341</span></span>
 <span><span class="co">#&gt; 21 V21      6  1000  1000 -0.024   0.182     -0.016   0.181       2.318</span></span>
-<span><span class="co">#&gt; 22 V22      6  1000  1000 -0.002   0.797      0.010   0.502       2.077</span></span>
+<span><span class="co">#&gt; 22 V22      6  1000  1000 -0.002   0.797      0.010   0.502       2.079</span></span>
 <span><span class="co">#&gt; 23 V23      6  1000  1000  0.001   0.947     -0.003   0.022   *   5.527</span></span>
 <span><span class="co">#&gt; 24 V24      6  1000  1000  0.004   0.758      0.024   0.528       0.810</span></span>
 <span><span class="co">#&gt; 25 V25      6  1000  1000 -0.004   0.825     -0.008   0.794       0.068</span></span>
@@ -721,17 +724,17 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt; 27 V27      6  1000  1000  0.013   0.487     -0.002   0.600       0.500</span></span>
 <span><span class="co">#&gt; 28 V28      6  1000  1000 -0.002   0.897     -0.009   0.551       0.854</span></span>
 <span><span class="co">#&gt; 29 V29      6  1000  1000 -0.016   0.389     -0.011   0.735       1.022</span></span>
-<span><span class="co">#&gt; 30 V30      6  1000  1000 -0.017   0.365      0.006   0.394       2.133</span></span>
+<span><span class="co">#&gt; 30 V30      6  1000  1000 -0.017   0.365      0.006   0.394       2.134</span></span>
 <span><span class="co">#&gt; 31 V31      6  1000  1000 -0.011   0.527      0.000   0.793       2.010</span></span>
 <span><span class="co">#&gt; 32 V32      6  1000  1000  0.022   0.227      0.020   0.079   .   3.237</span></span>
 <span><span class="co">#&gt; 33 V33      6  1000  1000  0.003   0.869      0.007   0.340       1.271</span></span>
-<span><span class="co">#&gt; 34 V34      6  1000  1000 -0.005   0.413      0.015   0.179       2.005</span></span>
+<span><span class="co">#&gt; 34 V34      6  1000  1000 -0.005   0.412      0.015   0.179       2.002</span></span>
 <span><span class="co">#&gt; 35 V35      6  1000  1000  0.011   0.567      0.012   0.896       0.402</span></span>
 <span><span class="co">#&gt; 36 V36      6  1000  1000 -0.003   0.834      0.017   0.603       0.749</span></span>
 <span><span class="co">#&gt; 37 V37      6  1000  1000  0.004   0.797      0.014   0.772       0.122</span></span>
 <span><span class="co">#&gt; 38 V38      6  1000  1000 -0.002   0.920     -0.006   0.386       0.783</span></span>
 <span><span class="co">#&gt; 39 V39      6  1000  1000  0.013   0.460      0.012   0.504       0.676</span></span>
-<span><span class="co">#&gt; 40 V40      6  1000  1000  0.003   0.815      0.018   0.936       0.222</span></span>
+<span><span class="co">#&gt; 40 V40      6  1000  1000  0.003   0.815      0.018   0.937       0.221</span></span>
 <span><span class="co">#&gt;    p.rdifrs    </span></span>
 <span><span class="co">#&gt; 1     0.000 ***</span></span>
 <span><span class="co">#&gt; 2     0.000 ***</span></span>
@@ -746,10 +749,10 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt; 11    0.611    </span></span>
 <span><span class="co">#&gt; 12    0.065   .</span></span>
 <span><span class="co">#&gt; 13    0.973    </span></span>
-<span><span class="co">#&gt; 14    0.354    </span></span>
+<span><span class="co">#&gt; 14    0.355    </span></span>
 <span><span class="co">#&gt; 15    0.648    </span></span>
 <span><span class="co">#&gt; 16    0.074   .</span></span>
-<span><span class="co">#&gt; 17    0.445    </span></span>
+<span><span class="co">#&gt; 17    0.446    </span></span>
 <span><span class="co">#&gt; 18    0.783    </span></span>
 <span><span class="co">#&gt; 19    0.178    </span></span>
 <span><span class="co">#&gt; 20    0.511    </span></span>
@@ -766,13 +769,13 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt; 31    0.366    </span></span>
 <span><span class="co">#&gt; 32    0.198    </span></span>
 <span><span class="co">#&gt; 33    0.530    </span></span>
-<span><span class="co">#&gt; 34    0.367    </span></span>
+<span><span class="co">#&gt; 34    0.368    </span></span>
 <span><span class="co">#&gt; 35    0.818    </span></span>
 <span><span class="co">#&gt; 36    0.688    </span></span>
 <span><span class="co">#&gt; 37    0.941    </span></span>
 <span><span class="co">#&gt; 38    0.676    </span></span>
 <span><span class="co">#&gt; 39    0.713    </span></span>
-<span><span class="co">#&gt; 40    0.895    </span></span>
+<span><span class="co">#&gt; 40    0.896    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05</span></span>
@@ -782,11 +785,14 @@ repeated. The procedure stops when no further item is flagged or when
 <span><span class="co">#&gt; [1] 1 2 3 4 5 6</span></span></code></pre></div>
 <p>The <code>with_purify</code> component contains the final results
 after purification. Its <code>n.iter</code> field reports the total
-number of iterations that were performed, and <code>complete</code>
-indicates whether purification finished before reaching
-<code>max.iter</code>. Here the purification finishes after 6 iterations
-and flags exactly the six items with injected DIF (items 1-6); the false
-positives of the previous example are gone.</p>
+number of iterations that were performed. The value of
+<code>complete</code> is <code>TRUE</code> when the procedure stopped
+because no remaining item was flagged, and <code>FALSE</code> when it
+stopped at <code>max.iter</code>, because every item was flagged, or
+because a group had no ability estimate left. Here the purification
+finishes after 6 iterations and flags exactly the six items with
+injected DIF (items 1-6); the false positives of the previous example
+are gone.</p>
 <p>Do not confuse the <code>n.iter</code> field with the
 <code>n.iter</code> column of <code>with_purify$dif_stat</code>, which
 gives, for each item, the iteration whose result is reported: 0 for an
@@ -826,18 +832,37 @@ distributions:</p>
   \text{GRDIF}_{RS} \xrightarrow{d} \chi^2_{2(G-1)}</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
-is the total number of groups. For the two-group special case
+is the total number of groups. For two groups
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">G = 2</annotation></semantics></math>),
-the GRDIF statistics reduce exactly to the original RDIF statistics.</p>
+GRDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
+and
+GRDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>S</mi></msub><annotation encoding="application/x-tex">_S</annotation></semantics></math>
+equal the squares of the standardized
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
+and
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>S</mi></msub><annotation encoding="application/x-tex">_S</annotation></semantics></math>
+statistics,
+GRDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mrow><mi>R</mi><mi>S</mi></mrow></msub><annotation encoding="application/x-tex">_{RS}</annotation></semantics></math>
+equals
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mrow><mi>R</mi><mi>S</mi></mrow></msub><annotation encoding="application/x-tex">_{RS}</annotation></semantics></math>,
+and the p-values are the same.</p>
 <p>When a significant omnibus result is found, optional post-hoc
 pairwise RDIF analyses (controlled via <code>post.hoc = TRUE</code>) can
-identify which specific pairs of groups exhibit DIF.</p>
+identify which specific pairs of groups exhibit DIF. In a pair labeled
+“a &amp; b” in the column <code>group.pair</code>, a is the reference
+group and b is the focal group of the pair. The reference group of the
+GRDIF analysis is the reference group of every pair that includes it,
+and for a pair of focal groups, the group listed earlier in
+<code>focal.name</code> is the reference group. The p-values of the
+post-hoc tests are not adjusted for multiple comparisons; to control the
+familywise error rate, compare them with a corrected level, for example
+<code>alpha</code> divided by the number of pairs (a Bonferroni
+correction).</p>
 <blockquote>
-<p><strong>Note on polytomous items:</strong> Like <code><a href="../reference/rdif.html">rdif()</a></code>,
-<code><a href="../reference/grdif.html">grdif()</a></code> also accepts polytomous item response data.
-However, formal validation of the GRDIF framework for polytomous items
-has not yet been published; research on this extension is currently
-ongoing.</p>
+<p><strong>Note on item types:</strong> Unlike <code><a href="../reference/rdif.html">rdif()</a></code>,
+<code><a href="../reference/grdif.html">grdif()</a></code> supports dichotomous items only and stops with an
+error when <code>x</code> includes a polytomous item, because the GRDIF
+framework was developed and evaluated for dichotomous items <span class="citation">(Lim et al., 2024)</span>.</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -856,7 +881,10 @@ identifying which group pairs drive the omnibus DIF signal.</li>
 <code>score</code>, <code>group</code>, <code>D</code>,
 <code>alpha</code>, <code>purify</code>, <code>purify.by</code>,
 <code>max.iter</code>, <code>method</code>) follow the same conventions
-as <code><a href="../reference/rdif.html">rdif()</a></code>.</li>
+as <code><a href="../reference/rdif.html">rdif()</a></code>, except that <code>x</code> must contain
+dichotomous items only and <code><a href="../reference/grdif.html">grdif()</a></code> has no
+<code>item.skip</code> argument. All examinees whose group is not in
+<code>focal.name</code> must belong to one reference group.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -961,28 +989,28 @@ for Focal Group 2).</p>
 <span><span class="co">#&gt;   - GRDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs</span></span>
-<span><span class="co">#&gt; 1   V1   700    700    700 44.868    0.000 *** 32.542    0.000 ***  46.683</span></span>
+<span><span class="co">#&gt; 1   V1   700    700    700 44.855    0.000 *** 32.546    0.000 ***  46.674</span></span>
 <span><span class="co">#&gt; 2   V2   700    700    700 67.755    0.000 ***  9.828    0.007  **  82.604</span></span>
 <span><span class="co">#&gt; 3   V3   700    700    700  0.312    0.856      0.992    0.609       1.214</span></span>
-<span><span class="co">#&gt; 4   V4   700    700    700  3.779    0.151      1.519    0.468       5.142</span></span>
-<span><span class="co">#&gt; 5   V5   700    700    700  0.486    0.784      0.585    0.747       0.856</span></span>
-<span><span class="co">#&gt; 6   V6   700    700    700  0.864    0.649      0.442    0.802       1.873</span></span>
-<span><span class="co">#&gt; 7   V7   700    700    700  1.394    0.498      1.390    0.499       5.932</span></span>
+<span><span class="co">#&gt; 4   V4   700    700    700  3.779    0.151      1.519    0.468       5.141</span></span>
+<span><span class="co">#&gt; 5   V5   700    700    700  0.484    0.785      0.586    0.746       0.856</span></span>
+<span><span class="co">#&gt; 6   V6   700    700    700  0.864    0.649      0.446    0.800       1.923</span></span>
+<span><span class="co">#&gt; 7   V7   700    700    700  1.395    0.498      1.390    0.499       5.933</span></span>
 <span><span class="co">#&gt; 8   V8   700    700    700  5.127    0.077   .  0.651    0.722       5.602</span></span>
-<span><span class="co">#&gt; 9   V9   700    700    700  0.764    0.683      0.839    0.657       2.062</span></span>
+<span><span class="co">#&gt; 9   V9   700    700    700  0.763    0.683      0.839    0.657       2.062</span></span>
 <span><span class="co">#&gt; 10 V10   700    700    700  0.132    0.936      0.602    0.740       1.780</span></span>
-<span><span class="co">#&gt; 11 V11   700    700    700  2.998    0.223      0.983    0.612       3.522</span></span>
-<span><span class="co">#&gt; 12 V12   700    700    700  1.180    0.554      1.807    0.405       2.799</span></span>
+<span><span class="co">#&gt; 11 V11   700    700    700  3.004    0.223      0.981    0.612       3.530</span></span>
+<span><span class="co">#&gt; 12 V12   700    700    700  1.181    0.554      1.807    0.405       2.799</span></span>
 <span><span class="co">#&gt; 13 V13   700    700    700  0.389    0.823      0.100    0.951       0.536</span></span>
-<span><span class="co">#&gt; 14 V14   700    700    700  0.426    0.808      1.152    0.562       1.280</span></span>
-<span><span class="co">#&gt; 15 V15   700    700    700  2.404    0.301      0.201    0.905       2.490</span></span>
-<span><span class="co">#&gt; 16 V16   700    700    700  2.627    0.269      1.520    0.468       3.136</span></span>
-<span><span class="co">#&gt; 17 V17   700    700    700  0.910    0.634      2.532    0.282       3.079</span></span>
-<span><span class="co">#&gt; 18 V18   700    700    700  0.203    0.904      0.588    0.746       3.003</span></span>
+<span><span class="co">#&gt; 14 V14   700    700    700  0.426    0.808      1.152    0.562       1.279</span></span>
+<span><span class="co">#&gt; 15 V15   700    700    700  2.405    0.300      0.201    0.904       2.490</span></span>
+<span><span class="co">#&gt; 16 V16   700    700    700  2.628    0.269      1.520    0.468       3.137</span></span>
+<span><span class="co">#&gt; 17 V17   700    700    700  0.917    0.632      2.510    0.285       3.033</span></span>
+<span><span class="co">#&gt; 18 V18   700    700    700  0.203    0.904      0.587    0.746       3.003</span></span>
 <span><span class="co">#&gt; 19 V19   700    700    700  0.894    0.639      0.617    0.735       4.711</span></span>
 <span><span class="co">#&gt; 20 V20   700    700    700  0.124    0.940      0.400    0.819       0.559</span></span>
 <span><span class="co">#&gt; 21 V21   700    700    700  0.649    0.723      1.411    0.494       1.460</span></span>
-<span><span class="co">#&gt; 22 V22   700    700    700  0.297    0.862      0.317    0.853       2.652</span></span>
+<span><span class="co">#&gt; 22 V22   700    700    700  0.295    0.863      0.317    0.853       2.643</span></span>
 <span><span class="co">#&gt; 23 V23   700    700    700  1.537    0.464      1.202    0.548       2.903</span></span>
 <span><span class="co">#&gt; 24 V24   700    700    700  0.622    0.733      4.768    0.092   .   5.282</span></span>
 <span><span class="co">#&gt; 25 V25   700    700    700  2.413    0.299      0.856    0.652       3.055</span></span>
@@ -990,40 +1018,40 @@ for Focal Group 2).</p>
 <span><span class="co">#&gt; 27 V27   700    700    700  2.722    0.256      1.246    0.536       3.368</span></span>
 <span><span class="co">#&gt; 28 V28   700    700    700  0.804    0.669      0.943    0.624       2.012</span></span>
 <span><span class="co">#&gt; 29 V29   700    700    700  5.237    0.073   .  3.084    0.214       5.666</span></span>
-<span><span class="co">#&gt; 30 V30   700    700    700  3.259    0.196      0.345    0.842       3.680</span></span>
+<span><span class="co">#&gt; 30 V30   700    700    700  3.260    0.196      0.345    0.842       3.682</span></span>
 <span><span class="co">#&gt; 31 V31   700    700    700  1.849    0.397      2.611    0.271       3.125</span></span>
 <span><span class="co">#&gt; 32 V32   700    700    700  0.740    0.691      0.789    0.674       0.954</span></span>
 <span><span class="co">#&gt; 33 V33   700    700    700  0.419    0.811      2.090    0.352       2.380</span></span>
-<span><span class="co">#&gt; 34 V34   700    700    700  3.110    0.211      5.182    0.075   .   5.436</span></span>
-<span><span class="co">#&gt; 35 V35   700    700    700  0.313    0.855      4.591    0.101       4.608</span></span>
-<span><span class="co">#&gt; 36 V36   700    700    700  2.016    0.365      3.152    0.207       3.582</span></span>
+<span><span class="co">#&gt; 34 V34   700    700    700  3.140    0.208      5.181    0.075   .   5.425</span></span>
+<span><span class="co">#&gt; 35 V35   700    700    700  0.313    0.855      4.590    0.101       4.607</span></span>
+<span><span class="co">#&gt; 36 V36   700    700    700  2.015    0.365      3.156    0.206       3.584</span></span>
 <span><span class="co">#&gt; 37 V37   700    700    700  5.327    0.070   .  4.923    0.085   .   8.555</span></span>
 <span><span class="co">#&gt; 38 V38   700    700    700  2.733    0.255      4.922    0.085   .   5.430</span></span>
-<span><span class="co">#&gt; 39 V39   700    700    700  3.422    0.181      2.458    0.292       5.612</span></span>
-<span><span class="co">#&gt; 40 V40   700    700    700  3.603    0.165      1.429    0.490       4.573</span></span>
+<span><span class="co">#&gt; 39 V39   700    700    700  3.422    0.181      2.457    0.293       5.609</span></span>
+<span><span class="co">#&gt; 40 V40   700    700    700  3.603    0.165      1.427    0.490       4.568</span></span>
 <span><span class="co">#&gt;    p.grdifrs    </span></span>
 <span><span class="co">#&gt; 1      0.000 ***</span></span>
 <span><span class="co">#&gt; 2      0.000 ***</span></span>
 <span><span class="co">#&gt; 3      0.876    </span></span>
 <span><span class="co">#&gt; 4      0.273    </span></span>
 <span><span class="co">#&gt; 5      0.931    </span></span>
-<span><span class="co">#&gt; 6      0.759    </span></span>
+<span><span class="co">#&gt; 6      0.750    </span></span>
 <span><span class="co">#&gt; 7      0.204    </span></span>
 <span><span class="co">#&gt; 8      0.231    </span></span>
 <span><span class="co">#&gt; 9      0.724    </span></span>
 <span><span class="co">#&gt; 10     0.776    </span></span>
-<span><span class="co">#&gt; 11     0.475    </span></span>
+<span><span class="co">#&gt; 11     0.473    </span></span>
 <span><span class="co">#&gt; 12     0.592    </span></span>
 <span><span class="co">#&gt; 13     0.970    </span></span>
 <span><span class="co">#&gt; 14     0.865    </span></span>
 <span><span class="co">#&gt; 15     0.646    </span></span>
 <span><span class="co">#&gt; 16     0.535    </span></span>
-<span><span class="co">#&gt; 17     0.545    </span></span>
+<span><span class="co">#&gt; 17     0.552    </span></span>
 <span><span class="co">#&gt; 18     0.557    </span></span>
 <span><span class="co">#&gt; 19     0.318    </span></span>
 <span><span class="co">#&gt; 20     0.968    </span></span>
 <span><span class="co">#&gt; 21     0.834    </span></span>
-<span><span class="co">#&gt; 22     0.618    </span></span>
+<span><span class="co">#&gt; 22     0.619    </span></span>
 <span><span class="co">#&gt; 23     0.574    </span></span>
 <span><span class="co">#&gt; 24     0.260    </span></span>
 <span><span class="co">#&gt; 25     0.549    </span></span>
@@ -1035,13 +1063,13 @@ for Focal Group 2).</p>
 <span><span class="co">#&gt; 31     0.537    </span></span>
 <span><span class="co">#&gt; 32     0.917    </span></span>
 <span><span class="co">#&gt; 33     0.666    </span></span>
-<span><span class="co">#&gt; 34     0.245    </span></span>
+<span><span class="co">#&gt; 34     0.246    </span></span>
 <span><span class="co">#&gt; 35     0.330    </span></span>
-<span><span class="co">#&gt; 36     0.466    </span></span>
+<span><span class="co">#&gt; 36     0.465    </span></span>
 <span><span class="co">#&gt; 37     0.073   .</span></span>
 <span><span class="co">#&gt; 38     0.246    </span></span>
 <span><span class="co">#&gt; 39     0.230    </span></span>
-<span><span class="co">#&gt; 40     0.334    </span></span>
+<span><span class="co">#&gt; 40     0.335    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -1067,11 +1095,11 @@ for Focal Group 2).</p>
 <span><span class="va">grdif_npur</span><span class="op">$</span><span class="va">no_purify</span><span class="op">$</span><span class="va">post.hoc</span></span>
 <span><span class="co">#&gt; $by.grdifr</span></span>
 <span><span class="co">#&gt;   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs</span></span>
-<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0595 -3.3890 0.0568  3.3734 13.0361  0.0007  0.0007   0.0015</span></span>
-<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6780 0.0885  5.6615 46.2794  0.0000  0.0000   0.0000</span></span>
-<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1916 0.0317  2.2964 10.1998  0.0014  0.0217   0.0061</span></span>
+<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0594 -3.3885 0.0568  3.3736 13.0347  0.0007  0.0007   0.0015</span></span>
+<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6770 0.0885  5.6618 46.2701  0.0000  0.0000   0.0000</span></span>
+<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1912 0.0317  2.2965 10.1975  0.0014  0.0216   0.0061</span></span>
 <span><span class="co">#&gt; 4 V2    G1 &amp; G2 -0.1116 -5.1701 0.0267  1.5508 30.2416  0.0000  0.1210   0.0000</span></span>
-<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9867  0.0000  0.0017   0.0000</span></span>
+<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9866  0.0000  0.0017   0.0000</span></span>
 <span><span class="co">#&gt; 6 V2    G2 &amp; G3 -0.0650 -2.9333 0.0228  1.5540 13.4864  0.0034  0.1202   0.0012</span></span>
 <span><span class="co">#&gt;   n.ref n.foc n.total</span></span>
 <span><span class="co">#&gt; 1   700   700    1400</span></span>
@@ -1083,11 +1111,11 @@ for Focal Group 2).</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $by.grdifs</span></span>
 <span><span class="co">#&gt;   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs</span></span>
-<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0595 -3.3890 0.0568  3.3734 13.0361  0.0007  0.0007   0.0015</span></span>
-<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6780 0.0885  5.6615 46.2794  0.0000  0.0000   0.0000</span></span>
-<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1916 0.0317  2.2964 10.1998  0.0014  0.0217   0.0061</span></span>
+<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0594 -3.3885 0.0568  3.3736 13.0347  0.0007  0.0007   0.0015</span></span>
+<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6770 0.0885  5.6618 46.2701  0.0000  0.0000   0.0000</span></span>
+<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1912 0.0317  2.2965 10.1975  0.0014  0.0216   0.0061</span></span>
 <span><span class="co">#&gt; 4 V2    G1 &amp; G2 -0.1116 -5.1701 0.0267  1.5508 30.2416  0.0000  0.1210   0.0000</span></span>
-<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9867  0.0000  0.0017   0.0000</span></span>
+<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9866  0.0000  0.0017   0.0000</span></span>
 <span><span class="co">#&gt; 6 V2    G2 &amp; G3 -0.0650 -2.9333 0.0228  1.5540 13.4864  0.0034  0.1202   0.0012</span></span>
 <span><span class="co">#&gt;   n.ref n.foc n.total</span></span>
 <span><span class="co">#&gt; 1   700   700    1400</span></span>
@@ -1099,11 +1127,11 @@ for Focal Group 2).</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $by.grdifrs</span></span>
 <span><span class="co">#&gt;   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs</span></span>
-<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0595 -3.3890 0.0568  3.3734 13.0361  0.0007  0.0007   0.0015</span></span>
-<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6780 0.0885  5.6615 46.2794  0.0000  0.0000   0.0000</span></span>
-<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1916 0.0317  2.2964 10.1998  0.0014  0.0217   0.0061</span></span>
+<span><span class="co">#&gt; 1 V1    G1 &amp; G2 -0.0594 -3.3885 0.0568  3.3736 13.0347  0.0007  0.0007   0.0015</span></span>
+<span><span class="co">#&gt; 2 V1    G1 &amp; G3 -0.1194 -6.6770 0.0885  5.6618 46.2701  0.0000  0.0000   0.0000</span></span>
+<span><span class="co">#&gt; 3 V1    G2 &amp; G3 -0.0600 -3.1912 0.0317  2.2965 10.1975  0.0014  0.0216   0.0061</span></span>
 <span><span class="co">#&gt; 4 V2    G1 &amp; G2 -0.1116 -5.1701 0.0267  1.5508 30.2416  0.0000  0.1210   0.0000</span></span>
-<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9867  0.0000  0.0017   0.0000</span></span>
+<span><span class="co">#&gt; 5 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9866  0.0000  0.0017   0.0000</span></span>
 <span><span class="co">#&gt; 6 V2    G2 &amp; G3 -0.0650 -2.9333 0.0228  1.5540 13.4864  0.0034  0.1202   0.0012</span></span>
 <span><span class="co">#&gt;   n.ref n.foc n.total</span></span>
 <span><span class="co">#&gt; 1   700   700    1400</span></span>
@@ -1125,7 +1153,17 @@ focal groups, or between focal groups only.</p>
 no other item. The post-hoc results show significant
 RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
 for every pair of groups on both items, and the largest differences
-involve Focal Group 3, whose difficulty shift is the largest.</p>
+involve Focal Group 3, whose difficulty shift is the largest. In each
+pair, the first group in <code>group.pair</code> is the reference group
+of the pair, so a negative
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
+means that the item is harder for the second group of the pair. With
+three pairs, the Bonferroni-corrected level is 0.05/3 = 0.0167, and the
+largest p-value of
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
+among the pairs and items shown is 0.0034, so
+RDIF<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mi>R</mi></msub><annotation encoding="application/x-tex">_R</annotation></semantics></math>
+remains significant for every pair on both items.</p>
 </div>
 <div class="section level3">
 <h3 id="example-2-grdif-with-purification">Example 2: GRDIF with purification<a class="anchor" aria-label="anchor" href="#example-2-grdif-with-purification"></a>
@@ -1170,28 +1208,28 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt;   - GRDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs     grdifrs</span></span>
-<span><span class="co">#&gt; 1   V1   700    700    700 44.868    0.000 *** 32.542    0.000 ***  46.683</span></span>
+<span><span class="co">#&gt; 1   V1   700    700    700 44.855    0.000 *** 32.546    0.000 ***  46.674</span></span>
 <span><span class="co">#&gt; 2   V2   700    700    700 67.755    0.000 ***  9.828    0.007  **  82.604</span></span>
 <span><span class="co">#&gt; 3   V3   700    700    700  0.312    0.856      0.992    0.609       1.214</span></span>
-<span><span class="co">#&gt; 4   V4   700    700    700  3.779    0.151      1.519    0.468       5.142</span></span>
-<span><span class="co">#&gt; 5   V5   700    700    700  0.486    0.784      0.585    0.747       0.856</span></span>
-<span><span class="co">#&gt; 6   V6   700    700    700  0.864    0.649      0.442    0.802       1.873</span></span>
-<span><span class="co">#&gt; 7   V7   700    700    700  1.394    0.498      1.390    0.499       5.932</span></span>
+<span><span class="co">#&gt; 4   V4   700    700    700  3.779    0.151      1.519    0.468       5.141</span></span>
+<span><span class="co">#&gt; 5   V5   700    700    700  0.484    0.785      0.586    0.746       0.856</span></span>
+<span><span class="co">#&gt; 6   V6   700    700    700  0.864    0.649      0.446    0.800       1.923</span></span>
+<span><span class="co">#&gt; 7   V7   700    700    700  1.395    0.498      1.390    0.499       5.933</span></span>
 <span><span class="co">#&gt; 8   V8   700    700    700  5.127    0.077   .  0.651    0.722       5.602</span></span>
-<span><span class="co">#&gt; 9   V9   700    700    700  0.764    0.683      0.839    0.657       2.062</span></span>
+<span><span class="co">#&gt; 9   V9   700    700    700  0.763    0.683      0.839    0.657       2.062</span></span>
 <span><span class="co">#&gt; 10 V10   700    700    700  0.132    0.936      0.602    0.740       1.780</span></span>
-<span><span class="co">#&gt; 11 V11   700    700    700  2.998    0.223      0.983    0.612       3.522</span></span>
-<span><span class="co">#&gt; 12 V12   700    700    700  1.180    0.554      1.807    0.405       2.799</span></span>
+<span><span class="co">#&gt; 11 V11   700    700    700  3.004    0.223      0.981    0.612       3.530</span></span>
+<span><span class="co">#&gt; 12 V12   700    700    700  1.181    0.554      1.807    0.405       2.799</span></span>
 <span><span class="co">#&gt; 13 V13   700    700    700  0.389    0.823      0.100    0.951       0.536</span></span>
-<span><span class="co">#&gt; 14 V14   700    700    700  0.426    0.808      1.152    0.562       1.280</span></span>
-<span><span class="co">#&gt; 15 V15   700    700    700  2.404    0.301      0.201    0.905       2.490</span></span>
-<span><span class="co">#&gt; 16 V16   700    700    700  2.627    0.269      1.520    0.468       3.136</span></span>
-<span><span class="co">#&gt; 17 V17   700    700    700  0.910    0.634      2.532    0.282       3.079</span></span>
-<span><span class="co">#&gt; 18 V18   700    700    700  0.203    0.904      0.588    0.746       3.003</span></span>
+<span><span class="co">#&gt; 14 V14   700    700    700  0.426    0.808      1.152    0.562       1.279</span></span>
+<span><span class="co">#&gt; 15 V15   700    700    700  2.405    0.300      0.201    0.904       2.490</span></span>
+<span><span class="co">#&gt; 16 V16   700    700    700  2.628    0.269      1.520    0.468       3.137</span></span>
+<span><span class="co">#&gt; 17 V17   700    700    700  0.917    0.632      2.510    0.285       3.033</span></span>
+<span><span class="co">#&gt; 18 V18   700    700    700  0.203    0.904      0.587    0.746       3.003</span></span>
 <span><span class="co">#&gt; 19 V19   700    700    700  0.894    0.639      0.617    0.735       4.711</span></span>
 <span><span class="co">#&gt; 20 V20   700    700    700  0.124    0.940      0.400    0.819       0.559</span></span>
 <span><span class="co">#&gt; 21 V21   700    700    700  0.649    0.723      1.411    0.494       1.460</span></span>
-<span><span class="co">#&gt; 22 V22   700    700    700  0.297    0.862      0.317    0.853       2.652</span></span>
+<span><span class="co">#&gt; 22 V22   700    700    700  0.295    0.863      0.317    0.853       2.643</span></span>
 <span><span class="co">#&gt; 23 V23   700    700    700  1.537    0.464      1.202    0.548       2.903</span></span>
 <span><span class="co">#&gt; 24 V24   700    700    700  0.622    0.733      4.768    0.092   .   5.282</span></span>
 <span><span class="co">#&gt; 25 V25   700    700    700  2.413    0.299      0.856    0.652       3.055</span></span>
@@ -1199,40 +1237,40 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt; 27 V27   700    700    700  2.722    0.256      1.246    0.536       3.368</span></span>
 <span><span class="co">#&gt; 28 V28   700    700    700  0.804    0.669      0.943    0.624       2.012</span></span>
 <span><span class="co">#&gt; 29 V29   700    700    700  5.237    0.073   .  3.084    0.214       5.666</span></span>
-<span><span class="co">#&gt; 30 V30   700    700    700  3.259    0.196      0.345    0.842       3.680</span></span>
+<span><span class="co">#&gt; 30 V30   700    700    700  3.260    0.196      0.345    0.842       3.682</span></span>
 <span><span class="co">#&gt; 31 V31   700    700    700  1.849    0.397      2.611    0.271       3.125</span></span>
 <span><span class="co">#&gt; 32 V32   700    700    700  0.740    0.691      0.789    0.674       0.954</span></span>
 <span><span class="co">#&gt; 33 V33   700    700    700  0.419    0.811      2.090    0.352       2.380</span></span>
-<span><span class="co">#&gt; 34 V34   700    700    700  3.110    0.211      5.182    0.075   .   5.436</span></span>
-<span><span class="co">#&gt; 35 V35   700    700    700  0.313    0.855      4.591    0.101       4.608</span></span>
-<span><span class="co">#&gt; 36 V36   700    700    700  2.016    0.365      3.152    0.207       3.582</span></span>
+<span><span class="co">#&gt; 34 V34   700    700    700  3.140    0.208      5.181    0.075   .   5.425</span></span>
+<span><span class="co">#&gt; 35 V35   700    700    700  0.313    0.855      4.590    0.101       4.607</span></span>
+<span><span class="co">#&gt; 36 V36   700    700    700  2.015    0.365      3.156    0.206       3.584</span></span>
 <span><span class="co">#&gt; 37 V37   700    700    700  5.327    0.070   .  4.923    0.085   .   8.555</span></span>
 <span><span class="co">#&gt; 38 V38   700    700    700  2.733    0.255      4.922    0.085   .   5.430</span></span>
-<span><span class="co">#&gt; 39 V39   700    700    700  3.422    0.181      2.458    0.292       5.612</span></span>
-<span><span class="co">#&gt; 40 V40   700    700    700  3.603    0.165      1.429    0.490       4.573</span></span>
+<span><span class="co">#&gt; 39 V39   700    700    700  3.422    0.181      2.457    0.293       5.609</span></span>
+<span><span class="co">#&gt; 40 V40   700    700    700  3.603    0.165      1.427    0.490       4.568</span></span>
 <span><span class="co">#&gt;    p.grdifrs    </span></span>
 <span><span class="co">#&gt; 1      0.000 ***</span></span>
 <span><span class="co">#&gt; 2      0.000 ***</span></span>
 <span><span class="co">#&gt; 3      0.876    </span></span>
 <span><span class="co">#&gt; 4      0.273    </span></span>
 <span><span class="co">#&gt; 5      0.931    </span></span>
-<span><span class="co">#&gt; 6      0.759    </span></span>
+<span><span class="co">#&gt; 6      0.750    </span></span>
 <span><span class="co">#&gt; 7      0.204    </span></span>
 <span><span class="co">#&gt; 8      0.231    </span></span>
 <span><span class="co">#&gt; 9      0.724    </span></span>
 <span><span class="co">#&gt; 10     0.776    </span></span>
-<span><span class="co">#&gt; 11     0.475    </span></span>
+<span><span class="co">#&gt; 11     0.473    </span></span>
 <span><span class="co">#&gt; 12     0.592    </span></span>
 <span><span class="co">#&gt; 13     0.970    </span></span>
 <span><span class="co">#&gt; 14     0.865    </span></span>
 <span><span class="co">#&gt; 15     0.646    </span></span>
 <span><span class="co">#&gt; 16     0.535    </span></span>
-<span><span class="co">#&gt; 17     0.545    </span></span>
+<span><span class="co">#&gt; 17     0.552    </span></span>
 <span><span class="co">#&gt; 18     0.557    </span></span>
 <span><span class="co">#&gt; 19     0.318    </span></span>
 <span><span class="co">#&gt; 20     0.968    </span></span>
 <span><span class="co">#&gt; 21     0.834    </span></span>
-<span><span class="co">#&gt; 22     0.618    </span></span>
+<span><span class="co">#&gt; 22     0.619    </span></span>
 <span><span class="co">#&gt; 23     0.574    </span></span>
 <span><span class="co">#&gt; 24     0.260    </span></span>
 <span><span class="co">#&gt; 25     0.549    </span></span>
@@ -1244,13 +1282,13 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt; 31     0.537    </span></span>
 <span><span class="co">#&gt; 32     0.917    </span></span>
 <span><span class="co">#&gt; 33     0.666    </span></span>
-<span><span class="co">#&gt; 34     0.245    </span></span>
+<span><span class="co">#&gt; 34     0.246    </span></span>
 <span><span class="co">#&gt; 35     0.330    </span></span>
-<span><span class="co">#&gt; 36     0.466    </span></span>
+<span><span class="co">#&gt; 36     0.465    </span></span>
 <span><span class="co">#&gt; 37     0.073   .</span></span>
 <span><span class="co">#&gt; 38     0.246    </span></span>
 <span><span class="co">#&gt; 39     0.230    </span></span>
-<span><span class="co">#&gt; 40     0.334    </span></span>
+<span><span class="co">#&gt; 40     0.335    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -1266,28 +1304,28 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt;   - GRDIF Statistics: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.iter n.ref n.foc1 n.foc2 grdifr p.grdifr     grdifs p.grdifs    </span></span>
-<span><span class="co">#&gt; 1   V1      1   700    700    700 47.438    0.000 *** 35.792    0.000 ***</span></span>
+<span><span class="co">#&gt; 1   V1      1   700    700    700 47.425    0.000 *** 35.797    0.000 ***</span></span>
 <span><span class="co">#&gt; 2   V2      0   700    700    700 67.755    0.000 ***  9.828    0.007  **</span></span>
 <span><span class="co">#&gt; 3   V3      2   700    700    700  0.071    0.965      0.512    0.774    </span></span>
 <span><span class="co">#&gt; 4   V4      2   700    700    700  5.967    0.051   .  1.492    0.474    </span></span>
-<span><span class="co">#&gt; 5   V5      2   700    700    700  1.053    0.591      1.089    0.580    </span></span>
-<span><span class="co">#&gt; 6   V6      2   700    700    700  0.982    0.612      0.875    0.646    </span></span>
+<span><span class="co">#&gt; 5   V5      2   700    700    700  1.053    0.591      1.088    0.580    </span></span>
+<span><span class="co">#&gt; 6   V6      2   700    700    700  0.982    0.612      0.872    0.647    </span></span>
 <span><span class="co">#&gt; 7   V7      2   700    700    700  0.565    0.754      2.211    0.331    </span></span>
 <span><span class="co">#&gt; 8   V8      2   700    700    700  3.007    0.222      0.626    0.731    </span></span>
 <span><span class="co">#&gt; 9   V9      2   700    700    700  1.890    0.389      1.381    0.501    </span></span>
 <span><span class="co">#&gt; 10 V10      2   700    700    700  0.068    0.966      0.354    0.838    </span></span>
-<span><span class="co">#&gt; 11 V11      2   700    700    700  2.476    0.290      0.602    0.740    </span></span>
+<span><span class="co">#&gt; 11 V11      2   700    700    700  2.475    0.290      0.602    0.740    </span></span>
 <span><span class="co">#&gt; 12 V12      2   700    700    700  0.442    0.802      0.838    0.658    </span></span>
 <span><span class="co">#&gt; 13 V13      2   700    700    700  0.616    0.735      0.194    0.908    </span></span>
-<span><span class="co">#&gt; 14 V14      2   700    700    700  0.509    0.775      1.280    0.527    </span></span>
-<span><span class="co">#&gt; 15 V15      2   700    700    700  1.362    0.506      0.280    0.870    </span></span>
+<span><span class="co">#&gt; 14 V14      2   700    700    700  0.510    0.775      1.280    0.527    </span></span>
+<span><span class="co">#&gt; 15 V15      2   700    700    700  1.362    0.506      0.279    0.870    </span></span>
 <span><span class="co">#&gt; 16 V16      2   700    700    700  1.706    0.426      0.728    0.695    </span></span>
-<span><span class="co">#&gt; 17 V17      2   700    700    700  0.492    0.782      1.598    0.450    </span></span>
+<span><span class="co">#&gt; 17 V17      2   700    700    700  0.491    0.782      1.605    0.448    </span></span>
 <span><span class="co">#&gt; 18 V18      2   700    700    700  0.254    0.881      0.753    0.686    </span></span>
 <span><span class="co">#&gt; 19 V19      2   700    700    700  0.818    0.664      0.729    0.695    </span></span>
 <span><span class="co">#&gt; 20 V20      2   700    700    700  0.183    0.912      0.736    0.692    </span></span>
 <span><span class="co">#&gt; 21 V21      2   700    700    700  1.323    0.516      1.853    0.396    </span></span>
-<span><span class="co">#&gt; 22 V22      2   700    700    700  0.522    0.770      0.479    0.787    </span></span>
+<span><span class="co">#&gt; 22 V22      2   700    700    700  0.523    0.770      0.479    0.787    </span></span>
 <span><span class="co">#&gt; 23 V23      2   700    700    700  0.389    0.823      1.518    0.468    </span></span>
 <span><span class="co">#&gt; 24 V24      2   700    700    700  0.635    0.728      3.609    0.165    </span></span>
 <span><span class="co">#&gt; 25 V25      2   700    700    700  1.810    0.404      0.501    0.778    </span></span>
@@ -1299,36 +1337,36 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt; 31 V31      2   700    700    700  2.154    0.341      3.130    0.209    </span></span>
 <span><span class="co">#&gt; 32 V32      2   700    700    700  0.228    0.892      0.417    0.812    </span></span>
 <span><span class="co">#&gt; 33 V33      2   700    700    700  1.010    0.604      2.913    0.233    </span></span>
-<span><span class="co">#&gt; 34 V34      2   700    700    700  2.730    0.255      4.404    0.111    </span></span>
+<span><span class="co">#&gt; 34 V34      2   700    700    700  2.723    0.256      4.405    0.110    </span></span>
 <span><span class="co">#&gt; 35 V35      2   700    700    700  0.050    0.975      3.983    0.136    </span></span>
-<span><span class="co">#&gt; 36 V36      2   700    700    700  2.476    0.290      3.534    0.171    </span></span>
-<span><span class="co">#&gt; 37 V37      2   700    700    700  3.452    0.178      2.577    0.276    </span></span>
+<span><span class="co">#&gt; 36 V36      2   700    700    700  2.476    0.290      3.533    0.171    </span></span>
+<span><span class="co">#&gt; 37 V37      2   700    700    700  3.452    0.178      2.578    0.276    </span></span>
 <span><span class="co">#&gt; 38 V38      2   700    700    700  2.202    0.332      4.404    0.111    </span></span>
-<span><span class="co">#&gt; 39 V39      2   700    700    700  4.020    0.134      1.500    0.472    </span></span>
+<span><span class="co">#&gt; 39 V39      2   700    700    700  4.021    0.134      1.500    0.472    </span></span>
 <span><span class="co">#&gt; 40 V40      2   700    700    700  3.722    0.156      1.209    0.546    </span></span>
 <span><span class="co">#&gt;    grdifrs p.grdifrs    </span></span>
-<span><span class="co">#&gt; 1   49.796     0.000 ***</span></span>
+<span><span class="co">#&gt; 1   49.787     0.000 ***</span></span>
 <span><span class="co">#&gt; 2   82.604     0.000 ***</span></span>
 <span><span class="co">#&gt; 3    0.718     0.949    </span></span>
 <span><span class="co">#&gt; 4    6.940     0.139    </span></span>
 <span><span class="co">#&gt; 5    1.510     0.825    </span></span>
-<span><span class="co">#&gt; 6    2.229     0.694    </span></span>
-<span><span class="co">#&gt; 7    6.448     0.168    </span></span>
+<span><span class="co">#&gt; 6    2.209     0.697    </span></span>
+<span><span class="co">#&gt; 7    6.447     0.168    </span></span>
 <span><span class="co">#&gt; 8    3.577     0.466    </span></span>
 <span><span class="co">#&gt; 9    3.267     0.514    </span></span>
 <span><span class="co">#&gt; 10   1.546     0.818    </span></span>
-<span><span class="co">#&gt; 11   2.931     0.570    </span></span>
+<span><span class="co">#&gt; 11   2.929     0.570    </span></span>
 <span><span class="co">#&gt; 12   1.258     0.869    </span></span>
 <span><span class="co">#&gt; 13   0.805     0.938    </span></span>
-<span><span class="co">#&gt; 14   1.436     0.838    </span></span>
-<span><span class="co">#&gt; 15   1.492     0.828    </span></span>
+<span><span class="co">#&gt; 14   1.437     0.838    </span></span>
+<span><span class="co">#&gt; 15   1.491     0.828    </span></span>
 <span><span class="co">#&gt; 16   1.892     0.756    </span></span>
-<span><span class="co">#&gt; 17   2.145     0.709    </span></span>
+<span><span class="co">#&gt; 17   2.161     0.706    </span></span>
 <span><span class="co">#&gt; 18   3.628     0.459    </span></span>
 <span><span class="co">#&gt; 19   4.324     0.364    </span></span>
 <span><span class="co">#&gt; 20   0.892     0.926    </span></span>
 <span><span class="co">#&gt; 21   2.075     0.722    </span></span>
-<span><span class="co">#&gt; 22   2.885     0.577    </span></span>
+<span><span class="co">#&gt; 22   2.887     0.577    </span></span>
 <span><span class="co">#&gt; 23   2.120     0.714    </span></span>
 <span><span class="co">#&gt; 24   4.736     0.316    </span></span>
 <span><span class="co">#&gt; 25   2.568     0.632    </span></span>
@@ -1340,13 +1378,13 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="co">#&gt; 31   3.566     0.468    </span></span>
 <span><span class="co">#&gt; 32   0.510     0.973    </span></span>
 <span><span class="co">#&gt; 33   2.961     0.564    </span></span>
-<span><span class="co">#&gt; 34   4.832     0.305    </span></span>
-<span><span class="co">#&gt; 35   4.103     0.392    </span></span>
-<span><span class="co">#&gt; 36   4.184     0.382    </span></span>
+<span><span class="co">#&gt; 34   4.834     0.305    </span></span>
+<span><span class="co">#&gt; 35   4.104     0.392    </span></span>
+<span><span class="co">#&gt; 36   4.183     0.382    </span></span>
 <span><span class="co">#&gt; 37   5.275     0.260    </span></span>
 <span><span class="co">#&gt; 38   5.098     0.277    </span></span>
-<span><span class="co">#&gt; 39   5.849     0.211    </span></span>
-<span><span class="co">#&gt; 40   4.549     0.337    </span></span>
+<span><span class="co">#&gt; 39   5.851     0.211    </span></span>
+<span><span class="co">#&gt; 40   4.551     0.336    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05</span></span>
@@ -1359,11 +1397,11 @@ involve Focal Group 3, whose difficulty shift is the largest.</p>
 <span><span class="va">grdif_pur</span><span class="op">$</span><span class="va">with_purify</span><span class="op">$</span><span class="va">post.hoc</span></span>
 <span><span class="co">#&gt;   id group.pair   rdifr z.rdifr  rdifs z.rdifs  rdifrs p.rdifr p.rdifs p.rdifrs</span></span>
 <span><span class="co">#&gt; 1 V2    G1 &amp; G2 -0.1116 -5.1701 0.0267  1.5508 30.2416  0.0000  0.1210   0.0000</span></span>
-<span><span class="co">#&gt; 2 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9867  0.0000  0.0017   0.0000</span></span>
+<span><span class="co">#&gt; 2 V2    G1 &amp; G3 -0.1766 -8.0969 0.0495  3.1349 80.9866  0.0000  0.0017   0.0000</span></span>
 <span><span class="co">#&gt; 3 V2    G2 &amp; G3 -0.0650 -2.9333 0.0228  1.5540 13.4864  0.0034  0.1202   0.0012</span></span>
-<span><span class="co">#&gt; 4 V1    G1 &amp; G2 -0.0617 -3.5088 0.0566  3.5106 14.0353  0.0005  0.0004   0.0009</span></span>
-<span><span class="co">#&gt; 5 V1    G1 &amp; G3 -0.1229 -6.8674 0.0887  5.9448 49.4401  0.0000  0.0000   0.0000</span></span>
-<span><span class="co">#&gt; 6 V1    G2 &amp; G3 -0.0612 -3.2639 0.0320  2.4372 10.7151  0.0011  0.0148   0.0047</span></span>
+<span><span class="co">#&gt; 4 V1    G1 &amp; G2 -0.0617 -3.5082 0.0566  3.5109 14.0339  0.0005  0.0004   0.0009</span></span>
+<span><span class="co">#&gt; 5 V1    G1 &amp; G3 -0.1228 -6.8665 0.0887  5.9451 49.4312  0.0000  0.0000   0.0000</span></span>
+<span><span class="co">#&gt; 6 V1    G2 &amp; G3 -0.0611 -3.2635 0.0320  2.4373 10.7129  0.0011  0.0148   0.0047</span></span>
 <span><span class="co">#&gt;   n.ref n.foc n.total n_iter</span></span>
 <span><span class="co">#&gt; 1   700   700    1400      0</span></span>
 <span><span class="co">#&gt; 2   700   700    1400      0</span></span>
@@ -1422,7 +1460,13 @@ being the observed variance of
 in group
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>.
 Estimates at a limit of <code>range</code> are excluded when these three
-quantities are computed. Examinees are then matched on
+quantities are computed. By default (<code>rho.screen = TRUE</code>),
+the examinees whose squared SE is at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\sigma}^2_{\hat{\theta},G}</annotation></semantics></math>
+are also left out of these three quantities (see Important
+Considerations for CATSIB). This also applies to supplied ability
+estimates, so <code>range</code> should match the bounds used to
+estimate them. Examinees are then matched on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>*</mo></msup><annotation encoding="application/x-tex">\hat{\theta}^*</annotation></semantics></math>
 rather than
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>.</p>
@@ -1448,8 +1492,8 @@ By default (<code>weight.group = "comb"</code>),
 is the observed proportion of all examinees (both groups combined)
 classified into bin
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
-following the recommendation of <span class="citation">Nandakumar &amp;
-Roussos (2004)</span>. Alternatively,
+as in <span class="citation">Nandakumar &amp; Roussos (2004)</span>.
+Alternatively,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>p</mi><mo accent="true">̂</mo></mover><mi>k</mi></msub><annotation encoding="application/x-tex">\hat{p}_k</annotation></semantics></math>
 can be defined using only the focal group distribution
 (<code>weight.group = "foc"</code>) or only the reference group
@@ -1498,8 +1542,10 @@ of ability-scale intervals (default <code>c(80, 10)</code>).</li>
 each bin for both groups; bins failing this criterion are excluded from
 the computation (default <code>3</code>).</li>
 <li>
-<code>max.del</code>: Maximum allowable proportion of examinees
-excluded during the binning process (default <code>0.075</code>).</li>
+<code>max.del</code>: Maximum proportion of the examinees of each
+group who responded to the item that may be excluded because they fall
+in bins that are not used (at least 0 and less than 1; default
+<code>0.075</code>).</li>
 <li>
 <code>weight.group</code>: Target ability distribution used to
 compute
@@ -1507,6 +1553,12 @@ compute
 <code>"comb"</code> (combined reference + focal; default),
 <code>"foc"</code> (focal only), or <code>"ref"</code> (reference
 only).</li>
+<li>
+<code>rho.screen</code>: Logical; whether to leave the examinees
+whose squared SE is at least the variance of the ability estimates of
+their group out of the reliability estimate of the regression correction
+(default <code>TRUE</code>; see Important Considerations for
+CATSIB).</li>
 </ul>
 </div>
 <div class="section level3">
@@ -1556,50 +1608,50 @@ and no purification is applied, <code>x = NULL</code> is used.</p>
 <span><span class="co">#&gt;  1. Without purification </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   - Potential DIF Items: </span></span>
-<span><span class="co">#&gt;     1, 2, 5, 6, 8, 9, 19, 26, 32, 33, 35, 37, 39 </span></span>
+<span><span class="co">#&gt;     1, 2, 5, 6, 8, 9, 19, 23, 24, 26, 32, 37, 39 </span></span>
 <span><span class="co">#&gt;   - Test Statistic: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         id n.ref n.foc n.total   beta    se z.beta     p    </span></span>
-<span><span class="co">#&gt; 1   item.1   939   973    1912  0.078 0.014  5.776 0.000 ***</span></span>
-<span><span class="co">#&gt; 2   item.2   939   973    1912  0.112 0.018  6.070 0.000 ***</span></span>
-<span><span class="co">#&gt; 3   item.3   939   973    1912 -0.033 0.020 -1.696 0.090   .</span></span>
-<span><span class="co">#&gt; 4   item.4   939   973    1912  0.030 0.018  1.654 0.098   .</span></span>
-<span><span class="co">#&gt; 5   item.5   939   973    1912  0.148 0.013 11.353 0.000 ***</span></span>
-<span><span class="co">#&gt; 6   item.6   939   973    1912  0.126 0.017  7.380 0.000 ***</span></span>
-<span><span class="co">#&gt; 7   item.7   939   973    1912 -0.008 0.014 -0.555 0.579    </span></span>
-<span><span class="co">#&gt; 8   item.8   939   973    1912 -0.069 0.018 -3.935 0.000 ***</span></span>
-<span><span class="co">#&gt; 9   item.9   939   973    1912 -0.029 0.015 -1.968 0.049   *</span></span>
-<span><span class="co">#&gt; 10 item.10   939   973    1912 -0.014 0.019 -0.738 0.461    </span></span>
-<span><span class="co">#&gt; 11 item.11   939   973    1912  0.007 0.006  1.196 0.232    </span></span>
-<span><span class="co">#&gt; 12 item.12   939   973    1912  0.005 0.019  0.280 0.780    </span></span>
-<span><span class="co">#&gt; 13 item.13   939   973    1912 -0.026 0.019 -1.406 0.160    </span></span>
-<span><span class="co">#&gt; 14 item.14   939   973    1912 -0.008 0.011 -0.731 0.465    </span></span>
-<span><span class="co">#&gt; 15 item.15   939   973    1912 -0.039 0.021 -1.839 0.066   .</span></span>
-<span><span class="co">#&gt; 16 item.16   939   973    1912  0.021 0.011  1.885 0.060   .</span></span>
-<span><span class="co">#&gt; 17 item.17   939   973    1912 -0.001 0.012 -0.086 0.932    </span></span>
-<span><span class="co">#&gt; 18 item.18   939   973    1912 -0.039 0.021 -1.868 0.062   .</span></span>
-<span><span class="co">#&gt; 19 item.19   939   973    1912 -0.046 0.018 -2.556 0.011   *</span></span>
-<span><span class="co">#&gt; 20 item.20   939   973    1912 -0.019 0.016 -1.199 0.231    </span></span>
-<span><span class="co">#&gt; 21 item.21   939   973    1912 -0.024 0.018 -1.306 0.192    </span></span>
-<span><span class="co">#&gt; 22 item.22   939   973    1912  0.003 0.010  0.280 0.779    </span></span>
-<span><span class="co">#&gt; 23 item.23   939   973    1912 -0.029 0.017 -1.683 0.092   .</span></span>
-<span><span class="co">#&gt; 24 item.24   939   973    1912 -0.013 0.013 -0.961 0.337    </span></span>
-<span><span class="co">#&gt; 25 item.25   939   973    1912 -0.020 0.019 -1.046 0.295    </span></span>
-<span><span class="co">#&gt; 26 item.26   939   973    1912 -0.040 0.018 -2.200 0.028   *</span></span>
-<span><span class="co">#&gt; 27 item.27   939   973    1912 -0.031 0.019 -1.650 0.099   .</span></span>
-<span><span class="co">#&gt; 28 item.28   939   973    1912 -0.021 0.018 -1.142 0.254    </span></span>
-<span><span class="co">#&gt; 29 item.29   939   973    1912 -0.011 0.020 -0.565 0.572    </span></span>
-<span><span class="co">#&gt; 30 item.30   939   973    1912 -0.012 0.020 -0.596 0.551    </span></span>
-<span><span class="co">#&gt; 31 item.31   939   973    1912 -0.024 0.018 -1.300 0.194    </span></span>
-<span><span class="co">#&gt; 32 item.32   939   973    1912 -0.071 0.018 -3.871 0.000 ***</span></span>
-<span><span class="co">#&gt; 33 item.33   939   973    1912 -0.046 0.019 -2.446 0.014   *</span></span>
-<span><span class="co">#&gt; 34 item.34   939   973    1912  0.009 0.005  1.739 0.082   .</span></span>
-<span><span class="co">#&gt; 35 item.35   939   973    1912 -0.042 0.021 -2.012 0.044   *</span></span>
-<span><span class="co">#&gt; 36 item.36   939   973    1912 -0.006 0.014 -0.416 0.678    </span></span>
-<span><span class="co">#&gt; 37 item.37   939   973    1912 -0.034 0.016 -2.087 0.037   *</span></span>
-<span><span class="co">#&gt; 38 item.38   939   973    1912 -0.037 0.021 -1.778 0.075   .</span></span>
-<span><span class="co">#&gt; 39 item.39   939   973    1912 -0.038 0.018 -2.116 0.034   *</span></span>
-<span><span class="co">#&gt; 40 item.40   939   973    1912  0.000 0.012 -0.018 0.986    </span></span>
+<span><span class="co">#&gt; 1   item.1   948   963    1911  0.067 0.014  4.948 0.000 ***</span></span>
+<span><span class="co">#&gt; 2   item.2   948   963    1911  0.114 0.018  6.228 0.000 ***</span></span>
+<span><span class="co">#&gt; 3   item.3   948   963    1911 -0.031 0.020 -1.569 0.117    </span></span>
+<span><span class="co">#&gt; 4   item.4   948   963    1911  0.029 0.018  1.600 0.110    </span></span>
+<span><span class="co">#&gt; 5   item.5   948   963    1911  0.142 0.013 10.562 0.000 ***</span></span>
+<span><span class="co">#&gt; 6   item.6   948   963    1911  0.124 0.017  7.245 0.000 ***</span></span>
+<span><span class="co">#&gt; 7   item.7   948   963    1911 -0.014 0.014 -1.001 0.317    </span></span>
+<span><span class="co">#&gt; 8   item.8   948   963    1911 -0.065 0.017 -3.740 0.000 ***</span></span>
+<span><span class="co">#&gt; 9   item.9   948   963    1911 -0.036 0.015 -2.424 0.015   *</span></span>
+<span><span class="co">#&gt; 10 item.10   948   963    1911  0.002 0.019  0.103 0.918    </span></span>
+<span><span class="co">#&gt; 11 item.11   948   963    1911  0.000 0.006 -0.010 0.992    </span></span>
+<span><span class="co">#&gt; 12 item.12   948   963    1911  0.004 0.018  0.235 0.815    </span></span>
+<span><span class="co">#&gt; 13 item.13   948   963    1911 -0.013 0.019 -0.677 0.499    </span></span>
+<span><span class="co">#&gt; 14 item.14   948   963    1911 -0.019 0.010 -1.816 0.069   .</span></span>
+<span><span class="co">#&gt; 15 item.15   948   963    1911 -0.030 0.021 -1.413 0.158    </span></span>
+<span><span class="co">#&gt; 16 item.16   948   963    1911  0.009 0.011  0.815 0.415    </span></span>
+<span><span class="co">#&gt; 17 item.17   948   963    1911 -0.004 0.012 -0.371 0.711    </span></span>
+<span><span class="co">#&gt; 18 item.18   948   963    1911 -0.028 0.021 -1.360 0.174    </span></span>
+<span><span class="co">#&gt; 19 item.19   948   963    1911 -0.040 0.018 -2.233 0.025   *</span></span>
+<span><span class="co">#&gt; 20 item.20   948   963    1911 -0.020 0.016 -1.278 0.201    </span></span>
+<span><span class="co">#&gt; 21 item.21   948   963    1911 -0.009 0.018 -0.488 0.626    </span></span>
+<span><span class="co">#&gt; 22 item.22   948   963    1911 -0.006 0.010 -0.643 0.520    </span></span>
+<span><span class="co">#&gt; 23 item.23   948   963    1911 -0.038 0.017 -2.245 0.025   *</span></span>
+<span><span class="co">#&gt; 24 item.24   948   963    1911 -0.026 0.013 -2.058 0.040   *</span></span>
+<span><span class="co">#&gt; 25 item.25   948   963    1911 -0.005 0.018 -0.258 0.796    </span></span>
+<span><span class="co">#&gt; 26 item.26   948   963    1911 -0.042 0.018 -2.309 0.021   *</span></span>
+<span><span class="co">#&gt; 27 item.27   948   963    1911 -0.025 0.019 -1.314 0.189    </span></span>
+<span><span class="co">#&gt; 28 item.28   948   963    1911 -0.002 0.018 -0.095 0.924    </span></span>
+<span><span class="co">#&gt; 29 item.29   948   963    1911  0.003 0.019  0.140 0.889    </span></span>
+<span><span class="co">#&gt; 30 item.30   948   963    1911 -0.012 0.020 -0.586 0.558    </span></span>
+<span><span class="co">#&gt; 31 item.31   948   963    1911 -0.005 0.018 -0.286 0.775    </span></span>
+<span><span class="co">#&gt; 32 item.32   948   963    1911 -0.050 0.019 -2.666 0.008  **</span></span>
+<span><span class="co">#&gt; 33 item.33   948   963    1911 -0.026 0.018 -1.384 0.166    </span></span>
+<span><span class="co">#&gt; 34 item.34   948   963    1911  0.007 0.005  1.262 0.207    </span></span>
+<span><span class="co">#&gt; 35 item.35   948   963    1911 -0.037 0.021 -1.781 0.075   .</span></span>
+<span><span class="co">#&gt; 36 item.36   948   963    1911 -0.016 0.014 -1.145 0.252    </span></span>
+<span><span class="co">#&gt; 37 item.37   948   963    1911 -0.040 0.016 -2.521 0.012   *</span></span>
+<span><span class="co">#&gt; 38 item.38   948   963    1911 -0.030 0.021 -1.464 0.143    </span></span>
+<span><span class="co">#&gt; 39 item.39   948   963    1911 -0.039 0.018 -2.187 0.029   *</span></span>
+<span><span class="co">#&gt; 40 item.40   948   963    1911 -0.011 0.012 -0.910 0.363    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -1611,16 +1663,14 @@ and no purification is applied, <code>x = NULL</code> is used.</p>
 <span></span>
 <span><span class="co"># Items flagged as DIF</span></span>
 <span><span class="va">catsib_npur</span><span class="op">$</span><span class="va">no_purify</span><span class="op">$</span><span class="va">dif_item</span></span>
-<span><span class="co">#&gt;  [1]  1  2  5  6  8  9 19 26 32 33 35 37 39</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1]  1  2  5  6  8  9 19 23 24 26 32 37 39</span></span></code></pre></div>
 <p>The <code>dif_stat</code> data frame contains the estimated
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
 statistic, its standard error (<code>se</code>), the standardized
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
 (<code>z.beta</code>), and the corresponding p-value for each item.
-Items with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|\hat{\beta}|</annotation></semantics></math>
-significantly different from zero (at the <code>alpha</code> level) are
-flagged as DIF.</p>
+Items whose two-sided p-value is less than or equal to
+<code>alpha</code> are flagged as DIF.</p>
 <p>In this simulation,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
 is positive and significant for the items with a difficulty shift
@@ -1628,8 +1678,8 @@ against the focal group (items 1, 2, 5, and 6), meaning that the items
 are easier for the reference group. The items with only a lower focal
 discrimination (items 3 and 4) are not flagged, which is consistent with
 the limited sensitivity of CATSIB to nonuniform DIF discussed below.
-CATSIB also flags several DIF-free items (for example, items 8, 9, 19,
-26, and 32), all of them with small negative
+CATSIB also flags 9 DIF-free items (items 8, 9, 19, 23, 24, 26, 32, 37,
+39), all of them with small negative
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
 values.</p>
 </div>
@@ -1675,50 +1725,50 @@ scheme of <span class="citation">Lim et al. (2022)</span>.</p>
 <span><span class="co">#&gt;  1. Without purification </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   - Potential DIF Items: </span></span>
-<span><span class="co">#&gt;     1, 2, 5, 6, 8, 9, 19, 26, 32, 33, 35, 37, 39 </span></span>
+<span><span class="co">#&gt;     1, 2, 5, 6, 8, 9, 19, 23, 24, 26, 32, 37, 39 </span></span>
 <span><span class="co">#&gt;   - Test Statistic: </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     id n.ref n.foc n.total   beta    se z.beta     p    </span></span>
-<span><span class="co">#&gt; 1   V1   939   973    1912  0.078 0.014  5.776 0.000 ***</span></span>
-<span><span class="co">#&gt; 2   V2   939   973    1912  0.112 0.018  6.070 0.000 ***</span></span>
-<span><span class="co">#&gt; 3   V3   939   973    1912 -0.033 0.020 -1.696 0.090   .</span></span>
-<span><span class="co">#&gt; 4   V4   939   973    1912  0.030 0.018  1.654 0.098   .</span></span>
-<span><span class="co">#&gt; 5   V5   939   973    1912  0.148 0.013 11.353 0.000 ***</span></span>
-<span><span class="co">#&gt; 6   V6   939   973    1912  0.126 0.017  7.380 0.000 ***</span></span>
-<span><span class="co">#&gt; 7   V7   939   973    1912 -0.008 0.014 -0.555 0.579    </span></span>
-<span><span class="co">#&gt; 8   V8   939   973    1912 -0.069 0.018 -3.935 0.000 ***</span></span>
-<span><span class="co">#&gt; 9   V9   939   973    1912 -0.029 0.015 -1.968 0.049   *</span></span>
-<span><span class="co">#&gt; 10 V10   939   973    1912 -0.014 0.019 -0.738 0.461    </span></span>
-<span><span class="co">#&gt; 11 V11   939   973    1912  0.007 0.006  1.196 0.232    </span></span>
-<span><span class="co">#&gt; 12 V12   939   973    1912  0.005 0.019  0.280 0.780    </span></span>
-<span><span class="co">#&gt; 13 V13   939   973    1912 -0.026 0.019 -1.406 0.160    </span></span>
-<span><span class="co">#&gt; 14 V14   939   973    1912 -0.008 0.011 -0.731 0.465    </span></span>
-<span><span class="co">#&gt; 15 V15   939   973    1912 -0.039 0.021 -1.839 0.066   .</span></span>
-<span><span class="co">#&gt; 16 V16   939   973    1912  0.021 0.011  1.885 0.060   .</span></span>
-<span><span class="co">#&gt; 17 V17   939   973    1912 -0.001 0.012 -0.086 0.932    </span></span>
-<span><span class="co">#&gt; 18 V18   939   973    1912 -0.039 0.021 -1.868 0.062   .</span></span>
-<span><span class="co">#&gt; 19 V19   939   973    1912 -0.046 0.018 -2.556 0.011   *</span></span>
-<span><span class="co">#&gt; 20 V20   939   973    1912 -0.019 0.016 -1.199 0.231    </span></span>
-<span><span class="co">#&gt; 21 V21   939   973    1912 -0.024 0.018 -1.306 0.192    </span></span>
-<span><span class="co">#&gt; 22 V22   939   973    1912  0.003 0.010  0.280 0.779    </span></span>
-<span><span class="co">#&gt; 23 V23   939   973    1912 -0.029 0.017 -1.683 0.092   .</span></span>
-<span><span class="co">#&gt; 24 V24   939   973    1912 -0.013 0.013 -0.961 0.337    </span></span>
-<span><span class="co">#&gt; 25 V25   939   973    1912 -0.020 0.019 -1.046 0.295    </span></span>
-<span><span class="co">#&gt; 26 V26   939   973    1912 -0.040 0.018 -2.200 0.028   *</span></span>
-<span><span class="co">#&gt; 27 V27   939   973    1912 -0.031 0.019 -1.650 0.099   .</span></span>
-<span><span class="co">#&gt; 28 V28   939   973    1912 -0.021 0.018 -1.142 0.254    </span></span>
-<span><span class="co">#&gt; 29 V29   939   973    1912 -0.011 0.020 -0.565 0.572    </span></span>
-<span><span class="co">#&gt; 30 V30   939   973    1912 -0.012 0.020 -0.596 0.551    </span></span>
-<span><span class="co">#&gt; 31 V31   939   973    1912 -0.024 0.018 -1.300 0.194    </span></span>
-<span><span class="co">#&gt; 32 V32   939   973    1912 -0.071 0.018 -3.871 0.000 ***</span></span>
-<span><span class="co">#&gt; 33 V33   939   973    1912 -0.046 0.019 -2.446 0.014   *</span></span>
-<span><span class="co">#&gt; 34 V34   939   973    1912  0.009 0.005  1.739 0.082   .</span></span>
-<span><span class="co">#&gt; 35 V35   939   973    1912 -0.042 0.021 -2.012 0.044   *</span></span>
-<span><span class="co">#&gt; 36 V36   939   973    1912 -0.006 0.014 -0.416 0.678    </span></span>
-<span><span class="co">#&gt; 37 V37   939   973    1912 -0.034 0.016 -2.087 0.037   *</span></span>
-<span><span class="co">#&gt; 38 V38   939   973    1912 -0.037 0.021 -1.778 0.075   .</span></span>
-<span><span class="co">#&gt; 39 V39   939   973    1912 -0.038 0.018 -2.116 0.034   *</span></span>
-<span><span class="co">#&gt; 40 V40   939   973    1912  0.000 0.012 -0.018 0.986    </span></span>
+<span><span class="co">#&gt; 1   V1   948   963    1911  0.067 0.014  4.948 0.000 ***</span></span>
+<span><span class="co">#&gt; 2   V2   948   963    1911  0.114 0.018  6.228 0.000 ***</span></span>
+<span><span class="co">#&gt; 3   V3   948   963    1911 -0.031 0.020 -1.569 0.117    </span></span>
+<span><span class="co">#&gt; 4   V4   948   963    1911  0.029 0.018  1.600 0.110    </span></span>
+<span><span class="co">#&gt; 5   V5   948   963    1911  0.142 0.013 10.562 0.000 ***</span></span>
+<span><span class="co">#&gt; 6   V6   948   963    1911  0.124 0.017  7.245 0.000 ***</span></span>
+<span><span class="co">#&gt; 7   V7   948   963    1911 -0.014 0.014 -1.001 0.317    </span></span>
+<span><span class="co">#&gt; 8   V8   948   963    1911 -0.065 0.017 -3.740 0.000 ***</span></span>
+<span><span class="co">#&gt; 9   V9   948   963    1911 -0.036 0.015 -2.424 0.015   *</span></span>
+<span><span class="co">#&gt; 10 V10   948   963    1911  0.002 0.019  0.103 0.918    </span></span>
+<span><span class="co">#&gt; 11 V11   948   963    1911  0.000 0.006 -0.010 0.992    </span></span>
+<span><span class="co">#&gt; 12 V12   948   963    1911  0.004 0.018  0.235 0.815    </span></span>
+<span><span class="co">#&gt; 13 V13   948   963    1911 -0.013 0.019 -0.677 0.499    </span></span>
+<span><span class="co">#&gt; 14 V14   948   963    1911 -0.019 0.010 -1.816 0.069   .</span></span>
+<span><span class="co">#&gt; 15 V15   948   963    1911 -0.030 0.021 -1.413 0.158    </span></span>
+<span><span class="co">#&gt; 16 V16   948   963    1911  0.009 0.011  0.815 0.415    </span></span>
+<span><span class="co">#&gt; 17 V17   948   963    1911 -0.004 0.012 -0.371 0.711    </span></span>
+<span><span class="co">#&gt; 18 V18   948   963    1911 -0.028 0.021 -1.360 0.174    </span></span>
+<span><span class="co">#&gt; 19 V19   948   963    1911 -0.040 0.018 -2.233 0.025   *</span></span>
+<span><span class="co">#&gt; 20 V20   948   963    1911 -0.020 0.016 -1.278 0.201    </span></span>
+<span><span class="co">#&gt; 21 V21   948   963    1911 -0.009 0.018 -0.488 0.626    </span></span>
+<span><span class="co">#&gt; 22 V22   948   963    1911 -0.006 0.010 -0.643 0.520    </span></span>
+<span><span class="co">#&gt; 23 V23   948   963    1911 -0.038 0.017 -2.245 0.025   *</span></span>
+<span><span class="co">#&gt; 24 V24   948   963    1911 -0.026 0.013 -2.058 0.040   *</span></span>
+<span><span class="co">#&gt; 25 V25   948   963    1911 -0.005 0.018 -0.258 0.796    </span></span>
+<span><span class="co">#&gt; 26 V26   948   963    1911 -0.042 0.018 -2.309 0.021   *</span></span>
+<span><span class="co">#&gt; 27 V27   948   963    1911 -0.025 0.019 -1.314 0.189    </span></span>
+<span><span class="co">#&gt; 28 V28   948   963    1911 -0.002 0.018 -0.095 0.924    </span></span>
+<span><span class="co">#&gt; 29 V29   948   963    1911  0.003 0.019  0.140 0.889    </span></span>
+<span><span class="co">#&gt; 30 V30   948   963    1911 -0.012 0.020 -0.586 0.558    </span></span>
+<span><span class="co">#&gt; 31 V31   948   963    1911 -0.005 0.018 -0.286 0.775    </span></span>
+<span><span class="co">#&gt; 32 V32   948   963    1911 -0.050 0.019 -2.666 0.008  **</span></span>
+<span><span class="co">#&gt; 33 V33   948   963    1911 -0.026 0.018 -1.384 0.166    </span></span>
+<span><span class="co">#&gt; 34 V34   948   963    1911  0.007 0.005  1.262 0.207    </span></span>
+<span><span class="co">#&gt; 35 V35   948   963    1911 -0.037 0.021 -1.781 0.075   .</span></span>
+<span><span class="co">#&gt; 36 V36   948   963    1911 -0.016 0.014 -1.145 0.252    </span></span>
+<span><span class="co">#&gt; 37 V37   948   963    1911 -0.040 0.016 -2.521 0.012   *</span></span>
+<span><span class="co">#&gt; 38 V38   948   963    1911 -0.030 0.021 -1.464 0.143    </span></span>
+<span><span class="co">#&gt; 39 V39   948   963    1911 -0.039 0.018 -2.187 0.029   *</span></span>
+<span><span class="co">#&gt; 40 V40   948   963    1911 -0.011 0.012 -0.910 0.363    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05 </span></span>
@@ -1727,71 +1777,70 @@ scheme of <span class="citation">Lim et al. (2022)</span>.</p>
 <span><span class="co">#&gt;  2. With purification </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   - Completion of purification: TRUE</span></span>
-<span><span class="co">#&gt;   - Number of iterations: 12</span></span>
+<span><span class="co">#&gt;   - Number of iterations: 9</span></span>
 <span><span class="co">#&gt;   - Potential DIF Items: </span></span>
-<span><span class="co">#&gt;     1, 2, 4, 5, 6, 8, 16, 19, 21, 32, 33, 34 </span></span>
+<span><span class="co">#&gt;     1, 2, 4, 5, 6, 8, 9, 16, 32 </span></span>
 <span><span class="co">#&gt;   - Test Statistic: </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     id n.iter n.ref n.foc n.total   beta    se  z.beta     p    </span></span>
-<span><span class="co">#&gt; 1   V1      3   950   968    1918  0.083 0.014   6.127 0.000 ***</span></span>
-<span><span class="co">#&gt; 2   V2      2   950   969    1919  0.125 0.018   6.824 0.000 ***</span></span>
-<span><span class="co">#&gt; 3   V3     12   939   973    1912 -0.010 0.020  -0.527 0.598    </span></span>
-<span><span class="co">#&gt; 4   V4      4   950   975    1925  0.051 0.018   2.844 0.004  **</span></span>
-<span><span class="co">#&gt; 5   V5      0   939   973    1912  0.148 0.013  11.353 0.000 ***</span></span>
-<span><span class="co">#&gt; 6   V6      1   925   988    1913  0.134 0.017   7.992 0.000 ***</span></span>
-<span><span class="co">#&gt; 7   V7     12   939   973    1912  0.003 0.014   0.244 0.807    </span></span>
-<span><span class="co">#&gt; 8   V8     11   940   971    1911 -0.045 0.018  -2.555 0.011   *</span></span>
-<span><span class="co">#&gt; 9   V9     12   939   973    1912 -0.021 0.015  -1.430 0.153    </span></span>
-<span><span class="co">#&gt; 10 V10     12   939   973    1912 -0.006 0.018  -0.340 0.734    </span></span>
-<span><span class="co">#&gt; 11 V11     12   939   973    1912  0.007 0.006   1.187 0.235    </span></span>
-<span><span class="co">#&gt; 12 V12     12   939   973    1912  0.027 0.018   1.512 0.130    </span></span>
-<span><span class="co">#&gt; 13 V13     12   939   973    1912 -0.013 0.018  -0.674 0.501    </span></span>
-<span><span class="co">#&gt; 14 V14     12   939   973    1912 -0.004 0.011  -0.347 0.729    </span></span>
-<span><span class="co">#&gt; 15 V15     12   939   973    1912 -0.018 0.021  -0.876 0.381    </span></span>
-<span><span class="co">#&gt; 16 V16      9   946   975    1921  0.038 0.011   3.468 0.000 ***</span></span>
-<span><span class="co">#&gt; 17 V17     12   939   973    1912  0.009 0.012   0.803 0.422    </span></span>
-<span><span class="co">#&gt; 18 V18     12   939   973    1912 -0.029 0.021  -1.398 0.162    </span></span>
-<span><span class="co">#&gt; 19 V19     10   959   968    1927 -0.044 0.018  -2.473 0.013   *</span></span>
-<span><span class="co">#&gt; 20 V20     12   939   973    1912  0.002 0.016   0.109 0.913    </span></span>
-<span><span class="co">#&gt; 21 V21      6   656  1000    1656 -0.169 0.021  -8.061 0.000 ***</span></span>
-<span><span class="co">#&gt; 22 V22     12   939   973    1912  0.007 0.009   0.785 0.433    </span></span>
-<span><span class="co">#&gt; 23 V23     12   939   973    1912 -0.010 0.017  -0.627 0.531    </span></span>
-<span><span class="co">#&gt; 24 V24     12   939   973    1912 -0.002 0.013  -0.156 0.876    </span></span>
-<span><span class="co">#&gt; 25 V25     12   939   973    1912 -0.012 0.018  -0.661 0.509    </span></span>
-<span><span class="co">#&gt; 26 V26     12   939   973    1912 -0.013 0.018  -0.733 0.464    </span></span>
-<span><span class="co">#&gt; 27 V27     12   939   973    1912 -0.025 0.018  -1.354 0.176    </span></span>
-<span><span class="co">#&gt; 28 V28     12   939   973    1912 -0.021 0.018  -1.202 0.229    </span></span>
-<span><span class="co">#&gt; 29 V29     12   939   973    1912  0.003 0.019   0.146 0.884    </span></span>
-<span><span class="co">#&gt; 30 V30     12   939   973    1912  0.004 0.020   0.199 0.842    </span></span>
-<span><span class="co">#&gt; 31 V31     12   939   973    1912 -0.014 0.018  -0.795 0.427    </span></span>
-<span><span class="co">#&gt; 32 V32      5   662  1000    1662 -0.216 0.021 -10.378 0.000 ***</span></span>
-<span><span class="co">#&gt; 33 V33      7   648  1000    1648 -0.238 0.020 -11.796 0.000 ***</span></span>
-<span><span class="co">#&gt; 34 V34      8   747  1000    1747  0.080 0.006  14.342 0.000 ***</span></span>
-<span><span class="co">#&gt; 35 V35     12   939   973    1912 -0.025 0.021  -1.197 0.231    </span></span>
-<span><span class="co">#&gt; 36 V36     12   939   973    1912  0.007 0.014   0.541 0.589    </span></span>
-<span><span class="co">#&gt; 37 V37     12   939   973    1912 -0.012 0.016  -0.746 0.455    </span></span>
-<span><span class="co">#&gt; 38 V38     12   939   973    1912 -0.017 0.020  -0.824 0.410    </span></span>
-<span><span class="co">#&gt; 39 V39     12   939   973    1912 -0.015 0.018  -0.848 0.396    </span></span>
-<span><span class="co">#&gt; 40 V40     12   939   973    1912  0.005 0.012   0.395 0.693    </span></span>
+<span><span class="co">#&gt;     id n.iter n.ref n.foc n.total   beta    se z.beta     p    </span></span>
+<span><span class="co">#&gt; 1   V1      3   976   969    1945  0.083 0.013  6.198 0.000 ***</span></span>
+<span><span class="co">#&gt; 2   V2      2   976   969    1945  0.124 0.018  6.896 0.000 ***</span></span>
+<span><span class="co">#&gt; 3   V3      9   987   977    1964 -0.019 0.019 -1.004 0.316    </span></span>
+<span><span class="co">#&gt; 4   V4      5   973   972    1945  0.044 0.018  2.458 0.014   *</span></span>
+<span><span class="co">#&gt; 5   V5      0   948   963    1911  0.142 0.013 10.562 0.000 ***</span></span>
+<span><span class="co">#&gt; 6   V6      1   956   977    1933  0.124 0.017  7.370 0.000 ***</span></span>
+<span><span class="co">#&gt; 7   V7      9   987   977    1964 -0.003 0.014 -0.248 0.804    </span></span>
+<span><span class="co">#&gt; 8   V8      4   973   972    1945 -0.047 0.017 -2.718 0.007  **</span></span>
+<span><span class="co">#&gt; 9   V9      7   983   977    1960 -0.030 0.014 -2.078 0.038   *</span></span>
+<span><span class="co">#&gt; 10 V10      9   987   977    1964  0.001 0.018  0.070 0.944    </span></span>
+<span><span class="co">#&gt; 11 V11      9   987   977    1964  0.006 0.005  1.016 0.310    </span></span>
+<span><span class="co">#&gt; 12 V12      9   987   977    1964  0.020 0.018  1.132 0.258    </span></span>
+<span><span class="co">#&gt; 13 V13      9   987   977    1964 -0.015 0.018 -0.843 0.399    </span></span>
+<span><span class="co">#&gt; 14 V14      9   987   977    1964 -0.008 0.010 -0.779 0.436    </span></span>
+<span><span class="co">#&gt; 15 V15      9   987   977    1964 -0.013 0.021 -0.648 0.517    </span></span>
+<span><span class="co">#&gt; 16 V16      8   982   965    1947  0.024 0.011  2.211 0.027   *</span></span>
+<span><span class="co">#&gt; 17 V17      9   987   977    1964  0.002 0.011  0.181 0.856    </span></span>
+<span><span class="co">#&gt; 18 V18      9   987   977    1964 -0.023 0.020 -1.131 0.258    </span></span>
+<span><span class="co">#&gt; 19 V19      9   987   977    1964 -0.035 0.018 -1.937 0.053   .</span></span>
+<span><span class="co">#&gt; 20 V20      9   987   977    1964  0.000 0.015  0.024 0.981    </span></span>
+<span><span class="co">#&gt; 21 V21      9   987   977    1964  0.003 0.018  0.172 0.863    </span></span>
+<span><span class="co">#&gt; 22 V22      9   987   977    1964 -0.002 0.009 -0.179 0.858    </span></span>
+<span><span class="co">#&gt; 23 V23      9   987   977    1964 -0.015 0.016 -0.926 0.354    </span></span>
+<span><span class="co">#&gt; 24 V24      9   987   977    1964 -0.006 0.012 -0.491 0.624    </span></span>
+<span><span class="co">#&gt; 25 V25      9   987   977    1964 -0.002 0.018 -0.131 0.896    </span></span>
+<span><span class="co">#&gt; 26 V26      9   987   977    1964 -0.016 0.018 -0.890 0.373    </span></span>
+<span><span class="co">#&gt; 27 V27      9   987   977    1964 -0.018 0.019 -0.963 0.336    </span></span>
+<span><span class="co">#&gt; 28 V28      9   987   977    1964 -0.003 0.018 -0.190 0.850    </span></span>
+<span><span class="co">#&gt; 29 V29      9   987   977    1964  0.008 0.019  0.421 0.674    </span></span>
+<span><span class="co">#&gt; 30 V30      9   987   977    1964  0.004 0.019  0.203 0.839    </span></span>
+<span><span class="co">#&gt; 31 V31      9   987   977    1964  0.000 0.018 -0.025 0.980    </span></span>
+<span><span class="co">#&gt; 32 V32      6   977   975    1952 -0.039 0.018 -2.157 0.031   *</span></span>
+<span><span class="co">#&gt; 33 V33      9   987   977    1964 -0.015 0.019 -0.805 0.421    </span></span>
+<span><span class="co">#&gt; 34 V34      9   987   977    1964  0.009 0.005  1.800 0.072   .</span></span>
+<span><span class="co">#&gt; 35 V35      9   987   977    1964 -0.020 0.020 -0.972 0.331    </span></span>
+<span><span class="co">#&gt; 36 V36      9   987   977    1964  0.000 0.014 -0.017 0.986    </span></span>
+<span><span class="co">#&gt; 37 V37      9   987   977    1964 -0.016 0.016 -1.017 0.309    </span></span>
+<span><span class="co">#&gt; 38 V38      9   987   977    1964 -0.011 0.020 -0.528 0.597    </span></span>
+<span><span class="co">#&gt; 39 V39      9   987   977    1964 -0.028 0.017 -1.630 0.103    </span></span>
+<span><span class="co">#&gt; 40 V40      9   987   977    1964 -0.001 0.012 -0.122 0.903    </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; '***'p &lt; 0.001 '**'p &lt; 0.01 '*'p &lt; 0.05 '.'p &lt; 0.1 ' 'p &lt; 1  </span></span>
 <span><span class="co">#&gt; Significance level: 0.05</span></span>
 <span></span>
 <span><span class="co"># DIF items identified after purification</span></span>
 <span><span class="va">catsib_pur</span><span class="op">$</span><span class="va">with_purify</span><span class="op">$</span><span class="va">dif_item</span></span>
-<span><span class="co">#&gt;  [1]  1  2  4  5  6  8 16 19 21 32 33 34</span></span></code></pre></div>
-<p>In this run, the purification finishes after 12 iterations. Of the
-six items with injected DIF, it flags items 1, 2, 4, 5, 6 (without
+<span><span class="co">#&gt; [1]  1  2  4  5  6  8  9 16 32</span></span></code></pre></div>
+<p>In this run, the purification finishes after 9 iterations. Of the six
+items with injected DIF, it flags items 1, 2, 4, 5, 6 (without
 purification: items 1, 2, 5, 6) and misses item 3. The number of flagged
-DIF-free items changes from 9 (items 8, 9, 19, 26, 32, 33, 35, 37, 39)
-to 7 (items 8, 16, 19, 21, 32, 33, 34); items 16, 21, 34 are new false
-positives that did not appear without purification. Purification
-therefore changes the CATSIB results but does not remove all false
-positives, so they should be interpreted with caution. Depending on the
-platform, <code><a href="../reference/catsib.html">catsib()</a></code> may also warn during purification that
-the estimated reliability of a group fell below 0.05 and was floored
-(see the considerations below); the warning is displayed above when it
-occurs.</p>
+DIF-free items changes from 9 (items 8, 9, 19, 23, 24, 26, 32, 37, 39)
+to 4 (items 8, 9, 16, 32); item 16 is a new false positive that did not
+appear without purification. Purification therefore changes the CATSIB
+results but does not remove all false positives, so they should be
+interpreted with caution. If the estimated reliability of a group falls
+below 0.05 in any iteration, <code><a href="../reference/catsib.html">catsib()</a></code> sets it to 0.05 and
+issues one warning for the call (see the considerations below); the
+warning is displayed above when it occurs.</p>
 </div>
 <div class="section level3">
 <h3 id="important-considerations-for-catsib">Important Considerations for CATSIB<a class="anchor" aria-label="anchor" href="#important-considerations-for-catsib"></a>
@@ -1836,22 +1885,50 @@ in group
 The reliability estimate falls toward or below zero when the mean
 squared SE approaches the observed variance of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>,
-for example when few items remain after purification. A negative
+for example when few items remain after purification. Because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mi>e</mi><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\sigma}^2_{e,G}</annotation></semantics></math>
+is a mean of squared SEs, a few examinees with very large SEs, typically
+examinees with very low or very high scores, can also pull
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>ρ</mi><mo accent="true">̂</mo></mover><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\rho}^2_G</annotation></semantics></math>
+far below the reliability of the other ability estimates, even when many
+items are used. A negative
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>ρ</mi><mo accent="true">̂</mo></mover><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\rho}^2_G</annotation></semantics></math>
 would reflect the scores around the group mean and reverse their order,
 which severely distorts the bin-level matching and leads to inflated
 Type I error rates.</p>
-<p>To prevent this, <code><a href="../reference/catsib.html">catsib()</a></code> clamps
+<p>By default (<code>rho.screen = TRUE</code>), <code><a href="../reference/catsib.html">catsib()</a></code>
+therefore leaves the examinees whose squared SE is at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\sigma}^2_{\hat{\theta},G}</annotation></semantics></math>,
+that is, examinees whose individual reliability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>S</mi><msup><mi>E</mi><mn>2</mn></msup><mi>/</mi><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">1 - SE^2 / \hat{\sigma}^2_{\hat{\theta},G}</annotation></semantics></math>
+is zero or negative, out of the computation of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>ρ</mi><mo accent="true">̂</mo></mover><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\rho}^2_G</annotation></semantics></math>.
+These examinees are still matched on their corrected scores and used in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>.
+This screening is not part of the original procedure of <span class="citation">Nandakumar &amp; Roussos (2004)</span> and is added in
+<strong>irtQ</strong>; set <code>rho.screen = FALSE</code> to use the
+original Equation 7. In Example 1, the screening leaves out 3 examinees
+of the focal group and 0 of the reference group, in addition to the
+examinees at a limit of <code>range</code>; the reliability is 0.907
+with the screening and 0.872 without it in the focal group, and 0.913
+and 0.913 in the reference group. With <code>rho.screen = FALSE</code>,
+the purification of Example 2 stops at the limit of 20 iterations
+without being completed, flags 35 items (30 of them DIF-free), and warns
+that the reliability fell below 0.05 (to -0.678 in the reference group
+and -2.029 in the focal group). Even with the screening, the Type I
+error rate of CATSIB can exceed the nominal level, and in data without
+DIF the purification can increase the number of false positives.</p>
+<p>In addition, <code><a href="../reference/catsib.html">catsib()</a></code> bounds
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>ρ</mi><mo accent="true">̂</mo></mover><mi>G</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\rho}^2_G</annotation></semantics></math>
 to the interval
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.05</mn><mo>,</mo><mspace width="0.167em"></mspace><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.05,\,
 1]</annotation></semantics></math>:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>ρ</mi><mo accent="true">̂</mo></mover><mi>G</mi><mn>2</mn></msubsup><mo>←</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.05</mn><mo>,</mo><mspace width="0.278em"></mspace><mi mathvariant="normal">min</mi><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mspace width="0.278em"></mspace><mn>1</mn><mo>−</mo><mfrac><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mi>e</mi><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mrow><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo>,</mo><mi>G</mi></mrow><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\rho}^2_G \leftarrow \max\!\left(0.05,\; \min\!\left(1,\; 1 -
 \frac{\hat{\sigma}^2_{e,G}}{\hat{\sigma}^2_{\hat{\theta},G}}\right)\right)</annotation></semantics></math></p>
-<p>When the unclamped value falls below 0.05, a warning is issued. This
-situation is most likely to occur during purification, when the removal
-of DIF-flagged items reduces the number of items used for ability
-re-estimation, causing standard errors to grow. If a warning is
+<p>and issues one warning per call when the unbounded value falls below
+0.05. This situation is most likely to occur during purification, when
+the removal of DIF-flagged items reduces the number of items used for
+ability re-estimation, causing standard errors to grow. If a warning is
 triggered, results should be interpreted with caution, or
 <code>purify = FALSE</code> should be considered.</p>
 <hr>

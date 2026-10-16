@@ -5,8 +5,8 @@
 The rest of **irtQ** centers on item response theory (IRT): item
 parameters are estimated on a common ability scale, and item/test
 statistics generally depend on those estimated parameters. Many testing
-programs, however, still report - or additionally report - classical
-test theory (CTT) statistics: simple, total-score-based indices of item
+programs, however, still report (or additionally report) classical test
+theory (CTT) statistics: simple, total-score-based indices of item
 difficulty, item discrimination, and test reliability that require no
 IRT model fitting at all. irtQ provides a small set of CTT functions for
 exactly this purpose, working directly from raw selected-response data
@@ -38,12 +38,11 @@ expects a vector of total scores, such as the
 Raw testing data, however, usually records the option each examinee
 actually chose. The *Utility Functions* article covers
 [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
-in full - including its support for numeric, Latin-letter, and
-general-label (e.g., Korean-syllable) option-coding schemes - but a
-short example is worth repeating here, since it is the natural first
-step before calling
-[`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) on raw data
-(or computing the total scores that
+in full, including its support for numeric, Latin-letter, and
+general-label (e.g., Korean-syllable) option-coding schemes, but a short
+example is worth repeating here, since it is the natural first step
+before calling [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md)
+on raw data (or computing the total scores that
 [`freq_score()`](https://hwangQ.github.io/irtQ/reference/freq_score.md)
 tabulates):
 
@@ -59,7 +58,7 @@ raw3 <- data.frame(
 key3 <- c("A", "D", "C")
 
 scored3 <- score_resp(data = raw3, key = key3)
-scored3$scored          # 0/1 matrix - the input format ctt() expects
+scored3$scored          # 0/1 matrix, the input format ctt() expects
 #>   V1 V2 V3
 #> 1  1  1  0
 #> 2  0  1  0
@@ -85,7 +84,7 @@ are defined once here and reused below:
 
 ``` r
 
-# Data set 1: a realistic, already-scored mixed-format response matrix -
+# Data set 1: a realistic, already-scored mixed-format response matrix:
 # 1,000 examinees on a 55-item test (50 dichotomous 3PLM items + 5 polytomous
 # GRM items), simulated from item parameters imported from a flexMIRT output
 # file bundled with irtQ. This mirrors the example used in `?ctt`
@@ -128,7 +127,7 @@ any value with zero observations in between, so gaps in the distribution
 are visible rather than silently skipped). This is the same table
 [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) builds
 internally for its own `$freq` element, but it is also fully usable on
-its own for any vector of integer total scores - for instance, the row
+its own for any vector of integer total scores, for instance, the row
 sums of `dat_mixed` computed above:
 
 ``` r
@@ -170,9 +169,9 @@ chosen automatically by whether a `key` is supplied.
 ### Selected-response mode: raw option data plus an answer key
 
 When `key` is supplied, `data` is treated as raw, unscored option
-responses - exactly the format
+responses (exactly the format
 [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md)
-expects - and
+expects), and
 [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
 additionally reports the blank/double-marking rate for each item:
 
@@ -208,7 +207,7 @@ practice.
 Each item’s option-coding scheme (numeric, Latin-letter, or general
 label) is inferred independently from its own `key` value, using exactly
 the same rule as
-[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) -
+[`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md),
 so a letter-coded or Korean-syllable-coded test form is analyzed
 identically to a numerically coded one, once options are mapped.
 
@@ -220,14 +219,14 @@ internally, and a selected-response item has exactly one correct option
 and therefore cannot yield a partial-credit score by construction. A
 mixed dichotomous/polytomous test form cannot be analyzed in this mode.
 The scored-category mode described further below has no such restriction
-and fully supports a mixed-format test form scored in a single call -
-see the *Scored-category mode* section.
+and fully supports a mixed-format test form scored in a single call; see
+the *Scored-category mode* section.
 
 ### Flagging an attractive distractor
 
 A distractor (a non-key option) whose point-biserial correlation with
-the total score is positive - meaning it is chosen disproportionately by
-*higher*-scoring examinees rather than lower-scoring ones - is a common
+the total score is positive (meaning it is chosen disproportionately by
+*higher*-scoring examinees rather than lower-scoring ones) is a common
 symptom of a miskeyed or ambiguously worded item.
 [`ctt_distr()`](https://hwangQ.github.io/irtQ/reference/ctt_distr.md)
 flags any distractor exceeding `crit.distractor` (default `0`):
@@ -254,7 +253,7 @@ out_flag$distr
 ```
 
 Option `"2"`’s `pb_raw` is strongly positive, and it is flagged as
-“distractor more attractive to high scorers” - exactly the pattern to
+“distractor more attractive to high scorers”, exactly the pattern to
 look for when reviewing a flagged item for a possible keying error.
 
 ### Scored-category mode: already-scored item response data, mixed formats included
@@ -266,9 +265,9 @@ reports each score category’s response proportion and category-total
 correlation, with no notion of a “correct” option to flag distractors
 against (`is_key` is `NA` and `omit` is `NULL` in this mode).
 
-`cats` is always a *per-item* vector in this mode - there is no
+`cats` is always a *per-item* vector in this mode (there is no
 assumption anywhere that every item shares the same number of score
-categories - so a single call can score a genuinely **mixed
+categories), so a single call can score a genuinely **mixed
 dichotomous/polytomous test form** together, exactly as
 [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) does further
 below. The call below scores all 55 items of `dat_mixed` (the 50
@@ -295,12 +294,12 @@ out_cat$distr[out_cat$distr$item %in% c(dichot_id, poly_id), ]
 ```
 
 Each item’s own `cats` value determines how many category rows it
-contributes to `out_cat$distr` - two rows for a dichotomous item, five
-for a 5-category GRM item - regardless of what any other item in the
+contributes to `out_cat$distr` (two rows for a dichotomous item, five
+for a 5-category GRM item), regardless of what any other item in the
 same call looks like.
 
 For `dichot_id` above, notice that `pb_raw` for category 0 and category
-1 are equal in magnitude but opposite in sign - this is expected, not a
+1 are equal in magnitude but opposite in sign; this is expected, not a
 computation error. With only two categories, choosing category 0 is the
 exact complement of choosing category 1 (every scored response is one or
 the other), so the “in category 0” indicator equals one minus the “in
@@ -373,7 +372,7 @@ out_bin$alpha   # test-level alpha, alpha_std, sem, mean difficulty/discriminati
 ```
 
 Difficulty for item $`j`$ is the mean item score divided by its maximum
-possible score, $`p_j = \bar{X}_j / m_j`$ - the familiar
+possible score, $`p_j = \bar{X}_j / m_j`$, the familiar
 proportion-correct index for a dichotomous item. Discrimination is the
 Pearson correlation between the item score and the total score; the
 **raw** (uncorrected) form correlates an item with the total score that
@@ -418,7 +417,7 @@ element. Raw alpha uses the standard variance-based formula
 \alpha = \frac{k}{k - 1}\left(1 - \frac{\sum_{j} \sigma_j^2}{\sigma_X^2}\right),
 ```
 and reflects the reliability of the actual (unweighted) total score
-obtained by simply summing the item scores - the score most tests
+obtained by simply summing the item scores, the score most tests
 actually use for reporting and decisions (Cronbach, 1951). Standardized
 alpha instead first standardizes every item to unit variance before
 combining them,
@@ -454,10 +453,10 @@ displays a condensed report;
 (paired with
 [`print.summary.ctt()`](https://hwangQ.github.io/irtQ/reference/print.summary.ctt.md))
 prints the full item-level table, the test-level reliability summary,
-and the total-score frequency distribution - analogous to how
+and the total-score frequency distribution, analogous to how
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) pairs
 with
-`print.est_irt()`/[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)
+[`print.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)/[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)
 elsewhere in irtQ:
 
 ``` r
@@ -516,7 +515,7 @@ summary(out_bin)     # summary.ctt(): full report
 #>           0.664      
 #>           0.666      
 #> 
-#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2
+#> Flagging thresholds: difficulty in [0.1, 0.95], discrimination >= 0.2 (raw item-total correlation)
 #> 0 of 15 item(s) flagged.
 #> 
 #> Test-Level Reliability Summary

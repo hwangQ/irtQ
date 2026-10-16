@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,7 +144,7 @@ Ability Parameter Calibration (FAPC) approaches, and multiple-group
 calibration (<code><a href="../reference/est_irt.html">est_irt()</a></code>, <code><a href="../reference/est_mg.html">est_mg()</a></code>,
 <code><a href="../reference/est_item.html">est_item()</a></code>)</li>
 <li>Estimating examinee abilities: maximum likelihood (ML), maximum
-likelihood with fences (MLF), weighted likelihood (WLE), maximum a
+likelihood with fences (MLF), weighted likelihood (WL), maximum a
 posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
 inverse test characteristic curve (TCC) scoring
 (<code><a href="../reference/est_score.html">est_score()</a></code>)</li>
@@ -213,10 +213,14 @@ analyzing selected-response item data without fitting an IRT model
 estimates</td>
 </tr>
 <tr class="odd">
-<td><code><a href="../reference/run_flexmirt.html">run_flexmirt()</a></code></td>
-<td>Run flexMIRT directly from R</td>
+<td><code><a href="../reference/write.flexmirt.html">write.flexmirt()</a></code></td>
+<td>Write item metadata to a flexMIRT parameter file</td>
 </tr>
 <tr class="even">
+<td><code><a href="../reference/run_flexmirt.html">run_flexmirt()</a></code></td>
+<td>Run flexMIRT from R (Windows only)</td>
+</tr>
+<tr class="odd">
 <td><code><a href="../reference/score_resp.html">score_resp()</a></code></td>
 <td>Score raw selected-response data into a 0/1 matrix</td>
 </tr>
@@ -596,6 +600,10 @@ use <code>"GPCM"</code> with <code>fix.a.gpcm = TRUE</code>
 <p><strong>Alias:</strong> <code>"DRM"</code> is accepted as a model
 string for any dichotomous item (1PLM, 2PLM, or 3PLM) in contexts where
 the model is already encoded in the metadata.</p>
+<p><code><a href="../reference/est_irt.html">est_irt()</a></code> fits items labeled <code>"DRM"</code> as 3PLM
+items (with a warning), so change the label (e.g., to
+<code>"2PLM"</code>) before calibrating imported <code>"DRM"</code>
+items if the guessing parameter should not be estimated.</p>
 </blockquote>
 <hr>
 </div>
@@ -784,9 +792,9 @@ is no guessing for 1PLM items.</li>
 <span>  par.prm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.9</span>, <span class="fl">1.3</span>, <span class="fl">0.7</span><span class="op">)</span>,</span>
 <span>    d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.20</span>, <span class="op">-</span><span class="fl">0.52</span>,  <span class="fl">0.25</span><span class="op">)</span>,       <span class="co"># GRM  item: 4 categories → 3 thresholds</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.20</span>, <span class="op">-</span><span class="fl">1.50</span>, <span class="op">-</span><span class="fl">0.55</span><span class="op">)</span>,       <span class="co"># GPCM item: 4 categories → 3 step params</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.92</span>, <span class="op">-</span><span class="fl">0.43</span>,  <span class="fl">0.49</span>, <span class="fl">1.11</span><span class="op">)</span>  <span class="co"># GPCM item: 5 categories → 4 step params</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.20</span>, <span class="op">-</span><span class="fl">0.52</span>,  <span class="fl">0.25</span><span class="op">)</span>,       <span class="co"># GRM  item: 4 categories -&gt; 3 thresholds</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.20</span>, <span class="op">-</span><span class="fl">1.50</span>, <span class="op">-</span><span class="fl">0.55</span><span class="op">)</span>,       <span class="co"># GPCM item: 4 categories -&gt; 3 step params</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.92</span>, <span class="op">-</span><span class="fl">0.43</span>,  <span class="fl">0.49</span>, <span class="fl">1.11</span><span class="op">)</span>  <span class="co"># GPCM item: 5 categories -&gt; 4 step params</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  item.id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"ITEM"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
@@ -933,8 +941,16 @@ from external IRT programs into <strong>irtQ</strong>’s item metadata
 format. This makes it easy to use parameters calibrated in another
 program as the starting point for downstream <strong>irtQ</strong>
 analyses.</p>
-<p>Each function returns a list; the <code>$full_df</code> component
-contains the complete standardized metadata data frame.</p>
+<p>For an item parameter file (<code>type = "par"</code>) and for
+<code><a href="../reference/bring.flexmirt.html">bring.mirt()</a></code>, the <code>$full_df</code> component of the
+result is the item metadata data frame; <code><a href="../reference/bring.flexmirt.html">bring.flexmirt()</a></code>
+returns one such list per group. <code><a href="../reference/bring.flexmirt.html">bring.flexmirt()</a></code> labels
+dichotomous items <code>"3PLM"</code> or <code>"2PLM"</code>, while
+<code><a href="../reference/bring.flexmirt.html">bring.bilog()</a></code>, <code><a href="../reference/bring.flexmirt.html">bring.parscale()</a></code>, and
+<code><a href="../reference/bring.flexmirt.html">bring.mirt()</a></code> label them <code>"DRM"</code>. The output does
+not record the scaling constant, so pass the value of <code>D</code>
+used in the original calibration (e.g., 1 for flexMIRT and
+<strong>mirt</strong>) to the other irtQ functions.</p>
 <div class="section level3">
 <h3 id="importing-from-flexmirt">Importing from flexMIRT<a class="anchor" aria-label="anchor" href="#importing-from-flexmirt"></a>
 </h3>
@@ -1083,7 +1099,12 @@ keyed by group name. Use <code>$Group1$full_df</code>,
 <h3 id="importing-from-the-mirt-package">Importing from the mirt package<a class="anchor" aria-label="anchor" href="#importing-from-the-mirt-package"></a>
 </h3>
 <p><code><a href="../reference/bring.flexmirt.html">bring.mirt()</a></code> requires the suggested
-<strong>mirt</strong> package.</p>
+<strong>mirt</strong> package. Dichotomous items, including two-category
+items fitted with the <code>"graded"</code>, <code>"gpcm"</code>, or
+<code>"gpcmIRT"</code> model in a mixed-format fit, are imported as
+<code>"DRM"</code> items. A model fitted to multiple groups is not
+supported; extract one group first with
+<code><a href="https://philchalmers.github.io/mirt/reference/extract.group.html" class="external-link">mirt::extract.group()</a></code>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit a model with mirt (not run)</span></span>
 <span><span class="co"># mirt_mod &lt;- mirt::mirt(data = my_data, model = 1, itemtype = "2PL")</span></span>
@@ -1113,11 +1134,15 @@ share two main arguments:</p>
 <tr class="even">
 <td><code>type</code></td>
 <td>
-<code>"par"</code> for item parameter estimates; <code>"sco"</code>
-for ability score estimates</td>
+<code>"par"</code> (default) for item parameter estimates;
+<code>"sco"</code> for ability score estimates</td>
 </tr>
 </tbody>
 </table>
+<p><code><a href="../reference/bring.flexmirt.html">bring.flexmirt()</a></code> also has <code>rePar</code>,
+<code>rePar.gpc</code>, and <code>n.factor</code>; keep the defaults
+<code>rePar = TRUE</code> and <code>rePar.gpc = TRUE</code> to get irtQ
+metadata.</p>
 <p>In practice, replace <code>system.file(...)</code> with the actual
 path to your file:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -1162,8 +1187,8 @@ are in increasing order within each row</li>
 central data structure that connects all <strong>irtQ</strong>
 functions. To show how metadata fits into the broader analysis pipeline,
 the example below walks through a minimal end-to-end workflow: define
-item metadata → simulate responses → estimate item parameters → estimate
-abilities → check recovery. Each step beyond metadata creation is
+item metadata, simulate responses, estimate item parameters, estimate
+abilities, and check recovery. Each step beyond metadata creation is
 covered in depth in its own dedicated article (see <strong>What’s
 Next?</strong> at the end of this page).</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -1198,7 +1223,7 @@ Next?</strong> at the end of this page).</p>
 <span><span class="va">theta_true</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">resp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simdat.html">simdat</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_wf</span>, theta <span class="op">=</span> <span class="va">theta_true</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Response matrix dimensions:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resp</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span>  <span class="co"># 500 examinees × 20 items</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Response matrix dimensions:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resp</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span>  <span class="co"># 500 examinees x 20 items</span></span>
 <span><span class="co">#&gt; Response matrix dimensions: 500 20</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ---- Step 3: Estimate item parameters with est_irt() ----</span></span>
@@ -1234,14 +1259,17 @@ Next?</strong> at the end of this page).</p>
 <span><span class="co">#&gt;  Number of rectangular quadrature points: 49</span></span>
 <span><span class="co">#&gt;  Minimum &amp; Maximum quadrature points: -6, 6</span></span>
 <span><span class="co">#&gt;  Number of free parameters: 50</span></span>
+<span><span class="co">#&gt;    - Item parameters: 50</span></span>
+<span><span class="co">#&gt;    - Latent distribution parameters (mean and variance): 0</span></span>
+<span><span class="co">#&gt;    - Latent distribution weights (empirical histogram): 0</span></span>
 <span><span class="co">#&gt;  Number of fixed items: 0</span></span>
 <span><span class="co">#&gt;  Number of E-step cycles completed: 28</span></span>
 <span><span class="co">#&gt;  Maximum parameter change: 0.0009162516</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Processing time (in seconds) </span></span>
-<span><span class="co">#&gt;  EM algorithm: 0.84</span></span>
+<span><span class="co">#&gt;  EM algorithm: 0.8</span></span>
 <span><span class="co">#&gt;  Standard error computation: 0.02</span></span>
-<span><span class="co">#&gt;  Total computation: 0.9</span></span>
+<span><span class="co">#&gt;  Total computation: 0.86</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Convergence and Stability of Solution </span></span>
 <span><span class="co">#&gt;  First-order test: Convergence criteria are satisfied.</span></span>
@@ -1255,26 +1283,26 @@ Next?</strong> at the end of this page).</p>
 <span><span class="co">#&gt;  Bayesian Information Criterion (BIC): 12764.15</span></span>
 <span><span class="co">#&gt;  Item Parameters: </span></span>
 <span><span class="co">#&gt;      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4</span></span>
-<span><span class="co">#&gt; 1    D1     2   2PLM   1.01  0.12  -1.41  0.13     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 2    D2     2   2PLM   1.32  0.17  -1.05  0.09     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 3    D3     2   2PLM   1.63  0.19  -0.39  0.06     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 4    D4     2   2PLM   0.94  0.10  -0.20  0.08     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 5    D5     2   2PLM   1.09  0.12   0.03  0.07     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 6    D6     2   2PLM   1.58  0.17   0.03  0.06     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 7    D7     2   2PLM   0.64  0.08   0.47  0.11     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 8    D8     2   2PLM   1.13  0.13   0.70  0.08     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 9    D9     2   2PLM   1.67  0.23   0.82  0.07     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 10  D10     2   2PLM   0.84  0.12   1.43  0.15     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 11  D11     2   2PLM   1.12  0.16  -1.26  0.12     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 12  D12     2   2PLM   0.86  0.10  -0.85  0.11     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 13  D13     2   2PLM   1.45  0.16  -0.32  0.06     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 14  D14     2   2PLM   1.00  0.10   0.12  0.08     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 15  D15     2   2PLM   1.31  0.14   0.38  0.07     NA    NA     NA    NA</span></span>
-<span><span class="co">#&gt; 16   P1     4    GRM   1.43  0.20  -1.42  0.18  -0.22  0.10   0.82  0.13</span></span>
-<span><span class="co">#&gt; 17   P2     4    GRM   1.32  0.19  -1.10  0.15   0.07  0.10   0.99  0.15</span></span>
-<span><span class="co">#&gt; 18   P3     4    GRM   0.93  0.15  -0.96  0.18   0.41  0.14   1.61  0.25</span></span>
-<span><span class="co">#&gt; 19   P4     4    GRM   1.22  0.17  -1.06  0.16  -0.03  0.11   1.01  0.15</span></span>
-<span><span class="co">#&gt; 20   P5     4    GRM   0.91  0.14  -1.51  0.25   0.22  0.13   1.27  0.20</span></span>
+<span><span class="co">#&gt; 1    D1     2   2PLM   1.01  0.12  -1.41  0.14     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 2    D2     2   2PLM   1.32  0.17  -1.05  0.10     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 3    D3     2   2PLM   1.63  0.19  -0.39  0.07     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 4    D4     2   2PLM   0.94  0.11  -0.20  0.09     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 5    D5     2   2PLM   1.09  0.12   0.03  0.08     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 6    D6     2   2PLM   1.58  0.18   0.03  0.07     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 7    D7     2   2PLM   0.64  0.08   0.47  0.12     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 8    D8     2   2PLM   1.13  0.14   0.70  0.09     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 9    D9     2   2PLM   1.67  0.23   0.82  0.08     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 10  D10     2   2PLM   0.84  0.12   1.43  0.16     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 11  D11     2   2PLM   1.12  0.16  -1.26  0.13     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 12  D12     2   2PLM   0.86  0.11  -0.85  0.11     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 13  D13     2   2PLM   1.45  0.17  -0.32  0.07     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 14  D14     2   2PLM   1.00  0.11   0.12  0.08     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 15  D15     2   2PLM   1.31  0.14   0.38  0.08     NA    NA     NA    NA</span></span>
+<span><span class="co">#&gt; 16   P1     4    GRM   1.43  0.12  -1.42  0.11  -0.22  0.07   0.82  0.08</span></span>
+<span><span class="co">#&gt; 17   P2     4    GRM   1.32  0.11  -1.10  0.10   0.07  0.07   0.99  0.09</span></span>
+<span><span class="co">#&gt; 18   P3     4    GRM   0.93  0.08  -0.96  0.11   0.41  0.09   1.61  0.14</span></span>
+<span><span class="co">#&gt; 19   P4     4    GRM   1.22  0.10  -1.06  0.10  -0.03  0.07   1.01  0.09</span></span>
+<span><span class="co">#&gt; 20   P5     4    GRM   0.91  0.08  -1.51  0.15   0.22  0.09   1.27  0.12</span></span>
 <span><span class="co">#&gt;  Group Parameters: </span></span>
 <span><span class="co">#&gt;            mu  sigma2  sigma</span></span>
 <span><span class="co">#&gt; estimates   0       1      1</span></span>

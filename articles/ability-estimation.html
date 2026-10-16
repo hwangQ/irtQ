@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,7 +204,8 @@ treatment of missing data. While pattern-based scoring methods handle
 missing responses (<code>NA</code>) flexibly by conditioning only on the
 observed items, summed-score methods (<code>"EAP.SUM"</code> and
 <code>"INV.TCC"</code>) automatically treat any missing responses as
-incorrect (recoded as 0s) to calculate the total raw score.</p>
+incorrect (recoded as 0s, with a warning) to calculate the total raw
+score.</p>
 <table class="table">
 <colgroup>
 <col width="30%">
@@ -271,14 +272,17 @@ most important arguments of <code><a href="../reference/est_score.html">est_scor
 <tr class="odd">
 <td><code>x</code></td>
 <td>An <code>est_irt</code> object (from <code><a href="../reference/est_irt.html">irtQ::est_irt()</a></code>),
-or a data frame of item metadata. When an <code>est_irt</code> object is
-provided, the response data embedded in it are used automatically.</td>
+an <code>est_item</code> object (from <code><a href="../reference/est_item.html">irtQ::est_item()</a></code>), or
+a data frame of item metadata. When an <code>est_irt</code> or
+<code>est_item</code> object is provided, the response data embedded in
+it are used automatically.</td>
 </tr>
 <tr class="even">
 <td><code>data</code></td>
 <td>Response matrix (rows = examinees, columns = items).
 <strong>Required</strong> when <code>x</code> is a metadata data frame
-rather than an <code>est_irt</code> object.</td>
+rather than an <code>est_irt</code> or <code>est_item</code>
+object.</td>
 </tr>
 <tr class="odd">
 <td><code>D</code></td>
@@ -331,7 +335,11 @@ when <code>NULL</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>max.iter</code></td>
-<td>Maximum Newton-Raphson iterations. Default <code>100</code>.</td>
+<td>Maximum number of Fisher scoring iterations. If the iterations do
+not converge, the root of the score function is found with
+<code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code> between the values visited during the iterations;
+see the Details of <code><a href="../reference/est_score.html">?est_score</a></code>. Default
+<code>100</code>.</td>
 </tr>
 <tr class="even">
 <td><code>se</code></td>
@@ -346,9 +354,9 @@ extreme scores? Default <code>TRUE</code>.</td>
 </tr>
 <tr class="even">
 <td><code>range.tcc</code></td>
-<td>Lower and upper bounds of the <code>"INV.TCC"</code> estimates; the
-upper bound is assigned to the maximum raw score. Default
-<code>c(-7, 7)</code>.</td>
+<td>The estimates that <code>"INV.TCC"</code> assigns to the lowest sum
+score (first value) and to the maximum possible sum score (second value)
+when <code>intpol = TRUE</code>. Default <code>c(-7, 7)</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -784,7 +792,7 @@ values.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cors_dich</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     ML     WL    MAP    EAP </span></span>
-<span><span class="co">#&gt; 0.9108 0.9475 0.9503 0.9501</span></span>
+<span><span class="co">#&gt; 0.9105 0.9484 0.9503 0.9501</span></span>
 <span></span>
 <span><span class="va">mae_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  ML  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">score_ml_dich</span><span class="op">$</span><span class="va">est.theta</span>  <span class="op">-</span> <span class="va">theta_dich</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -794,7 +802,7 @@ values.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mae_dich</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     ML     WL    MAP    EAP </span></span>
-<span><span class="co">#&gt; 0.3346 0.2703 0.2463 0.2478</span></span>
+<span><span class="co">#&gt; 0.3363 0.2699 0.2463 0.2478</span></span>
 <span></span>
 <span><span class="va">sd_dich</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  ML   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">score_ml_dich</span><span class="op">$</span><span class="va">est.theta</span><span class="op">)</span>,</span>
@@ -805,19 +813,19 @@ values.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">sd_dich</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     ML     WL    MAP    EAP   True </span></span>
-<span><span class="co">#&gt; 1.2944 1.0726 0.9328 0.9664 1.0165</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.2999 1.0789 0.9328 0.9664 1.0165</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="providing-an-est_irt-object-vs--separate-metadata">Providing an <code>est_irt</code> Object vs. Separate Metadata<a class="anchor" aria-label="anchor" href="#providing-an-est_irt-object-vs--separate-metadata"></a>
+<h3 id="providing-a-fitted-object-vs--separate-metadata">Providing a Fitted Object vs. Separate Metadata<a class="anchor" aria-label="anchor" href="#providing-a-fitted-object-vs--separate-metadata"></a>
 </h3>
-<p><code><a href="../reference/est_score.html">est_score()</a></code> accepts either an <code>est_irt</code>
-object (which embeds the response data and item parameters) or item
-metadata and response data provided separately. When an
-<code>est_irt</code> object is passed to the <code>x</code> argument,
-<code><a href="../reference/est_score.html">est_score()</a></code> automatically extracts both the item parameters
-and the embedded response data. This simplifies the post-calibration
-scoring workflow by eliminating the need to explicitly supply a separate
-<code>data</code> matrix.</p>
+<p><code><a href="../reference/est_score.html">est_score()</a></code> accepts either an <code>est_irt</code> or
+<code>est_item</code> object (which embeds the response data and item
+parameters) or item metadata and response data provided separately. When
+an <code>est_irt</code> or <code>est_item</code> object is passed to the
+<code>x</code> argument, <code><a href="../reference/est_score.html">est_score()</a></code> automatically extracts
+both the item parameters and the embedded response data. This simplifies
+the post-calibration scoring workflow by eliminating the need to
+explicitly supply a separate <code>data</code> matrix.</p>
 <p>Both workflows produce identical results. The estimates differ from
 the EAP estimates in Part 1 because they use the item parameters
 estimated by <code><a href="../reference/est_irt.html">est_irt()</a></code> instead of the generating item

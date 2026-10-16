@@ -24,28 +24,28 @@ gen.weight(n = 41, dist = "norm", mu = 0, sigma = 1, l = -4, u = 4, theta)
   A character string indicating the distribution type used to generate
   weights. Available options are `"norm"` for a normal distribution,
   `"unif"` for a uniform distribution, and `"emp"` for an empirical
-  distribution.
+  distribution. Default is `"norm"`.
 
   - If `dist = "norm"`, either `n` or `theta` must be provided.
 
-  - If `dist = "unif"`, only `n` is applicable.
+  - If `dist = "unif"`, only `n` is used; `theta` must not be supplied.
 
-  - If `dist = "emp"`, only `theta` must be specified.
+  - If `dist = "emp"`, `theta` is required.
 
 - mu, sigma:
 
   Mean and standard deviation of the normal distribution (used when
-  `dist = "norm"`).
+  `dist = "norm"`). Defaults are 0 and 1.
 
 - l, u:
 
   Lower and upper bounds of the uniform distribution (used when
-  `dist = "unif"`).
+  `dist = "unif"`). Defaults are -4 and 4.
 
 - theta:
 
-  A numeric vector of empirical theta (node) values for which weights
-  are generated.
+  A numeric vector of theta (node) values for which weights are
+  generated. Used when `dist = "norm"` or `dist = "emp"`.
 
 ## Value
 
@@ -57,9 +57,8 @@ A data frame with two columns:
 
 ## Details
 
-If `theta` is not specified, *n* equally spaced quadrature points and
-corresponding weights are generated from either the normal or uniform
-distribution:
+If `theta` is not specified, *n* quadrature points and corresponding
+weights are generated from either the normal or uniform distribution:
 
 - When `dist = "norm"`, Gaussian quadrature points and weights are
   computed using `gauss.quad.prob()` from the statmod package.

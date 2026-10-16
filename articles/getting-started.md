@@ -57,7 +57,7 @@ advantages are:
   [`est_mg()`](https://hwangQ.github.io/irtQ/reference/est_mg.md),
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md))
 - Estimating examinee abilities: maximum likelihood (ML), maximum
-  likelihood with fences (MLF), weighted likelihood (WLE), maximum a
+  likelihood with fences (MLF), weighted likelihood (WL), maximum a
   posteriori (MAP), expected a posteriori (EAP), EAP summed scoring, and
   inverse test characteristic curve (TCC) scoring
   ([`est_score()`](https://hwangQ.github.io/irtQ/reference/est_score.md))
@@ -106,7 +106,8 @@ selected-response item data without fitting an IRT model
 | [`lwrc()`](https://hwangQ.github.io/irtQ/reference/lwrc.md) | Lord-Wingersky recursion (summed-score distributions) |
 | [`gen.weight()`](https://hwangQ.github.io/irtQ/reference/gen.weight.md) | Generate quadrature weights from a distribution |
 | [`covirt()`](https://hwangQ.github.io/irtQ/reference/covirt.md) | Asymptotic variance-covariance matrices of item parameter estimates |
-| [`run_flexmirt()`](https://hwangQ.github.io/irtQ/reference/run_flexmirt.md) | Run flexMIRT directly from R |
+| [`write.flexmirt()`](https://hwangQ.github.io/irtQ/reference/write.flexmirt.md) | Write item metadata to a flexMIRT parameter file |
+| [`run_flexmirt()`](https://hwangQ.github.io/irtQ/reference/run_flexmirt.md) | Run flexMIRT from R (Windows only) |
 | [`score_resp()`](https://hwangQ.github.io/irtQ/reference/score_resp.md) | Score raw selected-response data into a 0/1 matrix |
 
 This article introduces the **IRT models** supported by **irtQ** and the
@@ -322,6 +323,11 @@ $`v = 0`$ term is handled internally; you do not supply $`b_0`$.
 > **Alias:** `"DRM"` is accepted as a model string for any dichotomous
 > item (1PLM, 2PLM, or 3PLM) in contexts where the model is already
 > encoded in the metadata.
+>
+> [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) fits
+> items labeled `"DRM"` as 3PLM items (with a warning), so change the
+> label (e.g., to `"2PLM"`) before calibrating imported `"DRM"` items if
+> the guessing parameter should not be estimated.
 
 ------------------------------------------------------------------------
 
@@ -447,9 +453,9 @@ meta_ex2 <- shape_df(
   par.prm = list(
     a = c(1.9, 1.3, 0.7),
     d = list(
-      c(-1.20, -0.52,  0.25),       # GRM  item: 4 categories → 3 thresholds
-      c(-2.20, -1.50, -0.55),       # GPCM item: 4 categories → 3 step params
-      c(-0.92, -0.43,  0.49, 1.11)  # GPCM item: 5 categories → 4 step params
+      c(-1.20, -0.52,  0.25),       # GRM  item: 4 categories -> 3 thresholds
+      c(-2.20, -1.50, -0.55),       # GPCM item: 4 categories -> 3 step params
+      c(-0.92, -0.43,  0.49, 1.11)  # GPCM item: 5 categories -> 4 step params
     )
   ),
   item.id = paste0("ITEM", 1:5),
@@ -552,8 +558,20 @@ IRT programs into **irtQ**’s item metadata format. This makes it easy to
 use parameters calibrated in another program as the starting point for
 downstream **irtQ** analyses.
 
-Each function returns a list; the `$full_df` component contains the
-complete standardized metadata data frame.
+For an item parameter file (`type = "par"`) and for
+[`bring.mirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md),
+the `$full_df` component of the result is the item metadata data frame;
+[`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+returns one such list per group.
+[`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+labels dichotomous items `"3PLM"` or `"2PLM"`, while
+[`bring.bilog()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md),
+[`bring.parscale()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md),
+and
+[`bring.mirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+label them `"DRM"`. The output does not record the scaling constant, so
+pass the value of `D` used in the original calibration (e.g., 1 for
+flexMIRT and **mirt**) to the other irtQ functions.
 
 ### Importing from flexMIRT
 
@@ -706,7 +724,11 @@ meta_bilog <- bring.bilog(file = "output/mytest.PAR", type = "par")$full_df
 ### Importing from the mirt package
 
 [`bring.mirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
-requires the suggested **mirt** package.
+requires the suggested **mirt** package. Dichotomous items, including
+two-category items fitted with the `"graded"`, `"gpcm"`, or `"gpcmIRT"`
+model in a mixed-format fit, are imported as `"DRM"` items. A model
+fitted to multiple groups is not supported; extract one group first with
+[`mirt::extract.group()`](https://philchalmers.github.io/mirt/reference/extract.group.html).
 
 ``` r
 
@@ -726,7 +748,11 @@ share two main arguments:
 | Argument | Description |
 |----|----|
 | `file` | Path to the external software output file |
-| `type` | `"par"` for item parameter estimates; `"sco"` for ability score estimates |
+| `type` | `"par"` (default) for item parameter estimates; `"sco"` for ability score estimates |
+
+[`bring.flexmirt()`](https://hwangQ.github.io/irtQ/reference/bring.flexmirt.md)
+also has `rePar`, `rePar.gpc`, and `n.factor`; keep the defaults
+`rePar = TRUE` and `rePar.gpc = TRUE` to get irtQ metadata.
 
 In practice, replace `system.file(...)` with the actual path to your
 file:
@@ -772,8 +798,8 @@ Ensure that:
 This article has focused on **item metadata**, the central data
 structure that connects all **irtQ** functions. To show how metadata
 fits into the broader analysis pipeline, the example below walks through
-a minimal end-to-end workflow: define item metadata → simulate responses
-→ estimate item parameters → estimate abilities → check recovery. Each
+a minimal end-to-end workflow: define item metadata, simulate responses,
+estimate item parameters, estimate abilities, and check recovery. Each
 step beyond metadata creation is covered in depth in its own dedicated
 article (see **What’s Next?** at the end of this page).
 
@@ -810,7 +836,7 @@ meta_wf <- shape_df(
 theta_true <- rnorm(500, mean = 0, sd = 1)
 resp <- simdat(x = meta_wf, theta = theta_true, D = 1.702)
 
-cat("Response matrix dimensions:", dim(resp), "\n")  # 500 examinees × 20 items
+cat("Response matrix dimensions:", dim(resp), "\n")  # 500 examinees x 20 items
 #> Response matrix dimensions: 500 20
 ```
 
@@ -849,14 +875,17 @@ summary(mod)
 #>  Number of rectangular quadrature points: 49
 #>  Minimum & Maximum quadrature points: -6, 6
 #>  Number of free parameters: 50
+#>    - Item parameters: 50
+#>    - Latent distribution parameters (mean and variance): 0
+#>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 28
 #>  Maximum parameter change: 0.0009162516
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.84
+#>  EM algorithm: 0.8
 #>  Standard error computation: 0.02
-#>  Total computation: 0.9
+#>  Total computation: 0.86
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -870,26 +899,26 @@ summary(mod)
 #>  Bayesian Information Criterion (BIC): 12764.15
 #>  Item Parameters: 
 #>      id  cats  model  par.1  se.1  par.2  se.2  par.3  se.3  par.4  se.4
-#> 1    D1     2   2PLM   1.01  0.12  -1.41  0.13     NA    NA     NA    NA
-#> 2    D2     2   2PLM   1.32  0.17  -1.05  0.09     NA    NA     NA    NA
-#> 3    D3     2   2PLM   1.63  0.19  -0.39  0.06     NA    NA     NA    NA
-#> 4    D4     2   2PLM   0.94  0.10  -0.20  0.08     NA    NA     NA    NA
-#> 5    D5     2   2PLM   1.09  0.12   0.03  0.07     NA    NA     NA    NA
-#> 6    D6     2   2PLM   1.58  0.17   0.03  0.06     NA    NA     NA    NA
-#> 7    D7     2   2PLM   0.64  0.08   0.47  0.11     NA    NA     NA    NA
-#> 8    D8     2   2PLM   1.13  0.13   0.70  0.08     NA    NA     NA    NA
-#> 9    D9     2   2PLM   1.67  0.23   0.82  0.07     NA    NA     NA    NA
-#> 10  D10     2   2PLM   0.84  0.12   1.43  0.15     NA    NA     NA    NA
-#> 11  D11     2   2PLM   1.12  0.16  -1.26  0.12     NA    NA     NA    NA
-#> 12  D12     2   2PLM   0.86  0.10  -0.85  0.11     NA    NA     NA    NA
-#> 13  D13     2   2PLM   1.45  0.16  -0.32  0.06     NA    NA     NA    NA
-#> 14  D14     2   2PLM   1.00  0.10   0.12  0.08     NA    NA     NA    NA
-#> 15  D15     2   2PLM   1.31  0.14   0.38  0.07     NA    NA     NA    NA
-#> 16   P1     4    GRM   1.43  0.20  -1.42  0.18  -0.22  0.10   0.82  0.13
-#> 17   P2     4    GRM   1.32  0.19  -1.10  0.15   0.07  0.10   0.99  0.15
-#> 18   P3     4    GRM   0.93  0.15  -0.96  0.18   0.41  0.14   1.61  0.25
-#> 19   P4     4    GRM   1.22  0.17  -1.06  0.16  -0.03  0.11   1.01  0.15
-#> 20   P5     4    GRM   0.91  0.14  -1.51  0.25   0.22  0.13   1.27  0.20
+#> 1    D1     2   2PLM   1.01  0.12  -1.41  0.14     NA    NA     NA    NA
+#> 2    D2     2   2PLM   1.32  0.17  -1.05  0.10     NA    NA     NA    NA
+#> 3    D3     2   2PLM   1.63  0.19  -0.39  0.07     NA    NA     NA    NA
+#> 4    D4     2   2PLM   0.94  0.11  -0.20  0.09     NA    NA     NA    NA
+#> 5    D5     2   2PLM   1.09  0.12   0.03  0.08     NA    NA     NA    NA
+#> 6    D6     2   2PLM   1.58  0.18   0.03  0.07     NA    NA     NA    NA
+#> 7    D7     2   2PLM   0.64  0.08   0.47  0.12     NA    NA     NA    NA
+#> 8    D8     2   2PLM   1.13  0.14   0.70  0.09     NA    NA     NA    NA
+#> 9    D9     2   2PLM   1.67  0.23   0.82  0.08     NA    NA     NA    NA
+#> 10  D10     2   2PLM   0.84  0.12   1.43  0.16     NA    NA     NA    NA
+#> 11  D11     2   2PLM   1.12  0.16  -1.26  0.13     NA    NA     NA    NA
+#> 12  D12     2   2PLM   0.86  0.11  -0.85  0.11     NA    NA     NA    NA
+#> 13  D13     2   2PLM   1.45  0.17  -0.32  0.07     NA    NA     NA    NA
+#> 14  D14     2   2PLM   1.00  0.11   0.12  0.08     NA    NA     NA    NA
+#> 15  D15     2   2PLM   1.31  0.14   0.38  0.08     NA    NA     NA    NA
+#> 16   P1     4    GRM   1.43  0.12  -1.42  0.11  -0.22  0.07   0.82  0.08
+#> 17   P2     4    GRM   1.32  0.11  -1.10  0.10   0.07  0.07   0.99  0.09
+#> 18   P3     4    GRM   0.93  0.08  -0.96  0.11   0.41  0.09   1.61  0.14
+#> 19   P4     4    GRM   1.22  0.10  -1.06  0.10  -0.03  0.07   1.01  0.09
+#> 20   P5     4    GRM   0.91  0.08  -1.51  0.15   0.22  0.09   1.27  0.12
 #>  Group Parameters: 
 #>            mu  sigma2  sigma
 #> estimates   0       1      1

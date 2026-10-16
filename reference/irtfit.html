@@ -17,7 +17,7 @@ also returns contingency tables used to compute the \(\chi^{2}\) and
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ also returns contingency tables used to compute the \(\chi^{2}\) and
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Traditional IRT Item Fit Statistics</h1>
-      <small class="dont-index">Source: <a href="https://github.com/hwangQ/irtQ/blob/main/R/irtfit.R" class="external-link"><code>R/irtfit.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/hwangQ/irtQ/blob/main/R/irtfit.R" class="external-link"><code>R/irtfit.R</code></a>, <a href="https://github.com/hwangQ/irtQ/blob/main/R/print.R" class="external-link"><code>R/print.R</code></a></small>
       <div class="d-none name"><code>irtfit.Rd</code></div>
     </div>
 
@@ -118,7 +118,10 @@ also returns contingency tables used to compute the \(\chi^{2}\) and
 <span>  min.collapse <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  pcm.loc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'irtfit'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -127,8 +130,8 @@ also returns contingency tables used to compute the \(\chi^{2}\) and
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data frame containing item metadata (e.g., item parameters,
-number of categories, IRT model types, etc.); or an object of class
-<code>est_irt</code> obtained from <code><a href="est_irt.html">est_irt()</a></code>, or <code>est_item</code> from
+number of categories, IRT model types, etc.), or an object of class
+<code>est_irt</code> or <code>est_item</code> obtained from <code><a href="est_irt.html">est_irt()</a></code> or
 <code><a href="est_item.html">est_item()</a></code>.</p>
 <p>See <code><a href="est_irt.html">est_irt()</a></code> or <code><a href="simdat.html">simdat()</a></code> for more details about the item
 metadata. This data frame can be easily created using the
@@ -140,31 +143,35 @@ metadata. This data frame can be easily created using the
 
 
 <dt id="arg-score">score<a class="anchor" aria-label="anchor" href="#arg-score"></a></dt>
-<dd><p>A numeric vector containing examinees' ability estimates
-(theta values).</p></dd>
+<dd><p>A numeric vector of examinees' ability estimates (theta
+values). Examinees with a missing ability estimate are excluded. Not used
+by the <code>est_item</code> method, which takes the ability estimates stored in <code>x</code>.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A matrix of examinees' item responses corresponding to the items
-specified in the <code>x</code> argument. Rows represent examinees and columns
-represent items.</p></dd>
+<dd><p>A matrix of examinees' item responses, with rows for examinees
+and columns for items in the same order as the items in <code>x</code>. Responses
+to an item with K score categories must be integers from 0 to K - 1.
+Missing responses are coded as <code>NA</code> or, in functions that have a
+<code>missing</code> argument, as the value given in <code>missing</code>.</p></dd>
 
 
 <dt id="arg-group-method">group.method<a class="anchor" aria-label="anchor" href="#arg-group-method"></a></dt>
 <dd><p>A character string specifying the method used to group
 examinees along the ability scale when computing the \(\chi^{2}\) and
-\(G^{2}\) fit statistics. Available options are:</p><ul><li><p><code>"equal.width"</code>: Divides the ability scale into intervals of equal width.</p></li>
-<li><p><code>"equal.freq"</code>: Divides the examinees into groups with (approximately)
-equal numbers of examinees.</p></li>
-</ul><p>Note that <code>"equal.freq"</code> does not guarantee exactly equal group sizes
-due to ties in ability estimates. Default is <code>"equal.width"</code>.
-The number of groups and the range of the ability scale are controlled by
-the <code>n.width</code> and <code>range.score</code> arguments, respectively.</p></dd>
+\(G^{2}\) fit statistics. Available options are:</p><ul><li><p><code>"equal.width"</code>: Divides the ability range into intervals of equal width.</p></li>
+<li><p><code>"equal.freq"</code>: Divides the examinees into groups of approximately
+equal size.</p></li>
+</ul><p>Default is <code>"equal.width"</code>. For each item, the intervals span the minimum
+and maximum ability estimates (after truncation by <code>range.score</code>) of the
+examinees who responded to the item. The number of intervals is set by
+<code>n.width</code>.</p></dd>
 
 
 <dt id="arg-n-width">n.width<a class="anchor" aria-label="anchor" href="#arg-n-width"></a></dt>
-<dd><p>An integer specifying the number of intervals (groups) into which
-the ability scale is divided for computing the fit statistics. Default is 10.</p></dd>
+<dd><p>An integer specifying the number of intervals (groups) into
+which the ability scale is divided. Duplicate cut points and empty
+intervals are dropped, so an item can have fewer groups. Default is 10.</p></dd>
 
 
 <dt id="arg-loc-theta">loc.theta<a class="anchor" aria-label="anchor" href="#arg-loc-theta"></a></dt>
@@ -176,47 +183,52 @@ Available options are:</p><ul><li><p><code>"average"</code>: Uses the average ab
 
 
 <dt id="arg-range-score">range.score<a class="anchor" aria-label="anchor" href="#arg-range-score"></a></dt>
-<dd><p>A numeric vector of length two specifying the lower and upper
-bounds of the ability scale. Ability estimates below the lower bound or above the
-upper bound are truncated to the respective bound. If <code>NULL</code>, the observed minimum
-and maximum of the <code>score</code> vector are used. Note that this range restriction is
-independent of the grouping method specified in <code>group.method</code>.
-Default is <code>NULL</code>.</p></dd>
+<dd><p>A numeric vector of length two giving the lower and upper
+bounds of the ability scale. Ability estimates outside these bounds are set
+to the nearest bound before grouping and before computing infit and outfit.
+The bounds also set the theta range of the plots drawn by
+<code><a href="plot.irtfit.html">plot.irtfit()</a></code>. If <code>NULL</code>, no truncation is applied, and the plot
+range is \(\pm\) the largest absolute ability estimate rounded up to an
+integer. Default is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A scaling constant used in IRT models to make the logistic function
-closely approximate the normal ogive function. A value of 1.7 is commonly
+closely approximate the normal ogive function. A value of 1.702 is commonly
 used for this purpose. Default is 1.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>A numeric value specifying the significance level (\(\alpha\)) for
-the hypothesis tests of the \(\chi^{2}\) and \(G^{2}\) item fit statistics.
-Default is <code>0.05</code>.</p></dd>
+<dd><p>A numeric value specifying the significance level (\(\alpha\))
+for the tests of the \(\chi^{2}\) and \(G^{2}\) item fit statistics. It
+also sets the confidence level, \(1 - \alpha\), of the intervals drawn by
+<code><a href="plot.irtfit.html">plot.irtfit()</a></code>. Default is <code>0.05</code>.</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
-<dd><p>A value indicating missing responses in the data set. Default
-is <code>NA</code>. See <strong>Details</strong> below.</p></dd>
+<dd><p>A value indicating missing responses in <code>data</code>. Default is
+<code>NA</code>. Missing responses are excluded item by item.</p></dd>
 
 
 <dt id="arg-oversr">overSR<a class="anchor" aria-label="anchor" href="#arg-oversr"></a></dt>
-<dd><p>A numeric threshold used to identify ability groups (intervals)
-whose standardized residuals exceed the specified value. This is used to
-compute the proportion of misfitting groups per item. Default is 2.</p></dd>
+<dd><p>A positive numeric threshold for the absolute standardized
+residuals. The proportion of cells (ability groups by score categories),
+before collapsing, whose absolute standardized residuals exceed this value
+is reported in <code>overSR.prop</code>. Default is 2.</p></dd>
 
 
 <dt id="arg-min-collapse">min.collapse<a class="anchor" aria-label="anchor" href="#arg-min-collapse"></a></dt>
-<dd><p>An integer specifying the minimum expected frequency required
-for a cell in the contingency table. Neighboring groups will be merged if any
-expected cell frequency falls below this threshold when computing the
-\(\chi^{2}\) and \(G^{2}\) statistics. Default is 1.</p></dd>
+<dd><p>A numeric value giving the minimum expected frequency per
+cell. When computing \(\chi^{2}\) and \(G^{2}\), adjacent ability groups
+are merged until every expected cell frequency is at least this value.
+Default is 1.</p></dd>
 
 
 <dt id="arg-pcm-loc">pcm.loc<a class="anchor" aria-label="anchor" href="#arg-pcm-loc"></a></dt>
-<dd><p>A vector of integers indicating the locations (indices) of
-partial credit model (PCM) items for which slope parameters are fixed.</p></dd>
+<dd><p>An integer vector giving the positions (rows of <code>x</code>) of
+partial credit model (PCM) items whose slope parameters are fixed. It is
+used only to count the item parameters for the degrees of freedom of
+\(\chi^{2}\). Default is <code>NULL</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -224,53 +236,58 @@ partial credit model (PCM) items for which slope parameters are fixed.</p></dd>
     <p>This function returns an object of class <code>irtfit</code>, which includes
 the following components:</p>
 <dl><dt>fit_stat</dt>
-<dd><p>A data frame containing the results of three IRT item fit statistics -
-\(\chi^{2}\), \(G^{2}\), infit, and outfit - for all evaluated items.
-Each row corresponds to one item, and the columns include:
-the item ID; \(\chi^{2}\) statistic; \(G^{2}\) statistic;
-degrees of freedom for \(\chi^{2}\) and \(G^{2}\);
-critical values and p-values for both statistics;
-outfit and infit values;
-the number of examinees used to compute these statistics;
-and the proportion of ability groups (prior to cell collapsing) that have
-standardized residuals greater than the threshold specified in the <code>overSR</code> argument.</p></dd>
+<dd><p>A data frame with one row per item and the columns <code>id</code>,
+<code>X2</code> (\(\chi^{2}\)), <code>G2</code> (\(G^{2}\)), <code>df.X2</code>, <code>df.G2</code>, <code>crit.val.X2</code>
+and <code>crit.val.G2</code> (critical values at <code>alpha</code>), <code>p.X2</code>, <code>p.G2</code>, <code>outfit</code>,
+<code>infit</code>, <code>N</code> (the number of examinees who responded to the item and have
+an ability estimate), and
+<code>overSR.prop</code> (the proportion of cells, before collapsing, whose absolute
+standardized residuals exceed <code>overSR</code>).</p></dd>
 
 
 <dt>contingency.fitstat</dt>
-<dd><p>A list of contingency tables used to compute the
-\(\chi^{2}\) and \(G^{2}\) fit statistics for all items. Note that the
-cell-collapsing strategy is applied to these tables to ensure sufficient
-expected frequencies.</p></dd>
+<dd><p>A list of contingency tables, one per item, used
+to compute \(\chi^{2}\) and \(G^{2}\). Adjacent ability groups are
+merged until every expected frequency is at least <code>min.collapse</code>, the rows
+are numbered, and the interval labels are dropped. The columns are
+<code>total</code> and, for each score category, <code>obs.freq.*</code>, <code>exp.freq.*</code>,
+<code>obs.prop.*</code>, <code>exp.prob.*</code>, and <code>raw.rsd.*</code>.</p></dd>
 
 
 <dt>contingency.plot</dt>
-<dd><p>A list of contingency tables used to generate raw
-and standardized residual plots (Hambleton et al., 1991) via the
-<code><a href="plot.irtfit.html">plot.irtfit()</a></code>. Note that these tables are based on the original,
-uncollapsed groupings.</p></dd>
-
-
-<dt>individual.info</dt>
-<dd><p>A list of data frames containing individual residuals
-and corresponding variance values. This information is used to compute infit
-and outfit statistics.</p></dd>
+<dd><p>A list of contingency tables, one per item, used by
+<code><a href="plot.irtfit.html">plot.irtfit()</a></code> to draw raw and standardized residual plots
+(Hambleton et al., 1991). The tables use the uncollapsed groups and contain
+<code>interval</code>, <code>point</code> (the theta point of the group), <code>total</code>, and, for each
+score category, <code>obs.freq.*</code>, <code>obs.prop.*</code>, <code>exp.prob.*</code>, <code>raw.rsd.*</code>,
+<code>se.*</code>, and <code>std.rsd.*</code>.</p></dd>
 
 
 <dt>item_df</dt>
-<dd><p>A data frame containing the item metadata provided in the
-argument <code>x</code>.</p></dd>
+<dd><p>The item metadata used in the analysis. Items with fewer
+than two responses are removed.</p></dd>
+
+
+<dt>individual.info</dt>
+<dd><p>A list of data frames, one per item, with the
+residual (<code>resid</code>) and variance (<code>Var</code>) for each examinee who responded to
+the item. These values are used to compute infit and outfit.</p></dd>
 
 
 <dt>ancillary</dt>
-<dd><p>A list of ancillary information used during the item fit
-analysis.</p></dd>
+<dd><p>A list with <code>range.score</code>, <code>alpha</code>, <code>overSR</code>, and
+<code>scale.D</code>, used by <code><a href="plot.irtfit.html">plot.irtfit()</a></code>.</p></dd>
+
+
+<dt>call</dt>
+<dd><p>The matched call.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>To compute the \(\chi^2\) and \(G^2\) item fit statistics, the <code>group.method</code>
-argument determines how the ability scale is divided into groups:</p><ul><li><p><code>"equal.width"</code>: Examinees are grouped based on intervals of equal width a
-long the ability scale.</p></li>
+argument determines how the ability scale is divided into groups:</p><ul><li><p><code>"equal.width"</code>: Examinees are grouped by intervals of equal width along
+the ability scale.</p></li>
 <li><p><code>"equal.freq"</code>: Examinees are grouped such that each group contains
 (approximately) the same number of individuals.</p></li>
 </ul><p>Note that <code>"equal.freq"</code> does not guarantee <em>exactly</em> equal frequencies across
@@ -280,31 +297,74 @@ and \(G^2\) fit statistics, the intervals should be:</p><ul><li><p><strong>Wide 
 examinees (to avoid unstable estimates),</p></li>
 <li><p><strong>Narrow enough</strong> to ensure that examinees within each group are relatively
 homogeneous in ability (Hambleton et al., 1991).</p></li>
-</ul><p>If you want to divide the ability scale into a number of groups other than
-the default of 10, specify the desired number using the <code>n.width</code> argument.
-For reference:</p><ul><li><p>Yen (1981) used 10 fixed-width groups,</p></li>
+</ul><p>Use <code>n.width</code> to change the number of groups (default 10). For reference:</p><ul><li><p>Yen (1981) used 10 groups of approximately equal size,</p></li>
 <li><p>Bock (1960) allowed for flexibility in the number of groups.</p></li>
-</ul><p>Regarding degrees of freedom (<em>df</em>):</p><ul><li><p>The \(\chi^2\) statistic is approximately chi-square distributed with
-degrees of freedom equal to the number of ability groups minus the number
-of item parameters (Ames &amp; Penfield, 2015).</p></li>
+</ul><p>With <code>loc.theta = "average"</code>, the expected probabilities of each group are
+evaluated at the average ability estimate of the group. The probability at
+this point approximates the average of the model probabilities of the
+examinees in the group (e.g., Yen, 1981).</p>
+<p>Regarding degrees of freedom (<em>df</em>), let \(G\) be the number of ability
+groups after collapsing, \(K\) the number of score categories, and
+\(m\) the number of item parameters:</p><ul><li><p>The \(\chi^2\) statistic is approximately chi-square distributed with
+\(G(K - 1) - m\) degrees of freedom, which is \(G - m\) for a
+dichotomous item (Ames &amp; Penfield, 2015).</p></li>
 <li><p>The \(G^2\) statistic is approximately chi-square distributed with
-degrees of freedom equal to the number of ability groups (Ames &amp; Penfield, 2015;
-Muraki &amp; Bock, 2003).</p>
-<p>Note that if <code>"DRM"</code> is specified for an item in the item metadata set,
-the item is treated as a <code>"3PLM"</code> when computing the degrees of freedom
-for the \(\chi^{2}\) fit statistic.</p></li>
-</ul><p>Note that infit and outfit statistics should be interpreted with caution when
-applied to non-Rasch models. The returned object - particularly the contingency
-tables - can be passed to <code><a href="plot.irtfit.html">plot.irtfit()</a></code> to generate raw and standardized
-residual plots (Hambleton et al., 1991).</p>
+\(G(K - 1)\) degrees of freedom, which is \(G\) for a dichotomous item
+(Ames &amp; Penfield, 2015; Muraki &amp; Bock, 2003).</p></li>
+</ul><p>The number of item parameters \(m\) is determined by the IRT model of each
+item: 1 for the 1PLM, 2 for the 2PLM, 3 for the 3PLM, and the number of score
+categories \(K\) for the GRM and GPCM; an item listed in <code>pcm.loc</code> has
+\(m = K - 1\), and an item labeled <code>"DRM"</code> is counted as a 3PLM item. This
+also applies to <code>est_irt</code> and <code>est_item</code> objects: parameters fixed during
+estimation (for example, with <code>fix.g = TRUE</code>, or the items fixed in FIPC) are
+still counted, and GPCM items estimated with <code>fix.a.gpcm = TRUE</code> are counted
+as PCM items only when they are given in <code>pcm.loc</code>. When no degrees of
+freedom remain for \(\chi^2\) after collapsing (<code>df.X2</code> of 0 or less),
+<code>crit.val.X2</code> and <code>p.X2</code> are <code>NA</code>, and a warning names the item.</p>
+<p>Responses in <code>data</code> must be integer scores from 0 to the number of score
+categories minus 1, with one column per item. Character and factor responses
+are read as numbers, logical responses as 0 and 1, and other responses stop
+the function with an error.</p>
+<p>For ability group \(j\) with \(N_j\) examinees, let \(O_{jk}\) and
+\(E_{jk}\) be the observed proportion and the model-expected probability
+of score category \(k\) at the theta point of the group (see
+<code>loc.theta</code>). The statistics are
+\(\chi^2 = \sum_j \sum_k N_j (O_{jk} - E_{jk})^2 / E_{jk}\) and
+\(G^2 = 2 \sum_j \sum_k N_j O_{jk} \log(O_{jk} / E_{jk})\), where cells
+with \(O_{jk} = 0\) add nothing to \(G^2\). For a dichotomous item,
+\(\chi^2\) has the form of Yen's (1981) \(Q_1\) statistic
+\(\sum_j N_j (O_j - E_j)^2 / [E_j (1 - E_j)]\). The standardized
+residual of a cell before collapsing is
+\((O_{jk} - E_{jk}) / \sqrt{E_{jk} (1 - E_{jk}) / N_j}\).</p>
+<p>Infit and outfit use the category scores \(0, \ldots, K - 1\). For
+examinee \(n\), the residual is \(r_n = x_n - E(X \mid \theta_n)\) and
+the variance is \(W_n = \sum_k (k - E(X \mid \theta_n))^2 P_k(\theta_n)\),
+where \(\theta_n\) is the ability estimate in <code>score</code>. Outfit is the
+unweighted mean \(\sum_n (r_n^2 / W_n) / N\), and infit is the
+variance-weighted mean \(\sum_n r_n^2 / \sum_n W_n\).</p>
+<p>Note that infit and outfit statistics should be interpreted with caution when
+applied to non-Rasch models. The returned object, in particular its
+contingency tables, can be passed to <code><a href="plot.irtfit.html">plot.irtfit()</a></code> to draw raw and
+standardized residual plots (Hambleton et al., 1991).</p>
     </div>
     <div class="section level2">
     <h2 id="methods-by-class-">Methods (by class)<a class="anchor" aria-label="anchor" href="#methods-by-class-"></a></h2>
 
 <ul><li><p><code>irtfit(default)</code>: Default method for computing traditional IRT item fit
 statistics using a data frame <code>x</code> that contains item metadata.</p></li>
-<li><p><code>irtfit(est_item)</code>: An object created by the function <code><a href="est_item.html">est_item()</a></code>.</p></li>
-<li><p><code>irtfit(est_irt)</code>: An object created by the function <code><a href="est_irt.html">est_irt()</a></code>.</p></li>
+<li><p><code>irtfit(est_item)</code>: Method for an object of class <code>est_item</code> created by
+<code><a href="est_item.html">est_item()</a></code>. The item parameter estimates, response data, ability
+estimates, and scaling constant <code>D</code> are taken from the object.</p></li>
+<li><p><code>irtfit(est_irt)</code>: Method for an object of class <code>est_irt</code> created by
+<code><a href="est_irt.html">est_irt()</a></code>. The item parameter estimates, response data, and scaling
+constant <code>D</code> are taken from the object, and <code>score</code> must be supplied.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="methods-by-generic-">Methods (by generic)<a class="anchor" aria-label="anchor" href="#methods-by-generic-"></a></h2>
+
+<ul><li><p><code>print(irtfit)</code>: Print method for an object of class <code>irtfit</code> (given as
+<code>x</code>). It prints the significance level and the table of item fit
+statistics (<code>fit_stat</code>) as stored in the object.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -316,14 +376,10 @@ Hill, NC: L. L. Thurstone Psychometric Laboratory.</p>
 <p>Hambleton, R. K., Swaminathan, H., &amp; Rogers, H. J. (1991). <em>Fundamentals of
 item response theory</em>. Newbury Park, CA: Sage.</p>
 <p>McKinley, R., &amp; Mills, C. (1985). A comparison of several goodness-of-fit
-statistics.
-<em>Applied Psychological Measurement, 9</em>, 49-57.</p>
+statistics. <em>Applied Psychological Measurement, 9</em>, 49-57.</p>
 <p>Muraki, E., &amp; Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
 scoring for rating scale data (Computer software). Chicago, IL: Scientific
 Software International. URL http://www.ssicentral.com</p>
-<p>Wells, C. S., &amp; Bolt, D. M. (2008). Investigation of a nonparametric
-procedure for assessing goodness-of-fit in item response theory. <em>Applied
-Measurement in Education, 21</em>(1), 22-40.</p>
 <p>Yen, W. M. (1981). Using simulation results to choose a latent trait model.
 <em>Applied Psychological Measurement, 5</em>, 245-262.</p>
     </div>
@@ -342,10 +398,10 @@ Measurement in Education, 21</em>(1), 22-40.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## Example 1</span></span></span>
 <span class="r-in"><span><span class="co">## Use the simulated CAT data</span></span></span>
-<span class="r-in"><span><span class="co"># Identify items with more than 10,000 responses</span></span></span>
+<span class="r-in"><span><span class="co"># Identify items whose summed item scores exceed 10,000</span></span></span>
 <span class="r-in"><span><span class="va">over10000</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">simCAT_MX</span><span class="op">$</span><span class="va">res.dat</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">10000</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Select items with more than 10,000 responses</span></span></span>
+<span class="r-in"><span><span class="co"># Select these items</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">simCAT_MX</span><span class="op">$</span><span class="va">item.prm</span><span class="op">[</span><span class="va">over10000</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract response data for the selected items</span></span></span>

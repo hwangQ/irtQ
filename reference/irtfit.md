@@ -60,6 +60,9 @@ irtfit(
   pcm.loc = NULL,
   ...
 )
+
+# S3 method for class 'irtfit'
+print(x, ...)
 ```
 
 ## Arguments
@@ -67,10 +70,9 @@ irtfit(
 - x:
 
   A data frame containing item metadata (e.g., item parameters, number
-  of categories, IRT model types, etc.); or an object of class `est_irt`
-  obtained from
-  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md), or
-  `est_item` from
+  of categories, IRT model types, etc.), or an object of class `est_irt`
+  or `est_item` obtained from
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md) or
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
 
   See [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
@@ -86,14 +88,18 @@ irtfit(
 
 - score:
 
-  A numeric vector containing examinees' ability estimates (theta
-  values).
+  A numeric vector of examinees' ability estimates (theta values).
+  Examinees with a missing ability estimate are excluded. Not used by
+  the `est_item` method, which takes the ability estimates stored in
+  `x`.
 
 - data:
 
-  A matrix of examinees' item responses corresponding to the items
-  specified in the `x` argument. Rows represent examinees and columns
-  represent items.
+  A matrix of examinees' item responses, with rows for examinees and
+  columns for items in the same order as the items in `x`. Responses to
+  an item with K score categories must be integers from 0 to K - 1.
+  Missing responses are coded as `NA` or, in functions that have a
+  `missing` argument, as the value given in `missing`.
 
 - group.method:
 
@@ -101,22 +107,22 @@ irtfit(
   the ability scale when computing the \\\chi^{2}\\ and \\G^{2}\\ fit
   statistics. Available options are:
 
-  - `"equal.width"`: Divides the ability scale into intervals of equal
+  - `"equal.width"`: Divides the ability range into intervals of equal
     width.
 
-  - `"equal.freq"`: Divides the examinees into groups with
-    (approximately) equal numbers of examinees.
+  - `"equal.freq"`: Divides the examinees into groups of approximately
+    equal size.
 
-  Note that `"equal.freq"` does not guarantee exactly equal group sizes
-  due to ties in ability estimates. Default is `"equal.width"`. The
-  number of groups and the range of the ability scale are controlled by
-  the `n.width` and `range.score` arguments, respectively.
+  Default is `"equal.width"`. For each item, the intervals span the
+  minimum and maximum ability estimates (after truncation by
+  `range.score`) of the examinees who responded to the item. The number
+  of intervals is set by `n.width`.
 
 - n.width:
 
   An integer specifying the number of intervals (groups) into which the
-  ability scale is divided for computing the fit statistics. Default is
-  10.
+  ability scale is divided. Duplicate cut points and empty intervals are
+  dropped, so an item can have fewer groups. Default is 10.
 
 - loc.theta:
 
@@ -133,47 +139,54 @@ irtfit(
 
 - range.score:
 
-  A numeric vector of length two specifying the lower and upper bounds
-  of the ability scale. Ability estimates below the lower bound or above
-  the upper bound are truncated to the respective bound. If `NULL`, the
-  observed minimum and maximum of the `score` vector are used. Note that
-  this range restriction is independent of the grouping method specified
-  in `group.method`. Default is `NULL`.
+  A numeric vector of length two giving the lower and upper bounds of
+  the ability scale. Ability estimates outside these bounds are set to
+  the nearest bound before grouping and before computing infit and
+  outfit. The bounds also set the theta range of the plots drawn by
+  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md).
+  If `NULL`, no truncation is applied, and the plot range is \\\pm\\ the
+  largest absolute ability estimate rounded up to an integer. Default is
+  `NULL`.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - alpha:
 
   A numeric value specifying the significance level (\\\alpha\\) for the
-  hypothesis tests of the \\\chi^{2}\\ and \\G^{2}\\ item fit
-  statistics. Default is `0.05`.
+  tests of the \\\chi^{2}\\ and \\G^{2}\\ item fit statistics. It also
+  sets the confidence level, \\1 - \alpha\\, of the intervals drawn by
+  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md).
+  Default is `0.05`.
 
 - missing:
 
-  A value indicating missing responses in the data set. Default is `NA`.
-  See **Details** below.
+  A value indicating missing responses in `data`. Default is `NA`.
+  Missing responses are excluded item by item.
 
 - overSR:
 
-  A numeric threshold used to identify ability groups (intervals) whose
-  standardized residuals exceed the specified value. This is used to
-  compute the proportion of misfitting groups per item. Default is 2.
+  A positive numeric threshold for the absolute standardized residuals.
+  The proportion of cells (ability groups by score categories), before
+  collapsing, whose absolute standardized residuals exceed this value is
+  reported in `overSR.prop`. Default is 2.
 
 - min.collapse:
 
-  An integer specifying the minimum expected frequency required for a
-  cell in the contingency table. Neighboring groups will be merged if
-  any expected cell frequency falls below this threshold when computing
-  the \\\chi^{2}\\ and \\G^{2}\\ statistics. Default is 1.
+  A numeric value giving the minimum expected frequency per cell. When
+  computing \\\chi^{2}\\ and \\G^{2}\\, adjacent ability groups are
+  merged until every expected cell frequency is at least this value.
+  Default is 1.
 
 - pcm.loc:
 
-  A vector of integers indicating the locations (indices) of partial
-  credit model (PCM) items for which slope parameters are fixed.
+  An integer vector giving the positions (rows of `x`) of partial credit
+  model (PCM) items whose slope parameters are fixed. It is used only to
+  count the item parameters for the degrees of freedom of \\\chi^{2}\\.
+  Default is `NULL`.
 
 ## Value
 
@@ -182,45 +195,52 @@ following components:
 
 - fit_stat:
 
-  A data frame containing the results of three IRT item fit statistics -
-  \\\chi^{2}\\, \\G^{2}\\, infit, and outfit - for all evaluated items.
-  Each row corresponds to one item, and the columns include: the item
-  ID; \\\chi^{2}\\ statistic; \\G^{2}\\ statistic; degrees of freedom
-  for \\\chi^{2}\\ and \\G^{2}\\; critical values and p-values for both
-  statistics; outfit and infit values; the number of examinees used to
-  compute these statistics; and the proportion of ability groups (prior
-  to cell collapsing) that have standardized residuals greater than the
-  threshold specified in the `overSR` argument.
+  A data frame with one row per item and the columns `id`, `X2`
+  (\\\chi^{2}\\), `G2` (\\G^{2}\\), `df.X2`, `df.G2`, `crit.val.X2` and
+  `crit.val.G2` (critical values at `alpha`), `p.X2`, `p.G2`, `outfit`,
+  `infit`, `N` (the number of examinees who responded to the item and
+  have an ability estimate), and `overSR.prop` (the proportion of cells,
+  before collapsing, whose absolute standardized residuals exceed
+  `overSR`).
 
 - contingency.fitstat:
 
-  A list of contingency tables used to compute the \\\chi^{2}\\ and
-  \\G^{2}\\ fit statistics for all items. Note that the cell-collapsing
-  strategy is applied to these tables to ensure sufficient expected
-  frequencies.
+  A list of contingency tables, one per item, used to compute
+  \\\chi^{2}\\ and \\G^{2}\\. Adjacent ability groups are merged until
+  every expected frequency is at least `min.collapse`, the rows are
+  numbered, and the interval labels are dropped. The columns are `total`
+  and, for each score category, `obs.freq.*`, `exp.freq.*`,
+  `obs.prop.*`, `exp.prob.*`, and `raw.rsd.*`.
 
 - contingency.plot:
 
-  A list of contingency tables used to generate raw and standardized
-  residual plots (Hambleton et al., 1991) via the
-  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md).
-  Note that these tables are based on the original, uncollapsed
-  groupings.
-
-- individual.info:
-
-  A list of data frames containing individual residuals and
-  corresponding variance values. This information is used to compute
-  infit and outfit statistics.
+  A list of contingency tables, one per item, used by
+  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md)
+  to draw raw and standardized residual plots (Hambleton et al., 1991).
+  The tables use the uncollapsed groups and contain `interval`, `point`
+  (the theta point of the group), `total`, and, for each score category,
+  `obs.freq.*`, `obs.prop.*`, `exp.prob.*`, `raw.rsd.*`, `se.*`, and
+  `std.rsd.*`.
 
 - item_df:
 
-  A data frame containing the item metadata provided in the argument
-  `x`.
+  The item metadata used in the analysis. Items with fewer than two
+  responses are removed.
+
+- individual.info:
+
+  A list of data frames, one per item, with the residual (`resid`) and
+  variance (`Var`) for each examinee who responded to the item. These
+  values are used to compute infit and outfit.
 
 - ancillary:
 
-  A list of ancillary information used during the item fit analysis.
+  A list with `range.score`, `alpha`, `overSR`, and `scale.D`, used by
+  [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md).
+
+- call:
+
+  The matched call.
 
 ## Details
 
@@ -228,8 +248,8 @@ To compute the \\\chi^2\\ and \\G^2\\ item fit statistics, the
 `group.method` argument determines how the ability scale is divided into
 groups:
 
-- `"equal.width"`: Examinees are grouped based on intervals of equal
-  width a long the ability scale.
+- `"equal.width"`: Examinees are grouped by intervals of equal width
+  along the ability scale.
 
 - `"equal.freq"`: Examinees are grouped such that each group contains
   (approximately) the same number of individuals.
@@ -246,45 +266,92 @@ and \\G^2\\ fit statistics, the intervals should be:
 - **Narrow enough** to ensure that examinees within each group are
   relatively homogeneous in ability (Hambleton et al., 1991).
 
-If you want to divide the ability scale into a number of groups other
-than the default of 10, specify the desired number using the `n.width`
-argument. For reference:
+Use `n.width` to change the number of groups (default 10). For
+reference:
 
-- Yen (1981) used 10 fixed-width groups,
+- Yen (1981) used 10 groups of approximately equal size,
 
 - Bock (1960) allowed for flexibility in the number of groups.
 
-Regarding degrees of freedom (*df*):
+With `loc.theta = "average"`, the expected probabilities of each group
+are evaluated at the average ability estimate of the group. The
+probability at this point approximates the average of the model
+probabilities of the examinees in the group (e.g., Yen, 1981).
+
+Regarding degrees of freedom (*df*), let \\G\\ be the number of ability
+groups after collapsing, \\K\\ the number of score categories, and \\m\\
+the number of item parameters:
 
 - The \\\chi^2\\ statistic is approximately chi-square distributed with
-  degrees of freedom equal to the number of ability groups minus the
-  number of item parameters (Ames & Penfield, 2015).
+  \\G(K - 1) - m\\ degrees of freedom, which is \\G - m\\ for a
+  dichotomous item (Ames & Penfield, 2015).
 
 - The \\G^2\\ statistic is approximately chi-square distributed with
-  degrees of freedom equal to the number of ability groups (Ames &
-  Penfield, 2015; Muraki & Bock, 2003).
+  \\G(K - 1)\\ degrees of freedom, which is \\G\\ for a dichotomous item
+  (Ames & Penfield, 2015; Muraki & Bock, 2003).
 
-  Note that if `"DRM"` is specified for an item in the item metadata
-  set, the item is treated as a `"3PLM"` when computing the degrees of
-  freedom for the \\\chi^{2}\\ fit statistic.
+The number of item parameters \\m\\ is determined by the IRT model of
+each item: 1 for the 1PLM, 2 for the 2PLM, 3 for the 3PLM, and the
+number of score categories \\K\\ for the GRM and GPCM; an item listed in
+`pcm.loc` has \\m = K - 1\\, and an item labeled `"DRM"` is counted as a
+3PLM item. This also applies to `est_irt` and `est_item` objects:
+parameters fixed during estimation (for example, with `fix.g = TRUE`, or
+the items fixed in FIPC) are still counted, and GPCM items estimated
+with `fix.a.gpcm = TRUE` are counted as PCM items only when they are
+given in `pcm.loc`. When no degrees of freedom remain for \\\chi^2\\
+after collapsing (`df.X2` of 0 or less), `crit.val.X2` and `p.X2` are
+`NA`, and a warning names the item.
+
+Responses in `data` must be integer scores from 0 to the number of score
+categories minus 1, with one column per item. Character and factor
+responses are read as numbers, logical responses as 0 and 1, and other
+responses stop the function with an error.
+
+For ability group \\j\\ with \\N_j\\ examinees, let \\O\_{jk}\\ and
+\\E\_{jk}\\ be the observed proportion and the model-expected
+probability of score category \\k\\ at the theta point of the group (see
+`loc.theta`). The statistics are \\\chi^2 = \sum_j \sum_k N_j (O\_{jk} -
+E\_{jk})^2 / E\_{jk}\\ and \\G^2 = 2 \sum_j \sum_k N_j O\_{jk}
+\log(O\_{jk} / E\_{jk})\\, where cells with \\O\_{jk} = 0\\ add nothing
+to \\G^2\\. For a dichotomous item, \\\chi^2\\ has the form of Yen's
+(1981) \\Q_1\\ statistic \\\sum_j N_j (O_j - E_j)^2 / \[E_j (1 -
+E_j)\]\\. The standardized residual of a cell before collapsing is
+\\(O\_{jk} - E\_{jk}) / \sqrt{E\_{jk} (1 - E\_{jk}) / N_j}\\.
+
+Infit and outfit use the category scores \\0, \ldots, K - 1\\. For
+examinee \\n\\, the residual is \\r_n = x_n - E(X \mid \theta_n)\\ and
+the variance is \\W_n = \sum_k (k - E(X \mid \theta_n))^2
+P_k(\theta_n)\\, where \\\theta_n\\ is the ability estimate in `score`.
+Outfit is the unweighted mean \\\sum_n (r_n^2 / W_n) / N\\, and infit is
+the variance-weighted mean \\\sum_n r_n^2 / \sum_n W_n\\.
 
 Note that infit and outfit statistics should be interpreted with caution
-when applied to non-Rasch models. The returned object - particularly the
-contingency tables - can be passed to
+when applied to non-Rasch models. The returned object, in particular its
+contingency tables, can be passed to
 [`plot.irtfit()`](https://hwangQ.github.io/irtQ/reference/plot.irtfit.md)
-to generate raw and standardized residual plots (Hambleton et al.,
-1991).
+to draw raw and standardized residual plots (Hambleton et al., 1991).
 
 ## Methods (by class)
 
 - `irtfit(default)`: Default method for computing traditional IRT item
   fit statistics using a data frame `x` that contains item metadata.
 
-- `irtfit(est_item)`: An object created by the function
+- `irtfit(est_item)`: Method for an object of class `est_item` created
+  by
   [`est_item()`](https://hwangQ.github.io/irtQ/reference/est_item.md).
+  The item parameter estimates, response data, ability estimates, and
+  scaling constant `D` are taken from the object.
 
-- `irtfit(est_irt)`: An object created by the function
-  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md).
+- `irtfit(est_irt)`: Method for an object of class `est_irt` created by
+  [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md). The
+  item parameter estimates, response data, and scaling constant `D` are
+  taken from the object, and `score` must be supplied.
+
+## Methods (by generic)
+
+- `print(irtfit)`: Print method for an object of class `irtfit` (given
+  as `x`). It prints the significance level and the table of item fit
+  statistics (`fit_stat`) as stored in the object.
 
 ## References
 
@@ -306,10 +373,6 @@ Muraki, E., & Bock, R. D. (2003). PARSCALE 4: IRT item analysis and test
 scoring for rating scale data (Computer software). Chicago, IL:
 Scientific Software International. URL http://www.ssicentral.com
 
-Wells, C. S., & Bolt, D. M. (2008). Investigation of a nonparametric
-procedure for assessing goodness-of-fit in item response theory.
-*Applied Measurement in Education, 21*(1), 22-40.
-
 Yen, W. M. (1981). Using simulation results to choose a latent trait
 model. *Applied Psychological Measurement, 5*, 245-262.
 
@@ -330,10 +393,10 @@ Hwanggyu Lim <hglim83@gmail.com>
 # \donttest{
 ## Example 1
 ## Use the simulated CAT data
-# Identify items with more than 10,000 responses
+# Identify items whose summed item scores exceed 10,000
 over10000 <- which(colSums(simCAT_MX$res.dat, na.rm = TRUE) > 10000)
 
-# Select items with more than 10,000 responses
+# Select these items
 x <- simCAT_MX$item.prm[over10000, ]
 
 # Extract response data for the selected items

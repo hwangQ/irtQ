@@ -4,8 +4,10 @@ Prints a condensed, headline-style summary of an object of class `"ctt"`
 returned by [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md),
 following the same brief/full print-summary split used by
 [`est_irt()`](https://hwangQ.github.io/irtQ/reference/est_irt.md)
-(compare `print.est_irt()` vs.
-[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)/`print.summary.est_irt()`).
+(compare
+[`print.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)
+vs.
+[`summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)/[`print.summary.est_irt()`](https://hwangQ.github.io/irtQ/reference/summary.md)).
 
 ## Usage
 
@@ -23,12 +25,10 @@ print(x, digits = 3, ...)
 
 - digits:
 
-  Number of decimal places used when rounding numeric values for
-  display. Default is `3`. Note that the item- and test-level statistics
-  bundled into `x` are already rounded to 3 decimal places before
-  [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md) returns
-  them, so a `digits` value greater than 3 here cannot recover precision
-  that was already discarded upstream.
+  Number of decimal places used for display. Default is `3`. The
+  statistics in `x` are already rounded to three decimal places by
+  [`ctt()`](https://hwangQ.github.io/irtQ/reference/ctt.md), so a value
+  above 3 adds no precision.
 
 - ...:
 

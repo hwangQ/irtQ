@@ -18,23 +18,24 @@ prm(theta, a, d, D = 1, pr.model = c("GRM", "GPCM"))
 
 - a:
 
-  A numeric vector of item discrimination (slope) parameters.
+  A numeric value of the item discrimination (slope) parameter.
 
 - d:
 
-  A numeric vector of item difficulty (or threshold) parameters.
+  A numeric vector of the threshold parameters of the item. For the GRM,
+  the thresholds must be in increasing order.
 
 - D:
 
   A scaling constant used in IRT models to make the logistic function
-  closely approximate the normal ogive function. A value of 1.7 is
+  closely approximate the normal ogive function. A value of 1.702 is
   commonly used for this purpose. Default is 1.
 
 - pr.model:
 
-  A character string specifying the polytomous IRT model. Available
-  options are `"GRM"` for the graded response model and `"GPCM"` for the
-  (generalized) partial credit model.
+  A character string specifying the polytomous IRT model: `"GRM"` for
+  the graded response model or `"GPCM"` for the (generalized) partial
+  credit model. Default is `"GRM"`.
 
 ## Value
 
@@ -47,13 +48,20 @@ item.
 When computing category probabilities using the partial credit model
 (PCM), set `a = 1`.
 
-For `pr.model = "GPCM"`, the vector `d` should contain threshold
-parameters that define the boundaries between adjacent score categories.
-In the irtQ package, these thresholds are expressed as the item location
-(overall difficulty) minus the step parameters for each category. If an
-item has *K* score categories, *K - 1* threshold parameters must be
-provided; the first is assumed to be 0. For example, for a GPCM item
-with five categories, provide four threshold parameters.
+For `pr.model = "GPCM"`, `d` contains the threshold parameters \\b_v =
+\beta - \tau_v\\, that is, the overall item location minus the threshold
+of each score category. An item with *K* score categories requires *K -
+1* threshold parameters. The term for the lowest score category is fixed
+at 0 and is not supplied. For example, a GPCM item with five categories
+requires four threshold parameters.
+
+The GRM probabilities are bounded to the range from 1e-10 to 1 - 1e-10,
+whereas the GPCM probabilities are bounded below only by the smallest
+positive normalized double value (about 2.2e-308). The category
+probabilities in
+[`traceline()`](https://hwangQ.github.io/irtQ/reference/traceline.md)
+and [`info()`](https://hwangQ.github.io/irtQ/reference/info.md) are
+bounded below by 1e-10 for both models.
 
 For more details on the parameterization of the (generalized) partial
 credit model, refer to the *IRT Models* section in the

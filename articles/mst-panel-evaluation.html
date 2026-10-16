@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">irtQ</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -235,11 +235,13 @@ item 2 [  1   0   0   0   0   0   0 ]
 ...
 item 9 [  0   1   0   0   0   0   0 ]  ← item 9 is in module 2
 ...</code></pre>
-<p>Each item belongs to exactly one module, so each row has exactly one
-1 and all other entries are 0. <code><a href="../reference/reval_mst.html">reval_mst()</a></code> additionally
-requires that all modules in the same stage have the same maximum sum
-score (for dichotomous items, the same number of items); it stops with
-an error otherwise.</p>
+<p>In <code>simMST</code>, each item belongs to exactly one module, so
+each row has exactly one 1. In general, an item should belong to at most
+one module; items of the bank that are not used in the panel have rows
+of 0. <code><a href="../reference/reval_mst.html">reval_mst()</a></code> additionally requires a single routing
+module in the first stage and that all modules in the same stage have
+the same maximum sum score (for dichotomous items, the same number of
+items); it stops with an error otherwise.</p>
 </div>
 <div class="section level4">
 <h4 id="route-map-route_map">3. Route Map (<code>route_map</code>)<a class="anchor" aria-label="anchor" href="#route-map-route_map"></a>
@@ -285,14 +287,14 @@ receives.</p>
 <span>                  <span class="co">#                    θ̂ ≥ 0.6 → hard module</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The cut scores of a transition are tied to the modules of the next
-stage in order: the first cut score separates the first and second
-modules, the second separates the second and third. When a module can
-reach only some of the next-stage modules, only the cut scores that
-separate those modules apply. In the route map above, a test taker in M4
-can reach only M6 or M7, so the second Stage 3 cut score alone decides
-between them (θ̂ below it goes to M6, θ̂ at or above it to M7).
-<code><a href="../reference/reval_mst.html">reval_mst()</a></code> and <code><a href="../reference/run_mst.html">run_mst()</a></code> use the same
-rule.</p>
+stage in the order of the module indices: the first cut score separates
+the first and second modules, the second separates the second and third.
+When a module can reach only some of the next-stage modules, only the
+cut scores that separate those modules apply. In the route map above, a
+test taker in M4 can reach only M6 or M7, so the second Stage 3 cut
+score alone decides between them (θ̂ below it goes to M6, θ̂ at or above
+it to M7). <code><a href="../reference/reval_mst.html">reval_mst()</a></code> and <code><a href="../reference/run_mst.html">run_mst()</a></code> use the
+same rule.</p>
 <p><code>cut_score</code> is required by <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, which
 always uses inverse-TCC scoring internally, and by
 <code><a href="../reference/run_mst.html">run_mst()</a></code> whenever <code>route_method = NULL</code>. When
@@ -554,7 +556,7 @@ with the default, <code>bmat</code>:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
 <span><span class="co">#&gt;   Bias : 0.014</span></span>
-<span><span class="co">#&gt;   RMSE : 0.328</span></span>
+<span><span class="co">#&gt;   RMSE : 0.327</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
@@ -667,14 +669,14 @@ the next module:</p>
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.014</span></span>
-<span><span class="co">#&gt;   SD   : 1.102</span></span>
+<span><span class="co">#&gt;   Mean : -0.016</span></span>
+<span><span class="co">#&gt;   SD   : 1.107</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.012</span></span>
-<span><span class="co">#&gt;   RMSE : 0.328</span></span>
+<span><span class="co">#&gt;   Bias : 0.010</span></span>
+<span><span class="co">#&gt;   RMSE : 0.331</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
@@ -812,14 +814,14 @@ any other fixed cut scores, by setting
 <span><span class="co">#&gt;   Final method        : ML</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Final ability estimates (est.theta):</span></span>
-<span><span class="co">#&gt;   Mean : -0.012</span></span>
-<span><span class="co">#&gt;   SD   : 1.079</span></span>
+<span><span class="co">#&gt;   Mean : -0.013</span></span>
+<span><span class="co">#&gt;   SD   : 1.081</span></span>
 <span><span class="co">#&gt;   Min  : -4.000</span></span>
 <span><span class="co">#&gt;   Max  : 4.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimation accuracy (est.theta - true.theta):</span></span>
-<span><span class="co">#&gt;   Bias : 0.014</span></span>
-<span><span class="co">#&gt;   RMSE : 0.323</span></span>
+<span><span class="co">#&gt;   Bias : 0.013</span></span>
+<span><span class="co">#&gt;   RMSE : 0.324</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Module frequency by stage:</span></span>
 <span><span class="co">#&gt;   Stage 1: Module 1: 1000 (100.0%)</span></span>
@@ -882,9 +884,9 @@ response data:</p>
 <span><span class="va">rmse_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_A</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rmse_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">result_B</span><span class="op">$</span><span class="va">est.theta</span> <span class="op">-</span> <span class="va">theta_true2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (bmat):                 %.4f\n"</span>, <span class="va">rmse_A</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; RMSE (bmat):                 0.3082</span></span>
+<span><span class="co">#&gt; RMSE (bmat):                 0.3068</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"RMSE (find_cut cut scores):  %.4f\n"</span>, <span class="va">rmse_B</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; RMSE (find_cut cut scores):  0.3065</span></span></code></pre></div>
+<span><span class="co">#&gt; RMSE (find_cut cut scores):  0.3050</span></span></code></pre></div>
 <p>All five calls above return the same kind of result regardless of the
 routing rule or input format used: a final ability estimate
 (<code>est.theta</code>), its standard error (<code>se.theta</code>,
@@ -946,7 +948,7 @@ the Stage 3 (final) module each examinee landed in:</p>
 <span>                              <span class="va">final_mod</span><span class="op">[</span><span class="op">!</span><span class="va">at_limit</span><span class="op">]</span>, <span class="va">mean</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;   module   n n_limit   mean_se</span></span>
-<span><span class="co">#&gt; 1      5 389       7 0.3014238</span></span>
+<span><span class="co">#&gt; 1      5 389       7 0.3004882</span></span>
 <span><span class="co">#&gt; 2      6 214       0 0.2415196</span></span>
 <span><span class="co">#&gt; 3      7 397      10 0.2799251</span></span></code></pre></div>
 <p>When an ML estimate reaches a limit of <code>range</code> (here -4 or
@@ -1026,8 +1028,7 @@ scores, b-matching, or maximum information)</li>
 and variance of the estimates</li>
 <li>Bias =
 mean(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>)
-−
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>−</mi><annotation encoding="application/x-tex">-</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\theta_k</annotation></semantics></math>,
 CSEM =
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\text{Var}(\hat\theta)}</annotation></semantics></math>
 </li>
@@ -1093,16 +1094,20 @@ estimate using the <strong>inverse Test Characteristic Curve (TCC)
 method</strong>, the method implied by IRT-based summed scoring.</p>
 <blockquote>
 <p><strong>Note on linear interpolation (<code>intpol</code>)</strong>:
-When items have non-zero guessing parameters (e.g., 3PLM), the minimum
-<em>achievable</em> expected sum score exceeds zero, meaning no valid
+When items have non-zero guessing parameters (e.g., 3PLM), the expected
+sum score never falls to or below the sum of the guessing parameters, so
+no
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>
-exists for very low observed scores (those below the sum of guessing
-parameters). With <code>intpol = TRUE</code> (the default), the inverse
-TCC method applies <strong>linear interpolation</strong> between the
-point
+exists for observed scores less than or equal to that sum; no
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\theta</annotation></semantics></math>
+exists for the maximum possible score either. With
+<code>intpol = TRUE</code> (the default), the low scores are mapped by
+<strong>linear interpolation</strong> between the point
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi mathvariant="normal">min</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\theta_{\min},\, 0)</annotation></semantics></math>
-and the lowest TCC-reachable score point, so that every possible sum
-score receives a valid ability estimate rather than <code>NA</code>.</p>
+and the lowest TCC-reachable score point, and the maximum score receives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi mathvariant="normal">max</mi></msub><annotation encoding="application/x-tex">\theta_{\max}</annotation></semantics></math>
+(the two values of <code>range.tcc</code>), so that every possible sum
+score receives an ability estimate rather than <code>NA</code>.</p>
 </blockquote>
 </li>
 <li><p><strong>Evaluate</strong>: Compute the conditional mean and
@@ -1165,24 +1170,24 @@ important is <code>eval.tb</code>, the evaluation summary table:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    theta           mu     sigma2         bias      csem</span></span>
 <span><span class="co">#&gt; 1   -4.0 -4.808121816 3.42224454 -0.808121816 1.8499310</span></span>
-<span><span class="co">#&gt; 2   -3.9 -4.789018117 3.43809047 -0.889018117 1.8542089</span></span>
-<span><span class="co">#&gt; 3   -3.8 -4.766227061 3.45633941 -0.966227061 1.8591233</span></span>
-<span><span class="co">#&gt; 4   -3.7 -4.739003828 3.47720522 -1.039003828 1.8647266</span></span>
-<span><span class="co">#&gt; 5   -3.6 -4.706457625 3.50082146 -1.106457625 1.8710482</span></span>
-<span><span class="co">#&gt; 6   -3.5 -4.667529927 3.52716739 -1.167529927 1.8780754</span></span>
-<span><span class="co">#&gt; 7   -3.4 -4.620974273 3.55595499 -1.220974273 1.8857240</span></span>
-<span><span class="co">#&gt; 8   -3.3 -4.565341408 3.58646261 -1.265341408 1.8937958</span></span>
+<span><span class="co">#&gt; 2   -3.9 -4.789018118 3.43809047 -0.889018118 1.8542089</span></span>
+<span><span class="co">#&gt; 3   -3.8 -4.766227063 3.45633941 -0.966227063 1.8591233</span></span>
+<span><span class="co">#&gt; 4   -3.7 -4.739003829 3.47720522 -1.039003829 1.8647266</span></span>
+<span><span class="co">#&gt; 5   -3.6 -4.706457627 3.50082146 -1.106457627 1.8710482</span></span>
+<span><span class="co">#&gt; 6   -3.5 -4.667529929 3.52716739 -1.167529929 1.8780754</span></span>
+<span><span class="co">#&gt; 7   -3.4 -4.620974274 3.55595499 -1.220974274 1.8857240</span></span>
+<span><span class="co">#&gt; 8   -3.3 -4.565341410 3.58646261 -1.265341410 1.8937958</span></span>
 <span><span class="co">#&gt; 9   -3.2 -4.498975738 3.61729989 -1.298975738 1.9019201</span></span>
-<span><span class="co">#&gt; 10  -3.1 -4.420032009 3.64609197 -1.320032009 1.9094743</span></span>
-<span><span class="co">#&gt; 11  -3.0 -4.326524655 3.66908363 -1.326524655 1.9154852</span></span>
-<span><span class="co">#&gt; 12  -2.9 -4.216425518 3.68069437 -1.316425518 1.9185136</span></span>
-<span><span class="co">#&gt; 13  -2.8 -4.087827617 3.67311048 -1.287827617 1.9165361</span></span>
-<span><span class="co">#&gt; 14  -2.7 -3.939190341 3.63608699 -1.239190341 1.9068526</span></span>
-<span><span class="co">#&gt; 15  -2.6 -3.769671645 3.55723963 -1.169671645 1.8860646</span></span>
-<span><span class="co">#&gt; 16  -2.5 -3.579531039 3.42319361 -1.079531039 1.8501875</span></span>
+<span><span class="co">#&gt; 10  -3.1 -4.420032010 3.64609197 -1.320032010 1.9094743</span></span>
+<span><span class="co">#&gt; 11  -3.0 -4.326524656 3.66908363 -1.326524656 1.9154852</span></span>
+<span><span class="co">#&gt; 12  -2.9 -4.216425519 3.68069437 -1.316425519 1.9185136</span></span>
+<span><span class="co">#&gt; 13  -2.8 -4.087827618 3.67311048 -1.287827618 1.9165361</span></span>
+<span><span class="co">#&gt; 14  -2.7 -3.939190342 3.63608699 -1.239190342 1.9068526</span></span>
+<span><span class="co">#&gt; 15  -2.6 -3.769671646 3.55723963 -1.169671646 1.8860646</span></span>
+<span><span class="co">#&gt; 16  -2.5 -3.579531040 3.42319361 -1.079531040 1.8501875</span></span>
 <span><span class="co">#&gt; 17  -2.4 -3.370550870 3.22192852 -0.970550870 1.7949731</span></span>
 <span><span class="co">#&gt; 18  -2.3 -3.146374631 2.94638073 -0.846374631 1.7165025</span></span>
-<span><span class="co">#&gt; 19  -2.2 -2.912612919 2.59873030 -0.712612919 1.6120578</span></span>
+<span><span class="co">#&gt; 19  -2.2 -2.912612920 2.59873030 -0.712612920 1.6120578</span></span>
 <span><span class="co">#&gt; 20  -2.1 -2.676548271 2.19389663 -0.576548271 1.4811808</span></span>
 <span><span class="co">#&gt; 21  -2.0 -2.446322106 1.76007533 -0.446322106 1.3266783</span></span>
 <span><span class="co">#&gt; 22  -1.9 -2.229645390 1.33450055 -0.329645390 1.1552058</span></span>
@@ -1194,8 +1199,8 @@ important is <code>eval.tb</code>, the evaluation summary table:</p>
 <span><span class="co">#&gt; 28  -1.3 -1.331207524 0.14154025 -0.031207524 0.3762184</span></span>
 <span><span class="co">#&gt; 29  -1.2 -1.222225352 0.11571234 -0.022225352 0.3401652</span></span>
 <span><span class="co">#&gt; 30  -1.1 -1.115711117 0.10132976 -0.015711117 0.3183234</span></span>
-<span><span class="co">#&gt; 31  -1.0 -1.010467372 0.09223884 -0.010467372 0.3037085</span></span>
-<span><span class="co">#&gt; 32  -0.9 -0.906250276 0.08548769 -0.006250276 0.2923828</span></span>
+<span><span class="co">#&gt; 31  -1.0 -1.010467373 0.09223884 -0.010467373 0.3037085</span></span>
+<span><span class="co">#&gt; 32  -0.9 -0.906250277 0.08548769 -0.006250277 0.2923828</span></span>
 <span><span class="co">#&gt; 33  -0.8 -0.803427274 0.07989210 -0.003427274 0.2826519</span></span>
 <span><span class="co">#&gt; 34  -0.7 -0.702526078 0.07520746 -0.002526078 0.2742398</span></span>
 <span><span class="co">#&gt; 35  -0.6 -0.603713902 0.07166265 -0.003713902 0.2676988</span></span>
@@ -1458,8 +1463,8 @@ via the inverse TCC method. These are the
 score-to-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 mappings used for routing and final ability reporting.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># eq.theta[[stage]][[path]] gives a vector of theta estimates,</span></span>
-<span><span class="co"># one per possible observed sum score on that partial path</span></span>
+<code class="sourceCode R"><span><span class="co"># eq.theta[[stage]][, path] gives a vector of theta estimates,</span></span>
+<span><span class="co"># one per possible sum score on that partial pathway</span></span>
 <span></span>
 <span><span class="co"># Stage 1, Path 1 (routing module only, 8 items, scores 0-8)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Theta estimates for Stage 1 (8 items, scores 0-8):\n"</span><span class="op">)</span></span>
@@ -1472,9 +1477,11 @@ mappings used for routing and final ability reporting.</p>
 <span><span class="co">#&gt; Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eq.theta</span><span class="op">$</span><span class="va">stage.3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 25  7</span></span></code></pre></div>
-<p>The number of rows equals the number of possible sum scores (0
-through maximum score) for items along that pathway. Each column
-corresponds to one complete pathway through the MST.</p>
+<p>Each element of <code>eq.theta</code> is a matrix for one stage. The
+number of rows equals the number of possible cumulative sum scores (0
+through maximum score) up to that stage, and each column corresponds to
+one partial pathway up to that stage; at the last stage, the columns are
+the complete pathways.</p>
 </div>
 <div class="section level3">
 <h3 id="inspecting-test-information-by-pathway">Inspecting Test Information by Pathway<a class="anchor" aria-label="anchor" href="#inspecting-test-information-by-pathway"></a>
@@ -1623,8 +1630,8 @@ have higher difficulty. We use the 3PLM for all items.</p>
 <span></span>
 <span><span class="co"># Combine into single item bank</span></span>
 <span><span class="va">item_bank_122</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">items_m1</span>, <span class="va">items_m2</span>, <span class="va">items_m3</span>, <span class="va">items_m4</span>, <span class="va">items_m5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Item bank dimensions:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>, <span class="st">"items ×"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>, <span class="st">"columns\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Item bank dimensions: 30 items × 6 columns</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Item bank dimensions:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>, <span class="st">"items x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>, <span class="st">"columns\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Item bank dimensions: 30 items x 6 columns</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       id cats model par.1 par.2 par.3</span></span>
 <span><span class="co">#&gt; 1  M1_I1    2  3PLM   1.2  -0.5  0.15</span></span>
@@ -1845,7 +1852,7 @@ the 1-3-3 panel.</p>
 <span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about ±0.45)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about -0.45 and 0.45)"</span>, <span class="st">"Wider cuts (-1.0 and 1.0)"</span><span class="op">)</span>,</span>
 <span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
 <span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1861,7 +1868,7 @@ the 1-3-3 panel.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span>,</span>
 <span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about ±0.45)"</span>, <span class="st">"Wider cuts (±1.0)"</span><span class="op">)</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about -0.45 and 0.45)"</span>, <span class="st">"Wider cuts (-1.0 and 1.0)"</span><span class="op">)</span>,</span>
 <span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
 <span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -1914,15 +1921,18 @@ diverged toward the extremes, where the item pool carries little
 information and MLE behaves quite differently from the inverse-TCC-based
 recursion. That region of close central agreement widens as test length
 increases.</p>
-<p>We reproduce that second condition directly here for the
-<code>simMST</code> panel, using the same scoring combination <span class="citation">Lim et al. (2021)</span> used in their own validation:
-<code>route_score = list(method = "EAP")</code> for routing at each
-interim stage, and <code>final_score = list(method = "ML")</code> for
-the reported final score. Neither method matches
-<code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal inverse-TCC logic, so the two
-results are not expected to coincide everywhere; the comparison below
-should reproduce the same central-agreement-with-tail-divergence pattern
-<span class="citation">Lim et al. (2021)</span> reported.</p>
+<p>We reproduce the scoring combination of that second condition here
+for the <code>simMST</code> panel (EAP for routing and ML for the final
+score): <code>route_score = list(method = "EAP")</code> for routing at
+each interim stage, and <code>final_score = list(method = "ML")</code>
+for the reported final score. Unlike <span class="citation">Lim et al.
+(2021)</span>, whose simulations routed examinees with the maximum
+information rule, the simulation below routes with the panel’s fixed cut
+scores, the routing rule that <code><a href="../reference/reval_mst.html">reval_mst()</a></code> assumes. Neither
+scoring method matches <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal inverse-TCC
+logic, so the two results are not expected to coincide everywhere; the
+comparison below should show the same
+central-agreement-with-tail-divergence pattern <span class="citation">Lim et al. (2021)</span> reported.</p>
 <p>Because the exact values stored in <code>simMST$theta</code> are not
 needed for this comparison, we define our own explicit evaluation grid
 so that the Monte Carlo simulation and the analytical computation are
@@ -1941,8 +1951,8 @@ every grid point are simulated in a single call by passing the full
 <code>true_theta</code> vector. Routing uses the panel’s fixed cut
 scores (matching the routing rule <code><a href="../reference/reval_mst.html">reval_mst()</a></code> assumes),
 with <code>EAP</code> routing scores and <code>ML</code> final scores,
-the scoring combination <span class="citation">Lim et al. (2021)</span>
-used in their own Monte Carlo validation:</p>
+the scoring combination of <span class="citation">Lim et al.
+(2021)</span>:</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
@@ -2040,17 +2050,17 @@ are expected to diverge: both <code>EAP</code> routing and
 internal inverse-TCC logic, and that departure grows where the item pool
 carries little information and EAP/MLE estimates behave quite
 differently from the inverse-TCC-based recursion. This mirrors the
-pattern <span class="citation">Lim et al. (2021)</span> reported for
-this identical EAP-routing/MLE-final condition. Matching the recursion’s
-own scoring exactly (<code>route_score = list(method = "INV.TCC")</code>
-and <code>final_score = list(method = "INV.TCC")</code> instead of the
-EAP and ML methods) would close most of this gap.
-<code><a href="../reference/reval_mst.html">reval_mst()</a></code> is therefore best read as predicting the
-performance of a panel routed and scored via inverse-TCC; whenever a
-program uses a different scoring approach operationally, a
-<code><a href="../reference/run_mst.html">run_mst()</a></code> simulation like this one remains the more direct
-check, particularly for ability levels far from the panel’s region of
-peak information.</p>
+pattern <span class="citation">Lim et al. (2021)</span> reported for the
+same EAP-routing and MLE-final scoring combination. Matching the
+recursion’s own scoring exactly
+(<code>route_score = list(method = "INV.TCC")</code> and
+<code>final_score = list(method = "INV.TCC")</code> instead of the EAP
+and ML methods) would close most of this gap. <code><a href="../reference/reval_mst.html">reval_mst()</a></code>
+is therefore best read as predicting the performance of a panel routed
+and scored via inverse-TCC; whenever a program uses a different scoring
+approach operationally, a <code><a href="../reference/run_mst.html">run_mst()</a></code> simulation like this
+one remains the more direct check, particularly for ability levels far
+from the panel’s region of peak information.</p>
 <p><strong>Step 4: Confirm the gap closes under matched
 scoring.</strong> As a final check, re-run the same simulation with
 <code>route_score = list(method = "INV.TCC")</code> and
@@ -2097,22 +2107,22 @@ analytical curve:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">compare_tb</span><span class="op">[</span><span class="va">compare_tb</span><span class="op">$</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="op">-</span><span class="fl">3</span> <span class="op">|</span> <span class="va">compare_tb</span><span class="op">$</span><span class="va">theta</span> <span class="op">&gt;=</span> <span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;    theta analytical_bias EAP_ML_bias INVTCC_INVTCC_bias analytical_rmse</span></span>
-<span><span class="co">#&gt; 1   -5.0           0.108       1.488             -0.017           1.833</span></span>
-<span><span class="co">#&gt; 2   -4.5          -0.367       1.100             -0.472           1.872</span></span>
-<span><span class="co">#&gt; 3   -4.0          -0.808       0.509             -0.783           2.019</span></span>
-<span><span class="co">#&gt; 4   -3.5          -1.168       0.136             -1.160           2.211</span></span>
-<span><span class="co">#&gt; 5   -3.0          -1.327      -0.134             -1.254           2.330</span></span>
+<span><span class="co">#&gt; 1   -5.0           0.108       1.483             -0.017           1.833</span></span>
+<span><span class="co">#&gt; 2   -4.5          -0.367       1.090             -0.472           1.872</span></span>
+<span><span class="co">#&gt; 3   -4.0          -0.808       0.503             -0.783           2.019</span></span>
+<span><span class="co">#&gt; 4   -3.5          -1.168       0.130             -1.160           2.211</span></span>
+<span><span class="co">#&gt; 5   -3.0          -1.327      -0.138             -1.254           2.330</span></span>
 <span><span class="co">#&gt; 17   3.0           2.452       0.481              2.494           3.277</span></span>
 <span><span class="co">#&gt; 18   3.5           2.824       0.252              2.819           3.254</span></span>
 <span><span class="co">#&gt; 19   4.0           2.713      -0.088              2.741           2.929</span></span>
 <span><span class="co">#&gt; 20   4.5           2.375      -0.521              2.410           2.488</span></span>
 <span><span class="co">#&gt; 21   5.0           1.942      -1.023              1.955           2.007</span></span>
 <span><span class="co">#&gt;    EAP_ML_rmse INVTCC_INVTCC_rmse</span></span>
-<span><span class="co">#&gt; 1        1.637              1.785</span></span>
-<span><span class="co">#&gt; 2        1.300              1.868</span></span>
-<span><span class="co">#&gt; 3        0.836              2.022</span></span>
-<span><span class="co">#&gt; 4        0.738              2.181</span></span>
-<span><span class="co">#&gt; 5        0.779              2.262</span></span>
+<span><span class="co">#&gt; 1        1.632              1.785</span></span>
+<span><span class="co">#&gt; 2        1.291              1.868</span></span>
+<span><span class="co">#&gt; 3        0.833              2.022</span></span>
+<span><span class="co">#&gt; 4        0.740              2.181</span></span>
+<span><span class="co">#&gt; 5        0.782              2.262</span></span>
 <span><span class="co">#&gt; 17       0.883              3.302</span></span>
 <span><span class="co">#&gt; 18       0.608              3.252</span></span>
 <span><span class="co">#&gt; 19       0.359              2.938</span></span>
@@ -2235,7 +2245,9 @@ condition diverged.</p>
 <td><code>range.tcc</code></td>
 <td>numeric(2)</td>
 <td><code>c(-7, 7)</code></td>
-<td>Ability range for inverse TCC scoring</td>
+<td>Ability estimates assigned to the lowest and the maximum sum scores
+when <code>intpol = TRUE</code>
+</td>
 </tr>
 <tr class="odd">
 <td><code>tol</code></td>
@@ -2340,7 +2352,7 @@ and stage</td>
 <tr class="even">
 <td><code>theta</code></td>
 <td>numeric</td>
-<td>-</td>
+<td><code>NULL</code></td>
 <td>True ability for each simulated examinee (or supply
 <code>response</code> instead)</td>
 </tr>
@@ -2405,8 +2417,7 @@ fixed cut-score routing</td>
 <td><code>missing</code></td>
 <td>scalar</td>
 <td><code>NA</code></td>
-<td>Value representing a not-administered response in
-<code>response</code>
+<td>Value marking a missing response in <code>response</code>
 </td>
 </tr>
 <tr class="even">
@@ -2441,35 +2452,59 @@ item-level response matrix as <code>full.resp</code>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code>call</code></td>
+<td>The matched function call</td>
+</tr>
+<tr class="even">
 <td><code>est.theta</code></td>
 <td>Final ability estimate for each simulated examinee</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>se.theta</code></td>
 <td>Standard error of the final ability estimate</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>theta.route</code></td>
 <td>Cumulative ability estimate used for routing after each stage (from
 all modules taken so far); the last column is the final estimate</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>path</code></td>
 <td>Module pathway taken by each examinee</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>true.theta</code></td>
 <td>The <code>theta</code> argument (true abilities), or
 <code>NULL</code> if <code>theta</code> was not supplied</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>panel</code></td>
 <td>Panel structure information (from <code><a href="../reference/panel_info.html">panel_info()</a></code>)</td>
 </tr>
+<tr class="even">
+<td><code>D</code></td>
+<td>The scaling constant used</td>
+</tr>
+<tr class="odd">
+<td><code>route.method</code></td>
+<td>The <code>route_method</code> argument</td>
+</tr>
+<tr class="even">
+<td><code>route.score</code></td>
+<td>The <code>route_score</code> list with all defaults filled in</td>
+</tr>
+<tr class="odd">
+<td><code>final.score</code></td>
+<td>The <code>final_score</code> list with all defaults filled in</td>
+</tr>
+<tr class="even">
+<td><code>N</code></td>
+<td>Number of examinees</td>
+</tr>
 <tr class="odd">
 <td><code>full.resp</code></td>
-<td>Full item-level response matrix, if
-<code>return_full_resp = TRUE</code>
+<td>Full item-level response matrix if
+<code>return_full_resp = TRUE</code>, otherwise <code>NULL</code>
 </td>
 </tr>
 </tbody>

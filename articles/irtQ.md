@@ -158,9 +158,12 @@ fit
 #> Log-likelihood: -7122.816
 ```
 
-Printing the fitted object reports the number of EM cycles, the number
-of quadrature points, the first- and second-order convergence checks,
-and the log-likelihood. A fuller estimation summary is available from
+Printing the fitted object reports the number of EM cycles (printed as
+“E-step cycles”), the number of quadrature points, the two checks
+labeled “First-order test” and “Second-order test” (see `test.1` and
+`test.2` in
+[`?est_irt`](https://hwangQ.github.io/irtQ/reference/est_irt.md)), and
+the log-likelihood. A fuller estimation summary is available from
 `summary(fit)`.
 
 [`getirt()`](https://hwangQ.github.io/irtQ/reference/getirt.md) extracts
@@ -195,7 +198,7 @@ scores <- est_score(fit, method = "ML", range = c(-4, 4))
 head(scores$est.theta)
 #> [1]  0.08603911 -1.30225167  0.08313340  0.08013606 -0.28721183 -4.00000000
 cor(scores$est.theta, theta)
-#> [1] 0.8777982
+#> [1] 0.8789198
 ```
 
 ## Model-data fit
@@ -204,7 +207,11 @@ cor(scores$est.theta, theta)
 computes the S-X2 item fit statistic, and
 [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) computes
 chi-square and likelihood-ratio statistics, infit and outfit, and the
-contingency tables behind the residual plots.
+contingency tables behind the residual plots. For a fitted `est_irt`
+object,
+[`sx2_fit()`](https://hwangQ.github.io/irtQ/reference/sx2_fit.md) uses
+the latent distribution stored in the object to compute the expected
+frequencies.
 
 ``` r
 
@@ -212,11 +219,11 @@ sx2 <- sx2_fit(fit)
 head(sx2$fit_stat)
 #>     id  chisq df crit.val     p
 #> 1 CMC1 11.342 16   26.296 0.788
-#> 2 CMC2  6.096 11   19.675 0.867
-#> 3 CMC3 19.788 16   26.296 0.230
-#> 4 CMC4 15.647 15   24.996 0.406
-#> 5 CMC5 19.984 15   24.996 0.173
-#> 6 CMC6 13.013 15   24.996 0.601
+#> 2 CMC2  6.095 11   19.675 0.867
+#> 3 CMC3 19.786 16   26.296 0.230
+#> 4 CMC4 15.645 15   24.996 0.406
+#> 5 CMC5 19.985 15   24.996 0.172
+#> 6 CMC6 13.009 15   24.996 0.602
 ```
 
 [`irtfit()`](https://hwangQ.github.io/irtQ/reference/irtfit.md) groups
