@@ -163,9 +163,9 @@ summary(fit.1pl)
 #>  Maximum parameter change: 6.905886e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.05
+#>  EM algorithm: 0.07
 #>  Standard error computation: 0
-#>  Total computation: 0.05
+#>  Total computation: 0.08
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.

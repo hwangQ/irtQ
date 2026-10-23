@@ -694,7 +694,7 @@ est_mod <- est_irt(data = data, D = 1, model = "3PLM")
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -25472.9403, Max-Change: 1.888841 EM iteration: 2, Loglike: -22654.4441, Max-Change: 0.356802 EM iteration: 3, Loglike: -22635.6173, Max-Change: 0.157888 EM iteration: 4, Loglike: -22633.7926, Max-Change: 0.074945 EM iteration: 5, Loglike: -22633.4312, Max-Change: 0.039693 EM iteration: 6, Loglike: -22633.3151, Max-Change: 0.022643 EM iteration: 7, Loglike: -22633.2668, Max-Change: 0.013669 EM iteration: 8, Loglike: -22633.2439, Max-Change: 0.008635 EM iteration: 9, Loglike: -22633.2322, Max-Change: 0.005655 EM iteration: 10, Loglike: -22633.2259, Max-Change: 0.00381 EM iteration: 11, Loglike: -22633.2225, Max-Change: 0.002624 EM iteration: 12, Loglike: -22633.2205, Max-Change: 0.001837 EM iteration: 13, Loglike: -22633.2194, Max-Change: 0.001303 EM iteration: 14, Loglike: -22633.2188, Max-Change: 0.000932 EM iteration: 15, Loglike: -22633.2184, Max-Change: 0.000671 EM iteration: 16, Loglike: -22633.2182, Max-Change: 0.000486 EM iteration: 17, Loglike: -22633.2180, Max-Change: 0.000353 EM iteration: 18, Loglike: -22633.2180, Max-Change: 0.000258 EM iteration: 19, Loglike: -22633.2179, Max-Change: 0.000188 EM iteration: 20, Loglike: -22633.2179, Max-Change: 0.000144 EM iteration: 21, Loglike: -22633.2179, Max-Change: 0.000116 EM iteration: 22, Loglike: -22633.2179, Max-Change: 9.7e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 1.25 seconds. 
+#> Estimation is finished in 1.5 seconds. 
 est_par <- est_mod$par.est
 
 # Estimate ability parameters using ML
