@@ -1,6 +1,5 @@
 ---
 title: "Ability Estimation"
-output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
 ---

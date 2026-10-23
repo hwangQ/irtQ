@@ -1,6 +1,5 @@
 ---
 title: "Getting Started: A Detailed Guide"
-output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
 ---

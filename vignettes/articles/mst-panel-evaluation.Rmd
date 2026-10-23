@@ -1,6 +1,5 @@
 ---
 title: "MST Panel Evaluation and Simulation"
-output: rmarkdown::html_vignette
 bibliography: references.bib
 csl: apa.csl
 ---
