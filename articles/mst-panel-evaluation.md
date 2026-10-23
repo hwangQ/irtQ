@@ -1186,35 +1186,45 @@ panel’s measurement quality.
 
 ``` r
 
+library(ggplot2)
+
+# Plot the conditional bias and CSEM of an eval.tb table side by side, with a
+# reference line at zero bias and at the mean CSEM
+plot_bias_csem <- function(eval_tb, title = NULL) {
+  long <- rbind(
+    data.frame(theta = eval_tb$theta, value = eval_tb$bias, panel = "Conditional bias"),
+    data.frame(theta = eval_tb$theta, value = eval_tb$csem, panel = "CSEM")
+  )
+  # keep the bias panel on the left
+  long$panel <- factor(long$panel, levels = c("Conditional bias", "CSEM"))
+  ref <- data.frame(
+    panel = c("Conditional bias", "CSEM"),
+    value = c(0, mean(eval_tb$csem)),
+    line  = c("Zero bias", "Mean CSEM")
+  )
+  ref$panel <- factor(ref$panel, levels = levels(long$panel))
+  ggplot(long, aes(x = theta, y = value)) +
+    geom_hline(data = ref, aes(yintercept = value, linetype = line), colour = "red") +
+    geom_line(aes(colour = panel), linewidth = 0.8) +
+    geom_point(aes(colour = panel), size = 1.5) +
+    facet_wrap(~ panel, scales = "free_y") +
+    # start every panel's y axis at zero or below
+    expand_limits(y = 0) +
+    scale_colour_manual(
+      values = c("Conditional bias" = "steelblue", "CSEM" = "darkorange"),
+      guide = "none"
+    ) +
+    scale_linetype_manual(
+      values = c("Zero bias" = "dashed", "Mean CSEM" = "dotted"),
+      breaks = c("Zero bias", "Mean CSEM")
+    ) +
+    labs(x = expression(theta), y = NULL, linetype = NULL, title = title) +
+    theme_bw() +
+    theme(legend.position = "bottom")
+}
+
 eval_tb <- eval_result$eval.tb
-
-# Side-by-side plots: bias (left) and CSEM (right)
-par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
-
-# Bias plot
-plot(
-  eval_tb$theta, eval_tb$bias,
-  type = "b", pch = 16, col = "steelblue", lwd = 2,
-  xlab = expression(theta),
-  ylab = "Conditional Bias",
-  main = "Conditional Bias",
-  ylim = c(-2.5, 2.5)
-)
-abline(h = 0, col = "red", lty = 2, lwd = 1.5)
-grid()
-
-# CSEM plot
-plot(
-  eval_tb$theta, eval_tb$csem,
-  type = "b", pch = 16, col = "darkorange", lwd = 2,
-  xlab = expression(theta),
-  ylab = "CSEM",
-  main = "Conditional SEM (CSEM)",
-  ylim = c(0, max(eval_tb$csem) * 1.2)
-)
-abline(h = mean(eval_tb$csem), col = "red", lty = 2, lwd = 1.5)
-legend("topright", legend = "Mean CSEM", lty = 2, col = "red", lwd = 1.5)
-grid()
+plot_bias_csem(eval_tb, title = "simMST 1-3-3 panel")
 ```
 
 ![Conditional bias (left) and CSEM (right) for the simMST 1-3-3 panel
@@ -1223,51 +1233,6 @@ scale.](mst-panel-evaluation_files/figure-html/plot-bias-csem-1.png)
 
 Conditional bias (left) and CSEM (right) for the simMST 1-3-3 panel
 across the ability scale.
-
-``` r
-
-par(mfrow = c(1, 1))
-```
-
-You can also create a combined `ggplot2` figure, as shown in the
-[`reval_mst()`](https://hwangQ.github.io/irtQ/reference/reval_mst.md)
-help page:
-
-``` r
-
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-
-eval_tb %>%
-  dplyr::select(theta, bias, csem) %>%
-  tidyr::pivot_longer(
-    cols      = c(bias, csem),
-    names_to  = "criterion",
-    values_to = "value"
-  ) %>%
-  ggplot2::ggplot(aes(x = theta, y = value)) +
-  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
-  ggplot2::geom_line(aes(colour = criterion, linetype = criterion), linewidth = 1.2) +
-  ggplot2::geom_point(aes(shape = criterion), size = 2.5) +
-  ggplot2::scale_colour_manual(values = c(bias = "steelblue", csem = "darkorange")) +
-  ggplot2::scale_linetype_manual(values = c(bias = "solid", csem = "dashed")) +
-  ggplot2::labs(
-    x       = expression(theta),
-    y       = NULL,
-    title   = "1-3-3 MST Panel: Conditional Bias and CSEM",
-    colour  = NULL,
-    linetype = NULL,
-    shape   = NULL
-  ) +
-  ggplot2::theme_bw() +
-  ggplot2::theme(legend.key.width = unit(1.5, "cm"))
-```
-
-![Bias and CSEM plotted together using
-ggplot2.](mst-panel-evaluation_files/figure-html/plot-ggplot2-1.png)
-
-Bias and CSEM plotted together using ggplot2.
 
 ------------------------------------------------------------------------
 
@@ -1399,22 +1364,25 @@ theta_grid <- seq(-4, 4, 0.1)
 tif_low  <- info(x = meta_low,  theta = theta_grid, D = 1.702)$tif
 tif_high <- info(x = meta_high, theta = theta_grid, D = 1.702)$tif
 
-par(mfrow = c(1, 1), mar = c(4.5, 4.5, 3, 1))
-plot(
-  theta_grid, tif_low,
-  type = "l", col = "steelblue", lwd = 2,
-  xlab = expression(theta), ylab = "Test Information",
-  main = "Test Information: Low-Ability vs. High-Ability Pathway",
-  ylim = c(0, max(c(tif_low, tif_high)) * 1.1)
+# Stack the two curves and keep the pathways in this order in the legend
+path_labels <- c("Low-ability pathway (path 1)", "High-ability pathway (last path)")
+tif_df <- data.frame(
+  theta   = rep(theta_grid, 2),
+  tif     = c(tif_low, tif_high),
+  pathway = factor(rep(path_labels, each = length(theta_grid)), levels = path_labels)
 )
-lines(theta_grid, tif_high, col = "darkorange", lwd = 2, lty = 2)
-legend(
-  "topright",
-  legend  = c("Low-ability pathway (path 1)", "High-ability pathway (last path)"),
-  col     = c("steelblue", "darkorange"),
-  lty     = c(1, 2), lwd = 2
-)
-grid()
+
+ggplot(tif_df, aes(x = theta, y = tif, colour = pathway, linetype = pathway)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = c("steelblue", "darkorange")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  labs(
+    x = expression(theta), y = "Test information",
+    colour = NULL, linetype = NULL,
+    title = "Test information: low-ability vs. high-ability pathway"
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
 ```
 
 ![Test information functions for two contrasting pathways in the 1-3-3
@@ -1666,39 +1634,13 @@ print(eval_122$eval.tb)
 ``` r
 
 eval_tb_122 <- eval_122$eval.tb
-
-par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
-
-plot(
-  eval_tb_122$theta, eval_tb_122$bias,
-  type = "b", pch = 16, col = "steelblue", lwd = 2,
-  xlab = expression(theta), ylab = "Conditional Bias",
-  main = "1-2-2 Panel: Conditional Bias",
-  ylim = range(c(-0.4, 0.4, eval_tb_122$bias))
-)
-abline(h = 0, col = "red", lty = 2, lwd = 1.5)
-grid()
-
-plot(
-  eval_tb_122$theta, eval_tb_122$csem,
-  type = "b", pch = 16, col = "darkorange", lwd = 2,
-  xlab = expression(theta), ylab = "CSEM",
-  main = "1-2-2 Panel: CSEM",
-  ylim = c(0, max(eval_tb_122$csem) * 1.2)
-)
-grid()
+plot_bias_csem(eval_tb_122, title = "Custom 1-2-2 panel")
 ```
 
 ![Conditional bias and CSEM for the custom 1-2-2 MST
 panel.](mst-panel-evaluation_files/figure-html/plot-custom-1.png)
 
 Conditional bias and CSEM for the custom 1-2-2 MST panel.
-
-``` r
-
-
-par(mfrow = c(1, 1))
-```
 
 ### Step 6: Inspect the Panel Pathways
 
@@ -1747,52 +1689,46 @@ eval_wide <- reval_mst(
 tb_orig <- eval_result$eval.tb
 tb_wide <- eval_wide$eval.tb
 
-par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
-
-# Bias comparison
-ylim_bias <- range(c(tb_orig$bias, tb_wide$bias, -0.4, 0.4))
-plot(
-  tb_orig$theta, tb_orig$bias,
-  type = "b", pch = 16, col = "steelblue", lwd = 2,
-  xlab = expression(theta), ylab = "Conditional Bias",
-  main = "Bias Comparison", ylim = ylim_bias
+# Stack the bias and CSEM of both cut score configurations
+cut_labels <- c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)")
+cmp <- rbind(
+  data.frame(theta = tb_orig$theta, value = tb_orig$bias, panel = "Conditional bias", cuts = cut_labels[1]),
+  data.frame(theta = tb_wide$theta, value = tb_wide$bias, panel = "Conditional bias", cuts = cut_labels[2]),
+  data.frame(theta = tb_orig$theta, value = tb_orig$csem, panel = "CSEM", cuts = cut_labels[1]),
+  data.frame(theta = tb_wide$theta, value = tb_wide$csem, panel = "CSEM", cuts = cut_labels[2])
 )
-lines(tb_wide$theta, tb_wide$bias,
-      type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
-abline(h = 0, col = "grey50", lty = 3)
-legend("topright",
-       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
-       col    = c("steelblue", "darkorange"),
-       pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
-grid()
+cmp$cuts <- factor(cmp$cuts, levels = cut_labels)
+# keep the bias panel on the left
+cmp$panel <- factor(cmp$panel, levels = c("Conditional bias", "CSEM"))
 
-# CSEM comparison
-ylim_csem <- c(0, max(c(tb_orig$csem, tb_wide$csem)) * 1.2)
-plot(
-  tb_orig$theta, tb_orig$csem,
-  type = "b", pch = 16, col = "steelblue", lwd = 2,
-  xlab = expression(theta), ylab = "CSEM",
-  main = "CSEM Comparison", ylim = ylim_csem
-)
-lines(tb_wide$theta, tb_wide$csem,
-      type = "b", pch = 17, col = "darkorange", lwd = 2, lty = 2)
-legend("topright",
-       legend = c("simMST cuts (about -0.45 and 0.45)", "Wider cuts (-1.0 and 1.0)"),
-       col    = c("steelblue", "darkorange"),
-       pch    = c(16, 17), lty = c(1, 2), lwd = 2, cex = 0.85)
-grid()
+ggplot(cmp, aes(x = theta, y = value, colour = cuts, shape = cuts, linetype = cuts)) +
+  geom_hline(
+    data = data.frame(panel = factor("Conditional bias", levels = levels(cmp$panel)), value = 0),
+    aes(yintercept = value), colour = "grey50", linetype = "dotted"
+  ) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  facet_wrap(~ panel, scales = "free_y") +
+  # start every panel's y axis at zero or below
+  expand_limits(y = 0) +
+  scale_colour_manual(values = c("steelblue", "darkorange")) +
+  scale_shape_manual(values = c(16, 2)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  labs(
+    x = expression(theta), y = NULL,
+    colour = NULL, shape = NULL, linetype = NULL,
+    title = "simMST cut scores vs. wider cut scores"
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
 ```
 
-![CSEM comparison: simMST vs. wider cut scores in the 1-3-3
+![Conditional bias and CSEM comparison: simMST vs. wider cut scores in
+the 1-3-3
 panel.](mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png)
 
-CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel.
-
-``` r
-
-
-par(mfrow = c(1, 1))
-```
+Conditional bias and CSEM comparison: simMST vs. wider cut scores in the
+1-3-3 panel.
 
 ``` r
 
@@ -1928,36 +1864,44 @@ tb_grid$rmse <- sqrt(tb_grid$sigma2 + tb_grid$bias^2)
 
 ``` r
 
-par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
+# Overlay the bias and RMSE of a run_mst() simulation (points) on the
+# analytical reval_mst() curves (lines)
+plot_mc_vs_analytical <- function(analytical, simulated, sim_label, sim_colour, title) {
+  ana_label <- "reval_mst() (analytical)"
+  ana <- rbind(
+    data.frame(theta = analytical$theta, value = analytical$bias, panel = "Bias"),
+    data.frame(theta = analytical$theta, value = analytical$rmse, panel = "RMSE")
+  )
+  sim <- rbind(
+    data.frame(theta = simulated$theta, value = simulated$bias, panel = "Bias"),
+    data.frame(theta = simulated$theta, value = simulated$rmse, panel = "RMSE")
+  )
+  ana$source <- ana_label
+  sim$source <- sim_label
+  ggplot(mapping = aes(x = theta, y = value, colour = source)) +
+    geom_hline(
+      data = data.frame(panel = "Bias", value = 0),
+      aes(yintercept = value), colour = "grey50", linetype = "dotted"
+    ) +
+    geom_line(data = ana, linewidth = 0.9) +
+    geom_point(data = sim, size = 2) +
+    facet_wrap(~ panel, scales = "free_y") +
+    # start every panel's y axis at zero or below
+    expand_limits(y = 0) +
+    scale_colour_manual(
+      values = stats::setNames(c("steelblue", sim_colour), c(ana_label, sim_label)),
+      breaks = c(ana_label, sim_label)
+    ) +
+    # show a line for the analytical curve and a point for the simulation
+    guides(colour = guide_legend(override.aes = list(linetype = c(1, 0), shape = c(NA, 16)))) +
+    labs(x = expression(theta), y = NULL, colour = NULL, title = title) +
+    theme_bw() +
+    theme(legend.position = "bottom")
+}
 
-# Bias: Monte Carlo (points) vs. analytical (line)
-plot(
-  tb_grid$theta, tb_grid$bias,
-  type = "l", lwd = 2, col = "steelblue",
-  xlab = expression(theta), ylab = "Bias", main = "Bias: Simulation vs. Analytical",
-  ylim = range(c(tb_grid$bias, mc_result$bias, -0.3, 0.3))
-)
-points(mc_result$theta, mc_result$bias, pch = 16, col = "darkorange")
-abline(h = 0, col = "grey50", lty = 3)
-legend("topright",
-       legend = c("reval_mst() (analytical)", "run_mst() (Monte Carlo)"),
-       col = c("steelblue", "darkorange"), lty = c(1, NA), pch = c(NA, 16),
-       lwd = c(2, NA), cex = 0.8)
-grid()
-
-# RMSE: Monte Carlo (points) vs. analytical (line)
-plot(
-  tb_grid$theta, tb_grid$rmse,
-  type = "l", lwd = 2, col = "steelblue",
-  xlab = expression(theta), ylab = "RMSE", main = "RMSE: Simulation vs. Analytical",
-  ylim = c(0, max(c(tb_grid$rmse, mc_result$rmse)) * 1.2)
-)
-points(mc_result$theta, mc_result$rmse, pch = 16, col = "darkorange")
-legend("topright",
-       legend = c("reval_mst() (analytical)", "run_mst() (Monte Carlo)"),
-       col = c("steelblue", "darkorange"), lty = c(1, NA), pch = c(NA, 16),
-       lwd = c(2, NA), cex = 0.8)
-grid()
+plot_mc_vs_analytical(tb_grid, mc_result,
+                      sim_label = "run_mst() (Monte Carlo)", sim_colour = "darkorange",
+                      title = "EAP/ML simulation vs. analytical evaluation")
 ```
 
 ![Empirical bias and RMSE from a run_mst() Monte Carlo simulation
@@ -1966,12 +1910,6 @@ grid()
 
 Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points)
 overlaid on the analytical reval_mst() curve (line).
-
-``` r
-
-
-par(mfrow = c(1, 1))
-```
 
 In the central ability range (which Lim et al. (2021) reported as
 roughly $`-1.5 \le \theta \le 1.5`$ for this scoring combination,
@@ -2077,38 +2015,9 @@ The same comparison, overlaid across the full ability range:
 
 ``` r
 
-par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
-
-# Bias: matched-scoring Monte Carlo (points) vs. analytical (line)
-plot(
-  tb_grid$theta, tb_grid$bias,
-  type = "l", lwd = 2, col = "steelblue",
-  xlab = expression(theta), ylab = "Bias",
-  main = "Bias: Simulation vs. Analytical",
-  ylim = range(c(tb_grid$bias, mc_result_matched$bias, -0.3, 0.3))
-)
-points(mc_result_matched$theta, mc_result_matched$bias, pch = 16, col = "forestgreen")
-abline(h = 0, col = "grey50", lty = 3)
-legend("topright",
-       legend = c("reval_mst() (analytical)", "run_mst() (INV.TCC/INV.TCC)"),
-       col = c("steelblue", "forestgreen"), lty = c(1, NA), pch = c(NA, 16),
-       lwd = c(2, NA), cex = 0.8)
-grid()
-
-# RMSE: matched-scoring Monte Carlo (points) vs. analytical (line)
-plot(
-  tb_grid$theta, tb_grid$rmse,
-  type = "l", lwd = 2, col = "steelblue",
-  xlab = expression(theta), ylab = "RMSE",
-  main = "RMSE: Simulation vs. Analytical",
-  ylim = c(0, max(c(tb_grid$rmse, mc_result_matched$rmse)) * 1.2)
-)
-points(mc_result_matched$theta, mc_result_matched$rmse, pch = 16, col = "forestgreen")
-legend("topright",
-       legend = c("reval_mst() (analytical)", "run_mst() (INV.TCC/INV.TCC)"),
-       col = c("steelblue", "forestgreen"), lty = c(1, NA), pch = c(NA, 16),
-       lwd = c(2, NA), cex = 0.8)
-grid()
+plot_mc_vs_analytical(tb_grid, mc_result_matched,
+                      sim_label = "run_mst() (INV.TCC/INV.TCC)", sim_colour = "forestgreen",
+                      title = "INV.TCC/INV.TCC simulation vs. analytical evaluation")
 ```
 
 ![Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo
@@ -2118,15 +2027,9 @@ simulation (points) overlaid on the analytical reval_mst() curve
 Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo
 simulation (points) overlaid on the analytical reval_mst() curve (line).
 
-``` r
-
-
-par(mfrow = c(1, 1))
-```
-
 Both the table and the plot confirm the same conclusion: the
 `INV.TCC`/`INV.TCC` condition tracks the analytical bias and RMSE
-closely across the *entire* ability range, including the extremes where
+closely across most of the ability range, including the extremes where
 the `EAP`/`ML` condition diverged.
 
 ------------------------------------------------------------------------

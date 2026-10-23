@@ -1311,76 +1311,49 @@ information)</li>
 <p>Plotting the evaluation results provides an intuitive picture of the
 panel’s measurement quality.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">eval_tb</span> <span class="op">&lt;-</span> <span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Side-by-side plots: bias (left) and CSEM (right)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Plot the conditional bias and CSEM of an eval.tb table side by side, with a</span></span>
+<span><span class="co"># reference line at zero bias and at the mean CSEM</span></span>
+<span><span class="va">plot_bias_csem</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eval_tb</span>, <span class="va">title</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">eval_tb</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">eval_tb</span><span class="op">$</span><span class="va">bias</span>, panel <span class="op">=</span> <span class="st">"Conditional bias"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">eval_tb</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">eval_tb</span><span class="op">$</span><span class="va">csem</span>, panel <span class="op">=</span> <span class="st">"CSEM"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="co"># keep the bias panel on the left</span></span>
+<span>  <span class="va">long</span><span class="op">$</span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">long</span><span class="op">$</span><span class="va">panel</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Conditional bias"</span>, <span class="st">"CSEM"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    panel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Conditional bias"</span>, <span class="st">"CSEM"</span><span class="op">)</span>,</span>
+<span>    value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">eval_tb</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    line  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Zero bias"</span>, <span class="st">"Mean CSEM"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">ref</span><span class="op">$</span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">ref</span><span class="op">$</span><span class="va">panel</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">long</span><span class="op">$</span><span class="va">panel</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">long</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ref</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">value</span>, linetype <span class="op">=</span> <span class="va">line</span><span class="op">)</span>, colour <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">panel</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">panel</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">panel</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="co"># start every panel's y axis at zero or below</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expand_limits.html" class="external-link">expand_limits</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
+<span>      values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Conditional bias"</span> <span class="op">=</span> <span class="st">"steelblue"</span>, <span class="st">"CSEM"</span> <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span>,</span>
+<span>      guide <span class="op">=</span> <span class="st">"none"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span></span>
+<span>      values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Zero bias"</span> <span class="op">=</span> <span class="st">"dashed"</span>, <span class="st">"Mean CSEM"</span> <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span>,</span>
+<span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Zero bias"</span>, <span class="st">"Mean CSEM"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, y <span class="op">=</span> <span class="cn">NULL</span>, linetype <span class="op">=</span> <span class="cn">NULL</span>, title <span class="op">=</span> <span class="va">title</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Bias plot</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">eval_tb</span><span class="op">$</span><span class="va">theta</span>, <span class="va">eval_tb</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Conditional Bias"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Conditional Bias"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># CSEM plot</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">eval_tb</span><span class="op">$</span><span class="va">theta</span>, <span class="va">eval_tb</span><span class="op">$</span><span class="va">csem</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"CSEM"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Conditional SEM (CSEM)"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">eval_tb</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">eval_tb</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="st">"Mean CSEM"</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">eval_tb</span> <span class="op">&lt;-</span> <span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span></span>
+<span><span class="fu">plot_bias_csem</span><span class="op">(</span><span class="va">eval_tb</span>, title <span class="op">=</span> <span class="st">"simMST 1-3-3 panel"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="mst-panel-evaluation_files/figure-html/plot-bias-csem-1.png" class="r-plt" alt="Conditional bias (left) and CSEM (right) for the simMST 1-3-3 panel across the ability scale." width="768"><p class="caption">
 Conditional bias (left) and CSEM (right) for the simMST 1-3-3 panel
 across the ability scale.
-</p>
-</div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>You can also create a combined <code>ggplot2</code> figure, as shown
-in the <code><a href="../reference/reval_mst.html">reval_mst()</a></code> help page:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">eval_tb</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">theta</span>, <span class="va">bias</span>, <span class="va">csem</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
-<span>    cols      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bias</span>, <span class="va">csem</span><span class="op">)</span>,</span>
-<span>    names_to  <span class="op">=</span> <span class="st">"criterion"</span>,</span>
-<span>    values_to <span class="op">=</span> <span class="st">"value"</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span>, y <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">criterion</span>, linetype <span class="op">=</span> <span class="va">criterion</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="va">criterion</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bias <span class="op">=</span> <span class="st">"steelblue"</span>, csem <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bias <span class="op">=</span> <span class="st">"solid"</span>, csem <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    x       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
-<span>    y       <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    title   <span class="op">=</span> <span class="st">"1-3-3 MST Panel: Conditional Bias and CSEM"</span>,</span>
-<span>    colour  <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    linetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    shape   <span class="op">=</span> <span class="cn">NULL</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.key.width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<img src="mst-panel-evaluation_files/figure-html/plot-ggplot2-1.png" class="r-plt" alt="Bias and CSEM plotted together using ggplot2." width="672"><p class="caption">
-Bias and CSEM plotted together using ggplot2.
 </p>
 </div>
 <hr>
@@ -1393,7 +1366,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <div class="section level3">
 <h3 id="panel-structure-panel-info">Panel Structure (<code>panel.info</code>)<a class="anchor" aria-label="anchor" href="#panel-structure-panel-info"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Panel configuration: which modules belong to each stage</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">config</span></span>
 <span><span class="co">#&gt; $stage.1</span></span>
@@ -1428,7 +1401,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <div class="section level3">
 <h3 id="items-per-module-item-by-mod">Items per Module (<code>item.by.mod</code>)<a class="anchor" aria-label="anchor" href="#items-per-module-item-by-mod"></a>
 </h3>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Item metadata for Module 1 (the routing module)</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">item.by.mod</span><span class="op">$</span><span class="va">m.1</span></span>
 <span><span class="co">#&gt;   id cats model    par.1       par.2      par.3</span></span>
@@ -1440,7 +1413,7 @@ intermediate objects that can help diagnose how the panel operates.</p>
 <span><span class="co">#&gt; 6 40    2  3PLM 1.423525 -1.51207055 0.09036353</span></span>
 <span><span class="co">#&gt; 7 47    2  3PLM 1.749734  0.81776913 0.06977780</span></span>
 <span><span class="co">#&gt; 8 51    2  3PLM 1.559166 -0.03225149 0.08974932</span></span></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Item metadata for Module 5 (Stage 3, first terminal module)</span></span>
 <span><span class="va">eval_result</span><span class="op">$</span><span class="va">item.by.mod</span><span class="op">$</span><span class="va">m.5</span></span>
 <span><span class="co">#&gt;   id cats model     par.1      par.2      par.3</span></span>
@@ -1462,7 +1435,7 @@ estimates corresponding to each possible observed sum score, computed
 via the inverse TCC method. These are the
 score-to-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 mappings used for routing and final ability reporting.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># eq.theta[[stage]][, path] gives a vector of theta estimates,</span></span>
 <span><span class="co"># one per possible sum score on that partial pathway</span></span>
 <span></span>
@@ -1471,7 +1444,7 @@ mappings used for routing and final ability reporting.</p>
 <span><span class="co">#&gt; Theta estimates for Stage 1 (8 items, scores 0-8):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">eq.theta</span><span class="op">$</span><span class="va">stage.1</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -7.000 -2.013 -1.249 -0.676 -0.150  0.373  0.913  1.534  7.000</span></span></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Stage 3 has multiple columns, one per complete pathway</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Dimensions of eq.theta at Stage 3 (rows = possible scores, cols = pathways):</span></span>
@@ -1488,7 +1461,7 @@ the complete pathways.</p>
 </h3>
 <p>Comparing item information across pathways reveals why bias and CSEM
 vary with ability level:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Retrieve item metadata for the easiest and hardest complete pathways</span></span>
 <span><span class="co"># (pathway 1 = low ability; last pathway = high ability)</span></span>
 <span><span class="va">n_paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">eval_result</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">pathway</span><span class="op">)</span></span>
@@ -1501,22 +1474,25 @@ vary with ability level:</p>
 <span><span class="va">tif_low</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_low</span>,  theta <span class="op">=</span> <span class="va">theta_grid</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span><span class="op">$</span><span class="va">tif</span></span>
 <span><span class="va">tif_high</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/info.html">info</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">meta_high</span>, theta <span class="op">=</span> <span class="va">theta_grid</span>, D <span class="op">=</span> <span class="fl">1.702</span><span class="op">)</span><span class="op">$</span><span class="va">tif</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">theta_grid</span>, <span class="va">tif_low</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Test Information"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Test Information: Low-Ability vs. High-Ability Pathway"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tif_low</span>, <span class="va">tif_high</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.1</span><span class="op">)</span></span>
+<span><span class="co"># Stack the two curves and keep the pathways in this order in the legend</span></span>
+<span><span class="va">path_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low-ability pathway (path 1)"</span>, <span class="st">"High-ability pathway (last path)"</span><span class="op">)</span></span>
+<span><span class="va">tif_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  theta   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">theta_grid</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  tif     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tif_low</span>, <span class="va">tif_high</span><span class="op">)</span>,</span>
+<span>  pathway <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">path_labels</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">theta_grid</span><span class="op">)</span><span class="op">)</span>, levels <span class="op">=</span> <span class="va">path_labels</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">theta_grid</span>, <span class="va">tif_high</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span></span>
-<span>  <span class="st">"topright"</span>,</span>
-<span>  legend  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low-ability pathway (path 1)"</span>, <span class="st">"High-ability pathway (last path)"</span><span class="op">)</span>,</span>
-<span>  col     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
-<span>  lty     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tif_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span>, y <span class="op">=</span> <span class="va">tif</span>, colour <span class="op">=</span> <span class="va">pathway</span>, linetype <span class="op">=</span> <span class="va">pathway</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"solid"</span>, <span class="st">"dashed"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, y <span class="op">=</span> <span class="st">"Test information"</span>,</span>
+<span>    colour <span class="op">=</span> <span class="cn">NULL</span>, linetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Test information: low-ability vs. high-ability pathway"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="mst-panel-evaluation_files/figure-html/pathway-info-1.png" class="r-plt" alt="Test information functions for two contrasting pathways in the 1-3-3 panel." width="768"><p class="caption">
 Test information functions for two contrasting pathways in the 1-3-3
@@ -1570,7 +1546,7 @@ M1-M3-M5.</p>
 </h3>
 <p>Items in easy modules have lower difficulty; items in hard modules
 have higher difficulty. We use the 3PLM for all items.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 6 items per module × 5 modules = 30 items total</span></span>
 <span><span class="va">n_per_mod</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
 <span></span>
@@ -1671,7 +1647,7 @@ have higher difficulty. We use the 3PLM for all items.</p>
 <p>The <code>module</code> matrix has the same number of rows as
 <code>item_bank_122</code> and one column per module. Each row has
 exactly one 1, in the column for the module that item belongs to.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_mods</span>  <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">n_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">item_bank_122</span><span class="op">)</span>   <span class="co"># 30</span></span>
 <span></span>
@@ -1698,7 +1674,7 @@ exactly one 1, in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-3-build-the-route-map">Step 3: Build the Route Map<a class="anchor" aria-label="anchor" href="#step-3-build-the-route-map"></a>
 </h3>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">route_map_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0L</span>, nrow <span class="op">=</span> <span class="va">n_mods</span>, ncol <span class="op">=</span> <span class="va">n_mods</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">route_map_122</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">route_map_122</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">n_mods</span><span class="op">)</span></span>
 <span></span>
@@ -1723,7 +1699,7 @@ exactly one 1, in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-4-define-cut-scores">Step 4: Define Cut Scores<a class="anchor" aria-label="anchor" href="#step-4-define-cut-scores"></a>
 </h3>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1 cut point for each of the 2 routing transitions (2-way branching)</span></span>
 <span><span class="va">cut_score_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,    <span class="co"># Stage 1 → Stage 2: θ̂ &lt; 0 → M2, θ̂ ≥ 0 → M3</span></span>
@@ -1733,7 +1709,7 @@ exactly one 1, in the column for the module that item belongs to.</p>
 <div class="section level3">
 <h3 id="step-5-evaluate-the-custom-panel">Step 5: Evaluate the Custom Panel<a class="anchor" aria-label="anchor" href="#step-5-evaluate-the-custom-panel"></a>
 </h3>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluation grid: -3 to 3 in steps of 0.5 (coarser for speed)</span></span>
 <span><span class="va">theta_grid_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">0.5</span><span class="op">)</span></span>
 <span></span>
@@ -1763,42 +1739,19 @@ exactly one 1, in the column for the module that item belongs to.</p>
 <span><span class="co">#&gt; 11   2.0  2.15212965 0.5041920  0.152129651 0.7100648</span></span>
 <span><span class="co">#&gt; 12   2.5  3.12555584 1.5165325  0.625555842 1.2314757</span></span>
 <span><span class="co">#&gt; 13   3.0  4.12958178 1.4429566  1.129581775 1.2012313</span></span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval_tb_122</span> <span class="op">&lt;-</span> <span class="va">eval_122</span><span class="op">$</span><span class="va">eval.tb</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">eval_tb_122</span><span class="op">$</span><span class="va">theta</span>, <span class="va">eval_tb_122</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Conditional Bias"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"1-2-2 Panel: Conditional Bias"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.4</span>, <span class="va">eval_tb_122</span><span class="op">$</span><span class="va">bias</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"red"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">eval_tb_122</span><span class="op">$</span><span class="va">theta</span>, <span class="va">eval_tb_122</span><span class="op">$</span><span class="va">csem</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"CSEM"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"1-2-2 Panel: CSEM"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">eval_tb_122</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">plot_bias_csem</span><span class="op">(</span><span class="va">eval_tb_122</span>, title <span class="op">=</span> <span class="st">"Custom 1-2-2 panel"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="mst-panel-evaluation_files/figure-html/plot-custom-1.png" class="r-plt" alt="Conditional bias and CSEM for the custom 1-2-2 MST panel." width="768"><p class="caption">
 Conditional bias and CSEM for the custom 1-2-2 MST panel.
 </p>
 </div>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-6-inspect-the-panel-pathways">Step 6: Inspect the Panel Pathways<a class="anchor" aria-label="anchor" href="#step-6-inspect-the-panel-pathways"></a>
 </h3>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Confirmed pathways through the 1-2-2 panel</span></span>
 <span><span class="va">eval_122</span><span class="op">$</span><span class="va">panel.info</span><span class="op">$</span><span class="va">pathway</span></span>
 <span><span class="co">#&gt;        stage.1 stage.2 stage.3</span></span>
@@ -1821,7 +1774,7 @@ too close to the centre can cause mid-ability examinees to be routed
 sub-optimally. Here we compare the <code>simMST</code> cut scores (about
 -0.45 and 0.45) with a wider configuration <code>c(-1.0, 1.0)</code> for
 the 1-3-3 panel.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Alternative cut scores: wider routing bands</span></span>
 <span><span class="va">cut_score_wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1834,53 +1787,49 @@ the 1-3-3 panel.</p>
 <span>  theta     <span class="op">=</span> <span class="va">theta</span>,</span>
 <span>  range.tcc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7</span>, <span class="fl">7</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tb_orig</span> <span class="op">&lt;-</span> <span class="va">eval_result</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span><span class="va">tb_wide</span> <span class="op">&lt;-</span> <span class="va">eval_wide</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Bias comparison</span></span>
-<span><span class="va">ylim_bias</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_orig</span><span class="op">$</span><span class="va">bias</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">bias</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_orig</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_orig</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Conditional Bias"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Bias Comparison"</span>, ylim <span class="op">=</span> <span class="va">ylim_bias</span></span>
+<span><span class="co"># Stack the bias and CSEM of both cut score configurations</span></span>
+<span><span class="va">cut_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about -0.45 and 0.45)"</span>, <span class="st">"Wider cuts (-1.0 and 1.0)"</span><span class="op">)</span></span>
+<span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">bias</span>, panel <span class="op">=</span> <span class="st">"Conditional bias"</span>, cuts <span class="op">=</span> <span class="va">cut_labels</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">tb_wide</span><span class="op">$</span><span class="va">bias</span>, panel <span class="op">=</span> <span class="st">"Conditional bias"</span>, cuts <span class="op">=</span> <span class="va">cut_labels</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">csem</span>, panel <span class="op">=</span> <span class="st">"CSEM"</span>, cuts <span class="op">=</span> <span class="va">cut_labels</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span>, panel <span class="op">=</span> <span class="st">"CSEM"</span>, cuts <span class="op">=</span> <span class="va">cut_labels</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about -0.45 and 0.45)"</span>, <span class="st">"Wider cuts (-1.0 and 1.0)"</span><span class="op">)</span>,</span>
-<span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
-<span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">cmp</span><span class="op">$</span><span class="va">cuts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">$</span><span class="va">cuts</span>, levels <span class="op">=</span> <span class="va">cut_labels</span><span class="op">)</span></span>
+<span><span class="co"># keep the bias panel on the left</span></span>
+<span><span class="va">cmp</span><span class="op">$</span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">$</span><span class="va">panel</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Conditional bias"</span>, <span class="st">"CSEM"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># CSEM comparison</span></span>
-<span><span class="va">ylim_csem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_orig</span><span class="op">$</span><span class="va">csem</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_orig</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_orig</span><span class="op">$</span><span class="va">csem</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"CSEM"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"CSEM Comparison"</span>, ylim <span class="op">=</span> <span class="va">ylim_csem</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_wide</span><span class="op">$</span><span class="va">csem</span>,</span>
-<span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, col <span class="op">=</span> <span class="st">"darkorange"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simMST cuts (about -0.45 and 0.45)"</span>, <span class="st">"Wider cuts (-1.0 and 1.0)"</span><span class="op">)</span>,</span>
-<span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>,</span>
-<span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cmp</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span>, y <span class="op">=</span> <span class="va">value</span>, colour <span class="op">=</span> <span class="va">cuts</span>, shape <span class="op">=</span> <span class="va">cuts</span>, linetype <span class="op">=</span> <span class="va">cuts</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>panel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="st">"Conditional bias"</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">$</span><span class="va">panel</span><span class="op">)</span><span class="op">)</span>, value <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, colour <span class="op">=</span> <span class="st">"grey50"</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">panel</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="co"># start every panel's y axis at zero or below</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expand_limits.html" class="external-link">expand_limits</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_shape_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"solid"</span>, <span class="st">"dashed"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    colour <span class="op">=</span> <span class="cn">NULL</span>, shape <span class="op">=</span> <span class="cn">NULL</span>, linetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"simMST cut scores vs. wider cut scores"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png" class="r-plt" alt="CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel." width="768"><p class="caption">
-CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel.
+<img src="mst-panel-evaluation_files/figure-html/compare-cuts-plot-1.png" class="r-plt" alt="Conditional bias and CSEM comparison: simMST vs. wider cut scores in the 1-3-3 panel." width="768"><p class="caption">
+Conditional bias and CSEM comparison: simMST vs. wider cut scores in the
+1-3-3 panel.
 </p>
 </div>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Largest absolute differences between the two configurations</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tb_wide</span><span class="op">$</span><span class="va">bias</span> <span class="op">-</span> <span class="va">tb_orig</span><span class="op">$</span><span class="va">bias</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.02474664</span></span>
@@ -1937,7 +1886,7 @@ central-agreement-with-tail-divergence pattern <span class="citation">Lim et al.
 needed for this comparison, we define our own explicit evaluation grid
 so that the Monte Carlo simulation and the analytical computation are
 guaranteed to line up point-for-point:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># An explicit, independent evaluation grid</span></span>
 <span><span class="va">theta_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">n_reps</span>     <span class="op">&lt;-</span> <span class="fl">300</span>   <span class="co"># simulated examinees per grid point</span></span>
@@ -1953,7 +1902,7 @@ scores (matching the routing rule <code><a href="../reference/reval_mst.html">re
 with <code>EAP</code> routing scores and <code>ML</code> final scores,
 the scoring combination of <span class="citation">Lim et al.
 (2021)</span>:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
@@ -1983,7 +1932,7 @@ the scoring combination of <span class="citation">Lim et al.
 <p><strong>Step 2: Analytical computation with
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code></strong> on the <em>same</em>
 <code>theta_grid</code>, so the comparison is point-for-point:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eval_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reval_mst.html">reval_mst</a></span><span class="op">(</span></span>
 <span>  x         <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  D         <span class="op">=</span> <span class="fl">1.702</span>,</span>
@@ -1997,46 +1946,51 @@ the scoring combination of <span class="citation">Lim et al.
 <span><span class="va">tb_grid</span>      <span class="op">&lt;-</span> <span class="va">eval_grid</span><span class="op">$</span><span class="va">eval.tb</span></span>
 <span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">sigma2</span> <span class="op">+</span> <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Step 3: Overlay the two results:</strong></p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Overlay the bias and RMSE of a run_mst() simulation (points) on the</span></span>
+<span><span class="co"># analytical reval_mst() curves (lines)</span></span>
+<span><span class="va">plot_mc_vs_analytical</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">analytical</span>, <span class="va">simulated</span>, <span class="va">sim_label</span>, <span class="va">sim_colour</span>, <span class="va">title</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">ana_label</span> <span class="op">&lt;-</span> <span class="st">"reval_mst() (analytical)"</span></span>
+<span>  <span class="va">ana</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">analytical</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">analytical</span><span class="op">$</span><span class="va">bias</span>, panel <span class="op">=</span> <span class="st">"Bias"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">analytical</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">analytical</span><span class="op">$</span><span class="va">rmse</span>, panel <span class="op">=</span> <span class="st">"RMSE"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">simulated</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">simulated</span><span class="op">$</span><span class="va">bias</span>, panel <span class="op">=</span> <span class="st">"Bias"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">simulated</span><span class="op">$</span><span class="va">theta</span>, value <span class="op">=</span> <span class="va">simulated</span><span class="op">$</span><span class="va">rmse</span>, panel <span class="op">=</span> <span class="st">"RMSE"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">ana</span><span class="op">$</span><span class="va">source</span> <span class="op">&lt;-</span> <span class="va">ana_label</span></span>
+<span>  <span class="va">sim</span><span class="op">$</span><span class="va">source</span> <span class="op">&lt;-</span> <span class="va">sim_label</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span>, y <span class="op">=</span> <span class="va">value</span>, colour <span class="op">=</span> <span class="va">source</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span></span>
+<span>      data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>panel <span class="op">=</span> <span class="st">"Bias"</span>, value <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">value</span><span class="op">)</span>, colour <span class="op">=</span> <span class="st">"grey50"</span>, linetype <span class="op">=</span> <span class="st">"dotted"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ana</span>, linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sim</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">panel</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="co"># start every panel's y axis at zero or below</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expand_limits.html" class="external-link">expand_limits</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
+<span>      values <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="va">sim_colour</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ana_label</span>, <span class="va">sim_label</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ana_label</span>, <span class="va">sim_label</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="co"># show a line for the analytical curve and a point for the simulation</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>override.aes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>linetype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, y <span class="op">=</span> <span class="cn">NULL</span>, colour <span class="op">=</span> <span class="cn">NULL</span>, title <span class="op">=</span> <span class="va">title</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Bias: Monte Carlo (points) vs. analytical (line)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Bias"</span>, main <span class="op">=</span> <span class="st">"Bias: Simulation vs. Analytical"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">bias</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">bias</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (Monte Carlo)"</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
-<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># RMSE: Monte Carlo (points) vs. analytical (line)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"RMSE"</span>, main <span class="op">=</span> <span class="st">"RMSE: Simulation vs. Analytical"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result</span><span class="op">$</span><span class="va">rmse</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (Monte Carlo)"</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"darkorange"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
-<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">plot_mc_vs_analytical</span><span class="op">(</span><span class="va">tb_grid</span>, <span class="va">mc_result</span>,</span>
+<span>                      sim_label <span class="op">=</span> <span class="st">"run_mst() (Monte Carlo)"</span>, sim_colour <span class="op">=</span> <span class="st">"darkorange"</span>,</span>
+<span>                      title <span class="op">=</span> <span class="st">"EAP/ML simulation vs. analytical evaluation"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="mst-panel-evaluation_files/figure-html/mc-vs-analytical-plot-1.png" class="r-plt" alt="Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points) overlaid on the analytical reval_mst() curve (line)." width="768"><p class="caption">
 Empirical bias and RMSE from a run_mst() Monte Carlo simulation (points)
 overlaid on the analytical reval_mst() curve (line).
 </p>
 </div>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In the central ability range (which <span class="citation">Lim et al.
 (2021)</span> reported as roughly
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.5</mn><mo>≤</mo><mi>θ</mi><mo>≤</mo><mn>1.5</mn></mrow><annotation encoding="application/x-tex">-1.5 \le \theta \le 1.5</annotation></semantics></math>
@@ -2066,7 +2020,7 @@ scoring.</strong> As a final check, re-run the same simulation with
 <code>route_score = list(method = "INV.TCC")</code> and
 <code>final_score = list(method = "INV.TCC")</code>, matching
 <code><a href="../reference/reval_mst.html">reval_mst()</a></code>’s internal logic exactly:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_mc_matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mst.html">run_mst</a></span><span class="op">(</span></span>
 <span>  x            <span class="op">=</span> <span class="va">x</span>,</span>
 <span>  route_map    <span class="op">=</span> <span class="va">route_map</span>,</span>
@@ -2095,7 +2049,7 @@ scoring.</strong> As a final check, re-run the same simulation with
 <p>Comparing all three at the tail grid points, where the
 <code>EAP</code>/<code>ML</code> condition diverged most from the
 analytical curve:</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compare_tb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  theta              <span class="op">=</span> <span class="va">theta_grid</span>,</span>
 <span>  analytical_bias    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="fl">3</span><span class="op">)</span>,</span>
@@ -2129,52 +2083,20 @@ analytical curve:</p>
 <span><span class="co">#&gt; 20       0.546              2.491</span></span>
 <span><span class="co">#&gt; 21       1.037              2.006</span></span></code></pre></div>
 <p>The same comparison, overlaid across the full ability range:</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Bias: matched-scoring Monte Carlo (points) vs. analytical (line)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"Bias"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Bias: Simulation vs. Analytical"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">bias</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">bias</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">bias</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"forestgreen"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"grey50"</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (INV.TCC/INV.TCC)"</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"forestgreen"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
-<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># RMSE: matched-scoring Monte Carlo (points) vs. analytical (line)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">tb_grid</span><span class="op">$</span><span class="va">theta</span>, <span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"RMSE"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"RMSE: Simulation vs. Analytical"</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">tb_grid</span><span class="op">$</span><span class="va">rmse</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">mc_result_matched</span><span class="op">$</span><span class="va">theta</span>, <span class="va">mc_result_matched</span><span class="op">$</span><span class="va">rmse</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="st">"forestgreen"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reval_mst() (analytical)"</span>, <span class="st">"run_mst() (INV.TCC/INV.TCC)"</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"forestgreen"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">16</span><span class="op">)</span>,</span>
-<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">plot_mc_vs_analytical</span><span class="op">(</span><span class="va">tb_grid</span>, <span class="va">mc_result_matched</span>,</span>
+<span>                      sim_label <span class="op">=</span> <span class="st">"run_mst() (INV.TCC/INV.TCC)"</span>, sim_colour <span class="op">=</span> <span class="st">"forestgreen"</span>,</span>
+<span>                      title <span class="op">=</span> <span class="st">"INV.TCC/INV.TCC simulation vs. analytical evaluation"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="mst-panel-evaluation_files/figure-html/mc-vs-analytical-plot-matched-1.png" class="r-plt" alt="Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo simulation (points) overlaid on the analytical reval_mst() curve (line)." width="768"><p class="caption">
 Empirical bias and RMSE from the INV.TCC/INV.TCC run_mst() Monte Carlo
 simulation (points) overlaid on the analytical reval_mst() curve (line).
 </p>
 </div>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Both the table and the plot confirm the same conclusion: the
 <code>INV.TCC</code>/<code>INV.TCC</code> condition tracks the
-analytical bias and RMSE closely across the <em>entire</em> ability
-range, including the extremes where the <code>EAP</code>/<code>ML</code>
+analytical bias and RMSE closely across most of the ability range,
+including the extremes where the <code>EAP</code>/<code>ML</code>
 condition diverged.</p>
 <hr>
 </div>
