@@ -279,12 +279,12 @@ receives.</p>
 <p>For a 1-3-3 panel with 2 routing stages:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cut_score</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>,   <span class="co"># Stage 1 → Stage 2: θ̂ &lt; -0.5 → M2 (easy)</span></span>
-<span>                  <span class="co">#                    -0.5 ≤ θ̂ &lt; 0.5 → M3 (medium)</span></span>
-<span>                  <span class="co">#                    θ̂ ≥ 0.5 → M4 (hard)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span>    <span class="co"># Stage 2 → Stage 3: θ̂ &lt; -0.6 → easy module</span></span>
-<span>                  <span class="co">#                    -0.6 ≤ θ̂ &lt; 0.6 → medium module</span></span>
-<span>                  <span class="co">#                    θ̂ ≥ 0.6 → hard module</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>,   <span class="co"># Stage 1 -&gt; Stage 2: theta_hat &lt; -0.5 -&gt; M2 (easy)</span></span>
+<span>                  <span class="co">#                     -0.5 &lt;= theta_hat &lt; 0.5 -&gt; M3 (medium)</span></span>
+<span>                  <span class="co">#                     theta_hat &gt;= 0.5 -&gt; M4 (hard)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.6</span><span class="op">)</span>    <span class="co"># Stage 2 -&gt; Stage 3: theta_hat &lt; -0.6 -&gt; M5 (easy)</span></span>
+<span>                  <span class="co">#                     -0.6 &lt;= theta_hat &lt; 0.6 -&gt; M6 (medium)</span></span>
+<span>                  <span class="co">#                     theta_hat &gt;= 0.6 -&gt; M7 (hard)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The cut scores of a transition are tied to the modules of the next
 stage in the order of the module indices: the first cut score separates
@@ -292,9 +292,12 @@ the first and second modules, the second separates the second and third.
 When a module can reach only some of the next-stage modules, only the
 cut scores that separate those modules apply. In the route map above, a
 test taker in M4 can reach only M6 or M7, so the second Stage 3 cut
-score alone decides between them (θ̂ below it goes to M6, θ̂ at or above
-it to M7). <code><a href="../reference/reval_mst.html">reval_mst()</a></code> and <code><a href="../reference/run_mst.html">run_mst()</a></code> use the
-same rule.</p>
+score alone decides between them
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
+below it goes to M6,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>θ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\theta}</annotation></semantics></math>
+at or above it to M7). <code><a href="../reference/reval_mst.html">reval_mst()</a></code> and
+<code><a href="../reference/run_mst.html">run_mst()</a></code> use the same rule.</p>
 <p><code>cut_score</code> is required by <code><a href="../reference/reval_mst.html">reval_mst()</a></code>, which
 always uses inverse-TCC scoring internally, and by
 <code><a href="../reference/run_mst.html">run_mst()</a></code> whenever <code>route_method = NULL</code>. When
@@ -1702,8 +1705,8 @@ exactly one 1, in the column for the module that item belongs to.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1 cut point for each of the 2 routing transitions (2-way branching)</span></span>
 <span><span class="va">cut_score_122</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,    <span class="co"># Stage 1 → Stage 2: θ̂ &lt; 0 → M2, θ̂ ≥ 0 → M3</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>     <span class="co"># Stage 2 → Stage 3: θ̂ &lt; 0 → M4, θ̂ ≥ 0 → M5</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,    <span class="co"># Stage 1 -&gt; Stage 2: theta_hat &lt; 0 -&gt; M2, theta_hat &gt;= 0 -&gt; M3</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>     <span class="co"># Stage 2 -&gt; Stage 3: theta_hat &lt; 0 -&gt; M4, theta_hat &gt;= 0 -&gt; M5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
