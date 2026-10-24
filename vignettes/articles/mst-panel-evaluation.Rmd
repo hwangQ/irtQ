@@ -152,12 +152,12 @@ For a 1-3-3 panel with 2 routing stages:
 
 ```r
 cut_score = list(
-  c(-0.5, 0.5),   # Stage 1 → Stage 2: θ̂ < -0.5 → M2 (easy)
-                  #                    -0.5 ≤ θ̂ < 0.5 → M3 (medium)
-                  #                    θ̂ ≥ 0.5 → M4 (hard)
-  c(-0.6, 0.6)    # Stage 2 → Stage 3: θ̂ < -0.6 → M5 (easy)
-                  #                    -0.6 ≤ θ̂ < 0.6 → M6 (medium)
-                  #                    θ̂ ≥ 0.6 → M7 (hard)
+  c(-0.5, 0.5),   # Stage 1 -> Stage 2: theta_hat < -0.5 -> M2 (easy)
+                  #                     -0.5 <= theta_hat < 0.5 -> M3 (medium)
+                  #                     theta_hat >= 0.5 -> M4 (hard)
+  c(-0.6, 0.6)    # Stage 2 -> Stage 3: theta_hat < -0.6 -> M5 (easy)
+                  #                     -0.6 <= theta_hat < 0.6 -> M6 (medium)
+                  #                     theta_hat >= 0.6 -> M7 (hard)
 )
 ```
 
@@ -165,10 +165,10 @@ The cut scores of a transition are tied to the modules of the next stage in
 the order of the module indices: the first cut score separates the first and
 second modules, the second separates the second and third. When a module can
 reach only some of the next-stage modules, only the cut scores that separate
-those modules apply. In
-the route map above, a test taker in M4 can reach only M6 or M7, so the second
-Stage 3 cut score alone decides between them (θ̂ below it goes to M6, θ̂ at or
-above it to M7). `reval_mst()` and `run_mst()` use the same rule.
+those modules apply. In the route map above, a test taker in M4 can reach only
+M6 or M7, so the second Stage 3 cut score alone decides between them
+($\hat{\theta}$ below it goes to M6, $\hat{\theta}$ at or above it to M7).
+`reval_mst()` and `run_mst()` use the same rule.
 
 `cut_score` is required by `reval_mst()`, which always uses inverse-TCC
 scoring internally, and by `run_mst()` whenever `route_method = NULL`. When
@@ -1025,8 +1025,8 @@ print(route_map_122)
 ```{r custom-cut-score}
 # 1 cut point for each of the 2 routing transitions (2-way branching)
 cut_score_122 <- list(
-  c(0),    # Stage 1 → Stage 2: θ̂ < 0 → M2, θ̂ ≥ 0 → M3
-  c(0)     # Stage 2 → Stage 3: θ̂ < 0 → M4, θ̂ ≥ 0 → M5
+  c(0),    # Stage 1 -> Stage 2: theta_hat < 0 -> M2, theta_hat >= 0 -> M3
+  c(0)     # Stage 2 -> Stage 3: theta_hat < 0 -> M4, theta_hat >= 0 -> M5
 )
 ```
 
