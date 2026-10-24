@@ -155,9 +155,9 @@ cut_score = list(
   c(-0.5, 0.5),   # Stage 1 → Stage 2: θ̂ < -0.5 → M2 (easy)
                   #                    -0.5 ≤ θ̂ < 0.5 → M3 (medium)
                   #                    θ̂ ≥ 0.5 → M4 (hard)
-  c(-0.6, 0.6)    # Stage 2 → Stage 3: θ̂ < -0.6 → easy module
-                  #                    -0.6 ≤ θ̂ < 0.6 → medium module
-                  #                    θ̂ ≥ 0.6 → hard module
+  c(-0.6, 0.6)    # Stage 2 → Stage 3: θ̂ < -0.6 → M5 (easy)
+                  #                    -0.6 ≤ θ̂ < 0.6 → M6 (medium)
+                  #                    θ̂ ≥ 0.6 → M7 (hard)
 )
 ```
 
