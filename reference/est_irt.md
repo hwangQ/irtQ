@@ -862,7 +862,7 @@ Hwanggyu Lim <hglim83@gmail.com>
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.293929 EM iteration: 2, Loglike: -2561.3380, Max-Change: 0.58111 EM iteration: 3, Loglike: -2483.1811, Max-Change: 0.31473 EM iteration: 4, Loglike: -2469.6884, Max-Change: 0.171175 EM iteration: 5, Loglike: -2467.5148, Max-Change: 0.096225 EM iteration: 6, Loglike: -2467.1096, Max-Change: 0.056965 EM iteration: 7, Loglike: -2467.0029, Max-Change: 0.035311 EM iteration: 8, Loglike: -2466.9648, Max-Change: 0.022579 EM iteration: 9, Loglike: -2466.9493, Max-Change: 0.014699 EM iteration: 10, Loglike: -2466.9427, Max-Change: 0.009659 EM iteration: 11, Loglike: -2466.9398, Max-Change: 0.006377 EM iteration: 12, Loglike: -2466.9386, Max-Change: 0.004219 EM iteration: 13, Loglike: -2466.9380, Max-Change: 0.002795 EM iteration: 14, Loglike: -2466.9378, Max-Change: 0.001852 EM iteration: 15, Loglike: -2466.9377, Max-Change: 0.001228 EM iteration: 16, Loglike: -2466.9376, Max-Change: 0.000814 EM iteration: 17, Loglike: -2466.9376, Max-Change: 0.000539 EM iteration: 18, Loglike: -2466.9376, Max-Change: 0.000358 EM iteration: 19, Loglike: -2466.9376, Max-Change: 0.000237 EM iteration: 20, Loglike: -2466.9376, Max-Change: 0.000157 EM iteration: 21, Loglike: -2466.9376, Max-Change: 0.000104 EM iteration: 22, Loglike: -2466.9376, Max-Change: 6.9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.11 seconds. 
+#> Estimation is finished in 0.09 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = FALSE)
@@ -901,9 +901,9 @@ summary(mod.1pl.c)
 #>  Maximum parameter change: 6.905886e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.1
+#>  EM algorithm: 0.08
 #>  Standard error computation: 0
-#>  Total computation: 0.11
+#>  Total computation: 0.09
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -953,7 +953,7 @@ getirt(mod.1pl.c, what = "se.est")
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.161943 EM iteration: 2, Loglike: -2569.0530, Max-Change: 0.399087 EM iteration: 3, Loglike: -2491.5319, Max-Change: 0.175418 EM iteration: 4, Loglike: -2476.5061, Max-Change: 0.077114 EM iteration: 5, Loglike: -2473.6897, Max-Change: 0.033375 EM iteration: 6, Loglike: -2473.1702, Max-Change: 0.014331 EM iteration: 7, Loglike: -2473.0751, Max-Change: 0.006132 EM iteration: 8, Loglike: -2473.0577, Max-Change: 0.00262 EM iteration: 9, Loglike: -2473.0546, Max-Change: 0.001118 EM iteration: 10, Loglike: -2473.0540, Max-Change: 0.000477 EM iteration: 11, Loglike: -2473.0539, Max-Change: 0.000204 EM iteration: 12, Loglike: -2473.0539, Max-Change: 8.7e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.1 seconds. 
+#> Estimation is finished in 0.09 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "1PLM", cats = 2, fix.a.1pl = TRUE, 
@@ -994,9 +994,9 @@ summary(mod.1pl.f)
 #>  Maximum parameter change: 8.693637e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.09
+#>  EM algorithm: 0.08
 #>  Standard error computation: 0
-#>  Total computation: 0.1
+#>  Total computation: 0.09
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1027,7 +1027,7 @@ summary(mod.1pl.f)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.3860, Max-Change: 2.294233 EM iteration: 2, Loglike: -2561.0478, Max-Change: 0.58517 EM iteration: 3, Loglike: -2482.8950, Max-Change: 0.323232 EM iteration: 4, Loglike: -2469.4379, Max-Change: 0.180623 EM iteration: 5, Loglike: -2467.2706, Max-Change: 0.106034 EM iteration: 6, Loglike: -2466.8615, Max-Change: 0.066546 EM iteration: 7, Loglike: -2466.7487, Max-Change: 0.044361 EM iteration: 8, Loglike: -2466.7049, Max-Change: 0.030996 EM iteration: 9, Loglike: -2466.6843, Max-Change: 0.022467 EM iteration: 10, Loglike: -2466.6736, Max-Change: 0.016791 EM iteration: 11, Loglike: -2466.6674, Max-Change: 0.012897 EM iteration: 12, Loglike: -2466.6636, Max-Change: 0.010155 EM iteration: 13, Loglike: -2466.6611, Max-Change: 0.008179 EM iteration: 14, Loglike: -2466.6593, Max-Change: 0.00672 EM iteration: 15, Loglike: -2466.6580, Max-Change: 0.005616 EM iteration: 16, Loglike: -2466.6571, Max-Change: 0.00476 EM iteration: 17, Loglike: -2466.6563, Max-Change: 0.004082 EM iteration: 18, Loglike: -2466.6557, Max-Change: 0.003532 EM iteration: 19, Loglike: -2466.6553, Max-Change: 0.003079 EM iteration: 20, Loglike: -2466.6549, Max-Change: 0.00270 EM iteration: 21, Loglike: -2466.6546, Max-Change: 0.002378 EM iteration: 22, Loglike: -2466.6544, Max-Change: 0.002102 EM iteration: 23, Loglike: -2466.6542, Max-Change: 0.001863 EM iteration: 24, Loglike: -2466.6540, Max-Change: 0.001655 EM iteration: 25, Loglike: -2466.6539, Max-Change: 0.001473 EM iteration: 26, Loglike: -2466.6538, Max-Change: 0.001313 EM iteration: 27, Loglike: -2466.6537, Max-Change: 0.001172 EM iteration: 28, Loglike: -2466.6537, Max-Change: 0.001047 EM iteration: 29, Loglike: -2466.6536, Max-Change: 0.000936 EM iteration: 30, Loglike: -2466.6536, Max-Change: 0.000838 EM iteration: 31, Loglike: -2466.6535, Max-Change: 0.000751 EM iteration: 32, Loglike: -2466.6535, Max-Change: 0.000673 EM iteration: 33, Loglike: -2466.6535, Max-Change: 0.000603 EM iteration: 34, Loglike: -2466.6535, Max-Change: 0.000541 EM iteration: 35, Loglike: -2466.6534, Max-Change: 0.000486 EM iteration: 36, Loglike: -2466.6534, Max-Change: 0.000436 EM iteration: 37, Loglike: -2466.6534, Max-Change: 0.000392 EM iteration: 38, Loglike: -2466.6534, Max-Change: 0.000352 EM iteration: 39, Loglike: -2466.6534, Max-Change: 0.000316 EM iteration: 40, Loglike: -2466.6534, Max-Change: 0.000284 EM iteration: 41, Loglike: -2466.6534, Max-Change: 0.000256 EM iteration: 42, Loglike: -2466.6534, Max-Change: 0.00023 EM iteration: 43, Loglike: -2466.6534, Max-Change: 0.000207 EM iteration: 44, Loglike: -2466.6534, Max-Change: 0.000186 EM iteration: 45, Loglike: -2466.6534, Max-Change: 0.000167 EM iteration: 46, Loglike: -2466.6534, Max-Change: 0.000151 EM iteration: 47, Loglike: -2466.6534, Max-Change: 0.000136 EM iteration: 48, Loglike: -2466.6534, Max-Change: 0.000122 EM iteration: 49, Loglike: -2466.6534, Max-Change: 0.00011 EM iteration: 50, Loglike: -2466.6534, Max-Change: 9.9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.36 seconds. 
+#> Estimation is finished in 0.31 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2)
@@ -1066,9 +1066,9 @@ summary(mod.2pl)
 #>  Maximum parameter change: 9.894616e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.34
+#>  EM algorithm: 0.29
 #>  Standard error computation: 0
-#>  Total computation: 0.36
+#>  Total computation: 0.31
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -1913,7 +1913,7 @@ plot(trace.2pl, item.loc = 1)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3182.0286, Max-Change: 2.294233 EM iteration: 2, Loglike: -2561.3283, Max-Change: 0.586799 EM iteration: 3, Loglike: -2483.1569, Max-Change: 0.32487 EM iteration: 4, Loglike: -2469.4065, Max-Change: 0.181068 EM iteration: 5, Loglike: -2467.1665, Max-Change: 0.101828 EM iteration: 6, Loglike: -2466.7828, Max-Change: 0.059822 EM iteration: 7, Loglike: -2466.6906, Max-Change: 0.038796 EM iteration: 8, Loglike: -2466.6550, Max-Change: 0.026996 EM iteration: 9, Loglike: -2466.6368, Max-Change: 0.019699 EM iteration: 10, Loglike: -2466.6258, Max-Change: 0.015007 EM iteration: 11, Loglike: -2466.6182, Max-Change: 0.011822 EM iteration: 12, Loglike: -2466.6122, Max-Change: 0.00960 EM iteration: 13, Loglike: -2466.6073, Max-Change: 0.00804 EM iteration: 14, Loglike: -2466.6029, Max-Change: 0.006884 EM iteration: 15, Loglike: -2466.5988, Max-Change: 0.005994 EM iteration: 16, Loglike: -2466.5950, Max-Change: 0.005292 EM iteration: 17, Loglike: -2466.5914, Max-Change: 0.004726 EM iteration: 18, Loglike: -2466.5879, Max-Change: 0.004262 EM iteration: 19, Loglike: -2466.5844, Max-Change: 0.003877 EM iteration: 20, Loglike: -2466.5810, Max-Change: 0.003554 EM iteration: 21, Loglike: -2466.5777, Max-Change: 0.00328 EM iteration: 22, Loglike: -2466.5744, Max-Change: 0.003046 EM iteration: 23, Loglike: -2466.5712, Max-Change: 0.002846 EM iteration: 24, Loglike: -2466.5680, Max-Change: 0.002674 EM iteration: 25, Loglike: -2466.5647, Max-Change: 0.002525 EM iteration: 26, Loglike: -2466.5616, Max-Change: 0.002396 EM iteration: 27, Loglike: -2466.5584, Max-Change: 0.002284 EM iteration: 28, Loglike: -2466.5553, Max-Change: 0.002186 EM iteration: 29, Loglike: -2466.5522, Max-Change: 0.002101 EM iteration: 30, Loglike: -2466.5491, Max-Change: 0.002026 EM iteration: 31, Loglike: -2466.5461, Max-Change: 0.00196 EM iteration: 32, Loglike: -2466.5432, Max-Change: 0.001956 EM iteration: 33, Loglike: -2466.5402, Max-Change: 0.002012 EM iteration: 34, Loglike: -2466.5374, Max-Change: 0.002058 EM iteration: 35, Loglike: -2466.5346, Max-Change: 0.002097 EM iteration: 36, Loglike: -2466.5318, Max-Change: 0.002127 EM iteration: 37, Loglike: -2466.5291, Max-Change: 0.00215 EM iteration: 38, Loglike: -2466.5265, Max-Change: 0.002166 EM iteration: 39, Loglike: -2466.5240, Max-Change: 0.002174 EM iteration: 40, Loglike: -2466.5216, Max-Change: 0.002175 EM iteration: 41, Loglike: -2466.5192, Max-Change: 0.002169 EM iteration: 42, Loglike: -2466.5169, Max-Change: 0.002157 EM iteration: 43, Loglike: -2466.5147, Max-Change: 0.002138 EM iteration: 44, Loglike: -2466.5126, Max-Change: 0.002112 EM iteration: 45, Loglike: -2466.5105, Max-Change: 0.002081 EM iteration: 46, Loglike: -2466.5086, Max-Change: 0.002044 EM iteration: 47, Loglike: -2466.5067, Max-Change: 0.002002 EM iteration: 48, Loglike: -2466.5049, Max-Change: 0.001954 EM iteration: 49, Loglike: -2466.5032, Max-Change: 0.001902 EM iteration: 50, Loglike: -2466.5015, Max-Change: 0.001846 EM iteration: 51, Loglike: -2466.4999, Max-Change: 0.001786 EM iteration: 52, Loglike: -2466.4984, Max-Change: 0.001723 EM iteration: 53, Loglike: -2466.4970, Max-Change: 0.001657 EM iteration: 54, Loglike: -2466.4956, Max-Change: 0.001588 EM iteration: 55, Loglike: -2466.4943, Max-Change: 0.001517 EM iteration: 56, Loglike: -2466.4930, Max-Change: 0.001445 EM iteration: 57, Loglike: -2466.4918, Max-Change: 0.001371 EM iteration: 58, Loglike: -2466.4906, Max-Change: 0.001296 EM iteration: 59, Loglike: -2466.4895, Max-Change: 0.001221 EM iteration: 60, Loglike: -2466.4884, Max-Change: 0.001146 EM iteration: 61, Loglike: -2466.4874, Max-Change: 0.001071 EM iteration: 62, Loglike: -2466.4864, Max-Change: 0.000997 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.51 seconds. 
+#> Estimation is finished in 0.45 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "2PLM", cats = 2, EmpHist = TRUE, 
@@ -1991,7 +1991,7 @@ plot(emphist$weight ~ emphist$theta, type = "h")
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -2938.6296, Max-Change: 2.625751 EM iteration: 2, Loglike: -2493.4333, Max-Change: 0.362646 EM iteration: 3, Loglike: -2469.7317, Max-Change: 0.125925 EM iteration: 4, Loglike: -2467.2541, Max-Change: 0.052351 EM iteration: 5, Loglike: -2466.9797, Max-Change: 0.02802 EM iteration: 6, Loglike: -2466.9281, Max-Change: 0.019165 EM iteration: 7, Loglike: -2466.9042, Max-Change: 0.015209 EM iteration: 8, Loglike: -2466.8875, Max-Change: 0.012905 EM iteration: 9, Loglike: -2466.8747, Max-Change: 0.01125 EM iteration: 10, Loglike: -2466.8647, Max-Change: 0.00992 EM iteration: 11, Loglike: -2466.8566, Max-Change: 0.00880 EM iteration: 12, Loglike: -2466.8502, Max-Change: 0.007834 EM iteration: 13, Loglike: -2466.8450, Max-Change: 0.007092 EM iteration: 14, Loglike: -2466.8407, Max-Change: 0.006541 EM iteration: 15, Loglike: -2466.8373, Max-Change: 0.006028 EM iteration: 16, Loglike: -2466.8344, Max-Change: 0.005552 EM iteration: 17, Loglike: -2466.8321, Max-Change: 0.005113 EM iteration: 18, Loglike: -2466.8302, Max-Change: 0.004709 EM iteration: 19, Loglike: -2466.8287, Max-Change: 0.004336 EM iteration: 20, Loglike: -2466.8274, Max-Change: 0.003993 EM iteration: 21, Loglike: -2466.8263, Max-Change: 0.003678 EM iteration: 22, Loglike: -2466.8254, Max-Change: 0.003388 EM iteration: 23, Loglike: -2466.8247, Max-Change: 0.003121 EM iteration: 24, Loglike: -2466.8241, Max-Change: 0.002876 EM iteration: 25, Loglike: -2466.8237, Max-Change: 0.00265 EM iteration: 26, Loglike: -2466.8233, Max-Change: 0.002442 EM iteration: 27, Loglike: -2466.8229, Max-Change: 0.002251 EM iteration: 28, Loglike: -2466.8227, Max-Change: 0.002075 EM iteration: 29, Loglike: -2466.8224, Max-Change: 0.001913 EM iteration: 30, Loglike: -2466.8223, Max-Change: 0.001764 EM iteration: 31, Loglike: -2466.8221, Max-Change: 0.001626 EM iteration: 32, Loglike: -2466.8220, Max-Change: 0.00150 EM iteration: 33, Loglike: -2466.8219, Max-Change: 0.001383 EM iteration: 34, Loglike: -2466.8218, Max-Change: 0.001275 EM iteration: 35, Loglike: -2466.8218, Max-Change: 0.001176 EM iteration: 36, Loglike: -2466.8217, Max-Change: 0.001085 EM iteration: 37, Loglike: -2466.8217, Max-Change: 0.001001 EM iteration: 38, Loglike: -2466.8217, Max-Change: 0.000923 EM iteration: 39, Loglike: -2466.8216, Max-Change: 0.000852 EM iteration: 40, Loglike: -2466.8216, Max-Change: 0.000786 EM iteration: 41, Loglike: -2466.8216, Max-Change: 0.000725 EM iteration: 42, Loglike: -2466.8216, Max-Change: 0.000669 EM iteration: 43, Loglike: -2466.8216, Max-Change: 0.000617 EM iteration: 44, Loglike: -2466.8216, Max-Change: 0.000569 EM iteration: 45, Loglike: -2466.8216, Max-Change: 0.000525 EM iteration: 46, Loglike: -2466.8216, Max-Change: 0.000485 EM iteration: 47, Loglike: -2466.8216, Max-Change: 0.000447 EM iteration: 48, Loglike: -2466.8216, Max-Change: 0.000413 EM iteration: 49, Loglike: -2466.8216, Max-Change: 0.000381 EM iteration: 50, Loglike: -2466.8216, Max-Change: 0.000351 EM iteration: 51, Loglike: -2466.8216, Max-Change: 0.000324 EM iteration: 52, Loglike: -2466.8217, Max-Change: 0.000299 EM iteration: 53, Loglike: -2466.8217, Max-Change: 0.000276 EM iteration: 54, Loglike: -2466.8217, Max-Change: 0.000255 EM iteration: 55, Loglike: -2466.8217, Max-Change: 0.000235 EM iteration: 56, Loglike: -2466.8217, Max-Change: 0.000217 EM iteration: 57, Loglike: -2466.8217, Max-Change: 2e-04 EM iteration: 58, Loglike: -2466.8217, Max-Change: 0.000185 EM iteration: 59, Loglike: -2466.8217, Max-Change: 0.000171 EM iteration: 60, Loglike: -2466.8217, Max-Change: 0.000158 EM iteration: 61, Loglike: -2466.8217, Max-Change: 0.000145 EM iteration: 62, Loglike: -2466.8217, Max-Change: 0.000134 EM iteration: 63, Loglike: -2466.8217, Max-Change: 0.000124 EM iteration: 64, Loglike: -2466.8217, Max-Change: 0.000114 EM iteration: 65, Loglike: -2466.8217, Max-Change: 0.000105 EM iteration: 66, Loglike: -2466.8217, Max-Change: 9.7e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.61 seconds. 
+#> Estimation is finished in 0.53 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "3PLM", cats = 2, use.gprior = TRUE, 
@@ -2029,12 +2029,12 @@ summary(mod.3pl)
 #>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 66
-#>  Maximum parameter change: 9.736373e-05
+#>  Maximum parameter change: 9.736371e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.59
-#>  Standard error computation: 0
-#>  Total computation: 0.61
+#>  EM algorithm: 0.5
+#>  Standard error computation: 0.01
+#>  Total computation: 0.53
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2066,7 +2066,7 @@ summary(mod.3pl)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -2938.6296, Max-Change: 2.65963 EM iteration: 2, Loglike: -2493.2423, Max-Change: 0.336936 EM iteration: 3, Loglike: -2469.7540, Max-Change: 0.123232 EM iteration: 4, Loglike: -2467.2643, Max-Change: 0.052978 EM iteration: 5, Loglike: -2466.9883, Max-Change: 0.028639 EM iteration: 6, Loglike: -2466.9373, Max-Change: 0.019494 EM iteration: 7, Loglike: -2466.9131, Max-Change: 0.015392 EM iteration: 8, Loglike: -2466.8954, Max-Change: 0.013058 EM iteration: 9, Loglike: -2466.8813, Max-Change: 0.011428 EM iteration: 10, Loglike: -2466.8700, Max-Change: 0.01014 EM iteration: 11, Loglike: -2466.8607, Max-Change: 0.009058 EM iteration: 12, Loglike: -2466.8532, Max-Change: 0.008122 EM iteration: 13, Loglike: -2466.8471, Max-Change: 0.00732 EM iteration: 14, Loglike: -2466.8420, Max-Change: 0.00670 EM iteration: 15, Loglike: -2466.8379, Max-Change: 0.006135 EM iteration: 16, Loglike: -2466.8345, Max-Change: 0.005619 EM iteration: 17, Loglike: -2466.8316, Max-Change: 0.005148 EM iteration: 18, Loglike: -2466.8293, Max-Change: 0.004718 EM iteration: 19, Loglike: -2466.8273, Max-Change: 0.004326 EM iteration: 20, Loglike: -2466.8257, Max-Change: 0.003967 EM iteration: 21, Loglike: -2466.8244, Max-Change: 0.00364 EM iteration: 22, Loglike: -2466.8233, Max-Change: 0.00334 EM iteration: 23, Loglike: -2466.8223, Max-Change: 0.003066 EM iteration: 24, Loglike: -2466.8215, Max-Change: 0.002815 EM iteration: 25, Loglike: -2466.8209, Max-Change: 0.002586 EM iteration: 26, Loglike: -2466.8203, Max-Change: 0.002376 EM iteration: 27, Loglike: -2466.8199, Max-Change: 0.002183 EM iteration: 28, Loglike: -2466.8195, Max-Change: 0.002006 EM iteration: 29, Loglike: -2466.8191, Max-Change: 0.001844 EM iteration: 30, Loglike: -2466.8189, Max-Change: 0.001695 EM iteration: 31, Loglike: -2466.8186, Max-Change: 0.001559 EM iteration: 32, Loglike: -2466.8184, Max-Change: 0.001433 EM iteration: 33, Loglike: -2466.8183, Max-Change: 0.001318 EM iteration: 34, Loglike: -2466.8181, Max-Change: 0.001213 EM iteration: 35, Loglike: -2466.8180, Max-Change: 0.001116 EM iteration: 36, Loglike: -2466.8179, Max-Change: 0.001026 EM iteration: 37, Loglike: -2466.8178, Max-Change: 0.000944 EM iteration: 38, Loglike: -2466.8178, Max-Change: 0.000869 EM iteration: 39, Loglike: -2466.8177, Max-Change: 8e-04 EM iteration: 40, Loglike: -2466.8176, Max-Change: 0.000736 EM iteration: 41, Loglike: -2466.8176, Max-Change: 0.000677 EM iteration: 42, Loglike: -2466.8176, Max-Change: 0.000624 EM iteration: 43, Loglike: -2466.8175, Max-Change: 0.000574 EM iteration: 44, Loglike: -2466.8175, Max-Change: 0.000528 EM iteration: 45, Loglike: -2466.8175, Max-Change: 0.000486 EM iteration: 46, Loglike: -2466.8175, Max-Change: 0.000448 EM iteration: 47, Loglike: -2466.8175, Max-Change: 0.000412 EM iteration: 48, Loglike: -2466.8174, Max-Change: 0.00038 EM iteration: 49, Loglike: -2466.8174, Max-Change: 0.000349 EM iteration: 50, Loglike: -2466.8174, Max-Change: 0.000322 EM iteration: 51, Loglike: -2466.8174, Max-Change: 0.000296 EM iteration: 52, Loglike: -2466.8174, Max-Change: 0.000273 EM iteration: 53, Loglike: -2466.8174, Max-Change: 0.000251 EM iteration: 54, Loglike: -2466.8174, Max-Change: 0.000231 EM iteration: 55, Loglike: -2466.8174, Max-Change: 0.000213 EM iteration: 56, Loglike: -2466.8174, Max-Change: 0.000196 EM iteration: 57, Loglike: -2466.8174, Max-Change: 0.000181 EM iteration: 58, Loglike: -2466.8174, Max-Change: 0.000166 EM iteration: 59, Loglike: -2466.8174, Max-Change: 0.000153 EM iteration: 60, Loglike: -2466.8174, Max-Change: 0.000141 EM iteration: 61, Loglike: -2466.8174, Max-Change: 0.00013 EM iteration: 62, Loglike: -2466.8174, Max-Change: 0.00012 EM iteration: 63, Loglike: -2466.8174, Max-Change: 0.00011 EM iteration: 64, Loglike: -2466.8174, Max-Change: 0.000101 EM iteration: 65, Loglike: -2466.8174, Max-Change: 9.3e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.46 seconds. 
+#> Estimation is finished in 0.42 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = "3PLM", cats = 2, fix.g = TRUE, 
@@ -2107,9 +2107,9 @@ summary(mod.3pl.f)
 #>  Maximum parameter change: 9.346677e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.44
+#>  EM algorithm: 0.4
 #>  Standard error computation: 0
-#>  Total computation: 0.46
+#>  Total computation: 0.42
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2146,7 +2146,7 @@ summary(mod.3pl.f)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -3100.6555, Max-Change: 2.331776 EM iteration: 2, Loglike: -2544.0863, Max-Change: 0.520835 EM iteration: 3, Loglike: -2479.3669, Max-Change: 0.26437 EM iteration: 4, Loglike: -2468.8666, Max-Change: 0.13618 EM iteration: 5, Loglike: -2467.2368, Max-Change: 0.073111 EM iteration: 6, Loglike: -2466.9318, Max-Change: 0.041681 EM iteration: 7, Loglike: -2466.8475, Max-Change: 0.026892 EM iteration: 8, Loglike: -2466.8155, Max-Change: 0.018499 EM iteration: 9, Loglike: -2466.8015, Max-Change: 0.013086 EM iteration: 10, Loglike: -2466.7950, Max-Change: 0.00941 EM iteration: 11, Loglike: -2466.7919, Max-Change: 0.00684 EM iteration: 12, Loglike: -2466.7904, Max-Change: 0.005015 EM iteration: 13, Loglike: -2466.7897, Max-Change: 0.003705 EM iteration: 14, Loglike: -2466.7893, Max-Change: 0.002759 EM iteration: 15, Loglike: -2466.7891, Max-Change: 0.00207 EM iteration: 16, Loglike: -2466.7890, Max-Change: 0.001566 EM iteration: 17, Loglike: -2466.7889, Max-Change: 0.001194 EM iteration: 18, Loglike: -2466.7889, Max-Change: 0.000917 EM iteration: 19, Loglike: -2466.7888, Max-Change: 0.00071 EM iteration: 20, Loglike: -2466.7888, Max-Change: 0.000554 EM iteration: 21, Loglike: -2466.7888, Max-Change: 0.000436 EM iteration: 22, Loglike: -2466.7888, Max-Change: 0.000345 EM iteration: 23, Loglike: -2466.7888, Max-Change: 0.000275 EM iteration: 24, Loglike: -2466.7888, Max-Change: 0.000221 EM iteration: 25, Loglike: -2466.7888, Max-Change: 0.000178 EM iteration: 26, Loglike: -2466.7888, Max-Change: 0.000145 EM iteration: 27, Loglike: -2466.7888, Max-Change: 0.000118 EM iteration: 28, Loglike: -2466.7888, Max-Change: 9.7e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.21 seconds. 
+#> Estimation is finished in 0.19 seconds. 
 #> 
 #> Call:
 #> est_irt(data = LSAT6, D = 1, model = c("1PLM", "1PLM", "1PLM", 
@@ -2189,9 +2189,9 @@ summary(mod.drm.mix)
 #>  Maximum parameter change: 9.690417e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.19
-#>  Standard error computation: 0.01
-#>  Total computation: 0.21
+#>  EM algorithm: 0.16
+#>  Standard error computation: 0
+#>  Total computation: 0.19
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2256,7 +2256,7 @@ item.meta <- shape_df(item.id = x$id, cats = x$cats, model = x$model,
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39032.8987, Max-Change: 2.339566 EM iteration: 2, Loglike: -33980.7119, Max-Change: 0.316376 EM iteration: 3, Loglike: -33966.2963, Max-Change: 0.085202 EM iteration: 4, Loglike: -33965.3783, Max-Change: 0.021805 EM iteration: 5, Loglike: -33965.3380, Max-Change: 0.005862 EM iteration: 6, Loglike: -33965.3884, Max-Change: 0.001885 EM iteration: 7, Loglike: -33965.4397, Max-Change: 0.001309 EM iteration: 8, Loglike: -33965.4817, Max-Change: 0.00093 EM iteration: 9, Loglike: -33965.5149, Max-Change: 0.000717 EM iteration: 10, Loglike: -33965.5412, Max-Change: 0.000561 EM iteration: 11, Loglike: -33965.5620, Max-Change: 0.000448 EM iteration: 12, Loglike: -33965.5784, Max-Change: 0.000357 EM iteration: 13, Loglike: -33965.5915, Max-Change: 0.000285 EM iteration: 14, Loglike: -33965.6019, Max-Change: 0.000226 EM iteration: 15, Loglike: -33965.6102, Max-Change: 0.000183 EM iteration: 16, Loglike: -33965.6168, Max-Change: 0.000149 EM iteration: 17, Loglike: -33965.6220, Max-Change: 0.000121 EM iteration: 18, Loglike: -33965.6262, Max-Change: 9.9e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.65 seconds. 
+#> Estimation is finished in 1.98 seconds. 
 #> 
 #> Call:
 #> est_irt(x = item.meta, data = sim.dat1, D = 1, use.aprior = TRUE, 
@@ -2298,12 +2298,12 @@ summary(mod.mix1)
 #>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 18
-#>  Maximum parameter change: 9.925476e-05
+#>  Maximum parameter change: 9.925479e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.56
-#>  Standard error computation: 0.04
-#>  Total computation: 2.65
+#>  EM algorithm: 1.89
+#>  Standard error computation: 0.05
+#>  Total computation: 1.98
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -2438,1006 +2438,1006 @@ summary(mod.mix1)
 # parameters
 (score.mle <- est_score(x = mod.mix1, method = "ML", range = c(-4, 4)))
 #>          est.theta   se.theta
-#> 1     0.3926614615  0.2628543
-#> 2     0.4443005362  0.2647684
-#> 3     0.9146240119  0.2891789
-#> 4    -0.2689015111  0.2535997
-#> 5    -1.2823351208  0.3120158
-#> 6    -0.4824293384  0.2571234
-#> 7    -0.1337304063  0.2531543
-#> 8     1.3066135526  0.3163575
-#> 9     0.5642779902  0.2698642
-#> 10    0.2118210721  0.2575001
-#> 11   -0.5222620239  0.2582119
-#> 12   -0.0138651674  0.2537883
-#> 13    1.4181322321  0.3250707
-#> 14    1.0817463394  0.3001784
-#> 15    0.3297683665  0.2607503
-#> 16   -1.8112605447  0.3965064
+#> 1     0.3926614624  0.2628543
+#> 2     0.4443005371  0.2647684
+#> 3     0.9146240128  0.2891789
+#> 4    -0.2689015102  0.2535997
+#> 5    -1.2823351200  0.3120158
+#> 6    -0.4824293375  0.2571234
+#> 7    -0.1337304055  0.2531543
+#> 8     1.3066135535  0.3163575
+#> 9     0.5642779911  0.2698642
+#> 10    0.2118210730  0.2575001
+#> 11   -0.5222620230  0.2582119
+#> 12   -0.0138651665  0.2537883
+#> 13    1.4181322331  0.3250707
+#> 14    1.0817463404  0.3001784
+#> 15    0.3297683674  0.2607503
+#> 16   -1.8112605440  0.3965064
 #> 17   -4.0000000000 99.9999000
-#> 18   -1.5109466233  0.3426391
-#> 19    0.4400644004  0.2646030
-#> 20   -1.1349969014  0.2962157
-#> 21   -0.0927053496  0.2532653
-#> 22    1.1911097547  0.3078493
-#> 23    1.1917876132  0.3078916
-#> 24   -2.4034989065  0.5635697
-#> 25    1.0712352157  0.2994607
-#> 26   -0.2476724875  0.2534446
-#> 27    0.0636515395  0.2546944
-#> 28   -0.0960126243  0.2532522
-#> 29   -2.0077792784  0.4419792
-#> 30    0.3524368909  0.2614823
-#> 31   -0.0322240044  0.2536307
-#> 32   -0.7042280913  0.2651656
-#> 33    0.9146236522  0.2891802
-#> 34   -0.5111733240  0.2578938
-#> 35    0.2292634211  0.2579234
-#> 36    0.1330862297  0.2558322
-#> 37   -0.5670456938  0.2596169
-#> 38   -0.0224202096  0.2537125
-#> 39   -0.0417403137  0.2535574
-#> 40    0.8563442379  0.2855741
-#> 41   -0.0668801471  0.2533923
-#> 42   -0.8509147527  0.2733404
-#> 43   -2.3465575666  0.5433223
-#> 44    1.7896381420  0.3601105
-#> 45   -2.0226323333  0.4457870
-#> 46    0.6546339218  0.2742578
-#> 47   -0.2553007353  0.2534965
-#> 48    1.3184090042  0.3172516
-#> 49   -0.7723936319  0.2686704
-#> 50   -0.7827766641  0.2692450
-#> 51    0.4057191676  0.2633235
-#> 52    0.1461847298  0.2560819
-#> 53    1.7054768868  0.3510912
-#> 54    1.8679713030  0.3692045
-#> 55    0.4217902134  0.2639125
-#> 56    1.0074112028  0.2951693
-#> 57   -1.5835244748  0.3541084
-#> 58   -0.7816307266  0.2691810
-#> 59    1.6701288775  0.3475345
-#> 60   -0.8066618172  0.2706187
-#> 61    0.2026314996  0.2572843
-#> 62    0.0868330041  0.2550397
-#> 63   -1.5608641852  0.3504282
-#> 64    1.6048624528  0.3412416
-#> 65   -1.7602364055  0.3860946
-#> 66    1.3739267492  0.3215527
-#> 67    0.3175578674  0.2603722
-#> 68    0.7436710794  0.2790121
-#> 69    0.5203588820  0.2678954
-#> 70   -1.1657900677  0.2992900
-#> 71   -0.5225600885  0.2582211
-#> 72   -0.9345620946  0.2790776
-#> 73    1.3388662602  0.3188267
-#> 74   -2.9962795008  0.8371436
-#> 75    0.0677370532  0.2547518
-#> 76    0.9840140903  0.2936396
-#> 77    0.1399441950  0.2559620
-#> 78   -1.0248941892  0.2862061
-#> 79    0.9095591237  0.2888621
-#> 80    1.3128351468  0.3168284
-#> 81   -0.8154635935  0.2711430
-#> 82    0.0179493467  0.2541126
-#> 83   -1.1959281473  0.3024115
-#> 84   -1.1447615706  0.2971774
-#> 85    0.8784704212  0.2869292
-#> 86   -1.8149213219  0.3972440
-#> 87   -0.7320859548  0.2665366
-#> 88    0.5751775749  0.2703651
-#> 89    0.1247754911  0.2556793
+#> 18   -1.5109466225  0.3426391
+#> 19    0.4400644013  0.2646030
+#> 20   -1.1349969006  0.2962157
+#> 21   -0.0927053487  0.2532653
+#> 22    1.1911097556  0.3078493
+#> 23    1.1917876142  0.3078916
+#> 24   -2.4034989059  0.5635697
+#> 25    1.0712352166  0.2994607
+#> 26   -0.2476724866  0.2534446
+#> 27    0.0636515404  0.2546944
+#> 28   -0.0960126234  0.2532522
+#> 29   -2.0077792777  0.4419792
+#> 30    0.3524368918  0.2614823
+#> 31   -0.0322240035  0.2536307
+#> 32   -0.7042280905  0.2651656
+#> 33    0.9146236532  0.2891802
+#> 34   -0.5111733231  0.2578938
+#> 35    0.2292634220  0.2579234
+#> 36    0.1330862306  0.2558322
+#> 37   -0.5670456929  0.2596169
+#> 38   -0.0224202087  0.2537125
+#> 39   -0.0417403128  0.2535574
+#> 40    0.8563442388  0.2855741
+#> 41   -0.0668801462  0.2533923
+#> 42   -0.8509147519  0.2733404
+#> 43   -2.3465575660  0.5433223
+#> 44    1.7896381429  0.3601105
+#> 45   -2.0226323326  0.4457870
+#> 46    0.6546339227  0.2742578
+#> 47   -0.2553007344  0.2534965
+#> 48    1.3184090052  0.3172516
+#> 49   -0.7723936310  0.2686704
+#> 50   -0.7827766632  0.2692450
+#> 51    0.4057191685  0.2633235
+#> 52    0.1461847307  0.2560819
+#> 53    1.7054768878  0.3510912
+#> 54    1.8679713039  0.3692045
+#> 55    0.4217902143  0.2639125
+#> 56    1.0074112038  0.2951693
+#> 57   -1.5835244740  0.3541084
+#> 58   -0.7816307257  0.2691810
+#> 59    1.6701288785  0.3475345
+#> 60   -0.8066618163  0.2706187
+#> 61    0.2026315005  0.2572843
+#> 62    0.0868330050  0.2550397
+#> 63   -1.5608641845  0.3504282
+#> 64    1.6048624538  0.3412416
+#> 65   -1.7602364048  0.3860946
+#> 66    1.3739267501  0.3215527
+#> 67    0.3175578683  0.2603722
+#> 68    0.7436710803  0.2790121
+#> 69    0.5203588829  0.2678954
+#> 70   -1.1657900669  0.2992900
+#> 71   -0.5225600877  0.2582211
+#> 72   -0.9345620938  0.2790776
+#> 73    1.3388662612  0.3188267
+#> 74   -2.9962795002  0.8371436
+#> 75    0.0677370541  0.2547518
+#> 76    0.9840140912  0.2936396
+#> 77    0.1399441959  0.2559620
+#> 78   -1.0248941884  0.2862061
+#> 79    0.9095591247  0.2888621
+#> 80    1.3128351477  0.3168284
+#> 81   -0.8154635926  0.2711430
+#> 82    0.0179493476  0.2541126
+#> 83   -1.1959281465  0.3024115
+#> 84   -1.1447615698  0.2971774
+#> 85    0.8784704221  0.2869292
+#> 86   -1.8149213212  0.3972440
+#> 87   -0.7320859540  0.2665366
+#> 88    0.5751775758  0.2703651
+#> 89    0.1247754920  0.2556793
 #> 90   -4.0000000000 99.9999000
-#> 91   -1.7696465424  0.3879873
-#> 92   -0.5967873253  0.2606546
-#> 93   -1.2845273331  0.3122720
-#> 94    1.0066166959  0.2951203
-#> 95   -0.2337532920  0.2533600
-#> 96    0.0479131205  0.2544772
-#> 97   -0.4613900572  0.2566060
-#> 98   -0.0792958321  0.2533256
-#> 99   -0.3857790726  0.2550653
-#> 100   2.9131251089  0.5702092
-#> 101   1.5386520694  0.3352406
-#> 102   1.5283327123  0.3343362
-#> 103  -0.5472149065  0.2589687
-#> 104   1.3109931636  0.3166866
-#> 105   2.9671257368  0.5846962
-#> 106  -0.7142350887  0.2656491
-#> 107   0.8707177143  0.2864539
-#> 108   1.0608471297  0.2987539
-#> 109  -0.2232294671  0.2533058
-#> 110   2.1521816368  0.4089149
-#> 111  -0.1029210279  0.2532272
-#> 112   0.9095116346  0.2888584
-#> 113  -0.3927258380  0.2551873
-#> 114  -0.0569056443  0.2534523
-#> 115   0.6451144511  0.2737697
-#> 116  -0.6277646055  0.2618376
-#> 117   1.6302594909  0.3436410
-#> 118  -1.1492419402  0.2976236
-#> 119  -0.1590032238  0.2531416
-#> 120  -0.8693307932  0.2745383
-#> 121   0.8483249451  0.2850911
-#> 122   1.2124227647  0.3093800
-#> 123  -0.9701682636  0.2817761
-#> 124   1.4593482358  0.3284565
-#> 125  -0.0787164202  0.2533285
-#> 126   0.6908251823  0.2761403
-#> 127   2.1281674080  0.4051343
-#> 128   0.7907171708  0.2816865
-#> 129   0.1670112216  0.2565021
-#> 130  -0.3218531918  0.2541323
-#> 131  -0.4018269113  0.2553502
-#> 132  -0.0849546261  0.2532985
-#> 133   1.3427777143  0.3191246
-#> 134  -0.0792944875  0.2533257
-#> 135   0.1535439258  0.2562283
-#> 136  -0.1018630924  0.2532308
-#> 137  -0.8177675041  0.2712817
-#> 138  -1.0101869314  0.2849802
-#> 139  -1.8180664635  0.3979139
-#> 140   1.0975102088  0.3012570
-#> 141   0.7138103424  0.2773696
-#> 142  -0.7279171045  0.2663266
-#> 143   0.3186841609  0.2604074
-#> 144  -0.6571051638  0.2630427
-#> 145   1.3121598605  0.3167782
-#> 146   1.4708224660  0.3294118
-#> 147  -1.4236166029  0.3299965
-#> 148   0.5195858454  0.2678613
-#> 149   0.3573608044  0.2616446
-#> 150   0.3009012341  0.2598727
-#> 151  -1.5481233643  0.3484049
-#> 152   1.0344390779  0.2969721
-#> 153  -0.0194866031  0.2537376
-#> 154   0.5180605956  0.2677942
-#> 155   2.1533968707  0.4091240
-#> 156   2.3915029006  0.4510444
-#> 157   0.0078195844  0.2540022
-#> 158   0.2602162997  0.2587249
-#> 159  -0.5583351471  0.2593286
-#> 160   0.6710375287  0.2751000
-#> 161  -0.6101687120  0.2611519
-#> 162  -1.9143932341  0.4192305
-#> 163   0.9138749024  0.2891329
-#> 164   1.5542436707  0.3366347
-#> 165  -0.9513952883  0.2803402
-#> 166  -0.4798678417  0.2570564
-#> 167   0.4755095603  0.2660100
-#> 168  -0.5445231508  0.2588872
-#> 169  -1.3218928356  0.3167667
-#> 170  -1.5024479052  0.3413465
-#> 171   1.7126978063  0.3518406
-#> 172  -1.6815474627  0.3711198
-#> 173   0.7499888239  0.2793676
-#> 174   1.2039559676  0.3087678
-#> 175   0.7730304324  0.2806702
-#> 176  -0.9022646624  0.2767687
-#> 177  -1.5798588438  0.3535098
-#> 178  -1.9588976570  0.4298004
-#> 179  -0.8503051549  0.2732972
-#> 180  -2.1586294685  0.4832441
-#> 181   0.6517063499  0.2741035
-#> 182   0.7886147582  0.2815644
-#> 183   0.2224569838  0.2577562
-#> 184  -0.5471489469  0.2589680
-#> 185   0.1135916129  0.2554810
-#> 186   0.7034678323  0.2768136
-#> 187   0.1667711277  0.2564965
-#> 188  -0.2532323419  0.2534821
-#> 189   0.0916522502  0.2551154
-#> 190   0.2376790017  0.2581354
-#> 191   0.1421300399  0.2560034
-#> 192  -1.1794903318  0.3006947
-#> 193   1.9012119333  0.3733022
-#> 194  -0.4173632986  0.2556491
-#> 195  -0.1337637885  0.2531542
-#> 196   1.2687853394  0.3135213
-#> 197   0.0536180841  0.2545541
-#> 198  -0.2072099131  0.2532378
-#> 199   0.6334543825  0.2731816
-#> 200   0.1468556958  0.2560952
-#> 201  -1.2394835243  0.3071259
-#> 202   0.6018210199  0.2716268
-#> 203  -1.2809958170  0.3118564
-#> 204  -0.7452737189  0.2672145
-#> 205  -0.8140792167  0.2710596
-#> 206   1.8456403860  0.3665442
-#> 207   0.7369674875  0.2786352
-#> 208   0.7185795056  0.2776315
-#> 209  -0.7207526919  0.2659693
-#> 210   0.1028423022  0.2552994
-#> 211   0.5194611715  0.2678560
-#> 212   0.4336789660  0.2643596
-#> 213   0.2610241047  0.2587473
-#> 214  -0.5452572510  0.2589085
-#> 215  -1.1228352037  0.2950368
-#> 216   0.8560570464  0.2855637
-#> 217  -0.0936480060  0.2532615
-#> 218  -0.5558140588  0.2592470
-#> 219  -1.2893661193  0.3128547
-#> 220  -0.1250485792  0.2531686
-#> 221  -0.1444710564  0.2531437
-#> 222  -0.6673597312  0.2634822
-#> 223  -0.5014513358  0.2576267
-#> 224   1.5397129382  0.3353334
-#> 225  -0.4717484858  0.2568550
-#> 226   2.3580628609  0.4446748
-#> 227   0.8287307170  0.2839113
-#> 228   0.0821851193  0.2549672
-#> 229   1.2800138110  0.3143557
-#> 230   0.4285846846  0.2641683
-#> 231  -0.3915808881  0.2551663
-#> 232  -0.8598222426  0.2739117
-#> 233   1.6131469211  0.3420334
-#> 234   0.6770865755  0.2754154
-#> 235  -1.3183286924  0.3163241
-#> 236   2.1894918320  0.4149480
-#> 237   1.5581793952  0.3369815
-#> 238   0.4386879544  0.2645523
-#> 239  -1.1484091746  0.2975407
-#> 240   0.0637885299  0.2546952
-#> 241   0.2008364383  0.2572430
-#> 242  -0.7626790449  0.2681337
-#> 243   2.0550943710  0.3941228
-#> 244   0.6815864706  0.2756518
-#> 245  -1.0183047704  0.2856491
-#> 246  -2.0920345361  0.4643335
-#> 247  -2.0154971270  0.4439369
-#> 248   0.5543166383  0.2694016
-#> 249   3.0430803458  0.6057768
-#> 250  -0.4756974828  0.2569527
+#> 91   -1.7696465417  0.3879873
+#> 92   -0.5967873245  0.2606546
+#> 93   -1.2845273323  0.3122720
+#> 94    1.0066166969  0.2951203
+#> 95   -0.2337532911  0.2533600
+#> 96    0.0479131214  0.2544772
+#> 97   -0.4613900563  0.2566060
+#> 98   -0.0792958312  0.2533256
+#> 99   -0.3857790718  0.2550653
+#> 100   2.9131251099  0.5702092
+#> 101   1.5386520704  0.3352406
+#> 102   1.5283327132  0.3343362
+#> 103  -0.5472149057  0.2589687
+#> 104   1.3109931646  0.3166866
+#> 105   2.9671257378  0.5846962
+#> 106  -0.7142350878  0.2656491
+#> 107   0.8707177152  0.2864539
+#> 108   1.0608471307  0.2987539
+#> 109  -0.2232294663  0.2533058
+#> 110   2.1521816377  0.4089149
+#> 111  -0.1029210271  0.2532272
+#> 112   0.9095116355  0.2888584
+#> 113  -0.3927258372  0.2551873
+#> 114  -0.0569056434  0.2534523
+#> 115   0.6451144520  0.2737697
+#> 116  -0.6277646046  0.2618376
+#> 117   1.6302594918  0.3436410
+#> 118  -1.1492419394  0.2976236
+#> 119  -0.1590032229  0.2531416
+#> 120  -0.8693307924  0.2745383
+#> 121   0.8483249461  0.2850911
+#> 122   1.2124227657  0.3093800
+#> 123  -0.9701682628  0.2817761
+#> 124   1.4593482367  0.3284565
+#> 125  -0.0787164193  0.2533285
+#> 126   0.6908251832  0.2761403
+#> 127   2.1281674089  0.4051343
+#> 128   0.7907171717  0.2816865
+#> 129   0.1670112225  0.2565021
+#> 130  -0.3218531909  0.2541323
+#> 131  -0.4018269104  0.2553502
+#> 132  -0.0849546252  0.2532985
+#> 133   1.3427777153  0.3191246
+#> 134  -0.0792944867  0.2533257
+#> 135   0.1535439266  0.2562283
+#> 136  -0.1018630915  0.2532308
+#> 137  -0.8177675033  0.2712817
+#> 138  -1.0101869306  0.2849802
+#> 139  -1.8180664628  0.3979139
+#> 140   1.0975102097  0.3012570
+#> 141   0.7138103433  0.2773696
+#> 142  -0.7279171036  0.2663266
+#> 143   0.3186841618  0.2604074
+#> 144  -0.6571051630  0.2630427
+#> 145   1.3121598614  0.3167782
+#> 146   1.4708224670  0.3294118
+#> 147  -1.4236166022  0.3299965
+#> 148   0.5195858463  0.2678613
+#> 149   0.3573608054  0.2616446
+#> 150   0.3009012350  0.2598727
+#> 151  -1.5481233635  0.3484049
+#> 152   1.0344390789  0.2969721
+#> 153  -0.0194866022  0.2537376
+#> 154   0.5180605965  0.2677942
+#> 155   2.1533968717  0.4091240
+#> 156   2.3915029016  0.4510444
+#> 157   0.0078195853  0.2540022
+#> 158   0.2602163006  0.2587249
+#> 159  -0.5583351462  0.2593286
+#> 160   0.6710375296  0.2751000
+#> 161  -0.6101687111  0.2611519
+#> 162  -1.9143932334  0.4192305
+#> 163   0.9138749034  0.2891329
+#> 164   1.5542436717  0.3366347
+#> 165  -0.9513952875  0.2803402
+#> 166  -0.4798678409  0.2570564
+#> 167   0.4755095612  0.2660100
+#> 168  -0.5445231500  0.2588872
+#> 169  -1.3218928348  0.3167667
+#> 170  -1.5024479044  0.3413465
+#> 171   1.7126978073  0.3518406
+#> 172  -1.6815474620  0.3711198
+#> 173   0.7499888249  0.2793676
+#> 174   1.2039559685  0.3087678
+#> 175   0.7730304334  0.2806702
+#> 176  -0.9022646616  0.2767687
+#> 177  -1.5798588430  0.3535098
+#> 178  -1.9588976563  0.4298004
+#> 179  -0.8503051540  0.2732972
+#> 180  -2.1586294678  0.4832441
+#> 181   0.6517063508  0.2741035
+#> 182   0.7886147591  0.2815644
+#> 183   0.2224569848  0.2577562
+#> 184  -0.5471489461  0.2589680
+#> 185   0.1135916138  0.2554810
+#> 186   0.7034678332  0.2768136
+#> 187   0.1667711286  0.2564965
+#> 188  -0.2532323410  0.2534821
+#> 189   0.0916522511  0.2551154
+#> 190   0.2376790026  0.2581354
+#> 191   0.1421300408  0.2560034
+#> 192  -1.1794903310  0.3006947
+#> 193   1.9012119342  0.3733022
+#> 194  -0.4173632978  0.2556491
+#> 195  -0.1337637876  0.2531542
+#> 196   1.2687853404  0.3135213
+#> 197   0.0536180850  0.2545541
+#> 198  -0.2072099122  0.2532378
+#> 199   0.6334543834  0.2731816
+#> 200   0.1468556967  0.2560952
+#> 201  -1.2394835235  0.3071259
+#> 202   0.6018210209  0.2716268
+#> 203  -1.2809958162  0.3118564
+#> 204  -0.7452737180  0.2672145
+#> 205  -0.8140792159  0.2710596
+#> 206   1.8456403869  0.3665442
+#> 207   0.7369674885  0.2786352
+#> 208   0.7185795065  0.2776315
+#> 209  -0.7207526911  0.2659693
+#> 210   0.1028423031  0.2552994
+#> 211   0.5194611724  0.2678560
+#> 212   0.4336789669  0.2643596
+#> 213   0.2610241056  0.2587473
+#> 214  -0.5452572502  0.2589085
+#> 215  -1.1228352029  0.2950368
+#> 216   0.8560570474  0.2855637
+#> 217  -0.0936480051  0.2532615
+#> 218  -0.5558140579  0.2592470
+#> 219  -1.2893661186  0.3128547
+#> 220  -0.1250485783  0.2531686
+#> 221  -0.1444710555  0.2531437
+#> 222  -0.6673597304  0.2634822
+#> 223  -0.5014513349  0.2576267
+#> 224   1.5397129391  0.3353334
+#> 225  -0.4717484850  0.2568550
+#> 226   2.3580628618  0.4446748
+#> 227   0.8287307179  0.2839113
+#> 228   0.0821851202  0.2549672
+#> 229   1.2800138119  0.3143557
+#> 230   0.4285846855  0.2641683
+#> 231  -0.3915808873  0.2551663
+#> 232  -0.8598222418  0.2739117
+#> 233   1.6131469220  0.3420334
+#> 234   0.6770865764  0.2754154
+#> 235  -1.3183286916  0.3163241
+#> 236   2.1894918330  0.4149480
+#> 237   1.5581793962  0.3369815
+#> 238   0.4386879553  0.2645523
+#> 239  -1.1484091738  0.2975407
+#> 240   0.0637885308  0.2546952
+#> 241   0.2008364392  0.2572430
+#> 242  -0.7626790441  0.2681337
+#> 243   2.0550943720  0.3941228
+#> 244   0.6815864715  0.2756518
+#> 245  -1.0183047696  0.2856491
+#> 246  -2.0920345354  0.4643335
+#> 247  -2.0154971263  0.4439369
+#> 248   0.5543166392  0.2694016
+#> 249   3.0430803468  0.6057768
+#> 250  -0.4756974820  0.2569527
 #> 251  -4.0000000000 99.9999000
-#> 252   0.8763000461  0.2867946
-#> 253  -0.3692877189  0.2547934
-#> 254  -0.7978234810  0.2701074
-#> 255   1.5635213052  0.3374668
-#> 256   0.7341221724  0.2784832
-#> 257  -1.3914176221  0.3256508
-#> 258  -1.0487042825  0.2882514
-#> 259  -0.5963159192  0.2606412
-#> 260  -0.6338544682  0.2620767
-#> 261  -2.5397447846  0.6159126
-#> 262  -1.5833073046  0.3540622
-#> 263   0.6525862034  0.2741488
-#> 264  -0.2968717914  0.2538544
-#> 265  -0.3079324523  0.2539715
-#> 266  -1.4064552516  0.3276568
-#> 267   0.7656641417  0.2802480
-#> 268   0.3353185135  0.2609266
-#> 269  -1.5734520964  0.3524604
-#> 270   1.1299656921  0.3035123
-#> 271   0.4772469343  0.2660797
-#> 272  -1.9438589174  0.4261782
-#> 273   1.0336803696  0.2969150
-#> 274   0.9095407592  0.2888609
-#> 275   0.5466021009  0.2690549
-#> 276   2.9749330787  0.5868234
-#> 277  -1.4375858646  0.3319396
-#> 278  -0.1837298408  0.2531712
-#> 279  -2.0764891210  0.4600687
-#> 280   0.0478849321  0.2544777
-#> 281   0.2049467332  0.2573384
-#> 282  -1.0734797273  0.2904501
-#> 283  -0.2625591446  0.2535501
-#> 284  -1.0592504474  0.2891744
-#> 285   0.2893529426  0.2595354
-#> 286   0.2029071856  0.2572909
-#> 287   0.5358062003  0.2685718
-#> 288   1.3921296466  0.3229926
-#> 289  -0.4936751555  0.2574164
-#> 290  -0.5427908973  0.2588312
-#> 291   1.9812256515  0.3837340
-#> 292  -0.8123370061  0.2709565
-#> 293  -1.0379188456  0.2873208
-#> 294  -0.2714127391  0.2536201
-#> 295   0.4609792485  0.2654247
-#> 296   0.5220415465  0.2679679
-#> 297  -1.2713047853  0.3107336
-#> 298   0.7869048371  0.2814683
-#> 299   0.0700209920  0.2547852
-#> 300   0.5355299876  0.2685604
-#> 301  -0.2482649191  0.2534482
-#> 302  -1.0808882151  0.2911137
-#> 303   0.5644434456  0.2698678
-#> 304  -0.3708564276  0.2548183
-#> 305  -0.4630012833  0.2566435
-#> 306  -0.6508846550  0.2627806
-#> 307  -0.3622201363  0.2546850
-#> 308  -0.0123369138  0.2538025
-#> 309   0.4018466831  0.2631816
-#> 310  -1.9195200980  0.4204544
-#> 311   0.2597898072  0.2587148
-#> 312   0.7857288948  0.2814009
-#> 313   0.6817904900  0.2756626
-#> 314   1.5950837608  0.3403426
-#> 315   1.8785835348  0.3705086
-#> 316  -0.5423380691  0.2588171
-#> 317   1.9985181682  0.3861022
-#> 318   0.7893077719  0.2816035
-#> 319   1.7267364124  0.3533013
-#> 320   0.6715419491  0.2751255
-#> 321   2.0339456225  0.3910707
-#> 322   1.6508221230  0.3456368
-#> 323  -1.2411905751  0.3073204
-#> 324   1.8768794415  0.3702995
-#> 325   0.5019193237  0.2671027
-#> 326   1.4580177675  0.3283418
-#> 327   1.1640300345  0.3059092
-#> 328   0.8211105597  0.2834637
-#> 329  -1.5087267770  0.3422928
-#> 330   1.5381569392  0.3351971
-#> 331   0.8939025908  0.2878853
-#> 332   0.8618688756  0.2859141
-#> 333   0.2736656209  0.2590938
-#> 334   0.6177958089  0.2724060
-#> 335  -0.4709011612  0.2568345
-#> 336   0.9418237225  0.2909031
-#> 337  -0.5232783594  0.2582422
-#> 338  -0.6916549880  0.2645786
-#> 339   0.4441711560  0.2647644
-#> 340   0.8127421755  0.2829762
-#> 341  -0.5580328325  0.2593192
-#> 342  -2.3272635939  0.5366717
-#> 343   1.5684809609  0.3379089
-#> 344  -1.4889746233  0.3393326
-#> 345  -1.5198055318  0.3439835
-#> 346  -0.0552687524  0.2534633
-#> 347  -1.0549178261  0.2887926
-#> 348  -0.4803414236  0.2570684
-#> 349   1.0306135558  0.2967138
-#> 350  -1.7984624419  0.3938239
-#> 351  -0.5306916908  0.2584614
-#> 352  -0.0461129987  0.2535259
-#> 353  -1.4751054771  0.3373148
-#> 354  -1.6932895508  0.3732645
-#> 355  -1.1555234594  0.2982588
-#> 356   1.3073570248  0.3164109
-#> 357   0.7508703793  0.2794175
-#> 358  -0.4358041168  0.2560288
-#> 359   1.6647495868  0.3469972
-#> 360  -1.9819059269  0.4354781
-#> 361  -0.6105104931  0.2611670
-#> 362  -0.7040298530  0.2651591
-#> 363   0.4324653929  0.2643119
-#> 364   0.7281159866  0.2781521
-#> 365  -0.3295419285  0.2542274
-#> 366  -0.5855975187  0.2602567
-#> 367   3.5885332659  0.7840008
-#> 368   0.9517293490  0.2915438
-#> 369   0.4678349169  0.2656985
-#> 370   1.2533042803  0.3123666
-#> 371   1.4823825996  0.3303866
-#> 372   0.3110013325  0.2601737
-#> 373  -0.9894190622  0.2832935
-#> 374  -0.1742739853  0.2531550
-#> 375  -0.4750432436  0.2569383
-#> 376  -0.4851055307  0.2571920
-#> 377   1.3516927063  0.3198173
-#> 378  -0.3221692648  0.2541354
-#> 379   0.4299641888  0.2642187
-#> 380   2.3869882361  0.4501739
-#> 381   0.1656211551  0.2564729
-#> 382  -0.4180690187  0.2556627
-#> 383   0.7292944008  0.2782180
-#> 384  -1.3857688354  0.3248934
-#> 385   1.2482089751  0.3119944
-#> 386  -0.9175732387  0.2778528
-#> 387   0.0359724031  0.2543256
-#> 388   1.0185908598  0.2959129
-#> 389  -1.0964907962  0.2925533
-#> 390   0.4764874592  0.2660490
-#> 391  -1.6940285677  0.3734036
-#> 392  -0.9033898232  0.2768470
-#> 393  -0.6033708602  0.2609002
-#> 394  -2.1833128737  0.4906050
-#> 395   0.8014560192  0.2823123
-#> 396  -0.3757120438  0.2548969
-#> 397  -0.3393278662  0.2543544
-#> 398   0.8322567096  0.2841269
-#> 399  -0.8115329394  0.2709072
-#> 400  -0.5325094580  0.2585164
-#> 401  -0.1100064250  0.2532049
+#> 252   0.8763000471  0.2867946
+#> 253  -0.3692877181  0.2547934
+#> 254  -0.7978234801  0.2701074
+#> 255   1.5635213062  0.3374668
+#> 256   0.7341221733  0.2784832
+#> 257  -1.3914176214  0.3256508
+#> 258  -1.0487042817  0.2882514
+#> 259  -0.5963159183  0.2606412
+#> 260  -0.6338544674  0.2620767
+#> 261  -2.5397447840  0.6159126
+#> 262  -1.5833073039  0.3540622
+#> 263   0.6525862044  0.2741488
+#> 264  -0.2968717906  0.2538544
+#> 265  -0.3079324514  0.2539715
+#> 266  -1.4064552508  0.3276568
+#> 267   0.7656641426  0.2802480
+#> 268   0.3353185144  0.2609266
+#> 269  -1.5734520956  0.3524604
+#> 270   1.1299656931  0.3035123
+#> 271   0.4772469352  0.2660797
+#> 272  -1.9438589167  0.4261782
+#> 273   1.0336803705  0.2969150
+#> 274   0.9095407602  0.2888609
+#> 275   0.5466021019  0.2690549
+#> 276   2.9749330797  0.5868234
+#> 277  -1.4375858639  0.3319396
+#> 278  -0.1837298399  0.2531712
+#> 279  -2.0764891203  0.4600687
+#> 280   0.0478849330  0.2544777
+#> 281   0.2049467341  0.2573384
+#> 282  -1.0734797265  0.2904501
+#> 283  -0.2625591438  0.2535501
+#> 284  -1.0592504466  0.2891744
+#> 285   0.2893529435  0.2595354
+#> 286   0.2029071865  0.2572909
+#> 287   0.5358062013  0.2685718
+#> 288   1.3921296476  0.3229926
+#> 289  -0.4936751547  0.2574164
+#> 290  -0.5427908964  0.2588312
+#> 291   1.9812256525  0.3837340
+#> 292  -0.8123370053  0.2709565
+#> 293  -1.0379188448  0.2873208
+#> 294  -0.2714127382  0.2536201
+#> 295   0.4609792494  0.2654247
+#> 296   0.5220415474  0.2679679
+#> 297  -1.2713047845  0.3107336
+#> 298   0.7869048380  0.2814683
+#> 299   0.0700209929  0.2547852
+#> 300   0.5355299885  0.2685604
+#> 301  -0.2482649183  0.2534482
+#> 302  -1.0808882143  0.2911137
+#> 303   0.5644434465  0.2698678
+#> 304  -0.3708564267  0.2548183
+#> 305  -0.4630012824  0.2566435
+#> 306  -0.6508846542  0.2627806
+#> 307  -0.3622201355  0.2546850
+#> 308  -0.0123369129  0.2538025
+#> 309   0.4018466840  0.2631816
+#> 310  -1.9195200973  0.4204544
+#> 311   0.2597898081  0.2587148
+#> 312   0.7857288957  0.2814009
+#> 313   0.6817904909  0.2756626
+#> 314   1.5950837617  0.3403426
+#> 315   1.8785835358  0.3705086
+#> 316  -0.5423380682  0.2588171
+#> 317   1.9985181692  0.3861022
+#> 318   0.7893077729  0.2816035
+#> 319   1.7267364134  0.3533013
+#> 320   0.6715419500  0.2751255
+#> 321   2.0339456235  0.3910707
+#> 322   1.6508221239  0.3456368
+#> 323  -1.2411905743  0.3073204
+#> 324   1.8768794424  0.3702995
+#> 325   0.5019193247  0.2671027
+#> 326   1.4580177684  0.3283418
+#> 327   1.1640300355  0.3059092
+#> 328   0.8211105606  0.2834637
+#> 329  -1.5087267763  0.3422928
+#> 330   1.5381569402  0.3351971
+#> 331   0.8939025917  0.2878853
+#> 332   0.8618688765  0.2859141
+#> 333   0.2736656218  0.2590938
+#> 334   0.6177958099  0.2724060
+#> 335  -0.4709011603  0.2568345
+#> 336   0.9418237234  0.2909031
+#> 337  -0.5232783585  0.2582422
+#> 338  -0.6916549871  0.2645786
+#> 339   0.4441711570  0.2647644
+#> 340   0.8127421765  0.2829762
+#> 341  -0.5580328316  0.2593192
+#> 342  -2.3272635932  0.5366717
+#> 343   1.5684809619  0.3379089
+#> 344  -1.4889746226  0.3393326
+#> 345  -1.5198055311  0.3439835
+#> 346  -0.0552687515  0.2534633
+#> 347  -1.0549178253  0.2887926
+#> 348  -0.4803414228  0.2570684
+#> 349   1.0306135567  0.2967138
+#> 350  -1.7984624412  0.3938239
+#> 351  -0.5306916899  0.2584614
+#> 352  -0.0461129978  0.2535259
+#> 353  -1.4751054763  0.3373148
+#> 354  -1.6932895500  0.3732645
+#> 355  -1.1555234586  0.2982588
+#> 356   1.3073570258  0.3164109
+#> 357   0.7508703802  0.2794175
+#> 358  -0.4358041160  0.2560288
+#> 359   1.6647495877  0.3469972
+#> 360  -1.9819059262  0.4354781
+#> 361  -0.6105104923  0.2611670
+#> 362  -0.7040298522  0.2651591
+#> 363   0.4324653939  0.2643119
+#> 364   0.7281159875  0.2781521
+#> 365  -0.3295419276  0.2542274
+#> 366  -0.5855975178  0.2602567
+#> 367   3.5885332670  0.7840008
+#> 368   0.9517293499  0.2915438
+#> 369   0.4678349178  0.2656985
+#> 370   1.2533042812  0.3123666
+#> 371   1.4823826006  0.3303866
+#> 372   0.3110013334  0.2601737
+#> 373  -0.9894190614  0.2832935
+#> 374  -0.1742739844  0.2531550
+#> 375  -0.4750432428  0.2569383
+#> 376  -0.4851055299  0.2571920
+#> 377   1.3516927073  0.3198173
+#> 378  -0.3221692639  0.2541354
+#> 379   0.4299641897  0.2642187
+#> 380   2.3869882371  0.4501739
+#> 381   0.1656211560  0.2564729
+#> 382  -0.4180690178  0.2556627
+#> 383   0.7292944017  0.2782180
+#> 384  -1.3857688346  0.3248934
+#> 385   1.2482089761  0.3119944
+#> 386  -0.9175732379  0.2778528
+#> 387   0.0359724040  0.2543256
+#> 388   1.0185908607  0.2959129
+#> 389  -1.0964907955  0.2925533
+#> 390   0.4764874601  0.2660490
+#> 391  -1.6940285670  0.3734036
+#> 392  -0.9033898224  0.2768470
+#> 393  -0.6033708593  0.2609002
+#> 394  -2.1833128730  0.4906050
+#> 395   0.8014560202  0.2823123
+#> 396  -0.3757120430  0.2548969
+#> 397  -0.3393278654  0.2543544
+#> 398   0.8322567106  0.2841269
+#> 399  -0.8115329386  0.2709072
+#> 400  -0.5325094571  0.2585164
+#> 401  -0.1100064241  0.2532049
 #> 402  -4.0000000000 99.9999000
-#> 403  -0.0331461746  0.2536234
-#> 404  -0.7275999460  0.2663112
-#> 405  -0.8174873739  0.2712625
-#> 406  -0.6316659449  0.2619886
-#> 407   1.0163562255  0.2957677
-#> 408  -0.1310919717  0.2531580
-#> 409   1.2196144864  0.3099016
-#> 410  -2.0659680169  0.4572212
-#> 411  -0.7561336352  0.2677857
-#> 412   0.8819829764  0.2871509
-#> 413   1.7234063442  0.3529453
-#> 414   1.1886341955  0.3076675
-#> 415  -0.1002406556  0.2532366
-#> 416   0.2175647481  0.2576377
-#> 417   1.1196781593  0.3027901
-#> 418   0.2890309989  0.2595267
-#> 419  -0.3061070686  0.2539516
-#> 420  -1.6969914076  0.3739483
-#> 421   0.5373561625  0.2686413
-#> 422   2.4832454552  0.4693045
-#> 423   0.2414440541  0.2582302
-#> 424   0.8042775654  0.2824732
-#> 425  -1.0735431979  0.2904396
-#> 426  -2.1380837395  0.4772775
-#> 427   0.6360954996  0.2733148
-#> 428   0.7765304144  0.2808687
-#> 429  -2.0738981110  0.4593724
-#> 430  -0.6138555166  0.2612931
-#> 431  -2.7379276306  0.7028674
-#> 432   0.7023215004  0.2767520
-#> 433   0.9337422205  0.2903899
-#> 434   0.8590153565  0.2857372
-#> 435  -0.6846221535  0.2642553
-#> 436  -0.4245723152  0.2557939
-#> 437   1.0931691034  0.3009627
-#> 438   1.0813902911  0.3001539
-#> 439   0.3582156547  0.2616710
-#> 440  -0.1394284515  0.2531477
-#> 441  -1.5119392977  0.3427789
-#> 442   1.7383894181  0.3545297
-#> 443   0.7107736083  0.2772094
-#> 444   0.4977861856  0.2669317
-#> 445   0.4377067860  0.2645155
-#> 446  -0.6798981928  0.2640418
-#> 447  -0.9428317068  0.2796972
-#> 448   0.0650543109  0.2547129
-#> 449   0.5647498240  0.2698813
-#> 450  -0.0782292932  0.2533311
-#> 451  -0.1038297289  0.2532239
-#> 452   2.0719603046  0.3965976
-#> 453   0.0588884978  0.2546272
-#> 454  -0.9379736656  0.2793353
-#> 455   0.3048760351  0.2599894
-#> 456  -0.9705027193  0.2818091
-#> 457   0.5801719844  0.2706022
-#> 458   0.2715519776  0.2590352
-#> 459  -0.1797217056  0.2531637
-#> 460  -2.6375214633  0.6571548
-#> 461  -0.6573452413  0.2630510
-#> 462   0.8422280272  0.2847257
-#> 463  -1.8300343189  0.4004537
-#> 464   0.7367466189  0.2786257
-#> 465   1.7855243817  0.3596495
-#> 466   1.0642596788  0.2989859
-#> 467  -0.2562912294  0.2535035
-#> 468  -1.9718582324  0.4329862
-#> 469   0.2387552620  0.2581619
-#> 470   1.0528558774  0.2982125
-#> 471  -1.8226818007  0.3988893
-#> 472  -1.4887227297  0.3392977
-#> 473  -0.2482829378  0.2534479
-#> 474   1.0342007808  0.2969560
-#> 475   0.2123534695  0.2575122
-#> 476   1.2357801965  0.3110782
-#> 477  -0.6074870011  0.2610521
-#> 478  -1.0133069257  0.2852348
-#> 479  -1.5000456074  0.3409839
-#> 480  -0.3316943645  0.2542550
-#> 481   0.5438689932  0.2689317
-#> 482  -0.7212102818  0.2659929
-#> 483  -0.8517921161  0.2733926
-#> 484  -0.9007684190  0.2766654
-#> 485  -1.5973809127  0.3563859
-#> 486   2.3607297039  0.4451724
-#> 487   0.2663568673  0.2588908
-#> 488   0.6958422121  0.2764084
-#> 489  -0.0624767110  0.2534179
-#> 490  -0.0542895270  0.2534695
-#> 491  -0.0057816629  0.2538647
+#> 403  -0.0331461737  0.2536234
+#> 404  -0.7275999452  0.2663112
+#> 405  -0.8174873730  0.2712625
+#> 406  -0.6316659440  0.2619886
+#> 407   1.0163562265  0.2957677
+#> 408  -0.1310919708  0.2531580
+#> 409   1.2196144874  0.3099016
+#> 410  -2.0659680162  0.4572212
+#> 411  -0.7561336344  0.2677857
+#> 412   0.8819829774  0.2871509
+#> 413   1.7234063452  0.3529453
+#> 414   1.1886341965  0.3076675
+#> 415  -0.1002406547  0.2532366
+#> 416   0.2175647490  0.2576377
+#> 417   1.1196781603  0.3027901
+#> 418   0.2890309998  0.2595267
+#> 419  -0.3061070677  0.2539516
+#> 420  -1.6969914069  0.3739483
+#> 421   0.5373561634  0.2686413
+#> 422   2.4832454562  0.4693045
+#> 423   0.2414440550  0.2582302
+#> 424   0.8042775663  0.2824732
+#> 425  -1.0735431971  0.2904396
+#> 426  -2.1380837388  0.4772775
+#> 427   0.6360955005  0.2733148
+#> 428   0.7765304154  0.2808687
+#> 429  -2.0738981103  0.4593724
+#> 430  -0.6138555157  0.2612931
+#> 431  -2.7379276300  0.7028674
+#> 432   0.7023215013  0.2767520
+#> 433   0.9337422214  0.2903899
+#> 434   0.8590153574  0.2857372
+#> 435  -0.6846221527  0.2642553
+#> 436  -0.4245723143  0.2557939
+#> 437   1.0931691043  0.3009627
+#> 438   1.0813902921  0.3001539
+#> 439   0.3582156556  0.2616710
+#> 440  -0.1394284506  0.2531477
+#> 441  -1.5119392970  0.3427789
+#> 442   1.7383894190  0.3545297
+#> 443   0.7107736093  0.2772094
+#> 444   0.4977861865  0.2669317
+#> 445   0.4377067869  0.2645155
+#> 446  -0.6798981919  0.2640418
+#> 447  -0.9428317060  0.2796972
+#> 448   0.0650543118  0.2547129
+#> 449   0.5647498249  0.2698813
+#> 450  -0.0782292923  0.2533311
+#> 451  -0.1038297280  0.2532239
+#> 452   2.0719603056  0.3965976
+#> 453   0.0588884987  0.2546272
+#> 454  -0.9379736648  0.2793353
+#> 455   0.3048760360  0.2599894
+#> 456  -0.9705027185  0.2818091
+#> 457   0.5801719854  0.2706022
+#> 458   0.2715519785  0.2590352
+#> 459  -0.1797217047  0.2531637
+#> 460  -2.6375214628  0.6571548
+#> 461  -0.6573452404  0.2630510
+#> 462   0.8422280281  0.2847257
+#> 463  -1.8300343182  0.4004537
+#> 464   0.7367466199  0.2786257
+#> 465   1.7855243826  0.3596495
+#> 466   1.0642596797  0.2989859
+#> 467  -0.2562912285  0.2535035
+#> 468  -1.9718582317  0.4329862
+#> 469   0.2387552629  0.2581619
+#> 470   1.0528558783  0.2982125
+#> 471  -1.8226818000  0.3988893
+#> 472  -1.4887227289  0.3392977
+#> 473  -0.2482829369  0.2534479
+#> 474   1.0342007818  0.2969560
+#> 475   0.2123534704  0.2575122
+#> 476   1.2357801974  0.3110782
+#> 477  -0.6074870002  0.2610521
+#> 478  -1.0133069249  0.2852348
+#> 479  -1.5000456066  0.3409839
+#> 480  -0.3316943637  0.2542550
+#> 481   0.5438689941  0.2689317
+#> 482  -0.7212102810  0.2659929
+#> 483  -0.8517921152  0.2733926
+#> 484  -0.9007684182  0.2766654
+#> 485  -1.5973809119  0.3563859
+#> 486   2.3607297049  0.4451724
+#> 487   0.2663568682  0.2588908
+#> 488   0.6958422131  0.2764084
+#> 489  -0.0624767101  0.2534179
+#> 490  -0.0542895261  0.2534695
+#> 491  -0.0057816620  0.2538648
 #> 492  -4.0000000000 99.9999000
-#> 493   1.3174829537  0.3171835
-#> 494  -0.6805674366  0.2640743
-#> 495   0.1176043317  0.2555510
-#> 496  -0.4878263338  0.2572618
-#> 497  -0.8584450712  0.2738228
-#> 498   0.3346621309  0.2609066
-#> 499  -0.0598922293  0.2534333
-#> 500   0.5115506788  0.2675146
-#> 501  -0.2035187349  0.2532252
-#> 502  -1.4802008435  0.3380473
-#> 503   0.6031902313  0.2716992
-#> 504   1.4693329811  0.3292863
-#> 505  -0.0552153055  0.2534635
-#> 506  -1.1173607918  0.2945151
-#> 507   0.2054072108  0.2573492
-#> 508  -0.6109449155  0.2611833
-#> 509  -0.3549388491  0.2545751
-#> 510   0.6812110696  0.2756316
-#> 511  -0.2177716425  0.2532804
-#> 512  -0.1346134507  0.2531531
-#> 513  -0.2739791855  0.2536415
-#> 514   1.2468965344  0.3118982
-#> 515  -0.1816887082  0.2531671
-#> 516  -0.2123635941  0.2532578
-#> 517   0.8050220917  0.2825165
-#> 518  -1.3582389893  0.3213217
-#> 519   0.2582557108  0.2586722
-#> 520   2.5655435894  0.4866817
-#> 521  -1.0223792352  0.2859966
-#> 522   1.4440136031  0.3271834
-#> 523  -1.2730074475  0.3109467
-#> 524   1.1965600590  0.3082362
-#> 525   0.1292239896  0.2557607
-#> 526  -2.5239968458  0.6095662
-#> 527   0.5013131749  0.2670785
-#> 528   0.7051188979  0.2769008
-#> 529   0.4165442641  0.2637177
-#> 530   1.1538236636  0.3051870
-#> 531  -1.5853743986  0.3544042
-#> 532   0.7708521618  0.2805493
-#> 533   1.0440732684  0.2976192
-#> 534  -0.1927027238  0.2531924
-#> 535   1.3150334677  0.3169959
-#> 536  -0.7440590726  0.2671503
-#> 537  -0.6431668665  0.2624565
-#> 538  -0.6442913354  0.2625042
-#> 539   0.1255200941  0.2556946
-#> 540   0.3811144563  0.2624493
-#> 541   1.1738585148  0.3066111
-#> 542   0.2695016041  0.2589769
-#> 543   2.0440253250  0.3925162
-#> 544   0.9475760744  0.2912766
-#> 545  -0.6332212169  0.2620539
-#> 546   0.9289077950  0.2900805
-#> 547   0.0903733710  0.2550956
-#> 548  -0.8638542716  0.2741757
-#> 549  -0.9529321349  0.2804564
-#> 550   1.2470972958  0.3119063
-#> 551   0.9809300818  0.2934375
-#> 552   1.0146236532  0.2956498
-#> 553  -0.8606149562  0.2739631
-#> 554   0.1438260404  0.2560366
-#> 555   0.0059059683  0.2539823
-#> 556   1.4099657688  0.3244147
-#> 557  -1.7220113477  0.3786415
-#> 558  -1.0967196567  0.2925717
-#> 559  -1.2493646683  0.3082351
-#> 560   0.9033406031  0.2884725
-#> 561  -1.0638000430  0.2895818
-#> 562  -0.4844181229  0.2571738
-#> 563   0.1299254888  0.2557733
-#> 564  -0.5889898396  0.2603766
-#> 565  -0.8069303886  0.2706363
-#> 566   1.4105670294  0.3244621
-#> 567  -0.5636408653  0.2595048
-#> 568  -0.1712344948  0.2531510
-#> 569   0.8375238448  0.2844421
-#> 570  -1.3292863009  0.3176722
-#> 571   1.1499429626  0.3049155
-#> 572   0.2196726184  0.2576884
-#> 573   0.5838397975  0.2707720
-#> 574  -0.1771396430  0.2531594
-#> 575   0.2994354880  0.2598292
-#> 576   0.9372428540  0.2906179
-#> 577  -0.4796477758  0.2570518
-#> 578   1.9391204641  0.3781433
-#> 579   3.9294276838  0.9233797
-#> 580  -1.4180200020  0.3292202
-#> 581  -0.2669823886  0.2535846
-#> 582   0.4089738547  0.2634382
-#> 583   0.0733274279  0.2548335
-#> 584  -0.7714621875  0.2686177
-#> 585  -2.5413187043  0.6165463
-#> 586  -0.0009107446  0.2539131
-#> 587   0.0692596218  0.2547749
-#> 588  -0.0183563048  0.2537476
-#> 589   0.1637927964  0.2564354
-#> 590  -0.9805928429  0.2825899
-#> 591   0.6287586676  0.2729487
-#> 592  -2.8307010638  0.7482457
-#> 593   1.2803856814  0.3143847
-#> 594   2.2747067254  0.4294799
-#> 595  -0.3382535440  0.2543409
-#> 596  -0.8419489528  0.2727670
-#> 597  -1.0467126768  0.2880789
-#> 598   1.1508851801  0.3049860
-#> 599  -1.5934433880  0.3557609
-#> 600  -0.3364741713  0.2543163
-#> 601   0.3364691565  0.2609632
-#> 602  -1.4113091328  0.3283133
-#> 603   0.7502000621  0.2793760
-#> 604   1.5584061873  0.3369974
-#> 605  -0.0578200913  0.2534468
-#> 606   0.2922835415  0.2596208
-#> 607  -0.8860083768  0.2756512
-#> 608   0.0763084631  0.2548780
-#> 609  -0.2387302105  0.2533884
-#> 610  -0.6070942188  0.2610383
-#> 611   0.5168101549  0.2677408
-#> 612   2.5848255530  0.4908677
-#> 613  -0.0936588633  0.2532615
-#> 614   0.5846842516  0.2708128
-#> 615   0.7203585114  0.2777278
-#> 616   0.4297119477  0.2642116
-#> 617   0.6401212926  0.2735168
-#> 618  -0.3291033206  0.2542216
-#> 619   1.0965984402  0.3011944
-#> 620   2.6201745892  0.4987238
-#> 621  -3.2525334540  0.9961975
-#> 622   0.6823590868  0.2756951
-#> 623  -2.2592179348  0.5141823
-#> 624   1.5195955695  0.3335683
-#> 625   0.2431513028  0.2582747
-#> 626  -0.2671711545  0.2535857
-#> 627  -3.5449855727  1.2135794
-#> 628  -1.4082352788  0.3278964
-#> 629   0.0927345348  0.2551320
-#> 630  -0.9516380578  0.2803574
-#> 631   0.2865982418  0.2594570
-#> 632  -0.7098815709  0.2654368
-#> 633   0.9761364903  0.2931245
-#> 634   1.5871083677  0.3396118
-#> 635   2.3594622069  0.4449355
-#> 636  -0.0338055077  0.2536184
-#> 637   0.3351128337  0.2609184
-#> 638  -0.3264353744  0.2541879
-#> 639   0.7136647666  0.2773630
-#> 640   1.2986569298  0.3157570
-#> 641   0.0876792019  0.2550531
-#> 642  -0.2848172936  0.2537375
-#> 643  -0.8438124430  0.2728855
-#> 644  -0.5582401678  0.2593265
-#> 645  -0.6841086279  0.2642325
-#> 646   0.0189222920  0.2541235
-#> 647   0.5921771528  0.2711676
-#> 648  -0.6494140259  0.2627157
-#> 649  -0.0392581591  0.2535759
-#> 650   1.7107726224  0.3516399
-#> 651  -0.5691554797  0.2596899
-#> 652   0.3757144013  0.2622621
-#> 653  -2.1889688057  0.4923254
-#> 654   0.5393067758  0.2687242
-#> 655  -0.5513557359  0.2591029
-#> 656  -0.1377090290  0.2531494
-#> 657   1.1691910418  0.3062778
-#> 658   1.6265434822  0.3432959
-#> 659   0.6210346278  0.2725650
-#> 660   0.4572062323  0.2652746
-#> 661   0.7612278564  0.2800011
-#> 662   1.0372571609  0.2971599
-#> 663   0.1027756930  0.2552976
-#> 664   0.1261774914  0.2557033
-#> 665  -0.2639646458  0.2535606
-#> 666  -0.4080779767  0.2554688
-#> 667  -2.5314295815  0.6125484
-#> 668   0.5215403762  0.2679428
-#> 669   1.5598173226  0.3371259
-#> 670  -1.9254956018  0.4218276
-#> 671   0.1700807846  0.2565655
-#> 672   1.4983950853  0.3317369
-#> 673  -1.3894025768  0.3253805
-#> 674  -1.5314365264  0.3457672
-#> 675   1.2526699703  0.3123290
-#> 676   1.3836303265  0.3223181
-#> 677   0.1312218917  0.2557973
-#> 678  -0.6442052353  0.2625012
-#> 679  -0.9751904158  0.2821750
-#> 680   0.6987448635  0.2765613
-#> 681   1.7919114476  0.3603624
-#> 682  -0.2065153417  0.2532355
-#> 683   0.6525913721  0.2741514
-#> 684   0.9260460095  0.2899009
-#> 685  -0.4667539142  0.2567333
-#> 686   0.6032468567  0.2716981
-#> 687  -0.7435361309  0.2671241
-#> 688  -1.2939086326  0.3133891
-#> 689  -0.1307752944  0.2531585
-#> 690  -1.3467615979  0.3198576
-#> 691  -1.9130884693  0.4189359
-#> 692   0.0443633030  0.2544315
-#> 693   0.1220387922  0.2556302
-#> 694   0.7496683826  0.2793478
-#> 695  -0.5897902496  0.2604028
-#> 696   1.0867012956  0.3005197
-#> 697  -2.2795795988  0.5207750
-#> 698  -1.3396288419  0.3189624
-#> 699   1.0410717545  0.2974172
-#> 700   0.0322065572  0.2542792
-#> 701   0.3199659012  0.2604469
-#> 702   0.0566438936  0.2545955
-#> 703   0.7705846398  0.2805296
-#> 704  -1.0989088319  0.2927780
-#> 705   0.3252021986  0.2606061
-#> 706  -0.5730385902  0.2598209
-#> 707  -0.3430006909  0.2544048
-#> 708   0.1578718195  0.2563143
-#> 709   1.6768230554  0.3481971
-#> 710   0.0661811664  0.2547296
-#> 711   0.3867932245  0.2626472
-#> 712  -1.1404426747  0.2967538
-#> 713   0.0779197800  0.2549021
-#> 714  -0.7792097851  0.2690470
-#> 715  -0.6062355390  0.2610070
-#> 716   1.1673362698  0.3061447
-#> 717   0.3580907659  0.2616670
-#> 718   1.1311186596  0.3035928
-#> 719  -1.1715925626  0.2998813
-#> 720  -2.0679813359  0.4577346
-#> 721  -1.3567406900  0.3211371
-#> 722   0.2130600074  0.2575296
-#> 723   2.2669633996  0.4281334
-#> 724   1.2267859074  0.3104182
-#> 725   1.2054637293  0.3088751
-#> 726  -0.2867676933  0.2537558
-#> 727  -2.7418176051  0.7047235
-#> 728  -0.9402658904  0.2795070
-#> 729  -0.3925550048  0.2551819
-#> 730  -0.3622666383  0.2546846
-#> 731   1.4817809263  0.3303353
-#> 732   1.0114713657  0.2954417
-#> 733  -0.0627809850  0.2534162
-#> 734  -1.2074868748  0.3036358
-#> 735  -0.5829373964  0.2601630
-#> 736  -0.6746520021  0.2638072
-#> 737  -1.0759694386  0.2906667
-#> 738   1.7792154956  0.3589462
-#> 739   1.6055347442  0.3413111
-#> 740   0.5389009792  0.2687100
-#> 741   1.7455979152  0.3552979
-#> 742  -0.1561050448  0.2531409
-#> 743  -0.4988667228  0.2575546
-#> 744   0.0305177132  0.2542591
-#> 745   1.5162112386  0.3332740
-#> 746  -1.2921420884  0.3131856
-#> 747   0.1134083567  0.2554789
-#> 748  -0.3360168720  0.2543117
-#> 749   1.3085594514  0.3165044
-#> 750  -0.4271836775  0.2558475
-#> 751  -0.9701458784  0.2817722
-#> 752   1.4713360165  0.3294550
-#> 753  -2.5518458366  0.6208921
-#> 754  -1.7272607139  0.3796486
-#> 755  -0.5318379971  0.2584936
-#> 756   0.6044664974  0.2717554
-#> 757  -1.0156664161  0.2854296
-#> 758  -0.0545084669  0.2534682
-#> 759  -0.1684326809  0.2531480
-#> 760  -0.6560701936  0.2629991
-#> 761  -0.5886557916  0.2603658
-#> 762   1.4671589382  0.3291068
-#> 763  -0.0867180951  0.2532910
-#> 764  -0.9639479521  0.2813014
-#> 765   0.1865842504  0.2569222
-#> 766   0.5126118035  0.2675592
-#> 767   1.5407279023  0.3354226
-#> 768  -1.2113236517  0.3040480
-#> 769  -0.9286767361  0.2786495
-#> 770   0.8241041497  0.2836395
-#> 771  -0.4499906164  0.2563412
-#> 772   0.9077124650  0.2887464
-#> 773  -0.8246886355  0.2716999
-#> 774  -0.0764438977  0.2533400
-#> 775  -0.4481470700  0.2562997
-#> 776  -0.8991176435  0.2765550
-#> 777   0.4147616060  0.2636534
-#> 778   0.3020794636  0.2599048
+#> 493   1.3174829546  0.3171835
+#> 494  -0.6805674358  0.2640743
+#> 495   0.1176043326  0.2555510
+#> 496  -0.4878263330  0.2572618
+#> 497  -0.8584450704  0.2738228
+#> 498   0.3346621318  0.2609066
+#> 499  -0.0598922284  0.2534333
+#> 500   0.5115506797  0.2675146
+#> 501  -0.2035187340  0.2532252
+#> 502  -1.4802008427  0.3380473
+#> 503   0.6031902322  0.2716992
+#> 504   1.4693329820  0.3292863
+#> 505  -0.0552153046  0.2534635
+#> 506  -1.1173607910  0.2945151
+#> 507   0.2054072117  0.2573492
+#> 508  -0.6109449147  0.2611833
+#> 509  -0.3549388482  0.2545751
+#> 510   0.6812110706  0.2756316
+#> 511  -0.2177716416  0.2532804
+#> 512  -0.1346134499  0.2531531
+#> 513  -0.2739791847  0.2536415
+#> 514   1.2468965354  0.3118982
+#> 515  -0.1816887073  0.2531671
+#> 516  -0.2123635933  0.2532578
+#> 517   0.8050220926  0.2825165
+#> 518  -1.3582389885  0.3213217
+#> 519   0.2582557117  0.2586722
+#> 520   2.5655435904  0.4866817
+#> 521  -1.0223792344  0.2859966
+#> 522   1.4440136040  0.3271834
+#> 523  -1.2730074467  0.3109467
+#> 524   1.1965600600  0.3082362
+#> 525   0.1292239905  0.2557607
+#> 526  -2.5239968451  0.6095662
+#> 527   0.5013131758  0.2670785
+#> 528   0.7051188988  0.2769008
+#> 529   0.4165442650  0.2637177
+#> 530   1.1538236645  0.3051870
+#> 531  -1.5853743978  0.3544042
+#> 532   0.7708521627  0.2805493
+#> 533   1.0440732693  0.2976192
+#> 534  -0.1927027229  0.2531924
+#> 535   1.3150334687  0.3169959
+#> 536  -0.7440590718  0.2671503
+#> 537  -0.6431668656  0.2624565
+#> 538  -0.6442913346  0.2625042
+#> 539   0.1255200950  0.2556946
+#> 540   0.3811144572  0.2624493
+#> 541   1.1738585157  0.3066111
+#> 542   0.2695016050  0.2589769
+#> 543   2.0440253259  0.3925162
+#> 544   0.9475760754  0.2912766
+#> 545  -0.6332212161  0.2620539
+#> 546   0.9289077960  0.2900805
+#> 547   0.0903733719  0.2550956
+#> 548  -0.8638542708  0.2741757
+#> 549  -0.9529321341  0.2804564
+#> 550   1.2470972967  0.3119063
+#> 551   0.9809300828  0.2934375
+#> 552   1.0146236542  0.2956498
+#> 553  -0.8606149553  0.2739631
+#> 554   0.1438260413  0.2560366
+#> 555   0.0059059692  0.2539823
+#> 556   1.4099657698  0.3244147
+#> 557  -1.7220113470  0.3786415
+#> 558  -1.0967196559  0.2925717
+#> 559  -1.2493646675  0.3082351
+#> 560   0.9033406041  0.2884725
+#> 561  -1.0638000422  0.2895818
+#> 562  -0.4844181220  0.2571738
+#> 563   0.1299254897  0.2557733
+#> 564  -0.5889898388  0.2603766
+#> 565  -0.8069303878  0.2706363
+#> 566   1.4105670303  0.3244621
+#> 567  -0.5636408645  0.2595048
+#> 568  -0.1712344939  0.2531510
+#> 569   0.8375238457  0.2844421
+#> 570  -1.3292863001  0.3176722
+#> 571   1.1499429636  0.3049155
+#> 572   0.2196726193  0.2576884
+#> 573   0.5838397984  0.2707720
+#> 574  -0.1771396421  0.2531594
+#> 575   0.2994354889  0.2598292
+#> 576   0.9372428549  0.2906179
+#> 577  -0.4796477749  0.2570518
+#> 578   1.9391204650  0.3781433
+#> 579   3.9294276848  0.9233797
+#> 580  -1.4180200013  0.3292202
+#> 581  -0.2669823877  0.2535846
+#> 582   0.4089738556  0.2634382
+#> 583   0.0733274288  0.2548335
+#> 584  -0.7714621866  0.2686177
+#> 585  -2.5413187037  0.6165463
+#> 586  -0.0009107437  0.2539131
+#> 587   0.0692596227  0.2547749
+#> 588  -0.0183563040  0.2537476
+#> 589   0.1637927973  0.2564354
+#> 590  -0.9805928421  0.2825899
+#> 591   0.6287586685  0.2729487
+#> 592  -2.8307010633  0.7482457
+#> 593   1.2803856824  0.3143847
+#> 594   2.2747067264  0.4294799
+#> 595  -0.3382535431  0.2543409
+#> 596  -0.8419489520  0.2727670
+#> 597  -1.0467126760  0.2880789
+#> 598   1.1508851811  0.3049860
+#> 599  -1.5934433873  0.3557609
+#> 600  -0.3364741704  0.2543163
+#> 601   0.3364691574  0.2609632
+#> 602  -1.4113091320  0.3283133
+#> 603   0.7502000630  0.2793760
+#> 604   1.5584061883  0.3369974
+#> 605  -0.0578200904  0.2534468
+#> 606   0.2922835424  0.2596208
+#> 607  -0.8860083759  0.2756512
+#> 608   0.0763084640  0.2548780
+#> 609  -0.2387302097  0.2533884
+#> 610  -0.6070942179  0.2610383
+#> 611   0.5168101558  0.2677408
+#> 612   2.5848255540  0.4908677
+#> 613  -0.0936588624  0.2532615
+#> 614   0.5846842525  0.2708128
+#> 615   0.7203585124  0.2777278
+#> 616   0.4297119486  0.2642116
+#> 617   0.6401212935  0.2735168
+#> 618  -0.3291033197  0.2542216
+#> 619   1.0965984412  0.3011944
+#> 620   2.6201745902  0.4987238
+#> 621  -3.2525334536  0.9961975
+#> 622   0.6823590877  0.2756951
+#> 623  -2.2592179341  0.5141823
+#> 624   1.5195955704  0.3335683
+#> 625   0.2431513038  0.2582747
+#> 626  -0.2671711537  0.2535857
+#> 627  -3.5449855729  1.2135794
+#> 628  -1.4082352780  0.3278964
+#> 629   0.0927345357  0.2551320
+#> 630  -0.9516380570  0.2803574
+#> 631   0.2865982427  0.2594570
+#> 632  -0.7098815701  0.2654368
+#> 633   0.9761364912  0.2931245
+#> 634   1.5871083686  0.3396118
+#> 635   2.3594622079  0.4449355
+#> 636  -0.0338055068  0.2536184
+#> 637   0.3351128346  0.2609184
+#> 638  -0.3264353736  0.2541879
+#> 639   0.7136647676  0.2773630
+#> 640   1.2986569307  0.3157570
+#> 641   0.0876792028  0.2550531
+#> 642  -0.2848172928  0.2537375
+#> 643  -0.8438124421  0.2728855
+#> 644  -0.5582401669  0.2593265
+#> 645  -0.6841086271  0.2642325
+#> 646   0.0189222928  0.2541235
+#> 647   0.5921771537  0.2711676
+#> 648  -0.6494140251  0.2627157
+#> 649  -0.0392581582  0.2535759
+#> 650   1.7107726234  0.3516399
+#> 651  -0.5691554789  0.2596899
+#> 652   0.3757144022  0.2622621
+#> 653  -2.1889688050  0.4923254
+#> 654   0.5393067767  0.2687242
+#> 655  -0.5513557351  0.2591029
+#> 656  -0.1377090281  0.2531494
+#> 657   1.1691910428  0.3062778
+#> 658   1.6265434831  0.3432959
+#> 659   0.6210346288  0.2725650
+#> 660   0.4572062332  0.2652746
+#> 661   0.7612278574  0.2800011
+#> 662   1.0372571618  0.2971599
+#> 663   0.1027756939  0.2552976
+#> 664   0.1261774923  0.2557033
+#> 665  -0.2639646449  0.2535606
+#> 666  -0.4080779758  0.2554688
+#> 667  -2.5314295808  0.6125484
+#> 668   0.5215403771  0.2679428
+#> 669   1.5598173236  0.3371259
+#> 670  -1.9254956011  0.4218276
+#> 671   0.1700807855  0.2565655
+#> 672   1.4983950862  0.3317369
+#> 673  -1.3894025761  0.3253805
+#> 674  -1.5314365257  0.3457672
+#> 675   1.2526699712  0.3123290
+#> 676   1.3836303274  0.3223181
+#> 677   0.1312218926  0.2557973
+#> 678  -0.6442052344  0.2625012
+#> 679  -0.9751904150  0.2821750
+#> 680   0.6987448645  0.2765613
+#> 681   1.7919114485  0.3603624
+#> 682  -0.2065153408  0.2532355
+#> 683   0.6525913730  0.2741514
+#> 684   0.9260460105  0.2899009
+#> 685  -0.4667539134  0.2567333
+#> 686   0.6032468577  0.2716981
+#> 687  -0.7435361301  0.2671241
+#> 688  -1.2939086318  0.3133891
+#> 689  -0.1307752935  0.2531585
+#> 690  -1.3467615972  0.3198576
+#> 691  -1.9130884686  0.4189359
+#> 692   0.0443633039  0.2544315
+#> 693   0.1220387931  0.2556302
+#> 694   0.7496683836  0.2793478
+#> 695  -0.5897902487  0.2604028
+#> 696   1.0867012966  0.3005197
+#> 697  -2.2795795981  0.5207750
+#> 698  -1.3396288411  0.3189624
+#> 699   1.0410717554  0.2974172
+#> 700   0.0322065581  0.2542792
+#> 701   0.3199659021  0.2604469
+#> 702   0.0566438945  0.2545955
+#> 703   0.7705846408  0.2805296
+#> 704  -1.0989088311  0.2927780
+#> 705   0.3252021995  0.2606061
+#> 706  -0.5730385893  0.2598209
+#> 707  -0.3430006900  0.2544048
+#> 708   0.1578718204  0.2563143
+#> 709   1.6768230564  0.3481971
+#> 710   0.0661811673  0.2547296
+#> 711   0.3867932254  0.2626472
+#> 712  -1.1404426739  0.2967538
+#> 713   0.0779197809  0.2549021
+#> 714  -0.7792097842  0.2690470
+#> 715  -0.6062355381  0.2610070
+#> 716   1.1673362707  0.3061447
+#> 717   0.3580907668  0.2616670
+#> 718   1.1311186605  0.3035928
+#> 719  -1.1715925618  0.2998813
+#> 720  -2.0679813352  0.4577346
+#> 721  -1.3567406893  0.3211371
+#> 722   0.2130600083  0.2575296
+#> 723   2.2669634006  0.4281334
+#> 724   1.2267859083  0.3104182
+#> 725   1.2054637303  0.3088751
+#> 726  -0.2867676924  0.2537558
+#> 727  -2.7418176045  0.7047235
+#> 728  -0.9402658896  0.2795070
+#> 729  -0.3925550039  0.2551819
+#> 730  -0.3622666374  0.2546846
+#> 731   1.4817809273  0.3303353
+#> 732   1.0114713667  0.2954417
+#> 733  -0.0627809841  0.2534162
+#> 734  -1.2074868740  0.3036358
+#> 735  -0.5829373956  0.2601630
+#> 736  -0.6746520012  0.2638072
+#> 737  -1.0759694378  0.2906667
+#> 738   1.7792154966  0.3589462
+#> 739   1.6055347452  0.3413111
+#> 740   0.5389009802  0.2687100
+#> 741   1.7455979161  0.3552979
+#> 742  -0.1561050439  0.2531409
+#> 743  -0.4988667220  0.2575546
+#> 744   0.0305177141  0.2542591
+#> 745   1.5162112396  0.3332740
+#> 746  -1.2921420876  0.3131856
+#> 747   0.1134083576  0.2554789
+#> 748  -0.3360168712  0.2543117
+#> 749   1.3085594524  0.3165044
+#> 750  -0.4271836767  0.2558475
+#> 751  -0.9701458776  0.2817722
+#> 752   1.4713360175  0.3294550
+#> 753  -2.5518458360  0.6208921
+#> 754  -1.7272607132  0.3796486
+#> 755  -0.5318379962  0.2584936
+#> 756   0.6044664984  0.2717554
+#> 757  -1.0156664152  0.2854296
+#> 758  -0.0545084660  0.2534682
+#> 759  -0.1684326800  0.2531480
+#> 760  -0.6560701927  0.2629991
+#> 761  -0.5886557908  0.2603658
+#> 762   1.4671589392  0.3291068
+#> 763  -0.0867180943  0.2532910
+#> 764  -0.9639479513  0.2813014
+#> 765   0.1865842513  0.2569222
+#> 766   0.5126118044  0.2675592
+#> 767   1.5407279033  0.3354226
+#> 768  -1.2113236509  0.3040480
+#> 769  -0.9286767353  0.2786495
+#> 770   0.8241041506  0.2836395
+#> 771  -0.4499906155  0.2563412
+#> 772   0.9077124659  0.2887464
+#> 773  -0.8246886346  0.2716999
+#> 774  -0.0764438968  0.2533400
+#> 775  -0.4481470692  0.2562997
+#> 776  -0.8991176427  0.2765550
+#> 777   0.4147616069  0.2636534
+#> 778   0.3020794645  0.2599048
 #> 779  -4.0000000000 99.9999000
-#> 780  -0.4260986885  0.2558256
-#> 781   1.3318535864  0.3182806
-#> 782  -0.1543200153  0.2531407
-#> 783  -1.0228849289  0.2860357
-#> 784  -0.2529838717  0.2534801
-#> 785  -0.0532517147  0.2534765
-#> 786   0.5161077684  0.2677072
-#> 787  -0.6682378850  0.2635229
-#> 788  -0.1748177765  0.2531557
-#> 789   1.2171870952  0.3097202
-#> 790  -0.4150607724  0.2556029
-#> 791   1.4408276472  0.3269227
-#> 792  -0.5544916018  0.2592040
-#> 793   1.8149277878  0.3629731
-#> 794  -1.0727583777  0.2903781
-#> 795   2.4749337764  0.4676084
-#> 796  -1.0958293215  0.2924878
-#> 797   0.6831849380  0.2757364
-#> 798   0.0636392457  0.2546933
-#> 799   1.5468313230  0.3359652
-#> 800   0.5946543591  0.2712847
-#> 801   0.5232399128  0.2680187
-#> 802   0.0900437242  0.2550913
-#> 803   1.2436005762  0.3116518
-#> 804  -0.0456935286  0.2535287
-#> 805   0.4682822189  0.2657166
-#> 806   1.5170794241  0.3333514
-#> 807  -1.0986852734  0.2927551
-#> 808  -0.6521326510  0.2628330
-#> 809   0.1530084138  0.2562164
-#> 810  -0.3138401503  0.2540391
-#> 811   0.4314014615  0.2642744
-#> 812   0.4560225397  0.2652278
-#> 813   0.1352877144  0.2558725
-#> 814   0.0655501267  0.2547213
-#> 815  -1.4445891687  0.3329354
-#> 816   1.7730903744  0.3582782
-#> 817  -1.3369252392  0.3186258
-#> 818  -0.1150000514  0.2531912
-#> 819  -0.6583428942  0.2630952
-#> 820  -0.1057109272  0.2532178
-#> 821  -1.2276828115  0.3058247
-#> 822   0.9271641005  0.2899737
-#> 823   0.6433975090  0.2736784
-#> 824   0.2765363156  0.2591717
-#> 825  -1.1690971723  0.2996258
-#> 826   0.4242722028  0.2640062
-#> 827   1.7540570711  0.3562050
-#> 828  -0.5784964082  0.2600074
-#> 829  -0.7290843176  0.2663858
-#> 830   2.0139053631  0.3882322
-#> 831   0.1935187771  0.2570757
-#> 832   0.8054342553  0.2825433
-#> 833  -0.2896960324  0.2537845
-#> 834   1.9215876046  0.3758810
-#> 835   0.1235180484  0.2556571
-#> 836  -1.2385607268  0.3070185
-#> 837   0.6318556365  0.2730985
-#> 838   0.7053375527  0.2769164
-#> 839   0.1504372277  0.2561660
-#> 840   2.2415810316  0.4236998
-#> 841   2.1077490840  0.4019817
-#> 842  -0.2016101496  0.2532184
-#> 843  -0.5245285394  0.2582786
-#> 844   1.6536965890  0.3459146
-#> 845  -0.0119929709  0.2538055
-#> 846   1.0648688950  0.2990267
-#> 847   0.0284955422  0.2542349
-#> 848  -0.2127543592  0.2532595
-#> 849   1.2409265423  0.3114598
-#> 850   1.4569385617  0.3282569
-#> 851  -0.7328908529  0.2665750
-#> 852  -0.7061026962  0.2652572
-#> 853  -0.2942474846  0.2538291
-#> 854   0.5533561560  0.2693605
-#> 855  -0.7627458538  0.2681424
-#> 856   0.6252569670  0.2727738
-#> 857   0.5894930152  0.2710398
-#> 858   2.6143972208  0.4974081
-#> 859  -0.2272759773  0.2533257
-#> 860   0.2841313439  0.2593864
-#> 861  -0.1792199375  0.2531628
-#> 862   0.7209363781  0.2777581
-#> 863  -0.9276306257  0.2785779
-#> 864  -0.4826538931  0.2571291
-#> 865   0.9456839614  0.2911519
-#> 866  -0.3163244632  0.2540667
-#> 867  -0.0789336054  0.2533272
-#> 868   0.0178756856  0.2541120
-#> 869   0.4940334226  0.2667763
-#> 870  -0.5952585353  0.2606019
-#> 871  -0.9555417564  0.2806581
-#> 872  -0.1148860796  0.2531915
-#> 873  -0.8283744988  0.2719254
-#> 874  -0.6518438877  0.2628233
-#> 875  -0.2328649990  0.2533552
-#> 876  -1.0164400287  0.2855019
-#> 877   0.1252758283  0.2556886
-#> 878   1.5387311315  0.3352430
-#> 879  -1.7237545997  0.3789739
-#> 880  -0.8863372419  0.2756760
-#> 881  -0.4551943802  0.2564607
-#> 882  -1.4745677994  0.3372212
-#> 883  -0.8239591652  0.2716513
-#> 884  -2.5611067903  0.6246952
-#> 885   0.3697381353  0.2620577
-#> 886   0.3824283420  0.2624932
-#> 887  -0.0430117253  0.2535486
-#> 888  -0.9125675217  0.2774975
-#> 889  -0.3571900801  0.2546080
-#> 890   1.8190027802  0.3634349
-#> 891  -1.3227333477  0.3168681
-#> 892  -0.9545377579  0.2805776
-#> 893  -1.0908342478  0.2920252
-#> 894   0.8275472133  0.2838452
-#> 895  -0.7650989069  0.2682702
-#> 896   0.2675173098  0.2589226
-#> 897   0.7410658335  0.2788665
-#> 898   1.0671930905  0.2991859
-#> 899   1.2298331025  0.3106511
-#> 900  -0.2527517800  0.2534784
-#> 901  -0.2412334441  0.2534036
-#> 902  -0.1286118103  0.2531620
-#> 903  -0.6322309590  0.2620111
-#> 904  -1.7657996995  0.3872081
-#> 905  -1.6777264903  0.3704204
-#> 906   0.8181563636  0.2832871
-#> 907  -0.2833496631  0.2537248
-#> 908   2.0546250097  0.3940519
-#> 909   0.0408825647  0.2543874
-#> 910  -2.8934060548  0.7807520
-#> 911  -0.6497372144  0.2627296
-#> 912   1.1263172105  0.3032574
-#> 913  -0.7443549367  0.2671710
-#> 914   0.8217554780  0.2835027
-#> 915  -1.0185257805  0.2856725
-#> 916  -0.6538130547  0.2629037
-#> 917   0.3733515270  0.2621827
-#> 918  -0.1933005891  0.2531937
-#> 919  -2.4142105389  0.5674713
-#> 920  -0.4050197139  0.2554109
-#> 921  -0.3670652033  0.2547584
-#> 922   1.5111833313  0.3328376
-#> 923  -0.2344838790  0.2533642
-#> 924   0.5071622027  0.2673261
-#> 925  -0.1867677765  0.2531778
-#> 926  -0.4646535683  0.2566825
-#> 927  -2.1262731618  0.4739157
-#> 928  -0.2604409721  0.2535338
-#> 929  -1.3501562780  0.3202901
-#> 930  -0.1671392919  0.2531468
-#> 931   0.0956407406  0.2551797
-#> 932  -1.1359693376  0.2963148
-#> 933   0.2660972182  0.2588865
-#> 934   2.2710150746  0.4288368
-#> 935   0.4761449933  0.2660339
-#> 936  -0.3046093804  0.2539355
-#> 937   3.0391028116  0.6046393
-#> 938  -0.4058073842  0.2554252
-#> 939   0.3949534573  0.2629330
-#> 940   0.2816547440  0.2593165
-#> 941   0.7155962702  0.2774688
-#> 942  -0.3574909438  0.2546115
-#> 943   1.7603861832  0.3568900
-#> 944   0.1933766709  0.2570735
-#> 945  -0.7278558204  0.2663198
-#> 946  -0.8612260635  0.2740037
-#> 947  -0.0080486927  0.2538427
-#> 948   1.9481029002  0.3793141
-#> 949   1.0504891122  0.2980517
-#> 950  -1.7531097599  0.3846738
-#> 951  -0.6981544088  0.2648784
-#> 952  -0.0638428428  0.2534100
-#> 953   0.4187820951  0.2638016
-#> 954  -1.9774215295  0.4343752
-#> 955   0.5557374351  0.2694695
+#> 780  -0.4260986876  0.2558256
+#> 781   1.3318535873  0.3182806
+#> 782  -0.1543200144  0.2531407
+#> 783  -1.0228849281  0.2860357
+#> 784  -0.2529838708  0.2534801
+#> 785  -0.0532517138  0.2534765
+#> 786   0.5161077693  0.2677072
+#> 787  -0.6682378841  0.2635229
+#> 788  -0.1748177756  0.2531557
+#> 789   1.2171870962  0.3097202
+#> 790  -0.4150607715  0.2556029
+#> 791   1.4408276481  0.3269227
+#> 792  -0.5544916010  0.2592040
+#> 793   1.8149277888  0.3629731
+#> 794  -1.0727583769  0.2903781
+#> 795   2.4749337774  0.4676084
+#> 796  -1.0958293207  0.2924878
+#> 797   0.6831849389  0.2757364
+#> 798   0.0636392466  0.2546933
+#> 799   1.5468313239  0.3359652
+#> 800   0.5946543600  0.2712847
+#> 801   0.5232399138  0.2680187
+#> 802   0.0900437251  0.2550913
+#> 803   1.2436005772  0.3116518
+#> 804  -0.0456935277  0.2535287
+#> 805   0.4682822198  0.2657166
+#> 806   1.5170794251  0.3333514
+#> 807  -1.0986852726  0.2927551
+#> 808  -0.6521326501  0.2628330
+#> 809   0.1530084147  0.2562164
+#> 810  -0.3138401494  0.2540391
+#> 811   0.4314014624  0.2642744
+#> 812   0.4560225407  0.2652278
+#> 813   0.1352877153  0.2558725
+#> 814   0.0655501276  0.2547213
+#> 815  -1.4445891680  0.3329354
+#> 816   1.7730903754  0.3582782
+#> 817  -1.3369252384  0.3186258
+#> 818  -0.1150000505  0.2531912
+#> 819  -0.6583428933  0.2630952
+#> 820  -0.1057109263  0.2532178
+#> 821  -1.2276828108  0.3058247
+#> 822   0.9271641014  0.2899737
+#> 823   0.6433975099  0.2736784
+#> 824   0.2765363165  0.2591717
+#> 825  -1.1690971715  0.2996258
+#> 826   0.4242722037  0.2640062
+#> 827   1.7540570721  0.3562050
+#> 828  -0.5784964073  0.2600074
+#> 829  -0.7290843168  0.2663858
+#> 830   2.0139053640  0.3882322
+#> 831   0.1935187780  0.2570757
+#> 832   0.8054342563  0.2825433
+#> 833  -0.2896960315  0.2537845
+#> 834   1.9215876056  0.3758810
+#> 835   0.1235180493  0.2556571
+#> 836  -1.2385607260  0.3070185
+#> 837   0.6318556374  0.2730985
+#> 838   0.7053375536  0.2769164
+#> 839   0.1504372286  0.2561660
+#> 840   2.2415810326  0.4236998
+#> 841   2.1077490850  0.4019817
+#> 842  -0.2016101487  0.2532184
+#> 843  -0.5245285385  0.2582786
+#> 844   1.6536965900  0.3459146
+#> 845  -0.0119929700  0.2538055
+#> 846   1.0648688959  0.2990267
+#> 847   0.0284955431  0.2542349
+#> 848  -0.2127543584  0.2532595
+#> 849   1.2409265433  0.3114598
+#> 850   1.4569385626  0.3282569
+#> 851  -0.7328908521  0.2665750
+#> 852  -0.7061026953  0.2652572
+#> 853  -0.2942474837  0.2538291
+#> 854   0.5533561569  0.2693605
+#> 855  -0.7627458530  0.2681424
+#> 856   0.6252569679  0.2727738
+#> 857   0.5894930162  0.2710398
+#> 858   2.6143972218  0.4974081
+#> 859  -0.2272759764  0.2533257
+#> 860   0.2841313448  0.2593864
+#> 861  -0.1792199367  0.2531628
+#> 862   0.7209363790  0.2777581
+#> 863  -0.9276306249  0.2785779
+#> 864  -0.4826538922  0.2571291
+#> 865   0.9456839623  0.2911519
+#> 866  -0.3163244623  0.2540667
+#> 867  -0.0789336045  0.2533272
+#> 868   0.0178756865  0.2541120
+#> 869   0.4940334235  0.2667763
+#> 870  -0.5952585344  0.2606019
+#> 871  -0.9555417556  0.2806581
+#> 872  -0.1148860787  0.2531915
+#> 873  -0.8283744979  0.2719254
+#> 874  -0.6518438868  0.2628233
+#> 875  -0.2328649981  0.2533552
+#> 876  -1.0164400279  0.2855019
+#> 877   0.1252758292  0.2556886
+#> 878   1.5387311324  0.3352430
+#> 879  -1.7237545990  0.3789739
+#> 880  -0.8863372411  0.2756760
+#> 881  -0.4551943793  0.2564607
+#> 882  -1.4745677986  0.3372212
+#> 883  -0.8239591644  0.2716513
+#> 884  -2.5611067897  0.6246952
+#> 885   0.3697381362  0.2620577
+#> 886   0.3824283429  0.2624932
+#> 887  -0.0430117244  0.2535486
+#> 888  -0.9125675209  0.2774975
+#> 889  -0.3571900792  0.2546080
+#> 890   1.8190027812  0.3634349
+#> 891  -1.3227333469  0.3168681
+#> 892  -0.9545377571  0.2805776
+#> 893  -1.0908342470  0.2920252
+#> 894   0.8275472142  0.2838452
+#> 895  -0.7650989060  0.2682702
+#> 896   0.2675173107  0.2589226
+#> 897   0.7410658344  0.2788665
+#> 898   1.0671930914  0.2991859
+#> 899   1.2298331034  0.3106511
+#> 900  -0.2527517791  0.2534784
+#> 901  -0.2412334432  0.2534036
+#> 902  -0.1286118095  0.2531620
+#> 903  -0.6322309582  0.2620111
+#> 904  -1.7657996988  0.3872081
+#> 905  -1.6777264897  0.3704204
+#> 906   0.8181563645  0.2832871
+#> 907  -0.2833496622  0.2537248
+#> 908   2.0546250107  0.3940519
+#> 909   0.0408825656  0.2543874
+#> 910  -2.8934060541  0.7807520
+#> 911  -0.6497372135  0.2627296
+#> 912   1.1263172115  0.3032574
+#> 913  -0.7443549359  0.2671710
+#> 914   0.8217554790  0.2835027
+#> 915  -1.0185257797  0.2856725
+#> 916  -0.6538130539  0.2629037
+#> 917   0.3733515280  0.2621827
+#> 918  -0.1933005882  0.2531937
+#> 919  -2.4142105382  0.5674713
+#> 920  -0.4050197131  0.2554109
+#> 921  -0.3670652024  0.2547584
+#> 922   1.5111833322  0.3328376
+#> 923  -0.2344838782  0.2533642
+#> 924   0.5071622036  0.2673261
+#> 925  -0.1867677756  0.2531778
+#> 926  -0.4646535674  0.2566825
+#> 927  -2.1262731611  0.4739157
+#> 928  -0.2604409712  0.2535338
+#> 929  -1.3501562772  0.3202901
+#> 930  -0.1671392910  0.2531468
+#> 931   0.0956407415  0.2551797
+#> 932  -1.1359693368  0.2963148
+#> 933   0.2660972191  0.2588865
+#> 934   2.2710150755  0.4288368
+#> 935   0.4761449942  0.2660339
+#> 936  -0.3046093796  0.2539355
+#> 937   3.0391028126  0.6046393
+#> 938  -0.4058073833  0.2554252
+#> 939   0.3949534582  0.2629330
+#> 940   0.2816547450  0.2593165
+#> 941   0.7155962712  0.2774688
+#> 942  -0.3574909430  0.2546115
+#> 943   1.7603861842  0.3568900
+#> 944   0.1933766718  0.2570735
+#> 945  -0.7278558196  0.2663198
+#> 946  -0.8612260627  0.2740037
+#> 947  -0.0080486918  0.2538427
+#> 948   1.9481029011  0.3793141
+#> 949   1.0504891132  0.2980517
+#> 950  -1.7531097591  0.3846738
+#> 951  -0.6981544080  0.2648784
+#> 952  -0.0638428419  0.2534100
+#> 953   0.4187820960  0.2638016
+#> 954  -1.9774215288  0.4343752
+#> 955   0.5557374360  0.2694695
 #> 956  -4.0000000000 99.9999000
-#> 957   0.7509108809  0.2794177
-#> 958  -1.2799329717  0.3117325
-#> 959  -0.3700972732  0.2548062
-#> 960  -1.3976686937  0.3264774
-#> 961  -1.0171616182  0.2855548
-#> 962   0.1213112099  0.2556170
-#> 963   0.6044841951  0.2717538
-#> 964   0.3030554178  0.2599332
-#> 965   0.2462081519  0.2583554
-#> 966   1.4688078700  0.3292365
-#> 967   1.3655797042  0.3208994
-#> 968   1.0578005864  0.2985477
-#> 969   0.1587176425  0.2563309
-#> 970  -0.7769319198  0.2689243
-#> 971  -2.9773218579  0.8264513
-#> 972  -0.0897241560  0.2532777
-#> 973   0.2355674398  0.2580817
-#> 974   0.0689668378  0.2547706
-#> 975   1.4257003982  0.3256870
-#> 976   0.8303376120  0.2840122
-#> 977   1.2014428202  0.3085871
-#> 978  -1.7113805428  0.3766375
-#> 979  -3.1877067117  0.9533483
-#> 980   0.7253437659  0.2780003
-#> 981  -0.4671781588  0.2567455
-#> 982  -0.1159301503  0.2531888
-#> 983   0.5587253610  0.2696057
-#> 984  -1.5503138977  0.3487533
-#> 985  -1.0773078633  0.2907819
-#> 986  -0.4641504637  0.2566726
-#> 987  -0.6684342204  0.2635329
-#> 988   0.3454868767  0.2612533
-#> 989   0.7976198044  0.2820858
-#> 990  -2.9347024909  0.8028866
-#> 991   2.9293488390  0.5745182
-#> 992   1.6610346704  0.3466379
-#> 993  -0.2582238222  0.2535173
-#> 994   0.8417380519  0.2846952
-#> 995  -0.1529120817  0.2531407
-#> 996  -0.3679423410  0.2547722
-#> 997   0.0687481821  0.2547667
-#> 998  -1.6396224336  0.3636097
-#> 999   1.3880922725  0.3226753
-#> 1000 -0.5666130992  0.2596022
+#> 957   0.7509108818  0.2794177
+#> 958  -1.2799329709  0.3117325
+#> 959  -0.3700972724  0.2548062
+#> 960  -1.3976686929  0.3264774
+#> 961  -1.0171616174  0.2855548
+#> 962   0.1213112108  0.2556170
+#> 963   0.6044841960  0.2717538
+#> 964   0.3030554187  0.2599332
+#> 965   0.2462081528  0.2583554
+#> 966   1.4688078709  0.3292365
+#> 967   1.3655797052  0.3208994
+#> 968   1.0578005874  0.2985477
+#> 969   0.1587176434  0.2563309
+#> 970  -0.7769319189  0.2689243
+#> 971  -2.9773218573  0.8264513
+#> 972  -0.0897241551  0.2532777
+#> 973   0.2355674407  0.2580817
+#> 974   0.0689668387  0.2547706
+#> 975   1.4257003991  0.3256870
+#> 976   0.8303376130  0.2840122
+#> 977   1.2014428211  0.3085871
+#> 978  -1.7113805421  0.3766375
+#> 979  -3.1877067112  0.9533483
+#> 980   0.7253437668  0.2780003
+#> 981  -0.4671781580  0.2567455
+#> 982  -0.1159301494  0.2531888
+#> 983   0.5587253619  0.2696057
+#> 984  -1.5503138969  0.3487533
+#> 985  -1.0773078625  0.2907819
+#> 986  -0.4641504629  0.2566726
+#> 987  -0.6684342195  0.2635329
+#> 988   0.3454868776  0.2612533
+#> 989   0.7976198054  0.2820858
+#> 990  -2.9347024903  0.8028866
+#> 991   2.9293488399  0.5745182
+#> 992   1.6610346714  0.3466379
+#> 993  -0.2582238213  0.2535173
+#> 994   0.8417380528  0.2846952
+#> 995  -0.1529120808  0.2531407
+#> 996  -0.3679423402  0.2547722
+#> 997   0.0687481830  0.2547667
+#> 998  -1.6396224328  0.3636097
+#> 999   1.3880922735  0.3226753
+#> 1000 -0.5666130983  0.2596022
 
 # Compute traditional model-fit statistics
 (fit.mix1 <- irtfit(
@@ -3627,7 +3627,7 @@ plot(
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39015.7262, Max-Change: 2.725763 EM iteration: 2, Loglike: -34112.9883, Max-Change: 0.495202 EM iteration: 3, Loglike: -34092.3716, Max-Change: 0.072635 EM iteration: 4, Loglike: -34085.1295, Max-Change: 0.031067 EM iteration: 5, Loglike: -34079.2149, Max-Change: 0.028824 EM iteration: 6, Loglike: -34073.9510, Max-Change: 0.026982 EM iteration: 7, Loglike: -34069.2334, Max-Change: 0.025244 EM iteration: 8, Loglike: -34065.0073, Max-Change: 0.023615 EM iteration: 9, Loglike: -34061.2267, Max-Change: 0.022095 EM iteration: 10, Loglike: -34057.8496, Max-Change: 0.02068 EM iteration: 11, Loglike: -34054.8370, Max-Change: 0.019361 EM iteration: 12, Loglike: -34052.1530, Max-Change: 0.018132 EM iteration: 13, Loglike: -34049.7647, Max-Change: 0.016987 EM iteration: 14, Loglike: -34047.6419, Max-Change: 0.015918 EM iteration: 15, Loglike: -34045.7571, Max-Change: 0.01492 EM iteration: 16, Loglike: -34044.0851, Max-Change: 0.013987 EM iteration: 17, Loglike: -34042.6034, Max-Change: 0.013115 EM iteration: 18, Loglike: -34041.2912, Max-Change: 0.012299 EM iteration: 19, Loglike: -34040.1302, Max-Change: 0.011536 EM iteration: 20, Loglike: -34039.1035, Max-Change: 0.010821 EM iteration: 21, Loglike: -34038.1964, Max-Change: 0.010151 EM iteration: 22, Loglike: -34037.3952, Max-Change: 0.009523 EM iteration: 23, Loglike: -34036.6882, Max-Change: 0.008934 EM iteration: 24, Loglike: -34036.0644, Max-Change: 0.008382 EM iteration: 25, Loglike: -34035.5145, Max-Change: 0.007863 EM iteration: 26, Loglike: -34035.0298, Max-Change: 0.007377 EM iteration: 27, Loglike: -34034.6029, Max-Change: 0.00692 EM iteration: 28, Loglike: -34034.2269, Max-Change: 0.006492 EM iteration: 29, Loglike: -34033.8959, Max-Change: 0.006089 EM iteration: 30, Loglike: -34033.6047, Max-Change: 0.005711 EM iteration: 31, Loglike: -34033.3485, Max-Change: 0.005357 EM iteration: 32, Loglike: -34033.1232, Max-Change: 0.005024 EM iteration: 33, Loglike: -34032.9252, Max-Change: 0.004711 EM iteration: 34, Loglike: -34032.7511, Max-Change: 0.004417 EM iteration: 35, Loglike: -34032.5981, Max-Change: 0.004142 EM iteration: 36, Loglike: -34032.4637, Max-Change: 0.003883 EM iteration: 37, Loglike: -34032.3457, Max-Change: 0.00364 EM iteration: 38, Loglike: -34032.2421, Max-Change: 0.003412 EM iteration: 39, Loglike: -34032.1511, Max-Change: 0.003198 EM iteration: 40, Loglike: -34032.0712, Max-Change: 0.002998 EM iteration: 41, Loglike: -34032.0011, Max-Change: 0.002809 EM iteration: 42, Loglike: -34031.9395, Max-Change: 0.002632 EM iteration: 43, Loglike: -34031.8856, Max-Change: 0.002467 EM iteration: 44, Loglike: -34031.8382, Max-Change: 0.002311 EM iteration: 45, Loglike: -34031.7966, Max-Change: 0.002165 EM iteration: 46, Loglike: -34031.7602, Max-Change: 0.002029 EM iteration: 47, Loglike: -34031.7283, Max-Change: 0.00190 EM iteration: 48, Loglike: -34031.7002, Max-Change: 0.00178 EM iteration: 49, Loglike: -34031.6757, Max-Change: 0.001667 EM iteration: 50, Loglike: -34031.6541, Max-Change: 0.001562 EM iteration: 51, Loglike: -34031.6352, Max-Change: 0.001463 EM iteration: 52, Loglike: -34031.6187, Max-Change: 0.00137 EM iteration: 53, Loglike: -34031.6042, Max-Change: 0.001283 EM iteration: 54, Loglike: -34031.5915, Max-Change: 0.001201 EM iteration: 55, Loglike: -34031.5803, Max-Change: 0.001125 EM iteration: 56, Loglike: -34031.5706, Max-Change: 0.001053 EM iteration: 57, Loglike: -34031.5620, Max-Change: 0.000986 EM iteration: 58, Loglike: -34031.5545, Max-Change: 0.000923 EM iteration: 59, Loglike: -34031.5479, Max-Change: 0.000864 EM iteration: 60, Loglike: -34031.5422, Max-Change: 0.000809 EM iteration: 61, Loglike: -34031.5371, Max-Change: 0.000757 EM iteration: 62, Loglike: -34031.5327, Max-Change: 0.000709 EM iteration: 63, Loglike: -34031.5288, Max-Change: 0.000664 EM iteration: 64, Loglike: -34031.5255, Max-Change: 0.000621 EM iteration: 65, Loglike: -34031.5225, Max-Change: 0.000582 EM iteration: 66, Loglike: -34031.5199, Max-Change: 0.000544 EM iteration: 67, Loglike: -34031.5176, Max-Change: 0.00051 EM iteration: 68, Loglike: -34031.5156, Max-Change: 0.000477 EM iteration: 69, Loglike: -34031.5139, Max-Change: 0.000446 EM iteration: 70, Loglike: -34031.5123, Max-Change: 0.000417 EM iteration: 71, Loglike: -34031.5110, Max-Change: 0.000391 EM iteration: 72, Loglike: -34031.5098, Max-Change: 0.000366 EM iteration: 73, Loglike: -34031.5088, Max-Change: 0.000343 EM iteration: 74, Loglike: -34031.5079, Max-Change: 0.000321 EM iteration: 75, Loglike: -34031.5071, Max-Change: 3e-04 EM iteration: 76, Loglike: -34031.5064, Max-Change: 0.000281 EM iteration: 77, Loglike: -34031.5058, Max-Change: 0.000263 EM iteration: 78, Loglike: -34031.5053, Max-Change: 0.000246 EM iteration: 79, Loglike: -34031.5048, Max-Change: 0.00023 EM iteration: 80, Loglike: -34031.5044, Max-Change: 0.000215 EM iteration: 81, Loglike: -34031.5040, Max-Change: 0.000202 EM iteration: 82, Loglike: -34031.5037, Max-Change: 0.000189 EM iteration: 83, Loglike: -34031.5035, Max-Change: 0.000177 EM iteration: 84, Loglike: -34031.5032, Max-Change: 0.000165 EM iteration: 85, Loglike: -34031.5030, Max-Change: 0.000155 EM iteration: 86, Loglike: -34031.5028, Max-Change: 0.000145 EM iteration: 87, Loglike: -34031.5027, Max-Change: 0.000135 EM iteration: 88, Loglike: -34031.5025, Max-Change: 0.000127 EM iteration: 89, Loglike: -34031.5024, Max-Change: 0.000119 EM iteration: 90, Loglike: -34031.5023, Max-Change: 0.000111 EM iteration: 91, Loglike: -34031.5022, Max-Change: 0.000104 EM iteration: 92, Loglike: -34031.5021, Max-Change: 9.7e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 4.39 seconds. 
+#> Estimation is finished in 3.95 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3667,12 +3667,12 @@ summary(mod.mix2)
 #>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 92
-#>  Maximum parameter change: 9.717862e-05
+#>  Maximum parameter change: 9.717857e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 4.32
-#>  Standard error computation: 0.04
-#>  Total computation: 4.39
+#>  EM algorithm: 3.89
+#>  Standard error computation: 0.03
+#>  Total computation: 3.95
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -3817,7 +3817,7 @@ summary(mod.mix2)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39020.4583, Max-Change: 2.725763 EM iteration: 2, Loglike: -34115.0550, Max-Change: 0.511114 EM iteration: 3, Loglike: -34091.1908, Max-Change: 0.101242 EM iteration: 4, Loglike: -34081.4188, Max-Change: 0.043922 EM iteration: 5, Loglike: -34072.9699, Max-Change: 0.040887 EM iteration: 6, Loglike: -34065.3505, Max-Change: 0.037099 EM iteration: 7, Loglike: -34058.5666, Max-Change: 0.033332 EM iteration: 8, Loglike: -34052.6086, Max-Change: 0.029914 EM iteration: 9, Loglike: -34047.6502, Max-Change: 0.026719 EM iteration: 10, Loglike: -34043.8647, Max-Change: 0.024096 EM iteration: 11, Loglike: -34040.5190, Max-Change: 0.022003 EM iteration: 12, Loglike: -34037.5390, Max-Change: 0.019994 EM iteration: 13, Loglike: -34034.8823, Max-Change: 0.01815 EM iteration: 14, Loglike: -34032.5100, Max-Change: 0.016449 EM iteration: 15, Loglike: -34030.3905, Max-Change: 0.014881 EM iteration: 16, Loglike: -34028.4975, Max-Change: 0.01344 EM iteration: 17, Loglike: -34026.8081, Max-Change: 0.012115 EM iteration: 18, Loglike: -34025.3021, Max-Change: 0.010897 EM iteration: 19, Loglike: -34023.9617, Max-Change: 0.009777 EM iteration: 20, Loglike: -34022.7708, Max-Change: 0.008748 EM iteration: 21, Loglike: -34021.7144, Max-Change: 0.008054 EM iteration: 22, Loglike: -34020.7788, Max-Change: 0.007545 EM iteration: 23, Loglike: -34019.9512, Max-Change: 0.007126 EM iteration: 24, Loglike: -34019.2196, Max-Change: 0.006717 EM iteration: 25, Loglike: -34018.5732, Max-Change: 0.006322 EM iteration: 26, Loglike: -34018.0020, Max-Change: 0.006099 EM iteration: 27, Loglike: -34017.4971, Max-Change: 0.005931 EM iteration: 28, Loglike: -34017.0505, Max-Change: 0.005758 EM iteration: 29, Loglike: -34016.6550, Max-Change: 0.005581 EM iteration: 30, Loglike: -34016.3045, Max-Change: 0.005401 EM iteration: 31, Loglike: -34015.9935, Max-Change: 0.005219 EM iteration: 32, Loglike: -34015.7170, Max-Change: 0.005036 EM iteration: 33, Loglike: -34015.4709, Max-Change: 0.004852 EM iteration: 34, Loglike: -34015.2514, Max-Change: 0.004669 EM iteration: 35, Loglike: -34015.0555, Max-Change: 0.004487 EM iteration: 36, Loglike: -34014.8801, Max-Change: 0.004307 EM iteration: 37, Loglike: -34014.7230, Max-Change: 0.004129 EM iteration: 38, Loglike: -34014.5818, Max-Change: 0.003954 EM iteration: 39, Loglike: -34014.4547, Max-Change: 0.003782 EM iteration: 40, Loglike: -34014.3401, Max-Change: 0.003613 EM iteration: 41, Loglike: -34014.2364, Max-Change: 0.003447 EM iteration: 42, Loglike: -34014.1423, Max-Change: 0.003285 EM iteration: 43, Loglike: -34014.0568, Max-Change: 0.003128 EM iteration: 44, Loglike: -34013.9789, Max-Change: 0.002974 EM iteration: 45, Loglike: -34013.9075, Max-Change: 0.002825 EM iteration: 46, Loglike: -34013.8420, Max-Change: 0.002679 EM iteration: 47, Loglike: -34013.7816, Max-Change: 0.002539 EM iteration: 48, Loglike: -34013.7256, Max-Change: 0.002402 EM iteration: 49, Loglike: -34013.6735, Max-Change: 0.002271 EM iteration: 50, Loglike: -34013.6250, Max-Change: 0.002144 EM iteration: 51, Loglike: -34013.5796, Max-Change: 0.002021 EM iteration: 52, Loglike: -34013.5370, Max-Change: 0.001902 EM iteration: 53, Loglike: -34013.4968, Max-Change: 0.001788 EM iteration: 54, Loglike: -34013.4586, Max-Change: 0.001678 EM iteration: 55, Loglike: -34013.4223, Max-Change: 0.001573 EM iteration: 56, Loglike: -34013.3876, Max-Change: 0.001473 EM iteration: 57, Loglike: -34013.3542, Max-Change: 0.001377 EM iteration: 58, Loglike: -34013.3221, Max-Change: 0.001287 EM iteration: 59, Loglike: -34013.2912, Max-Change: 0.00120 EM iteration: 60, Loglike: -34013.2612, Max-Change: 0.001118 EM iteration: 61, Loglike: -34013.2322, Max-Change: 0.001039 EM iteration: 62, Loglike: -34013.2040, Max-Change: 0.000961 EM iteration: 63, Loglike: -34013.1766, Max-Change: 0.000886 EM iteration: 64, Loglike: -34013.1498, Max-Change: 0.000814 EM iteration: 65, Loglike: -34013.1237, Max-Change: 0.000745 EM iteration: 66, Loglike: -34013.0982, Max-Change: 0.00068 EM iteration: 67, Loglike: -34013.0733, Max-Change: 0.000622 EM iteration: 68, Loglike: -34013.0488, Max-Change: 0.000568 EM iteration: 69, Loglike: -34013.0248, Max-Change: 0.000542 EM iteration: 70, Loglike: -34013.0013, Max-Change: 0.000518 EM iteration: 71, Loglike: -34012.9782, Max-Change: 0.000495 EM iteration: 72, Loglike: -34012.9555, Max-Change: 0.000475 EM iteration: 73, Loglike: -34012.9334, Max-Change: 0.000449 EM iteration: 74, Loglike: -34012.9118, Max-Change: 0.000425 EM iteration: 75, Loglike: -34012.8910, Max-Change: 0.000403 EM iteration: 76, Loglike: -34012.8711, Max-Change: 0.000381 EM iteration: 77, Loglike: -34012.8521, Max-Change: 0.000361 EM iteration: 78, Loglike: -34012.8338, Max-Change: 0.000341 EM iteration: 79, Loglike: -34012.8162, Max-Change: 0.000322 EM iteration: 80, Loglike: -34012.7993, Max-Change: 0.000304 EM iteration: 81, Loglike: -34012.7831, Max-Change: 0.000288 EM iteration: 82, Loglike: -34012.7674, Max-Change: 0.000272 EM iteration: 83, Loglike: -34012.7522, Max-Change: 0.000257 EM iteration: 84, Loglike: -34012.7375, Max-Change: 0.000243 EM iteration: 85, Loglike: -34012.7232, Max-Change: 0.00023 EM iteration: 86, Loglike: -34012.7094, Max-Change: 0.000218 EM iteration: 87, Loglike: -34012.6959, Max-Change: 0.000206 EM iteration: 88, Loglike: -34012.6827, Max-Change: 0.000195 EM iteration: 89, Loglike: -34012.6698, Max-Change: 0.000184 EM iteration: 90, Loglike: -34012.6572, Max-Change: 0.000174 EM iteration: 91, Loglike: -34012.6448, Max-Change: 0.000165 EM iteration: 92, Loglike: -34012.6327, Max-Change: 0.000156 EM iteration: 93, Loglike: -34012.6207, Max-Change: 0.000148 EM iteration: 94, Loglike: -34012.6089, Max-Change: 0.000143 EM iteration: 95, Loglike: -34012.5973, Max-Change: 0.000138 EM iteration: 96, Loglike: -34012.5858, Max-Change: 0.000134 EM iteration: 97, Loglike: -34012.5745, Max-Change: 0.000129 EM iteration: 98, Loglike: -34012.5633, Max-Change: 0.000125 EM iteration: 99, Loglike: -34012.5522, Max-Change: 0.00012 EM iteration: 100, Loglike: -34012.5412, Max-Change: 0.000116 EM iteration: 101, Loglike: -34012.5303, Max-Change: 0.000112 EM iteration: 102, Loglike: -34012.5195, Max-Change: 0.000108 EM iteration: 103, Loglike: -34012.5087, Max-Change: 0.000104 EM iteration: 104, Loglike: -34012.4981, Max-Change: 1e-04 EM iteration: 105, Loglike: -34012.4876, Max-Change: 9.6e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 4.91 seconds. 
+#> Estimation is finished in 4.72 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3872,14 +3872,14 @@ summary(mod.mix2)
 #> 35  2.50 4.867261e-03
 #> 36  2.75 8.228783e-03
 #> 37  3.00 7.155109e-03
-#> 38  3.25 1.399606e-03
+#> 38  3.25 1.399605e-03
 #> 39  3.50 4.777225e-05
-#> 40  3.75 4.670538e-07
-#> 41  4.00 1.773812e-09
-#> 42  4.25 3.020607e-12
-#> 43  4.50 2.581353e-15
-#> 44  4.75 1.127164e-18
-#> 45  5.00 2.831745e-22
+#> 40  3.75 4.670539e-07
+#> 41  4.00 1.773813e-09
+#> 42  4.25 3.020611e-12
+#> 43  4.50 2.581357e-15
+#> 44  4.75 1.127168e-18
+#> 45  5.00 2.831754e-22
 #> 46  5.25 1.000156e-23
 #> 47  5.50 1.000156e-23
 #> 48  5.75 1.000156e-23
@@ -3901,7 +3901,7 @@ plot(emphist$weight ~ emphist$theta, type = "h")
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -39015.7262, Max-Change: 2.725763 EM iteration: 2, Loglike: -34173.8698, Max-Change: 0.522828 EM iteration: 3, Loglike: -34149.9420, Max-Change: 0.117157 EM iteration: 4, Loglike: -34137.5850, Max-Change: 0.059167 EM iteration: 5, Loglike: -34127.7660, Max-Change: 0.052432 EM iteration: 6, Loglike: -34119.6424, Max-Change: 0.046519 EM iteration: 7, Loglike: -34112.8425, Max-Change: 0.041219 EM iteration: 8, Loglike: -34107.1103, Max-Change: 0.036545 EM iteration: 9, Loglike: -34102.2556, Max-Change: 0.032463 EM iteration: 10, Loglike: -34098.1318, Max-Change: 0.028912 EM iteration: 11, Loglike: -34094.6229, Max-Change: 0.025825 EM iteration: 12, Loglike: -34091.6349, Max-Change: 0.023139 EM iteration: 13, Loglike: -34089.0901, Max-Change: 0.020794 EM iteration: 14, Loglike: -34086.9233, Max-Change: 0.018742 EM iteration: 15, Loglike: -34085.0791, Max-Change: 0.016937 EM iteration: 16, Loglike: -34083.5106, Max-Change: 0.015343 EM iteration: 17, Loglike: -34082.1773, Max-Change: 0.01393 EM iteration: 18, Loglike: -34081.0447, Max-Change: 0.012671 EM iteration: 19, Loglike: -34080.0833, Max-Change: 0.011546 EM iteration: 20, Loglike: -34079.2677, Max-Change: 0.010535 EM iteration: 21, Loglike: -34078.5761, Max-Change: 0.009625 EM iteration: 22, Loglike: -34077.9901, Max-Change: 0.008803 EM iteration: 23, Loglike: -34077.4936, Max-Change: 0.008058 EM iteration: 24, Loglike: -34077.0733, Max-Change: 0.007381 EM iteration: 25, Loglike: -34076.7176, Max-Change: 0.006765 EM iteration: 26, Loglike: -34076.4167, Max-Change: 0.006204 EM iteration: 27, Loglike: -34076.1622, Max-Change: 0.005692 EM iteration: 28, Loglike: -34075.9470, Max-Change: 0.005223 EM iteration: 29, Loglike: -34075.7651, Max-Change: 0.004795 EM iteration: 30, Loglike: -34075.6114, Max-Change: 0.004402 EM iteration: 31, Loglike: -34075.4816, Max-Change: 0.004042 EM iteration: 32, Loglike: -34075.3719, Max-Change: 0.003712 EM iteration: 33, Loglike: -34075.2792, Max-Change: 0.003409 EM iteration: 34, Loglike: -34075.2010, Max-Change: 0.003132 EM iteration: 35, Loglike: -34075.1350, Max-Change: 0.002876 EM iteration: 36, Loglike: -34075.0792, Max-Change: 0.002642 EM iteration: 37, Loglike: -34075.0322, Max-Change: 0.002427 EM iteration: 38, Loglike: -34074.9925, Max-Change: 0.002229 EM iteration: 39, Loglike: -34074.9590, Max-Change: 0.002048 EM iteration: 40, Loglike: -34074.9307, Max-Change: 0.001881 EM iteration: 41, Loglike: -34074.9068, Max-Change: 0.001728 EM iteration: 42, Loglike: -34074.8867, Max-Change: 0.001587 EM iteration: 43, Loglike: -34074.8697, Max-Change: 0.001458 EM iteration: 44, Loglike: -34074.8554, Max-Change: 0.001339 EM iteration: 45, Loglike: -34074.8434, Max-Change: 0.00123 EM iteration: 46, Loglike: -34074.8332, Max-Change: 0.001129 EM iteration: 47, Loglike: -34074.8246, Max-Change: 0.001037 EM iteration: 48, Loglike: -34074.8173, Max-Change: 0.000953 EM iteration: 49, Loglike: -34074.8112, Max-Change: 0.000875 EM iteration: 50, Loglike: -34074.8061, Max-Change: 0.000803 EM iteration: 51, Loglike: -34074.8017, Max-Change: 0.000738 EM iteration: 52, Loglike: -34074.7981, Max-Change: 0.000678 EM iteration: 53, Loglike: -34074.7950, Max-Change: 0.000622 EM iteration: 54, Loglike: -34074.7924, Max-Change: 0.000571 EM iteration: 55, Loglike: -34074.7902, Max-Change: 0.000525 EM iteration: 56, Loglike: -34074.7884, Max-Change: 0.000482 EM iteration: 57, Loglike: -34074.7868, Max-Change: 0.000442 EM iteration: 58, Loglike: -34074.7855, Max-Change: 0.000406 EM iteration: 59, Loglike: -34074.7844, Max-Change: 0.000373 EM iteration: 60, Loglike: -34074.7834, Max-Change: 0.000342 EM iteration: 61, Loglike: -34074.7827, Max-Change: 0.000314 EM iteration: 62, Loglike: -34074.7820, Max-Change: 0.000289 EM iteration: 63, Loglike: -34074.7814, Max-Change: 0.000265 EM iteration: 64, Loglike: -34074.7810, Max-Change: 0.000243 EM iteration: 65, Loglike: -34074.7806, Max-Change: 0.000223 EM iteration: 66, Loglike: -34074.7802, Max-Change: 0.000205 EM iteration: 67, Loglike: -34074.7799, Max-Change: 0.000188 EM iteration: 68, Loglike: -34074.7797, Max-Change: 0.000173 EM iteration: 69, Loglike: -34074.7795, Max-Change: 0.000159 EM iteration: 70, Loglike: -34074.7793, Max-Change: 0.000146 EM iteration: 71, Loglike: -34074.7792, Max-Change: 0.000134 EM iteration: 72, Loglike: -34074.7791, Max-Change: 0.000123 EM iteration: 73, Loglike: -34074.7790, Max-Change: 0.000113 EM iteration: 74, Loglike: -34074.7789, Max-Change: 0.000104 EM iteration: 75, Loglike: -34074.7788, Max-Change: 9.5e-05 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 3.6 seconds. 
+#> Estimation is finished in 3.07 seconds. 
 #> 
 #> Call:
 #> est_irt(data = sim.dat1, D = 1, model = c(rep("2PLM", 38), rep("GPCM", 
@@ -3941,12 +3941,12 @@ summary(mod.mix4)
 #>    - Latent distribution weights (empirical histogram): 0
 #>  Number of fixed items: 0
 #>  Number of E-step cycles completed: 75
-#>  Maximum parameter change: 9.509105e-05
+#>  Maximum parameter change: 9.509103e-05
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 3.51
+#>  EM algorithm: 2.98
 #>  Standard error computation: 0.04
-#>  Total computation: 3.6
+#>  Total computation: 3.07
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4110,7 +4110,7 @@ fix.loc <- c(1:5, 53:55)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6799.7353, Max-Change: 3.222649 EM iteration: 2, Loglike: -31337.6995, Max-Change: 0.867069 EM iteration: 3, Loglike: -31073.9672, Max-Change: 0.237885 EM iteration: 4, Loglike: -31063.5310, Max-Change: 0.099662 EM iteration: 5, Loglike: -31059.2570, Max-Change: 0.07400 EM iteration: 6, Loglike: -31056.5795, Max-Change: 0.054547 EM iteration: 7, Loglike: -31054.7969, Max-Change: 0.040231 EM iteration: 8, Loglike: -31053.5770, Max-Change: 0.02986 EM iteration: 9, Loglike: -31052.7248, Max-Change: 0.022385 EM iteration: 10, Loglike: -31052.1188, Max-Change: 0.016975 EM iteration: 11, Loglike: -31051.6809, Max-Change: 0.013019 EM iteration: 12, Loglike: -31051.3592, Max-Change: 0.010476 EM iteration: 13, Loglike: -31051.1191, Max-Change: 0.008984 EM iteration: 14, Loglike: -31050.9366, Max-Change: 0.008296 EM iteration: 15, Loglike: -31050.7953, Max-Change: 0.007586 EM iteration: 16, Loglike: -31050.6836, Max-Change: 0.00689 EM iteration: 17, Loglike: -31050.5935, Max-Change: 0.006231 EM iteration: 18, Loglike: -31050.5191, Max-Change: 0.005619 EM iteration: 19, Loglike: -31050.4563, Max-Change: 0.005059 EM iteration: 20, Loglike: -31050.4021, Max-Change: 0.004551 EM iteration: 21, Loglike: -31050.3545, Max-Change: 0.004095 EM iteration: 22, Loglike: -31050.3118, Max-Change: 0.003686 EM iteration: 23, Loglike: -31050.2729, Max-Change: 0.00332 EM iteration: 24, Loglike: -31050.2371, Max-Change: 0.002993 EM iteration: 25, Loglike: -31050.2037, Max-Change: 0.002701 EM iteration: 26, Loglike: -31050.1723, Max-Change: 0.00244 EM iteration: 27, Loglike: -31050.1425, Max-Change: 0.002207 EM iteration: 28, Loglike: -31050.1142, Max-Change: 0.001997 EM iteration: 29, Loglike: -31050.0870, Max-Change: 0.00181 EM iteration: 30, Loglike: -31050.0609, Max-Change: 0.001641 EM iteration: 31, Loglike: -31050.0358, Max-Change: 0.001488 EM iteration: 32, Loglike: -31050.0115, Max-Change: 0.001351 EM iteration: 33, Loglike: -31049.9881, Max-Change: 0.001227 EM iteration: 34, Loglike: -31049.9654, Max-Change: 0.001115 EM iteration: 35, Loglike: -31049.9433, Max-Change: 0.001013 EM iteration: 36, Loglike: -31049.9220, Max-Change: 0.00092 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.76 seconds. 
+#> Estimation is finished in 2.03 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4214,9 +4214,9 @@ summary(mod.fix1)
 #>  Maximum parameter change: 0.000920385
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.66
+#>  EM algorithm: 1.94
 #>  Standard error computation: 0.03
-#>  Total computation: 2.76
+#>  Total computation: 2.03
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4360,7 +4360,7 @@ fix.id <- c(x$id[1:5], x$id[53:55])
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6799.7353, Max-Change: 3.222649 EM iteration: 2, Loglike: -31337.6995, Max-Change: 0.867069 EM iteration: 3, Loglike: -31073.9672, Max-Change: 0.237885 EM iteration: 4, Loglike: -31063.5310, Max-Change: 0.099662 EM iteration: 5, Loglike: -31059.2570, Max-Change: 0.07400 EM iteration: 6, Loglike: -31056.5795, Max-Change: 0.054547 EM iteration: 7, Loglike: -31054.7969, Max-Change: 0.040231 EM iteration: 8, Loglike: -31053.5770, Max-Change: 0.02986 EM iteration: 9, Loglike: -31052.7248, Max-Change: 0.022385 EM iteration: 10, Loglike: -31052.1188, Max-Change: 0.016975 EM iteration: 11, Loglike: -31051.6809, Max-Change: 0.013019 EM iteration: 12, Loglike: -31051.3592, Max-Change: 0.010476 EM iteration: 13, Loglike: -31051.1191, Max-Change: 0.008984 EM iteration: 14, Loglike: -31050.9366, Max-Change: 0.008296 EM iteration: 15, Loglike: -31050.7953, Max-Change: 0.007586 EM iteration: 16, Loglike: -31050.6836, Max-Change: 0.00689 EM iteration: 17, Loglike: -31050.5935, Max-Change: 0.006231 EM iteration: 18, Loglike: -31050.5191, Max-Change: 0.005619 EM iteration: 19, Loglike: -31050.4563, Max-Change: 0.005059 EM iteration: 20, Loglike: -31050.4021, Max-Change: 0.004551 EM iteration: 21, Loglike: -31050.3545, Max-Change: 0.004095 EM iteration: 22, Loglike: -31050.3118, Max-Change: 0.003686 EM iteration: 23, Loglike: -31050.2729, Max-Change: 0.00332 EM iteration: 24, Loglike: -31050.2371, Max-Change: 0.002993 EM iteration: 25, Loglike: -31050.2037, Max-Change: 0.002701 EM iteration: 26, Loglike: -31050.1723, Max-Change: 0.00244 EM iteration: 27, Loglike: -31050.1425, Max-Change: 0.002207 EM iteration: 28, Loglike: -31050.1142, Max-Change: 0.001997 EM iteration: 29, Loglike: -31050.0870, Max-Change: 0.00181 EM iteration: 30, Loglike: -31050.0609, Max-Change: 0.001641 EM iteration: 31, Loglike: -31050.0358, Max-Change: 0.001488 EM iteration: 32, Loglike: -31050.0115, Max-Change: 0.001351 EM iteration: 33, Loglike: -31049.9881, Max-Change: 0.001227 EM iteration: 34, Loglike: -31049.9654, Max-Change: 0.001115 EM iteration: 35, Loglike: -31049.9433, Max-Change: 0.001013 EM iteration: 36, Loglike: -31049.9220, Max-Change: 0.00092 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.38 seconds. 
+#> Estimation is finished in 2.03 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4403,9 +4403,9 @@ summary(mod.fix1)
 #>  Maximum parameter change: 0.000920385
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 2.28
-#>  Standard error computation: 0.03
-#>  Total computation: 2.38
+#>  EM algorithm: 1.93
+#>  Standard error computation: 0.04
+#>  Total computation: 2.03
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4552,7 +4552,7 @@ fix.loc <- c(1:5, 53:55)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -6800.6017, Max-Change: 3.222649 EM iteration: 2, Loglike: -31330.2705, Max-Change: 0.799829 EM iteration: 3, Loglike: -31073.8931, Max-Change: 0.197432 EM iteration: 4, Loglike: -31063.4621, Max-Change: 0.083067 EM iteration: 5, Loglike: -31059.7618, Max-Change: 0.048836 EM iteration: 6, Loglike: -31057.5133, Max-Change: 0.033394 EM iteration: 7, Loglike: -31056.0049, Max-Change: 0.026974 EM iteration: 8, Loglike: -31054.9624, Max-Change: 0.022481 EM iteration: 9, Loglike: -31054.2321, Max-Change: 0.018797 EM iteration: 10, Loglike: -31053.7165, Max-Change: 0.015766 EM iteration: 11, Loglike: -31053.3505, Max-Change: 0.013259 EM iteration: 12, Loglike: -31053.0897, Max-Change: 0.011177 EM iteration: 13, Loglike: -31052.9032, Max-Change: 0.009441 EM iteration: 14, Loglike: -31052.7695, Max-Change: 0.007988 EM iteration: 15, Loglike: -31052.6735, Max-Change: 0.006769 EM iteration: 16, Loglike: -31052.6045, Max-Change: 0.005743 EM iteration: 17, Loglike: -31052.5547, Max-Change: 0.004878 EM iteration: 18, Loglike: -31052.5187, Max-Change: 0.004148 EM iteration: 19, Loglike: -31052.4928, Max-Change: 0.003556 EM iteration: 20, Loglike: -31052.4740, Max-Change: 0.003059 EM iteration: 21, Loglike: -31052.4604, Max-Change: 0.002633 EM iteration: 22, Loglike: -31052.4506, Max-Change: 0.002267 EM iteration: 23, Loglike: -31052.4435, Max-Change: 0.001953 EM iteration: 24, Loglike: -31052.4383, Max-Change: 0.001683 EM iteration: 25, Loglike: -31052.4346, Max-Change: 0.001451 EM iteration: 26, Loglike: -31052.4319, Max-Change: 0.001252 EM iteration: 27, Loglike: -31052.4300, Max-Change: 0.00108 EM iteration: 28, Loglike: -31052.4286, Max-Change: 0.000933 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 2.06 seconds. 
+#> Estimation is finished in 1.7 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4645,7 +4645,7 @@ fix.loc <- c(1:5)
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -2966.5364, Max-Change: 4.112978 
 #> Computing item parameter var-covariance matrix... 
-#> Estimation is finished in 0.4 seconds. 
+#> Estimation is finished in 0.34 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, use.gprior = TRUE, gprior = list(dist = "beta", 
@@ -4749,9 +4749,9 @@ summary(mod.fix3)
 #>  Maximum parameter change: 4.112978
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.3
+#>  EM algorithm: 0.24
 #>  Standard error computation: 0.04
-#>  Total computation: 0.4
+#>  Total computation: 0.34
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -4894,7 +4894,7 @@ fix.loc <- c(1:55)
 #> Parsing input... 
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -31130.3586, Max-Change: 0.528058 EM iteration: 2, Loglike: -31125.5269, Max-Change: 0.14546 EM iteration: 3, Loglike: -31124.6717, Max-Change: 0.040942 EM iteration: 4, Loglike: -31124.3171, Max-Change: 0.015804 EM iteration: 5, Loglike: -31124.1190, Max-Change: 0.008253 EM iteration: 6, Loglike: -31123.9854, Max-Change: 0.00518 EM iteration: 7, Loglike: -31123.8815, Max-Change: 0.00365 EM iteration: 8, Loglike: -31123.7927, Max-Change: 0.002811 EM iteration: 9, Loglike: -31123.7123, Max-Change: 0.002331 EM iteration: 10, Loglike: -31123.6373, Max-Change: 0.002051 EM iteration: 11, Loglike: -31123.5659, Max-Change: 0.001887 EM iteration: 12, Loglike: -31123.4976, Max-Change: 0.001791 EM iteration: 13, Loglike: -31123.4317, Max-Change: 0.001732 EM iteration: 14, Loglike: -31123.3682, Max-Change: 0.001695 EM iteration: 15, Loglike: -31123.3067, Max-Change: 0.001669 EM iteration: 16, Loglike: -31123.2472, Max-Change: 0.001648 EM iteration: 17, Loglike: -31123.1897, Max-Change: 0.001628 EM iteration: 18, Loglike: -31123.1340, Max-Change: 0.001606 EM iteration: 19, Loglike: -31123.0800, Max-Change: 0.001583 EM iteration: 20, Loglike: -31123.0278, Max-Change: 0.001558 EM iteration: 21, Loglike: -31122.9773, Max-Change: 0.001531 EM iteration: 22, Loglike: -31122.9284, Max-Change: 0.001503 EM iteration: 23, Loglike: -31122.8810, Max-Change: 0.001474 EM iteration: 24, Loglike: -31122.8352, Max-Change: 0.001444 EM iteration: 25, Loglike: -31122.7908, Max-Change: 0.001414 EM iteration: 26, Loglike: -31122.7478, Max-Change: 0.001383 EM iteration: 27, Loglike: -31122.7061, Max-Change: 0.001353 EM iteration: 28, Loglike: -31122.6658, Max-Change: 0.001323 EM iteration: 29, Loglike: -31122.6267, Max-Change: 0.001294 EM iteration: 30, Loglike: -31122.5889, Max-Change: 0.001265 EM iteration: 31, Loglike: -31122.5522, Max-Change: 0.001237 EM iteration: 32, Loglike: -31122.5167, Max-Change: 0.001209 EM iteration: 33, Loglike: -31122.4822, Max-Change: 0.001183 EM iteration: 34, Loglike: -31122.4489, Max-Change: 0.001157 EM iteration: 35, Loglike: -31122.4165, Max-Change: 0.001131 EM iteration: 36, Loglike: -31122.3851, Max-Change: 0.001107 EM iteration: 37, Loglike: -31122.3547, Max-Change: 0.001083 EM iteration: 38, Loglike: -31122.3252, Max-Change: 0.00106 EM iteration: 39, Loglike: -31122.2966, Max-Change: 0.001037 EM iteration: 40, Loglike: -31122.2688, Max-Change: 0.001015 EM iteration: 41, Loglike: -31122.2419, Max-Change: 0.000993 
-#> Estimation is finished in 0.36 seconds. 
+#> Estimation is finished in 0.35 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, EmpHist = TRUE, Etol = 0.001, 
@@ -4998,7 +4998,7 @@ summary(mod.fix4)
 #> Processing time (in seconds) 
 #>  EM algorithm: 0.31
 #>  Standard error computation: 
-#>  Total computation: 0.36
+#>  Total computation: 0.35
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
@@ -5140,7 +5140,7 @@ fix.id <- x$id
 #> Parsing input... 
 #> Estimating item parameters... 
 #>  EM iteration: 1, Loglike: -31130.3586, Max-Change: 0.528058 EM iteration: 2, Loglike: -31125.5269, Max-Change: 0.14546 EM iteration: 3, Loglike: -31124.6717, Max-Change: 0.040942 EM iteration: 4, Loglike: -31124.3171, Max-Change: 0.015804 EM iteration: 5, Loglike: -31124.1190, Max-Change: 0.008253 EM iteration: 6, Loglike: -31123.9854, Max-Change: 0.00518 EM iteration: 7, Loglike: -31123.8815, Max-Change: 0.00365 EM iteration: 8, Loglike: -31123.7927, Max-Change: 0.002811 EM iteration: 9, Loglike: -31123.7123, Max-Change: 0.002331 EM iteration: 10, Loglike: -31123.6373, Max-Change: 0.002051 EM iteration: 11, Loglike: -31123.5659, Max-Change: 0.001887 EM iteration: 12, Loglike: -31123.4976, Max-Change: 0.001791 EM iteration: 13, Loglike: -31123.4317, Max-Change: 0.001732 EM iteration: 14, Loglike: -31123.3682, Max-Change: 0.001695 EM iteration: 15, Loglike: -31123.3067, Max-Change: 0.001669 EM iteration: 16, Loglike: -31123.2472, Max-Change: 0.001648 EM iteration: 17, Loglike: -31123.1897, Max-Change: 0.001628 EM iteration: 18, Loglike: -31123.1340, Max-Change: 0.001606 EM iteration: 19, Loglike: -31123.0800, Max-Change: 0.001583 EM iteration: 20, Loglike: -31123.0278, Max-Change: 0.001558 EM iteration: 21, Loglike: -31122.9773, Max-Change: 0.001531 EM iteration: 22, Loglike: -31122.9284, Max-Change: 0.001503 EM iteration: 23, Loglike: -31122.8810, Max-Change: 0.001474 EM iteration: 24, Loglike: -31122.8352, Max-Change: 0.001444 EM iteration: 25, Loglike: -31122.7908, Max-Change: 0.001414 EM iteration: 26, Loglike: -31122.7478, Max-Change: 0.001383 EM iteration: 27, Loglike: -31122.7061, Max-Change: 0.001353 EM iteration: 28, Loglike: -31122.6658, Max-Change: 0.001323 EM iteration: 29, Loglike: -31122.6267, Max-Change: 0.001294 EM iteration: 30, Loglike: -31122.5889, Max-Change: 0.001265 EM iteration: 31, Loglike: -31122.5522, Max-Change: 0.001237 EM iteration: 32, Loglike: -31122.5167, Max-Change: 0.001209 EM iteration: 33, Loglike: -31122.4822, Max-Change: 0.001183 EM iteration: 34, Loglike: -31122.4489, Max-Change: 0.001157 EM iteration: 35, Loglike: -31122.4165, Max-Change: 0.001131 EM iteration: 36, Loglike: -31122.3851, Max-Change: 0.001107 EM iteration: 37, Loglike: -31122.3547, Max-Change: 0.001083 EM iteration: 38, Loglike: -31122.3252, Max-Change: 0.00106 EM iteration: 39, Loglike: -31122.2966, Max-Change: 0.001037 EM iteration: 40, Loglike: -31122.2688, Max-Change: 0.001015 EM iteration: 41, Loglike: -31122.2419, Max-Change: 0.000993 
-#> Estimation is finished in 0.35 seconds. 
+#> Estimation is finished in 0.64 seconds. 
 #> 
 #> Call:
 #> est_irt(x = x, data = sim.dat2, D = 1, EmpHist = TRUE, Etol = 0.001, 
@@ -5181,9 +5181,9 @@ summary(mod.fix4)
 #>  Maximum parameter change: 0.000993239
 #> 
 #> Processing time (in seconds) 
-#>  EM algorithm: 0.3
+#>  EM algorithm: 0.6
 #>  Standard error computation: 
-#>  Total computation: 0.35
+#>  Total computation: 0.64
 #> 
 #> Convergence and Stability of Solution 
 #>  First-order test: Convergence criteria are satisfied.
