@@ -404,7 +404,9 @@ print(ps_d2)
 # Compute the pseudo-count D2 statistics with purification enabled
 ps_d2_puri <- pcd2(x = x, data = data, crit.val = 0.002, purify = TRUE)
 #> Purification started... 
-#>  Iteration: 1 Iteration: 2 
+#> 
+ Iteration: 1
+ Iteration: 2 
 #> Purification is finished. 
 print(ps_d2_puri)
 #> $no_purify
@@ -589,7 +591,26 @@ pcd2_result <- pcd2(
 )
 #> Warning: Item(s) 17, 19, 22, 24, 27, 30, 32, 34, 44, 47, 50, 54, 56, 65, 73, 76, 77, 82, 86, 93, 102, 105, 108, 111, 112, 120, 122, 131, 137, 140, 144, 155, 156, 164, 165, 174, 176, 182, 193, 196, 201, 206, 219, 222, 223, 225, 232, 241, 255, 265, 269, 271, 278, 279, 284, 286, 289, 291, 292, 293, 295, 305, 313, 315, 316, 339, 342, 343, 344, 345, 352, 353, 359 have no response data.
 #> Purification started... 
-#>  Iteration: 1 Iteration: 2 Iteration: 3 Iteration: 4 Iteration: 5 Iteration: 6 Iteration: 7 Iteration: 8 Iteration: 9 Iteration: 10 Iteration: 11 Iteration: 12 Iteration: 13 Iteration: 14 Iteration: 15 Iteration: 16 Iteration: 17 Iteration: 18 Iteration: 19 
+#> 
+ Iteration: 1
+ Iteration: 2
+ Iteration: 3
+ Iteration: 4
+ Iteration: 5
+ Iteration: 6
+ Iteration: 7
+ Iteration: 8
+ Iteration: 9
+ Iteration: 10
+ Iteration: 11
+ Iteration: 12
+ Iteration: 13
+ Iteration: 14
+ Iteration: 15
+ Iteration: 16
+ Iteration: 17
+ Iteration: 18
+ Iteration: 19 
 #> Purification is finished. 
 
 ## -- Step 5. Compare detected items to ground truth --------------------

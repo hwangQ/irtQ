@@ -95,7 +95,7 @@ scoring selected-response item data.
 |----------|-------------|
 | Package: | irtQ        |
 | Version: | 1.4.0       |
-| Date:    | 2026-10-16  |
+| Date:    | 2026-11-14  |
 | Depends: | R (\>= 4.5) |
 | License: | GPL (\>= 2) |
 
